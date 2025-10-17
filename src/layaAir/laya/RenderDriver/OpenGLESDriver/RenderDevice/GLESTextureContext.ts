@@ -29,7 +29,12 @@ export class GLESTextureContext implements ITextureContext {
             throw "native cant draw HTMLCanvasElement";
             return;
         }
-        this._native.setTextureImageData(texture._nativeObj, (source as any)._nativeObj.conchImgId, premultiplyAlpha, invertY);
+        if ((source as any).conchImgId !== undefined) {//VideoDecoder
+            this._native.setTextureImageData(texture._nativeObj, (source as any).conchImgId, premultiplyAlpha, invertY);
+        }
+        else {
+             this._native.setTextureImageData(texture._nativeObj, (source as any)._nativeObj.conchImgId, premultiplyAlpha, invertY);
+        }
     }
 
     setTexturePixelsData(texture: GLESInternalTex, source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean) {
@@ -158,6 +163,8 @@ export class GLESTextureContext implements ITextureContext {
     }
 
     updateVideoTexture(texture: GLESInternalTex, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): void {
-        this._native.updateVideoTexture(texture._nativeObj, (video as any)._nativeObj.conchImgId, premultiplyAlpha, invertY);
+        if (texture && video) {
+            this._native.updateVideoTexture(texture._nativeObj, (video as any)._nativeObj.conchImgId, premultiplyAlpha, invertY);
+        }
     }
 }

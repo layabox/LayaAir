@@ -130,6 +130,60 @@ export class RTRenderState extends RenderState {
         return _tempVector3;
     }
 
+    /** 模板写入掩码 */
+
+    public get stencilWriteMask(): number {
+        return this._nativeObj.stencilWriteMask;
+    }
+    public set stencilWriteMask(value: number) {
+        this._nativeObj.stencilWriteMask = value;
+    }
+
+    /** 模板读取掩码 */
+    public get stencilReadMask(): number {
+        return this._nativeObj.stencilReadMask;
+    }
+    public set stencilReadMask(value: number) {
+        this._nativeObj.stencilReadMask = value;
+    }
+
+    /** 是否开启深度偏移 */
+
+    public get depthBias(): boolean {
+        return this._nativeObj.depthBias;
+    }
+    public set depthBias(value: boolean) {
+        this._nativeObj.depthBias = value;
+    }
+
+    /** 深度偏移常量 */
+
+    public get depthBiasConstant(): number {
+        return this._nativeObj.depthBiasConstant;
+    }
+    public set depthBiasConstant(value: number) {
+        this._nativeObj.depthBiasConstant = value;
+    }
+
+    /** 深度偏移斜率缩放 */
+
+    public get depthBiasSlopeScale(): number {
+        return this._nativeObj.depthBiasSlopeScale;
+    }
+    public set depthBiasSlopeScale(value: number) {
+        this._nativeObj.depthBiasSlopeScale = value;
+    }
+
+    /** 深度偏移限制值 */
+
+    public get depthBiasClamp(): number {
+        return this._nativeObj.depthBiasClamp;
+    }
+    public set depthBiasClamp(value: number) {
+        this._nativeObj.depthBiasClamp = value;
+    }
+
+
     setNull(): void {
         this._nativeObj.setNull();
     }

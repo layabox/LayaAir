@@ -784,6 +784,26 @@ export class Scene3D extends Sprite {
         });
     }
 
+    /** @internal */
+    _setStructParent(value: Sprite): void {
+        let struct = this._struct;
+
+        if (struct.parent) {
+            struct.parent.removeChild(struct);
+            struct.parent = null;
+        }
+
+        if (value && value._struct) {
+            if (value.is3D) {//兼容代码
+                value._struct.addChild(struct, value._struct.children.length);
+            } else {
+                //奇怪的类型检测
+                let index = value._children.indexOf(this as unknown as Sprite);
+                value._struct.addChild(struct, index);
+            }
+        }
+    }
+
     /**
      * @internal
      */
@@ -794,13 +814,14 @@ export class Scene3D extends Sprite {
         //Physics
         if (LayaEnv.isPlaying) {
             this._physicsStepTime += delta;
-            if (this._physicsStepTime > Scene3D.physicsSettings.fixedTimeStep) {
-
+            let steps = Math.floor(this._physicsStepTime / Scene3D.physicsSettings.fixedTimeStep);
+            steps = Math.min(steps, Scene3D.physicsSettings.maxSubSteps);
+            if (steps > 0) {
                 let physicsManager = this._physicsManager;
                 if (ILaya.Laya3D.enablePhysics && Stat.enablePhysicsUpdate) {
-                    physicsManager.update(this._physicsStepTime);
+                    physicsManager.update(steps * Scene3D.physicsSettings.fixedTimeStep);
                 }
-                this._physicsStepTime = 0;
+                this._physicsStepTime -= steps * Scene3D.physicsSettings.fixedTimeStep;
             }
         }
 
@@ -1134,7 +1155,7 @@ export class Scene3D extends Sprite {
     }
 
     _setBelongScene(scene: Node): void {
-        
+
     }
     /**
      * @en Destroys the scene.
@@ -1146,7 +1167,6 @@ export class Scene3D extends Sprite {
         if (this._destroyed)
             return;
         super.destroy(destroyChild);
-        this._nativeObj = null;
         this._skyRenderer.destroy();
         this._skyRenderer = null;
         this._directionLights = null;
@@ -1214,7 +1234,7 @@ export class Scene3D extends Sprite {
                 camera.render(this);
 
                 if (!camera._offScreenRenderTexture) {
-                    this.blitMainCanvans(camera._internalRenderTexture, camera.normalizedViewport, camera);
+                    this.blitMainCanvas(camera._internalRenderTexture, camera.normalizedViewport, camera);
                 }
 
                 // if (!camera._cacheDepth) {
@@ -1235,7 +1255,7 @@ export class Scene3D extends Sprite {
      * @param camera
      * @returns
      */
-    blitMainCanvans(source: BaseTexture, normalizeViewPort: Viewport, camera: Camera) {
+    blitMainCanvas(source: BaseTexture, normalizeViewPort: Viewport, camera: Camera) {
         if (!source)
             return;
         Scene3D.mainCavansViewPort.x = RenderContext3D.clientWidth * normalizeViewPort.x | 0;
@@ -1300,7 +1320,7 @@ export class Scene3D extends Sprite {
                 maps[i].lightmapColor = lightMap;
             }
         } else {
-            throw new Error("Scene3D: value value can't be null.");
+            throw new Error("lightmap can't be null.");
         }
     }
 

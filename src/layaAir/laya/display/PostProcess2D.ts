@@ -1,14 +1,14 @@
-import { SubPassFlag } from "../Const";
 import { EventDispatcher } from "../events/EventDispatcher";
 import { LayaGL } from "../layagl/LayaGL";
 import { Vector2 } from "../maths/Vector2";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Effect2DShaderInit } from "./effect2d/shader/Effect2DShaderInit";
 import { PostProcess2DEffect } from "./PostProcess2DEffect";
 import { CommandBuffer2D } from "./Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { Sprite } from "./Sprite";
-import { SpriteConst } from "./SpriteConst";
+import { RepaintFlag, SpriteConst, SubPassFlag } from "./SpriteConst";
 
 /**
  * @en Post-process effects for 2D rendering.
@@ -20,6 +20,10 @@ export class PostProcess2D extends EventDispatcher {
    private _enabled: boolean = true;
    /**@internal */
    _context: PostProcessRenderContext2D;
+
+   /**@internal */
+   _hasCleanRT: boolean = false;
+
 
    /**@internal */
    static init() {
@@ -42,7 +46,7 @@ export class PostProcess2D extends EventDispatcher {
 
    constructor() {
       super();
-      this._context = { deferredReleaseTextures: [], OriOffset: new Vector2() } as PostProcessRenderContext2D;
+      this._context = new PostProcessRenderContext2D();
       this._context.compositeShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
       this._context.command = new CommandBuffer2D();
    }
@@ -61,11 +65,19 @@ export class PostProcess2D extends EventDispatcher {
       }
       this._owner = value;
       if (this._owner) {
-         if (this._effects.length > 0)
+         if (this._effects.length > 0 && this._enabled)
             this._owner._renderType |= SpriteConst.POSTPROCESS;
       }
    }
 
+   /** @internal */
+   _checkEnabled() {
+      if (this._effects.length === 0 || !this._enabled) return false;
+      for (let i = 0; i < this._effects.length; i++) {
+         if (this._effects[i].active) return true;
+      }
+      return false;
+   }
    /**
     * @en Refresh render
     * @zh 刷新渲染
@@ -73,12 +85,15 @@ export class PostProcess2D extends EventDispatcher {
    _onChangeRender() {
       // this.event(PostProcess2D.POSTRENDERCHANGE);
       if (this._owner) {
-         if (this._effects.length === 0 || !this._enabled)
-            this._owner._renderType &= ~SpriteConst.POSTPROCESS;
-         else
+         if (this._checkEnabled()) {
             this._owner._renderType |= SpriteConst.POSTPROCESS;
+         }
+         else {
+            this._owner._renderType &= ~SpriteConst.POSTPROCESS;
+         }
          this._owner.setSubpassFlag(SubPassFlag.PostProcess);
-         this._owner.repaint();
+         
+         this._owner.repaint(RepaintFlag.Graphics);
       }
    }
 
@@ -127,6 +142,11 @@ export class PostProcess2D extends EventDispatcher {
     * @param effect 要添加的后期处理效果。
     */
    addEffect<T extends PostProcess2DEffect>(effect: T): T | null {
+      if (effect.destroyed) {
+         console.error("the target effect is destroyed", effect);
+         return null;
+      }
+
       if (effect.singleton && this.getEffect((effect as any).constructor)) {
          console.error("the target effect is a singleton", effect);
          return null;
@@ -145,11 +165,11 @@ export class PostProcess2D extends EventDispatcher {
     * @param effect 要移除的后期处理效果。
     */
    removeEffect(effect: PostProcess2DEffect) {
-      effect.destroy();
 
       let index = this._effects.indexOf(effect);
       if (index !== -1) {
          this._effects.splice(index, 1);
+         effect.destroy();
          this._onChangeRender();
       }
    }
@@ -164,11 +184,12 @@ export class PostProcess2D extends EventDispatcher {
       this._context.destination = this._context.source;
       for (var i: number = 0, n: number = this._effects.length; i < n; i++) {
          let effect = this._effects[i];
-         if (effect.active) {
+         if (effect.active && !effect.destroyed) {
             effect.render(this._context);
             this._context.indirectTarget = this._context.destination;
          }
       }
+      this._hasCleanRT = false;
    }
 
    /**
@@ -192,6 +213,45 @@ export class PostProcess2D extends EventDispatcher {
     * @en Destroy the post-processing instance.
     * @zh 销毁后期处理实例。
     */
+   /**
+    * @en Recover all RTs used in post-processing effects.
+    * @zh 回收后处理效果中使用的所有RT。
+    */
+   recoverAllRTS(): void {
+      
+      this._context.destination = null;
+      // 回收所有效果中的RT
+      for (let effect of this._effects) {
+         effect.clearRT(this._context);
+      }
+      this._hasCleanRT = true;
+      // 回收deferredReleaseTextures中的RT
+      // for (let rt of this._context.deferredReleaseTextures) {
+      //    if (rt && !rt.destroyed) {
+      //       RenderTexture2D.recoverToPool(rt);
+      //    }
+      // }
+      // this._context.deferredReleaseTextures.length = 0;
+   }
+
+   apply() {
+      // console.log("apply", this._hasCleanRT);
+      if (this._hasCleanRT) {//恢复
+         this.clearCMD();
+         this._render();
+         this._hasCleanRT = false;
+      }
+      
+      this._context._apply();
+
+      //保留最后一个后处理的RT
+      for (let i = 0 , n = this._effects.length; i < n; i++) {
+         let effect = this._effects[i];
+         effect.clearRT(this._context);
+      }
+      this._hasCleanRT = true;
+   }
+
    destroy(): void {
       this.owner = null;
       this._context.compositeShaderData.destroy();
@@ -202,7 +262,7 @@ export class PostProcess2D extends EventDispatcher {
 }
 
 /** @ignore @blueprintIgnore */
-export interface PostProcessRenderContext2D {
+export class PostProcessRenderContext2D {
    /**
     * @en The original RenderTexture that is rendered to initially. Do not modify this RT.
     * @zh 原始渲染 RenderTexture (RT)，禁止改变此 RT。
@@ -232,9 +292,50 @@ export interface PostProcessRenderContext2D {
     * @en Temporary texture array. You can put created textures here or select an RT to use from here to save memory.
     * @zh 临时纹理数组。可以将创建的纹理放入此数组，也可以从这里选取要用的 RT 来节省显存。
     */
-   deferredReleaseTextures: RenderTexture2D[];
+   deferredReleaseTextures: RenderTexture2D[] = [];
    /**
     * 顶点偏移值，在后处理中扩张rt的时候会累加
     */
-   OriOffset: Vector2;
+   oriOffset: Vector2 = new Vector2();
+
+   /**
+     * @en Selects an RT from recycled RTs to save memory.
+     * @param width The width of the RenderTexture.
+     * @param height The height of the RenderTexture.
+     * @param colorFormat The color format of the RenderTexture.
+     * @param depthFormat The depth format of the RenderTexture.
+     * @returns The selected RenderTexture or null if no match is found.
+     * @zh 从回收的 RT 中选择一个 RT 用来节省内存。
+     * @param width 纹理的宽度。	
+     * @param height 纹理的高度。
+     * @param colorFormat 纹理的颜色格式。
+     * @param depthFormat 纹理的深度格式。
+     * @returns 选择到的 RenderTexture，如果没有匹配的，则返回 null。
+     */
+   getRenderTexture(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat) {
+      // 使用RenderTexture2D的静态方法从对象池创建纹理
+      let rt = RenderTexture2D.createFromPool(width, height, colorFormat, depthFormat);
+      // 记录创建的临时RT，用于自动回收
+      // this.deferredReleaseTextures.push(rt);
+      return rt;
+   }
+   
+   /**
+    * @internal
+    * @en Apply post-processing effects and recycle unused textures.
+    * @zh 应用后处理效果并回收纹理。
+    */
+   _apply() {
+      this.command.apply(true);
+      
+      // 回收所有非destination的纹理到对象池 不回收最后一张保证 输出 rt 不错
+      // for (let i = this.deferredReleaseTextures.length - 1; i >= 0; i--) {
+      //    let rt = this.deferredReleaseTextures[i];
+      //    if (rt && rt !== this.destination && !rt.destroyed) {
+      //       RenderTexture2D.recoverToPool(rt);
+      //       this.deferredReleaseTextures.splice(i, 1);
+      //    }
+      // }
+   }
+
 }

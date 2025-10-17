@@ -1,6 +1,5 @@
 import { ILaya } from "../../ILaya";
 import { PAL } from "../../laya/platform/PlatformAdapters";
-import { Browser } from "../../laya/utils/Browser";
 import { Byte } from "../../laya/utils/Byte";
 import { getErrorMsg } from "../../laya/utils/Error";
 import { Utils } from "../../laya/utils/Utils";
@@ -82,7 +81,7 @@ export class MgCacheManager {
         if (!info)
             return Promise.resolve(null);
 
-        info.accessTime = this.toSaveManifestRequest = Browser.now();
+        info.accessTime = this.toSaveManifestRequest = performance.now();
         this.toSaveManifestFlags[info.group] = true;
 
         let cacheFilePath: string = `${this.cacheRoot}/${info.group}/${info.fileName}`;
@@ -127,7 +126,7 @@ export class MgCacheManager {
         }
 
         if (this.cacheRequest.length === 0) {
-            if (this.toSaveManifestRequest != null && Browser.now() - this.toSaveManifestRequest > MgCacheManager.saveAccessTimeInterval) { //保存最后访问时间的优先级比较低，我们5秒检查一次
+            if (this.toSaveManifestRequest != null && performance.now() - this.toSaveManifestRequest > MgCacheManager.saveAccessTimeInterval) { //保存最后访问时间的优先级比较低，我们5秒检查一次
                 this.toSaveManifestRequest = null;
                 this.running = true;
                 this.saveDirtyManifests().then(() => this.running = false);
@@ -183,7 +182,7 @@ export class MgCacheManager {
                 this.totalFileSize -= info.size;
                 this.fileCache.delete(url);
 
-                info.accessTime = Browser.now();
+                info.accessTime = performance.now();
                 info.size = size;
             }
             else {
@@ -192,7 +191,7 @@ export class MgCacheManager {
                     url,
                     size,
                     fileName: Utils.getBaseName(tempFilePath),
-                    accessTime: Browser.now()
+                    accessTime: performance.now()
                 };
             }
 
@@ -235,10 +234,10 @@ export class MgCacheManager {
         let allFiles = Array.from(this.fileCache.values());
         allFiles.sort((a, b) => a.accessTime - b.accessTime);
 
-        let t = Browser.now();
+        let t = performance.now();
         let info: [number, number] = [0, 0]; //outInfo[0]=清理的文件数，outInfo[1]=清理的字节数
         return this.doClearSpace(allFiles, sizeToClear, 0, info).then(() => {
-            console.log(`[Cache]cleared ${info[0]} files/${info[1]} bytes in ${Browser.now() - t}ms`);
+            console.log(`[Cache]cleared ${info[0]} files/${info[1]} bytes in ${performance.now() - t}ms`);
         });
     }
 

@@ -82,7 +82,7 @@ export class UniformBufferCluster {
         this.data = newArrayBuffer;
 
         //创建一个新的GPUBuffer
-        this.buffer = this.manager.createGPUBuffer(this._totalSize);
+        this.buffer = this.manager.createGPUBuffer(this._totalSize, null, this.data);
 
         //统计GPU内存使用量
         this.manager.statisGPUMemory(expandSize);
@@ -213,9 +213,6 @@ export class UniformBufferCluster {
             count++;
             bytes += size;
         }
-
-        //记录上传次数，字节数
-        this.manager.statisUpload(count, bytes);
     }
 
     /**
@@ -259,8 +256,6 @@ export class UniformBufferCluster {
                 this._blocks[0] = bb;
                 this._blocks[0].user.notifyGPUBufferChange('optimize');
                 ret = true;
-                if (this.manager._enableStat)
-                    this.manager._stat.moveNum++;
             }
         }
         return ret;
@@ -275,8 +270,6 @@ export class UniformBufferCluster {
             if (!this._blocks[i]) {
                 if (this._moveBlock(i)) {
                     ret = true;
-                    if (this.manager._enableStat)
-                        this.manager._stat.moveNum++;
                 }
             }
         }

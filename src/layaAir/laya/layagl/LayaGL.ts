@@ -3,6 +3,7 @@ import { IRenderDeviceFactory } from "../RenderDriver/DriverDesign/RenderDevice/
 import { IRenderEngine } from "../RenderDriver/DriverDesign/RenderDevice/IRenderEngine";
 import { ITextureContext } from "../RenderDriver/DriverDesign/RenderDevice/ITextureContext";
 import { IUnitRenderModuleDataFactory } from "../RenderDriver/RenderModuleData/Design/IUnitRenderModuleDataFactory";
+import { DefaultStaticsContext, IStaticsContext } from "./StatisticsContext";
 
 /**
  * @en Package GL commands
@@ -11,7 +12,8 @@ import { IUnitRenderModuleDataFactory } from "../RenderDriver/RenderModuleData/D
 export class LayaGL {
     static textureContext: ITextureContext;
     static renderEngine: IRenderEngine;
-    static render2DRenderPassFactory:I2DRenderPassFactory;
-    static renderDeviceFactory:IRenderDeviceFactory;
-    static unitRenderModuleDataFactory:IUnitRenderModuleDataFactory;
+    static render2DRenderPassFactory: I2DRenderPassFactory;
+    static renderDeviceFactory: IRenderDeviceFactory;
+    static unitRenderModuleDataFactory: IUnitRenderModuleDataFactory;
+    static statAgent: IStaticsContext = new DefaultStaticsContext();
 }

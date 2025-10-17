@@ -1,16 +1,15 @@
 import { TextAtlas } from "./TextAtlas";
 import { TextTexture } from "./TextTexture";
 import { Point } from "../../maths/Point"
-import { RenderInfo } from "../../renders/RenderInfo"
 import { FontInfo } from "../../utils/FontInfo"
 import { WordText } from "../../utils/WordText"
 import { CharRenderInfo } from "./CharRenderInfo"
 import { CharRender_Canvas } from "./CharRender_Canvas"
-import { Const } from "../../Const";
 import { MeasureFont } from "./MeasureFont";
 import { EventDispatcher } from "../../events/EventDispatcher";
 import { TextRenderConfig } from "./TextRenderConfig";
 import { GraphicsRunner } from "../../display/Scene2DSpecial/GraphicsRunner";
+import { Stat } from "../../utils/Stat";
 
 
 /** @ignore */
@@ -42,7 +41,7 @@ export class TextRender extends EventDispatcher {
 
     constructor() {
         super();
-        this.charRender = new CharRender_Canvas(2048, 2048);
+        this.charRender = new CharRender_Canvas(4096, 4096);
         this.fontMeasure = new MeasureFont(this.charRender);
     }
 
@@ -126,17 +125,17 @@ export class TextRender extends EventDispatcher {
         var nTextAlign = 0;
         switch (textAlign) {
             case 'center':
-                nTextAlign = Const.ENUM_TEXTALIGN_CENTER;
+                nTextAlign = 1;
                 break;
             case 'right':
-                nTextAlign = Const.ENUM_TEXTALIGN_RIGHT;
+                nTextAlign = 2;
                 break;
         }
         this._fast_filltext(runner, data, x, y, font, color, strokeColor, lineWidth, nTextAlign);
     }
 
     _fast_filltext(runner: GraphicsRunner, data: string | WordText | null, x: number, y: number, font: FontInfo, color: string, strokeColor: string | null, lineWidth: number, textAlign: number): void {
-        if (data && !(data.length >= 1)) 
+        if (data && !(data.length >= 1))
             return; // length有可能是 undefined
         if (lineWidth < 0) lineWidth = 0;
         this.setFont(font);
@@ -169,10 +168,10 @@ export class TextRender extends EventDispatcher {
 
         //水平对齐方式
         switch (textAlign) {
-            case Const.ENUM_TEXTALIGN_CENTER:
+            case 1:
                 x -= strWidth / 2;
                 break;
-            case Const.ENUM_TEXTALIGN_RIGHT:
+            case 2:
                 x -= strWidth;
                 break;
         }
@@ -449,7 +448,7 @@ export class TextRender extends EventDispatcher {
         var dt = 0;
         var destroyDt = TextRenderConfig.destroyAtlasDt;
         var totalUsedRateAtlas = 0;
-        var curloop = RenderInfo.loopCount;
+        var curloop = Stat.loopCount;
 
         //var minUsedRateID:int = -1;
         //var minUsedRate:Number = 1;

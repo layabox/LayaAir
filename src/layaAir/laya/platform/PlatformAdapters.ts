@@ -125,10 +125,9 @@ export class PAL {
     static hasAPI(obj: any, name: string): boolean;
 
     static hasAPI(arg0: any, arg1?: string): boolean {
-        if (arg1)
-            return Object.getOwnPropertyDescriptor(arg0 || PAL.g, arg1) != null;
-        else
-            return Object.getOwnPropertyDescriptor(PAL.g, arg0) != null;
+        let g = arg1 ? (arg0 || PAL.g) : PAL.g;
+        let name = arg1 || arg0;
+        return Object.getOwnPropertyDescriptor(g, name) != null || (g !== PAL.g && g[name] != null);
     }
 }
 

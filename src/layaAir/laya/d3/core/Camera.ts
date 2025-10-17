@@ -31,8 +31,6 @@ import { ICameraNodeData } from "../../RenderDriver/RenderModuleData/Design/3D/I
 import { Transform3D } from "./Transform3D";
 import { Cluster } from "../graphics/renderPath/Cluster";
 import { Viewport } from "../../maths/Viewport";
-import { RenderPassStatisticsInfo } from "../../RenderEngine/RenderEnum/RenderStatInfo";
-import { Config } from "../../../Config";
 import { PostProcess } from "./render/postProcessBase/PostProcess";
 
 /**
@@ -415,6 +413,7 @@ export class Camera extends BaseCamera {
     protected _projectionViewMatrix: Matrix4x4;
     protected _boundFrustum: BoundFrustum;
     private _updateViewMatrix: boolean = true;
+    private _updateViewProjectionMatrix: boolean = true;
     protected _postProcess: PostProcess = null;
     protected _enableHDR: boolean = false;
     private _viewportParams: Vector4 = new Vector4();
@@ -701,6 +700,8 @@ export class Camera extends BaseCamera {
             this._updateViewMatrix = false;
             if (this.skyRenderElement._renderElementOBJ)
                 this.skyRenderElement.calculateViewMatrix(this._viewMatrix);
+
+            this._updateViewProjectionMatrix = true;
         }
         return this._viewMatrix;
     }
@@ -723,9 +724,22 @@ export class Camera extends BaseCamera {
      * @zh 视图投影矩阵。
      */
     get projectionViewMatrix(): Matrix4x4 {
-        Matrix4x4.multiply(this.projectionMatrix, this.viewMatrix, this._projectionViewMatrix);
-        this._renderDataModule.setProjectionViewMatrix(this._projectionViewMatrix);
+        this.updateViewProjectionMatrix();
         return this._projectionViewMatrix;
+    }
+
+    private updateViewProjectionMatrix(): void {
+        let viewMatrix = this.viewMatrix;
+        let projectionMatrix = this.projectionMatrix;
+
+        if (this._updateViewProjectionMatrix) {
+            Matrix4x4.multiply(projectionMatrix, viewMatrix, this._projectionViewMatrix);
+            this._updateViewProjectionMatrix = false;
+
+            this._boundFrustum.matrix = this._projectionViewMatrix;
+        }
+
+        this._renderDataModule.setProjectionViewMatrix(this._projectionViewMatrix);
     }
 
     /**
@@ -733,7 +747,7 @@ export class Camera extends BaseCamera {
      * @zh 摄像机视锥。
      */
     get boundFrustum(): BoundFrustum {
-        this._boundFrustum.matrix = this.projectionViewMatrix;
+        this.updateViewProjectionMatrix();
         return this._boundFrustum;
     }
 
@@ -944,6 +958,8 @@ export class Camera extends BaseCamera {
             }
             if (this.skyRenderElement._renderElementOBJ)
                 this.skyRenderElement.caluclateProjectionMatrix(this._projectionMatrix, this.aspectRatio, this.nearPlane, this.farPlane, this.fieldOfView, this.orthographic);
+
+            this._updateViewProjectionMatrix = true;
         }
     }
 
@@ -1385,9 +1401,7 @@ export class Camera extends BaseCamera {
         if (multiLight) {
             Cluster.instance.update(this, scene);
         }
-        var time = performance.now();//T_CameraRender Stat
         this._Render3DProcess.fowardRender(context._contextOBJ, this);
-        Stat.renderPassStatArray[RenderPassStatisticsInfo.T_CameraRender] += (performance.now() - time);//Stat
 
         scene._componentDriver.callPostRender();
     }

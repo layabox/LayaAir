@@ -16,88 +16,89 @@ import { Utils } from "../utils/Utils";
 import { AssetDb } from "../resource/AssetDb";
 
 /**
- * @en The `ScrollBar` component is a scrollbar component.
- * When there is too much data to fit in the display area, the end user can use the `ScrollBar` component to control the portion of data being displayed.
- * A scrollbar consists of four parts: two arrow buttons, a track, and a thumb (slider).
- * - `start` event dispatched when the scrollbar starts to slide.
- * - `end` event dispatched when the scrollbar stops sliding.
- * - `change` event dispatched when the scrollbar thumb position changes.
  * @zh ScrollBar 组件是一个滚动条组件。
  * 当数据太多以至于显示区域无法容纳时，最终用户可以使用 ScrollBar 组件控制所显示的数据部分。
  * 滚动条由四部分组成：两个箭头按钮、一个轨道和一个滑块。
  * - `start` 事件在滚动条开始滑动时调度。
  * - `end` 事件在滚动条滑动结束时调度。
  * - `change` 事件在滚动条滑块位置发生变化时调度。
+ * @en The `ScrollBar` component is a scrollbar component.
+ * When there is too much data to fit in the display area, the end user can use the `ScrollBar` component to control the portion of data being displayed.
+ * A scrollbar consists of four parts: two arrow buttons, a track, and a thumb (slider).
+ * - `start` event dispatched when the scrollbar starts to slide.
+ * - `end` event dispatched when the scrollbar stops sliding.
+ * - `change` event dispatched when the scrollbar thumb position changes.
  */
 export class ScrollBar extends UIComponent {
     /** 
+     * @zh 设置全局的滚动速度变化曲线函数，默认为 sineOut
      * @en Sets the global easing function for scrolling speed changes.
-     * @zh 设置全局的滚动速度变化曲线函数
      * @blueprintIgnore
      */
     public static easeFunction = Ease.sineOut;
     /**
-     * @en The ratio of scroll decay.
-     * @zh 滚动衰减系数
+     * @zh 滚动衰减系数，用于当用户手指/鼠标松开后，滚动条内容滚动的惯性衰减速度。
+     * 例如，当用户快速向上滑动背包列表时，松手后列表继续滑动一段距离再慢慢停下来。
+     * @en The ratio of scroll decay. 
      */
     rollRatio: number = 0.97;
     /**
-     * @en Callback when scrolling changes, return value parameter.
      * @zh 滚动变化时回调，回传value参数。
+     * @en Callback when scrolling changes, return value parameter.
      */
     changeHandler: Handler;
     /**
-     * @en Indicates whether to scale the size of the scrollbar, default is true.
      * @zh 是否缩放滑动条的大小，默认值为true。
+     * @en Indicates whether to scale the size of the scrollbar, default is true.
      */
     scaleBar: boolean = true;
     /**
-     * @en A boolean value that specifies whether to automatically hide the scrollbar when it is not in use, default is false.
      * @zh 一个布尔值，指定是否在无需滚动时自动隐藏滚动条，默认值为false。
+     * @en A boolean value that specifies whether to automatically hide the scrollbar when it is not in use, default is false.
      */
     autoHide: boolean = false;
     /**
-     * @en The limit distance for the rubber band effect, 0 means no rubber band effect.
      * @zh 橡皮筋效果极限距离，0表示没有橡皮筋效果。
+     * @en The limit distance for the rubber band effect, 0 means no rubber band effect.
      */
     elasticDistance: number = 0;
     /**
-     * @en The time in milliseconds for the rubber band effect to rebound.
      * @zh 橡皮筋回弹时间，单位为毫秒。
+     * @en The time in milliseconds for the rubber band effect to rebound.
      */
     elasticBackTime: number = 500;
     /**
-     * @en The up button.
      * @zh 上按钮。
+     * @en The up button.
      */
     upButton: Button;
     /**
-     * @en The down button.
      * @zh 下按钮。
+     * @en The down button.
      */
     downButton: Button;
     /**
-     * @en slider.
      * @zh 滑动条。
+     * @en slider.
      */
     slider: Slider;
     /**
-     * @en The top movement limit for the scrollbar. When this limit is reached, the 'dragTopLimit' event is dispatched.
-     * This can be used in conjunction with the `stopMoveLimit()` method to allow developers to perform dynamic data updates and other operations.
      * @zh 顶部移动限制。当达到此限制时，会触发 'dragTopLimit' 事件。
      * 它可以与 `stopMoveLimit()` 方法结合使用，以便开发者执行动态数据更新和其他操作。
+     * @en The top movement limit for the scrollbar. When this limit is reached, the 'dragTopLimit' event is dispatched.
+     * This can be used in conjunction with the `stopMoveLimit()` method to allow developers to perform dynamic data updates and other operations.
      */
     topMoveLimit: number = 0;
     /**
-     * @en The bottom movement limit for the scrollbar. When this limit is reached, the 'dragBottomLimit' event is dispatched.
-     * This can be used in conjunction with the `stopMoveLimit()` method to allow developers to perform dynamic data updates and other operations.
      * @zh 底部移动限制。当达到此限制时，会触发 'dragBottomLimit' 事件。
      * 它可以与 `stopMoveLimit()` 方法结合使用，以便开发者执行动态数据更新和其他操作。
+     * @en The bottom movement limit for the scrollbar. When this limit is reached, the 'dragBottomLimit' event is dispatched.
+     * This can be used in conjunction with the `stopMoveLimit()` method to allow developers to perform dynamic data updates and other operations.
      */
     bottomMoveLimit: number = 0;
     /**
-     * @en Determines whether dragging of the content is disabled when the 'stopMoveLimit' method is called.
      * @zh 确定在调用 'stopMoveLimit' 方法时是否禁止内容的拖拽。
+     * @en Determines whether dragging of the content is disabled when the 'stopMoveLimit' method is called.
      */
     disableDrag: boolean = false;
 
@@ -148,8 +149,8 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en Creates the child elements of the ScrollBar, such as the slider and buttons.
      * @zh 创建 ScrollBar 的子元素，例如滑块和按钮。
+     * @en Creates the child elements of the ScrollBar, such as the slider and buttons.
      */
     protected createChildren(): void {
         this.slider = new Slider();
@@ -166,8 +167,8 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en Initializes the ScrollBar, setting up the slider and buttons with appropriate event listeners.
      * @zh 初始化 ScrollBar，为滑块和按钮设置适当的事件监听器。
+     * @en Initializes the ScrollBar, setting up the slider and buttons with appropriate event listeners.
      */
     protected initialize(): void {
         this.slider.showLabel = false;
@@ -180,16 +181,16 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en The change event handler for the slider when its value changes.
      * @zh 滑块值改变时的事件处理函数。
+     * @en The change event handler for the slider when its value changes.
      */
     protected onSliderChange(): void {
         if (this._value != this.slider.value) this.value = this.slider.value;
     }
 
     /**
-     * @en The mouse down event handler for the up and down buttons.
      * @zh 向上和向下按钮的 Event.MOUSE_DOWN 事件侦听处理函数。
+     * @en The mouse down event handler for the up and down buttons.
      */
     protected onButtonMouseDown(e: Event): void {
         var isUp: boolean = e.currentTarget === this.upButton;
@@ -208,10 +209,10 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en The mouse up event handler for the stage.
-     * @param e The event object.
      * @zh 舞台的 Event.MOUSE_DOWN 事件侦听处理函数。
      * @param e 事件对象。
+     * @en The mouse up event handler for the stage.
+     * @param e The event object.
      */
     protected onStageMouseUp(e: Event): void {
         ILaya.timer.clear(this, this.startLoop);
@@ -219,8 +220,8 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en the skin of the scrollbar.
      * @zh 滚动条的皮肤纹理路径。
+     * @en the skin of the scrollbar.
      */
     get skin(): string {
         return this._skin;
@@ -236,10 +237,10 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en Asynchronously sets the skin for the scrollbar and its components.
-     * @param url The URL of the skin to be set.
      * @zh 异步设置滚动条及其组件的皮肤。
      * @param url 要设置的皮肤的 URL。
+     * @en Asynchronously sets the skin for the scrollbar and its components.
+     * @param url The URL of the skin to be set.
      */
     _setSkin(url: string): Promise<void> {
         this._skin = url;
@@ -268,8 +269,8 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en Called when the skin is loaded.
      * @zh 皮肤加载完成时调用。
+     * @en Called when the skin is loaded.
      */
     protected _skinLoaded(): void {
         if (this._destroyed)
@@ -281,8 +282,8 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en Adjust the scroll bar's display state, including the visibility of the buttons and the position of the slider
      * @zh 更改滚动条的显示状态，包括按钮的可见性和滑动条的位置
+     * @en Adjust the scroll bar's display state, including the visibility of the buttons and the position of the slider
      */
     protected changeScrollBar(): void {
         this.upButton.visible = this._showButtons;
@@ -326,14 +327,14 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en Sets the information for the scrollbar.
-     * @param min The minimum position value of the scrollbar.
-     * @param max The maximum position value of the scrollbar.
-     * @param value The current position value of the scrollbar.
      * @zh 设置滚动条信息。
      * @param min 滚动条最小位置值。
      * @param max 滚动条最大位置值。
      * @param value 滚动条当前位置值。
+     * @en Sets the information for the scrollbar.
+     * @param min The minimum position value of the scrollbar.
+     * @param max The maximum position value of the scrollbar.
+     * @param value The current position value of the scrollbar.
      */
     setScroll(min: number, max: number, value?: number): void {
         this.runCallLater(this._sizeChanged);
@@ -345,32 +346,30 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
+     * @zh 最大滚动位置的数字。
      * @en the numeric value representing the maximum scroll position.
-     * @zh 最高滚动位置的数字。
      */
     get max(): number {
         return this.slider.max;
     }
-
     set max(value: number) {
         this.slider.max = value;
     }
 
     /**
+     * @zh 最小滚动位置的数字。
      * @en the numeric value representing the minimum scroll position.
-     * @zh 最低滚动位置的数字。
      */
     get min(): number {
         return this.slider.min;
     }
-
     set min(value: number) {
         this.slider.min = value;
     }
 
     /**
-     * @en the numeric value representing the current scroll position.
      * @zh 当前滚动位置的数字。
+     * @en the numeric value representing the current scroll position.
      */
     get value(): number {
         return this._value;
@@ -392,10 +391,8 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en Indicates whether the scrollbar is vertical. If true, the scrollbar is vertical; otherwise, it is horizontal.
-     * Default value: true.
      * @zh 滚动条是否为垂直滚动。如果值为true，则为垂直滚动，否则为水平滚动。
-     * 默认值为：true。
+     * @en Indicates whether the scrollbar is vertical. If true, the scrollbar is vertical; otherwise, it is horizontal.
      */
     get isVertical(): boolean {
         return this.slider.isVertical;
@@ -406,14 +403,14 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en The size grid of the texture.
-     * The size grid is a 3x3 division of the texture, allowing it to be scaled without distorting the corners and edges. 
-     * The array contains five values representing the top, right, bottom, and left margins, and whether to repeat the fill (0: no repeat, 1: repeat). 
-     * The values are separated by commas. For example: "6,6,6,6,1".
      * @zh 纹理的九宫格数据。
      * 九宫格是一种将纹理分成3x3格的方式，使得纹理缩放时保持角和边缘不失真。
      * 数组包含五个值，分别代表上边距、右边距、下边距、左边距以及是否重复填充（0：不重复填充，1：重复填充）。
      * 值以逗号分隔。例如："6,6,6,6,1"。
+     * @en The size grid of the texture.
+     * The size grid is a 3x3 division of the texture, allowing it to be scaled without distorting the corners and edges. 
+     * The array contains five values representing the top, right, bottom, and left margins, and whether to repeat the fill (0: no repeat, 1: repeat). 
+     * The values are separated by commas. For example: "6,6,6,6,1".
      */
     get sizeGrid(): string {
         return this.slider.sizeGrid;
@@ -424,8 +421,8 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en The minimum unit for page scrolling when the scrollbar track is pressed.
      * @zh 按下滚动条轨道时页面滚动的最小单位
+     * @en The minimum unit for page scrolling when the scrollbar track is pressed.
      */
     get scrollSize(): number {
         return this._scrollSize;
@@ -444,8 +441,8 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en Slider length ratio, with a value between 0 and 1.
      * @zh 滑条长度比例，值为：（0-1）。
+     * @en Slider length ratio, with a value between 0 and 1.
      */
     get thumbPercent(): number {
         return this._thumbPercent;
@@ -463,8 +460,8 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en the target object of the scrollbar.
      * @zh 滚动的对象。
+     * @en the target object of the scrollbar.
      */
     get target(): Sprite {
         return this._target;
@@ -483,8 +480,8 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en Determines whether the scrollbar is hidden. If true, the scrollbar is not displayed, but scrolling functions remain active. Default is false.
      * @zh 是否隐藏滚动条，设置为 true 时，不显示滚动条，但可以正常滚动，默认为 false。
+     * @en Determines whether the scrollbar is hidden. If true, the scrollbar is not displayed, but scrolling functions remain active. Default is false.
      */
     get hide(): boolean {
         return this._hide;
@@ -496,8 +493,8 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en Specifies whether the up and down buttons are displayed. Default is true.
      * @zh 是否显示向上和向下的按钮，默认值为 true，表示显示。
+     * @en Specifies whether the up and down buttons are displayed. Default is true.
      */
     get showButtons(): boolean {
         return this._showButtons;
@@ -509,8 +506,8 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en Specifies whether touch scrolling is enabled. Default is true.
      * @zh 是否启用触摸滚动，默认值为 true，表示启用。
+     * @en Specifies whether touch scrolling is enabled. Default is true.
      */
     get touchScrollEnable(): boolean {
         return this._touchScrollEnable;
@@ -522,8 +519,8 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en Specifies whether mouse wheel scrolling is enabled. Default is true.
      * @zh 是否启用鼠标滚轮滚动，默认值为 true，表示启用。
+     * @en Specifies whether mouse wheel scrolling is enabled. Default is true.
      */
     get mouseWheelEnable(): boolean {
         return this._mouseWheelEnable;
@@ -557,12 +554,12 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en Forces a drag action on the scrollbar.
-     * Normally, dragging can only be done by holding the scrollbar itself. If you need to force drag outside the scrollbar object, you can achieve this by calling this method.
-     * For example, if the mouse is continuously held on a button object outside the scrollbar and this method is called, then sliding the mouse will have the same effect as dragging the scrollbar. 
      * @zh 强制拖拽滚动条；
      * 常规情况下只能是按住滚动条本身才可以拖拽，如果需要在滚动条对象之外进行强制拖拽，则可以通过调用此方法来实现。
      * 例如，当鼠标持续按住滚动条之外的某个按钮对象时，调用了该方法，然后进行滑动，也可以实现按住滚动条对象滑动的效果。
+     * @en Forces a drag action on the scrollbar.
+     * Normally, dragging can only be done by holding the scrollbar itself. If you need to force drag outside the scrollbar object, you can achieve this by calling this method.
+     * For example, if the mouse is continuously held on a button object outside the scrollbar and this method is called, then sliding the mouse will have the same effect as dragging the scrollbar. 
      */
     startDragForce(): void {
         this._clickOnly = true;
@@ -586,18 +583,18 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en Function to be called when the scrollbar is dragged down past its limit.
      * @zh 当滚动条向下拖拽超过其限制时调用的函数。
+     * @en Function to be called when the scrollbar is dragged down past its limit.
      */
     triggerDownDragLimit: Function;
     /**
-     * @en Function to be called when the scrollbar is dragged up past its limit.
      * @zh 当滚动条向上拖拽超过其限制时调用的函数。
+     * @en Function to be called when the scrollbar is dragged up past its limit.
      */
     triggerUpDragLimit: Function;
     /** 
-     * @en Overloading method for pausing scrolling
      * @zh 暂停滚动的重载方法
+     * @en Overloading method for pausing scrolling
      */
     stopMoveLimit: Function;
     private checkTriggers(isTweenMove: boolean = false): boolean {
@@ -619,18 +616,18 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en Gets the last offset value used during the scrollbar's movement.
      * @zh 获取滚动条在移动过程中使用的最后偏移量。
+     * @en Gets the last offset value used during the scrollbar's movement.
      */
     get lastOffset(): number {
         return this._lastOffset;
     }
 
     /**
-     * @en Starts a forced tweening (animated) movement for the scrollbar.
-     * @param lastOffset The offset to start the tweening movement from.
      * @zh 滚动条的强制缓动移动。
      * @param lastOffset 从该偏移量位置开始缓动移动。
+     * @en Starts a forced tweening (animated) movement for the scrollbar.
+     * @param lastOffset The offset to start the tweening movement from.
      */
     startTweenMoveForce(lastOffset: number): void {
         this._lastOffset = lastOffset;
@@ -801,8 +798,8 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en Stops the scrolling action.
      * @zh 停止滑动。
+     * @en Stops the scrolling action.
      */
     stopScroll(): void {
         this.onStageMouseUp2(null);
@@ -811,8 +808,8 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en The minimum increment unit for the slider tick value, with a default value of 1.
      * @zh 滑动条刻度值的最小变动单位，默认值为1。
+     * @en The minimum increment unit for the slider tick value, with a default value of 1.
      */
     get tick(): number {
         return this.slider.tick;
@@ -823,8 +820,8 @@ export class ScrollBar extends UIComponent {
     }
 
     /**
-     * @en Restores the scrollbar to its normal elastic bounce-back motion.
      * @zh 恢复到正常的弹性缓动效果。
+     * @en Restores the scrollbar to its normal elastic bounce-back motion.
      */
     backToNormal(): void {
         if (this._value < this.min) {

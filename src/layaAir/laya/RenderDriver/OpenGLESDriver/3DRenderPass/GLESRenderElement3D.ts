@@ -114,11 +114,12 @@ export class GLESRenderElement3D implements IRenderElement3D {
     }
 
     destroy(): void {
-        this._nativeObj.destroy();
         this._geometry = null;
         this._materialShaderData = null;
         this._renderShaderData = null;
         this._transform = null;
+        this._nativeObj?.destroy();
+        
     }
 
     protected init(): void {

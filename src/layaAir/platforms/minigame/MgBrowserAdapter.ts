@@ -85,6 +85,14 @@ export class MgBrowserAdapter extends BrowserAdapter {
         if (Browser.platform === Browser.PLATFORM_IOS && Utils.compareVersion(Browser.systemVersion, "10.1.1") === 0)
             TextRenderConfig.useImageData = true;
 
+        if (Browser.onHWMiniGame && !WebGLEngine) {
+            TextRenderConfig.useImageData = true;
+        }
+
+        if (Browser.onHWMiniGame) {
+            this._pixelRatio = 1;
+        }
+
         PAL.g.onShow(() => {
             this._visible = true;
             this.event(Event.VISIBILITY_CHANGE, true);
@@ -129,6 +137,12 @@ export class MgBrowserAdapter extends BrowserAdapter {
                 gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
             }
         }
+
+        // webgpu 需要加载为 bitmap
+        // hw webgpu 不需要加载为 bitmap
+        if (Browser.onHWMiniGame) {
+            LayaGL.textureContext.needBitmap = false;
+        }
     }
 
     protected setupWasmSupport() {
@@ -139,6 +153,8 @@ export class MgBrowserAdapter extends BrowserAdapter {
             wasmGlobal = (window as any).MYWebAssembly;
         else if (Browser.onTTMiniGame)
             wasmGlobal = (window as any).TTWebAssembly;
+        else if (Browser.onHWMiniGame)
+            wasmGlobal = (window as any).qg;
 
         if (wasmGlobal) {
             if (!window.WebAssembly) //让WASM库以为支持WASM

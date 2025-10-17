@@ -1,4 +1,3 @@
-import { RenderInfo } from "../../renders/RenderInfo"
 import { CharRenderInfo } from "./CharRenderInfo"
 import { Texture2D } from "../../resource/Texture2D";
 import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
@@ -8,6 +7,7 @@ import { LayaEnv } from "../../../LayaEnv";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Render } from "../../renders/Render";
 import { TextRenderConfig } from "./TextRenderConfig";
+import { Stat } from "../../utils/Stat";
 
 /**
  * 保存文字的贴图
@@ -116,7 +116,7 @@ export class TextTexture extends Texture2D {
      * 暂时先不用这个了。
      */
     static clean(): void {
-        var curtm = RenderInfo.loopStTm;// Laya.stage.getFrameTm();
+        var curtm = performance.now();
         if (TextTexture.cleanTm === 0) TextTexture.cleanTm = curtm;
         //每隔checkCleanTextureDt看看pool中的贴图有没有很老的可以删除的
         if (curtm - TextTexture.cleanTm >= TextRenderConfig.checkCleanTextureDt) {
@@ -140,7 +140,7 @@ export class TextTexture extends Texture2D {
      * 这个是基于贴图的，更简单，效率更高
      */
     touchTexture() {
-        let frame = RenderInfo.loopCount;
+        let frame = Stat.loopCount;
         if (this.lastTouchTm != frame) {
             //每帧都重新统计覆盖率
             this.curUsedCovRate = 0;

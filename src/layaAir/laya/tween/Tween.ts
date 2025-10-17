@@ -53,7 +53,7 @@ export class Tween {
      * @param lifecycleOwner 生命周期对象，当销毁时，缓动会自动停止。一般情况下，如果任务的目标对象有 destroyed 属性，则不需要设置此属性。如果任务的目标对象没有 destroyed 属性，则可以设置此属性。
      * @returns 返回一个Tween对象。
      */
-    static create(target?: any, lifecycleOwner?: { destroyed: boolean }): Tween {
+    static create(target?: any, lifecycleOwner?: any): Tween {
         let tween = Tween._pool.take();
         tween._target = target;
         tween._lo = lifecycleOwner;
@@ -300,7 +300,7 @@ export class Tween {
      * @param lifecycleOwner 生命周期对象，当销毁时，缓动会自动停止。一般情况下，如果任务的目标对象有 destroyed 属性，则不需要设置此属性。如果任务的目标对象没有 destroyed 属性，则可以设置此属性。
      * @return Tween对象。
      */
-    chain(target?: any, lifecycleOwner?: { destroyed: boolean }): this {
+    chain(target?: any, lifecycleOwner?: any): this {
         if (target !== undefined) {
             this._target = target;
             this._lo = lifecycleOwner;
@@ -331,7 +331,7 @@ export class Tween {
      * @param lifecycleOwner 生命周期对象，当销毁时，缓动会自动停止。一般情况下，如果任务的目标对象有 destroyed 属性，则不需要设置此属性。如果任务的目标对象没有 destroyed 属性，则可以设置此属性。
      * @return Tween对象。
      */
-    parallel(target?: any, lifecycleOwner?: { destroyed: boolean }): this {
+    parallel(target?: any, lifecycleOwner?: any): this {
         if (this._queue.length == 0) {
             if (target !== undefined) {
                 this._target = target;

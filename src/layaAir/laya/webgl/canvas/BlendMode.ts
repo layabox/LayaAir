@@ -1,8 +1,6 @@
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
-import { BlendFactor } from "../../RenderEngine/RenderEnum/BlendFactor";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D";
 
 /**
@@ -38,7 +36,7 @@ const TOINT: Record<string, number> = {
     [BlendMode.lighter]: 1,
     [BlendMode.lighterOld]: 8,
     [BlendMode.addOld]: 8,
-    [BlendMode.sourceAlpha]: 9,
+    [BlendMode.sourceAlpha]: 9
 };
 
 /**
@@ -48,76 +46,6 @@ export class BlendModeHandler {
     /**@internal */
     static _init_(): void {
     }
-
-    static BlendNormal(): void {
-        //为了避免黑边，和canvas作为贴图的黑边
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.OneMinusSourceAlpha);
-    }
-
-    /**@internal 这个add感觉不合理，所以改成old了 */
-    static BlendAddOld(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.DestinationAlpha);
-    }
-
-    static BlendAdd(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One);
-    }
-
-    static BlendMultiply(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.DestinationColor, BlendFactor.OneMinusSourceAlpha);
-    }
-
-    static BlendScreen(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One);
-    }
-
-    static BlendOverlay(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.OneMinusSourceAlpha);
-    }
-
-    static BlendLight(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One);
-    }
-
-    static BlendNormalTarget(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.OneMinusSourceAlpha);
-    }
-
-    /**@internal add不应该是1+dst_α 所以改成old */
-    static BlendAddTargetOld(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.DestinationAlpha);
-    }
-    static BlendAddTarget(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One);
-    }
-
-    static BlendMultiplyTarget(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.DestinationColor, BlendFactor.OneMinusSourceAlpha);
-    }
-
-    static BlendScreenTarget(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One);
-    }
-
-    static BlendOverlayTarget(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.OneMinusSourceColor);
-    }
-
-    static BlendLightTarget(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One);
-    }
-
-    static BlendMask(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.Zero, BlendFactor.SourceAlpha);
-    }
-
-    static BlendDestinationOut(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.Zero, BlendFactor.Zero);
-    }
-    static BlendSourceAlpha(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.SourceAlpha, BlendFactor.OneMinusSourceAlpha);
-    }
-
     static setShaderData(blendType: BlendMode, shaderData: ShaderData, premultipliedAlpha = true): void {
         let type = TOINT[blendType];
         switch (type) {

@@ -41,6 +41,7 @@ import { IGraphicsCmd } from "./IGraphics";
 import { GraphicsRunner } from "./Scene2DSpecial/GraphicsRunner";
 import { I2DPrimitiveDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { GraphicsRenderData } from "./Scene2DSpecial/GraphicsUtils";
+import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
 
 /**
  * @en The Graphics class is used to create drawing display objects. Graphics can draw multiple bitmaps or vector graphics simultaneously, and can also combine instructions such as save, restore, transform, scale, rotate, translate, alpha, etc. to change the drawing effect.
@@ -75,6 +76,13 @@ export class Graphics {
     /** @internal 是否优先使用精灵状态 */
     _useSpriteState: boolean = true;
 
+    /**
+     * @internal
+     * @en Whether to return graphics bounds as the sprite rect, instead of the bounds calculated from the commands.
+     * @zh 是否返回graphics边界为精灵矩形，而不是从命令计算的边界。对于像文本这种情况，可以优化效率。
+     */
+    _useSpriteRect: boolean = false;
+
     private _cmds: IGraphicsCmd[] = [];
     private _graphicBounds: GraphicsBounds | null = null;
     private _material: Material;
@@ -82,10 +90,10 @@ export class Graphics {
     private _modified: boolean = false;
     private _display: boolean = false;
 
-
     /**
     * @en Whether to use sprite state.
     * @zh graphics是否优先使用精灵状态。
+    * @blueprintIgnore
     */
     public get useSpriteState(): boolean {
         return this._useSpriteState;
@@ -98,9 +106,18 @@ export class Graphics {
         this.repaint();
     }
 
-    /**@ignore */
+    /**@ignore @blueprintIgnore */
     constructor() {
         this._renderDataHandle = LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle();
+    }
+
+    protected _isMaterialVaild(value: Material): boolean {
+        return value.checkType(ShaderFeatureType.D2_TextureSV);
+    }
+
+    /** @internal */
+    onModified() {
+        this._modified = true;
     }
 
     /**
@@ -135,6 +152,9 @@ export class Graphics {
      * @param exclude （可选）排除特定命令不被清除。默认为null。
      */
     clear(recoverCmds?: boolean, exclude?: IGraphicsCmd): void {
+        if (this._cmds.length === 0)
+            return;
+
         if (recoverCmds || recoverCmds == null) {
             for (let cmd of this._cmds) {
                 if (!cmd.lock && cmd != exclude)
@@ -266,7 +286,7 @@ export class Graphics {
 
     /** @internal */
     _checkDisplay() {
-        if (!this.owner || this.owner.destroyed){
+        if (!this.owner || this.owner.destroyed) {
             this._display = false;
             return;
         }
@@ -284,8 +304,8 @@ export class Graphics {
             this.owner._renderType |= SpriteConst.GRAPHICS;
             struct.renderType = BaseRender2DType.graphics;
             struct.renderDataHandler = this._renderDataHandle;
-            struct.renderMatrix = this.owner.globalTrans.getMatrix();
             struct.renderElements = this._data._renderElements;
+            this.owner._updateStruct();
         } else {
             this.owner._renderType &= ~SpriteConst.GRAPHICS;
             if (struct.renderElements === this._data._renderElements) {
@@ -329,6 +349,9 @@ export class Graphics {
     }
 
     set material(value: Material) {
+        if (value && !this._isMaterialVaild(value))
+            return;
+
         if (this._material == value)
             return;
         this._material && this._material._removeReference();
@@ -665,6 +688,7 @@ export class Graphics {
      * @param width （可选）显示图片的宽度，设置为0表示使用图片默认宽度。默认为null。
      * @param height （可选）显示图片的高度，设置为0表示使用图片默认高度。默认为null。
      * @param complete （可选）加载完成回调
+     * @blueprintIgnore
      */
     loadImage(url: string, x: number = 0, y: number = 0, width: number = null, height: number = null, complete: Function | null = null): void {
         let tex: Texture = ILaya.loader.getRes(url);
@@ -697,7 +721,7 @@ export class Graphics {
         }
 
         this._data.clear();
-        runner.clearRenderData();
+        runner.clear();
         runner.sprite = this.owner;
         runner._graphicsData = this._data;
         runner._material = this._material;

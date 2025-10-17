@@ -1,6 +1,6 @@
 {
   "name": "layaair",
-  "version": "3.3.0",
+  "version": "3.3.2",
   "description": "LayaAir3.3 Engine",
   "main": "layaAir.config.js",
   "scripts": {
@@ -29,7 +29,7 @@
     "conventional-changelog-cli": "^2.2.2",
     "copy-and-watch": "^0.1.6",
     "copyfiles": "^2.4.1",
-    "esbuild": "^0.20.1",
+    "esbuild": "^0.25.0",
     "glob": "^11.0.0",
     "husky": "^8.0.2",
     "minigame-api-typings": "^3.8.11",

@@ -196,8 +196,10 @@ export class Animation extends Sprite {
      * @param index 帧索引。
      */
     addLabel(label: string, index: number): void {
-        if (!this._labels)
+        if (!this._labels) {
             this._labels = [];
+            this._comp._labels = this._labels;
+        }
         this._labels[index] = label;
     }
 
@@ -290,7 +292,7 @@ export class Animation extends Sprite {
         return false;
     }
 
-    /** @internal @blueprintEvent */    
+    /** @internal @blueprintEvent */
     Animation_bpEvent: {
         [Event.COMPLETE]: () => void;
         [Event.LABEL]: (label: string) => void;

@@ -13,7 +13,6 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { Material } from "../../../resource/Material";
 import { Mesh2D } from "../../../resource/Mesh2D";
 import { Texture2D } from "../../../resource/Texture2D";
-import { Stat } from "../../../utils/Stat";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { RenderState2D } from "../../../webgl/utils/RenderState2D";
 import { Render2DProcessor } from "../../Render2DProcessor";
@@ -93,7 +92,8 @@ export class CommandBuffer2D {
     apply(render: boolean = true, recoverContextStat: boolean = true): void {
         this.shaderData.clearData();
         let lastPass = this._context.passData;
-        if (lastPass) {
+        // lastPass destroyed
+        if (lastPass && lastPass.getDefineData()) {
             lastPass.cloneTo(this.shaderData);
         } else {
             this.shaderData.setVector2(ShaderDefines2D.UNIFORM_SIZE, Vector2.TEMP.setValue(
@@ -110,8 +110,6 @@ export class CommandBuffer2D {
         render && this._context.runCMDList(this._renderCMDs);
 
         this._context.passData = lastPass;
-        //draw array
-        Stat.cmdDrawCall += this._renderCMDs.length;
         recoverContextStat && this._recoverContextState();
     }
 

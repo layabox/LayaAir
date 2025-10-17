@@ -1,4 +1,3 @@
-import { log } from "console";
 import { GeometryElement } from "../../d3/core/GeometryElement";
 import { RenderContext3D } from "../../d3/core/render/RenderContext3D";
 import { Scene3D } from "../../d3/core/scene/Scene3D";
@@ -54,6 +53,8 @@ import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
 import { VertexShuriKenParticle } from "./VertexShuriKenParticle";
 import { VertexShurikenParticleBillboard } from "./VertexShurikenParticleBillboard";
 import { VertexShurikenParticleMesh } from "./VertexShurikenParticleMesh";
+import { LayaGL } from "../../layagl/LayaGL";
+import { StatElement } from "../../layagl/StatisticsContext";
 
 const tempV3 = new Vector3();
 
@@ -1171,6 +1172,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @param render 与该粒子系统关联的 ShurikenParticleRenderer。
      * @param meshTopology 网格使用的拓扑结构，默认为 MeshTopology.Triangles。
      * @param drawType 用于渲染的绘制类型，默认为 DrawType.DrawElement。
+     * @blueprintIgnore
      */
     constructor(render: ShurikenParticleRenderer, meshTopology: MeshTopology = MeshTopology.Triangles, drawType: DrawType = DrawType.DrawElement) {
         super(meshTopology, drawType);
@@ -2295,6 +2297,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @internal
      */
     _prepareRender(state: RenderContext3D): boolean {
+        let t = performance.now();
         if (this._updateMask != Stat.loopCount) {
             this._updateMask = Stat.loopCount;
             this._updateEmission();
@@ -2303,7 +2306,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                 this.addNewParticlesToVertexBuffer();
             this._drawCounter++;
         }
-
+        LayaGL.statAgent.recordTimeData(StatElement.T_ShurikenUpdate, performance.now() - t);
 
         if (this._firstActiveElement != this._firstFreeElement)
             return true;

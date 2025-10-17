@@ -8,7 +8,7 @@ import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefi
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { Component } from "../components/Component";
 import { Sprite } from "../display/Sprite";
-import { BaseRender2DType } from "../display/SpriteConst";
+import { BaseRender2DType, TransformKind } from "../display/SpriteConst";
 import { LayaGL } from "../layagl/LayaGL";
 import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
@@ -189,7 +189,9 @@ export class BaseRenderNode2D extends Component {
     /**
      * 渲染范围，用于裁剪规则二
      */
-    private _rect: Vector4 = new Vector4();
+    protected _rect: Vector4 = new Vector4();
+
+    protected _boundsChange: boolean = false;
 
     protected _renderHandle: I2DBaseRenderDataHandle;
 
@@ -218,7 +220,6 @@ export class BaseRenderNode2D extends Component {
         return this._rect;
     }
 
-    private _boundsChange: boolean = false;
 
     public get boundsChange(): boolean {
         return this._boundsChange;
@@ -265,7 +266,7 @@ export class BaseRenderNode2D extends Component {
         this._renderid = BaseRenderNode2D._uniqueIDCounter++;
         this._renderType = BaseRender2DType.baseRenderNode;
         this._ordingMode = Render2DOrderMode.elementIndex;
-        this._renderHandle = this._getRenderHandle();
+        this._renderHandle = this._createRenderHandle();
     }
 
 
@@ -281,14 +282,18 @@ export class BaseRenderNode2D extends Component {
         this._struct = this.owner._struct;
         this._spriteShaderData = this._struct.spriteShaderData;
         this.owner._struct.renderDataHandler = this._renderHandle;
-        this.owner._struct.renderMatrix = this.owner.globalTrans.getMatrix();
         this.owner._struct.renderElements = this._renderElements;
         this.owner._struct.renderType = this._renderType;
+        this.owner._updateStruct();
         this._initDefaultRenderData && this._initDefaultRenderData();
     }
 
     protected _onEnable(): void {
+        this.owner.renderNode2D = this;
         super._onEnable();
+        //更新矩阵
+        this.owner.globalTrans._spTransChanged(TransformKind.TRS);
+
         if (this._lightReceive)
             this._addRenderToLightManager();
     }
@@ -312,8 +317,17 @@ export class BaseRenderNode2D extends Component {
         this._renderHandle.destroy();
     }
 
-    protected _getRenderHandle(): I2DBaseRenderDataHandle {
+    /** @ignore */
+    _getRenderHandle(): I2DBaseRenderDataHandle {
+        return this._renderHandle;
+    }
+
+    protected _createRenderHandle(): I2DBaseRenderDataHandle {
         return LayaGL.render2DRenderPassFactory.create2DBaseRenderDataHandle();
+    }
+
+    protected _isMaterialVaild(value: Material): boolean {
+        return true;
     }
 
     /**
@@ -403,6 +417,8 @@ export class BaseRenderNode2D extends Component {
     }
 
     set sharedMaterial(value: Material) {
+        if (value && !this._isMaterialVaild(value))
+            return;
         const lastValue: Material = this._materials[0];
         if (lastValue !== value) {
             this._materials[0] = value;

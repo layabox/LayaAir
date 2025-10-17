@@ -45,6 +45,11 @@ export class TileSetCellData {
     private _transpose: boolean = false;
 
     private _rotateCount: number = 0;
+
+    private _transChange: boolean = false;
+
+    private _transFlag: number = 0;
+
     //单位像素
     private _texture_origin: Vector2;
 
@@ -79,21 +84,18 @@ export class TileSetCellData {
 
     private _destroyed: boolean = false;
 
-    private _updateTrans = true;
-
-    /**@internal */
-    private _transData: Vector4 = new Vector4();
-
     gid: number = -1;
-
-    //贴图旋转矩阵
-    get transData(): Vector4 {
-        if (this._updateTrans) this._updateTransData();
-        return this._transData;
-    }
 
     get index() {
         return this._index;
+    }
+
+    get transFlag(): number {
+        if (this._transChange) {
+            this._transFlag = TileMapUtils.getTransFlag(this.rotateCount, this._flip_h, this._flip_v, this._transpose);
+            this._transChange = false;
+        }
+        return this._transFlag;
     }
 
     /**
@@ -116,7 +118,7 @@ export class TileSetCellData {
 
     public set flip_h(value: boolean) {
         this._flip_h = value;
-        this._updateTrans = true;
+        this._transChange = true;
         this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
     }
 
@@ -129,7 +131,7 @@ export class TileSetCellData {
 
     public set flip_v(value: boolean) {
         this._flip_v = value;
-        this._updateTrans = true;
+        this._transChange = true;
         this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
     }
 
@@ -142,7 +144,7 @@ export class TileSetCellData {
      */
     public set transpose(value: boolean) {
         this._transpose = value;
-        this._updateTrans = true;
+        this._transChange = true;
         this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
     }
 
@@ -155,7 +157,7 @@ export class TileSetCellData {
 
     public set rotateCount(value: number) {
         this._rotateCount = value;
-        this._updateTrans = true;
+        this._transChange = true;
         this._notifyDataChange(TileMapDirtyFlag.CELL_UVTRAN, DirtyFlagType.RENDER);
     }
 
@@ -308,16 +310,16 @@ export class TileSetCellData {
     _noticeRenderChange() {
         if (!this.cellowner) return;
         this._notiveRenderTile.forEach(element => {
-            element.modifyRenderData()
+            element._modifyData()
         });
     }
 
-    private _updateTransData() {
-        this._updateTrans = false;
-        let tileshape = this.cellowner.owner._owner.tileShape;
-        let out = TileMapUtils.getUvRotate(tileshape, this._flip_h, this._flip_v,this._transpose, this._rotateCount);
-        out.cloneTo(this._transData);
-    }
+    // private _updateTransData() {
+    //     this._updateTrans = false;
+    //     let tileshape = this.cellowner.owner._owner.tileShape;
+    //     let out = TileMapUtils.getUvRotate(tileshape, this._flip_h, this._flip_v, this._transpose, this._rotateCount);
+    //     out.cloneTo(this._transData);
+    // }
 
     _removeNoticeRenderTile(layerRenderTile: TileMapChunkData) {
         let index = this._notiveRenderTile.indexOf(layerRenderTile);
@@ -357,11 +359,11 @@ export class TileSetCellData {
     }
 
 
-    getTerrainsParams():TerrainsParams{
+    getTerrainsParams(): TerrainsParams {
         let params = new TerrainsParams;
         params.terrainSet = this.terrainSet;
         params.terrain = this.terrain;
-        params.terrain_peering_bits = this._terrain_peering_bits.slice(0,16);
+        params.terrain_peering_bits = this._terrain_peering_bits.slice(0, 16);
         return params;
     }
 
@@ -401,17 +403,10 @@ export class TileSetCellData {
     }
 
     cloneTo(dst: TileSetCellData) {
-        dst._flip_h = this._flip_h;
-        dst._flip_v = this._flip_v;
         dst._material = this._material;
         dst._cellowner = this._cellowner;
-        dst._rotateCount = this._rotateCount;
-        dst._transpose = this._transpose;
         dst._z_index = this._z_index;
         dst._y_sort_origin = this._y_sort_origin;
-        this._transData.cloneTo(dst._transData);
-
-        dst._updateTrans = true;
     }
 
     //删除

@@ -48,6 +48,13 @@ export class AnimatorState extends EventDispatcher implements IClone {
      */
     static readonly EVENT_OnStateSwitch = "OnStateSwitch";
 
+    /**
+     * @en Event triggered when switching to a new state
+     * @zh 切换到新状态时触发的事件
+     * @blueprintIgnore
+     */
+    static readonly EVENT_OnStateSwitch = "OnStateSwitch";
+
     /** @internal */
     private _referenceCount: number = 0;
 
@@ -183,7 +190,7 @@ export class AnimatorState extends EventDispatcher implements IClone {
      * @zh 动画是否循环播放。
      */
     get islooping() {
-        if (0 != this._isLooping) {
+        if (this._isLooping) {
             return 1 == this._isLooping;
         }
         return this._clip.islooping;
@@ -252,6 +259,19 @@ export class AnimatorState extends EventDispatcher implements IClone {
  * @internal
  * @param currentState 
  */
+    _eventSwitch(currentState: AnimatorState) {
+        this.event(AnimatorState.EVENT_OnStateSwitch, currentState);
+        if (this._scripts) {
+            for (let i = 0, n = this._scripts.length; i < n; i++) {
+                this._scripts[i].onStateSwitch && this._scripts[i].onStateSwitch(currentState);
+            }
+        }
+    }
+
+    /**
+     * @internal
+     * @param currentState 
+     */
     _eventSwitch(currentState: AnimatorState) {
         this.event(AnimatorState.EVENT_OnStateSwitch, currentState);
         if (this._scripts) {

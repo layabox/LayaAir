@@ -1,16 +1,24 @@
 #if !defined(SpineVertex_lib)
     #define SpineVertex_lib
 
+uniform vec4 u_color;
+
+#ifdef SPINE_RB
+    uniform vec3 u_sBone0;
+    uniform vec3 u_sBone1;
+#endif
+
 void transfrom(vec2 pos,vec4 xDir,vec4 yDir,out vec2 outPos){
     outPos.x=xDir.x*pos.x+xDir.y*pos.y +xDir.z;
     outPos.y=yDir.x*pos.x+yDir.y*pos.y +yDir.z;
 }
 
 void transfrom_spine(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
-    outPos.x =  xDir.x * pos.x - yDir.x  * pos.y + xDir.z ;
+    // outPos.x = xDir.x*pos.x+xDir.y*pos.y + xDir.z;
+    // outPos.y = - (yDir.x*pos.x+yDir.y*pos.y -yDir.z);
+    outPos.x =  xDir.x * pos.x - yDir.x * pos.y + xDir.z ;
     outPos.y =  xDir.y * pos.x - yDir.y * pos.y + yDir.z;
 }
-
 
 #ifdef SPINE_SIMPLE
     uniform vec4 u_SimpleAnimatorParams;
@@ -44,7 +52,7 @@ void transfrom_spine(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
     }
 #endif
 
-#if defined(SPINE_FAST) || defined(SPINE_RB)
+#ifdef SPINE_FAST
     uniform vec4 u_sBone[200];
     vec4 getBonePos(float fboneId,float weight,vec2 pos){
         int boneId=int(fboneId);
@@ -59,7 +67,6 @@ void transfrom_spine(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
     }
 #endif
 
-uniform vec4 u_color;
 
 vec4 getSpinePos(){
 
@@ -85,8 +92,10 @@ vec4 getSpinePos(){
         #endif
         
         #ifdef SPINE_RB
-            return getBonePos(a_BoneId,1.0,a_position);
-            //return vec4(pos,0.,1.);
+            vec2 pos;
+            transfrom(a_position,u_sBone0,u_sBone1,pos);
+            return vec4(pos,0.,1.);
+            // return getBonePos(a_BoneId,1.0,a_position);
         #endif
     #endif // SPINE_SIMPLE
     //spine Texture
@@ -150,14 +159,7 @@ void getVertexInfo(vec4 pos, inout vertexInfo info){
 
     #ifdef LIGHT2D_ENABLE
         vec2 global;
-        vec3 stageInv0 = vec3(u_LightAndShadow2DStageMat0.x, u_LightAndShadow2DStageMat0.y, u_LightAndShadow2DStageMat0.z);
-        vec3 stageInv1 = vec3(u_LightAndShadow2DStageMat1.x, u_LightAndShadow2DStageMat1.y, u_LightAndShadow2DStageMat1.z);
-        invertMat(stageInv0, stageInv1); //获取stage的逆矩阵
-        getGlobalPos(pos, global); //先获得完整世界变换的位置
-        transfrom(global, stageInv0, stageInv1, global); //先去除stage变换
-        transfrom(global, u_LightAndShadow2DSceneInv0, u_LightAndShadow2DSceneInv1, global); //再去除scene变换
-        transfrom(global, u_LightAndShadow2DStageMat0, u_LightAndShadow2DStageMat1, global); //再恢复stage变换
-        //现在global中的值就和生成光影图时的值一致了，基于这个值生成光影图采样uv坐标
+        getGlobalPos(pos, global);
         info.lightUV.x = (global.x - u_LightAndShadow2DParam.x) / u_LightAndShadow2DParam.z;
         info.lightUV.y = 1.0 - (global.y - u_LightAndShadow2DParam.y) / u_LightAndShadow2DParam.w;
     #endif

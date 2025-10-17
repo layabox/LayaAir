@@ -31,13 +31,14 @@ import { TextRender } from "../../webgl/text/TextRender";
 import { GraphicsMesh, MeshBlockInfo } from "../../webgl/utils/GraphicsMesh";
 import { Sprite } from "../Sprite";
 import { GraphicsRenderData } from "./GraphicsUtils";
-import { I2DGraphicBufferDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DGraphicVertexDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { LayaGL } from "../../layagl/LayaGL";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
+import { Resource } from "../../resource/Resource";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 //const tmpuv1: number[] = [0, 0, 0, 0, 0, 0, 0, 0];
@@ -166,6 +167,14 @@ export class GraphicsRunner {
      */
     touchRes(res: IAutoExpiringResource) {
         this._graphicsData.touchRes(res);
+    }
+
+    /**
+     * 添加需要引用的资源
+     * @param res 
+     */
+    referenceRes(res: Resource) {
+        this._graphicsData.referenceRes(res);
     }
 
     transformByMatrix(matrix: Matrix, tx: number, ty: number): void {
@@ -510,39 +519,51 @@ export class GraphicsRunner {
         this._save = null;
     }
 
-    clearRenderData(): void {
+    clear(): void {
         this._submitKey.clear();
         this._curSubmit = SubmitBase.RENDERBASE;
         this._curMat.identity();
         this._other = ContextParams.DEFAULT;
         this._other.clear();
-        this._lastTex = null;
-    }
-
-    clear(): void {
-        this.clearRenderData();
-        this._alpha = 1.0;
-        this._nBlendType = BlendMode.normal;
         this._clipRect = SaveClipRect.MAX;
         this._clip_x = 0;
         this._clip_y = 0;
+        this._alpha = 1.0;
+        this._nBlendType = BlendMode.normal;
         this._fillStyle = this._strokeStyle = DrawStyle.DEFAULT;
+        this._lastTex = null;
         this._saveMark = <SaveMark>this._save[0];
         this._save._length = 1;
     }
-
+    /**
+     * @zh 获取当前的 X 方向缩放
+     * @returns 当前的 X 方向缩放
+     * @en Get the current X-axis scaling
+     * @returns The current X-axis scaling
+     */
     getCurrentScaleX(): number {
         let scaleX = this.getMatScaleX();
-        let matrix = this.sprite.globalTrans.getMatrix();
-        let spriteScaleX = matrix.a;
-        return scaleX * spriteScaleX;
+        if (this.sprite && this.sprite.globalTrans) {
+            const matrix = this.sprite.globalTrans.getMatrix();
+            // 列向量长度，使用矩阵第一列向量的模长 sqrt(a² + b²)，避免旋转影响
+            scaleX *= Math.hypot(matrix.a, matrix.b);
+        }
+        return Math.abs(scaleX);  // 取绝对值，防止负缩放导致错误
     }
-
+    /**
+     * @zh 获取当前的 Y 方向缩放
+     * @returns 当前的 Y 方向缩放
+     * @en Get the current Y-axis scaling
+     * @returns The current Y-axis scaling
+     */
     getCurrentScaleY(): number {
         let scaleY = this.getMatScaleY();
-        let matrix = this.sprite.globalTrans.getMatrix();
-        let spriteScaleY = matrix.d;
-        return scaleY * spriteScaleY;
+        if (this.sprite && this.sprite.globalTrans) {
+            const matrix = this.sprite.globalTrans.getMatrix();
+            // 列向量长度，使用矩阵第二列向量的模长 sqrt(c² + d²)，避免旋转影响
+            scaleY *= Math.hypot(matrix.c, matrix.d);
+        }
+        return Math.abs(scaleY);
     }
 
     /**
@@ -751,6 +772,7 @@ export class GraphicsRunner {
         if (!this._getImageSource(texture)) {
             return;
         }
+        this.referenceRes(texture);
         this._fillTexture(texture, texture.width, texture.height, texture.uvrect, x, y, width, height, type, offset.x, offset.y, color);
     }
 
@@ -856,6 +878,7 @@ export class GraphicsRunner {
             return;
         }
 
+        this.referenceRes(tex);
         //TODO 还没实现
         var n = pos.length / 2;
         var ipos = 0;
@@ -872,6 +895,7 @@ export class GraphicsRunner {
         if (!this._getImageSource(tex)) { //source内调用tex.active();
             return false;
         }
+        this.referenceRes(tex);
         return this._inner_drawTexture(tex, (tex.bitmap as Texture2D).id, x, y, width, height, m, uv, alpha, false, color);
     }
 
@@ -930,7 +954,7 @@ export class GraphicsRunner {
             this._drawTriUseAbsMatrix = true;
             var tuv = this._tempUV;
             tuv[0] = uv[0]; tuv[1] = uv[1]; tuv[2] = uv[2]; tuv[3] = uv[3]; tuv[4] = uv[4]; tuv[5] = uv[5]; tuv[6] = uv[6]; tuv[7] = uv[7];
-            this.drawTriangles(tex as Texture, 0, 0, tv, tuv, _drawTexToDrawTri_Index, m || this._curMat, alpha, null, 0xffffffff);//用tuv而不是uv会提高效率
+            this.drawTriangles(tex as Texture, 0, 0, tv, tuv, _drawTexToDrawTri_Index, m || this._curMat, alpha, null, color);//用tuv而不是uv会提高效率
             this._drawTriUseAbsMatrix = false;
             return true;
         }
@@ -1095,11 +1119,8 @@ export class GraphicsRunner {
         var oldcomp: BlendMode;
         var curMat = this._curMat;
         if (blendMode != null) {
-            if (typeof blendMode == "string") {
-                blendMode = BlendMode[blendMode as keyof typeof BlendMode];
-                if (blendMode == null)
-                    blendMode = BlendMode.invalid;
-            }
+            if (typeof blendMode == "string")
+                blendMode = BlendMode[blendMode as keyof typeof BlendMode] ?? (blendMode === "destination-out" ? BlendMode.destinationOut : 0);
             oldcomp = this.globalCompositeOperation;
             this.globalCompositeOperation = blendMode as BlendMode;
         }
@@ -1146,17 +1167,15 @@ export class GraphicsRunner {
         if (!this._getImageSource(tex)) { //source内调用tex.active();
             return;
         }
-
+        this.referenceRes(tex);
+        
         if (alpha == null) alpha = 1.0;
         if (colorNum == null) colorNum = 0xffffffff;
 
         let oldcomp: BlendMode | null = null;
         if (blendMode != null) {
-            if (typeof blendMode == "string") {
-                blendMode = BlendMode[blendMode as keyof typeof BlendMode];
-                if (blendMode == null)
-                    blendMode = BlendMode.invalid;
-            }
+            if (typeof blendMode == "string")
+                blendMode = BlendMode[blendMode as keyof typeof BlendMode] ?? (blendMode === "destination-out" ? BlendMode.destinationOut : 0);
             oldcomp = this.globalCompositeOperation;
             this.globalCompositeOperation = blendMode as BlendMode;
         }
@@ -2182,20 +2201,24 @@ export class GraphicsRunner {
         let dataViewIndex = 0;
         let vertexViews = result.vertexViews;
         let indexsMap: number[] = [];
-        let dataView: I2DGraphicBufferDataView;
+        let dataView: I2DGraphicVertexDataView;
         let offset = 0;
 
         let positions: number[] = [];
-        let vbdata: Float32Array;
+        let vbdata: Float32Array = result.mesh._buffer._tempVertexData;
         let vertexLength = GraphicsMesh.stride;
         for (let i = 0, pi = 0, ci = 0, vi = 0; i < vertexCount; i++) {
 
             if (!dataView || dataView.length <= vi) {
+
+                if (dataView) {
+                    dataView.setData(vbdata);
+                }
+
                 dataView = vertexViews[dataViewIndex];
                 dataViewIndex++;
                 vi = 0;
                 offset = dataView.start / dataView.stride;
-                vbdata = dataView.getData() as Float32Array;
             }
 
             let x = vertices[pi], y = vertices[pi + 1];
@@ -2244,6 +2267,10 @@ export class GraphicsRunner {
             pi += 2;
             ci += 4;
             indexsMap[i] = offset++;
+        }
+
+        if (dataView) {
+            dataView.setData(vbdata);
         }
 
         result.positions = positions;

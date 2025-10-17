@@ -5,6 +5,7 @@ import glsl from "rollup-plugin-glsl";
 import esbuild from 'rollup-plugin-esbuild';
 import { onRollupWarn } from "./utils.mjs";
 
+const platform = process.argv[2];
 const sourcemap = true;
 
 //引用插件模块
@@ -136,6 +137,7 @@ let layaFiles = [
 
 var mentry = 'multientry.ts';
 var needCompile = true;
+const target = 'es2020';
 
 function mySamplesMultiInput(options) {
 
@@ -199,13 +201,14 @@ function mySamplesMultiInput(options) {
 }
 
 async function start() {
+    console.log(`Watching samples for ${platform}...`);
     let config = {
         "target": "es2017",
         "module": "es6",
         "baseUrl": "../layaAir",
     }
     watch({
-        input: samplesBathURL + '/index.ts',
+        input: samplesBathURL + `/index_${platform}.ts`,
         treeshake: false, //建议忽略
         onwarn: onRollupWarn(ignoreCircularDependencyWarnings),
         external: ['Laya'],
@@ -223,7 +226,7 @@ async function start() {
                 include: /\.[jt]sx?$/,
                 sourceMap: sourcemap,
                 minify: process.env.NODE_ENV === 'production',
-                target: 'esnext', // default, or 'es20XX', 'esnext'
+                target: target, // default, or 'es20XX', 'esnext'
                 tsconfig: JSON.stringify(config), // default
             }),
             glsl({
@@ -234,7 +237,7 @@ async function start() {
             }),
         ],
         output: {
-            file: './bin/rollUp/bundle.js',
+            file: `./bin/${platform}/bundle.js`,
             format: 'iife',
             name: 'Laya',
             extend: true,
@@ -277,7 +280,7 @@ function startLaya() {
                 include: /\.[jt]sx?$/,
                 sourceMap: sourcemap,
                 minify: process.env.NODE_ENV === 'production',
-                target: 'esnext', // default, or 'es20XX', 'esnext'
+                target: target, // default, or 'es20XX', 'esnext'
                 tsconfig: './src/layaAir/tsconfig.json', // default
             }),
             glsl({
@@ -287,7 +290,7 @@ function startLaya() {
             }),
         ],
         output: {
-            file: './bin/rollUp/laya.js',
+            file: `./bin/${platform}/laya.js`,
             format: 'iife',
             name: 'Laya',
             sourcemap: sourcemap,

@@ -1,4 +1,6 @@
 import { Laya3DRender } from "../../d3/RenderObjs/Laya3DRender";
+import { LayaGL } from "../../layagl/LayaGL";
+import { StatElement } from "../../layagl/StatisticsContext";
 import { FastSinglelist } from "../../utils/SingletonList";
 import { IInstanceRenderBatch, IRenderContext3D, IRenderElement3D } from "../DriverDesign/3DRenderPass/I3DRenderPass";
 import { RenderQuickSort } from "./RenderQuickSort";
@@ -32,8 +34,11 @@ export class RenderListQueue {
      * 合并渲染队列
      */
     private _batchQueue() {
-        if (!this._isTransparent)
+        if (!this._isTransparent) {
+            let time = performance.now();
             this._batch.batch(this._elements);
+            LayaGL.statAgent.recordTimeData(StatElement.T_3DBatchTime, performance.now() - time);
+        }
     }
 
     /**
@@ -45,9 +50,9 @@ export class RenderListQueue {
         const count = this._elements.length;
         this._quickSort.sort(this._elements, this._isTransparent, 0, count - 1);
         context.drawRenderElementList(this._elements);
+        LayaGL.statAgent.recordCTData(this._isTransparent ? StatElement.CT_TransDrawCall : StatElement.CT_OpaqueDrawCall, this.elements.length)
         this._batch.clearRenderData();
     }
-
     /**
      * 清空队列
      */

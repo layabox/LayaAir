@@ -31,7 +31,7 @@ export class DrawMeshInstancedCMD extends Command {
      * @en Maximum number of draw instances.
      * @zh 设置最大DrawInstance数。
      */
-    static readonly maxInstanceCount = 1024;
+    static maxInstanceCount = 1024;
 
     /**
      * @internal
@@ -69,6 +69,11 @@ export class DrawMeshInstancedCMD extends Command {
         cmd._commandBuffer = commandBuffer;
         cmd._instanceProperty = instanceProperty;
         cmd._drawnums = drawnums;
+
+        if (!cmd._instanceBufferState) {
+            cmd._instanceBufferState = new BufferState();
+        }
+
         cmd.mesh = mesh;
         matrixs && cmd._updateWorldMatrixBuffer();
         cmd._setInstanceBuffer();
@@ -160,8 +165,13 @@ export class DrawMeshInstancedCMD extends Command {
         if (this._subMeshIndex == -1) {
             for (let i = 0, n = submeshs.length; i < n; i++) {
                 let element = this._instanceRenderElementArray[i] = this._instanceRenderElementArray[i] ? this._instanceRenderElementArray[i] : new RenderElement();
+
                 let geometry = this._instanceGeometryArray[i] = this._instanceGeometryArray[i] ? this._instanceGeometryArray[i] : new MeshInstanceGeometry(submeshs[i]);
+                geometry.bufferState = this._instanceBufferState;
+                geometry.instanceCount = this._drawnums;
+
                 element.setGeometry(geometry);
+
                 element.transform = this._transform;
                 element.material = this._material;
                 // element.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
@@ -169,19 +179,20 @@ export class DrawMeshInstancedCMD extends Command {
                 element.render = this._render;
                 element._renderElementOBJ.owner = this._render._baseRenderNode;
 
-                geometry.bufferState = this._instanceBufferState;
-                geometry.instanceCount = this._drawnums;
+
             }
         } else {
             let element = this._instanceRenderElementArray[0] = this._instanceRenderElementArray[0] ? this._instanceRenderElementArray[0] : new RenderElement();
+
             let geometry = this._instanceGeometryArray[0] = this._instanceGeometryArray[0] ? this._instanceGeometryArray[0] : new MeshInstanceGeometry(submeshs[this._subMeshIndex]);
+            geometry.bufferState = this._instanceBufferState;
+            geometry.instanceCount = this._drawnums;
             element.setGeometry(geometry);
+
             element.transform = this._transform;
             element.material = this._material;
             element.render = this._render;
             //element.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
-            geometry.bufferState = this._instanceBufferState;
-            geometry.instanceCount = this._drawnums;
 
             element._renderElementOBJ.owner = this._render._baseRenderNode
 
@@ -334,6 +345,7 @@ export class DrawMeshInstancedCMD extends Command {
         this._instanceRenderElementArray = [];
         delete this._instanceGeometryArray;
         this._instanceGeometryArray = [];
+        this._drawElementCMDData.setRenderelements([]);
         this.mesh = null;
 
     }

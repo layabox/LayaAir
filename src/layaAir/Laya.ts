@@ -5,7 +5,6 @@ import { Loader } from "./laya/net/Loader";
 import { Render } from "./laya/renders/Render";
 import { Browser } from "./laya/utils/Browser";
 import { Timer } from "./laya/utils/Timer";
-import { RenderStateContext } from "./laya/RenderEngine/RenderStateContext";
 import { IStageConfig, LayaEnv } from "./LayaEnv";
 import { Config } from "./Config";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
@@ -34,6 +33,7 @@ import { Render2DProcessor } from "./laya/display/Render2DProcessor";
 import { GraphicsRunner } from "./laya/display/Scene2DSpecial/GraphicsRunner";
 import { Blit2DCMD } from "./laya/display/Scene2DSpecial/RenderCMD2D/Blit2DCMD";
 import { Scene } from "./laya/display/Scene";
+import { RenderTexture2D } from "./laya/resource/RenderTexture2D";
 
 /**
  * @en Laya is the reference entry for global objects.
@@ -207,6 +207,7 @@ export class Laya {
         Shader2D.__init__();
         BlendModeHandler._init_();
         Texture2D.__init__();
+        RenderTexture2D.__init__();
         TextureCube.__init__();
         Texture2DArray.__init__();
         HalfFloatUtils.__init__();
@@ -216,7 +217,6 @@ export class Laya {
         BaseRenderNode2D.initBaseRender2DCommandEncoder();
         Blit2DCMD.__init__();
         PostProcess2D.init();
-        RenderStateContext.__init__();
         Material.__initDefine__();
         Mesh2DRender.__init__();
 

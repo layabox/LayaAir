@@ -11,6 +11,7 @@ import { IVBChange } from "./interface/IVBChange";
 import { SpineOptimizeRender } from "./SpineOptimizeRender";
 import { SkinAniRenderData, FrameRenderData } from "./AnimationRender";
 import { MultiRenderData } from "./MultiRenderData";
+import { SkinAttach } from "./SketonOptimise";
 
 /**
  * @en SkinRenderUpdate used for rendering Spine skins.
@@ -70,6 +71,12 @@ export class SkinRenderUpdate {
     vertexBones: number = 0;
 
     /**
+     * @en The index of the rigid body bone.
+     * @zh 刚体骨骼的索引。
+     */
+    rbBoneIndex: number = -1;
+
+    /**
      * @en Create a new instance of SkinRender.
      * @param owner The SpineOptimizeRender that owns this SkinRender.
      * @param skinAttach The SkinAttach data.
@@ -77,12 +84,13 @@ export class SkinRenderUpdate {
      * @param owner 拥有此 SkinRender 的 SpineOptimizeRender。
      * @param skinAttach SkinAttach 数据。
      */
-    constructor(owner: SpineOptimizeRender, skinAttach: any) {
+    constructor(owner: SpineOptimizeRender, skinAttach: SkinAttach) {
         this.owner = owner;
         this.name = skinAttach.name;
         this.hasNormalRender = skinAttach.hasNormalRender;
         this.vertexBones = skinAttach.vertexBones;
         this.skinAttachType = skinAttach.type;
+        this.rbBoneIndex = skinAttach.rbBoneIndex;
     }
 
     /**
@@ -118,17 +126,17 @@ export class SkinRenderUpdate {
         let mesh = this.owner.getDynamicMesh(skindata.vb.vertexDeclaration);
 
         let currentChanges = this.vChanges;
-        
+
         let frameData = skindata.getFrameData(frame);
 
-        let isFirst = frame < 0;
+        let isFirst = lastFrame < 0;
         let needUpload = false;
 
         if (isFirst) {
             this._resetVertexBuffset(skindata);
             currentChanges.length = 0;
         }
-       
+
         //统计vchange
         for (let f = lastFrame + 1; f <= frame; f++) {
             let frameData = skindata.getFrameData(f);
@@ -161,10 +169,10 @@ export class SkinRenderUpdate {
         }
 
         let needUpdateMesh = SpineMeshUtils._updateSpineSubMesh(mesh, frameData);
-        return this.handleRender(skindata, frame, renderNode, mesh , needUpdateMesh);
+        return this.handleRender(skindata, frame, renderNode, mesh, needUpdateMesh);
     }
 
-    private handleRender(skindata: SkinAniRenderData, frame: number, renderNode: Spine2DRenderNode, mesh: Mesh2D , forceUpdateMesh = false): boolean {
+    private handleRender(skindata: SkinAniRenderData, frame: number, renderNode: Spine2DRenderNode, mesh: Mesh2D, forceUpdateMesh = false): boolean {
         let frameData = skindata.getFrameData(frame);
         let needUpdate = false;
         let mulitRenderData = frameData.mulitRenderData;
@@ -177,7 +185,7 @@ export class SkinRenderUpdate {
             }
         }
 
-        return !renderNode._onMeshChange(mesh , forceUpdateMesh) || needUpdate;
+        return !renderNode._onMeshChange(mesh, forceUpdateMesh) || needUpdate;
     }
 
     private createMaterials(mulitRenderData: MultiRenderData): Material[] {
@@ -217,7 +225,7 @@ export class SkinRenderUpdate {
         let vertexBuffer = mesh.vertexBuffers[0];
         let vblen = vbCreator.vbLength * 4;
         vertexBuffer.setDataLength(vbCreator.maxVertexCount * vbCreator.vertexSize * 4);
-        vertexBuffer.setData(vbCreator.vb.buffer, 0, 0, vblen);
+        vertexBuffer.setData(vbCreator.vb.buffer as ArrayBuffer, 0, 0, vblen);
     }
 
     /**
@@ -251,10 +259,10 @@ export class SkinRenderUpdate {
         let slots = this.owner._skeleton.slots;
         let map = skindata.vb.slotVBMap;
         let renderDatas = skindata.renderDatas;
-        let resetSlots:Set<number> = new Set();
+        let resetSlots: Set<number> = new Set();
 
         renderDatas.forEach(data => {
-            if (data.vChanges) {
+            if (data && data.vChanges) {
                 for (const change of data.vChanges) {
                     resetSlots.add(change.slotId);
                 }

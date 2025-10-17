@@ -7,6 +7,7 @@ import { LayaGL } from "../layagl/LayaGL";
 import { I2DGlobalRenderData } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { SpriteConst } from "./SpriteConst";
+import { Matrix } from "../maths/Matrix";
 
 export class Area2D extends Sprite {
     private _mainCamera: Camera2D;
@@ -20,6 +21,7 @@ export class Area2D extends Sprite {
         this._initShaderData();
         this._globalRenderData = LayaGL.render2DRenderPassFactory.create2DGlobalRenderDataHandle();
         this._globalRenderData.globalShaderData = this._globalShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
+        this._globalRenderData.renderLayerMask = -1;
         this._struct.globalRenderData = this._globalRenderData;
     }
 
@@ -73,6 +75,14 @@ export class Area2D extends Sprite {
         super._setUnBelongScene();
     }
 
+    localToView(x: number, y: number, out?: Point): Point {
+        out = out || new Point();
+        out.setTo(x, y);
+        this.localToGlobal(out);
+        this.transformPoint(out.x, out.y, out);
+        return out;
+    }
+
     /**
      * @en Convert screen coordinates to Area2D internal UI coordinates.
      * @param x The x axis of screen coordinates.
@@ -88,17 +98,29 @@ export class Area2D extends Sprite {
     transformPoint(x: number, y: number, out?: Point): Point {
         out = out || new Point();
         out.setTo(x, y);
-        if (!this._mainCamera)
-            return out;
 
-        //如果之前没有Camera，根据scene计算screen坐标
-        this.localToGlobal(out);
-        //根据camera计算实际的world坐标
-        this.mainCamera.localToGlobal(out);
-        //根据实际坐标计算scene的实际local坐标
-        out.x -= RenderState2D.width * 0.5;
-        out.y -= RenderState2D.height * 0.5;
-        this.globalToLocal(out);
+        if (!this._mainCamera) {
+            // 如果没有主相机，屏幕坐标就是相对于Area2D的UI坐标
+            return out;
+        }
+
+        let halfWidth = RenderState2D.width * 0.5;
+        let halfHeight = RenderState2D.height * 0.5;
+        let c_x = x - halfWidth;
+        let c_y = y - halfHeight;
+        // 获取相机的变换矩阵
+        this._mainCamera._getCameraTransform();
+        let cameraMatrix = this._mainCamera.cameraMatrix;
+        let elements = cameraMatrix.elements;
+
+        let newX = elements[0] * c_x + elements[3] * c_y + elements[6];
+        let newY = elements[1] * c_x + elements[4] * c_y + elements[7];
+
+        let matrix = Matrix.TEMP;
+        this._globalTrans.getMatrixInv(matrix);
+        out.x = matrix.a * newX + matrix.c * newY + matrix.tx;
+        out.y = matrix.b * newX + matrix.d * newY + matrix.ty;
+
         return out;
     }
 }

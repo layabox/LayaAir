@@ -4,14 +4,14 @@ import { Rectangle } from "../../../../maths/Rectangle";
 import { Matrix } from "../../../../maths/Matrix";
 import { Vector4 } from "../../../../maths/Vector4";
 import { BlendMode } from "../../../../webgl/canvas/BlendMode";
-import { I2DGlobalRenderData, IRender2DDataHandle } from "../../Design/2D/IRender2DDataHandle";
+import { I2DGlobalRenderData } from "../../Design/2D/IRender2DDataHandle";
 import { GLESShaderData } from "../../../OpenGLESDriver/RenderDevice/GLESShaderData";
 import { RTRender2DPass } from "./RTRender2DPass";
 import { GLESRenderElement2D } from "../../../OpenGLESDriver/2DRenderPass/GLESRenderElement2D";
 import { IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { RTRender2DDataHandle } from "./RTRenderDataHandle";
-import { GLESRenderContext2D } from "../../../OpenGLESDriver/2DRenderPass/GLESRenderContext2D";
 import { Stat } from "../../../../utils/Stat";
+import { Sprite } from "../../../../display/Sprite";
 
 
 export class RTGlobalRenderData implements I2DGlobalRenderData {
@@ -28,10 +28,13 @@ export class RTGlobalRenderData implements I2DGlobalRenderData {
       this._cullRect = value;
       this._nativeObj.setCullRect(value);
    }
+
+   private _renderLayerMask: number;
    get renderLayerMask(): number {
-      return this._nativeObj.renderLayerMask;
+      return this._renderLayerMask;
    }
    set renderLayerMask(value: number) {
+      this._renderLayerMask = value;
       this._nativeObj.renderLayerMask = value;
    }
    private _globalShaderData: GLESShaderData;
@@ -48,113 +51,186 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    _nativeObj: any;
 
+   owner: Sprite;
+
+   private _dcOptimize: boolean = false;
+   public get dcOptimize(): boolean {
+      return this._dcOptimize;
+   }
+   public set dcOptimize(value: boolean) {
+      this._dcOptimize = value;
+      this._nativeObj.setDcOptimize(value);
+   }
+
+   public get inheritedDcOptimize(): boolean {
+      return this._dcOptimize || this._parent?.dcOptimize;
+   }
+
+   private _zIndex: number = 0;
    set zIndex(value: number) {
+      this._zIndex = value;
       this._nativeObj.zIndex = value;
    }
    get zIndex(): number {
-      return this._nativeObj.zIndex;
+      return this._zIndex;
    }
+
+   private _stackingRoot: boolean = false;
+   set stackingRoot(value: boolean) {
+      this._stackingRoot = value;
+      this._nativeObj.stackingRoot = value;
+   }
+   get stackingRoot(): boolean {
+      return this._stackingRoot;
+   }
+
+   private _enableCulling: boolean = false;
+   get enableCulling(): boolean {
+      return this._enableCulling;
+   }
+   set enableCulling(value: boolean) {
+      this._enableCulling = value;
+      this._nativeObj.setEnableCulling(value);
+   }
+
+   get inheritedEnableCulling(): boolean {
+      return this._enableCulling || this._parent?.enableCulling;
+   }
+
    private _rect: Rectangle = new Rectangle(0, 0, 0, 0);
    set rect(value: Rectangle) {
+      value.cloneTo(this._rect);
       this._nativeObj.rect = value;
    }
    get rect(): Rectangle {
-      let rect = this._nativeObj.rect;
-      this._rect.x = rect.x;
-      this._rect.y = rect.y;
-      this._rect.width = rect.width;
-      this._rect.height = rect.height;
       return this._rect;
    }
+
+   private _renderLayer: number = 1;
    set renderLayer(value: number) {
+      this._renderLayer = value;
       this._nativeObj.renderLayer = value;
    }
    get renderLayer(): number {
-      return this._nativeObj.renderLayer;
+      return this._renderLayer;
    }
 
-   private _parent: IRenderStruct2D = null;
-   set parent(value: IRenderStruct2D) {
+   private _subStruct: RTRenderStruct2D;
+
+   public get subStruct(): RTRenderStruct2D {
+      return this._subStruct;
+   }
+
+   public set subStruct(value: RTRenderStruct2D) {
+      value._parent = this._parent;
+      value._blendMode = this._blendMode;
+
+      this._subStruct = value;
+      this._nativeObj.setSubStruct(value ? value._nativeObj : null);
+   }
+
+   private _parent: RTRenderStruct2D = null;
+   set parent(value: RTRenderStruct2D) {
       this._parent = value;
+      if (this._subStruct) {
+         this._subStruct._parent = value;
+      }
       this._nativeObj.setParent(value ? (value as unknown as RTRenderStruct2D)._nativeObj : null);
    }
-   get parent(): IRenderStruct2D | null {
+   get parent(): RTRenderStruct2D | null {
       return this._parent;
    }
-   private _children: IRenderStruct2D[] = [];
-   public get children(): IRenderStruct2D[] {
+   private _children: RTRenderStruct2D[] = [];
+   public get children(): RTRenderStruct2D[] {
       return this._children;
    }
-   public set children(value: IRenderStruct2D[]) {
+   public set children(value: RTRenderStruct2D[]) {
       this._children = value;
       let nativeArray = [];
-      for (var i = 0; i < nativeArray.length; i++) {
-         nativeArray.push((value[i] as unknown as RTRenderStruct2D)._nativeObj);
+      for (var i = 0; i < value.length; i++) {
+         nativeArray.push(value[i]._nativeObj);
       }
       this._nativeObj.setChildren(nativeArray);
    }
+
+   private _renderType: number = -1;
    set renderType(value: number) {
+      this._renderType = value;
       this._nativeObj.renderType = value;
    }
    get renderType(): number {
-      return this._nativeObj.renderType;
+      return this._renderType;
    }
 
+   private _renderUpdateMask: number;
    set renderUpdateMask(value: number) {
+      this._renderUpdateMask = value;
       this._nativeObj.renderUpdateMask = value;
    }
    get renderUpdateMask(): number {
-      return this._nativeObj.renderUpdateMask;
+      return this._renderUpdateMask;
    }
+
    private _renderMatrix: Matrix = new Matrix();
    set renderMatrix(value: Matrix) {
+      value.cloneTo(this._renderMatrix);
       this._nativeObj.setRenderMatrix(value, Stat.loopCount);
    }
    get renderMatrix(): Matrix {
-      let matrix = this._nativeObj.getRenderMatrix();
-      this._renderMatrix.a = matrix.a;
-      this._renderMatrix.b = matrix.b;
-      this._renderMatrix.c = matrix.c;
-      this._renderMatrix.d = matrix.d;
-      this._renderMatrix.tx = matrix.tx;
-      this._renderMatrix.ty = matrix.ty;
       return this._renderMatrix;
    }
+
+   private _globalAlpha: number;
    set globalAlpha(value: number) {
+      this._globalAlpha = value;
       this._nativeObj.globalAlpha = value;
    }
    get globalAlpha(): number {
-      return this._nativeObj.globalAlpha;
+      return this._globalAlpha;
    }
 
+   private _alpha: number;
    public get alpha(): number {
-      return this._nativeObj.alpha;
+      return this._alpha;
    }
 
    public set alpha(value: number) {
+      this._alpha = value;
       this._nativeObj.alpha = value;
    }
 
+   private _blendMode: BlendMode;
    public get blendMode(): BlendMode {
-      return this._nativeObj.blendMode;
+      if (this._subStruct && this._subStruct.enabled) {
+         return BlendMode.normal;
+      }
+      return this._blendMode || this._parent?.blendMode || BlendMode.normal;
    }
 
    public set blendMode(value: BlendMode) {
-      this._nativeObj.blendMode = value;
+      if (this._subStruct && this._subStruct.enabled) {
+         this._subStruct._blendMode = value;
+      }
+      this._blendMode = value;
+      this._nativeObj.blendMode = this._blendMode;
    }
 
+   private _enabled: boolean = true;
    public get enabled(): boolean {
-      return this._nativeObj.enable;
+      return this._enabled;
    }
 
    public set enabled(value: boolean) {
+      this._enabled = value;
       this._nativeObj.enable = value;
    }
 
+   private _isRenderStruct: boolean;
    public get isRenderStruct(): boolean {
-      return this._nativeObj.isRenderStruct;
+      return this._isRenderStruct;
    }
    public set isRenderStruct(value: boolean) {
+      this._isRenderStruct = value;
       this._nativeObj.isRenderStruct = value;
    }
 
@@ -202,10 +278,9 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
 
    private _pass: RTRender2DPass;
-   private _parentPass: RTRender2DPass;
 
    public get pass(): RTRender2DPass {
-      return this._pass || this._parentPass;
+      return this._pass || this._parent?.pass;
    }
 
    public set pass(value: RTRender2DPass) {
@@ -215,22 +290,23 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    constructor() {
       this._nativeObj = new (window as any).conchRTRenderStruct2D();
+      this.zIndex = 0;
+      this.rect = new Rectangle(0, 0, 0, 0);
+      this.renderLayer = 1;
+      this.renderType = -1;
+      this.renderUpdateMask = 0;
+      this.globalAlpha = 1.0;
+      this.alpha = 1.0;
+      this.blendMode = BlendMode.invalid;
+      this.enabled = true;
+      this.isRenderStruct = false;
    }
 
-   // RenderNode
-   // private _rnUpdateCall: any = null;
-   private _rnUpdateFun: any = null;
-
-
-   set_renderNodeUpdateCall(call: any, renderUpdateFun: any): void {
-      if (renderUpdateFun) {
-      	this._rnUpdateFun = renderUpdateFun.bind(call);
-      	this._nativeObj.setRenderUpdate(this._rnUpdateFun);
-      }
-      else {
-         this._rnUpdateFun = null;
+   setRenderUpdateCallback(func: Function): void {
+      if (func)
+         this._nativeObj.setRenderUpdate(func);
+      else
          this._nativeObj.setRenderUpdate(null);
-      }
    }
    setClipRect(rect: Rectangle): void {
       this._nativeObj.setClipRect(rect);
@@ -240,7 +316,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       this._nativeObj.setRepaint();
    }
 
-   addChild(child: IRenderStruct2D, index: number) {
+   addChild(child: RTRenderStruct2D, index: number) {
       child.parent = this;
       this._children.splice(index, 0, child);
 
@@ -248,7 +324,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       return;
    }
 
-   updateChildIndex(child: IRenderStruct2D, oldIndex: number, index: number): void {
+   updateChildIndex(child: RTRenderStruct2D, oldIndex: number, index: number): void {
       if (oldIndex === index)
          return;
 
@@ -258,21 +334,21 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       } else {
          this.children.splice(index, 0, child);
       }
-      this._nativeObj.updateChildIndex((child as unknown as RTRenderStruct2D)._nativeObj, oldIndex, index);
+      this._nativeObj.updateChildIndex(child._nativeObj, oldIndex, index);
    }
 
-   removeChild(child: IRenderStruct2D): void {
+   removeChild(child: RTRenderStruct2D): void {
       const index = this.children.indexOf(child);
       if (index !== -1) {
          child.parent = null;
          this.children.splice(index, 1);
-         this._nativeObj.removeChild((child as unknown as RTRenderStruct2D)._nativeObj);
+         this._nativeObj.removeChild(child._nativeObj);
       }
    }
 
-   renderUpdate(context: GLESRenderContext2D): void {
-      this._nativeObj.renderUpdate(context);
-   }
+   // renderUpdate(context: GLESRenderContext2D): void {
+   //    this._nativeObj.renderUpdate(context);
+   // }
 
    destroy(): void {
       this._nativeObj.destroy();

@@ -17,4 +17,15 @@ import "laya/platform/TextInputAdapter";
 Resource.DEBUG = true;
 Physics2D.I._factory = new physics2DwasmFactory();
 Laya3D.PhysicsCreateUtil = new btPhysicsCreateUtil();
-new Main(false, false);
+var useWebGPU = true;
+async function start(){
+    if (useWebGPU) {
+        var webGPUFile = './importWebGPU';//使用变量，避免tsc检查，因为有时候没有webgpu源码
+        await import(webGPUFile)
+    } else {
+        await import ("./importWebGL")
+    }
+    new Main(false, false);
+}
+
+start();

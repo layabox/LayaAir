@@ -192,7 +192,7 @@ export class PostProcess {
         context.command!.clear();
         context.source = screenTexture;
         context.indirectTarget = screenTexture;
-        context.destination = this._effects.length == 2 ? Indirect[0] : cameraTarget;
+        context.destination = Indirect[0];
         context.compositeShaderData!.clearDefine();
 
         if (internalRT) {
@@ -206,21 +206,24 @@ export class PostProcess {
         if (this._enableColorGrad) {
             this._ColorGradEffect._buildLUT();
         }
+        let runIndex = 0;
+        let hasActiveEffects = false;
+
         for (let i: number = 0, n: number = this._effects.length; i < n; i++) {
             if (this._effects[i].active) {
                 this._effects[i].render(context);
-                if (i === n - 2) {//last effect:destination RenderTexture is CameraTarget
-                    context.indirectTarget = context.destination;
-                    context.destination = cameraTarget;
-                } else {
-                    context.indirectTarget = context.destination;
-                    context.destination = Indirect[(i + 1) % 2];
-                }
-            } else if (i === n - 1) {//兼容最后一个Effect Active为false
-                context.command.blitScreenTriangle(context.indirectTarget, cameraTarget);
+                hasActiveEffects = true;
+                context.indirectTarget = context.destination;
+                runIndex++;
+                // 确保下一个目标不会与当前目标冲突
+                context.destination = Indirect[runIndex % 2];
             }
         }
 
+        // 只有当有活跃的effects时才执行最终blit，避免反馈循环
+        if (hasActiveEffects) {
+            context.command.blitScreenTriangle(context.indirectTarget, cameraTarget);
+        }
         this._compositeShaderData.addDefine(PostProcess.SHADERDEFINE_FINALPASS);
 
         if (camera._offScreenRenderTexture) {

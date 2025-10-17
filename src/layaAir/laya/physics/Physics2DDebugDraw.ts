@@ -1,41 +1,24 @@
-import { LayaEnv } from "../../LayaEnv";
-import { Graphics } from "../display/Graphics"
+import { Laya } from "../../Laya";
+import { Scene } from "../display/Scene";
 import { CommandBuffer2D } from "../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
-import { Draw2DLineCMD } from "../Line2D/Draw2DLineCMD";
 import { DrawMesh2DCMD } from "../display/Scene2DSpecial/RenderCMD2D/DrawMesh2DCMD";
-import { Sprite } from "../display/Sprite"
 import { Color } from "../maths/Color";
 import { Matrix } from "../maths/Matrix";
 import { Vector2 } from "../maths/Vector2";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
-import { Material } from "../resource/Material";
+import { Material, MaterialRenderMode } from "../resource/Material";
 import { Mesh2D, VertexMesh2D } from "../resource/Mesh2D";
 import { Texture2D } from "../resource/Texture2D";
-import { Physics2DWorldManager } from "./Physics2DWorldManager";
+import { PhysicsDrawLine2DCMD } from "./Render/PhysicsDrawLine2DCMD";
 
 /**
- * @en Physical auxiliary line
- * @zh 物理辅助线
+ * @ignore
  * @blueprintIgnore
  */
-export class Physics2DDebugDraw extends Sprite {
-
-    /**@internal */
-    protected _camera: any;
-
-    /**@internal */
-    protected _physics2DWorld: Physics2DWorldManager;
-
-    /**@internal */
-    protected _mG: Graphics;
-
-    /**@internal */
-    private _textSp: Sprite;
-
-    /**@internal */
-    protected _textG: Graphics;
-
-    protected _lineWidth: number = 3;
+export class Physics2DDebugDraw {
+    _scene: Scene;
+    _camera: any;
+    _lineWidth = 3;
 
     private _matrix: Matrix = new Matrix();
 
@@ -44,7 +27,7 @@ export class Physics2DDebugDraw extends Sprite {
 
     private _cmdBuffer: CommandBuffer2D;
 
-    private _cmdDrawLineList: Draw2DLineCMD[] = [];
+    private _cmdDrawLineList: PhysicsDrawLine2DCMD[] = [];
 
     private _linePointsList: any[] = [];
 
@@ -52,65 +35,7 @@ export class Physics2DDebugDraw extends Sprite {
 
     private _meshList: Mesh2D[] = [];
 
-    /**
-     * @en The color string used for drawing text.
-     * @zh 用于绘制文本的颜色字符串。
-     */
-    DrawString_color: string;
-
-    /**
-     * @en The color string representing red.
-     * @zh 表示红色的颜色字符串。
-     */
-    Red: string;
-
-    /**
-     * @en The color string representing green.
-     * @zh 表示绿色的颜色字符串。
-     */
-    Green: string;
-
-    /**
-     * @en The Graphics object used for drawing shapes.
-     * @zh 用于绘制形状的 Graphics 对象。
-     */
-    get mG(): Graphics {
-        return this._mG;
-    }
-
-    /**
-     * @en The Graphics object used for drawing text.
-     * @zh 用于绘制文本的 Graphics 对象。
-     */
-    get textG(): Graphics {
-        return this._textG;
-    }
-
-    /**
-     * @en The current line width used for drawing.
-     * @zh 用于绘制的当前线宽。
-     */
-    get lineWidth(): number {
-        return this._lineWidth;
-    }
-
-    /**
-     * @en The camera object associated with the scene or view.
-     * @zh 与场景或视图关联的摄像机对象。
-     */
-    get camera(): any {
-        return this._camera;
-    }
-
-    set physics2DWorld(world: Physics2DWorldManager) {
-        this._physics2DWorld = world;
-    }
-
     constructor() {
-        super();
-        this.DrawString_color = "#E69999";
-        this.Red = "#ff0000";
-        this.Green = "#00ff00"
         this._camera = {};
         this._camera.m_center = new Vector2(0, 0);
         this._camera.m_extent = 25;
@@ -118,47 +43,33 @@ export class Physics2DDebugDraw extends Sprite {
         this._camera.m_width = 1280;
         this._camera.m_height = 800;
 
-        this._mG = new Graphics();
-        this.graphics = this._mG;
-
-        this._textSp = new Sprite();
-        this._textG = this._textSp.graphics;
-        this.addChild(this._textSp);
-
         this._cmdBuffer = new CommandBuffer2D("Physics2DDebugDraw");
-        this.material = new Material();
-        this.material.setShaderName("baseRender2D");
     }
 
-    /**@internal */
-    private _renderToGraphic(): void {
-        if (!this._physics2DWorld) return;
-        this._textG.clear();
-        this._mG.clear();
-        this._mG.save();
-        this._mG.scale(this._physics2DWorld.getPixel_Ratio(), this._physics2DWorld.getPixel_Ratio());
-        if (this._scene._area2Ds.size > 0) {
-            for (let area of this._scene._area2Ds) {
-                if (area && area.mainCamera) {
-                    // let shaderData = (this._scene as Scene).sceneShaderData;
-                    // if (shaderData) {
-                    //     shaderData.addDefine(Camera2D.SHADERDEFINE_CAMERA2D);
-                    // }
-                    break;
-                }
-            }
+    setActive(value: boolean) {
+        if (value) {
+            Laya.timer.frameLoop(1, this, this.render);
+        } else {
+            Laya.timer.clear(this, this.render);
         }
+    }
 
+    private render(): void {
+        let area2D = this._scene._area2Ds.size > 0 ? this._scene._area2Ds.values().next().value._struct : null;
         //drawMesh cmds
         this._cmdBuffer.setRenderTarget(null, false);
         for (let i = 0; i < this._cmdDrawMeshList.length; i++) {
             let cmd = this._cmdDrawMeshList[i];
+            if (area2D)
+                (cmd as any)._renderElements[0] && ((cmd as any)._renderElements[0].owner = area2D);
             this._cmdBuffer.addCacheCommand(cmd);
         }
 
         //drawline cmds
         for (let i = 0; i < this._cmdDrawLineList.length; i++) {
             let cmd = this._cmdDrawLineList[i];
+            if (area2D)
+                cmd._renderElements[0] && (cmd._renderElements[0].owner = area2D);
             this._cmdBuffer.addCacheCommand(cmd);
         }
 
@@ -181,54 +92,11 @@ export class Physics2DDebugDraw extends Sprite {
         }
 
         for (let i = 0; i < this._linePointsList.length; i++) {
-            let point = this._linePointsList[i];
-            point = null;
+            this._linePointsList[i] = null;
         }
 
         this._cmdDrawLineList.length = 0;
         this._cmdDrawMeshList.length = 0;
-
-        if (this._scene._area2Ds.size > 0) {
-            for (let area of this._scene._area2Ds) {
-                // if (area && area.mainCamera) {
-                //     let shaderData = (this._scene as Scene).sceneShaderData;
-                //     if (shaderData) {
-                //         shaderData.removeDefine(Camera2D.SHADERDEFINE_CAMERA2D);
-                //     }
-                //     break;
-                // }
-            }
-        }
-        this._mG.restore();
-    }
-
-    /**
-     * @en Renders the object using the given context and position.
-     * @zh 使用给定的上下文和位置渲染对象。
-     */
-    render(x: number, y: number): void {
-        if (!LayaEnv.isPlaying) return;
-
-        this._renderToGraphic();
-        // super.render(x, y);
-    }
-
-    /**
-     * @en Saves the current state of the environment and remaps the position and rotation on the canvas.
-     * @zh 保存当前环境的状态，重新映射画布上的位置和旋转。
-     */
-    PushTransform(tx: number, ty: number, angle: number): void {
-        this._mG.save();
-        this._mG.translate(tx, ty);
-        this._mG.rotate(angle);
-    }
-
-    /**
-     * @en Restores the previously saved path state and properties.
-     * @zh 返回之前保存过的路径状态和属性。
-     */
-    PopTransform(): void {
-        this._mG.restore();
     }
 
     /**
@@ -303,12 +171,18 @@ export class Physics2DDebugDraw extends Sprite {
 
 
     createCircleMeshByVertices(center: { x: number, y: number }, radius: number, numSegments: number): Mesh2D {
+        // 确保至少有3个分段
+        if (numSegments < 3) numSegments = 3;
+        if (radius <= 0) return null;
+
         const twoPi = Math.PI * 2;
         // 每个顶点有5个数据：x,y,z, u,v，最后一个顶点是圆心
         let vertices = new Float32Array((numSegments + 1) * 5);
         // 每个三角形3个索引，共numSegments个三角形
         let indices = new Uint16Array(numSegments * 3);
+        
         let pos = 0;
+        // 生成圆周上的顶点
         for (let i = 0; i < numSegments; i++, pos += 5) {
             const angle = twoPi * i / numSegments;
             // 计算环上顶点（已加圆心偏移）
@@ -317,10 +191,11 @@ export class Physics2DDebugDraw extends Sprite {
             vertices[pos] = x;
             vertices[pos + 1] = y;
             vertices[pos + 2] = 0;
-            // 计算UV坐标：将环上顶点转换为相对于圆心的局部坐标，再映射到[0, 1]
-            vertices[pos + 3] = 0.5 + (x - center.x) / (2 * radius);
-            vertices[pos + 4] = 0.5 + (y - center.y) / (2 * radius);
+            // 修复UV坐标计算：使用标准化的局部坐标
+            vertices[pos + 3] = 0.5 + 0.5 * Math.cos(angle);
+            vertices[pos + 4] = 0.5 + 0.5 * Math.sin(angle);
         }
+        
         // 添加圆心顶点
         vertices[pos] = center.x;
         vertices[pos + 1] = center.y;
@@ -328,17 +203,14 @@ export class Physics2DDebugDraw extends Sprite {
         vertices[pos + 3] = 0.5;
         vertices[pos + 4] = 0.5;
 
-        // 根据扇形原理构建三角形索引（numSegments个扇形）
+        // 修复索引生成：确保正确的三角形顶点顺序（逆时针）
         let ibIndex = 0;
-        for (let i = 1; i < numSegments; i++, ibIndex += 3) {
-            indices[ibIndex] = i;
-            indices[ibIndex + 1] = i - 1;
-            indices[ibIndex + 2] = numSegments; // 圆心索引
+        for (let i = 0; i < numSegments; i++, ibIndex += 3) {
+            const nextIndex = (i + 1) % numSegments;
+            indices[ibIndex] = numSegments;     // 圆心索引
+            indices[ibIndex + 1] = i;           // 当前顶点
+            indices[ibIndex + 2] = nextIndex;   // 下一个顶点
         }
-        // 最后一个三角形：连接第一个顶点、最后一个顶点与圆心
-        indices[ibIndex] = 0;
-        indices[ibIndex + 1] = numSegments - 1;
-        indices[ibIndex + 2] = numSegments;
 
         // 根据项目中现有的接口获取顶点声明并创建Mesh2D
         var declaration = VertexMesh2D.getVertexDeclaration(["POSITION,UV"], false)[0];
@@ -360,16 +232,16 @@ export class Physics2DDebugDraw extends Sprite {
     }
 
 
-    addLineDebugDrawCMD(points: any[], color: Color, lineWidth: number, matrix?: Matrix) {
+    addLineDebugDrawCMD(points: any[], color: Color, lineWidth?: number, matrix?: Matrix) {
         if (!matrix) matrix = this._matrix;
-        let cmd = Draw2DLineCMD.create(points, matrix, color, lineWidth);
+        if (!lineWidth) lineWidth = this._lineWidth;
+        let cmd = PhysicsDrawLine2DCMD.create(points, matrix, color, lineWidth);
         cmd && this._cmdDrawLineList.push(cmd);
         this._linePointsList.push(points);
     }
 
-
     destroy() {
-        super.destroy();
+        Laya.timer.clear(this, this.render);
         this._cmdBuffer && this._cmdBuffer.clear(false);
         this._material && this._material.destroy();
         this._material && (this._material = null);

@@ -7,7 +7,7 @@ import { BoundsImpl } from "../../../../d3/math/BoundsImpl";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Stat } from "../../../../utils/Stat";
-import { IPointLightData, ISimpleSkinRenderNode, ISkinRenderNode } from "../../Design/3D/I3DRenderModuleData";
+import { IMeshRenderNode, IPointLightData, ISimpleSkinRenderNode, ISkinRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { I3DRenderModuleFactory } from "../../Design/3D/I3DRenderModuleFactory";
 import { WebBaseRenderNode } from "./WebBaseRenderNode";
 import { WebDirectLight } from "./WebDirectLight";
@@ -16,14 +16,14 @@ import { WebMeshRenderNode } from "./WebMeshRenderNode";
 import { WebCameraNodeData, WebSceneNodeData } from "./WebModuleData";
 import { WebPointLight } from "./WebPointLight";
 import { WebReflectionProbe } from "./WebReflectionProb";
-import { WebSimpleSkinRenderNode } from "./WebSimpleSkinRenderNode";
 import { WebSkinRenderNode } from "./WebSkinRenderNode";
 import { WebSpotLight } from "./WebSpotLight";
 import { WebVolumetricGI } from "./WebVolumetricGI";
+import { WebSimpleSkinRenderNode } from "./WebSimpleSkinRenderNode";
 
 export class Web3DRenderModuleFactory implements I3DRenderModuleFactory {
   createSimpleSkinRenderNode(): ISimpleSkinRenderNode {
-    return new WebSimpleSkinRenderNode();
+    return new (WebSimpleSkinRenderNode())();
   }
 
   createTransform(owner: Sprite3D): Transform3D {
@@ -71,18 +71,15 @@ export class Web3DRenderModuleFactory implements I3DRenderModuleFactory {
   createBaseRenderNode(): WebBaseRenderNode {
 
     let renderNode = new WebBaseRenderNode();
-    if (Stat.enableRenderPassStatArray) {
-      renderNode._renderUpdatePre = renderNode._renderUpdatePre_StatUse;
-    }
     return renderNode;
   }
 
-  createMeshRenderNode(): WebMeshRenderNode {
-    return new WebMeshRenderNode();
+  createMeshRenderNode(): IMeshRenderNode {
+    return new (WebMeshRenderNode())();
   }
 
   createSkinRenderNode(): ISkinRenderNode {
-    return new WebSkinRenderNode();
+    return new (WebSkinRenderNode())();
   }
 
 }

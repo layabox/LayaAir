@@ -1,7 +1,9 @@
-
 #ifdef CAMERA2D
  uniform mat3 u_view2D;
 #endif
+
+#ifdef SPRITE2DGLOBAL
+#endif // SPRITE2DGLOBAL
 
 #ifdef RENDERTEXTURE
     uniform vec3 u_InvertMat_0;
@@ -108,6 +110,10 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
     #ifdef RENDERTEXTURE
         vec2 tempPos;
         transfrom(globalPos , u_InvertMat_0, u_InvertMat_1, tempPos);
+        // tempPos -= u_clipMatPos.xy - u_clipMatPos.zw;
+        // tempPos.x += (u_clipMatPos.x - u_clipMatPos.z); 
+        // tempPos.y += (u_clipMatPos.y - u_clipMatPos.w);
+
         #ifdef CAMERA2D
             viewPos.xy = (u_view2D *vec3(tempPos,1.0)).xy+u_size/2.;
         #else
@@ -202,10 +208,10 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
     #ifdef LIGHT2D_ENABLE
         varying vec2 v_lightUV; //光影图采样坐标
         uniform vec4 u_LightAndShadow2DParam; //光影图尺寸和位置
-        uniform vec3 u_LightAndShadow2DSceneInv0; //scene逆矩阵
-        uniform vec3 u_LightAndShadow2DSceneInv1;
-        uniform vec3 u_LightAndShadow2DStageMat0; //stage矩阵
-        uniform vec3 u_LightAndShadow2DStageMat1;
+        // uniform vec3 u_LightAndShadow2DSceneInv0; //scene逆矩阵
+        // uniform vec3 u_LightAndShadow2DSceneInv1;
+        // uniform vec3 u_LightAndShadow2DStageMat0; //stage矩阵
+        // uniform vec3 u_LightAndShadow2DStageMat1;
 
         void lightAndShadow(vertexInfo info) {
             v_lightUV = info.lightUV;
@@ -250,13 +256,13 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
 
         #ifdef LIGHT2D_ENABLE
             vec2 global;
-            vec3 stageInv0 = vec3(u_LightAndShadow2DStageMat0.x, u_LightAndShadow2DStageMat0.y, u_LightAndShadow2DStageMat0.z);
-            vec3 stageInv1 = vec3(u_LightAndShadow2DStageMat1.x, u_LightAndShadow2DStageMat1.y, u_LightAndShadow2DStageMat1.z);
-            invertMat(stageInv0, stageInv1); //获取stage的逆矩阵
+            // vec3 stageInv0 = vec3(u_LightAndShadow2DStageMat0.x, u_LightAndShadow2DStageMat0.y, u_LightAndShadow2DStageMat0.z);
+            // vec3 stageInv1 = vec3(u_LightAndShadow2DStageMat1.x, u_LightAndShadow2DStageMat1.y, u_LightAndShadow2DStageMat1.z);
+            // invertMat(stageInv0, stageInv1); //获取stage的逆矩阵
             getGlobalPos(info.pos, global); //先获得完整世界变换的位置
-            transfrom(global, stageInv0, stageInv1, global); //先去除stage变换
-            transfrom(global, u_LightAndShadow2DSceneInv0, u_LightAndShadow2DSceneInv1, global); //再去除scene变换
-            transfrom(global, u_LightAndShadow2DStageMat0, u_LightAndShadow2DStageMat1, global); //再恢复stage变换
+            // transfrom(global, stageInv0, stageInv1, global); //先去除stage变换
+            // transfrom(global, u_LightAndShadow2DSceneInv0, u_LightAndShadow2DSceneInv1, global); //再去除scene变换
+            // transfrom(global, u_LightAndShadow2DStageMat0, u_LightAndShadow2DStageMat1, global); //再恢复stage变换
             //现在global中的值就和生成光影图时的值一致了，基于这个值生成光影图采样uv坐标
             info.lightUV.x = (global.x - u_LightAndShadow2DParam.x) / u_LightAndShadow2DParam.z;
             info.lightUV.y = 1.0 - (global.y - u_LightAndShadow2DParam.y) / u_LightAndShadow2DParam.w;

@@ -104,6 +104,5 @@ export class GLESRenderElement2D implements IRenderElement2D {
 
     destroy(): void {
         this._nativeObj.destroy();
-        this.geometry = null;
     }
 }

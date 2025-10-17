@@ -31,7 +31,6 @@ export class RenderCullUtil {
             canPass = ((1 << render.layer) & cullMask) != 0 && (render.renderbitFlag == 0);
             canPass = canPass && ((render.staticMask & staticMask) != 0);
             if (canPass) {
-                Stat.frustumCulling++;
                 //needRender方案有问题, 会造成native和js的差异
                 if (!cameraCullInfo.useOcclusionCulling || render._needRender(boundFrustum)) {
                     render.distanceForSort = Vector3.distanceSquared(render.bounds._imp.getCenter(), cameraCullInfo.position);
@@ -63,7 +62,6 @@ export class RenderCullUtil {
         for (let i = 0; i < count; i++) {
             const render = list[i];
             if (render.shadowCullPass()) {
-                Stat.frustumCulling++;
                 if (FrustumCulling.cullingRenderBounds(render.bounds, shadowCullInfo)) {
                     render.distanceForSort = Vector3.distanceSquared(render.bounds._imp.getCenter(), shadowCullInfo.position); //TODO:合并计算浪费,或者合并后取平均值
                     render._renderUpdatePre(context);
@@ -95,7 +93,6 @@ export class RenderCullUtil {
             const render = list[i];
             render._renderUpdatePre(context);
             if (render.shadowCullPass()) {
-                Stat.frustumCulling++;
                 render.distanceForSort = Vector3.distanceSquared(render.bounds._imp.getCenter(), cameraCullInfo.position);
                 if (render._needRender(boundFrustum)) {
                     let element: IRenderElement3D;

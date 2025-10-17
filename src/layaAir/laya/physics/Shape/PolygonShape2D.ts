@@ -39,7 +39,7 @@ export class PolygonShape2D extends Physics2DShapeBase {
     }
 
     protected _updateShapeData(): void {
-        if (!LayaEnv.isPlaying || !this._body) return;
+        if (!LayaEnv.isPlaying || !this._body || !this._box2DBody) return;
 
         var len: number = this.datas.length;
         if (len < 6) throw "PolygonCollider points must be greater than 3";

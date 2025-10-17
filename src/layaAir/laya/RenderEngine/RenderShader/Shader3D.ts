@@ -9,9 +9,9 @@ export interface IShaderObjStructor {
     name: string,
     enableInstancing: boolean,
     supportReflectionProbe: boolean,
-    surportVolumetricGI: boolean,
+    supportVolumetricGI: boolean,
     attributeMap: any;
-    shaderType: ShaderFeatureType;
+    shaderType: ShaderFeatureType | string;
     uniformMap: any;
     defaultValue: any;
     shaderPass: Array<any>;
@@ -29,14 +29,15 @@ export interface IShaderpassStructor {
 }
 
 export enum ShaderFeatureType {
-    DEFAULT,
-    D3,
-    D2_primitive,
-    D2_TextureSV,
-    D2_BaseRednerNode2D,
-    PostProcess,
-    Sky,
-    Effect
+    None = -1,
+    Default = 0,
+    D3 = 1,
+    D2_primitive = 2,
+    D2_TextureSV = 3,
+    D2_BaseRenderNode2D = 4,
+    PostProcess = 5,
+    Sky = 6,
+    Effect = 7
 }
 
 /**
@@ -266,9 +267,8 @@ export class Shader3D {
             console.warn(`${data.name}: uniformMap is empty`);
 
         let shader = Shader3D.add(data.name, data.enableInstancing, data.supportReflectionProbe);
-        shader._surportVolumetricGI = data.surportVolumetricGI;
-
-        shader.shaderType = data.shaderType;
+        shader._supportVolumetricGI = data.supportVolumetricGI;
+        shader.shaderType = data.shaderType as ShaderFeatureType;
 
         let subshader = new SubShader(data.attributeMap ? data.attributeMap : SubShader.DefaultAttributeMap, data.uniformMap, data.defaultValue);
         shader.addSubShader(subshader);
@@ -300,11 +300,11 @@ export class Shader3D {
     /**@internal */
     _supportReflectionProbe: boolean = false;
     /**@internal */
-    _surportVolumetricGI: boolean = false;
+    _supportVolumetricGI: boolean = false;
     /**@internal */
     _subShaders: SubShader[] = [];
 
-    shaderType: ShaderFeatureType;
+    shaderType: ShaderFeatureType = ShaderFeatureType.None;
     /**
      * 名字。
      */

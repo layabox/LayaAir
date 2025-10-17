@@ -9,13 +9,13 @@ import { Gear } from "./gear/Gear";
 import { GearDisplay } from "./gear/GearDisplay";
 import { NodeFlags } from "../Const";
 import { UIEvent } from "./UIEvent";
-import { ILaya } from "../../ILaya";
 import { IGraphicsCmd } from "../display/IGraphics";
 import { GRoot } from "./GRoot";
 import { Event } from "../events/Event";
 import { DragSupport } from "../utils/DragSupport";
 import { Scene } from "../display/Scene";
 import { GrayscaleEffect2D } from "../display/effect2d/ColorEffect2D";
+import { LayaEnv } from "../../LayaEnv";
 
 /**
  * @en GWidget is the base class for all UI widgets in the New UI system.
@@ -29,6 +29,12 @@ export class GWidget extends Sprite {
      */
     data: any;
 
+    /** 
+     * @en The tree node associated with this widget.
+     * @zh 与此小部件关联的树节点。
+     */
+    readonly treeNode: GTreeNode;
+
     private _tooltips: string;
     private _grayed: boolean = false;
     private _background: IGraphicsCmd;
@@ -41,8 +47,6 @@ export class GWidget extends Sprite {
     private _relations: Array<Relation>;
     private _forceSizeFlag: boolean;
 
-    /** @internal */
-    _treeNode: GTreeNode;
     /** @internal */
     _rawWidth: number = 0;
     /** @internal */
@@ -131,7 +135,7 @@ export class GWidget extends Sprite {
             if (this.parent)
                 r = this.parent;
             else
-                r = ILaya.stage;
+                r = GWidget._defaultRoot;
         }
 
         this.setLeftTop(Math.floor((r.width - this.width) * 0.5), Math.floor((r.height - this.height) * 0.5));
@@ -139,7 +143,7 @@ export class GWidget extends Sprite {
         return this;
     }
 
-    /** @ignore */
+    /** @ignore @blueprintIgnore */
     pos(x: number, y: number): this {
         if (this._x != x || this._y != y) {
             super.pos(x, y);
@@ -152,7 +156,7 @@ export class GWidget extends Sprite {
         return this;
     }
 
-    /** @ignore */
+    /** @ignore @blueprintIgnore */
     size(wv: number, hv: number, changeByLayout?: boolean): this {
         if (this._width == wv && this._height == hv) {
             if (this._forceSizeFlag)
@@ -198,22 +202,26 @@ export class GWidget extends Sprite {
     /**
      * @en Makes the widget fill the entire size of the specified target or its parent.
      * If no target is specified, it will fill the parent or stage.
-     * @param target The target widget or scene to fill. If not provided, it defaults to the parent or stage.
+     * @param target The target widget to fill. If not provided, it defaults to the parent node, or the default root node (GRoot) if the scene node also does not exist.
+     * @param constraints Whether to add Size constraints. Default is false.
      * @returns Returns the current GWidget instance for method chaining.
      * @zh 使小部件填充指定目标或其父级的整个大小。
      * 如果未指定目标，则默认填充父级或舞台。
-     * @param target 要填充的目标小部件或场景。如果未提供，则默认为父级或舞台。
+     * @param target 要填充的目标小部件。如果未提供，则使用父级节点，如果父级节点不存在，则使用默认根节点（GRoot)。     
+     * @param constraints 是否添加Size关联。默认为false。
      * @returns 返回当前的 GWidget 实例，以便进行方法链调用。 
      */
-    makeFullSize(target?: GWidget): this {
-        let r: Sprite = target;
+    makeFullSize(target?: GWidget, constraints?: boolean): this {
+        let r: GWidget | Scene = target;
         if (!r) {
-            if (this.parent)
+            if (this.parent instanceof GWidget)
                 r = this.parent;
             else
-                r = ILaya.stage;
+                r = GWidget._defaultRoot;
         }
         this.size(r.width, r.height);
+        if (constraints)
+            this.addRelation(r, RelationType.Size);
         return this;
     }
 
@@ -229,6 +237,12 @@ export class GWidget extends Sprite {
         value = !!value;
         if (this._grayed !== value) {
             this._grayed = value;
+            let c = this.getController("grayed");
+            if (c) {
+                c.selectedIndex = value ? 1 : 0;
+                value = false;
+            }
+
             let postProcess = this.getPostProcess(value);
             if (value) {
                 let effect = postProcess.getEffect(GrayscaleEffect2D);
@@ -237,8 +251,11 @@ export class GWidget extends Sprite {
             } else {
                 if (postProcess) {
                     let effect = postProcess.getEffect(GrayscaleEffect2D);
-                    if (effect)
+                    if (effect) {
                         postProcess.removeEffect(effect);
+                        if (!LayaEnv.isPlaying && postProcess.effects.length === 0)
+                            this.postProcess = null;
+                    }
                 }
             }
         }
@@ -270,14 +287,6 @@ export class GWidget extends Sprite {
             if (this._parent?.activeInHierarchy && this.active)
                 this._processActive(value, true);
         }
-    }
-
-    /**
-     * @en The tree node associated with this widget.
-     * @zh 与此小部件关联的树节点。
-     */
-    get treeNode(): GTreeNode | null {
-        return this._treeNode;
     }
 
     /**
@@ -601,6 +610,60 @@ export class GWidget extends Sprite {
             this._gears.splice(i, 1);
             value.owner = null;
         }
+    }
+
+    /**
+     * @en Registers a click event listener for the widget. It is a shorthand for `on(Event.CLICK, thisObj, listener, args)`.
+     * @param listener The function to be called when the click event occurs.
+     * @zh 为小部件注册一个点击事件监听器。它是 `on(Event.CLICK, thisObj, listener, args)` 的简写。
+     * @param listener 当点击事件发生时要调用的函数。
+     * @blueprintIgnore 
+     */
+    onClick(listener: Function): void;
+    /**
+     * @en Registers a click event listener for the widget. It is a shorthand for `on(Event.CLICK, thisObj, listener, args)`.
+     * @param caller The context in which the listener function will be called.
+     * @param listener The function to be called when the click event occurs.
+     * @param args Optional. An array of arguments to be passed to the listener function when the event is triggered.
+     * @zh 为小部件注册一个点击事件监听器。它是 `on(Event.CLICK, thisObj, listener, args)` 的简写。
+     * @param caller 监听器函数将被调用的上下文。
+     * @param listener 当点击事件发生时要调用的函数。
+     * @param args 可选。一个数组，包含在事件触发时要传递给监听器函数的参数。
+     * @blueprintIgnore 
+     */
+    onClick(caller: any, listener: Function, args?: any[]): void;
+    onClick(caller: any, listener?: Function, args?: any[]): void {
+        if (arguments.length == 1) {
+            listener = caller;
+            caller = null;
+        }
+        this.on(Event.CLICK, caller, listener, args);
+    }
+
+    /**
+     * @en Unregisters a click event listener for the widget. It is a shorthand for `off(Event.CLICK, caller, listener)`.
+     * @param listener The function that was registered to handle the click event.
+     * @zh 为小部件取消注册一个点击事件监听器。它是 `off(Event.CLICK, caller, listener)` 的简写。
+     * @param listener 处理点击事件的函数。
+     * @blueprintIgnore
+     */
+    offClick(listener: Function): void;
+    /**
+     * @en Unregisters a click event listener for the widget. It is a shorthand for `off(Event.CLICK, caller, listener)`.
+     * @param caller The context in which the listener function was called.
+     * @param listener The function that was registered to handle the click event.
+     * @zh 为小部件取消注册一个点击事件监听器。它是 `off(Event.CLICK, caller, listener)` 的简写。
+     * @param caller 监听器函数被调用的上下文。
+     * @param listener 处理点击事件的函数。
+     * @blueprintIgnore
+     */
+    offClick(caller: any, listener: Function): void;
+    offClick(caller: any, listener?: Function): void {
+        if (arguments.length == 1) {
+            listener = caller;
+            caller = null;
+        }
+        this.off(Event.CLICK, caller, listener);
     }
 
     /** @ignore */

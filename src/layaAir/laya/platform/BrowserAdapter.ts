@@ -54,7 +54,17 @@ export class BrowserAdapter extends EventDispatcher {
         }
         this._visibilityStateKey = state;
 
-        doc.addEventListener(visibilityChange, () => this.event(Event.VISIBILITY_CHANGE, this.getVisibility()));
+        doc.addEventListener(visibilityChange, () => {
+            this.event(Event.VISIBILITY_CHANGE, this.getVisibility());
+
+            //安卓浏览器下，前后台切换不会产生focus/blur事件，ios和鸿蒙是正常的。所以判断是安卓需要补一下事件
+            if (Browser.onAndroid && !Browser.onLayaRuntime) {
+                if (this.getVisibility())
+                    this.event(Event.FOCUS);
+                else
+                    this.event(Event.BLUR);
+            }
+        });
         doc.addEventListener(fullscreenchange, () => this.event(Event.FULL_SCREEN_CHANGE));
 
         win.addEventListener("resize", () => this.event(Event.RESIZE));
@@ -143,8 +153,7 @@ export class BrowserAdapter extends EventDispatcher {
 
             Browser.platform = Browser.PLATFORM_ANDROID;
             Browser.platformName = "android";
-        }
-        else if (platform.indexOf("ohos") !== -1) {
+        } else if (platform.indexOf("ohos") !== -1) {
             Browser.onOpenHarmonyOS = true;
             Browser.onMobile = true;
 
@@ -160,16 +169,13 @@ export class BrowserAdapter extends EventDispatcher {
         } else if (platform.indexOf("win") !== -1) {
             Browser.platform = Browser.PLATFORM_PC;
             Browser.platformName = "windows";
-        }
-        else if (Browser.onAndroid) {
+        } else if (Browser.onAndroid) {
             Browser.platform = Browser.PLATFORM_ANDROID;
             Browser.platformName = "android";
-        }
-        else if (Browser.onIOS) {
+        } else if (Browser.onIOS) {
             Browser.platform = Browser.PLATFORM_IOS;
             Browser.platformName = "ios";
-        }
-        else {
+        } else {
             Browser.platform = Browser.PLATFORM_PC;
             Browser.platformName = platform;
         }

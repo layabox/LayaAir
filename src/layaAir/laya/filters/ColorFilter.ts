@@ -1,7 +1,7 @@
 import { Filter } from "./Filter";
-import { ColorUtils } from "../utils/ColorUtils"
 import { ColorEffect2D } from "../display/effect2d/ColorEffect2D";
 import { ClassUtils } from "../utils/ClassUtils";
+import { SerializeUtil } from "../loaders/SerializeUtil";
 
 /**
  * @deprecated use post2DProcess
@@ -16,7 +16,7 @@ export class ColorFilter extends Filter {
      * @internal 
      */
     _effect2D: ColorEffect2D;
-    
+
     /**
      * @en Gets the effect2d instance.
      * @zh 获取 effect2d 实例。
@@ -160,9 +160,10 @@ export class ColorFilter extends Filter {
      * @zh 反序列化后调用。
      */
     onAfterDeserialize() {
-        let arr: any[] = ColorUtils.create((<any>this)._color || "#FFFFFF").arrColor;
-        this.color(arr[0], arr[1], arr[2], arr[3]);
-        this.adjustColor((<any>this)._brightness || 0, (<any>this)._contrast || 0, (<any>this)._saturation || 0, (<any>this)._hue || 0);
+        if (SerializeUtil.hasProp("_color"))
+            this.setColor((<any>this)._color);
+        if (SerializeUtil.hasProp("_brightness", "_contrast", "_saturation", "_hue"))
+            this.adjustColor((<any>this)._brightness || 0, (<any>this)._contrast || 0, (<any>this)._saturation || 0, (<any>this)._hue || 0);
     }
 }
 

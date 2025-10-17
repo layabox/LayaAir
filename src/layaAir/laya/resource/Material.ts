@@ -1,6 +1,6 @@
 import { Config } from "../../Config";
 import { ILaya } from "../../ILaya";
-import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../layagl/LayaGL";
 import { Color } from "../maths/Color";
 import { Matrix3x3 } from "../maths/Matrix3x3";
@@ -21,6 +21,8 @@ import { IDefineDatas } from "../RenderDriver/RenderModuleData/Design/IDefineDat
 import { IRenderElement3D } from "../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { UniformProperty } from "../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { Texture2D } from "./Texture2D";
+import { LayaEnv } from "../../LayaEnv";
 
 
 /**
@@ -143,7 +145,7 @@ export class Material extends Resource implements IClone {
         Shader3D.DEPTH_TEST = Shader3D.propertyNameToID("s_DepthTest");
         Shader3D.DEPTH_WRITE = Shader3D.propertyNameToID("s_DepthWrite");
         Shader3D.STENCIL_WRITE_MASK = Shader3D.propertyNameToID("s_StencilWriteMask");
-        Shader3D.STENCIL_WRITE_MASK = Shader3D.propertyNameToID("s_StencilWriteMask");
+        Shader3D.STENCIL_READ_MASK = Shader3D.propertyNameToID("s_StencilReadMask");
         Shader3D.STENCIL_Ref = Shader3D.propertyNameToID("s_StencilRef");
         Shader3D.STENCIL_TEST = Shader3D.propertyNameToID("s_StencilTest");
         Shader3D.STENCIL_WRITE = Shader3D.propertyNameToID("s_StencilWrite");
@@ -1235,9 +1237,15 @@ export class Material extends Resource implements IClone {
      * @param texture 要设置的纹理。
      */
     setTextureByIndex(uniformIndex: number, texture: BaseTexture) {
-        this.shaderData.setTexture(uniformIndex, texture);
-        if (texture && !texture._texture)//贴图为加载完，需要重设
-            texture.once(Event.READY, this, this.reSetTexture, [uniformIndex, texture]);
+        if (LayaEnv.isConch) {
+            this.shaderData.setTexture(uniformIndex, texture);//加引用
+            if (texture && !texture._texture) {//贴图为加载完，需要重设
+                texture.once(Event.READY, this, this.reSetTexture, [uniformIndex, texture]);
+            }
+        }
+        else {
+            this.shaderData.setTexture(uniformIndex, texture);
+        }
     }
 
     private reSetTexture(uniformIndex: number, texture: BaseTexture) {
@@ -1413,6 +1421,23 @@ export class Material extends Resource implements IClone {
         var dest: Material = new Material();
         this.cloneTo(dest);
         return dest;
+    }
+
+    /**
+     * @en Checks if the material type matches the expected type.
+     * @param type The expected type.
+     * @zh 检查材质类型是否匹配预期类型。
+     * @param type 预期类型。
+     * @returns 是否匹配。
+     */
+    checkType(type: ShaderFeatureType): boolean {
+        if (this._shader && this._shader.shaderType === ShaderFeatureType.None)
+            return true;
+        let isVaild = this._shader && this._shader.shaderType == type;
+        if (!isVaild) {
+            console.warn("This Renderer expect Material shader type is " + ShaderFeatureType[type] + ", but the Material shader type is " + ShaderFeatureType[this._shader.shaderType] + ".");
+        }
+        return isVaild;
     }
 
     //--------------------------------------------兼容-------------------------------------------------

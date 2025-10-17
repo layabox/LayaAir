@@ -139,6 +139,7 @@ export class SketonOptimise {
     checkMainAttach(skeletonData: spine.SkeletonData) {
         // return;
         this.sketon = new spine.Skeleton(skeletonData);
+
         //@ts-ignore
         this._stateData = new spine.AnimationStateData(this.sketon.data);
         // 动画状态类
@@ -326,6 +327,11 @@ export class SkinAttach {
      * @zh 影响一个顶点的最大骨骼数。
      */
     vertexBones: number = 0;
+    /**
+     * @en The index of the rigid body bone.
+     * @zh 刚体骨骼的索引。
+     */
+    rbBoneIndex: number = -1;
 
     /** @ignore */
     constructor() {
@@ -354,12 +360,13 @@ export class SkinAttach {
      * @param slots spine插槽数据数组。
      */
     attachMentParse(skinData: spine.Skin, slots: spine.SlotData[]) {
-        let type: ESpineRenderType = ESpineRenderType.rigidBody;
         let vertexBones = 0;
         let attachments = skinData.attachments;
         let vertexCount = 0;
         let indexCount = 0;
         let twoColorTint = false;
+        let bones = new Set<number>();
+        
         for (let i = 0, n = slots.length; i < n; i++) {
             let attachment = attachments[i];
             let slot = slots[i];
@@ -381,14 +388,13 @@ export class SkinAttach {
                     parse.init(attach, boneIndex, i, deform, slot);
                     // if (parse.isNormalRender) this.isNormalRender = true;
                     vertexBones = Math.max(vertexBones, parse.vertexBones);
-                    let tempType = SlotUtils.checkAttachment(parse ? parse.sourceData : null);
-                    if (tempType < type) {
-                        type = tempType;
-                    }
                     indexCount += parse.indexCount;
                     vertexCount += parse.vertexCount;
                     twoColorTint = twoColorTint || !!parse.darkColor;
                     map.set(key, parse);
+                    parse.bones.forEach(bone => {
+                        bones.add(bone);
+                    });
                 }
             } else if (slotAttachName) {
                 let parse = map.get(slotAttachName);
@@ -396,11 +402,10 @@ export class SkinAttach {
                     indexCount += parse.indexCount;
                     vertexCount += parse.vertexCount;
                     vertexBones = Math.max(vertexBones, parse.vertexBones);
-                    let tempType = SlotUtils.checkAttachment(parse ? parse.sourceData : null);
-                    if (tempType < type) {
-                        type = tempType;
-                    }
                     twoColorTint = twoColorTint || !!parse.darkColor;
+                    parse.bones.forEach(bone => {
+                        bones.add(bone);
+                    });
                 }
             }
 
@@ -414,7 +419,17 @@ export class SkinAttach {
             }
         }
 
-        this.type = type;
+        let size = bones.size;
+        if (size > 1) {
+            this.type = ESpineRenderType.boneGPU;
+        }
+        else if(size === 1){
+            this.type = ESpineRenderType.rigidBody;
+            this.rbBoneIndex = bones.values().next().value;
+        }
+        else {
+            this.type = ESpineRenderType.normal;
+        }
         this.vertexBones = vertexBones;
 
         let flag: string;
@@ -430,7 +445,7 @@ export class SkinAttach {
                 this.mainVB = new VBBoneCreator(flag, vertexCount);
                 break;
             case ESpineRenderType.rigidBody:
-                flag = "UV,COLOR,POSITION,RIGIDBODY";
+                flag = "UV,COLOR,POSITION";
                 if (twoColorTint) flag += ",COLOR2";
                 this.mainVB = new VBRigBodyCreator(flag, vertexCount);
                 break;

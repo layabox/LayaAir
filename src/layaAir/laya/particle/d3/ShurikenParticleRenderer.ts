@@ -8,12 +8,15 @@ import { BoundFrustum } from "../../d3/math/BoundFrustum";
 import { Bounds } from "../../d3/math/Bounds";
 import { Mesh } from "../../d3/resource/models/Mesh";
 import { LayaGL } from "../../layagl/LayaGL";
+import { StatElement } from "../../layagl/StatisticsContext";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { IRenderContext3D } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { ShaderData, ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { BaseRenderType } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
+import { ShaderFeatureType } from "../../RenderEngine/RenderShader/Shader3D";
+import { Material } from "../../resource/Material";
 import { Stat } from "../../utils/Stat";
 import { ParticleShuriKenShaderInit } from "./shader/ParticleShuriKenShaderInit";
 import { ShuriKenParticle3D } from "./ShuriKenParticle3D";
@@ -151,6 +154,10 @@ export class ShurikenParticleRenderer extends BaseRender {
         this._baseRenderNode.renderNodeType = BaseRenderType.ParticleRender
     }
 
+    protected _isMaterialVaild(value: Material): boolean {
+        return value.checkType(ShaderFeatureType.Effect);
+    }
+
     protected _getcommonUniformMap(): Array<string> {
         return ["Sprite3D", "ShurikenSprite3D"];
     }
@@ -175,13 +182,10 @@ export class ShurikenParticleRenderer extends BaseRender {
     }
     protected _onEnable(): void {
         super._onEnable();
-
-        Stat.particleRenderNode++;
         (this._particleSystem.playOnAwake && LayaEnv.isPlaying) && (this._particleSystem.play());
     }
     protected _onDisable(): void {
         super._onDisable();
-        Stat.particleRenderNode--;
         (this._particleSystem.isAlive) && (this._particleSystem.simulate(0, true));
     }
 
@@ -354,13 +358,13 @@ export class ShurikenParticleRenderer extends BaseRender {
     }
 
     protected _statAdd() {
-        Stat.renderNode++;
-        Stat.particleRenderNode++;
+        super._statAdd();
+        LayaGL.statAgent.recordCountData(StatElement.C_ShurikenParticleRenderCount, 1);
     }
 
     protected _statRemove() {
-        Stat.renderNode--;
-        Stat.particleRenderNode--;
+        super._statRemove();
+        LayaGL.statAgent.recordCountData(StatElement.C_ShurikenParticleRenderCount, -1);
     }
 
 }

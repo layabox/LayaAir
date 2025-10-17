@@ -5,7 +5,6 @@ import { Rectangle } from "../maths/Rectangle";
 import { ILaya } from "../../ILaya";
 import { Ease } from "../tween/Ease";
 import { Tween } from "../tween/Tween";
-import { Browser } from "./Browser";
 
 /**
  * @en The `DragSupport` class is a touch sliding control.
@@ -29,10 +28,10 @@ export class DragSupport {
      */
     maxOffset: number = 60;
     /**
-     * @en The sliding area.
-     * @zh 滑动范围。
+     * @en The area within which dragging is restricted. Its coordinates are in the coordinate space of the target's parent node.
+     * @zh 拖动限制范围。它的坐标是在target的父节点的坐标空间。
      */
-    readonly area: Rectangle;
+    area: Rectangle;
     /**
      * @en Indicates whether the dragging has inertia.
      * @zh 表示拖动是否有惯性。
@@ -71,8 +70,6 @@ export class DragSupport {
         this._points = [];
 
         this.target.on(Event.MOUSE_DOWN, this, this.onMouseDown);
-        this.target.on(Event.MOUSE_DRAG, this, this.onMouseDrag);
-        this.target.on(Event.MOUSE_DRAG_END, this, this.onMouseDragEnd);
     }
 
     get dragging(): boolean {
@@ -94,18 +91,20 @@ export class DragSupport {
         this._elasticRateX = this._elasticRateY = 1;
         let pt = this.target._parent.getMousePoint();
         this._points.length = 0;
-        this._points.push(pt.x, pt.y, Browser.now());
+        this._points.push(pt.x, pt.y, performance.now());
         this._data = data;
+
+        ILaya.stage.on(Event.MOUSE_MOVE, this, this.onMouseMove);
+        ILaya.stage.on(Event.MOUSE_UP, this, this.onMouseUp);
     }
 
-    /**
-     * 清除计时器。
-     */
     private reset(): void {
         this._dragging = false;
         this._testing = false;
         this._data = null;
         ILaya.systemTimer.clear(this, this.tweenMove);
+        ILaya.stage.off(Event.MOUSE_MOVE, this, this.onMouseMove);
+        ILaya.stage.off(Event.MOUSE_UP, this, this.onMouseUp);
         if (this._tween != null) {
             this._tween.kill();
             this._tween = null;
@@ -117,16 +116,17 @@ export class DragSupport {
      * @zh 停止拖拽。
      */
     stop(): void {
-        if (!this._dragging) {
-            this._testing = false;
-            return;
-        }
-
-        if (!this._testing) {
+        if (this._dragging) {
             this._dragging = false;
-            this.moveTarget(0, 0);
-            this.clear();
+            if (!this._testing) {
+                this.moveTarget(0, 0);
+                this.clear(true);
+            }
+            else
+                this.reset();
         }
+        else
+            this.reset();
     }
 
     private onMouseDown() {
@@ -136,7 +136,7 @@ export class DragSupport {
         }
     }
 
-    private onMouseDrag(evt: Event): void {
+    private onMouseMove(evt: Event): void {
         if (!this._testing && !this._dragging)
             return;
 
@@ -161,7 +161,7 @@ export class DragSupport {
             this._testing = false;
         }
 
-        let now = Browser.now();
+        let now = performance.now();
         while (this._points.length > 0 && this._points[2] < now - 100)
             this._points.splice(0, 3);
         this._points.push(mouseX, mouseY, now);
@@ -170,9 +170,9 @@ export class DragSupport {
         this.target.event(Event.DRAG_MOVE, this._data);
     }
 
-    private onMouseDragEnd(evt: Event): void {
+    private onMouseUp(evt: Event): void {
         if (!this._dragging) {
-            this._testing = false;
+            this.reset();
             return;
         }
 
@@ -183,6 +183,7 @@ export class DragSupport {
             let v = DragSupport.computeVelocity(this._points, this.maxOffset);
             this._points[0] = v.x;
             this._points[1] = v.y;
+            this._dragging = false;
             ILaya.systemTimer.frameLoop(1, this, this.tweenMove);
 
         } else if (!this.area.isEmpty() && this.elasticDistance > 0) {
@@ -199,56 +200,49 @@ export class DragSupport {
             this.target.pos(nx, ny);
         else if (this.elasticDistance > 0 && this._dragging) {
             this.target.pos(nx, ny);
-            this.updateElasticRate();
+            let pt = this.checkArea();
+            this._elasticRateX = Math.max(0, 1 - (Math.abs(pt.x) / this.elasticDistance));
+            this._elasticRateY = Math.max(0, 1 - (Math.abs(pt.y) / this.elasticDistance));
         }
-        else
-            this.target.pos(Math.min(Math.max(nx, this.area.x), this.area.x + this.area.width),
-                Math.min(Math.max(ny, this.area.y), this.area.y + this.area.height));
+        else {
+            let pt = this.checkArea(dx, dy);
+            this.target.pos(nx + pt.x, ny + pt.y);
+        }
     }
 
-    private updateElasticRate() {
-        let left: number;
-        let top: number;
-        if (this.target._x < this.area.x)
-            left = this.area.x - this.target._x;
-        else if (this.target._x > this.area.x + this.area.width)
-            left = this.target._x - this.area.x - this.area.width;
+    private checkArea(dx: number = 0, dy: number = 0) {
+        let tx: number;
+        let ty: number;
+        let rect = Rectangle.TEMP.setTo(this.target.x + dx - this.target.pivotX, this.target.y + dy - this.target.pivotY,
+            this.target.width, this.target.height);
+        if (rect.x < this.area.x)
+            tx = this.area.x - rect.x;
+        else if (rect.right > this.area.right)
+            tx = this.area.right - rect.right;
         else
-            left = 0;
+            tx = 0;
 
-        if (this.target._y < this.area.y)
-            top = this.area.y - this.target._y;
-        else if (this.target._y > this.area.y + this.area.height)
-            top = this.target._y - this.area.y - this.area.height;
+        if (rect.y < this.area.y)
+            ty = this.area.y - rect.y;
+        else if (rect.bottom > this.area.bottom)
+            ty = this.area.bottom - rect.bottom;
         else
-            top = 0;
-
-        this._elasticRateX = Math.max(0, 1 - (left / this.elasticDistance));
-        this._elasticRateY = Math.max(0, 1 - (top / this.elasticDistance));
+            ty = 0;
+        return tmpPoint.setTo(tx, ty);
     }
 
     /**
      * 橡皮筋效果检测。
      */
     private checkElastic(): void {
-        let tx: number;
-        let ty: number;
-        if (this.target._x < this.area.x)
-            tx = this.area.x;
-        else if (this.target._x > this.area.x + this.area.width)
-            tx = this.area.x + this.area.width;
+        let pt = this.checkArea();
 
-        if (this.target._y < this.area.y)
-            ty = this.area.y;
-        else if (this.target._y > this.area.y + this.area.height)
-            ty = this.area.y + this.area.height;
-
-        if (tx != null || ty != null) {
-            this._tween = Tween.create(this.target).duration(this.elasticBackTime).ease(Ease.sineOut).then(this.clear, this);
-            if (tx != null)
-                this._tween.to("x", tx);
-            if (ty != null)
-                this._tween.to("y", ty);
+        if (pt.x != 0 || pt.y != 0) {
+            this._tween = Tween.create(this.target).duration(this.elasticBackTime).ease(Ease.sineOut).then(() => this.clear());
+            if (pt.x != 0)
+                this._tween.to("x", this.target.x + pt.x);
+            if (pt.y != 0)
+                this._tween.to("y", this.target.y + pt.y);
         } else {
             this.clear();
         }
@@ -259,6 +253,8 @@ export class DragSupport {
         let s = this.ratio * (1 - n) / (1 - this.ratio); //  S = r(1-rⁿ)/(1-r), r is this.ratio
         let dx = this._points[0] * s * this._elasticRateX;
         let dy = this._points[1] * s * this._elasticRateY;
+        this._points[0] = dx;
+        this._points[1] = dy;
         if (dx < 0)
             dx = Math.ceil(dx);
         else
@@ -267,8 +263,6 @@ export class DragSupport {
             dy = Math.ceil(dy);
         else
             dy = Math.floor(dy);
-        this._points[0] *= n * this._elasticRateX;
-        this._points[1] *= n * this._elasticRateY;
 
         if (Math.abs(dx) < 1 && Math.abs(dy) < 1 || this._elasticRateX < 0.5 || this._elasticRateY < 0.5) {
             ILaya.systemTimer.clear(this, this.tweenMove);
@@ -284,10 +278,10 @@ export class DragSupport {
         }
     }
 
-    private clear(): void {
+    private clear(cancelled?: boolean): void {
         let d = this._data;
         this.reset();
-        this.target.event(Event.DRAG_END, d);
+        this.target.event(Event.DRAG_END, [d, cancelled]);
     }
 
     /**
@@ -298,7 +292,7 @@ export class DragSupport {
      * @blueprintIgnore
      */
     static computeVelocity(points: Array<number>, max?: number): Readonly<Point> {
-        let now = Browser.now();
+        let now = performance.now();
         while (points.length > 0 && points[2] < now - 100)
             points.splice(0, 3);
 
@@ -326,9 +320,9 @@ export class DragSupport {
                 y = y > 0 ? max : -max;
         }
 
-        _velocity.setTo(x, y);
-        return _velocity;
+        tmpPoint.setTo(x, y);
+        return tmpPoint;
     }
 }
 
-const _velocity = new Point();
+const tmpPoint = new Point();

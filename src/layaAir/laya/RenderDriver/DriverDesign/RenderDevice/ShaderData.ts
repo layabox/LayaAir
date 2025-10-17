@@ -37,6 +37,16 @@ export enum ShaderDataType {
 
 export type ShaderDataItem = number | boolean | Vector2 | Vector3 | Vector4 | Color | Matrix4x4 | BaseTexture | Float32Array | Matrix3x3 | IDeviceBuffer;
 
+export function isUboBufferShaderType(type: ShaderDataType): boolean {
+    return !(type === ShaderDataType.ReadOnlyDeviceBuffer ||
+        type === ShaderDataType.DeviceBuffer ||
+        type === ShaderDataType.StorageTexture2D ||
+        type === ShaderDataType.Texture2D ||
+        type === ShaderDataType.Texture3D ||
+        type === ShaderDataType.TextureCube ||
+        type === ShaderDataType.Texture2DArray)
+}
+
 export function checkShaderDataValueLegal(value: any, shaderType: ShaderDataType) {
     let legal = false;
     switch (shaderType) {

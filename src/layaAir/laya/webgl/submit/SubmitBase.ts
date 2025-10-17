@@ -1,5 +1,6 @@
 import { GraphicsRunner } from "../../display/Scene2DSpecial/GraphicsRunner";
-import { Graphics2DVertexBlock, I2DGraphicBufferDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { LayaGL } from "../../layagl/LayaGL";
+import { IGraphics2DVertexBlock, I2DGraphicIndexDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { Material } from "../../resource/Material";
 import { BlendModeHandler } from "../canvas/BlendMode";
 import { GraphicsShaderInfo } from "../shader/d2/value/GraphicsShaderInfo";
@@ -24,14 +25,14 @@ export class SubmitBase {
 
     material: Material;
 
-    vertexs: Graphics2DVertexBlock[] = [];
+    vertexs: IGraphics2DVertexBlock[] = [];
     blockIndexs: number[] = [];
 
     indexCount: number = 0;
 
     indices: number[] = [];
 
-    indexView: I2DGraphicBufferDataView;
+    indexView: I2DGraphicIndexDataView;
 
     /** @internal */
     _internalInfo: GraphicsShaderInfo = null;
@@ -58,16 +59,21 @@ export class SubmitBase {
 
     destroy() {
         this.clear();
+
+        if (this.indexView) {
+            this.indexView.destroy();
+            this.indexView = null;
+        }
         this._internalInfo.destroy();
         this._internalInfo = null;
     }
 
     appendData(info: MeshBlockInfo) {
         this.blockIndexs.push(...info.vertexBlocks);
-        this.vertexs.push({
-            positions: info.positions,
-            vertexViews: info.vertexViews
-        })
+        let vertexBlock = LayaGL.render2DRenderPassFactory.createGraphic2DVertexBlock();
+        vertexBlock.positions = info.positions;
+        vertexBlock.vertexViews = info.vertexViews;
+        this.vertexs.push(vertexBlock);
     }
 
     update(runner: GraphicsRunner, mesh: GraphicsMesh, material: Material) {

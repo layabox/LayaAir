@@ -19,7 +19,6 @@ import { UBBParser } from "../html/UBBParser";
 import { HtmlParseOptions } from "../html/HtmlParseOptions";
 import { Browser } from "../utils/Browser";
 import { SpriteConst, TransformKind } from "./SpriteConst";
-import { SpriteGlobalTransform } from "./SpriteGlobaTransform";
 import { TextRenderConfig } from "../webgl/text/TextRenderConfig";
 import { Node } from "./Node";
 import { IGraphicsCmd } from "./IGraphics";
@@ -224,6 +223,7 @@ export class Text extends Sprite {
         this._lines = [];
         this._padding = [0, 0, 0, 0];
         this._fontSizeScale = 1;
+        this.graphics._useSpriteRect = true;
     }
 
     /**
@@ -275,20 +275,6 @@ export class Text extends Sprite {
     /**
      * @ignore
      */
-    protected _getBoundPointsM(ifRotate?: boolean, out?: number[]): number[] {
-        return Rectangle.TEMP.setTo(0, 0, this._isWidthSet ? this._width : this._textWidth, this._isHeightSet ? this._height : this._textHeight).getBoundPoints(out);
-    }
-
-    /**
-     * @ignore
-     */
-    getGraphicBounds(realSize?: boolean, out?: Rectangle): Rectangle {
-        return (out || new Rectangle).setTo(0, 0, this.width, this.height);
-    }
-
-    /**
-     * @ignore
-     */
     protected measureWidth(): number {
         this.typeset();
         return this._textWidth;
@@ -309,14 +295,26 @@ export class Text extends Sprite {
         super._transChanged(kind);
 
         if ((kind & TransformKind.Size) != 0) {
-            if (this._scrollRect != null)
-                this.scrollRect = this._scrollRect.setTo(0, 0, this._width, this._height);
+            if (this._scrollRect != null) {
+                this._updateScrollRect();
+            }
 
             if (!this._updatingLayout)
                 this.markChanged();
             else
                 this.drawBg();
         }
+    }
+
+    /**
+     * @ignore
+     */
+    private _updateScrollRect(): void {
+        let rect = this._scrollRect || new Rectangle();
+        let rectWidth = this._isWidthSet ? this._width : this._textWidth;
+        let rectHeight = this._isHeightSet ? this._height : this._textHeight;
+        rect.setTo(0, 0, rectWidth, rectHeight);
+        this.scrollRect = rect;
     }
 
     /**
@@ -714,8 +712,9 @@ export class Text extends Sprite {
     set overflow(value: string) {
         if (this._overflow != value) {
             this._overflow = value;
-            if (value !== Text.VISIBLE)
-                this.scrollRect = new Rectangle(0, 0, this.width, this.height);
+            if (value !== Text.VISIBLE) {
+                this._updateScrollRect();
+            }
             else
                 this.scrollRect = null;
         }
@@ -784,14 +783,17 @@ export class Text extends Sprite {
 
     /**
      * @en Whether single character rendering is enabled. Enable this if the text content changes frequently, such as an increasing number, to prevent inefficient use of cache.
-     * @zh 是否启用单个字符渲染。如果Textd的内容一直改变，例如是一个增加的数字，就设置这个，防止无效占用缓存 
+     * @zh 是否启用单个字符渲染。如果Text的内容一直改变，例如是一个增加的数字，就设置这个，防止无效占用缓存 
      */
     get singleCharRender(): boolean {
         return this._singleCharRender;
     }
 
     set singleCharRender(value: boolean) {
-        this._singleCharRender = value;
+        if (this._singleCharRender !== value) {
+            this._singleCharRender = value;
+            this.markChanged();
+        }
     }
 
     /**
@@ -1720,7 +1722,10 @@ export class Text extends Sprite {
             this._objContainer.size(this._width, this._height);
 
             if (this._scrollPos || this._overflow == Text.HIDDEN && this._objContainer.numChildren > 0) {
-                this._objContainer.scrollRect = (this._objContainer.scrollRect || new Rectangle()).setTo(0, 0, this._width, this._height);
+                let rect = this._objContainer.scrollRect || new Rectangle();
+                let rectWidth = this._isWidthSet ? this._width : this._textWidth;
+                let rectHeight = this._isHeightSet ? this._height : this._textHeight;
+                this._objContainer.scrollRect = rect.setTo(0, 0, rectWidth, rectHeight);
             }
             else
                 this._objContainer.scrollRect = null;
@@ -1833,6 +1838,10 @@ export class Text extends Sprite {
                 linkStartX = paddingLeft;
             }
         }
+
+        if (clipped) {
+            this._updateScrollRect();
+        }
     }
 
     /**
@@ -1856,12 +1865,14 @@ export class Text extends Sprite {
 
             let cmds = this.graphics.cmds;
             let i = cmds.indexOf(cmd);
-            if (i != 0) {
-                if (i != -1)
+            if (i !== 0) {
+                if (i !== -1)
                     cmds.splice(i, 1);
                 cmds.unshift(cmd);
                 this.graphics.cmds = cmds;
             }
+            else
+                this.graphics.repaint();
         }
         else if (cmd) {
             this.graphics.removeCmd(cmd, true);

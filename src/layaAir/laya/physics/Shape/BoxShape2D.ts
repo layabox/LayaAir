@@ -62,7 +62,7 @@ export class BoxShape2D extends Physics2DShapeBase {
      * @internal
      */
     protected _updateShapeData(): void {
-        if (!LayaEnv.isPlaying || !this._body) return;
+        if (!LayaEnv.isPlaying || !this._body || !this._box2DBody) return;
         let helfW: number = this._width * 0.5;
         let helfH: number = this._height * 0.5;
         var center = {

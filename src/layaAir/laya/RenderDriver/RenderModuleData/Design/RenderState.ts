@@ -241,13 +241,25 @@ export class RenderState {
 	}
 
 	/** 模板写入掩码 */
-	public stencilWriteMask: number;
+	protected _stencilWriteMask: number;
+	public get stencilWriteMask(): number {
+		return this._stencilWriteMask;
+	}
+	public set stencilWriteMask(value: number) {
+		this._stencilWriteMask = value;
+	}
 
 	/** 模板读取掩码 */
-	public stencilReadMask: number;
+	protected _stencilReadMask: number;
+	public get stencilReadMask(): number {
+		return this._stencilReadMask;
+	}
+	public set stencilReadMask(value: number) {
+		this._stencilReadMask = value;
+	}
 
 	/**模板值 一般会在0-255*/
-	private _stencilRef: number;
+	protected _stencilRef: number;
 	public get stencilRef(): number {
 		return this._stencilRef;
 	}
@@ -255,7 +267,7 @@ export class RenderState {
 		this._stencilRef = value;
 	}
 	/**模板设置值 */
-	private _stencilOp: Vector3 = new Vector3();
+	protected _stencilOp: Vector3 = new Vector3();
 	public get stencilOp(): Vector3 {
 		return this._stencilOp;
 	}
@@ -264,16 +276,40 @@ export class RenderState {
 	}
 
 	/** 是否开启深度偏移 */
-	public depthBias: boolean;
+	protected _depthBias: boolean;
+	public get depthBias(): boolean {
+		return this._depthBias;
+	}
+	public set depthBias(value: boolean) {
+		this._depthBias = value;
+	}
 
 	/** 深度偏移常量 */
-	public depthBiasConstant: number;
+	protected _depthBiasConstant: number;
+	public get depthBiasConstant(): number {
+		return this._depthBiasConstant;
+	}
+	public set depthBiasConstant(value: number) {
+		this._depthBiasConstant = value;
+	}
 
 	/** 深度偏移斜率缩放 */
-	public depthBiasSlopeScale: number;
+	protected _depthBiasSlopeScale: number;
+	public get depthBiasSlopeScale(): number {
+		return this._depthBiasSlopeScale;
+	}
+	public set depthBiasSlopeScale(value: number) {
+		this._depthBiasSlopeScale = value;
+	}
 
 	/** 深度偏移限制值 */
-	public depthBiasClamp: number;
+	protected _depthBiasClamp: number;
+	public get depthBiasClamp(): number {
+		return this._depthBiasClamp;
+	}
+	public set depthBiasClamp(value: number) {
+		this._depthBiasClamp = value;
+	}
 
 	protected createObj() {
 		//native TODO 历史包袱

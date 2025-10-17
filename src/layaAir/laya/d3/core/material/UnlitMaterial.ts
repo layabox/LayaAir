@@ -160,7 +160,7 @@ export class UnlitMaterial extends Material {
     static RENDERMODE_ADDTIVE: number = 3;
     /**
      * @deprecated
-     * 渲染模式。
+     * 渲染模式，使用materialRenderMode代替。
      */
     set renderMode(value: number) {
         switch (value) {

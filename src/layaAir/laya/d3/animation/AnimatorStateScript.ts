@@ -70,6 +70,14 @@ export class AnimatorStateScript {
     onStateExit(): void {
 
     }
+
+    /**
+     * @en Executed when switching to a new state
+     * @zh 切换到新状态时执行
+     */
+    onStateSwitch(currentState: AnimatorState): void {
+
+    }
     /**
      * @en Executed when switching to a new state
      * @zh 切换到新状态时执行

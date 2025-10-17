@@ -180,7 +180,7 @@ export class NoRenderShaderData extends ShaderData {
      * @ignore
      */
     addDefines(define: IDefineDatas): void {
-        this._defineDatas.addDefineDatas(define);
+        this._defineDatas.addDefineDatas(define as WebDefineDatas);
     }
 
     /**

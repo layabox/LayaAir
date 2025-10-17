@@ -100,6 +100,5 @@ export class GLESInternalTex implements InternalTexture {
 
     dispose(): void {
         this._nativeObj.dispose();
-        this._nativeObj = null;
     }
 }

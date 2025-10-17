@@ -1,8 +1,10 @@
+import { ILaya } from "../../ILaya";
 import { Input } from "../../laya/display/Input";
 import { Text } from "../../laya/display/Text";
 import { Event } from "../../laya/events/Event";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { TextInputAdapter } from "../../laya/platform/TextInputAdapter";
+import { SpriteUtils } from "../../laya/utils/SpriteUtils";
 
 export class NativeTextInputAdapter extends TextInputAdapter {
 
@@ -56,7 +58,17 @@ export class NativeTextInputAdapter extends TextInputAdapter {
         this.setPromptColor();
         this.syncTransform();
 
+        PAL.browser.on(Event.RESIZE, this, this._onResize);//覆盖Stage的resize事件
+        ILaya.stage.on(Event.RESIZE, this, this.syncTransform);
         return Promise.resolve();
+    }
+    private _onResize() {
+        // 弹出输入法不应对画布进行resize。
+        //if (PAL.textInput.target) return;
+        if (ILaya.stage.screenAdaptationEnabled) {
+            ILaya.stage.event(Event.WILL_RESIZE);
+            ILaya.stage.updateCanvasSize(true);
+        }
     }
 
     protected onCanShowKeyboard(): Promise<void> {
@@ -74,6 +86,7 @@ export class NativeTextInputAdapter extends TextInputAdapter {
                 multiple: target.multiline,
                 confirmHold: true,
                 confirmType: target.confirmType,
+                keyboardType: target.type === "number" ? "number" : "text",
                 success: resolve,
                 fail: reject
             });
@@ -95,18 +108,21 @@ export class NativeTextInputAdapter extends TextInputAdapter {
             this._visEle.blur();
             this.hideInputElement();
             this._visEle = null;
-
+            PAL.browser.off(Event.RESIZE, this, this._onResize);
+            ILaya.stage.off(Event.RESIZE, this, this.syncTransform);
             return Promise.resolve();
         }
     }
 
     protected syncTransform(): void {
-        let t = this.getTargetTransform();
-        if (t != null) {
-            (this._visEle as any).setScale(t.scaleX, t.scaleY);
-            (this._visEle as any).setSize(t.width, t.height);
-            (this._visEle as any).setPos(t.x, t.y);
-        }
+        let padding = this.target.padding;
+        let { x, y, scaleX, scaleY } = SpriteUtils.getTransformRelativeToWindow(this.target, padding[3], padding[0]);
+        let w = this.target.width - padding[1] - padding[3];
+        let h = this.target.height - padding[0] - padding[2];
+
+        (this._visEle as any).setScale(scaleX, scaleY);
+        (this._visEle as any).setSize(w, h);
+        (this._visEle as any).setPos(x, y);
     }
 
     protected hideInputElement(): void {

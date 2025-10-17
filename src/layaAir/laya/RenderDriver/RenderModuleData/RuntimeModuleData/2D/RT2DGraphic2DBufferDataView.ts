@@ -1,149 +1,190 @@
 
 import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
-import { I2DGraphicBufferDataView, BufferModifyType, I2DGraphicWholeBuffer } from "../../Design/2D/IRender2DDataHandle";
-import { GLESRenderGeometryElement } from "../../../OpenGLESDriver/RenderDevice/GLESRenderGeometryElement";
+import { I2DGraphicBufferDataView, I2DGraphicIndexDataView, I2DGraphicVertexDataView, I2DGraphicWholeBuffer } from "../../Design/2D/IRender2DDataHandle";
+import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
+import { NativeMemory } from "../NativeMemory";
 
-
-export class RT2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
-
+//这个也不会删除
+export class RT2DGraphicVertexBuffer implements I2DGraphicWholeBuffer {
+    private _buffer: IVertexBuffer;
+    private _nativeMemory: NativeMemory;
+    private _views: Set<I2DGraphicBufferDataView> = new Set();//防止GC
     _nativeObj: any;
-    private _bufferData: Float32Array | Uint16Array;
-    private _buffer: IIndexBuffer | IVertexBuffer;
-    private _modifyType: BufferModifyType;
 
-    get bufferData(): Float32Array | Uint16Array {
-        return this._bufferData;
-    }
-    set bufferData(value: Float32Array | Uint16Array) {
-        this._bufferData = value;
-        this._nativeObj.bufferData = value;
-    }
-    get buffer(): IIndexBuffer | IVertexBuffer {
+
+    get buffer(): IVertexBuffer {
         return this._buffer;
     }
 
-    set buffer(value: IIndexBuffer | IVertexBuffer) {
-        this._nativeObj.buffer = value;
+    set buffer(value: IVertexBuffer) {
         this._buffer = value;
-    }
-
-    get modifyType(): BufferModifyType {
-        return this._modifyType;
-    }
-
-    set modifyType(value: BufferModifyType) {
-        this._modifyType = value;
-        this._nativeObj.modifyType = value;
+        this._nativeObj.setVertexBuffer(value ? (value as any)._nativeObj : null);
     }
 
     constructor() {
-        this._nativeObj = new (window as any).conchRT2DGraphicWholeBuffer();
-        this._nativeObj.setResetDataCallback(this.resetData.bind(this));
+        this._nativeObj = new (window as any).conchRT2DGraphicVertexBuffer();
     }
 
-    resetData(byteLength: number) {
-        //copy Buffer
-        if (BufferModifyType.Index == this.modifyType) {
-            let newData = new Uint16Array(byteLength / 2);
-            if (this.bufferData) {
-                newData.set(this.bufferData);
-            }
-            this.bufferData = newData;
-        } else {
-            let newData = new Float32Array(byteLength / 4);
-            if (this.bufferData) {
-                newData.set(this.bufferData);
-            }
-            this.bufferData = newData;
-        }
-        this._nativeObj._needResetData = true;
+    /**
+     * @internal
+     */
+    _setData(data: ArrayLike<number>, view: RT2DGraphic2DVertexDataView) {
+        this._nativeMemory.float32Array.set(data, view.start);
     }
+
+    _addDataView(dataView: I2DGraphicBufferDataView) {
+        //vertex创建会在内部 addView，这里需要记录一下js引用一方被gc
+        this._views.add(dataView);
+        //this._nativeObj.addDataView(dataView ? (dataView as any)._nativeObj : null);
+    }
+
     removeDataView(dataView: I2DGraphicBufferDataView) {
+        this._views.delete(dataView);
         this._nativeObj.removeDataView(dataView ? (dataView as any)._nativeObj : null);
     }
 
-    clearBufferViews() {
-        this._nativeObj.clearBufferViews();
+    // addDataView(dataView: I2DGraphicBufferDataView) {
+    //     this._nativeObj.addDataView(dataView ? (dataView as any)._nativeObj : null);
+    // }
+
+    destroy() {
+        this._views.clear();
+        this._nativeObj.destroy();
+        this._nativeMemory.destroy();
+    }
+
+    //
+    resetData(byteLength: number) {
+        if (!this._nativeMemory) {
+            this._nativeMemory = new NativeMemory(byteLength, false);
+            this._nativeObj.resetData(this._nativeMemory._buffer);
+        }
+        else if (this._nativeMemory._buffer.byteLength != byteLength) {//重创NativeMemory
+            //换Buffer
+            let oldMemory = this._nativeMemory;
+            this._nativeMemory = new NativeMemory(byteLength, false);
+            this._nativeObj.resetData(this._nativeMemory._buffer);
+            oldMemory && oldMemory.destroy();
+        }
+    }
+}
+
+//这个也不删除
+export class RT2DGraphicIndexBuffer implements I2DGraphicWholeBuffer {
+    private _buffer: IIndexBuffer;
+    private _views: Set<I2DGraphicBufferDataView> = new Set();//防止GC
+    _nativeObj: any;
+
+    get buffer(): IIndexBuffer {
+        return this._buffer;
+    }
+
+    set buffer(value: IIndexBuffer) {
+        this._buffer = value;
+        this._nativeObj.setIndexBuffer(value ? (value as any)._nativeObj : null);
+    }
+
+    constructor() {
+        this._nativeObj = new (window as any).conchRT2DGraphicIndexBuffer();
+    }
+
+    resetData(byteLength: number) {
+        this._nativeObj.resetData(byteLength);//重创indexBuf
+    }
+
+    _addDataView(dataView: RT2DGraphic2DIndexDataView) {
+        //vertex创建会在内部 addView，这里需要记录一下js引用一方被gc
+        this._views.add(dataView);
+        //this._nativeObj.addDataView(dataView ? (dataView as any)._nativeObj : null);
+    }
+
+    removeDataView(dataView: RT2DGraphic2DIndexDataView) {
+        if (this._views.has(dataView)) {
+            this._views.delete(dataView);
+            dataView._owner = null;
+        }
+        this._nativeObj.removeDataView(dataView ? (dataView as any)._nativeObj : null);
     }
 
     destroy() {
+        this._views.clear();
         this._nativeObj.destroy();
+
     }
 
 }
 
-export class RT2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
-    private _data: Float32Array | Uint16Array;
-    private _owner: RT2DGraphicWholeBuffer;
+//循环利用 不会删除
+export class RT2DGraphic2DVertexDataView implements I2DGraphicVertexDataView {
+    private _owner: RT2DGraphicVertexBuffer;
     private _start: number;
     private _length: number;
     private _stride: number;
-    private _modifyType: BufferModifyType;
-    private _geometry: GLESRenderGeometryElement;
+
     _nativeObj: any;
 
     get start(): number {
         return this._start;
     }
-    set start(value: number) {
-        this._start = value;
-        this._nativeObj.start = value;
-    }
+
     get length(): number {
         return this._length;
     }
-    set length(value: number) {
-        this._length = value;
-        this._nativeObj.length = value;
-    }
+
     get stride(): number {
         return this._stride;
     }
-    set stride(value: number) {
-        this._stride = value;
-        this._nativeObj.stride = value;
-    }
 
-    get modifyType(): BufferModifyType {
-        return this._modifyType;
-    }
-
-    set modifyType(value: BufferModifyType) {
-        this._modifyType = value;
-        this._nativeObj.modifyType = value;
-    }
-    setGeometry(value: GLESRenderGeometryElement) {
-        this._geometry = value;
-        this._nativeObj.setGeometry(value ? value._nativeObj : null);
-    }
-
-    getData(): Float32Array | Uint16Array {
-        return this._data;
-    }
-
-    setData(data: ArrayLike<number>) {
-        this._nativeObj.setData(data);
-    }
-
-    constructor(owner: RT2DGraphicWholeBuffer, type: BufferModifyType, start: number, length: number, stride: number = 1, create: boolean = true) {
-        this._nativeObj = new (window as any).conchRT2DGraphic2DBufferDataView(type, start, length, stride, create);
-        this._nativeObj.setOwner(owner ? owner._nativeObj : null);
+    constructor(owner: RT2DGraphicVertexBuffer, start: number, length: number, stride: number) {
         this._owner = owner;
         this._start = start;
         this._length = length;
         this._stride = stride;
-        this._modifyType = type;
-
-        if (create) {
-            if (this._modifyType == BufferModifyType.Index) {
-                this._data = new Uint16Array(length);
-                this._nativeObj._data = this._data;
-            } else {
-                this._nativeObj._updateView(owner.bufferData);
-                owner._nativeObj._addDataView(this._nativeObj);
-            }
-        }
+        // this.updateView(owner.bufferData);
+        this._nativeObj = new (window as any).conchRT2DGraphic2DVertexDataView(owner ? owner._nativeObj : null, start, length, stride);
+        this._owner && this._owner._addDataView(this);
     }
-  
+
+    setData(data: ArrayLike<number>): void {
+        this._owner._setData(data, this);
+        this._nativeObj.modify();
+    }
+
+
+}
+
+export class RT2DGraphic2DIndexDataView implements I2DGraphicIndexDataView {
+    private _geometry: IRenderGeometryElement;
+    _owner: RT2DGraphicIndexBuffer;
+    private _length: number;
+    private _memoryData: NativeMemory;
+    _nativeObj: any;
+
+    get length(): number {
+        return this._length;
+    }
+
+    constructor(owner: RT2DGraphicIndexBuffer, length: number) {
+        this._owner = owner;
+        this._length = length;
+        this._nativeObj = new (window as any).conchRT2DGraphic2DIndexDataView(owner ? owner._nativeObj : null, length);
+        this._owner && this._owner._addDataView(this);
+        this._memoryData = new NativeMemory(this.length * 2, false);
+        this._nativeObj.setIndexShareMemory(this._memoryData._buffer);
+    }
+
+    setData(data: ArrayLike<number>): void {
+        this._memoryData.Uint16Array.set(data);
+        this._nativeObj.modify();
+    }
+
+    setGeometry(value: IRenderGeometryElement): void {
+        this._geometry = value;
+        this._nativeObj.setGeometry(value ? (value as any)._nativeObj : null);
+    }
+
+    destroy() {
+        this._memoryData.destroy();
+    }
 }

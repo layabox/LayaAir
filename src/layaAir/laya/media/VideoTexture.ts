@@ -6,7 +6,6 @@ import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetForma
 import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
 import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
 import { Texture2D } from "../resource/Texture2D";
-import { Browser } from "../utils/Browser";
 import { LayaGL } from "../layagl/LayaGL";
 import { Event } from "../events/Event";
 import { PAL } from "../platform/PlatformAdapters";
@@ -263,8 +262,6 @@ export class VideoTexture extends BaseTexture {
         this._height = height;
         this._loaded = true;
 
-        if (this._texture)
-            this._texture.dispose();
         this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, width, height, rgba ? TextureFormat.R8G8B8A8 : TextureFormat.R8G8B8, false, false, false);
         this.wrapModeU = WrapMode.Clamp;
         this.wrapModeV = WrapMode.Clamp;
@@ -289,9 +286,11 @@ export class VideoTexture extends BaseTexture {
             return;
 
         if (!this._useMediaFrameRate && !force) {
-            let timer = Browser.now();
-            if (timer - this._lastTimer < this._interval)
+            let now = performance.now();
+            if (now - this._lastTimer < this._interval)
                 return;
+
+            this._lastTimer = now;
         }
 
         if (this.onRender())
@@ -307,6 +306,10 @@ export class VideoTexture extends BaseTexture {
     load(url: string) {
         this._source = url;
         if (url) {
+            if (this._texture) {
+                this._texture.dispose();
+                this._texture = null;
+            }
             AssetDb.inst.resolveURL(url, url2 => {
                 if (this._source === url)
                     this.onLoad(url2);

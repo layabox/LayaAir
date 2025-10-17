@@ -167,7 +167,7 @@ export class AnimationRender {
 
         renderFrames.push(0);
         changeMap.set(0, {});
-        
+
         for (let i = 0, n = timeline.length; i < n; i++) {
             let time = timeline[i];
             let frames = time.frames;
@@ -434,7 +434,7 @@ export class SkinAniRenderData {
      * @en Function to update bone matrices.
      * @zh 更新骨骼矩阵的函数。
      */
-    updateBoneMat: (delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array , ofx:number, ofy:number ) => void;
+    updateBoneMat: (delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array, ofx: number, ofy: number) => void;
 
     /** @ignore */
     constructor() {
@@ -467,7 +467,7 @@ export class SkinAniRenderData {
      * @param state 骨骼动画状态。
      * @param boneMat 骨骼矩阵数组。
      */
-    updateBoneMatCache(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array , ofx:number = 0, ofy:number = 0): void {
+    updateBoneMatCache(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array, ofx: number = 0, ofy: number = 0): void {
         this.vb.updateBoneCache(animation.boneFrames, delta / step, boneMat, ofx, ofy);
     }
 
@@ -538,7 +538,7 @@ export class SkinAniRenderData {
      * @param state 骨骼动画状态。
      * @param boneMat 骨骼矩阵数组。
      */
-    updateBoneMatByBone(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array , ofx:number = 0, ofy:number = 0): void {
+    updateBoneMatByBone(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array, ofx: number = 0, ofy: number = 0): void {
         this.vb.updateBone(bones, boneMat, ofx, ofy);
     }
 
@@ -578,10 +578,15 @@ export class SkinAniRenderData {
 
             let framesLength = frames.length;
             let order: number[];
+            let lastData: FrameRenderData;
+
             for (let i = 0; i < framesLength; i++) {
                 let frame = frames[i];
                 let fcs = changeMap.get(frame);
-                if (!fcs) continue;
+                if (!fcs) {
+                    this.renderDatas[i] = lastData;
+                    continue;
+                }
 
                 let iChanges = fcs.iChanges;
 
@@ -624,7 +629,8 @@ export class SkinAniRenderData {
                     data.vChanges = myChangeVB;
                 }
 
-                this.renderDatas.push(data);
+                this.renderDatas[i] = data;
+                lastData = data;
 
                 if (!frame) {
                     if (!data.ib) {
@@ -637,12 +643,12 @@ export class SkinAniRenderData {
                 }
             }
 
-            this.maxIndexCount = Math.max(tempCreator.maxIndexCount , this.mainIB.maxIndexCount);
+            this.maxIndexCount = Math.max(tempCreator.maxIndexCount, this.mainIB.maxIndexCount);
 
         } else {
             this.vb = mainVB;
             this._defaultMesh = SpineMeshUtils.createMesh(this.type, this.vb, ibCreator, this.isDynamic);
-            this._defaultMesh._addReference();
+            this._defaultMesh.lock = true;
             this.maxIndexCount = ibCreator.maxIndexCount;
         }
 

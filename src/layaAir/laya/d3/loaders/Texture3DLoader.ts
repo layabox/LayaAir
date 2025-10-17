@@ -54,12 +54,12 @@ export class Texture2DArrayLoader implements IResourceLoader {
             let invertY = !!data.invertY;
 
             let textures: Array<string> = data.textures;
-            let basePath: string = URL.getPath(task.url);
-            let urls: string[] = [];
-            for (let texture of textures) {
-                urls.push(URL.join(basePath, texture));
-            }
 
+            let urls = [];
+            let basePath: string = URL.getPath(task.url);
+            for (let i = textures.length - 1; i >= 0; i--) {
+                urls.unshift(URL.join(basePath, textures[i]));
+            }            
             let options = task.options;
             return Promise.all(urls.map((url) => {
                 if (url) {

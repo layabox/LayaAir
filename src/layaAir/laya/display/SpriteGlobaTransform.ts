@@ -62,7 +62,10 @@ export class SpriteGlobalTransform {
         if (sp._parent) {
             Matrix.mul(this._matrix, sp._parent.globalTrans.getMatrix(), this._matrix);
             this._setFlag(TransformKind.Matrix, false);
-            this._syncFlag(TransformKind.Matrix, true);
+            // this._syncFlag(TransformKind.Matrix, true);
+        } else if (sp._maskParent) {
+            Matrix.mul(this._matrix, sp._maskParent.globalTrans.getMatrix(), this._matrix);
+            this._setFlag(TransformKind.Matrix, false);
         }
         return this._matrix;
     }
@@ -102,7 +105,7 @@ export class SpriteGlobalTransform {
         if (!this._sp.scene)
             return this.getMatrix();
 
-        this._sp.scene.globalTrans.getMatrix().invert().copyTo(out);
+        this._sp.scene.globalTrans.getMatrixInv(tmpMarix).copyTo(out);
         Matrix.mul(this.getMatrix(), out, out);
         return out;
     }
@@ -293,7 +296,7 @@ export class SpriteGlobalTransform {
     private _cachePos() {
         if (this._getFlag(TransformKind.Matrix | TransformKind.Pos)) {
             this._setFlag(TransformKind.Pos, false);
-            let p = this.getMatrix().transformPoint(tmpPoint.setTo(0, 0));
+            let p = this.getMatrix().transformPoint(tmpPoint.setTo(this._sp.pivotX, this._sp.pivotY));
             this._x = p.x;
             this._y = p.y;
         }

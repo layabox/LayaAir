@@ -220,20 +220,7 @@ export class Vector4 implements IClone {
         out.z = vx * me[2] + vy * me[6] + vz * me[10] + vw * me[14];
         out.w = vx * me[3] + vy * me[7] + vz * me[11] + vw * me[15];
     }
-
-    /**
-     * @en Determines whether two Vector4 objects are equal.
-     * @param a The first Vector4.
-     * @param b The second Vector4.
-     * @returns True if the vectors are equal, false otherwise.
-     * @zh 判断两个四维向量是否相等。
-     * @param a 第一个四维向量。
-     * @param b 第二个四维向量。
-     * @returns 如果向量相等则返回 true，否则返回 false。
-     */
-    static equals_(a: Vector4, b: Vector4): boolean {
-        return MathUtils3D.nearEqual(Math.abs(a.x), Math.abs(b.x)) && MathUtils3D.nearEqual(Math.abs(a.y), Math.abs(b.y)) && MathUtils3D.nearEqual(Math.abs(a.z), Math.abs(b.z)) && MathUtils3D.nearEqual(Math.abs(a.w), Math.abs(b.w));
-    }
+    
     /**
      * 判断两个四维向量是否相等。
      * @param a 四维向量。

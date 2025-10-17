@@ -1,7 +1,6 @@
 import { Config } from "../../../../Config";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
-import { GPUEngineStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { NotImplementedError } from "../../../utils/Error";
 import { IRenderEngine } from "../../DriverDesign/RenderDevice/IRenderEngine";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
@@ -34,6 +33,13 @@ export class GLESEngine implements IRenderEngine {
     this._nativeObj = new (window as any).conchGLESEngine(config, webglMode);
 
   }
+  public get _framePassCount(): number {
+    return this._nativeObj._framePassCount;
+  }
+  public set _framePassCount(value: number) {
+    this._nativeObj._framePassCount = value;
+  }
+
   endFrame(): void {
     this._nativeObj.startFrame();
   }
@@ -47,12 +53,6 @@ export class GLESEngine implements IRenderEngine {
   _lodTextureSample: boolean = true;
   _breakTextureSample: boolean = true;
 
-  public get _enableStatistics(): boolean {
-    return this._nativeObj.enableStatistics;
-  }
-  public set _enableStatistics(value: boolean) {
-    this._nativeObj.enableStatistics = value;
-  }
 
   resizeOffScreen(width: number, height: number): void {
     this._nativeObj.resizeOffScreen(width, height);
@@ -97,12 +97,7 @@ export class GLESEngine implements IRenderEngine {
   getTextureContext(): ITextureContext {
     return this._GLTextureContext;
   }
-  clearStatisticsInfo(): void {
-    this._nativeObj.clearStatisticsInfo();
-  }
-  getStatisticsInfo(info: GPUEngineStatisticsInfo): number {
-    return this._nativeObj.getStatisticsInfo(info);
-  }
+
   viewport(x: number, y: number, width: number, height: number): void {
     this._nativeObj.viewport(x, y, width, height);
   }

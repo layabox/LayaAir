@@ -44,11 +44,14 @@ export class HTMLAudioChannel extends SoundChannel {
         ele.volume = this._volume;
         ele.muted = this._muted;
         if (!this._paused) {
-            this._ele.play().catch(e => {
-                if (e.name === "NotAllowedError" && this._isMusic)
-                    PAL.media.resumeUntilGotFocus(this);
-                else
-                    console.warn(e);
+            // 如果已经播放中，直接返回，不重复调用 play()
+            if (ele.readyState > 0 && !ele.paused) return;
+            Promise.resolve().then(() => {
+                if (!this._ele) return;
+                this._ele.play().catch(e => {
+                    if (e.name === "NotAllowedError" && this._isMusic) PAL.media.resumeUntilGotFocus(this);
+                    else console.warn(e);
+                });
             });
         }
     }

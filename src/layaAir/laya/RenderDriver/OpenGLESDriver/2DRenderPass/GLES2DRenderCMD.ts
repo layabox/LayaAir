@@ -7,7 +7,7 @@ import { GLESInternalTex } from "../RenderDevice/GLESInternalTex";
 import { GLESRenderElement2D } from "./GLESRenderElement2D";
 
 export class GLESSetRendertarget2DCMD extends SetRendertarget2DCMD {
-    
+
     _nativeObj: any;
 
     protected _rt: GLESInternalRT;
@@ -53,7 +53,11 @@ export class GLESSetRendertarget2DCMD extends SetRendertarget2DCMD {
 
     set rt(value: GLESInternalRT) {
         this._rt = value;
-        this._nativeObj.setRT(value ? value._nativeObj : null);
+        if (value) {
+            this._nativeObj.setRT(value._nativeObj, this.size.x, this.size.y);
+        } else {
+            this._nativeObj.setRT(null, this.size.x, this.size.y);
+        }
     }
 
     /**

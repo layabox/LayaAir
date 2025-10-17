@@ -834,16 +834,18 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
      * @param shape The circle shape.
      * @param x The x-coordinate of the circle shape's position.
      * @param y The y-coordinate of the circle shape's position.
-     * @param scale The scale of the circle shape.
+     * @param scaleX The horizontal scale of the circle shape's position.
+     * @param scaleY The vertical scale of the circle shape's position.
      * @zh 设置圆形形状的位置。
      * @param shape 圆形形状。
      * @param x 圆形形状的位置的x坐标。
      * @param y 圆形形状的位置的y坐标。
-     * @param scale 圆形形状的缩放。
+     * @param scaleX 圆形形状位置的水平缩放。
+     * @param scaleY 圆形形状位置的垂直缩放。
      */
-    set_CircleShape_pos(shape: any, x: number, y: number, scale: number) {
+    set_CircleShape_pos(shape: any, x: number, y: number, scaleX: number, scaleY: number) {
         let world: any = shape.world;
-        shape.m_p.Set(this.convertLayaValueToPhysics(world, x * scale), this.convertLayaValueToPhysics(world, y * scale));
+        shape.m_p.Set(this.convertLayaValueToPhysics(world, x * scaleX), this.convertLayaValueToPhysics(world, y * scaleY));
     }
 
     /**

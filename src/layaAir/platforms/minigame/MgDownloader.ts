@@ -38,7 +38,7 @@ export class MgDownloader extends Downloader {
         if (Browser.onVVMiniGame || Browser.onQGMiniGame) //vivo&oppo
             this.supportSubPackageMultiLevelFolders = false;
 
-        if (Browser.onWXMiniGame) //微信小游戏不需要这个
+        if (Browser.onWXMiniGame || Browser.onHWMiniGame) //微信小游戏、华为小游戏不需要这个
             this.escapeZhCharsInURL = false;
 
         if (enableCache) {
@@ -89,7 +89,7 @@ export class MgDownloader extends Downloader {
 
     image(owner: any, url: string, originalUrl: string, onProgress: ProgressCallback, onComplete: DownloadCompleteCallback): void {
         if (!url.startsWith("http://") && !url.startsWith("https://") || !this.cacheManager) {
-            super.image(owner, url, originalUrl, onProgress, onComplete);
+            super.image(owner, this.escapeURL(url), originalUrl, onProgress, onComplete);
             return;
         }
 
@@ -117,17 +117,25 @@ export class MgDownloader extends Downloader {
                 this.subPackages[path] = packageName;
             }
         }
-
-        let loadTask = PAL.g.loadSubpackage({
-            name: packageName,
+        let loadSubpackageParams: any = {
             success: () => {
                 onComplete({ loadScript: false });
             },
-            fail: err => {
+            fail: (err: any) => {
                 onComplete({ loadScript: false }, getErrorMsg(err));
             },
             complete: null
-        });
+        };
+
+        // 华为平台使用subpackage字段，其他平台使用name字段
+        if (Browser.onHWMiniGame) {
+            loadSubpackageParams.subpackage = packageName;
+        } else {
+            loadSubpackageParams.name = packageName;
+        }
+
+        let loadTask = PAL.g.loadSubpackage(loadSubpackageParams);
+
 
         onProgress && loadTask.onProgressUpdate && loadTask.onProgressUpdate(res => onProgress(res.progress));
     }

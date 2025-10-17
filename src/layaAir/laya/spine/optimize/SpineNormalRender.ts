@@ -1,4 +1,4 @@
-import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
+import { ISpineRenderDataHandle } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { Color } from "../../maths/Color";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { SpineAdapter } from "../SpineAdapter";
@@ -63,13 +63,7 @@ export class SpineNormalRender implements ISpineOptimizeRender {
         let scolor = skeleton.color;
 
         this._spineColor = new Color(scolor.r, scolor.g, scolor.b, scolor.a);
-        let color = renderNode._spriteShaderData.getColor(BaseRenderNode2D.BASERENDER2DCOLOR) || new Color();
-        color.setValue(scolor.r, scolor.g, scolor.b, scolor.a);
-        if (renderNode._renderAlpha !== undefined) {
-            color.a *= renderNode._renderAlpha;
-        } else
-            color.a *= renderNode.owner.alpha;
-        renderNode._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, color);
+        (renderNode._getRenderHandle() as ISpineRenderDataHandle).baseColor = this._spineColor;
 
         renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
         renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
@@ -119,5 +113,13 @@ export class SpineNormalRender implements ISpineOptimizeRender {
         this._owner.clear();
         this._renderer.draw(this._skeleton, this._owner, -1, -1);
         this._owner.owner._struct.renderElements = this._owner._renderElements;
+    }
+
+    /**
+     * @en Completes the animation.
+     * @zh 完成动画。
+     */
+    complete(): void {
+        //throw new NotImplementedError();
     }
 }

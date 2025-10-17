@@ -33,13 +33,13 @@ export class CircleShape2D extends Physics2DShapeBase {
     }
 
     protected _updateShapeData(): void {
-        if (!LayaEnv.isPlaying || !this._body) return;
+        if (!LayaEnv.isPlaying || !this._body || !this._box2DBody) return;
 
         var scale: number = Math.max(Math.abs(this.scaleX), Math.abs(this.scaleY));
         let radius = this.radius;
         let shape: any = this._box2DShape ? Physics2D.I._factory.getShape(this._box2DShape, this._shapeDef.shapeType) : Physics2D.I._factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType);
         Physics2D.I._factory.set_CircleShape_radius(shape, radius, scale);
-        Physics2D.I._factory.set_CircleShape_pos(shape, this.x, this.y, scale);
+        Physics2D.I._factory.set_CircleShape_pos(shape, this.pivotoffx, this.pivotoffy, this.scaleX, this.scaleY);
     }
 
     clone(): CircleShape2D {

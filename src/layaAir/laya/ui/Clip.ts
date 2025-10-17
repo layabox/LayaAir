@@ -38,6 +38,7 @@ export class Clip extends UIComponent {
     protected _clipChanged: boolean;
     protected _group: string;
     protected _toIndex: number = -1;
+    protected _clipBySize: boolean = false;
     /**@internal */
     declare _graphics: AutoBitmap;
 
@@ -107,6 +108,22 @@ export class Clip extends UIComponent {
         this._setClipChanged()
     }
 
+
+    /**
+     * @zh 切片是否按宽高切割。默认为false，采用数量切割。
+     * @en Indicates whether the slice is clipped by width and height. Default is false, which means clipping by count.
+     */
+    get clipBySize(): boolean {
+        return this._clipBySize;
+    }
+
+    set clipBySize(value: boolean) {
+        if (this._clipBySize != value) {
+            this._clipBySize = value;
+            this._setClipChanged();
+        }
+    }
+
     /**
      * @en Source data.
      * @zh 源数据。
@@ -166,7 +183,13 @@ export class Clip extends UIComponent {
 
     set index(value: number) {
         this._index = value;
-        this._graphics && (this._graphics.source = this._sources[value]);
+        if (this._sources && this._sources.length > 0) {
+            const idx = Math.max(0, Math.min(this._index, this._sources.length - 1));
+            this._index = idx;
+            this._graphics.source = this._sources[idx];
+        } else {
+            this._graphics.source = null;
+        }
         this.event(Event.CHANGE);
     }
 
@@ -343,13 +366,35 @@ export class Clip extends UIComponent {
      * @param img 纹理。
      */
     protected loadComplete(url: string, img: Texture): void {
-        if (url !== this._skin)
-            return;
-
+        if (url !== this._skin) return;
         this._sources.length = 0;
         if (img) {
-            var w: number = this._clipWidth || Math.ceil(img.sourceWidth / this._clipX);
-            var h: number = this._clipHeight || Math.ceil(img.sourceHeight / this._clipY);
+            const imgW = img.sourceWidth;
+            const imgH = img.sourceHeight;
+            let w: number, h: number;
+            if (this._clipBySize) {
+                if (this._clipWidth > 0) {
+                    this._clipX = Math.max(1, Math.floor(imgW / this._clipWidth));
+                    w = this._clipWidth;
+                } else {
+                    this._clipX = Math.max(1, this._clipX);
+                    w = Math.floor(imgW / this._clipX);
+                }
+
+                if (this._clipHeight > 0) {
+                    this._clipY = Math.max(1, Math.floor(imgH / this._clipHeight));
+                    h = this._clipHeight;
+                } else {
+                    this._clipY = Math.max(1, this._clipY);
+                    h = Math.floor(imgH / this._clipY);
+                }
+            } else {
+                this._clipX = Math.max(1, this._clipX);
+                this._clipY = Math.max(1, this._clipY);
+
+                w = this._clipWidth = Math.floor(imgW / this._clipX);
+                h = this._clipHeight = Math.floor(imgH / this._clipY);
+            }
 
             for (let i = 0; i < this._clipY; i++) {
                 for (let j = 0; j < this._clipX; j++) {

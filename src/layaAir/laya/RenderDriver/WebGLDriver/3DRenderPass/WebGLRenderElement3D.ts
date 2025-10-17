@@ -63,8 +63,8 @@ export class WebGLRenderElement3D implements IRenderElement3D {
             let subShader = this.subShader;
             let materialData = this.materialShaderData;
             let matSubBuffer = materialData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
-            if (matSubBuffer && matSubBuffer.needUpload) {
-                matSubBuffer.bufferBlock.needUpload();
+            if (matSubBuffer) {
+                matSubBuffer.upload();
             }
         }
 
@@ -74,8 +74,8 @@ export class WebGLRenderElement3D implements IRenderElement3D {
                 let shaderData = <WebGLShaderData>value;
                 let unifomrMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(key);
                 let uniformBuffer = shaderData.createSubUniformBuffer(key, key, unifomrMap._idata);
-                if (uniformBuffer && uniformBuffer.needUpload) {
-                    uniformBuffer.bufferBlock.needUpload();
+                if (uniformBuffer) {
+                    uniformBuffer.upload();
                 }
             }
         }
@@ -181,7 +181,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
             let additionShaderData = this.owner.additionShaderData;
             if (additionShaderData.size > 0) {
                 for (let [key, value] of additionShaderData.entries()) {
-                    comDef.addDefineDatas(value.getDefineData());
+                    comDef.addDefineDatas(value.getDefineData() as WebDefineDatas);
                 }
             }
         }

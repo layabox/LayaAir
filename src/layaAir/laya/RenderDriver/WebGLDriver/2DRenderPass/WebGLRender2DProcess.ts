@@ -5,32 +5,51 @@ import { Draw2DElementCMD, SetRendertarget2DCMD } from "../../DriverDesign/2DRen
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IPrimitiveRenderElement2D, IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
-import { I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, ISpineRenderDataHandle, I2DGlobalRenderData, I2DGraphicBufferDataView, I2DGraphicWholeBuffer } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, ISpineRenderDataHandle, I2DGlobalRenderData, I2DGraphicWholeBuffer, I2DGraphicIndexDataView, I2DGraphicVertexDataView, IGraphics2DBufferBlock, IGraphics2DVertexBlock } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
-import { Web2DGraphic2DBufferDataView, Web2DGraphicWholeBuffer } from "../../RenderModuleData/WebModuleData/2D/Web2DGraphic2DBufferDataView";
+import { Web2DGraphicsIndexBuffer, Web2DGraphicsVertexBuffer } from "../../RenderModuleData/WebModuleData/2D/Web2DGraphic2DBuffer";
+import { Web2DGraphic2DIndexDataView, Web2DGraphic2DVertexDataView } from "../../RenderModuleData/WebModuleData/2D/Web2DGraphic2DBufferDataView";
 import { WebRender2DPass, WebRender2DPassManager } from "../../RenderModuleData/WebModuleData/2D/WebRender2DPass";
-import { Web2DBaseRenderDataHandle, WebMesh2DRenderDataHandle, WebPrimitiveDataHandle, WebSpineRenderDataHandle } from "../../RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
+import { Web2DBaseRenderDataHandle, WebGraphics2DBufferBlock, WebGraphics2DVertexBlock, WebMesh2DRenderDataHandle, WebPrimitiveDataHandle, WebSpineRenderDataHandle } from "../../RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
 import { WebGlobalRenderData, WebRenderStruct2D } from "../../RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 import { WebGLSetRenderData, WebGLSetShaderDefine } from "../RenderDevice/WebGLRenderCMD";
 import { WebGLBlit2DQuadCMD, WebGLDraw2DElementCMD, WebGLSetRendertarget2DCMD } from "./WebGL2DRenderCMD";
 import { WebGLPrimitiveRenderElement2D } from "./WebGLPrimitiveRenderElement2D";
 import { WebglRenderContext2D } from "./WebGLRenderContext2D";
-import { WebGLRenderelement2D } from "./WebGLRenderElement2D";
+import { WebGLRenderElement2D } from "./WebGLRenderElement2D";
 
 export class WebGLRender2DProcess implements I2DRenderPassFactory {
 
     constructor() {
+
+    }
+
+    createGraphic2DBufferBlock(): IGraphics2DBufferBlock {
+        return new WebGraphics2DBufferBlock();
+    }
+
+    createGraphic2DVertexBlock(): IGraphics2DVertexBlock {
+        return new WebGraphics2DVertexBlock();
+    }
+
+    create2DGraphicVertexDataView(wholeBuffer: I2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicVertexDataView {
+        return new Web2DGraphic2DVertexDataView(wholeBuffer as Web2DGraphicsVertexBuffer, elementOffset, elementSize, stride);
+    }
+
+    create2DGraphicIndexDataView(wholeBuffer: I2DGraphicWholeBuffer, elementSize: number): I2DGraphicIndexDataView {
+        return new Web2DGraphic2DIndexDataView(wholeBuffer as Web2DGraphicsIndexBuffer, elementSize);
+    }
+
+    create2DGraphicIndexBuffer(): I2DGraphicWholeBuffer {
+        return new Web2DGraphicsIndexBuffer();
     }
 
     createPrimitiveRenderElement2D(): IPrimitiveRenderElement2D {
         return new WebGLPrimitiveRenderElement2D();
     }
 
-    create2DGraphicBufferDataView(wholeBuffer: Web2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicBufferDataView {
-        return new Web2DGraphic2DBufferDataView(wholeBuffer, wholeBuffer.modifyType, elementOffset, elementSize, stride);
-    }
-    create2DGraphicWoleBuffer(): I2DGraphicWholeBuffer {
-        return new Web2DGraphicWholeBuffer();
+    create2DGraphicVertexBuffer(): I2DGraphicWholeBuffer {
+        return new Web2DGraphicsVertexBuffer();
     }
 
     createRender2DPassManager(): IRender2DPassManager {
@@ -77,7 +96,7 @@ export class WebGLRender2DProcess implements I2DRenderPassFactory {
     }
 
     createRenderElement2D(): IRenderElement2D {
-        return new WebGLRenderelement2D();
+        return new WebGLRenderElement2D();
     }
 
     createRenderContext2D(): IRenderContext2D {

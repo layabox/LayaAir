@@ -41,8 +41,6 @@ export class Socket extends EventDispatcher {
     protected _connected: boolean;
     protected _inputPos: number;
 
-    /** @deprecated */
-    constructor(host?: string, port?: number, byteClass?: new () => any, protocols?: string[], isSecure?: boolean);
     /**
      * @en Create a new Socket object. The default byte order is Socket.BIG_ENDIAN. If no parameters are specified, a socket initially in a disconnected state will be created. If valid parameters are specified, it attempts to connect to the specified host and port.
      * @param host The server address.
@@ -211,10 +209,18 @@ export class Socket extends EventDispatcher {
 
     /**
      * @en Send data to the server.
-     * @param data The data to be sent, which can be either a String or an ArrayBuffer.
+     * @param data The data to be sent.
      * @zh 发送数据到服务器。
-     * @param data 需要发送的数据，可以是String或者ArrayBuffer。
+     * @param data 需要发送的数据。
      */
+    send(data: string): Promise<void>;
+    /**
+     * @en Send data to the server.
+     * @param buffer The data to be sent.
+     * @zh 发送数据到服务器。
+     * @param buffer 需要发送的数据。
+     */
+    send(buffer: ArrayBuffer): Promise<void>;
     send(data: string | ArrayBuffer): Promise<void> {
         return this._socket.send(data);
     }

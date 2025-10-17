@@ -31,11 +31,12 @@ export class Set2DRTCMD extends Command2D {
     public set renderTexture(value: IRenderTarget) {
         this._renderTexture = value;
         if (value) {
-            this._setRenderTargetCMD.rt = value._renderTarget;
             this._setRenderTargetCMD.size.setValue(value.width, value.height);
+             this._setRenderTargetCMD.rt = value._renderTarget;
         } else {
-            this._setRenderTargetCMD.rt = null;
+           
             this._setRenderTargetCMD.size.setValue(RenderState2D.width, RenderState2D.height);
+             this._setRenderTargetCMD.rt = null;
         }
     }
 

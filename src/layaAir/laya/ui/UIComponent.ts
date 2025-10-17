@@ -6,6 +6,7 @@ import { ILaya } from "../../ILaya";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { GrayscaleEffect2D } from "../display/effect2d/ColorEffect2D";
 import { TransformKind } from "../display/SpriteConst";
+import { LayaEnv } from "../../LayaEnv";
 
 /**
  * @en UIComponent is the base class of UI Component.
@@ -213,8 +214,11 @@ export class UIComponent extends Sprite {
             } else {
                 if (postProcess) {
                     let effect = postProcess.getEffect(GrayscaleEffect2D);
-                    if (effect)
+                    if (effect) {
                         postProcess.removeEffect(effect);
+                        if (!LayaEnv.isPlaying && postProcess.effects.length === 0)
+                            this.postProcess = null;
+                    }
                 }
             }
         }

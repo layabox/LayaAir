@@ -1,5 +1,5 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
-import { IComputeCMD_Dispatch, IComputeContext } from "./IComputeContext";
+import { CopyTextureInfo, IComputeCMD_Dispatch, IComputeContext } from "./IComputeContext";
 import { IDeviceBuffer } from "../IDeviceBuffer";
 import { IVertexBuffer } from "../IVertexBuffer";
 import { ShaderData, ShaderDataItem, ShaderDataType } from "../ShaderData";
@@ -7,7 +7,6 @@ import { ComputeShader } from "./ComputeShader";
 import { IDefineDatas } from "../../../RenderModuleData/Design/IDefineDatas";
 import { Vector3 } from "../../../../maths/Vector3";
 import { IIndexBuffer } from "../IIndexBuffer";
-
 export class ComputeCommandBuffer {
     private _context: IComputeContext;
     constructor() {
@@ -15,6 +14,14 @@ export class ComputeCommandBuffer {
             this._context = LayaGL.renderDeviceFactory.createComputeContext();
         }
     }
+
+    /**
+     * @internal
+     */
+    getResource() {
+        return this._context;
+    }
+
     /**
         * 清理所有指令
         */
@@ -107,8 +114,8 @@ export class ComputeCommandBuffer {
      * @param destTextureInfo 目标纹理信息
      * @param copySize 拷贝大小
      */
-    addTextureToTextureCommand(srcTextureInfo: any, destTextureInfo: any, copySize: any): void {
-        //TODO
+    addTextureToTextureCommand(srcTextureInfo: CopyTextureInfo, destTextureInfo: CopyTextureInfo, copySize: any): void {
+        this._context.addTextureToTextureCommand(srcTextureInfo,destTextureInfo,copySize);
     };
 
     /**

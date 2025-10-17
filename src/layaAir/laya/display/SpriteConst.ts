@@ -21,8 +21,8 @@ export enum RepaintFlag {
     Normal = 0,
     Size = 0x01,
     Graphics = 0x02,
-    
-    UpdateRT = Graphics | Size,
+    ChildChange = 0x04,
+    UpdateRT = Graphics | Size | ChildChange,
 }
 
 export enum TransformKind {
@@ -37,7 +37,7 @@ export enum TransformKind {
 
     Size = Width | Height,
     Layout = Size | Scale | Anchor,
-    TRS = Pos | Rotation | Scale
+    TRS = Pos | Rotation | Scale | Skew
 }
 
 
@@ -48,4 +48,14 @@ export enum BaseRender2DType {
     particle = 2,
     spineSimple = 3,
     graphics = 4
+}
+
+export enum SubPassFlag {
+    PostProcess = 0x1,
+    CacheAsBitmap = 0x2,
+    Mask = 0x4,
+    RenderTexture = 0x8,
+    
+    /** @internal */
+    UPDATE_POSTPROCESS = RenderTexture | PostProcess,
 }

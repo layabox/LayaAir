@@ -58,6 +58,10 @@ export class GraphicsShaderInfo {
       } else {
          tex = value;
       }
+
+      if (!tex) {
+         tex = Texture2D.whiteTexture;
+      }
       this.shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, tex);
 
    }

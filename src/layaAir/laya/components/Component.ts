@@ -312,6 +312,7 @@ export class Component {
 
                 if (this.onReset) {
                     this.onReset();
+                    this.owner?.offAllCaller(this);
                     this._resetComp();
                     Pool.recoverByClass(this);
                 }
@@ -330,7 +331,7 @@ export class Component {
     /**
      * @en Called after the component is added to a node. Unlike Awake, onAdded is called even if the node is not active.
      * @zh 组件被添加到节点后调用，与 onAwake 不同的是，即使节点未激活也会调用 onAdded。
-     * @blueprintDefaultEvent
+     * @blueprintEvent
      */
     onAdded(): void {
     }
@@ -346,7 +347,7 @@ export class Component {
     /**
      * @en Executed after the component is activated. At this point, all nodes and components have been created. This method is executed only once.
      * @zh 组件被激活后执行，此时所有节点和组件均已创建完毕，此方法只执行一次。
-     * @blueprintDefaultEvent
+     * @blueprintEvent
      */
     onAwake(): void {
     }
@@ -354,7 +355,7 @@ export class Component {
     /**
      * @en Executed after the component is enabled, such as when the node is added to the stage.
      * @zh 组件被启用后执行，比如节点被添加到舞台后。
-     * @blueprintDefaultEvent
+     * @blueprintEvent
      */
     onEnable(): void {
     }
@@ -362,7 +363,7 @@ export class Component {
     /**
      * @en Executed once, before the first update.
      * @zh 在第一次执行 update 之前执行，只会执行一次。
-     * @blueprintEvent
+     * @blueprintDefaultEvent
      */
     onStart?(): void;
 
@@ -397,7 +398,7 @@ export class Component {
     /**
      * @en Executed when the component is disabled, such as when the node is removed from the stage.
      * @zh 组件被禁用时执行，比如从节点从舞台移除后。
-     * @blueprintDefaultEvent
+     * @blueprintEvent
      */
     onDisable(): void {
     }
@@ -405,7 +406,7 @@ export class Component {
     /**
      * @en Executed when the node is destroyed manually.
      * @zh 手动调用节点销毁时执行。
-     * @blueprintDefaultEvent
+     * @blueprintEvent
      */
     onDestroy(): void {
     }

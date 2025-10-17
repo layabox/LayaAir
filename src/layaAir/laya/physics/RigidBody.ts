@@ -156,7 +156,7 @@ export class RigidBody extends ColliderBase {
 
     set allowRotation(value: boolean) {
         this._allowRotation = value;
-        if (this._box2DBody) Physics2D.I._factory.set_rigidBody_allowRotation(this._box2DBody, !value);
+        if (this._box2DBody) Physics2D.I._factory.set_rigidBody_allowRotation(this._box2DBody, value);
     }
 
     /**
@@ -263,8 +263,9 @@ export class RigidBody extends ColliderBase {
     }
 
     public set shapes(shapes: Physics2DShapeBase[]) {
-        if (!shapes || shapes.length == 0) return;
         this._shapes = shapes;
+        if (!shapes) return;
+        this.applyOwnerColliderComponent = false;
         shapes.forEach((shape) => {
             shape.setCollider(this);
         });
@@ -436,6 +437,8 @@ export class RigidBody extends ColliderBase {
             this.owner.event("bodyCreated");
             this.isConnectedJoint = false;
         }
+        this.angularVelocity = this._angularVelocity;
+        this.linearVelocity = this._linearVelocity;
     }
 
     /**

@@ -320,7 +320,7 @@ export class GLRenderState {
      * @param slopeFactor 
      * @param clamp 
      */
-    setDephthBiasFactor(constantFactor: number, slopeFactor: number, clamp: number = 0.0): void {
+    setDepthBiasFactor(constantFactor: number, slopeFactor: number, clamp: number = 0.0): void {
         if (constantFactor !== this._depthBiasConstant || slopeFactor !== this._depthBiasSlope || clamp !== this._depthBiasClamp) {
             this._depthBiasConstant = constantFactor;
             this._depthBiasSlope = slopeFactor;

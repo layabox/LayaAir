@@ -123,13 +123,13 @@ export class FillTextCmd implements IGraphicsCmd {
 
         switch (align) {
             case 'center':
-                cmd._align = Const.ENUM_TEXTALIGN_CENTER;
+                cmd._align = 1;
                 break;
             case 'right':
-                cmd._align = Const.ENUM_TEXTALIGN_RIGHT;
+                cmd._align = 2;
                 break;
             default:
-                cmd._align = Const.ENUM_TEXTALIGN_DEFAULT;
+                cmd._align = 0;
         }
 
         if (text instanceof WordText) {
@@ -228,10 +228,10 @@ export class FillTextCmd implements IGraphicsCmd {
             let y = this.y;
 
             switch (this._align) {
-                case Const.ENUM_TEXTALIGN_CENTER:
+                case 1:
                     x -= w / 2;
                     break;
-                case Const.ENUM_TEXTALIGN_RIGHT:
+                case 2:
                     x -= w;
                     break;
                 default:

@@ -186,8 +186,6 @@ export class BlitScreenQuadCMD extends Command {
         }
 
         this._renderElement.setGeometry(invertY ? ScreenQuad.InvertInstance : ScreenQuad.instance);
-
-        Stat.blitDrawCall++;
     }
 
     /**

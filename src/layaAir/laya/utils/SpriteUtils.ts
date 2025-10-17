@@ -1,11 +1,15 @@
 import { ILaya } from "../../ILaya";
 import { Sprite } from "../display/Sprite";
-import { SpriteConst } from "../display/SpriteConst";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
 import { PAL } from "../platform/PlatformAdapters";
 
+/**
+ * @en The SpriteUtils class provides utility methods for working with Sprite objects in LayaAir.
+ * @zh SpriteUtils 类提供了用于处理 LayaAir 中的 Sprite 对象的实用方法。
+ * @blueprintable
+ */
 export class SpriteUtils {
     /**
      * @en Returns the smallest rectangular area object composed of two points on the stage coordinate system for the given display object Sprite.
@@ -24,6 +28,7 @@ export class SpriteUtils {
      * @param y1 点二的 Y 轴坐标。
      * @param out 返回的矩形对象。如果不提供，则创建一个新的矩形对象。
      * @return 两个点在舞台坐标系组成的矩形对象 Rectangle。
+     * @blueprintIgnore
      */
     static getGlobalRecByPoints(sprite: Sprite, x0: number, y0: number, x1: number, y1: number, out?: Rectangle): Rectangle {
         let newLTPoint: Point;
@@ -45,6 +50,7 @@ export class SpriteUtils {
      * @zh 计算传入的显示对象 Sprite 在全局坐标系中的坐标和缩放值，返回一个对象，存放计算出的坐标 X 值、Y 值、ScaleX 值和 ScaleY 值。
      * @param sprite Sprite 对象。
      * @return 包含计算出的坐标 X 值、Y 值、ScaleX 值和 ScaleY 值的对象。
+     * @blueprintIgnore
      */
     static getGlobalPosAndScale(sprite: Sprite): { x: number, y: number, scaleX: number, scaleY: number } {
         let tmpRect = Rectangle.create();
@@ -65,6 +71,7 @@ export class SpriteUtils {
      * @param x 相对于coordinateSpace的x坐标
      * @param y 相对于coordinateSpace的y坐标
      * @returns 包含转换后的x、y坐标以及缩放因子的对象
+     * @blueprintIgnore
      */
     static getTransformRelativeToWindow(coordinateSpace: Sprite, x: number, y: number): { x: number, y: number, scaleX: number, scaleY: number } {
         let stage = ILaya.stage;
@@ -161,6 +168,7 @@ export class SpriteUtils {
      * @param y 相对于coordinateSpace的y坐标
      * @param width 宽度
      * @param height 高度
+     * @blueprintIgnore
      */
     static fitDOMElementInArea(dom: any, coordinateSpace: Sprite, x: number, y: number, width: number, height: number): void {
         if (!dom._fitLayaAirInitialized) {
@@ -179,92 +187,182 @@ export class SpriteUtils {
         dom.style.top = transform.y + 'px';
     }
 
-    static localToGlobalRect(sp: Sprite, rect: Rectangle): Rectangle {
+    /**
+     * @en Converts a rectangle from local coordinates to global coordinates.
+     * @param sp The Sprite object whose local rectangle is to be converted. 
+     * @param rect The local rectangle to be converted. 
+     * @param out An optional Rectangle object to store the result. If not provided, a new Rectangle object will be created.
+     * @returns The converted rectangle in global coordinates.
+     * @zh 将矩形从本地坐标转换为全局坐标。
+     * @param sp 要转换本地矩形的 Sprite 对象。
+     * @param rect 要转换的本地矩形。
+     * @param out 可选的 Rectangle 对象，用于存储结果。如果未提供，将创建一个新的 Rectangle 对象。
+     * @returns 转换结果。 
+     */
+    static localToGlobalRect(sp: Sprite, rect: Rectangle, out?: Rectangle): Rectangle {
+        out = out || Rectangle.create();
         let pt = sp.localToGlobal(Point.TEMP.setTo(rect.x, rect.y));
         let x = pt.x;
         let y = pt.y;
         sp.localToGlobal(pt.setTo(rect.right, rect.bottom));
-        return rect.setTo(x, y, x + pt.x, y + pt.y);
+        return out.setTo(x, y, x + pt.x, y + pt.y);
     }
 
-    static globalToLocalRect(sp: Sprite, rect: Rectangle): Rectangle {
+    /**
+     * @en Converts a rectangle from global coordinates to local coordinates.
+     * @param sp The Sprite object whose global rectangle is to be converted. 
+     * @param rect The global rectangle to be converted. 
+     * @param out An optional Rectangle object to store the result. If not provided, a new Rectangle object will be created.
+     * @returns The converted rectangle in local coordinates.
+     * @zh 将矩形从全局坐标转换为本地坐标。
+     * @param sp 要转换全局矩形的 Sprite 对象。
+     * @param rect 要转换的全局矩形。
+     * @param out 可选的 Rectangle 对象，用于存储结果。如果未提供，将创建一个新的 Rectangle 对象。
+     * @returns 转换结果。
+     */
+    static globalToLocalRect(sp: Sprite, rect: Rectangle, out?: Rectangle): Rectangle {
+        out = out || Rectangle.create();
         let pt = sp.globalToLocal(Point.TEMP.setTo(rect.x, rect.y));
         let x = pt.x;
         let y = pt.y;
         sp.globalToLocal(pt.setTo(rect.right, rect.bottom));
-        return rect.setTo(x, y, x + pt.x, y + pt.y);
+        return out.setTo(x, y, x + pt.x, y + pt.y);
     }
 
-    static transformRect(sp: Sprite, rect: Rectangle, targetSpace?: Sprite): Rectangle {
-        let pt = sp.localToGlobal(Point.TEMP.setTo(rect.x, rect.y), false, targetSpace);
-        let x = pt.x;
-        let y = pt.y;
+    /**
+     * @en Transforms a rectangle from the local coordinate space of a Sprite to another target coordinate space.
+     * @param sp The Sprite object whose local rectangle is to be transformed. 
+     * @param rect The local rectangle to be transformed. 
+     * @param targetSpace The target Sprite object representing the coordinate space to which the rectangle should be transformed. If not provided, the transformation will be done in the global coordinate space. 
+     * @param out An optional Rectangle object to store the result. If not provided, a new Rectangle object will be created.
+     * @returns The transformed rectangle in the target coordinate space.
+     * @zh 将矩形从 Sprite 的本地坐标空间转换为另一个目标坐标空间。
+     * @param sp 要转换本地矩形的 Sprite 对象。
+     * @param rect 要转换的本地矩形。
+     * @param targetSpace 目标 Sprite 对象，表示矩形应转换到的坐标空间。如果未提供，则转换将在全局坐标空间中进行。
+     * @returns 转换结果。 
+     */
+    static transformRect(sp: Sprite, rect: Rectangle, targetSpace?: Sprite, out?: Rectangle): Rectangle {
+        targetSpace = targetSpace || ILaya.stage;
 
-        sp.localToGlobal(pt.setTo(rect.right, rect.bottom), false, targetSpace);
-        return rect.setTo(x, y, x + pt.x, y + pt.y);
-    }
+        tmpPoints.length = 0;
+        rect.getBoundPoints(tmpPoints);
 
-    static getRTRect(sprite: Sprite, out: Rectangle): void {
-        let tempRect = TEMP_RECT_1;
-        if (sprite.mask != null) {
-            SpriteUtils.getMaskRect(sprite, tempRect);
-        } else {
-            SpriteUtils.getSpriteRect(sprite, tempRect);
+        if (targetSpace === sp._parent) {
+            for (let i = 0, n = tmpPoints.length; i < n; i += 2) {
+                let pt = sp.toParentPoint(Point.TEMP.setTo(tmpPoints[i], tmpPoints[i + 1]));
+                tmpPoints[i] = pt.x;
+                tmpPoints[i + 1] = pt.y;
+            }
+        }
+        else {
+            for (let i = 0, n = tmpPoints.length; i < n; i += 2) {
+                let pt = sp.localToGlobal(Point.TEMP.setTo(tmpPoints[i], tmpPoints[i + 1]));
+                targetSpace.globalToLocal(pt);
+                tmpPoints[i] = pt.x;
+                tmpPoints[i + 1] = pt.y;
+            }
         }
 
-        if (tempRect.width <= 0 || tempRect.height <= 0) {
+        return Rectangle._getWrapRec(tmpPoints, out);
+    }
+
+    /**
+     * @en Retrieves the rectangle that bounds the sprite, based on the sprite's own coordinate space.
+     * @param sprite The Sprite object for which to retrieve the bounding rectangle.
+     * @param sizeOnly If true, only the size of the sprite is considered, ignoring the graphics and children. Default is true.
+     * @param out An optional Rectangle object to store the result. If not provided, a new Rectangle object will be created.
+     * @returns A Rectangle object representing the bounding rectangle of the sprite.
+     * @zh 获取包含精灵的边界矩形，基于精灵自身的坐标空间。
+     * @param sprite 要获取边界矩形的 Sprite 对象。
+     * @param sizeOnly 如果为 true，则仅考虑精灵的大小，忽略图形和子对象。默认值为 true。
+     * @param out 可选的 Rectangle 对象，用于存储结果。如果未提供，将创建一个新的 Rectangle 对象。
+     * @returns 一个 Rectangle 对象，表示精灵的边界矩形。
+     */
+    static getRect(sprite: Sprite, sizeOnly?: boolean, out?: Rectangle): Rectangle {
+        out = out || Rectangle.create();
+
+        if (sizeOnly == null || sizeOnly)
             out.setTo(0, 0, sprite.width, sprite.height);
-            return;
-        }
-        tempRect.cloneTo(out);
-    }
+        else
+            sprite.getSelfBounds(out);
 
-    static getSpriteRect(sprite: Sprite, out: Rectangle): void {
-        SpriteUtils.calculateCacheRect(sprite, "bitmap", 0, 0, out);
-    }
+        out.x -= sprite.pivotX;
+        out.y -= sprite.pivotY;
 
-    static getMaskRect(sprite: Sprite, out: Rectangle) {
-        let mask = sprite.mask;
-        SpriteUtils.calculateCacheRect(mask, "bitmap", 0, 0, out);  //后面的参数传入mask.xy没有效果，只能后面自己单独加上
-
-        //maskRect是mask自己的,相对于自己的锚点，要转到sprite原始空间
-        //把mask的xy应用一下，就是在sprite原始空间（t空间）的位置
-        out.x += mask._x;
-        out.y += mask._y;
-
-        if (out.width <= 0 || out.height <= 0)
-            out.setTo(0, 0, 0, 0);
-    }
-
-    private static calculateCacheRect(sprite: Sprite, tCacheType: string, x: number, y: number, out: Rectangle): void {
-        let tRec: Rectangle;
-
-        //计算显示对象的绘图区域
-        if (tCacheType === "bitmap") {
-            tRec = sprite.getSelfBounds();
-            tRec.width = tRec.width;//+ extend * 2;
-            tRec.height = tRec.height;// + extend * 2;
-            tRec.x = tRec.x - sprite.pivotX;
-            tRec.y = tRec.y - sprite.pivotY;
-            //关于xy这里有些迷惑，这里看来是表示相对于sprite原点的位置。
-            //tRec.x = tRec.x ;//- extend;
-            //tRec.y = tRec.y ;//- extend;
-            tRec.x = Math.floor(tRec.x + x) - x;
-            tRec.y = Math.floor(tRec.y + y) - y;
-            tRec.width = Math.floor(tRec.width);
-            tRec.height = Math.floor(tRec.height);
-            out.copyFrom(tRec);
-        } else {
-            out.setTo(-sprite.pivotX, -sprite.pivotY, 1, 1);
-        }
         //处理显示对象的scrollRect偏移
         if (sprite.scrollRect) {
-            let scrollRect: Rectangle = sprite.scrollRect;
-            out.x -= scrollRect.x;
-            out.y -= scrollRect.y;
+            out.x -= sprite.scrollRect.x;
+            out.y -= sprite.scrollRect.y;
         }
+
+        out.x = Math.floor(out.x);
+        out.y = Math.floor(out.y);
+        out.width = Math.floor(out.width);
+        out.height = Math.floor(out.height);
+
+        if (out.width < 0)
+            out.width = 0;
+        if (out.height < 0)
+            out.height = 0;
+
+        return out;
+    }
+
+    /**
+     * @en Sets the position and size of a Sprite based on a given rectangle.
+     * @param sprite The Sprite object to set the position and size for.
+     * @param rect The rectangle object containing the position and size to set.
+     * @zh 根据给定的矩形设置 Sprite 的位置和大小。
+     * @param sprite 要设置位置和大小的 Sprite 对象。 
+     * @param rect 包含要设置的位置和大小的矩形对象。 
+     */
+    static setRect(sprite: Sprite, rect: Readonly<Rectangle>): void {
+        sprite.size(rect.width, rect.height);
+        sprite.pos(rect.x + sprite.pivotX, rect.y + sprite.pivotY);
+    }
+
+    /**
+     * @en Get the bounding box of the child
+     * @param recursive Whether to get the bounding box of the child object recursively
+     * @param ignoreInvisibles Whether to ignore invisible objects
+     * @param ignoreScale Whether to ignore scaling
+     * @param out (Optional) Output object for calculation results
+     * @returns Bounding box
+     * @zh 获取孩子的包围盒
+     * @param recursive 是否递归获取所有子对象的包围盒
+     * @param ignoreInvisibles 是否忽略不可见对象 
+     * @param ignoreScale 是否忽略缩放 
+     * @param out （可选）计算结果输出对象 
+     * @returns 包围盒
+     */
+    static getChildrenBounds(sprite: Sprite, recursive?: boolean, ignoreInvisibles?: boolean, ignoreScale?: boolean, out?: Rectangle): Rectangle {
+        out = out || new Rectangle();
+        out.setTo(0, 0, 0, 0);
+
+        let children = recursive ? sprite._children : sprite._$children;
+        for (let child of children) {
+            if (ignoreInvisibles && !child._struct.enabled)
+                continue;
+
+            let w = child.width;
+            let h = child.height;
+            if (!ignoreScale) {
+                w *= Math.abs(child._scaleX);
+                h *= Math.abs(child._scaleY);
+            }
+            out.union(tmpRect.setTo(child._x - w * child._anchorX, child._y - h * child._anchorY, w, h), out);
+
+            if (recursive && child._children.length > 0) {
+                let rect = SpriteUtils.getChildrenBounds(child, recursive, ignoreInvisibles, ignoreScale);
+                rect.x += child._x;
+                rect.y += child._y;
+                out.union(rect, out);
+            }
+        }
+        return out;
     }
 }
 
-const TEMP_RECT_0 = new Rectangle();
-const TEMP_RECT_1 = new Rectangle();
+const tmpRect = new Rectangle();
+const tmpPoints: Array<number> = [];

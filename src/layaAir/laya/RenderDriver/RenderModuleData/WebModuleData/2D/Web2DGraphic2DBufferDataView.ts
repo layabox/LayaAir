@@ -1,269 +1,116 @@
 
-import { Vector2 } from "../../../../maths/Vector2";
-import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
-import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
-import { I2DGraphicBufferDataView, BufferModifyType, I2DGraphicWholeBuffer } from "../../Design/2D/IRender2DDataHandle";
+import { I2DGraphicVertexDataView, I2DGraphicIndexDataView, I2DGraphicBufferDataView } from "../../Design/2D/IRender2DDataHandle";
+import { Web2DGraphicsIndexBatchBuffer, Web2DGraphicsIndexBuffer, Web2DGraphicsVertexBuffer, Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBuffer";
 import { WebRender2DPass } from "./WebRender2DPass";
 
+export abstract class Web2DGraphicsBufferDataView implements I2DGraphicBufferDataView {
+    abstract setData(data: ArrayLike<number>): void;
 
-export class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
-    buffer: IIndexBuffer | IVertexBuffer;
-    bufferData: Float32Array | Uint16Array;
-    modifyType: BufferModifyType;
-    _needResetData: boolean;
-    _inPass: boolean;
-
-    // 更新标记计数
-    // _mark: number = -1;
-
-    private _num: number = 0;
-    /** @internal */
-    _first: Web2DGraphic2DBufferDataView;
-    /** @internal */
-    _last: Web2DGraphic2DBufferDataView;
-
-    private _updateRange: Vector2 = new Vector2(100000000, -100000000);
-    //所有的DataView
-    resetData(byteLength: number) {
-        //copy Buffer
-        if (BufferModifyType.Index == this.modifyType) {
-            let newData = new Uint16Array(byteLength / 2);
-            if (this.bufferData) {
-                newData.set(this.bufferData);
-            }
-            this.bufferData = newData;
-        } else {
-            let newData = new Float32Array(byteLength / 4);
-            if (this.bufferData) {
-                newData.set(this.bufferData);
-            }
-            this.bufferData = newData;
-        }
-        this._needResetData = true;
-    }
-
-    upload() {
-        if (BufferModifyType.Index === this.modifyType) {
-            let view = this._first;
-            let start = 0;
-            let length = 0;
-            let geometry = view._geometry;
-            let needUpdate = false;
-            let uploadStart = this._needResetData ? 0 : this._updateRange.x;
-
-            // let mark = 0 ;
-            while (view) {
-                // mark++;
-                if (geometry != view._geometry) {//切换geometry时，检查上一个是否需要提交
-                    if (needUpdate) {// 设置上一个的绘制状态
-                        geometry.clearRenderParams();
-                        geometry.setDrawElemenParams(length, start * 2);
-                    }
-                    geometry = view._geometry;
-                    start = start + length;
-                    length = 0;
-                }
-
-                start = start + length;
-                //在需要更新的段落内
-                needUpdate = this._needResetData || start >= uploadStart;
-
-                if (needUpdate) {
-                    view.start = start;
-                    view.updateView(this.bufferData);
-                }
-
-                length += view.length;
-                view = view._next;
-            }
-
-            if (needUpdate) {
-                geometry.clearRenderParams();
-                geometry.setDrawElemenParams(length, start * 2);
-            }
-
-            let len = this._last.start + this._last.length - uploadStart;
-
-            let offset = uploadStart * 2;
-
-            offset = Math.floor(offset / 4) * 4;
-
-            // offset = Math.
-
-            // let tempUint16Array = new Uint16Array(this.bufferData.buffer, uploadStart * 2, len);
-            // (this.buffer as IIndexBuffer)._setIndexData(tempUint16Array, uploadStart * 2);
-            this.buffer.setData(this.bufferData.buffer, offset, offset, len * 2 + (uploadStart * 2 - offset));
-            this._needResetData = false;
-
-            // this.clearBufferViews();
-        } else {
-            if (this._needResetData) {
-                let view = this._first;
-                while (view) {
-                    view.updateView(this.bufferData);//先更新偏移再提交
-                    view = view._next;
-                }
-
-                (this.buffer as IVertexBuffer).setData((this.bufferData as Float32Array).buffer, 0, 0, (this.bufferData as Float32Array).byteLength);
-                this._needResetData = false;
-            } else {
-                if (this._updateRange.y <= this._updateRange.x) return;
-                (this.buffer as IVertexBuffer).setData((this.bufferData as Float32Array).buffer, this._updateRange.x * 4, this._updateRange.x * 4, (this._updateRange.y - this._updateRange.x) * 4);
-            }
-        }
-        this._updateRange.setValue(100000000, -100000000);
-    }
-
-    modifyOneView(view: Web2DGraphic2DBufferDataView) {
-        if (this.modifyType == BufferModifyType.Index) {
-            this.addDataView(view);
-        }
-        this._updateRange.y = Math.max(view.start + view.length, this._updateRange.y);
-        this._updateRange.x = Math.min(view.start, this._updateRange.x);
-    }
-
-    addDataView(view: Web2DGraphic2DBufferDataView) {
-        view._next = null;
-        view._prev = null;
-
-        if (!this._first) {
-            this._first = view;
-            this._first.start = 0;
-        }
-
-        if (this._last) {
-            this._last._next = view;
-            view._prev = this._last;
-        }
-
-        view.owner = this;
-        this._last = view;
-        this._num++;
-    }
-
-    clearBufferViews() {//不清理,添加时处理
-        this._first = null;
-        this._last = null;
-        this._num = 0;
-        this._updateRange.setValue(100000000, -100000000);
-    }
-
-    //收益存疑
-    removeDataView(view: Web2DGraphic2DBufferDataView): void {
-        view.owner = null;
-        //ib 调用
-        // let index = this._views.indexOf(view);
-        // this._views.splice(index, 1);
-        // this._needResetData = true;
-        if (view._prev) {
-            view._prev._next = view._next;
-        }
-        if (view._next) {
-            view._next._prev = view._prev;
-        }
-        if (view == this._first) {
-            this._first = view._next;
-        }
-        if (view == this._last) {
-            this._last = view._prev;
-        }
-
-        view._next = null;
-        view._prev = null;
-
-        this._updateRange.x = Math.min(view.start, this._updateRange.x);
-        this._updateRange.y = Math.max(view.start + view.length, this._updateRange.y);
-        this._num--;
-    }
-
-    destroy() {
-        this._first = null;
-        this._last = null;
-        this.bufferData = null;
-    }
-
-}
-
-export class Web2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
-    private _data: Float32Array | Uint16Array;
     /** IB 的 start 不可信，只有在提交时百分百正确 */
     start: number;//element start
     length: number;//element length
-    stride: number = 1;//element length
+
     owner: Web2DGraphicWholeBuffer;
-    modifyType: BufferModifyType;
-    // isModified: boolean = false; // 标记数据是否被修改
 
-    _geometry: IRenderGeometryElement;
-    setGeometry(value: IRenderGeometryElement): void {
-        this._geometry = value;
-    }
     /** @internal */
-    _next: Web2DGraphic2DBufferDataView;
+    _next: Web2DGraphicsBufferDataView;
     /** @internal */
-    _prev: Web2DGraphic2DBufferDataView;
+    _prev: Web2DGraphicsBufferDataView;
+}
+
+export class Web2DGraphic2DVertexDataView extends Web2DGraphicsBufferDataView implements I2DGraphicVertexDataView {
+    private _view: Float32Array
+
+    stride: number = 1;//element length
+
+    declare owner: Web2DGraphicsVertexBuffer;
     /** @internal */
-    // private _mark: number = 0;
+    declare _next: Web2DGraphic2DVertexDataView;
+    /** @internal */
+    declare _prev: Web2DGraphic2DVertexDataView;
 
-    getData(): Float32Array | Uint16Array {
-        //owner isReset  this._data;
-        if (this.modifyType == BufferModifyType.Vertex
-            && this.owner._needResetData
-        ) {
-            this.updateView(this.owner.bufferData);
-        }
-
-        return this._data;
-    }
-
-    setData(data: Float32Array | Uint16Array) {
-        this._data.set(data);
-        this._modify();
+    /**
+     * @internal
+     * @returns 
+     */
+    _getData(): Float32Array {
+        return this._view;
     }
 
     /** @private */
     _modify() {
-        if (this.modifyType == BufferModifyType.Index) {
-            this.owner.modifyOneView(this);
-            WebRender2DPass.setBuffer(this.owner);
-        } else {
-            this.owner.modifyOneView(this);
-            WebRender2DPass.setBuffer(this.owner);
+        this.owner._modifyOneView(this);
+        WebRender2DPass.setBuffer(this.owner);
+    }
+
+    // 更新数据视图
+    _updateView(wholeData: Float32Array) {
+        if (!this._view || this._view.buffer !== wholeData.buffer) {
+            this._view = new Float32Array(wholeData.buffer, this.start * 4 /** Float32Array.BYTES_PER_ELEMENT */, this.length);
         }
     }
 
-    constructor(owner: Web2DGraphicWholeBuffer, type: BufferModifyType, start: number, length: number, stride: number = 1, create = true) {
+    setData(data: ArrayLike<number>): void {
+        this._view.set(data);
+        this._modify();
+    }
+
+    constructor(owner: Web2DGraphicsVertexBuffer, start: number, length: number, stride: number = 1) {
+        super();
         this.owner = owner;
         this.start = start;
         this.length = length;
         this.stride = stride;
-        this.modifyType = type;
+        this._updateView(owner._dataView);
+        owner.addDataView(this);
+    }
+
+
+}
+
+export class Web2DGraphic2DIndexDataView extends Web2DGraphicsBufferDataView implements I2DGraphicIndexDataView {
+
+    protected _view: Uint16Array;
+
+    declare owner: Web2DGraphicsIndexBuffer;
+
+    _geometry: IRenderGeometryElement;
+
+    setGeometry(value: IRenderGeometryElement): void {
+        this._geometry = value;
+    }
+
+    /** @internal */
+    declare _next: Web2DGraphic2DIndexDataView;
+    /** @internal */
+    declare _prev: Web2DGraphic2DIndexDataView;
+
+    setData(data: Float32Array | Uint16Array) {
+        this._view.set(data);
+        this._modify();
+    }
+
+    constructor(owner: Web2DGraphicsIndexBuffer, length: number, create: boolean = true) {
+        super();
+        this.owner = owner;
+        this.length = length;
 
         if (create) {
-            if (this.modifyType == BufferModifyType.Index) {
-                this._data = new Uint16Array(length);
-            } else {
-                this.updateView(owner.bufferData);
-                owner.addDataView(this);
-            }
+            this._view = new Uint16Array(length);
         }
     }
 
     // 更新数据视图
-    updateView(wholeData: Float32Array | Uint16Array) {
-        if (this.modifyType == BufferModifyType.Index) {
-            wholeData.set(this._data, this.start);
-        } else {
-            this._data = new (wholeData.constructor as any)(wholeData.buffer, this.start * wholeData.BYTES_PER_ELEMENT, this.length);
-        }
+    _updateView(wholeData: Uint16Array) {
+        wholeData.set(this._view, this.start);
     }
 
-    getDataRange(): { start: number, length: number } {
-        return {
-            start: this.start,
-            length: this.length
-        };
+
+    /** @private */
+    _modify() {
+        this.owner._modifyOneView(this);
+        WebRender2DPass.setBuffer(this.owner);
     }
 
     /**
@@ -272,17 +119,71 @@ export class Web2DGraphic2DBufferDataView implements I2DGraphicBufferDataView {
      * @param create 
      * @returns 
      */
-    clone(cloneOwner = true, create = true) {
-        if (this.modifyType !== BufferModifyType.Index) {
-            // console.log();
-            return null;
-        }
+    _clone(cloneOwner = true, create = true) {
         let owner = cloneOwner ? this.owner : null
         // start 不确定， length 是固定的
-        let nview = new Web2DGraphic2DBufferDataView(owner, this.modifyType, this.start, this.length, this.stride, create);
+        let nview = new Web2DGraphic2DIndexCloneDataView(owner, this.length, create);
         if (!create) {
-            nview._data = this._data;
+            this._cloneView(nview);
         }
         return nview;
     }
+
+    /**
+     * 克隆视图
+     * @param view 
+     */
+    _cloneView(view: Web2DGraphic2DIndexDataView) {
+        view._view = this._view;
+        view.length = this.length;
+    }
+
+    destroy(): void {
+        this._view = null;
+        this._geometry = null;
+        this.owner = null;
+        this._next = null;
+        this._prev = null;
+    }
+}
+
+export class Web2DGraphic2DIndexCloneDataView extends Web2DGraphic2DIndexDataView {
+    /** @internal */
+    // private static _idCounter = 0;
+    declare owner: Web2DGraphicsIndexBatchBuffer;
+    declare _next: Web2DGraphic2DIndexCloneDataView;
+    declare _prev: Web2DGraphic2DIndexCloneDataView;
+
+    /** @internal */
+    // _lastWholeData: Uint16Array;
+    // /** @internal */
+    // _lastStart: number = -1;
+    // /** @internal */
+    // _id = ++ Web2DGraphic2DIndexCloneDataView._idCounter;
+
+    // 更新数据视图
+    // _updateCloneView(wholeData: Uint16Array , mask:Record<number , number>) {
+    //     if (
+    //         this._lastWholeData !== wholeData
+    //         || this._lastStart !== this.start
+    //         || this._id != mask[this.start]
+    //     ) {
+    //         wholeData.set(this._view, this.start);
+    //         this._lastWholeData = wholeData;
+    //         this._lastStart = this.start;
+    //         mask[this.start] = this._id;
+    //         return true;
+    //     }
+
+    //     return false;
+    // }
+
+    destroy(): void {
+        super.destroy();
+        // this._lastWholeData = null;
+        // this._lastStart = 0;
+        // this._next = null;
+        // this._prev = null;
+    }
+
 }

@@ -124,7 +124,7 @@ export class GRoot extends GWidget {
             i = cnt - 1;
 
         for (; i >= 0; i--) {
-            let g = this.getChildAt(i);
+            let g: GWidget = this.getChildAt(i);
             if (g == win)
                 return;
             if (g instanceof GWindow)

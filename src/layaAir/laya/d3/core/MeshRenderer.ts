@@ -5,7 +5,7 @@ import { BaseRenderType, IBaseRenderNode, IMeshRenderNode } from "../../RenderDr
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData"
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine"
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable"
-import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
+import { Shader3D, ShaderFeatureType } from "../../RenderEngine/RenderShader/Shader3D"
 import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh"
 import { Laya3DRender } from "../RenderObjs/Laya3DRender"
 import { Mesh } from "../resource/models/Mesh"
@@ -20,6 +20,8 @@ import { RenderContext3D } from "./render/RenderContext3D"
 import { RenderElement } from "./render/RenderElement"
 import { SubMeshRenderElement } from "./render/SubMeshRenderElement"
 import { Stat } from "../../utils/Stat"
+import { StatElement } from "../../layagl/StatisticsContext"
+import { Material } from "../../resource/Material"
 
 
 /**
@@ -64,8 +66,11 @@ export class MeshRenderer extends BaseRender {
         this._baseRenderNode.renderNodeType = BaseRenderType.MeshRender;
     }
     protected _createBaseRenderNode(): IBaseRenderNode {
-
         return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
+    }
+
+    protected _isMaterialVaild(value: Material): boolean {
+        return value.checkType(ShaderFeatureType.D3);
     }
 
     /**
@@ -173,6 +178,7 @@ export class MeshRenderer extends BaseRender {
     protected _applyMorphdata() {
         let mesh = this._mesh;
         let shaderData = this._baseRenderNode.shaderData;
+
         if (this._morphWeightChange && mesh) {
 
             let morphData = mesh.morphTargetData;
@@ -221,7 +227,6 @@ export class MeshRenderer extends BaseRender {
             // todo 
             // active count == 0 disable morph ?
         }
-
     }
 
     _setBelongScene(scene: any): void {
@@ -236,13 +241,13 @@ export class MeshRenderer extends BaseRender {
     }
 
     protected _statAdd() {
-        Stat.renderNode++;
-        Stat.meshRenderNode++;
+        super._statAdd();
+        LayaGL.statAgent.recordCountData(StatElement.C_MeshRenderCount, 1);
     }
 
     protected _statRemove() {
-        Stat.renderNode--;
-        Stat.meshRenderNode--;
+        super._statRemove();
+        LayaGL.statAgent.recordCountData(StatElement.C_MeshRenderCount, -1);
     }
 
     /**
@@ -315,6 +320,8 @@ export class MeshRenderer extends BaseRender {
                 shaderData.setVector(RenderableSprite3D.MorphParams, morphData.params);
 
                 shaderData.setBuffer(RenderableSprite3D.MorphActiceTargets, this.morphTargetActiveData);
+
+
             }
         }
 
@@ -325,7 +332,7 @@ export class MeshRenderer extends BaseRender {
             this._morphTargetValues = {};
         }
 
-        if (mesh && mesh.morphTargetData) {
+        if (mesh && mesh.morphTargetData && LayaGL.renderEngine.getCapable(RenderCapable.Texture3D)) {
 
             let morphData = mesh.morphTargetData;
 
@@ -339,6 +346,15 @@ export class MeshRenderer extends BaseRender {
                 this.morphtargetChannels[index] = channel;
                 this._morphTargetValues[channel.name] = 0;
             }
+
+            let additionShaderData = this._baseRenderNode.additionShaderData;
+            additionShaderData.set("MorphTarget", shaderData);
+            this._baseRenderNode.additionShaderData = additionShaderData;
+        }
+        else {
+            let additionShaderData = this._baseRenderNode.additionShaderData;
+            additionShaderData.delete("MorphTarget");
+            this._baseRenderNode.additionShaderData = additionShaderData;
         }
 
     }
@@ -402,7 +418,8 @@ export class MeshRenderer extends BaseRender {
         if (!this._mesh) {
             this.boundsChange = false;
         }
-        this._baseRenderNode.ismoved = Stat.loopCount;
+        this._baseRenderNode.ismoved.setValue(Stat.loopCount, LayaGL.renderEngine._framePassCount);
+        this._baseRenderNode.ismoved = this._baseRenderNode.ismoved;
     }
 
     /**
@@ -415,7 +432,11 @@ export class MeshRenderer extends BaseRender {
         if (!this._mesh) {
             return;
         }
-        this._mesh.morphTargetData && this._applyMorphdata();
+
+        if (LayaGL.renderEngine.getCapable(RenderCapable.Texture3D) && this._mesh.morphTargetData) {
+            this._applyMorphdata();
+        }
+
         if (!this._meshChange) {
             return;
         }

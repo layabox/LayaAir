@@ -110,7 +110,7 @@ export class UIConfig2 {
      * @en Pixel offsets of finger to trigger scrolling.
      * @zh 触发滚动的手指像素偏移量。
      */
-    static touchScrollSensitivity: number = 20;
+    static touchScrollSensitivity: number = 10;
 
     /**
      * @en Pixel offsets of finger to trigger dragging.

@@ -1,7 +1,7 @@
 import { ILaya } from "../../../ILaya";
 import { Sprite } from "../../display/Sprite";
-import { RenderInfo } from "../../renders/RenderInfo";
 import { Texture } from "../../resource/Texture";
+import { Stat } from "../../utils/Stat";
 import { CharRenderInfo } from "./CharRenderInfo";
 import { TextAtlas } from "./TextAtlas";
 import { TextRender } from "./TextRender";
@@ -51,7 +51,7 @@ export class TextDebug {
         var totalUsedRateAtlas = 0;
         render.textAtlases.forEach(function (a: TextAtlas): void {
             var id = a.texture.id;
-            var dt = RenderInfo.loopCount - a.texture.lastTouchTm
+            var dt = Stat.loopCount - a.texture.lastTouchTm
             var dtstr = dt > 0 ? ('' + dt + '帧以前') : '当前帧';
             totalUsedRate += a.texture.curUsedCovRate;
             totalUsedRateAtlas += a.texture.curUsedCovRateAtlas;
@@ -65,7 +65,7 @@ export class TextDebug {
         });
         console.log('独立贴图文字(' + render.isoTextures.length + '个):');
         render.isoTextures.forEach(function (tex: TextTexture): void {
-            console.log('    size:', tex.width, tex.height, 'touch间隔:', (RenderInfo.loopCount - tex.lastTouchTm), 'char:', tex.ri.char);
+            console.log('    size:', tex.width, tex.height, 'touch间隔:', (Stat.loopCount - tex.lastTouchTm), 'char:', tex.ri.char);
         });
         console.log('总缓存:', num, '总使用率:', totalUsedRate, '总当前图集使用率:', totalUsedRateAtlas);
 

@@ -1,4 +1,5 @@
 import { ILaya } from "../../ILaya";
+import { LayaEnv } from "../../LayaEnv";
 import { HideFlags, NodeFlags } from "../Const";
 import { Area2D } from "../display/Area2D";
 import type { Node } from "../display/Node";
@@ -270,7 +271,7 @@ export class InputManager {
         this._eventType = type;
         this._nativeEvent = ev;
         InputManager.lastTouchId = 0;
-        let now = Browser.now();
+        let now = performance.now();
         if (this._lastTouchTime != null && now - this._lastTouchTime < 100)
             return;
 
@@ -392,7 +393,7 @@ export class InputManager {
     handleTouch(ev: TouchEvent, type: number) {
         this._eventType = type;
         this._nativeEvent = ev;
-        this._lastTouchTime = Browser.now();
+        this._lastTouchTime = performance.now();
 
         let touches = ev.changedTouches;
         for (let i = 0; i < touches.length; ++i) {
@@ -580,8 +581,8 @@ export class InputManager {
      * @returns 该点下的sprite，如果没有找到则返回null。
      */
     getSpriteUnderPoint(sp: Sprite, x: number, y: number): Sprite {
-        if ((sp._renderType & SpriteConst.AREA2D) !== 0) {
-            (<Area2D>sp).transformPoint(x, y, Point.TEMP);
+        if ((sp._renderType & SpriteConst.AREA2D) !== 0 && LayaEnv.isPlaying) {
+            (<Area2D>sp).localToView(x, y, Point.TEMP);
             x = Point.TEMP.x;
             y = Point.TEMP.y;
         }

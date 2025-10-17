@@ -22,6 +22,9 @@ export class Relation {
     /** @internal */
     _sh: number;
 
+    /** @internal */
+    _isDisabled: boolean;
+
     constructor() {
         this._data = [];
     }
@@ -460,7 +463,7 @@ export class Relation {
     }
 
     private posChanged(): void {
-        if (!this._owner || (this._owner as any)[handlingFlag]) {
+        if (!this._owner || (this._owner as any)[handlingFlag] || this._isDisabled) {
             this._tx = this._target.x;
             this._ty = this._target.y;
             return;
@@ -491,7 +494,7 @@ export class Relation {
         let tw = this._target.width, th = this._target.height;
         let ow = <GWidget & { [handlingFlag]: boolean }>this._owner;
 
-        if (!ow || ow[handlingFlag]) {
+        if (!ow || ow[handlingFlag] || this._isDisabled) {
             this._tw = tw;
             this._th = th;
             return;

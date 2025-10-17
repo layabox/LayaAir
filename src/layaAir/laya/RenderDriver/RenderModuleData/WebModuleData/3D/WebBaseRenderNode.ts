@@ -1,6 +1,3 @@
-
-import { stat } from "fs";
-import { RenderPassStatisticsInfo } from "../../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { ReflectionProbeMode } from "../../../../d3/component/Volume/reflectionProbe/ReflectionProbe";
 import { RenderableSprite3D } from "../../../../d3/core/RenderableSprite3D";
 import { Transform3D } from "../../../../d3/core/Transform3D";
@@ -9,18 +6,21 @@ import { BoundFrustum } from "../../../../d3/math/BoundFrustum";
 import { Bounds } from "../../../../d3/math/Bounds";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Material } from "../../../../resource/Material";
-import { Stat } from "../../../../utils/Stat";
 import { IRenderContext3D, IRenderElement3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { ENodeCustomData, IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { WebLightmap } from "./WebLightmap";
 import { WebReflectionProbe } from "./WebReflectionProb";
 import { WebVolumetricGI } from "./WebVolumetricGI";
-import { Laya3DRender } from "../../../../d3/RenderObjs/Laya3DRender";
+import { Vector2 } from "../../../../maths/Vector2";
 
-
+interface DynamicBaseRenderClass {
+    new(): WebBaseRenderNode;
+    readonly prototype: WebBaseRenderNode
+}
 
 export class WebBaseRenderNode implements IBaseRenderNode {
+    static BaseRenderNodeClass: DynamicBaseRenderClass;
     renderNodeType: number;
     boundsChange: boolean;
     distanceForSort: number;
@@ -43,36 +43,32 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     lightmap: WebLightmap;
     probeReflection: WebReflectionProbe;
     volumetricGI: WebVolumetricGI;
-    shaderData: ShaderData;
+
     baseGeometryBounds: Bounds;
     transform: Transform3D;
     _worldParams: Vector4;
     _commonUniformMap: string[];
     _additionShaderDataKeys: string[];
-    _additionalUpdateMask: number;
-    _driverCacheData: any;//记录渲染底层共用的渲染数据
-    ismoved: number = 0;
+    ismoved: Vector2 = new Vector2();
     private _bounds: Bounds;
     private _caculateBoundingBoxCall: any;
     private _caculateBoundingBoxFun: Function;
     private _renderUpdatePreCall: any;
     private _renderUpdatePreFun: Function;
     private _updateMark: number;
-    private _additionShaderData: Map<string, ShaderData>;
 
+    protected _additionShaderData: Map<string, ShaderData>;
 
-    /**
-    * context3D:GLESRenderContext3D
-    * @internal
-    */
-    _renderUpdatePre_StatUse(context3D: IRenderContext3D): void {
-        if (this._updateMark == context3D.cameraUpdateMask)
-            return;
-        var time = performance.now();//T_RenderPreUpdate Stat
-        this._renderUpdatePreFun.call(this._renderUpdatePreCall, context3D);
-        Stat.renderPassStatArray[RenderPassStatisticsInfo.T_RenderPreUpdate] += (performance.now() - time);//Stat
-        this._updateMark = context3D.cameraUpdateMask;
+    protected _shaderData: ShaderData;
+
+    public get shaderData() {
+        return this._shaderData;
     }
+
+    public set shaderData(value) {
+        this._shaderData = value;
+    }
+
 
     /**
      * context3D:GLESRenderContext3D
@@ -115,7 +111,6 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         else {
             this._additionShaderDataKeys = [];
         }
-        this._additionalUpdateMask = Stat.loopCount;
     }
 
     constructor() {
@@ -125,7 +120,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         this.lightmapDirtyFlag = -1;
         this.lightmapScaleOffset = new Vector4(1, 1, 0, 0);
         this.set_caculateBoundingBox(this, this._ownerCalculateBoundingBox);
-        this.additionShaderData = new Map();
+        this._additionShaderData = new Map();
     }
 
     setNodeCustomData(dataSlot: ENodeCustomData, data: number): void {
@@ -163,7 +158,6 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         this._caculateBoundingBoxCall = call;
         this._caculateBoundingBoxFun = fun;
     }
-
 
     /**
      * 视锥检测包围盒
@@ -300,10 +294,12 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         this.volumetricGI = null;
         this.renderelements.length = 0;
         this.renderelements = null;
-        this._commonUniformMap.length = 0;
-        this._commonUniformMap = null;
         this.shaderData && this.shaderData.destroy();
         this.shaderData = null;
+
+        this._commonUniformMap.length = 0;
+        this._commonUniformMap = null;
+
         this.additionShaderData.clear();
         this.additionShaderData = null;
         this._additionShaderDataKeys.length = 0;

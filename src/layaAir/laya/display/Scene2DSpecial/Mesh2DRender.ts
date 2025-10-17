@@ -1,11 +1,10 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { Color } from "../../maths/Color";
-import { Vector4 } from "../../maths/Vector4";
 import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { IRenderContext2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { IMesh2DRenderDataHandle } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
-import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../../RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
 import { Mesh2D, VertexMesh2D } from "../../resource/Mesh2D";
@@ -41,13 +40,17 @@ export class Mesh2DRender extends BaseRenderNode2D {
     private _sharedMesh: Mesh2D;
     declare _renderHandle: IMesh2DRenderDataHandle;
 
-    protected _getRenderHandle(): IMesh2DRenderDataHandle {
+    protected _createRenderHandle(): IMesh2DRenderDataHandle {
         return LayaGL.render2DRenderPassFactory.createMesh2DRenderDataHandle();
     }
 
     protected _initDefaultRenderData(): void {
         this.color = new Color();
         this.texture = null;
+    }
+
+    protected _isMaterialVaild(value: Material): boolean {
+        return value.checkType(ShaderFeatureType.D2_BaseRenderNode2D);
     }
 
     renderUpdate(context: IRenderContext2D): void {

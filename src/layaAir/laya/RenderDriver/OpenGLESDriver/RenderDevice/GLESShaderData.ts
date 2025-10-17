@@ -22,9 +22,13 @@ export class GLESShaderData extends ShaderData {
     /**
      * @internal	
      */
-    constructor(ownerResource: Resource = null) {
+    constructor(ownerResource: Resource = null, createNativeObj: boolean = true) {
         super(ownerResource)
-        this._nativeObj = new (window as any).conchGLESShaderData((this._defineDatas as any)._nativeObj);
+        if (createNativeObj) {
+            this._nativeObj = new (window as any).conchGLESShaderData((this._defineDatas as any)._nativeObj);
+        } else {
+            this._nativeObj = null;
+        }
         this._textureData = {};
         this._bufferData = {};
     }
@@ -329,6 +333,9 @@ export class GLESShaderData extends ShaderData {
         if (value && value._texture) {
             this._setInternalTexture(index, (value._texture as GLESInternalTex)._nativeObj);
         }
+        else {
+            this._setInternalTexture(index, null);
+        }
         lastValue && lastValue._removeReference();
         value && value._addReference();
     }
@@ -374,6 +381,5 @@ export class GLESShaderData extends ShaderData {
     }
     destroy(): void {
         this._nativeObj.destroy();
-        this._nativeObj = null;
     }
 }
