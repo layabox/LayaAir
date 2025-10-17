@@ -2457,10 +2457,10 @@ export class Sprite extends Node {
                 ILaya.stage.passManager.addPass(this._oriRenderPass);
             }
             else {
-                if (this._drawOriRT) {
+                if (this._drawOriRT && this._drawOriRT !== RenderTexture2D._empty) {
                     RenderTexture2D.recoverToPool(this._drawOriRT);
-                    this._drawOriRT = null;
                 }
+                this._drawOriRT = null;
 
                 if (this._oriRenderPass.postProcess) {
                     this._oriRenderPass.postProcess.recoverAllRTS();
