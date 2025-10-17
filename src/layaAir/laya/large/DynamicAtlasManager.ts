@@ -66,11 +66,9 @@ export class DynamicAtlasManager {
     private _textureMap: Map<number, TextureInfo> = new Map();
     private _config: DynamicAtlasConfig;
     private _isDestroyed: boolean = false;
-    private _waitIds: number[] = [];
-    private _waitUpdate: boolean = false;
     private _autoReplace: boolean = false;
 
-    constructor(config?: Partial<DynamicAtlasConfig> , autoReplace: boolean = false) {
+    constructor(config?: Partial<DynamicAtlasConfig> , autoReplace: boolean = true) {
         this._config = {
             largeTextureSize: [1024, 1024],
             maxLargeTextures: 4,
@@ -100,7 +98,6 @@ export class DynamicAtlasManager {
         if (autoReplace) {
             this._largeTexManager.updateHook = this.afterUpdate.bind(this);
         }
-        this._waitUpdate = !this._config.immediately;
     }
 
     /**
@@ -153,23 +150,18 @@ export class DynamicAtlasManager {
         };
 
         this._textureMap.set(textureId, textureInfo);
-        
-        if (this._waitUpdate) {
-            this._waitIds.push(textureId);
-        }
 
         return true;
     }
 
-    private afterUpdate(): void {
-        if (this._waitIds.length > 0) {
-            for (let index = this._waitIds.length - 1; index >= 0; index--) {
-                const id = this._waitIds[index];
-                let result = this.replaceOriginalTexture(id);
-                if (result) {
-                    this._waitIds.splice(index, 1);
-                }
+    private afterUpdate(index: number, completedIds: number[]): void {
+        if (this._isDestroyed || !completedIds || completedIds.length === 0) return;
+        for (const id of completedIds) {
+            let textureInfo = this._textureMap.get(id);
+            if (!textureInfo || !textureInfo.isInAtlas) {
+                continue;
             }
+            this._replaceTexture(id, index);
         }
     }
 
@@ -282,27 +274,12 @@ export class DynamicAtlasManager {
         return this.removeTexture(texture.id, largeTextureIndex);
     }
 
-    /**
-     * @en Replace original texture object,使其使用图集中的纹理
-     * @param textureId textureId to replace
-     * @returns boolean whether replace original texture object successfully
-     * @zh 替换原始纹理对象，使其使用图集中的纹理
-     * @param textureId 纹理ID
-     * @returns 是否替换成功
-     */
-    public replaceOriginalTexture(textureId: number): boolean {
-        if (this._isDestroyed) return false;
 
+    private _replaceTexture(textureId: number, largeTextureIndex: number): boolean {
+        
         let textureInfo = this._textureMap.get(textureId);
-        if (!textureInfo || !textureInfo.isInAtlas) {
-            return false;
-        }
 
-        const textureOut = this._largeTexManager.getTexture(textureId, textureInfo.largeTextureIndex);
-        if (!textureOut || !textureOut.texture || !textureOut.texItem) {
-            console.warn(`DynamicAtlasManager: 无法获取纹理 ${textureId} 的图集信息`);
-            return false;
-        }
+        let textureOut = this._largeTexManager.getTexture(textureId, largeTextureIndex);
 
         let originalTexture = textureInfo.originalTexture;
         /** 保存原始uv */
@@ -322,6 +299,32 @@ export class DynamicAtlasManager {
         originalTexture.width = orginWidth;
         originalTexture.height = orginHeight;
 
+        return true;
+    }
+
+    /**
+     * @en Replace original texture object,使其使用图集中的纹理
+     * @param textureId textureId to replace
+     * @returns boolean whether replace original texture object successfully
+     * @zh 替换原始纹理对象，使其使用图集中的纹理
+     * @param textureId 纹理ID
+     * @returns 是否替换成功
+     */
+    public replaceOriginalTexture(textureId: number): boolean {
+        if (this._isDestroyed) return false;
+        
+        let textureInfo = this._textureMap.get(textureId);
+        if (!textureInfo || !textureInfo.isInAtlas) {
+            return false;
+        }
+
+        const textureOut = this._largeTexManager.getTexture(textureId, textureInfo.largeTextureIndex);
+        if (!textureOut || !textureOut.texture || !textureOut.texItem) {
+            console.warn(`DynamicAtlasManager: 无法获取纹理 ${textureId} 的图集信息`);
+            return false;
+        }
+
+        this._replaceTexture(textureId, textureInfo.largeTextureIndex);
         return true;
     }
 
