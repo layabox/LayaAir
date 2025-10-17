@@ -2,7 +2,6 @@
 import { Config } from "../../Config";
 import { Laya } from "../../Laya";
 import { Blit2DCMD } from "../display/Scene2DSpecial/RenderCMD2D/Blit2DCMD";
-import { Command2D } from "../display/Scene2DSpecial/RenderCMD2D/Command2D";
 import { CommandBuffer2D } from "../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { LayaGL } from "../layagl/LayaGL";
 import { Vector4 } from "../maths/Vector4";
@@ -15,22 +14,26 @@ import { Texture2D } from "../resource/Texture2D";
 import { TextureArrayRegistry2D } from "../webgl/utils/TextureArrayRegistry2D";
 import { TextureMergeShaderInit } from "./shader/TextureMergeShaderInit";
 
-
 export class LargeTex extends RenderTexture {
     cmdBuffer: CommandBuffer2D;
     private _limitMipmap: number = -1; //是否限制mipmap层数
-    private _willDestroyTex : Texture2D[] = []; //待删除小贴图队列
+    private _willDestroyTex: Texture2D[] = []; //待删除小贴图队列
     private _shader: Shader3D; //合图的着色器
     /**
      * @en Whether to immediately execute the merge
      * @zh 是否立即执行合并
      */
-    immediately: boolean = false; 
+    immediately: boolean = false;
     /**
      * @en Commands
      * @zh 命令
      */
-    commands: Set<Command2D> = new Set();
+    commands: Set<Blit2DCMD> = new Set();
+    /**
+     * @en Wait merge ids
+     * @zh 等待合并的纹理ID
+     */
+    private _waitMergeIds: Set<number> = new Set();
 
     constructor(width: number, height: number, format: RenderTargetFormat = RenderTargetFormat.R8G8B8A8,
         depthStencilFormat: RenderTargetFormat = null, mipmap: boolean = false, limitMipmap: number = -1, sRGB: boolean = true) {
@@ -43,16 +46,17 @@ export class LargeTex extends RenderTexture {
         }
         this._shader = Shader3D.find("TexMerge");
 
+        let objectName = (LayaGL.renderEngine as any).objectName? (LayaGL.renderEngine as any).objectName as string: '';
         // WebGPU：将渲染目标直接指向 Texture2DArray 的单层
         if (Config.useTextureArray) {
             const alloc = TextureArrayRegistry2D.allocateLayerAsTexture(width, height, <any>TextureFormat.R8G8B8A8, 64, sRGB);
             const tc: any = LayaGL.textureContext;
-            if (alloc && tc ) {
+            if (alloc && tc) {
                 // 用数组层重建 RT
                 this._disposeResource();
                 // 内部纹理对象
                 const internalArrayTex = alloc.array._texture;
-                this._renderTarget = tc.createRenderTargetFromArrayLayer(internalArrayTex, alloc.layer, format, 
+                this._renderTarget = tc.createRenderTargetFromArrayLayer(internalArrayTex, alloc.layer, format,
                     depthStencilFormat, sRGB);
                 // RenderTexture 的采样源沿用 color attachment
                 // @ts-ignore
@@ -65,21 +69,38 @@ export class LargeTex extends RenderTexture {
 
     /**
      * 分帧调用的Update函数
+     * @param force 是否强制更新
+     * @returns 完成绘制的纹理ID列表
      */
     onUpdate(force: boolean = false) {
-
-        if (!this.cmdBuffer || !this.commands.size) return;
+        if (!this.cmdBuffer || !this.commands.size) return null;
 
         let values = this.commands.values();
         let cmd = values.next().value;
+        let ids = [];
         while (cmd && (force || Laya.stage.getTimeFromFrameStart() < 30)) {
             this.cmdBuffer.addCacheCommand(cmd);
             this.cmdBuffer.applyOne(true);
             this.commands.delete(cmd);
+
+            this._waitMergeIds.delete(cmd.source.id);
+            ids.push(cmd.source.id);
+
+            cmd.recover();
             cmd = values.next().value;
         }
-        
+
         this.commands.size || this._doDestoryTex();
+        return ids;
+    }
+
+    /**
+     * 是否等待合并
+     * @param id 纹理ID
+     * @returns 是否等待合并
+     */
+    hasWaitMerge(id: number): boolean {
+        return this._waitMergeIds.has(id);
     }
 
     /**
@@ -103,7 +124,7 @@ export class LargeTex extends RenderTexture {
     addTexture(x: number, y: number, w: number, h: number, expand: number, smallTex: Texture2D, needRemove: boolean) {
         let cmd = null;
         if (expand > 0)
-            cmd = this._drawTex(x, y, w, h, expand, smallTex);       
+            cmd = this._drawTex(x, y, w, h, expand, smallTex);
         cmd = this._drawTex(x, y, w, h, 0, smallTex);
         if (needRemove)
             this._willDestroyTex.push(smallTex);
@@ -250,9 +271,15 @@ export class LargeTex extends RenderTexture {
         const height = this.height; //大贴图高度
         const offsetScale = new Vector4(); //偏移和放缩系数
         offsetScale.x = Math.max(0, x - expand) / width;
-        offsetScale.y = Math.max(0, height - y - h - expand) / height;
+
+        if (LayaGL.renderEngine._screenInvertY) {
+            offsetScale.y = Math.max(0, y - expand) / height;
+        } else {
+            offsetScale.y = Math.max(0, height - y - h - expand) / height;
+        }
         offsetScale.z = (w + expand * 2) / width;
         offsetScale.w = (h + expand * 2) / height;
+
 
         let sd = TextureMergeShaderInit._sdNotChange;
         if (this.gammaSpace && !smallTex.gammaSpace) {
@@ -266,9 +293,12 @@ export class LargeTex extends RenderTexture {
         //采用实时渲染方式将小贴图绘制到大贴图上
         let cmd = Blit2DCMD.create(smallTex, this, offsetScale, this._shader, sd);
         this.commands.add(cmd);
+        
         //立即执行绘制
-        if (this.immediately) { 
+        if (this.immediately) {
             this.onUpdate(true);
+        } else {
+            this._waitMergeIds.add(smallTex.id);
         }
 
         return cmd;

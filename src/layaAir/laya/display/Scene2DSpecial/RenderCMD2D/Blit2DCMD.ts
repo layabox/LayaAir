@@ -183,7 +183,7 @@ export class Blit2DCMD extends Command2D {
         this._renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
         this._blitQuadCMDData = LayaGL.render2DRenderPassFactory.createBlit2DQuadCMDData();
         this._blitQuadCMDData.element = this._renderElement;
-        this._renderElement.geometry = Blit2DCMD.QuadGeometry;
+        this._renderElement.geometry = !LayaGL.renderEngine._screenInvertY ? Blit2DCMD.QuadGeometry : Blit2DCMD.InvertQuadGeometry;
         this._renderElement.nodeCommonMap = null;
         this._renderElement.renderStateIsBySprite = false;
     }
