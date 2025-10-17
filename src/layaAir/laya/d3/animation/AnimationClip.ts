@@ -476,6 +476,7 @@ export class AnimationClip extends Resource {
 			var isEnd = nextFrameIndex === keyFramesCount;
 			switch (type) {
 				case KeyFrameValueType.PathPoint:
+					var frame = (<FloatKeyframe>keyFrames[frameIndex]);
 					let frameVal = (<PathPointKeyframe>keyFrames[0]).value;
 					if (frameIndex !== -1) {
 						frameVal = (<PathPointKeyframe>keyFrames[frameIndex]).value;

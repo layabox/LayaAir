@@ -26,8 +26,6 @@ import { Vector4 } from "../../../maths/Vector4";
 import { AnimatorUpdateMode } from "../../../components/AnimatorUpdateMode";
 import { AnimatorStateCondition } from "../../../components/AnimatorStateCondition";
 import { Delegate } from "../../../utils/Delegate";
-import { Browser } from "../../../utils/Browser";
-import { LayaGL } from "../../../layagl/LayaGL";
 
 export type AnimatorParams = { [key: number]: number | boolean };
 
@@ -889,7 +887,7 @@ export class Animator extends Component {
      * @param isFirstLayer 是否是第一层
      */
     private _setClipDatasToNode(stateInfo: AnimatorState, additive: boolean, weight: number, isFirstLayer: boolean, controllerLayer: AnimatorControllerLayer = null): void {
-        var realtimeDatas: Array<number | Vector3 | Quaternion | Vector2 | Vector4 | Color> = stateInfo._realtimeDatas;
+        var realtimeDatas: Array<number | Vector3 | Quaternion | Vector2 | Vector4 | Color | { pos: Vector3, rotation: Quaternion }> = stateInfo._realtimeDatas;
         var nodes: KeyframeNodeList = stateInfo._clip!._nodes!;
         var nodeOwners: KeyframeNodeOwner[] = stateInfo._nodeOwners;
         for (var i: number = 0, n: number = nodes.count; i < n; i++) {
@@ -904,7 +902,17 @@ export class Animator extends Component {
                 if (pro) {
                     switch (nodeOwner.type) {
                         case KeyFrameValueType.PathPoint:
-                            console.log("Animator:PathPoint not support4");
+                            const realData = realtimeDatas[i] as { pos: Vector3, rotation: Quaternion };
+                            const pos = realData.pos;
+                            const rotation = realData.rotation;
+                            if (rotation) {
+                                console.log("Animator:rotation", rotation);
+                            }
+                            const position = pro.transform.position;
+                            position.x = pos.x;
+                            position.y = pos.y;
+                            position.z = pos.z;
+                            pro.transform.position = position;
                             break;
                         case KeyFrameValueType.Boolean:
                             var proPat: string[] = nodeOwner.property!;
