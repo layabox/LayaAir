@@ -18,7 +18,7 @@ import { LargeTexBase, LargeTexManager, TextureItem, TextureOut } from "./LargeT
  */
 export interface TextureInfo {
     /** 原始纹理对象 */
-    originalTexture: Texture;
+    textureSet: Set<Texture>;
     /** 原始uv */
     // originalUV?: ArrayLike<number>;
     /** 原始texture2d */
@@ -33,6 +33,10 @@ export interface TextureInfo {
     largeTextureIndex: number;
     /** 是否已添加到图集 */
     isInAtlas: boolean;
+    /** 是否已合并 */
+    merged: boolean;
+    /** 绘制完成次数（用于扩边框情况） */
+    drawCompletedCount: number;
 }
 
 /**
@@ -67,6 +71,7 @@ export class DynamicAtlasManager {
     private _config: DynamicAtlasConfig;
     private _isDestroyed: boolean = false;
     private _autoReplace: boolean = false;
+    private _totalDrawCount: number = 1;
 
     constructor(config?: Partial<DynamicAtlasConfig> , autoReplace: boolean = true) {
         this._config = {
@@ -89,6 +94,8 @@ export class DynamicAtlasManager {
             this._config.textureFormat
         );
 
+        this._largeTexManager.gammaCorrection = 2.2;
+        this._largeTexManager.sRGB = false;
 
         this._largeTexManager.immediately = this._config.immediately;
         this._largeTexManager.autoExtend = this._config.autoExtend;
@@ -98,6 +105,7 @@ export class DynamicAtlasManager {
         if (autoReplace) {
             this._largeTexManager.updateHook = this.afterUpdate.bind(this);
         }
+        this._totalDrawCount = this._config.extendSize > 0 ? 2 : 1;
     }
 
     /**
@@ -123,7 +131,19 @@ export class DynamicAtlasManager {
         let texture2D = texture.bitmap as Texture2D;
         let textureId = texture2D.id;
 
-        if (this._textureMap.has(textureId)) {
+        let textureInfo = this._textureMap.get(textureId);
+        if (textureInfo) {
+            
+            let textureSet = textureInfo.textureSet;
+            if (textureSet.has(texture)) {
+                return true;
+            }
+            textureSet.add(texture);
+
+            if (this._autoReplace && textureInfo.merged) {
+                let textureOut = this._largeTexManager.getTexture(textureId, textureInfo.largeTextureIndex);
+                this._replaceTexture(textureInfo , textureOut);
+            }
             return true;
         }
 
@@ -135,10 +155,10 @@ export class DynamicAtlasManager {
 
         let textureOut = this._largeTexManager.getTexture(textureId, result);
 
-        let textureInfo: TextureInfo = {
-            originalTexture: texture,
+        textureInfo = {
+            textureSet: new Set(),
             textureId: textureId,
-            url: texture.url || "",
+            url: texture2D.url || "",
             uv: new Vector4(
                 textureOut.texItem.x,
                 textureOut.texItem.y,
@@ -146,9 +166,11 @@ export class DynamicAtlasManager {
                 textureOut.texItem.h
             ),
             largeTextureIndex: result,
-            isInAtlas: true
+            isInAtlas: true,
+            merged: false,
+            drawCompletedCount: 0,
         };
-
+        textureInfo.textureSet.add(texture);
         this._textureMap.set(textureId, textureInfo);
 
         return true;
@@ -156,12 +178,33 @@ export class DynamicAtlasManager {
 
     private afterUpdate(index: number, completedIds: number[]): void {
         if (this._isDestroyed || !completedIds || completedIds.length === 0) return;
+        
         for (const id of completedIds) {
             let textureInfo = this._textureMap.get(id);
             if (!textureInfo || !textureInfo.isInAtlas) {
                 continue;
             }
-            this._replaceTexture(id, index);
+            
+            // 避免重复处理：检查是否已经合并过
+            if (textureInfo.merged) {
+                continue;
+            }
+            
+            // 增加绘制完成计数
+            textureInfo.drawCompletedCount++;
+            
+            // 只有当所有绘制都完成后才进行替换
+            if (textureInfo.drawCompletedCount < this._totalDrawCount) {
+                continue;
+            }
+            
+            // 检查纹理是否真的完成了绘制
+            const textureOut = this._largeTexManager.getTexture(id, index);
+            if (!textureOut || !textureOut.texture || !textureOut.texItem) {
+                continue;
+            }
+            
+            this._replaceTexture(textureInfo , textureOut);
         }
     }
 
@@ -275,13 +318,12 @@ export class DynamicAtlasManager {
     }
 
 
-    private _replaceTexture(textureId: number, largeTextureIndex: number): boolean {
+    private _replaceTexture(textureInfo: TextureInfo, textureOut: TextureOut): boolean {
+        // 标记为已合并，避免重复处理
+        textureInfo.merged = true;
         
-        let textureInfo = this._textureMap.get(textureId);
-
-        let textureOut = this._largeTexManager.getTexture(textureId, largeTextureIndex);
-
-        let originalTexture = textureInfo.originalTexture;
+        let textureSet = textureInfo.textureSet;
+        let rt = textureOut.texture;
         /** 保存原始uv */
         // textureInfo.originalUV = originalTexture.uv;
         /** 保存原始texture2d */
@@ -291,13 +333,56 @@ export class DynamicAtlasManager {
         let y = textureOut.texItem.y;
         let w = textureOut.texItem.w;
         let h = textureOut.texItem.h;
-        let uvArray = Float32Array.from([x, y, x + w, y, x + w, y + h, x, y + h]);
 
-        let orginWidth = originalTexture.width;
-        let orginHeight = originalTexture.height;
-        originalTexture.setTo(textureOut.texture, uvArray);
-        originalTexture.width = orginWidth;
-        originalTexture.height = orginHeight;
+        for (const texture of textureSet) {
+            if (texture.bitmap == rt) {
+                continue;
+            }
+            
+            let oSWidth = texture.sourceWidth;
+            let oSHeight = texture.sourceHeight;
+            let oWidth = texture.width;
+            let oHeight = texture.height;
+
+            let uv = texture.uv as Float32Array;
+            if (uv === Texture.DEF_UV) {
+                // 默认UV，使用调整后的图集位置
+                uv = Float32Array.from([
+                    x, y, 
+                    x + w, y, 
+                    x + w, y + h, 
+                    x, y + h
+                ]);
+            } else {
+                // 已有UV，需要重新计算在大图合集中的位置
+                // 原始UV坐标（相对于原纹理的归一化坐标）
+                let ox = uv[0];
+                let oy = uv[1];
+                let owidth = uv[2] - ox;
+                let oheight = uv[5] - oy;
+                
+                // 计算在大图合集中的新UV坐标
+                // 将原始UV坐标映射到大图合集的对应区域
+                let nx = x + ox * w;  // 调整后的起始位置 + 原始UV偏移 * 调整后的宽度
+                let ny = y + oy * h;  // 调整后的起始位置 + 原始UV偏移 * 调整后的高度
+                let nwidth = owidth * w;      // 原始UV宽度 * 调整后的宽度
+                let nheight = oheight * h;    // 原始UV高度 * 调整后的高度
+                
+                // 更新UV坐标（四个顶点：左上、右上、右下、左下）
+                uv[0] = nx;           // 左上
+                uv[1] = ny;
+                uv[2] = nx + nwidth;  // 右上
+                uv[3] = ny;
+                uv[4] = nx + nwidth;  // 右下
+                uv[5] = ny + nheight;
+                uv[6] = nx;           // 左下
+                uv[7] = ny + nheight;
+            }
+            
+            texture.setTo(rt, uv , oSWidth , oSHeight);
+            texture.width = oWidth;
+            texture.height = oHeight;
+        }
 
         return true;
     }
@@ -324,7 +409,7 @@ export class DynamicAtlasManager {
             return false;
         }
 
-        this._replaceTexture(textureId, textureInfo.largeTextureIndex);
+        this._replaceTexture(textureInfo, textureOut);
         return true;
     }
 

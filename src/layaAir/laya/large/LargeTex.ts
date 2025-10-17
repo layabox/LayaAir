@@ -36,7 +36,7 @@ export class LargeTex extends RenderTexture {
     private _waitMergeIds: Set<number> = new Set();
 
     constructor(width: number, height: number, format: RenderTargetFormat = RenderTargetFormat.R8G8B8A8,
-        depthStencilFormat: RenderTargetFormat = null, mipmap: boolean = false, limitMipmap: number = -1, sRGB: boolean = true) {
+        depthStencilFormat: RenderTargetFormat = null, mipmap: boolean = false, limitMipmap: number = -1, sRGB: boolean = true , gammaCorrection: number = 1.0) {
         super(width, height, format, depthStencilFormat, mipmap, 1, false, sRGB);
         this._limitMipmap = limitMipmap;
         this.anisoLevel = 1;
@@ -64,6 +64,8 @@ export class LargeTex extends RenderTexture {
                 TextureArrayRegistry2D.register(this as any, alloc.array, alloc.layer);
             }
         }
+        //
+        this._texture.gammaCorrection = gammaCorrection;
     }
 
     /**
@@ -281,13 +283,18 @@ export class LargeTex extends RenderTexture {
 
 
         let sd = TextureMergeShaderInit._sdNotChange;
-        if (this.gammaSpace && !smallTex.gammaSpace) {
-            sd = TextureMergeShaderInit._sdGammaToLinear;
-            console.log("gamma to linear url =", smallTex.url);
-        }
-        else if (!this.gammaSpace && smallTex.gammaSpace) {
-            sd = TextureMergeShaderInit._sdLinearToGamma;
-            console.log("linear to gamma url =", smallTex.url);
+        if (this.gammaSpace) {
+            if (smallTex.gammaSpace) {
+                sd = TextureMergeShaderInit._sdNotChange;
+            } else {
+                sd = TextureMergeShaderInit._sdLinearToGamma;
+            }
+        } else {
+            if (smallTex.gammaSpace) {
+                sd = TextureMergeShaderInit._sdGammaToLinear;
+            } else {
+                sd = TextureMergeShaderInit._sdNotChange;
+            }
         }
         //采用实时渲染方式将小贴图绘制到大贴图上
         let cmd = Blit2DCMD.create(smallTex, this, offsetScale, this._shader, sd);

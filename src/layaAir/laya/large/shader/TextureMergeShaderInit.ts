@@ -38,9 +38,9 @@ export class TextureMergeShaderInit {
 
         this._sdNotChange = LayaGL.renderDeviceFactory.createShaderData(null);
         this._sdGammaToLinear = LayaGL.renderDeviceFactory.createShaderData(null);
-        this._sdGammaToLinear.addDefine(this.LINEAR_TO_GAMMA);
+        this._sdGammaToLinear.addDefine(this.GAMMA_TO_LINEAR);
         this._sdLinearToGamma = LayaGL.renderDeviceFactory.createShaderData(null);
-        this._sdLinearToGamma.addDefine(this.GAMMA_TO_LINEAR);
+        this._sdLinearToGamma.addDefine(this.LINEAR_TO_GAMMA);
 
         const shader = Shader3D.add("TexMerge");
         const subShader = new SubShader(attributeMap, uniformMap);
