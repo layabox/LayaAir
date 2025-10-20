@@ -14,6 +14,8 @@ import { Animation2DEvent } from "./Animation2DEvent";
 import { AnimatorUpdateMode } from "./AnimatorUpdateMode";
 import { Loader } from "../net/Loader";
 import { ILaya } from "../../ILaya";
+import { Sprite } from "../display/Sprite";
+import { SpriteConst } from "../display/SpriteConst";
 
 /**
  * @en 2D animation components
@@ -109,6 +111,9 @@ export class Animator2D extends Component {
      */
     private _updateStateFinish(animatorState: AnimatorState2D, playState: AnimatorPlayState2D): void {
         if (playState._finish) {
+            if ((this.owner as Sprite)._renderType & SpriteConst.GRAPHICS) {
+                (this.owner as Sprite).graphics.repaint();
+            }
             animatorState._eventExit();//派发播放完成的事件
         }
     }
