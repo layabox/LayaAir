@@ -25,6 +25,11 @@ export interface ITextureProcessor {
      * @zh 更新动态图集
      */
     onUpdate(): void;
+
+    /**
+     * @en 
+     */
+    cleanupUnused(): void;
 }
 
 export class EmptyTextureProcessor implements ITextureProcessor {
@@ -36,5 +41,8 @@ export class EmptyTextureProcessor implements ITextureProcessor {
     }
     shouldAddToDynamicAtlas(texture: Texture): boolean {
         return false;
+    }
+    cleanupUnused(): void {
+        // do nothing
     }
 }
