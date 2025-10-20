@@ -5,7 +5,8 @@ export type UniformProperty = {
     id: number,
     propertyName: string,
     uniformtype: ShaderDataType,
-    arrayLength: number
+    arrayLength: number,
+    format?: string
 };
 
 /**
@@ -22,7 +23,7 @@ export class CommandUniformMap {
      * @param propertyID 
      * @param propertyKey 
      */
-    addShaderUniform(propertyID: number, propertyKey: string, uniformtype: ShaderDataType): void {
+    addShaderUniform(propertyID: number, propertyKey: string, uniformtype: ShaderDataType, format?: string): void {
         throw "need override it";
     }
 

@@ -20,6 +20,11 @@ import { SpotLightShadowMap } from "./3d/LayaAir3D_Lighting/SpotLightShadowMap";
 import { CameraDepthModeTextureDemo } from "./3d/LayaAir3D_Advance/CameraDepthModeTextureDemo";
 import { PostProcessBloom } from "./3d/LayaAir3D_PostProcess/PostProcessBloom";
 import { DynamicBatchTest } from "./3d/LayaAir3D_Performance/DynamicBatchTest";
+import { Laya } from "Laya";
+import { loadIDEScene3D } from "./self/LayaInit";
+import { LoadIDEScene } from "./self/LoadIDEScene";
+import { InstanceAndUBO } from "./3d/LayaAir3D_Advance/InstanceAndUBO";
+import { Sprite_LargeTexManager_Simple } from "./2d/Sprite_LargeTexManager_Simple";
 
 Resource.DEBUG = false;
 Physics2D.I._factory = new physics2DwasmFactory();
@@ -32,7 +37,7 @@ async function start() {
     } else {
         await import("./importWebGL")
     }
-    new Main(true, false, DynamicBatchTest);
+    new Main(false, false, Sprite_LargeTexManager_Simple);
     //TextureDemo
     // SceneLoad1
     // RealTimeShadow
@@ -42,3 +47,5 @@ async function start() {
 }
 
 start();
+
+// new LoadIDEScene()

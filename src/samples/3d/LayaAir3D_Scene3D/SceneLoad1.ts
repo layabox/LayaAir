@@ -12,6 +12,14 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { ComputeCommandBuffer } from "laya/RenderDriver/DriverDesign/RenderDevice/ComputeShader/ComputeCommandBuffer";
+import { RenderTexture } from "laya/resource/RenderTexture";
+import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
+import { LayaGL } from "laya/layagl/LayaGL";
+import { ComputeShader } from "laya/RenderDriver/DriverDesign/RenderDevice/ComputeShader/ComputeShader";
+import { MeshRenderer } from "laya/d3/core/MeshRenderer";
+import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
+import { RenderCapable } from "laya/RenderEngine/RenderEnum/RenderCapable";
 
 export class SceneLoad1 {
 	constructor() {
@@ -37,6 +45,71 @@ export class SceneLoad1 {
 				camera.clearColor = new Color(0, 0, 0.6, 1);
 				//加入摄像机移动控制脚本
 				camera.addComponent(CameraMoveScript);
+
+				const testTex = () => {
+					Laya.loader.load("./test.computeshader", "COMPUTESHADER").then(res => {
+						console.log(res);
+						let computeShader: ComputeShader = res;
+						{
+							let storage = true;
+							let storageTex = new RenderTexture(512, 512, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false, 1, false, false, storage);
+
+							let textureWidth = storageTex.width;
+							let textureHeight = storageTex.height;
+
+							let workGroupSize = new Vector3(8, 8, 1);
+
+							let dispatchParams = new Vector3(Math.ceil(textureWidth / workGroupSize.x), Math.ceil(textureHeight / workGroupSize.y), 1);
+
+							let shaderData = LayaGL.renderDeviceFactory.createShaderData();
+
+							shaderData.setTexture(Shader3D.propertyNameToID("image"), storageTex);
+
+							let shaderDefine = LayaGL.unitRenderModuleDataFactory.createDefineDatas();
+							if (LayaGL.renderEngine.getCapable(RenderCapable.ComputeShader)) {
+								let command = new ComputeCommandBuffer();
+								command.addDispatchCommand(computeShader, "main", shaderDefine, [shaderData], dispatchParams);
+
+								Laya.timer.frameLoop(1, this, () => {
+									command.executeCMDs();
+									let plane = scene.getChildByName("Plane");
+									let render = plane.getComponent(MeshRenderer);
+									let material = new BlinnPhongMaterial();
+									render.sharedMaterial = material;
+
+									material.albedoTexture = storageTex;
+								});
+							}
+
+
+
+						}
+					})
+				}
+				const testCull = () => {
+					Laya.loader.load("./cull.computeshader", "COMPUTESHADER").then(res => {
+						console.log(res);
+						let computeShader: ComputeShader = res;
+
+						let shaderData = LayaGL.renderDeviceFactory.createShaderData();
+						let shaderData1 = LayaGL.renderDeviceFactory.createShaderData();
+
+						let dispatchParams = new Vector3(64, 1, 1);
+
+						let shaderDefine = LayaGL.unitRenderModuleDataFactory.createDefineDatas();
+						if (LayaGL.renderEngine.getCapable(RenderCapable.ComputeShader)) {
+							let command = new ComputeCommandBuffer();
+							command.addDispatchCommand(computeShader, "main", shaderDefine, [shaderData, shaderData1], dispatchParams);
+
+							// Laya.timer.frameLoop(1, this, () => {
+							// });
+							command.executeCMDs();
+						}
+					});
+				} 
+
+				// testTex();
+				// testCull();
 			}));
 		});
 	}

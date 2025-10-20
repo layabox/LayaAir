@@ -1,15 +1,17 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { ShaderNode } from "../../../../webgl/utils/ShaderNode";
 import { IDefineDatas } from "../../../RenderModuleData/Design/IDefineDatas";
+import { CommandUniformMap } from "../CommandUniformMap";
 import { IComputeShader } from "./IComputeShader";
 
 export class ComputeShader {
     /**@internal */
     static _CompileShader: Record<string, ComputeShader> = {};
     static createComputeShader(name: string, code: string, other: any) {
-        if (!ComputeShader._CompileShader[name]) {
-            return new ComputeShader(name, code, other);
-        } else
-            return ComputeShader._CompileShader[name];
+        // if (!ComputeShader._CompileShader[name]) {
+        //     return new ComputeShader(name, code, other);
+        // } else
+        return ComputeShader._CompileShader[name];
     }
 
     /** @internal */
@@ -17,13 +19,15 @@ export class ComputeShader {
     /** @internal */
     protected _cacheShaderHierarchy: number = 1;
 
-    code: string;
     name: string;
-    other: any;
-    constructor(name: string, code: string, other: any) {
+
+    node: ShaderNode;
+    uniformMaps: CommandUniformMap[];
+
+    constructor(name: string, node: ShaderNode, uniformMaps: CommandUniformMap[]) {
         this.name = name;
-        this.code = code;
-        this.other = other;
+        this.node = node;
+        this.uniformMaps = uniformMaps.slice();
     }
 
     private setCacheShader(compileDefine: IDefineDatas, shader: IComputeShader): void {
@@ -64,8 +68,8 @@ export class ComputeShader {
         if (!shader) {
             shader = LayaGL.renderDeviceFactory.createComputeShader({
                 name: this.name,
-                code: this.code,
-                other: this.other,//临时支持  等编译流程完备  会去掉
+                node: this.node,
+                uniformMaps: this.uniformMaps,
                 defineData: compileDefine//是否需要宏来做shader的功能裁剪
             });
             this.setCacheShader(compileDefine, shader);
