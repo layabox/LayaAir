@@ -6,6 +6,8 @@ import { Animation2DEvent } from "./Animation2DEvent";
 import { Resource } from "../resource/Resource";
 import { Byte } from "../utils/Byte";
 import { Ease } from "../tween/Ease";
+import { CurvePath } from "../tween/CurvePath";
+import { Vector3 } from "../maths/Vector3";
 
 /**
  * @en Class for parsing and storing 2D animation data.
@@ -99,7 +101,7 @@ export class AnimationClip2D extends Resource {
      * @param frontPlay 
      * @param outDatas 
      */
-    _evaluateClipDatasRealTime(playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<number | string | boolean>) {
+    _evaluateClipDatasRealTime(playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<number | string | boolean | Vector3>) {
         var nodes = this._nodes;
         for (var i = 0, n = nodes.count; i < n; i++) {
             var node = nodes.getNodeByIndex(i);
@@ -144,7 +146,11 @@ export class AnimationClip2D extends Resource {
             if (-1 != frameIndex) {
                 var frame = keyFrames[frameIndex];
                 if (isEnd) {//如果nextFarme为空，不修改数据，保持上一帧
-                    outDatas[i] = frame.data.val;
+                    if (frame.data.val instanceof CurvePath) {
+                        outDatas[i] = frame.data.val.getPointAt(0);
+                    } else {
+                        outDatas[i] = frame.data.val;
+                    }
                 } else {
                     var nextFarme = keyFrames[nextFrameIndex];
                     var d = nextFarme.time - frame.time;
@@ -157,7 +163,11 @@ export class AnimationClip2D extends Resource {
                     outDatas[i] = this._getTweenVal(frame, nextFarme, t, d);
                 }
             } else {
-                outDatas[i] = keyFrames[0].data.val;
+                if (keyFrames[0].data.val instanceof CurvePath) {
+                    outDatas[i] = keyFrames[0].data.val.getPointAt(0);
+                } else {
+                    outDatas[i] = keyFrames[0].data.val;
+                }
             }
 
             if (addtive && "number" == typeof keyFrames[0].data.val) {
@@ -175,9 +185,12 @@ export class AnimationClip2D extends Resource {
      * @param dur 
      * @returns 
      */
-    private _getTweenVal(frame: Keyframe2D, nextFrame: Keyframe2D, t: number, dur: number) {
+    private _getTweenVal(frame: Keyframe2D, nextFrame: Keyframe2D, t: number, dur: number): number | string | boolean | Vector3 {
         var start = frame.data;
         var end = nextFrame.data;
+        if (start.val instanceof CurvePath) {
+            return start.val.getPointAt(t);
+        }
 
         if ("number" != typeof start.val || "number" != typeof end.val) {
             return start.val;

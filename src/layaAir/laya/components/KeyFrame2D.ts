@@ -1,3 +1,4 @@
+import { CurvePath } from "../tween/CurvePath";
 import { IClone } from "../utils/IClone";
 
 export interface TypeAniKey {
@@ -6,7 +7,7 @@ export interface TypeAniKey {
      * @zh 第几帧 
      */
     f: number,
-    val: number | string | boolean,
+    val: number | string | boolean | CurvePath,
     /**
      * @en Currently used for 2D animation, it is used to record the types of animation gaps, for example (Linear|Quad_EaseIn)...
      * @zh 目前用于2D动画，用于记录动画补间的类型，比如(Linear|Quad_EaseIn)... 
