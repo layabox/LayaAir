@@ -50,7 +50,8 @@ export enum IrradianceMode {
  * @zh `BaseRender` 类是渲染器的父类，是一个抽象类，不允许实例化。
  */
 export class BaseRender extends Component {
-
+    /**@internal */
+    _changeCount: number = -1;
     /** @internal */
     static _meshVerticeDefine: Array<ShaderDefine> = [];
     private static _uniqueIDCounter: number = 0;
@@ -699,6 +700,7 @@ export class BaseRender extends Component {
         this._scene = null;
         this._transform = null;
         this._batchRender = null;
+        this._changeCount = -1;
     }
 
     /**

@@ -113,7 +113,7 @@ export class DrawRenderCMD extends Command {
      */
     run(): void {
         if (this.render) {
-            this.render._baseRenderNode.ismoved.setValue(Stat.loopCount, LayaGL.renderEngine._framePassCount);
+            this.render._baseRenderNode.ismoved.setValue(Stat.loopCount, LayaGL.renderEngine._framePassCount, this.render._changeCount);
             this.render.renderUpdate(this._context);
             this._prematerial = this.render.sharedMaterials[this.subMeshIndex];
         }

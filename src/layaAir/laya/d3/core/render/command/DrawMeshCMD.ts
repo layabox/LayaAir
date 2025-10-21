@@ -126,7 +126,7 @@ export class DrawMeshCMD extends Command {
     run(): void {
         this._meshRender.sharedMaterial = this.material;
         this._meshRender._baseRenderNode.transform = this._transform;
-        this._meshRender._baseRenderNode.ismoved.setValue(Stat.loopCount, LayaGL.renderEngine._framePassCount);
+        this._meshRender._baseRenderNode.ismoved.setValue(Stat.loopCount, LayaGL.renderEngine._framePassCount, this._meshRender._changeCount);
         this._meshRender.renderUpdate(RenderContext3D._instance);
         // todo scene ibl
         this._meshRender.probReflection = RenderContext3D._instance.scene.sceneReflectionProb;

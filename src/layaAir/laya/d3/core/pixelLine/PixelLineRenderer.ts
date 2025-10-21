@@ -139,7 +139,8 @@ export class PixelLineRenderer extends BaseRender {
      */
     protected _onWorldMatNeedChange(flag: number): void {
         super._onWorldMatNeedChange(flag);
-        this._baseRenderNode.ismoved.setValue(Stat.loopCount, LayaGL.renderEngine._framePassCount);
+        this._changeCount++;
+        this._baseRenderNode.ismoved.setValue(Stat.loopCount, LayaGL.renderEngine._framePassCount, this._changeCount);
         this._baseRenderNode.ismoved = this._baseRenderNode.ismoved;
     }
 

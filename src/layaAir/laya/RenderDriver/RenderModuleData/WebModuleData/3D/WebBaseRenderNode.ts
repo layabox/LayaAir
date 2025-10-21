@@ -13,6 +13,7 @@ import { WebLightmap } from "./WebLightmap";
 import { WebReflectionProbe } from "./WebReflectionProb";
 import { WebVolumetricGI } from "./WebVolumetricGI";
 import { Vector2 } from "../../../../maths/Vector2";
+import { Vector3 } from "../../../../maths/Vector3";
 
 interface DynamicBaseRenderClass {
     new(): WebBaseRenderNode;
@@ -49,7 +50,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     _worldParams: Vector4;
     _commonUniformMap: string[];
     _additionShaderDataKeys: string[];
-    ismoved: Vector2 = new Vector2();
+    ismoved: Vector3 = new Vector3();
     private _bounds: Bounds;
     private _caculateBoundingBoxCall: any;
     private _caculateBoundingBoxFun: Function;
