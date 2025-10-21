@@ -906,7 +906,11 @@ export class Animator extends Component {
                             const pos = realData.pos;
                             const rotation = realData.rotation;
                             if (rotation) {
-                                console.log("Animator:rotation", rotation);
+                                const ro = pro.transform.localRotationEuler;
+                                ro.x = rotation.x;
+                                ro.y = rotation.y;
+                                ro.z = rotation.z;
+                                pro.transform.localRotationEuler = ro;
                             }
                             const position = pro.transform.position;
                             position.x = pos.x;
