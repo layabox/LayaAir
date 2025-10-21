@@ -337,10 +337,10 @@ export class WebRenderStruct2D implements IRenderStruct2D {
             this._subStruct._blendMode = BlendMode.invalid;
             this._currentData = parentData;
          }
-
+         
+         this._subStruct = value;
          this._updateGlobalShaderData();
          this.updateChildren(updateFlag);
-         this._subStruct = value;
          this._setBlendMode();
       }
    }

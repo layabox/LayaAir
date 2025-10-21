@@ -437,8 +437,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (this.destroyed) return;
         if (this._templet) {
             this.clear();
-            this.reset();
-            //this.graphics.clear();
         }
 
         this._templet = templet;
@@ -912,11 +910,17 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @en Clear method, used to release and reset related resources.
      */
     clear(): void {
+        this.clearRenderElement();
+        this.reset();
+    }
+
+    /** @internal */
+    clearRenderElement(): void {
         this._mesh = null;
         this._renderElements.forEach(element => {
             Spine2DRenderNode.recoverRenderElement2D(element);
         });
-        super.clear();
+        this._renderElements.length = 0;
     }
 
     /**
@@ -956,7 +960,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      */
     onDestroy(): void {
         if (this._templet) {
-            this.reset();
+            this.clear();
         }
         this.spineItem.destroy();
     }

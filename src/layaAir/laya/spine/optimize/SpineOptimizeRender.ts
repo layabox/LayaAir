@@ -303,7 +303,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     }
 
     private _clear() {
-        this._nodeOwner.clear();
+        this._nodeOwner.clearRenderElement();
         this._isRender = false;
     }
 
@@ -559,7 +559,7 @@ class RenderNormal implements IRender {
      * @param boneMat 用于渲染的骨骼矩阵。
      */
     render(curTime: number, boneMat: Float32Array) {
-        this._renderNode.clear();
+        this._renderNode.clearRenderElement();
         this._renderer.draw(this._skeleton, this._renderNode, -1, -1);
         this._renderNode.owner._struct.renderElements = this._renderNode._renderElements;
     }
