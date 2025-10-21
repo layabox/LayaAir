@@ -204,7 +204,6 @@ export class SpineTemplet extends Resource {
         this.hasPhysics = this.skeletonData.physicsConstraints && this.skeletonData.physicsConstraints.length > 0;
         //需要无物理环境
         this.sketonOptimise.canCache = this.sketonOptimise.canCache && !this.hasPhysics;
-        this.sketonOptimise.checkMainAttach(this.skeletonData);
 
         let skeleton = this.sketonOptimise.sketon;
         let rootBone = skeleton.getRootBone();
@@ -212,8 +211,11 @@ export class SpineTemplet extends Resource {
         // this.offsetY = rootBone.y;
         this.offsetX = (this.skeletonData.x || 0) + this.width + rootBone.x;
         this.offsetY = -((this.skeletonData.y || 0) + this.height - rootBone.y);
-        rootBone.x = this.offsetX;
-        rootBone.y = this.offsetY;
+
+        this.sketonOptimise.checkMainAttach(this.skeletonData);
+
+        // rootBone.x = this.offsetX;
+        // rootBone.y = this.offsetY;
     }
 
     /**
