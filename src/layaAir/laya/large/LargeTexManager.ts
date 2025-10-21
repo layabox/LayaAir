@@ -217,6 +217,11 @@ export class LargeTexBase {
      * */
     sRGB: boolean = false;
     /** 
+     * @en The gamma correction value of the texture. If set to 1.0, texture sampling will be linear without any correction.
+     * @zh 纹理的伽马校正值。如果设置为1.0，则纹理采样将为线性，不进行任何校正。
+     */
+    gammaCorrection: number = 1.0;
+    /** 
      * @en Whether to check duplicates
      * @zh 是否查重
      * */
@@ -815,15 +820,16 @@ export class LargeTexBase {
      * @param largeTextureIndex 大纹理编号
      * @param sRGB 大图是否sRGB格式
      */
-    createLargeTex(largeTextureIndex: number, sRGB?: boolean) {
+    createLargeTex(largeTextureIndex: number, sRGB?: boolean, gammaCorrection?: number) {
         const mipMap = this.mipMap;
         const texMode = this.texMode;
         const anisoLevel = this.texAnisoLevel;
         sRGB = sRGB ? sRGB : this.sRGB;
-
+        gammaCorrection = gammaCorrection ? gammaCorrection : this.gammaCorrection;
+        
         if (largeTextureIndex >= 0 && largeTextureIndex < this.LARGE_TEX_N) {
             if (!this.largeTexs[largeTextureIndex]) {
-                const lt = new LargeTex(this.LARGE_TEX_W, this.LARGE_TEX_H, this.texFormat, null, mipMap, 4, sRGB);
+                const lt = new LargeTex(this.LARGE_TEX_W, this.LARGE_TEX_H, this.texFormat, null, mipMap, 4, sRGB , this.gammaCorrection);
                 lt.lock = true;
                 lt.filterMode = texMode;
                 lt.anisoLevel = anisoLevel;

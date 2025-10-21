@@ -99,6 +99,9 @@ export class Texture extends Resource {
      * 如果是图集中的小图，记录了图集的引用
      */
     _atlas: AtlasResource;
+    
+    /** @internal 动态图集的信息 */
+    _dynamic: {referenceCount: number} = null;
 
     /**
      * @internal 

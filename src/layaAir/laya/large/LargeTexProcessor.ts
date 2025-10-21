@@ -42,6 +42,14 @@ export class TextureProcessorAdapter implements ITextureProcessor {
         return bitmap.width < AutoTextureConfig.limitDynamicAtlasSize && 
                bitmap.height < AutoTextureConfig.limitDynamicAtlasSize;
     }
+
+    onUpdate(): void {
+        this._dynamicAtlas?.onUpdate();
+    }
+
+    cleanupUnused(): void {
+        this._dynamicAtlas?.cleanupUnusedTextures();
+    }
 }
 
 
@@ -60,6 +68,10 @@ export class LargeTexProcessor {
 
     static removeMgr(mgr: LargeTexManager) {
         this._instance.removeManager(mgr);
+    }
+
+    static cleanupUnused(): void {
+        this._instance._textureProcessor.cleanupUnused();
     }
 
     /**
@@ -100,6 +112,7 @@ export class LargeTexProcessor {
     update(force: boolean = false) {
         if (!force && Laya.stage.getTimeFromFrameStart() > 100) return;
 
+        // this.textureProcessor.onUpdate();
         const ary = this.mgrs;
         let n = ary.length;
         for (let i = 0; i < n; i++) {

@@ -169,7 +169,8 @@ export class CharRender_Canvas {
             for(let i=0; i<pix; i++){
                 let pos = i*4;
                 let k = dt[pos+3]/255;
-                if(k>0){
+                if(k>0&&k<1){
+                    k = Math.pow(k, 2.2);   //gamma空间，这样文字贴图的sRGB可以为false，能与图片的纹理数组合并
                     dt[pos]=dt[pos]*k;
                     dt[pos+1]=dt[pos+1]*k;
                     dt[pos+2]=dt[pos+2]*k;

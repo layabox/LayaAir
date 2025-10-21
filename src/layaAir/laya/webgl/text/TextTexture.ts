@@ -48,7 +48,7 @@ export class TextTexture extends Texture2D {
         if(Config.useTextureArray && TextRenderConfig.useTextureArray){
             // 尝试从数组纹理池分配一层并注册映射，使本 TextTexture 被绘制时自动替换为 Texture2DArray+layer
             //const alloc = TextureArrayRegistry2D.allocateLayerAsTexture(textureW, textureH, TextureFormat.R8G8B8A8, 64, /*sRGB*/ true);
-            const alloc = TextureArrayRegistry2D.allocateLayerAsTexture(textureW, textureH, TextureFormat.R8G8B8A8, 64, /*sRGB*/ false);
+            const alloc = TextureArrayRegistry2D.allocateLayerAsTexture(textureW, textureH, TextureFormat.R8G8B8A8, 16, /*sRGB*/ false);
             if (alloc) {
                 // 以当前 TextTexture 为 key 进行注册（基于 id），这样由它派生的子纹理也会命中映射
                 TextureArrayRegistry2D.register(this, alloc.array, alloc.layer);

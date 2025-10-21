@@ -92,6 +92,9 @@ export class GraphicsRenderData {
 
       this.texturesMap.forEach(res => {
          res.off(Event.CHANGE, this, this._resourceRepaint);
+         if (res._dynamic) {
+            res._dynamic.referenceCount--;
+         }
       });
       this.texturesMap.clear();
 
@@ -254,10 +257,11 @@ export class GraphicsRenderData {
          if (!old) {
             res.on(Event.CHANGE, this, this._resourceRepaint);
             this.texturesMap.set(res.id, res);
-            if (
-               runner._textureProcessor.shouldAddToDynamicAtlas(res)
-            ) {
+            if (runner._textureProcessor.shouldAddToDynamicAtlas(res)) {
                runner._textureProcessor.addTexture(res);
+            }
+            if (res._dynamic) {
+               res._dynamic.referenceCount ++;
             }
          }
       }
