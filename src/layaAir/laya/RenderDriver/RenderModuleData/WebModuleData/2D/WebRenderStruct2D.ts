@@ -218,15 +218,24 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
    public set globalRenderData(value: WebGlobalRenderData) {
-      if (value) {
-         this._globalShaderData = value.globalShaderData;
-      } else {
-         this._globalShaderData = null;
-      }
       this._globalRenderData = value;
+      this._updateGlobalShaderData();
       this.updateChildren(ChildrenUpdateType.Global);
    }
    
+   private _updateGlobalShaderData(){
+      let renderData = this.globalRenderData;
+      if (renderData) {
+         this._globalShaderData = renderData.globalShaderData;
+      }else{
+         this._globalShaderData = null;
+      }
+
+      if (this._subStruct) {
+         this._subStruct._updateGlobalShaderData();
+      }
+   }
+
    /** @internal */
    _pass: WebRender2DPass;
    /** @internal */
@@ -286,15 +295,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
                updateFlag |= ChildrenUpdateType.Alpha;
             }
 
-            if (!this._globalRenderData) {
-               
-               value._globalShaderData = this._globalShaderData;
-
-               if (parentData.globalRenderData) {
-                  updateFlag |= ChildrenUpdateType.Global;
-               }
-
-               this._globalShaderData = null;
+            if (!this._globalRenderData && parentData.globalRenderData) {
+               updateFlag |= ChildrenUpdateType.Global;
             }
 
             //自己没有裁剪，有父裁剪
@@ -324,14 +326,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
                updateFlag |= ChildrenUpdateType.Clip;
             }
             
-            if (!this._globalRenderData) {
-
-               if(parentData.globalRenderData) {
-                  updateFlag |= ChildrenUpdateType.Global;
-               }
-
-               this._globalShaderData = this._subStruct._globalShaderData;
-               this._subStruct._globalShaderData = null;
+            if (!this._globalRenderData && parentData.globalRenderData) {
+               updateFlag |= ChildrenUpdateType.Global;
             }
 
             if (this._blendMode !== BlendMode.invalid || parentData.blendMode !== BlendMode.invalid) {
@@ -342,6 +338,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
             this._currentData = parentData;
          }
 
+         this._updateGlobalShaderData();
          this.updateChildren(updateFlag);
          this._subStruct = value;
          this._setBlendMode();
@@ -523,6 +520,9 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       if (type & ChildrenUpdateType.Clip) {
          info = this.getClipInfo();
          this.needUploadClip = -1;
+         if (this._subStruct) {
+            this._subStruct.needUploadClip = -1;
+         }
          updateClip = true;
       }
 
@@ -587,7 +587,6 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
          if (updatePass) {
             childParentData.pass = pass;
-
             if (child._pass && child._pass !== pass) {
                child._pass.priority = priority;
             }
@@ -597,9 +596,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
          if (updateGlobal) {
             childParentData.globalRenderData = globalRenderData;
-
+            child._updateGlobalShaderData();
             if (!child._globalRenderData) {
-               child._globalShaderData = globalShaderData;
                updateChild = true;
             }
          }
@@ -645,6 +643,9 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       childParentData.pass = parentPass;
       child._updatePriority();
       childParentData.globalRenderData = this.globalRenderData;
+      if (!child._globalRenderData) {
+         child._globalShaderData = this._globalShaderData;
+      }
       childParentData.enableCulling = this.inheritedEnableCulling;
       childParentData.dcOptimize = this.inheritedDcOptimize;
       //效率
@@ -678,6 +679,9 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          childParentData.blendMode = BlendMode.invalid;
          child._updateGlobalAlpha(child._alpha);
          childParentData.globalRenderData = null;
+         if (!child._globalRenderData) {
+            child._globalShaderData = null;
+         }
          childParentData.enableCulling = false;
          childParentData.dcOptimize = false;
 
