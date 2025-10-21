@@ -643,9 +643,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       childParentData.pass = parentPass;
       child._updatePriority();
       childParentData.globalRenderData = this.globalRenderData;
-      if (!child._globalRenderData) {
-         child._globalShaderData = this._globalShaderData;
-      }
+      child._updateGlobalShaderData();
       childParentData.enableCulling = this.inheritedEnableCulling;
       childParentData.dcOptimize = this.inheritedDcOptimize;
       //效率
@@ -679,9 +677,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          childParentData.blendMode = BlendMode.invalid;
          child._updateGlobalAlpha(child._alpha);
          childParentData.globalRenderData = null;
-         if (!child._globalRenderData) {
-            child._globalShaderData = null;
-         }
+         child._updateGlobalShaderData();
          childParentData.enableCulling = false;
          childParentData.dcOptimize = false;
 
