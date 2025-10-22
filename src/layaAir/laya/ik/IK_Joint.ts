@@ -116,7 +116,7 @@ export class IK_Joint {
         //TODO 如果自己的parent有约束，则更新自己的朝向
         let parJoint = this.parent;
         if(!parJoint)
-            return;
+            return false;
 
         // 获取父关节到当前关节的方向
         let parDir = new Vector3();

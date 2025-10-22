@@ -215,6 +215,7 @@ export class IK_Comp extends Script {
                     let constraint:IK_ConstraintInstance=null;
                     let d2r = Math.PI/180;
                     switch(cdata.type){
+                        //@ts-ignore
                         case 'hinge':
                             //let c = new IK_Constraint_Hinge(cdata.xmin*d2r,cdata.xmax*d2r);
                             //constraint = new IK_ConstraintInstance(c,getSpaceByDir(cdata.bone,cdata.axis));
