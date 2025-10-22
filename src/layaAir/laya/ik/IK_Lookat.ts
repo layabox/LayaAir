@@ -37,6 +37,7 @@ export class IK_Lookat extends IK_ChainBase {
                 console.warn('无法确定lookat的ik链的顺序')
             }
         }
+        this.joints = new Array(0);
         if(root2end){
             //this.joints = joints;
             for(let i=0,n=joints.length;i<n;i++){
@@ -44,7 +45,6 @@ export class IK_Lookat extends IK_ChainBase {
                 this.addJoint(joints[i])
             }
         }else{
-            this.joints = new Array(0);
             for(let i=joints.length-1;i>=0;i--){
                 //不直接赋值是需要计算长度等
                 this.addJoint(joints[i])

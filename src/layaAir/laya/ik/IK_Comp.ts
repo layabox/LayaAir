@@ -267,12 +267,16 @@ export class IK_Comp extends Script {
                     if(data.target)
                         this._ik_sys.setTarget(c, new IK_Target( data.target));
                 }else if(data.type=='lookat'){
-                    let lookat = this._ik_sys.chreateLookatByEndSprite(this,data.end,data.lookJointCount);
-                    lookat.enable=data.enable;
-                    //lookat.alignWithTarget = data.alignWithTarget;
-                    this._ik_sys.lookats.push(lookat);
-                    if(data.target){
-                        lookat.target = new IK_Target(data.target);
+                    if(data.lookJointCount){
+                        let lookat = this._ik_sys.chreateLookatByEndSprite(this,data.end,data.lookJointCount);
+                        if(lookat){
+                            lookat.enable=data.enable;
+                            //lookat.alignWithTarget = data.alignWithTarget;
+                            this._ik_sys.lookats.push(lookat);
+                            if(data.target){
+                                lookat.target = new IK_Target(data.target);
+                            }
+                        }
                     }
                 }
             })
