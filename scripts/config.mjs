@@ -428,4 +428,10 @@ export const allBundles = [{
         'platforms/minigame/**/*.*',
         'platforms/xiaomi/**/*.*'
     ],
+},
+{
+    name: 'ik',
+    input: [
+        'laya/ik/**/*.ts'
+    ]
 }];
