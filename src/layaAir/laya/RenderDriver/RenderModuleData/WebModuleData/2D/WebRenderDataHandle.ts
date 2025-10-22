@@ -113,9 +113,15 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                 //更新位置
                 if (this.mask && this.mask.trans) {
                     let maskMatrix = this.mask.renderMatrix;
+                    let offset = this._owner.pass.offsetMatrix;
+                    //offsetMatrix 是包含mask 的local scale rotate的逆矩阵. 只保留到对应父节点变换矩阵
+                    let a = offset.a * maskMatrix.a + offset.c * maskMatrix.b;
+                    let b = offset.b * maskMatrix.a + offset.d * maskMatrix.b;
+                    let c = offset.a * maskMatrix.c + offset.c * maskMatrix.d;
+                    let d = offset.b * maskMatrix.c + offset.d * maskMatrix.d;
                     //处理掉缩放
-                    this._nMatrix_0.setValue(maskMatrix.a, maskMatrix.c, maskMatrix.tx);
-                    this._nMatrix_1.setValue(maskMatrix.b, maskMatrix.d, maskMatrix.ty);
+                    this._nMatrix_0.setValue(a, c, maskMatrix.tx);
+                    this._nMatrix_1.setValue(b, d, maskMatrix.ty);
                 }
                 else {
                     this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
