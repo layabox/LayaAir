@@ -215,7 +215,10 @@ export class PostProcess {
                 runIndex++;
             }
         }
-        context.command.blitScreenTriangle(context.indirectTarget, cameraTarget);
+
+        if (context.indirectTarget !== cameraTarget) {
+            context.command.blitScreenTriangle(context.indirectTarget, cameraTarget);
+        }
         this._compositeShaderData.addDefine(PostProcess.SHADERDEFINE_FINALPASS);
 
         if (camera._offScreenRenderTexture) {
