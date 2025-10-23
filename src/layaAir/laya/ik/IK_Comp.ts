@@ -5,6 +5,7 @@ import { PixelLineSprite3D } from "../d3/core/pixelLine/PixelLineSprite3D";
 import { Sprite3D } from "../d3/core/Sprite3D";
 import { Matrix4x4 } from "../maths/Matrix4x4";
 import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
+import { BoneConstraints } from "./BoneConstraints";
 import { IK_Chain } from "./IK_Chain";
 import { IK_ChainData } from "./IK_ChainData";
 import { IK_Constraint1, IK_ConstraintInstance } from "./IK_Constraint1";
@@ -68,7 +69,7 @@ export class IK_Comp extends Script {
     }
 
     private _constraintDatas:IK_ConstraintData[]
-    @property({type:[IK_ConstraintData],onChange:'onConstraintDataChange'})
+    //@property({type:[IK_ConstraintData],onChange:'onConstraintDataChange'})
     set constraints(cs:IK_ConstraintData[]){
         this._constraintDatas=cs;
         this._needRebuild=true;
@@ -77,8 +78,10 @@ export class IK_Comp extends Script {
         return this._constraintDatas;
     }
 
-    onConstraintDataChange(){
-        this._needRebuild=true;
+    onConstraintDataChange(idx:number){
+        let constraintComp = this.owner.getComponent(BoneConstraints);
+        this.constraints = constraintComp.constraints;
+        //this._needRebuild=true;
     }
 
     @property({type:Boolean,catalog:'debug'})
@@ -148,11 +151,6 @@ export class IK_Comp extends Script {
         this._needRebuild = true;
     }
 
-    onConstraintDataChange(data:IK_ConstraintData,key:string,value:any,oldvalue:any){
-        data.comp = this;
-        this._needRebuild=true;
-    }
-
     onChainDataChange(data:IK_ChainData,key:string,value:any,oldvalue:any){
         data.comp = this;
         if(false && key=='enable'){
@@ -196,10 +194,16 @@ export class IK_Comp extends Script {
 
     onAwake(): void {
         super.onAwake();
+        let constraintComp = this.owner.getComponent(BoneConstraints);
+        if(constraintComp){
+            this.constraints = constraintComp.constraints;
+            this.owner.on(BoneConstraints.DATACHANGE,this,this.onConstraintDataChange);
+        }
     }
 
     onDestroy(): void {
         super.onDestroy();
+        this.owner.off(BoneConstraints.DATACHANGE,this,this.onConstraintDataChange);
     }
 
     onUpdate() {
