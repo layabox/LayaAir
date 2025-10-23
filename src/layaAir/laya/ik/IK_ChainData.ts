@@ -12,9 +12,7 @@ export class IK_ChainData{
     private _PoleTarget:Sprite3D;
     private _end:Sprite3D;
     private _chainLength=2
-    private _lookChainLength=0;
-    //lookat是否有偏移对象，即有两个joint
-    private _lookAtOff=false;
+    private _lookChainLength=1;
     private _enable=true;
     private _type='position';
     private _alignWithTarget = false;
@@ -82,7 +80,7 @@ export class IK_ChainData{
         return this._chainLength;
     }
 
-    @property({type:"int",hidden:"data.type=='position'",min:1,max:5})
+    @property({type:"int",hidden:"data.type=='position'",min:1,max:5,default:1})
     set lookJointCount(v:number){
         this.comp && this.comp.onChainDataChange(this,'lookJointCount',v,this._lookChainLength);
         this._lookChainLength = v;
@@ -90,15 +88,6 @@ export class IK_ChainData{
     get lookJointCount(){
         return this._lookChainLength;
     }    
-
-    // @property({type:Boolean,hidden:"data.type=='position'"})
-    // set lookAtOff(v:boolean){
-    //     this.comp && this.comp.onChainDataChange(this,'lookAtOff',v,this._lookAtOff);
-    //     this._lookAtOff = v;
-    // }
-    // get lookAtOff(){
-    //     return this._lookAtOff;
-    // }
 
     @property({type:Number,caption:"混合权重"})
     set blendWeight(v:number){
