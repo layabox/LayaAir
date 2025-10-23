@@ -194,7 +194,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
         this._clearShaderInstance();
 
         let comDef = this._getShaderInstanceDefines(context);
-
+        let _tempComdefLength = comDef._length;
         var passes: ShaderPass[] = this.subShader._passes;
         for (var j: number = 0, m: number = passes.length; j < m; j++) {
             let pass = passes[j];
@@ -215,6 +215,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
             var shaderIns = pass.withCompile(comDef) as WebGLShaderInstance;
 
             this._addShaderInstance(shaderIns);
+            comDef._length = _tempComdefLength;
         }
     }
 
