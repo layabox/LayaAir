@@ -68,7 +68,7 @@ export class IK_Comp extends Script {
     }
 
     private _constraintDatas:IK_ConstraintData[]
-    @property({type:[IK_ConstraintData]})
+    @property({type:[IK_ConstraintData],onChange:'onConstraintDataChange'})
     set constraints(cs:IK_ConstraintData[]){
         this._constraintDatas=cs;
         this._needRebuild=true;
@@ -77,7 +77,11 @@ export class IK_Comp extends Script {
         return this._constraintDatas;
     }
 
-    @property({type:Boolean})
+    onConstraintDataChange(){
+        this._needRebuild=true;
+    }
+
+    @property({type:Boolean,catalog:'debug'})
     set showGizmos(v:boolean){
         this._showDbg=v;
         if(this._ik_sys){
@@ -204,7 +208,6 @@ export class IK_Comp extends Script {
             this._constraintsMap.clear();
             if(this._constraintDatas){
                 this._constraintDatas.forEach(cdata=>{
-                    cdata.comp = this;
                     // if(!cdata.enable)
                     //     return;
                     if(!cdata.bone)

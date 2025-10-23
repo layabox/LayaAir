@@ -6,11 +6,6 @@ import { Vector3 } from "../maths/Vector3";
 import { IK_ConstraintInstance } from "./IK_Constraint1";
 import { ILinerender } from "./LineRender";
 
-var invQuat = new Quaternion();
-let Z = new Vector3(0,0,1);
-let X = new Vector3(1,0,0);
-let Y = new Vector3(0,1,0);
-
 // 实现基本关节类
 export class IK_Joint {
     // 内部存储使用四元数
@@ -123,7 +118,6 @@ export class IK_Joint {
         this.position.vsub(this.parent.position, parDir);
         parDir.normalize();
 
-        console.log('type=',this.type)
         // 根据关节类型和约束选择扰动策略
         if(this.type === 'revolute'){
             // 旋转关节：随机选择一个垂直于父方向的轴进行小角度旋转
