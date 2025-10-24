@@ -1,4 +1,5 @@
 import { LayaGL } from "../../layagl/LayaGL";
+import { Matrix } from "../../maths/Matrix";
 import { Rectangle } from "../../maths/Rectangle";
 import { Vector4 } from "../../maths/Vector4";
 import { IPrimitiveRenderElement2D, IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
@@ -17,6 +18,7 @@ import { RenderTexture2D } from "../../resource/RenderTexture2D";
 import { Texture } from "../../resource/Texture";
 import { IPool, Pool } from "../../utils/Pool";
 import { FastSinglelist } from "../../utils/SingletonList";
+import { Utils } from "../../utils/Utils";
 import { BlendMode, BlendModeHandler } from "../../webgl/canvas/BlendMode";
 import { Shader2D } from "../../webgl/shader/d2/Shader2D";
 import { GraphicsShaderInfo } from "../../webgl/shader/d2/value/GraphicsShaderInfo";
@@ -254,6 +256,7 @@ export class SubStructRender {
    /** @internal 渲染区域 */
    _rtRect: Rectangle = new Rectangle();
    _oriRect: Rectangle = new Rectangle();
+   _logicMatrix: Matrix;
 
    private _needUpdateVertexSize: boolean = true;
 
@@ -311,22 +314,54 @@ export class SubStructRender {
 
       let originPass = this._subRenderPass;
       let matrix = originPass.offsetMatrix;
-      if (this._sprite.mask) {
-         let mask = this._sprite.mask;
-         let transform = mask.transform;
-         if (transform) {
-            transform.cloneTo(matrix)
-            matrix.invert();
-         }else
-            matrix.identity();
-      } else {
+
+      let sprite = this._sprite;
+      //rect 为 mask 逻辑父节点世界坐标系下
+      if (sprite.mask) {
+         this._updateLogicMatrix(sprite.mask, sprite.globalTrans.getMatrix(), rect.x, rect.y, matrix);
+      }
+      else if(sprite._maskParent && sprite.transform){
+         this._updateLogicMatrix(sprite, sprite.globalTrans.getMatrix(), rect.x, rect.y, matrix);
+      }
+      else {
+         this._handle.logicMatrix = null;
          matrix.identity();
+         matrix.tx = rect.x;
+         matrix.ty = rect.y;
       }
 
-      matrix.tx = matrix.a * rect.x + matrix.c * rect.y + matrix.tx;
-      matrix.ty = matrix.b * rect.x + matrix.d * rect.y + matrix.ty;
+      // matrix.tx = matrix.a * rect.x + matrix.c * rect.y + matrix.tx;
+      // matrix.ty = matrix.b * rect.x + matrix.d * rect.y + matrix.ty;
       matrix.scale(1 / scaleX, 1 / scaleY);
       originPass.offsetMatrix = matrix;
+   }
+
+   private _updateLogicMatrix(sprite: Sprite , global: Matrix, offsetX: number, offsetY: number, out: Matrix ) {
+      if (!this._logicMatrix) {
+         this._logicMatrix = new Matrix;
+      }
+
+      let logicMatrix = this._logicMatrix;
+      let spriteGlobal = sprite.globalTrans.getMatrix();
+      let parent = sprite.parent ? sprite.parent : sprite._maskParent;
+      let parentGlobal = parent.globalTrans.getMatrix();
+      parentGlobal.copyTo(logicMatrix);
+
+      let x = sprite.x - sprite._pivotX;
+      let y = sprite.y - sprite._pivotY;
+      logicMatrix.tx = x * parentGlobal.a + y * parentGlobal.c + parentGlobal.tx;
+      logicMatrix.ty = x * parentGlobal.b + y * parentGlobal.d + parentGlobal.ty;
+      
+      logicMatrix.copyTo(out);
+      Matrix.mul(logicMatrix , global.copyTo(Matrix.TEMP).invert(), logicMatrix);
+      this._handle.logicMatrix = this._logicMatrix;
+
+      //逻辑父节点localMatrix
+      out.tx = offsetX * out.a + offsetY * out.c + out.tx;
+      out.ty = offsetX * out.b + offsetY * out.d + out.ty;
+      //用于补充
+      Matrix.mul(spriteGlobal, out.invert(), out);
+      out.invert();
    }
 
    /**

@@ -2023,7 +2023,12 @@ export class Sprite extends Node {
             this.parentRepaint();
 
             if (this._renderType & SpriteConst.DRAW2RT) {
-                if (!this._drawOriRT || this._subpassUpdateFlag || flag & RepaintFlag.UpdateRT) {
+                if (
+                    !this._drawOriRT 
+                    || this._subpassUpdateFlag 
+                    || flag & RepaintFlag.UpdateRT
+                    || (this.transform && this._maskParent)
+                ) {
                     this.setSubpassFlag(SubPassFlag.RenderTexture);
                 }
             } 
@@ -2278,15 +2283,17 @@ export class Sprite extends Node {
 
         if (this._mask) {
             SpriteUtils.getRect(this._mask, false, rect);
-            rect.x += this._mask._pivotX;
-            rect.y += this._mask._pivotY;
-            //local
             if (this._mask.transform) {
                 rect.transform(this._mask.transform, rect);
             }
+            rect.x += this._mask._pivotX;
+            rect.y += this._mask._pivotY;
         }
         else {
             SpriteUtils.getRect(this, false, rect);
+            if (this._maskParent && this.transform) {
+                rect.transform(this.transform, rect);
+            }
             rect.x += this._pivotX;
             rect.y += this._pivotY;
         }

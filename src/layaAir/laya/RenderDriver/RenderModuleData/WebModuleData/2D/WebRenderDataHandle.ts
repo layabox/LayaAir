@@ -1,7 +1,9 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { Color } from "../../../../maths/Color";
+import { Matrix } from "../../../../maths/Matrix";
 import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
+import { Vector4 } from "../../../../maths/Vector4";
 import { BaseRenderNode2D } from "../../../../NodeRender2D/BaseRenderNode2D";
 import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
@@ -76,7 +78,7 @@ export class WebGraphics2DVertexBlock implements IGraphics2DVertexBlock {
 
 
 export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2DPrimitiveDataHandle {
-
+    logicMatrix: Matrix | null = null;
     mask: WebRenderStruct2D | null = null;
 
     private _bufferBlocks: IGraphics2DBufferBlock[] = null;
@@ -111,17 +113,11 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
 
             if (!this._bufferBlocks || !this._bufferBlocks.length) {
                 //更新位置
-                if (this.mask && this.mask.trans) {
-                    let maskMatrix = this.mask.renderMatrix;
-                    let offset = this._owner.pass.offsetMatrix;
-                    //offsetMatrix 是包含mask 的local scale rotate的逆矩阵. 只保留到对应父节点变换矩阵
-                    let a = offset.a * maskMatrix.a + offset.c * maskMatrix.b;
-                    let b = offset.b * maskMatrix.a + offset.d * maskMatrix.b;
-                    let c = offset.a * maskMatrix.c + offset.c * maskMatrix.d;
-                    let d = offset.b * maskMatrix.c + offset.d * maskMatrix.d;
-                    //处理掉缩放
-                    this._nMatrix_0.setValue(a, c, maskMatrix.tx);
-                    this._nMatrix_1.setValue(b, d, maskMatrix.ty);
+                if (this.logicMatrix) {
+                    let temp = Matrix.TEMP;
+                    Matrix.mul(this.logicMatrix, mat.copyTo(temp), temp);
+                    this._nMatrix_0.setValue(temp.a, temp.c, temp.tx);
+                    this._nMatrix_1.setValue(temp.b, temp.d, temp.ty);
                 }
                 else {
                     this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);

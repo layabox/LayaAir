@@ -290,6 +290,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
             value._blendMode = this._blendMode;
             value._currentData = parentData;
+            value._maskParentPass = this._maskParentPass;
             
             if (parentData.globalAlpha !== 1) {
                updateFlag |= ChildrenUpdateType.Alpha;
@@ -335,6 +336,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
             }
 
             this._subStruct._blendMode = BlendMode.invalid;
+            this._subStruct._maskParentPass = null;
             this._currentData = parentData;
          }
          
