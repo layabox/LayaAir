@@ -4,7 +4,6 @@ import { Vector3 } from "../maths/Vector3";
 import { IK_ChainBase } from "./IK_ChainBase";
 import { IK_Comp } from "./IK_Comp";
 import { IK_Joint } from "./IK_Joint";
-import { IK_Target } from "./IK_Pose1";
 import { quaternionFromTo } from "./IK_Utils";
 import { ILinerender } from "./LineRender";
 

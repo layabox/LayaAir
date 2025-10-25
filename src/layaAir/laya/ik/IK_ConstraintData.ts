@@ -1,5 +1,3 @@
-import { prototype } from "events";
-import { IK_Comp } from "./IK_Comp";
 import { property, regClass } from "../../Decorators";
 import { Sprite3D } from "../d3/core/Sprite3D";
 

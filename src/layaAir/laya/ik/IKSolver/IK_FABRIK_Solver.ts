@@ -25,10 +25,9 @@ export class IK_FABRIK_Solver implements IK_ISolver {
     }
     dampingFactor: number;
 
-    solve(chain: IK_Chain, target: IK_Target) {
+    solve(chain: IK_Chain, targetPos: Vector3, endOffline:boolean) {
         const joints = chain.joints;
         const totalLength = chain.totalLength;
-        const targetPos = target.pos;
         const basePos = joints[0].position.clone();
 
         targetPos.vsub(basePos, dPos);

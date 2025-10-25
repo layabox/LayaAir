@@ -29,8 +29,7 @@ export class IK_Comp extends Script {
     private _visualSp:PixelLineSprite3D=null
     private _visualInPlay=true;
     private _chainDatas:IK_ChainData[]=[];
-
-    @property({type:[IK_ChainData]})
+    @property({type:[IK_ChainData],onChange:"onChainDataChange"})
     set chainDatas(v:IK_ChainData[]){
         this._chainDatas = v;
         this._needRebuild = true;
@@ -152,21 +151,7 @@ export class IK_Comp extends Script {
     }
 
     onChainDataChange(data:IK_ChainData,key:string,value:any,oldvalue:any){
-        data.comp = this;
-        if(false && key=='enable'){
-            let chains = this._ik_sys.chains;
-            let chaindata = this.chainDatas;
-            
-            let id = chaindata.indexOf(data);
-            if(id>=0){
-                console.log(value)
-                if(chains[id]){
-                    chains[id].enable=value;
-                }
-            }
-        }else{
-            this._needRebuild=true;
-        }
+        this._needRebuild=true;
     }
 
     setTarget(name: string|IK_Chain, target: IK_Target) {
@@ -257,7 +242,6 @@ export class IK_Comp extends Script {
             //创建chain
             this._ik_sys.clear();
             this.chainDatas.forEach(data=>{
-                data.comp = this;
                 if (!data.jointCount || !data.end || !data.enable )
                     return;
                 let name = data.name;
@@ -273,6 +257,12 @@ export class IK_Comp extends Script {
                     this._ik_sys.addChain(c);
                     if(data.target)
                         this._ik_sys.setTarget(c, new IK_Target( data.target));
+                    if(data.fixedEnd){
+                        c.endFixed=true;
+                    }
+                    if(data.alignTarget && data.alignTarget!='no'){
+                        c.endAlign=data.alignTarget;
+                    }
                 }else if(data.type=='lookat'){
                     if(data.lookJointCount){
                         let lookat = this._ik_sys.chreateLookatByEndSprite(this,data.end,data.lookJointCount);
