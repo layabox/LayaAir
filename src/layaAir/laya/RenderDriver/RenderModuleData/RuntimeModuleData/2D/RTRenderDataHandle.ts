@@ -132,8 +132,13 @@ export class RTPrimitiveDataHandle extends RTRender2DDataHandle implements I2DPr
         return this._logicMatrix;
     }
     set logicMatrix(value: Matrix | null) {
-        this._logicMatrix = value;
-        this._nativeObj.setLogicMatrix(value);
+        if(value){
+            if (!this._logicMatrix) {
+                this._logicMatrix = new Matrix();
+            }
+            value.copyTo(this._logicMatrix);
+        }
+        this._nativeObj.setLogicMatrix(this._logicMatrix , !!value);
     }
 
     private _blocks: RTGraphics2DBufferBlock[] = null;
