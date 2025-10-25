@@ -70,12 +70,13 @@ export class SceneLoad1 {
 								let command = new ComputeCommandBuffer();
 								command.addDispatchCommand(computeShader, "main", shaderDefine, [shaderData], dispatchParams);
 
+								let plane = scene.getChildByName("Plane");
+								let render = plane.getComponent(MeshRenderer);
+								let material = new BlinnPhongMaterial();
+								render.sharedMaterial = material;
+
 								Laya.timer.frameLoop(1, this, () => {
 									command.executeCMDs();
-									let plane = scene.getChildByName("Plane");
-									let render = plane.getComponent(MeshRenderer);
-									let material = new BlinnPhongMaterial();
-									render.sharedMaterial = material;
 
 									material.albedoTexture = storageTex;
 								});
@@ -106,10 +107,11 @@ export class SceneLoad1 {
 							command.executeCMDs();
 						}
 					});
-				} 
+				}
 
-				// testTex();
+				testTex();
 				// testCull();
+
 			}));
 		});
 	}

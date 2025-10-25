@@ -37,7 +37,7 @@ async function start() {
     } else {
         await import("./importWebGL")
     }
-    new Main(false, false, Sprite_LargeTexManager_Simple);
+    new Main(false, false, SceneLoad1);
     //TextureDemo
     // SceneLoad1
     // RealTimeShadow

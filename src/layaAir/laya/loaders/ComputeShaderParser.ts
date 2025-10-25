@@ -65,8 +65,6 @@ export class ComputeShaderParser {
                         newUniformMap[k].format = format;
                     }
                     else if (dataType == ShaderDataType.DeviceBuffer) {
-                        let format = entry.format ? entry.format : "float";
-                        newUniformMap[k].format = format;
                     }
                 }
             });
