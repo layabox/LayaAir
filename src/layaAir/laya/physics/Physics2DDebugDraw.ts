@@ -180,7 +180,7 @@ export class Physics2DDebugDraw {
         let vertices = new Float32Array((numSegments + 1) * 5);
         // 每个三角形3个索引，共numSegments个三角形
         let indices = new Uint16Array(numSegments * 3);
-        
+
         let pos = 0;
         // 生成圆周上的顶点
         for (let i = 0; i < numSegments; i++, pos += 5) {
@@ -195,7 +195,7 @@ export class Physics2DDebugDraw {
             vertices[pos + 3] = 0.5 + 0.5 * Math.cos(angle);
             vertices[pos + 4] = 0.5 + 0.5 * Math.sin(angle);
         }
-        
+
         // 添加圆心顶点
         vertices[pos] = center.x;
         vertices[pos + 1] = center.y;
@@ -225,6 +225,7 @@ export class Physics2DDebugDraw {
     }
 
     addMeshDebugDrawCMD(mesh2D: Mesh2D, color: Color, matrix?: Matrix) {
+        if (!mesh2D) return;
         if (!matrix) matrix = this._matrix;
         let cmd = DrawMesh2DCMD.create(mesh2D, matrix, Texture2D.whiteTexture, color, this._material);
         cmd && this._cmdDrawMeshList.push(cmd);
