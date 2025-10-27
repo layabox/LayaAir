@@ -349,7 +349,7 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
         super.inheriteRenderData(context);
         if (this._renderAlpha != this._owner.globalAlpha) {
             let a = this._owner.globalAlpha * this._baseColor.a;
-            _setRenderColor.setValue(this._baseColor.r * a, this._baseColor.g * a, this._baseColor.b * a, a);
+            _setRenderColor.setValue(this._baseColor.r, this._baseColor.g , this._baseColor.b, a);
             this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, _setRenderColor);
             this._renderAlpha = this._owner.globalAlpha;
         }
