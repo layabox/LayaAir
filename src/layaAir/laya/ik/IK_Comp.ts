@@ -248,6 +248,7 @@ export class IK_Comp extends Script {
                 if(data.type=='position'){
                     let c = this._ik_sys.chreateChainByBoneName(this,data.end, data.jointCount);
                     c.enable = data.enable;
+                    c.blendWeight = data.blendWeight;
                     c.poleTarget = data.PoleTarget?new IK_Target(data.PoleTarget):null;
                     //c.alignWithTarget = data.alignWithTarget;
                     this._ik_sys.addChain(c);
