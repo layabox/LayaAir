@@ -1,5 +1,6 @@
 import { property, regClass, runInEditor } from "../../Decorators";
 import { Script } from "../components/Script";
+import { IK_Comp } from "./IK_Comp";
 import { IK_ConstraintData } from "./IK_ConstraintData";
 
 
@@ -21,8 +22,15 @@ export class BoneConstraints extends Script {
     }
 
     onAwake(): void {
+        let ikcomp = this.owner.getComponent(IK_Comp);
+        if(!ikcomp)
+            return;
+        ikcomp.constraints = this.constraints;
     }
     onDestroy(): void {
-        
+        let ikcomp = this.owner.getComponent(IK_Comp);
+        if(!ikcomp)
+            return;
+        ikcomp.constraints = null;
     }
 }
