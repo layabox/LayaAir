@@ -790,6 +790,7 @@ export class Animator extends Component {
                             break;
                     }
                     let v44 = nodeOwner.value as Vector4;
+                    if (!v44) break;
                     v44.x = srcValue.r + crossWeight * (desValue.r - srcValue.r);
                     v44.y = srcValue.g + crossWeight * (desValue.g - srcValue.g);
                     v44.z = srcValue.b + crossWeight * (desValue.b - srcValue.b);
