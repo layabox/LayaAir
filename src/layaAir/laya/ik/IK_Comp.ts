@@ -134,12 +134,6 @@ export class IK_Comp extends Script {
     constructor() {
         super();
     }
-
-    protected _onDestroy() {
-        this.showGizmos=false;
-        this._ik_sys.showDbg=false;
-    }
-
     protected _onAdded(): void {
         let ik = this._ik_sys = new IK_System(this.owner as Sprite3D);
         ik.setRoot(this.owner as Sprite3D);
@@ -187,6 +181,8 @@ export class IK_Comp extends Script {
     }
 
     onDestroy(): void {
+        this.showGizmos=false;
+        this._ik_sys.showDbg=false;
         super.onDestroy();
         this.owner.off(BoneConstraints.DATACHANGE,this,this.onConstraintDataChange);
     }
