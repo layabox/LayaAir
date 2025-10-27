@@ -9,7 +9,7 @@ export class NativeMediaAdapter extends MediaAdapter {
     protected init() {
         this.shortAudioClass = HTMLAudioChannel;
         this.longAudioClass = HTMLAudioChannel;
-        this.videoPlayerClass = PAL.hasAPI("createVideo") ? NativeVideoPlayer : null;;
+        this.videoPlayerClass = NativeVideoPlayer;
         this.videoTextureClass = NativeVideoTexture;
     }
 }
