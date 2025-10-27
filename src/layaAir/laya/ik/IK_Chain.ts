@@ -1,5 +1,5 @@
 import { IK_Target } from "./IK_Pose1";
-import { isCollinear, quaternionFromTo } from "./IK_Utils";
+import { isCollinear, quaternionFromTo, ripMatScale } from "./IK_Utils";
 import { IK_Comp } from "./IK_Comp";
 import { IK_ISolver } from "./IK_ISolver";
 import { IK_ChainBase } from "./IK_ChainBase";
@@ -7,6 +7,7 @@ import { Vector3 } from "../maths/Vector3";
 import { Quaternion } from "../maths/Quaternion";
 import { Color } from "../maths/Color";
 import { ILinerender } from "./LineRender";
+import { Matrix4x4 } from "../maths/Matrix4x4";
 
 
 const Z = new Vector3(0, 0, 1);
@@ -24,10 +25,13 @@ export class IK_Chain extends IK_ChainBase{
     //joints: IK_Joint[];
     //先只支持单个末端执行器
     private _showDbg = false;
-    private _alignWithTarget = false;
     solver:IK_ISolver = null;
 
     poleTarget:IK_Target=null;
+    _endAlign:'no'|'y'|'all'='no';
+    private _isEndAlign=false;
+    //如果末端对齐，这个记录parent在末端空间的位置
+    private _parentInEnd:Matrix4x4 = null;
 
     constructor(name:string,mgr:IK_Comp) {
         super(mgr);
@@ -35,26 +39,6 @@ export class IK_Chain extends IK_ChainBase{
         this.joints = [];
         //debug
         (window as any).ccc=this;
-    }
-
-    //注意这个必须在构建完成之后做
-    set alignWithTarget(v:boolean){
-        let end = this.joints[this.joints.length-1];
-        let hasRender = !!end.bone._isRenderNode;
-        if(v){
-            if(!hasRender){
-                //如果end不可见，又要求朝向对齐，则认为是不可调节的固定偏移。因为不可见end的对齐没有意义，一定是希望调整上一个节点
-            }else{
-                //如果end可见，就是直接对齐end就行。
-            }
-        }else{
-
-        }
-        this._alignWithTarget = v;
-    }
-
-    get alignWithTarget(){
-        return this._alignWithTarget;
     }
 
     //所有的关节是否与目标点共线
@@ -73,7 +57,11 @@ export class IK_Chain extends IK_ChainBase{
             return false;//够不着不算共线
         
         // 检查每个中间关节是否与起点和终点共线
-        for (let i = 1; i < joints.length - 1; i++) {
+        let n=joints.length-1;
+        if(this._endAlign&&this._endAlign!=='no'){
+            n-=1;
+        }
+        for (let i = 1; i < n; i++) {
             if (!isCollinear(start, joints[i].position, end, epsilon)) {
                 return false;
             }
@@ -125,15 +113,120 @@ export class IK_Chain extends IK_ChainBase{
         return this._showDbg;
     }
 
+    set endAlign(v:'no'|'y'|'all'){
+        this._endAlign = v;
+        if(v&&v!='no'){
+            //this.endFixed=true  不能设置这个，这个会导致rotateJoint无效
+            this._isEndAlign=true;
+        }else{
+            this._isEndAlign=false;
+            this._parentInEnd = null;
+        }
+    }
+
+    get endAlign(){
+        return this._endAlign;
+    }
+
+    private _firstGetParentInEnd = true;
     override solve(){
         if(!this._target)
             return ;
         let solver = this.solver;
-        if(this._alignWithTarget){
-            //如果要对齐朝向，则要先把end对齐到target上，然后得到一个新的target，并用来控制上一级
-        }
         solver.poleTarget = this.poleTarget;
-        solver.solve(this,this._target);
+
+        let joints = this.joints;
+        let targetPos = this.target.pos.clone();
+        //如果需要对齐的处理
+        let alignQ:Quaternion=null;
+        if(this._isEndAlign){
+            if(true || this._firstGetParentInEnd){
+                //由于不知道什么时候需要重新计算，例如ide调整end朝向，程序调整，所以每次都算
+                this._firstGetParentInEnd=false;
+                let end = this.joints[this.joints.length-1];
+                //根据parent在这个空间的位置，计算parent的世界空间的位置
+                let matEnd = end.bone.transform.worldMatrix.clone();// end.worldMatrix.clone();
+                let matParent = end.parent.bone.transform.worldMatrix.clone();//end.parent.worldMatrix.clone();
+                //都是在世界空间计算，最终的target位置也是世界空间，因此要去掉缩放
+                ripMatScale(matEnd);
+                ripMatScale(matParent);
+                let invMatEnd = new Matrix4x4();
+                matEnd.invert(invMatEnd);
+                let parentInEnd = this._parentInEnd = new Matrix4x4();
+                Matrix4x4.multiply(invMatEnd,matParent, parentInEnd);
+            }
+            let target = this.target;
+            alignQ = new Quaternion();
+          
+            let parentInEnd = this._parentInEnd;
+            switch(this._endAlign){
+                case 'y':{
+                    //目标的朝向
+                    let dir = new Vector3();
+                    if(target.targetSprite){
+                        let tarMat = target.targetSprite.transform.worldMatrix.elements;
+                        dir.setValue(tarMat[4],tarMat[5],tarMat[6]);
+                    }else{
+                        target.dir.cloneTo(dir);
+                    }
+                    dir.normalize();
+
+                    //end的朝向
+                    let endMat = joints[joints.length-1].transform.worldMatrix;
+                    ripMatScale(endMat);
+                    let endY = new Vector3(endMat.elements[4],endMat.elements[5],endMat.elements[6]);
+                    let dq = new Quaternion();
+                    quaternionFromTo(endY,dir,dq);
+
+                    //调整end的姿态，得到矩阵，计算实际目标点
+                    let dmat = new Matrix4x4();
+                    Matrix4x4.createFromQuaternion(dq,dmat);
+                    let endTarget = new Matrix4x4();
+                    Matrix4x4.multiply(dmat,endMat,endTarget);
+                    //计算parent的目标朝向
+                    Quaternion.createFromMatrix4x4(endTarget,alignQ);
+
+                    //把end矩阵设置到target上，计算目标位置
+                    endTarget.elements[12]=targetPos.x;
+                    endTarget.elements[13]=targetPos.y;
+                    endTarget.elements[14]=targetPos.z;
+
+                    let parentTarget = dmat;
+                    Matrix4x4.multiply(endTarget,parentInEnd,parentTarget);
+                    let e = parentTarget.elements;
+                    targetPos.setValue(e[12],e[13],e[14]);    
+                }
+                    break;
+                case 'all':{
+                    let targetMat = new Matrix4x4();
+                    target.getPose(targetMat);
+                    ripMatScale(targetMat)
+
+                    let parentTarget = new Matrix4x4();
+                    Matrix4x4.multiply(targetMat,parentInEnd,parentTarget);
+                    //得到位置和朝向
+                    let e = parentTarget.elements;
+                    targetPos.setValue(e[12],e[13],e[14]);    
+                    ripMatScale(parentTarget)
+                    Quaternion.createFromMatrix4x4(parentTarget,alignQ);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+        solver.solve(this,targetPos,this._isEndAlign);
+
+        //根据 alignQ 更新一下末端的朝向
+        if(this._isEndAlign && alignQ){
+            //计算dq
+            let curParentQ = joints[joints.length-2].rotationQuat;
+            let invParQ = new Quaternion();
+            curParentQ.invert(invParQ)
+            let dq = new Quaternion();
+            Quaternion.multiply(alignQ,invParQ,dq);
+            this.rotateJoint(joints.length-2,dq);
+        }
         //this.ik_result.captureIKResult(this.joints);
         //this.layerMgr.set(this.ik_result)
         //return this.ik_result;

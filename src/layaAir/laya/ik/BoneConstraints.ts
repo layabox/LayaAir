@@ -1,13 +1,14 @@
+import { property, regClass, runInEditor } from "../../Decorators";
+import { Script } from "../components/Script";
 import { IK_ConstraintData } from "./IK_ConstraintData";
 
-const {regClass,Script, runInEditor,property } = Laya;
 
 @regClass() @runInEditor
 export class BoneConstraints extends Script {
     static DATACHANGE='constraint_data_change';
 
     private _constraintDatas:IK_ConstraintData[]
-    @property({type:[IK_ConstraintData]})
+    @property({type:[IK_ConstraintData],onChange:'onConstraintDataChange'})
     set constraints(cs:IK_ConstraintData[]){
         this._constraintDatas=cs;
     }
@@ -15,8 +16,11 @@ export class BoneConstraints extends Script {
         return this._constraintDatas;
     }
 
+    onConstraintDataChange(idx:number){
+        this.owner.event(BoneConstraints.DATACHANGE,idx);
+    }
+
     onAwake(): void {
-        //this.owner.on(BoneConstraints.DATACHANGE,this,()=>{console.log('datachange')});
     }
     onDestroy(): void {
         

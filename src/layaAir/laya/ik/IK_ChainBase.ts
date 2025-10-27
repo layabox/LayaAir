@@ -56,6 +56,20 @@ export class IK_ChainBase{
         return this._target;
     }
 
+    set endFixed(v:boolean){
+        let n = this.joints.length;
+        if(n>2){
+            this.joints[n-2].fixed=v;
+        }
+    }
+    get endFixed(){
+        let n = this.joints.length;
+        if(n>2){
+            return this.joints[n-2].fixed;
+        }        
+        return false;
+    }
+
     visualize(line: ILinerender) {}
 
     //不可写
@@ -234,8 +248,7 @@ export class IK_ChainBase{
 
     onLinkEnd(){
         let joints = this.joints;
-        let end = joints[joints.length-1];
-        this._end_effector = end;        
+        this._end_effector = joints[joints.length-1];
         //计算骨骼与z之间的偏移
         let quat = new Quaternion();
         for(let i=0,n=joints.length-1; i<n; i++){

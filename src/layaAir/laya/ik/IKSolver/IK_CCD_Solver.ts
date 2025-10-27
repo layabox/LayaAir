@@ -18,21 +18,25 @@ export class IK_CCDSolver implements IK_ISolver {
         this.epsilon = epsilon;
     }
 
-    solve(chain: IK_Chain, target: IK_Target) {
-        const endEffector = chain.end_effector;
+    private _targetPos=new Vector3();
+    solve(chain: IK_Chain, target:Vector3, endOffline:boolean) {
+        let targetPos = this._targetPos;
+        target.cloneTo(targetPos);
+        let joints = chain.joints;
+        let cnt = joints.length;
+        const endEffector = chain.joints[endOffline?cnt-2:cnt-1];
         let iteration = 0;
         const jointToEndEffector = new Vector3();
         const jointToTarget = new Vector3();
         let rotation = new Quaternion();
-        const targetPos = target.pos.clone();
         const basePos = chain.joints[0].position;
 
         let dist = 0;
         // 直线检测相关
         if(chain.isCollinear(targetPos) ){
             //共线了，随机动一个关节离开共线状态
-            for (let i = chain.joints.length - 2; i >= 0; i--) {
-                const joint = chain.joints[i];
+            for (let i = joints.length - 2; i >= 0; i--) {
+                const joint = joints[i];
                 if(joint.perturbJoint())
                     break;
             }
@@ -40,14 +44,18 @@ export class IK_CCDSolver implements IK_ISolver {
         let touched = false;
         while (iteration < this.maxIterations) {
             //从末端开始 -2 是因为规定最后一个是end
-            for (let i = chain.joints.length - 2; i >= 0; i--) {
-                const joint = chain.joints[i];
+            let start = joints.length-2;
+            if(endOffline) start-=1;
+            for (let i = start; i >= 0; i--) {
+                const joint = joints[i];
+                if(joint.fixed)
+                    continue;
                 endEffector.position.vsub(joint.position, jointToEndEffector);
                 if(jointToEndEffector.lengthSquared()<1e-5)
                     //endeffector和joint重合的情况
                     continue;
 
-                if ((dist = Vector3.distanceSquared(endEffector.position, target.pos)) < this.epsilon**2) {
+                if ((dist = Vector3.distanceSquared(endEffector.position, targetPos)) < this.epsilon**2) {
                     touched = true;
                     break;
                 }
@@ -55,7 +63,7 @@ export class IK_CCDSolver implements IK_ISolver {
                 jointToEndEffector.normalize();
 
                 //toTarget
-                target.pos.vsub(joint.position,jointToTarget);
+                targetPos.vsub(joint.position,jointToTarget);
                 jointToTarget.normalize();
 
                 //得到一个相对旋转，用来调整末端
@@ -78,7 +86,7 @@ export class IK_CCDSolver implements IK_ISolver {
             }
             //赋值给实际的骨骼，否则约束的时候直接取骨骼的矩阵是错误的，会导致剧烈抖动
             //chain.applyIKResult();
-            if (touched || (dist = Vector3.distanceSquared(endEffector.position, target.pos)) < this.epsilon**2) {
+            if (touched || (dist = Vector3.distanceSquared(endEffector.position, targetPos)) < this.epsilon**2) {
                 break;
             }
             iteration++;
