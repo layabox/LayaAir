@@ -156,6 +156,13 @@ export class IK_Comp extends Script {
         return this._ik_sys.chains;
     }
 
+    getChain(name:string){
+        for(let c of this.chains){
+            if(c.name==name)
+                return c;
+        }
+        return null;
+    }
 
     /**
      * 在动画开始之前，用来记录、恢复静态姿态
