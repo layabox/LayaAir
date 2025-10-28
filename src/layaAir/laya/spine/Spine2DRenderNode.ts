@@ -120,7 +120,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     protected _isMaterialVaild(value: Material): boolean {
-        return value.checkType(ShaderFeatureType.D2_BaseRednerNode2D);
+        return value.checkType(ShaderFeatureType.D2_BaseRenderNode2D);
     }
 
     protected _getcommonUniformMap(): Array<string> {
@@ -174,9 +174,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     resetExternalSkin() {
         if (this._skeleton) {
             this._skeleton = new spine.Skeleton(this._templet.skeletonData);
-            let rootBone = this._skeleton.getRootBone();
-            rootBone.x = this._templet.offsetX;
-            rootBone.y = this._templet.offsetY;
+            // let rootBone = this._skeleton.getRootBone();
+            // rootBone.x = this._templet.offsetX;
+            // rootBone.y = this._templet.offsetY;
             this.spineItem.changeSkeleton(this._skeleton);
             this._renderHandle.skeleton = this._skeleton;
             this._flushExtSkin();
@@ -437,8 +437,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (this.destroyed) return;
         if (this._templet) {
             this.clear();
-            this.reset();
-            //this.graphics.clear();
         }
 
         this._templet = templet;
@@ -447,9 +445,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
         this._templet._addReference();
         this._skeleton = new spine.Skeleton(this._templet.skeletonData);
-        let rootBone = this._skeleton.getRootBone();
-        rootBone.x = this._templet.offsetX;
-        rootBone.y = this._templet.offsetY;
+        // let rootBone = this._skeleton.getRootBone();
+        // rootBone.x = this._templet.offsetX;
+        // rootBone.y = this._templet.offsetY;
 
         this._renderHandle.skeleton = this._skeleton;
         this._stateData = new spine.AnimationStateData(this._skeleton.data);
@@ -883,8 +881,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     private onTransformChanged() {
         if (this._skeleton) {
             let matrix = this.owner.globalTrans.getMatrix();
-            this._skeleton.x = matrix.tx;
-            this._skeleton.y = matrix.ty;
+            this._skeleton.x = matrix.tx + this._templet.offsetX;
+            this._skeleton.y = matrix.ty + this._templet.offsetY;
 
             // if (this.owner.pivotX != 0 || this.owner.pivotY != 0) {
             //     this._offset.setValue(this.owner.pivotX, this.owner.pivotY);
@@ -912,11 +910,17 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @en Clear method, used to release and reset related resources.
      */
     clear(): void {
+        this.clearRenderElement();
+        this.reset();
+    }
+
+    /** @internal */
+    clearRenderElement(): void {
         this._mesh = null;
         this._renderElements.forEach(element => {
             Spine2DRenderNode.recoverRenderElement2D(element);
         });
-        super.clear();
+        this._renderElements.length = 0;
     }
 
     /**
@@ -956,7 +960,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      */
     onDestroy(): void {
         if (this._templet) {
-            this.reset();
+            this.clear();
         }
         this.spineItem.destroy();
     }

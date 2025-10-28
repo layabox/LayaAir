@@ -236,7 +236,7 @@ export class Line2DRender extends BaseRenderNode2D {
     }
 
     protected _isMaterialVaild(value: Material): boolean {
-        return value.checkType(ShaderFeatureType.DEFAULT);
+        return value.checkType(ShaderFeatureType.Default);
     }
 
     /**

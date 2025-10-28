@@ -8,6 +8,7 @@ import { I2DGlobalRenderData } from "../RenderDriver/RenderModuleData/Design/2D/
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { SpriteConst } from "./SpriteConst";
 import { Matrix } from "../maths/Matrix";
+import { LayaEnv } from "../../LayaEnv";
 
 export class Area2D extends Sprite {
     private _mainCamera: Camera2D;
@@ -30,7 +31,7 @@ export class Area2D extends Sprite {
     }
 
     _setMainCamera(camera: Camera2D) {
-        if (camera == this._mainCamera)
+        if (camera == this._mainCamera || !LayaEnv.isPlaying)
             return;
         this._mainCamera && (this._mainCamera._isMain = false);
 

@@ -11,7 +11,9 @@ import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/I
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IRenderStruct2D } from "../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
+import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
 import { CullMode } from "../../RenderEngine/RenderEnum/CullMode";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { Material } from "../../resource/Material";
 import { Pool } from "../../utils/Pool";
 import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
@@ -50,6 +52,14 @@ export class PhysicsDrawLine2DCMD extends Command2D {
         this._material = new Material();
         this._material.setShaderName("PhysicsLineShader");
         this._material.cull = CullMode.Off;
+        this._material.setBoolByIndex(Shader3D.DEPTH_WRITE, false);
+        this._material.setIntByIndex(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
+        this._material.setIntByIndex(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
+        this._material.setIntByIndex(Shader3D.BLEND_EQUATION, RenderState.BLENDEQUATION_ADD);
+        this._material.setIntByIndex(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+        this._material.setIntByIndex(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+        this._material.setFloatByIndex(ShaderDefines2D.UNIFORM_VERTALPHA, 1.0);
+        this._material.setIntByIndex(Shader3D.CULL, RenderState.CULL_NONE);
         this._drawElementData = LayaGL.render2DRenderPassFactory.createDraw2DElementCMDData();
         this._shaderData = LayaGL.renderDeviceFactory.createShaderData();
         this._shaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);

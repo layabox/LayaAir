@@ -303,7 +303,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     }
 
     private _clear() {
-        this._nodeOwner.clear();
+        this._nodeOwner.clearRenderElement();
         this._isRender = false;
     }
 
@@ -439,6 +439,8 @@ class RenderOptimize implements IRender {
     _renderNode: Spine2DRenderNode;
     /** @internal */
     _skeleton: spine.Skeleton;
+    /** @internal */
+    _templet: SpineTemplet;
     /**
      * @en The current skin renderer.
      * @zh 当前皮肤渲染器。
@@ -458,6 +460,7 @@ class RenderOptimize implements IRender {
      */
     constructor(renderNode: Spine2DRenderNode) {
         this._renderNode = renderNode;
+        this._templet = renderNode.templet;
         this.changeSkeleton(renderNode.getSkeleton());
     }
 
@@ -494,7 +497,7 @@ class RenderOptimize implements IRender {
      * @param boneMat 用于渲染的骨骼矩阵。
      */
     render(curTime: number, boneMat: Float32Array) {
-        this.currentAnimation.render(this.bones, this.slots, this.skinUpdate, curTime, boneMat, -this._skeleton.x, -this._skeleton.y);//TODO bone
+        this.currentAnimation.render(this.bones, this.slots, this.skinUpdate, curTime, boneMat, -this._skeleton.x + this._templet.offsetX, -this._skeleton.y + this._templet.offsetY);//TODO bone
         // this.material.boneMat = boneMat;
         this._renderNode._spriteShaderData.setBuffer(SpineShaderInit.BONEMAT, boneMat);
     }
@@ -559,7 +562,7 @@ class RenderNormal implements IRender {
      * @param boneMat 用于渲染的骨骼矩阵。
      */
     render(curTime: number, boneMat: Float32Array) {
-        this._renderNode.clear();
+        this._renderNode.clearRenderElement();
         this._renderer.draw(this._skeleton, this._renderNode, -1, -1);
         this._renderNode.owner._struct.renderElements = this._renderNode._renderElements;
     }

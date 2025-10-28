@@ -85,9 +85,7 @@ export class WebRender2DPass implements IRender2DPass {
 
    public set priority(value: number) {
       this._priority = value;
-      if (this._mask && this._mask.pass) {
-         this._mask.pass._priority = value + 1;
-      }
+      if (this._mask) this._mask.setMaskParentPass(this);
    }
 
    enable: boolean = true;
@@ -113,10 +111,9 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    public set mask(value: WebRenderStruct2D) {
+      if (this._mask) this._mask.setMaskParentPass(null);
       this._mask = value;
-      if (value && value.pass) {
-         value.pass.priority = this.priority + 1;
-      }
+      if (value) value.setMaskParentPass(this);
    }
 
    private _enableBatch: boolean = true;
@@ -141,9 +138,10 @@ export class WebRender2DPass implements IRender2DPass {
     * rt渲染偏移
     **/
    offsetMatrix: Matrix = new Matrix();
-
-   private _invertMat_0: Vector3 = new Vector3(1, 1);
-   private _invertMat_1: Vector3 = new Vector3(0, 0);
+   /** @internal 反向矩阵 0 */
+   _invertMat_0: Vector3 = new Vector3(1, 1);
+   /** @internal 反向矩阵 1 */
+   _invertMat_1: Vector3 = new Vector3(0, 0);
 
    shaderData: ShaderData = null;
 
@@ -158,7 +156,7 @@ export class WebRender2DPass implements IRender2DPass {
      * @returns 是否需要更新
      */
    needRender(): boolean {
-      // return true;
+      //this.repaint = true;
       return this.enable
          && !this.isSupport
          && (this.repaint || !this.renderTexture);
@@ -182,7 +180,7 @@ export class WebRender2DPass implements IRender2DPass {
 
       let globalRenderData = struct.globalRenderData;
       if (globalRenderData) {
-         if (struct._parentGlobalRenderData
+         if (struct._currentData.globalRenderData
             && (struct.renderLayer & globalRenderData.renderLayerMask) === 0) {
             return;
          }
@@ -463,7 +461,7 @@ export class WebRender2DPass implements IRender2DPass {
       let mask = this.mask;
       let offset = this.offsetMatrix;
       if (mask && mask.trans) {
-         let maskMatrix = mask.trans.matrix;
+         let maskMatrix = mask.renderMatrix;
          maskMatrix.copyTo(temp);
       } else {
          rootTrans.matrix.copyTo(temp);

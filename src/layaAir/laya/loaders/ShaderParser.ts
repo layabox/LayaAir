@@ -1,4 +1,4 @@
-import { Shader3D, IShaderObjStructor, IShaderpassStructor } from "../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, IShaderObjStructor, IShaderpassStructor, ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
 import { ParseJSON } from "../utils/ParseJSON";
 import { Color } from "../maths/Color";
 import { Matrix3x3 } from "../maths/Matrix3x3";
@@ -78,6 +78,16 @@ export class ShaderParser {
                 throw new Error(`no '${shaderBlock[1]}' tag`);
             let shaderData = source.substring(i1 + shaderBlock[0].length, i2);
             shaderObj = ParseJSON.parse(shaderData);//TODO new FIle parse(1、去掉繁琐的json格式报错，2、可以有注释)
+
+            if (typeof shaderObj.shaderType === 'string') {
+                shaderObj.shaderType = ShaderFeatureType[shaderObj.shaderType as keyof typeof ShaderFeatureType] ?? ShaderFeatureType.None;
+            } else {
+                shaderObj.shaderType = shaderObj.shaderType as ShaderFeatureType ?? ShaderFeatureType.None;
+            }
+            // D2_primitive is deprecated
+            if (shaderObj.shaderType === ShaderFeatureType.D2_primitive) {
+                shaderObj.shaderType = ShaderFeatureType.D2_TextureSV;
+            }
         } catch (err: any) {
             console.error("Shader parse error: " + err + "\n" + source.substring(0, 100) + "...");
         }

@@ -101,6 +101,12 @@ export class AttachmentParse {
     vertexBones:number = 0;
 
     /**
+     * @en The bones that affect a vertex.
+     * @zh 影响一个顶点的骨骼。
+     */
+    bones: Set<number> = new Set<number>();
+
+    /**
      * @en Initializes the attachment parser with the given parameters.
      * @param attachment The spine attachment to parse.
      * @param boneIndex The index of the bone.
@@ -136,6 +142,7 @@ export class AttachmentParse {
             //region.region.
             this.textureName = (region.region as any).page.name;
             this.vertexBones = 1;
+            this.bones.add(boneIndex);
         }
         else if (attachment instanceof spine.MeshAttachment) {
             attchmentColor = attachment.color;
@@ -154,7 +161,7 @@ export class AttachmentParse {
                 this.stride = 2;
                 this.indexArray = mesh.triangles;
                 this.uvs = mesh.uvs;
-
+                this.bones.add(boneIndex);
             }
             else {
                 if (deform && deform.length > 1) {
@@ -182,10 +189,9 @@ export class AttachmentParse {
                     let nid = 0;
 
                     for (; v < n; v++, b += 3, nid++) {
-                        result.push([vertices[b], vertices[b + 1], vertices[b + 2], bones[v]]);
-                        // if(boneMap.indexOf(bones[v]) == -1){
-                        //     boneMap.push(bones[v]);
-                        // }
+                        let boneIndex = bones[v];
+                        result.push([vertices[b], vertices[b + 1], vertices[b + 2], boneIndex]);
+                        this.bones.add(boneIndex);
                     }
 
                     if(result.length > needPoint) {

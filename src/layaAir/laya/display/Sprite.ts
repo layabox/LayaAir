@@ -217,6 +217,7 @@ export class Sprite extends Node {
     private _tfChanged: boolean;
     private _repaint: number = -1;
     private _repaintCount: number = -1;
+    private _previousType: number = 0;
     private _sizeFlag: number = 0;
     private _filterArr: Filter[];
     private _userBounds: Rectangle;
@@ -661,10 +662,7 @@ export class Sprite extends Node {
             this._blendMode = t;
             this._initShaderData();
             this._struct.blendMode = this._blendMode;
-            if (this._graphics)
-                this._graphics.repaint();
-            else
-                this.repaint();
+            this.repaint(RepaintFlag.Graphics);
         }
     }
 
@@ -836,7 +834,8 @@ export class Sprite extends Node {
             this._renderType &= ~SpriteConst.CANVAS;
         }
         this.setSubpassFlag(SubPassFlag.CacheAsBitmap);
-        this.repaint();
+
+        this.repaint(RepaintFlag.Graphics);
     }
 
     /**
@@ -1162,11 +1161,9 @@ export class Sprite extends Node {
         this._texture = value;
         if (value) {
             value._addReference();
-            this.graphics._checkDisplay();
-            this._graphics.repaint();
+            this.graphics.repaint();
         } else {
             if (this._graphics) {
-                this._graphics._checkDisplay();
                 this._graphics.repaint();
             } else {
                 this.repaint();
@@ -1211,8 +1208,7 @@ export class Sprite extends Node {
         }
 
         if (this._graphics) {
-            this._graphics._checkDisplay();
-            this.repaint();
+            this._graphics.repaint();
         }
     }
 
@@ -1624,24 +1620,27 @@ export class Sprite extends Node {
         let passSet = new Set<IRender2DPass>();
         let processor = new Render2DProcessor();
 
-        const updateSprites = function (root: Sprite): void {
-            if (root._subpassUpdateFlag) {
-                root.updateSubRenderPassState();
-                if (root._oriRenderPass) {
-                    let result = root.updateRenderTexture();
+        const updateSprites = function (sprite: Sprite): void {
+            if (!sprite._struct || !sprite._struct.enabled)
+                return;
+            if (sprite._subpassUpdateFlag) {
+                sprite.updateSubRenderPassState();
+                if (sprite._oriRenderPass) {
+                    let result = sprite.updateRenderTexture();
 
-                    let destrt: RenderTexture2D = root._drawOriRT;
+                    let destrt: RenderTexture2D = sprite._drawOriRT;
                     if (destrt) {
-                        root._oriRenderPass.renderTexture = destrt;
-                        if (root.mask) {
-                            root._oriRenderPass.mask = root.mask._struct;
-                        }
+                        sprite._oriRenderPass.renderTexture = destrt;
+                        if (sprite.mask) {
+                            sprite._oriRenderPass.mask = sprite.mask._struct;
+                        }else
+                            sprite._oriRenderPass.mask = null;
 
                         if (result) {
-                            root._oriRenderPass.renderTexture = destrt;
+                            sprite._oriRenderPass.renderTexture = destrt;
                         }
 
-                        let process = root._renderType & SpriteConst.POSTPROCESS ? root.postProcess : null;
+                        let process = sprite._renderType & SpriteConst.POSTPROCESS ? sprite.postProcess : null;
                         if (
                             process
                             && destrt != RenderTexture2D._empty
@@ -1649,7 +1648,7 @@ export class Sprite extends Node {
 
                             if (
                                 result ||
-                                (root._subpassUpdateFlag & SubPassFlag.UPDATE_POSTPROCESS)
+                                (sprite._subpassUpdateFlag & SubPassFlag.UPDATE_POSTPROCESS)
                             ) {
                                 process.setResource(destrt);
                                 process.clearCMD();
@@ -1661,29 +1660,27 @@ export class Sprite extends Node {
                             }
                         }
 
-                        root._subStructRender._updateRenderTexture(root._drawOriRT, destrt);
-                        root._subpassUpdateFlag = 0;
+                        sprite._subStructRender._updateRenderTexture(sprite._drawOriRT, destrt);
+                        sprite._subpassUpdateFlag = 0;
 
                     } else {
-                        root.setSubRenderPassState(false);
+                        sprite.setSubRenderPassState(false);
                     }
                 }
             }
 
-            if (root._struct) {
-                root._updateStruct();
-                if (root._struct.pass)
-                    passSet.add(root._struct.pass);
+            if (sprite._struct) {
+                sprite._updateStruct();
+                if (sprite._struct.pass)
+                    passSet.add(sprite._struct.pass);
             }
 
-            if (root._graphics) {
-                root._graphics._render(runner, 0, 0);
+            if (sprite._graphics) {
+                sprite._graphics._render(runner, 0, 0);
             }
 
-            for (let i = 0, len = root._children.length; i < len; i++) {
-                let child = root._children[i];
-                updateSprites(child);
-            }
+            for (let i = 0, len = sprite._children.length; i < len; i++)
+                updateSprites(sprite._children[i]);
         }
 
         updateSprites(sprite);
@@ -2012,22 +2009,34 @@ export class Sprite extends Node {
     */
     repaint(flag?: number): void {
         if (this._destroyed) return;
+
         if (
-            this._repaint < Stat.loopCount ||
-            (this._repaint === Stat.loopCount && this._repaintCount < Stat.render2DCount)
+            this._repaint < Stat.loopCount 
+            || (this._repaint === Stat.loopCount && this._repaintCount < Stat.render2DCount)
+            || !this._previousType
         ) {
             this._repaint = Stat.loopCount;
             this._repaintCount = Stat.render2DCount;
-
+            this._previousType = this._renderType;
             this._struct.setRepaint();
             this.stage._graphicUpdateList.add(this);
             this.parentRepaint();
 
             if (this._renderType & SpriteConst.DRAW2RT) {
-                if (!this._drawOriRT || this._subpassUpdateFlag || flag & RepaintFlag.UpdateRT) {
+                if (
+                    !this._drawOriRT 
+                    || this._subpassUpdateFlag 
+                    || flag & RepaintFlag.UpdateRT
+                    || (this.transform && this._maskParent)
+                ) {
                     this.setSubpassFlag(SubPassFlag.RenderTexture);
                 }
-            } else if (this._renderType & SpriteConst.GRAPHICS) {
+            } 
+            
+            if (this._renderType & SpriteConst.GRAPHICS) {
+                if (flag & RepaintFlag.Graphics) {
+                    this._graphics?.onModified();
+                }
                 this._globalTrans._notifyRenderSpriteTransChange();
             }
         }
@@ -2056,7 +2065,7 @@ export class Sprite extends Node {
      */
     _needRepaint(): boolean {
         //return (this._repaint & SpriteConst.REPAINT_CACHE) && this._cacheenableCanvasRender && this._cachereCache;
-        return !!(this._repaint >= Stat.loopCount && this._repaintCount >= LayaGL.renderEngine._framePassCount);
+        return !!(this._repaint >= Stat.loopCount && this._repaintCount >= LayaGL.renderEngine._framePassCount && this._previousType === 0);
     }
 
     /**
@@ -2274,15 +2283,17 @@ export class Sprite extends Node {
 
         if (this._mask) {
             SpriteUtils.getRect(this._mask, false, rect);
-            rect.x += this._mask._pivotX;
-            rect.y += this._mask._pivotY;
-            //local
             if (this._mask.transform) {
                 rect.transform(this._mask.transform, rect);
             }
+            rect.x += this._mask._pivotX;
+            rect.y += this._mask._pivotY;
         }
         else {
             SpriteUtils.getRect(this, false, rect);
+            if (this._maskParent && this.transform) {
+                rect.transform(this.transform, rect);
+            }
             rect.x += this._pivotX;
             rect.y += this._pivotY;
         }
@@ -2360,12 +2371,18 @@ export class Sprite extends Node {
         if (this._subStruct)
             this._subStruct.renderMatrix = matrix;
 
+        let rect = struct.rect;
         if (this._struct.inheritedEnableCulling || this._struct.inheritedDcOptimize) {
-            let rect = this.getSelfBounds(struct.rect, false);
-            rect.transform(matrix, struct.rect);
-            struct.rect = struct.rect;
+            this.getSelfBounds(rect, false);
+            rect.transform(matrix, rect);
+            struct.rect = rect;
         } else {
             struct.rect.reset();
+        }
+
+        if (this._subStruct) {
+            rect.cloneTo(this._subStruct.rect);
+            this._subStruct.rect = this._subStruct.rect;
         }
     }
 
@@ -2448,16 +2465,15 @@ export class Sprite extends Node {
                 ILaya.stage.passManager.addPass(this._oriRenderPass);
             }
             else {
-                if (this._drawOriRT) {
+                if (this._drawOriRT && this._drawOriRT !== RenderTexture2D._empty) {
                     RenderTexture2D.recoverToPool(this._drawOriRT);
-                    this._drawOriRT = null;
                 }
+                this._drawOriRT = null;
 
-                if (this._renderType & SpriteConst.POSTPROCESS) {
-                    if (this._oriRenderPass.postProcess) {
-                        this._oriRenderPass.postProcess.recoverAllRTS();
-                    }
+                if (this._oriRenderPass.postProcess) {
+                    this._oriRenderPass.postProcess.recoverAllRTS();
                 }
+                this._oriRenderPass.repaint = true;
                 ILaya.stage.passManager.removePass(this._oriRenderPass);
             }
         }

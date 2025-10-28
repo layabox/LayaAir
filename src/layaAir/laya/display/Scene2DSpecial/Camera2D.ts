@@ -127,6 +127,7 @@ export class Camera2D extends Sprite {
             value.cloneTo(this._zoom);
             // todo check
             this._struct.setRepaint();
+            this.parentRepaint();
         }
     }
     /** @internal min_x max_x min_y max_y */
@@ -283,6 +284,7 @@ export class Camera2D extends Sprite {
 
     private _onTransChanged(e: Event): void {
         this._struct.setRepaint();
+        this.parentRepaint();
     }
     
     /**
