@@ -115,13 +115,22 @@ export class IK_Comp extends Script {
         return SHOW_DBG.has(SHOW_DBG.CONSTRAINT_AXIS);
     }    
 
+    // @property({type:Boolean})
+    // get enableSolver(){
+    //     return this._ik_sys.enableSolver;
+    // }
+    // set enableSolver(b:boolean){
+    //     this._ik_sys.enableSolver=b;
+    // }
+
+    private _runInEditor=true;
     @property({type:Boolean})
-    get enableSolver(){
-        return this._ik_sys.enableSolver;
+    get RunInEditor(){
+        return this._runInEditor;
     }
-    set enableSolver(b:boolean){
-        this._ik_sys.enableSolver=b;
-    }
+    set RunInEditor(b:boolean){
+        this._runInEditor = b;
+    }    
 
     @property({type:Boolean,catalog:'debug',caption:'使用动画层'})
     set useAnimLayer(b:boolean){
@@ -168,8 +177,11 @@ export class IK_Comp extends Script {
      * 在动画开始之前，用来记录、恢复静态姿态
      */
     beforeOwnerAnim(){
-        if(!this.enableSolver)
+        //if(!this.enableSolver)
+        //    return;
+        if(!this._runInEditor && window.EditorEnv)
             return;
+
         for(let chain of this._ik_sys.chains){
             chain.resetStaticPose();
         }
@@ -195,6 +207,8 @@ export class IK_Comp extends Script {
     }
 
     onUpdate() {
+        if(window.EditorEnv && !this._runInEditor)
+            return;
         if (this._needRebuild ) {
             //创建约束
             this._constraintsMap.clear();
