@@ -196,15 +196,4 @@ export class IK_Lookat extends IK_ChainBase {
             }
         }
     }
-
-    override applyIKResult(){
-        if(!this.enable)
-            return;
-        
-        for(let joint of this.joints){
-            if(joint.fixed)continue;
-            //ik可能有位置修改，所以这里也应用pos。根的pos可能会被动画修改，这里再设置一次也没关系
-            joint.applyTransform();
-        }
-    }    
 }

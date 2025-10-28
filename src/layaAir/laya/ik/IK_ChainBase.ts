@@ -27,6 +27,7 @@ export class IK_ChainBase{
     protected _jointMgr:IK_JointManager=null;
     protected _end_effector: IK_Joint;
     totalLength=0;
+    blendWeight=1.0;
 
     constructor(mgr:IK_Comp ){
         this._jointMgr = getJointMgr(mgr.owner as Sprite3D);
@@ -242,7 +243,7 @@ export class IK_ChainBase{
         
         for(let joint of this.joints){
             //ik可能有位置修改，所以这里也应用pos。根的pos可能会被动画修改，这里再设置一次也没关系
-            joint.applyTransform();
+            joint.applyTransform(this.blendWeight);
         }
     }
 

@@ -155,15 +155,6 @@ export class IK_Lookat1 extends IK_ChainBase {
             }
         }
     }
-
-    override applyIKResult(){
-        if(!this.enable)
-            return;
-        for(let joint of this.joints){
-            if(joint.fixed)continue;
-            joint.applyTransform();
-        }
-    }
 }
 
 

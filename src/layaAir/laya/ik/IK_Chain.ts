@@ -15,6 +15,7 @@ let dpos = new Vector3();
 let drot = new Quaternion();
 let v1 = new Vector3();
 const QuatI = new Quaternion();
+var tmpMat = new Matrix4x4();
 
 /**
  * 从IK_pose1可以方便的绑定到某个骨骼上，随着动画动
@@ -76,13 +77,16 @@ export class IK_Chain extends IK_ChainBase{
         if(this.target){
             //在target位置画一个十字
             const pos = this.target.pos;
+            this.target.getPose(tmpMat);
+            ripMatScale(tmpMat);
+            let e = tmpMat.elements;
             let len = 0.1
-            let end1 = new Vector3(pos.x+len,pos.y,pos.z);
-            let end2 = new Vector3(pos.x-len,pos.y,pos.z);
-            let end3 = new Vector3(pos.x,pos.y+len,pos.z);
-            let end4 = new Vector3(pos.x,pos.y-len,pos.z);
-            let end5 = new Vector3(pos.x,pos.y,pos.z+len);
-            let end6 = new Vector3(pos.x,pos.y,pos.z-len);
+            let end1 = new Vector3(pos.x + e[0]*len, pos.y+e[1]*len,pos.z+e[2]*len);
+            let end2 = new Vector3(pos.x - e[0]*len, pos.y-e[1]*len,pos.z-e[2]*len);
+            let end3 = new Vector3(pos.x + e[4]*len, pos.y+e[5]*len,pos.z+e[6]*len);
+            let end4 = new Vector3(pos.x - e[4]*len, pos.y-e[5]*len,pos.z-e[6]*len);
+            let end5 = new Vector3(pos.x + e[8]*len, pos.y+e[9]*len,pos.z+e[10]*len);
+            let end6 = new Vector3(pos.x - e[8]*len, pos.y-e[9]*len,pos.z-e[10]*len);
             line.addLine(pos,end1,Color.RED,Color.RED);
             line.addLine(pos,end2,Color.RED,Color.RED);
             line.addLine(pos,end3,Color.GREEN,Color.GREEN);
@@ -183,8 +187,6 @@ export class IK_Chain extends IK_ChainBase{
                     Matrix4x4.createFromQuaternion(dq,dmat);
                     let endTarget = new Matrix4x4();
                     Matrix4x4.multiply(dmat,endMat,endTarget);
-                    //计算parent的目标朝向
-                    Quaternion.createFromMatrix4x4(endTarget,alignQ);
 
                     //把end矩阵设置到target上，计算目标位置
                     endTarget.elements[12]=targetPos.x;
@@ -195,6 +197,8 @@ export class IK_Chain extends IK_ChainBase{
                     Matrix4x4.multiply(endTarget,parentInEnd,parentTarget);
                     let e = parentTarget.elements;
                     targetPos.setValue(e[12],e[13],e[14]);    
+                    //计算parent的目标朝向
+                    Quaternion.createFromMatrix4x4(parentTarget,alignQ);
                 }
                     break;
                 case 'all':{

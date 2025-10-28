@@ -42,11 +42,34 @@ export class IK_Joint {
         this.transform.rotation = sp.transform.rotation;
     }
 
-    applyTransform(){
+    applyTransform(weight:number){
         if(!this.bone)
             return;
-        this.bone.transform.position = this.transform.position;
-        this.bone.transform.rotation = this.transform.rotation;
+        if(weight<0)weight=0;
+        if(weight==0)
+            return;
+        if(weight>1)weight=1;
+
+        let boneTrans = this.bone.transform;
+        let p0 = boneTrans.position;
+        let p1 = this.transform.position;
+        let r0 = boneTrans.rotation;
+        let r1 = this.transform.rotation;
+
+        if(weight==1){
+            boneTrans.position = p1;
+            boneTrans.rotation = r1;
+        }else{
+            //position
+            //位置不用设置，设置了旋转自然会影响位置。而且如果位置插值，会导致与旋转对不上而散架
+            //p1.vsub(p0,dp);
+            //dp.scale(weight,dp);
+            //p0.vadd(dp,p0);
+            //boneTrans.position=p0;
+            //rotation
+            Quaternion.slerp(r0,r1,weight,r0);
+            boneTrans.rotation = r0;
+        }
     }
 
     // 设置旋转（四元数接口）世界空间

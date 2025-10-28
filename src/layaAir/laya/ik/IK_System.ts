@@ -270,7 +270,7 @@ export class IK_System {
         for(let lookat of this.lookats){
             lookat.captureStaticPose();
         }
-    }    
+    }
 
     async onUpdate(){
         // if(this._visualSp){

@@ -115,13 +115,22 @@ export class IK_Comp extends Script {
         return SHOW_DBG.has(SHOW_DBG.CONSTRAINT_AXIS);
     }    
 
+    // @property({type:Boolean})
+    // get enableSolver(){
+    //     return this._ik_sys.enableSolver;
+    // }
+    // set enableSolver(b:boolean){
+    //     this._ik_sys.enableSolver=b;
+    // }
+
+    private _runInEditor=true;
     @property({type:Boolean})
-    get enableSolver(){
-        return this._ik_sys.enableSolver;
+    get RunInEditor(){
+        return this._runInEditor;
     }
-    set enableSolver(b:boolean){
-        this._ik_sys.enableSolver=b;
-    }
+    set RunInEditor(b:boolean){
+        this._runInEditor = b;
+    }    
 
     @property({type:Boolean,catalog:'debug',caption:'使用动画层'})
     set useAnimLayer(b:boolean){
@@ -134,12 +143,6 @@ export class IK_Comp extends Script {
     constructor() {
         super();
     }
-
-    protected _onDestroy() {
-        this.showGizmos=false;
-        this._ik_sys.showDbg=false;
-    }
-
     protected _onAdded(): void {
         let ik = this._ik_sys = new IK_System(this.owner as Sprite3D);
         ik.setRoot(this.owner as Sprite3D);
@@ -162,13 +165,23 @@ export class IK_Comp extends Script {
         return this._ik_sys.chains;
     }
 
+    getChain(name:string){
+        for(let c of this.chains){
+            if(c.name==name)
+                return c;
+        }
+        return null;
+    }
 
     /**
      * 在动画开始之前，用来记录、恢复静态姿态
      */
     beforeOwnerAnim(){
-        if(!this.enableSolver)
+        //if(!this.enableSolver)
+        //    return;
+        if(!this._runInEditor && window.EditorEnv)
             return;
+
         for(let chain of this._ik_sys.chains){
             chain.resetStaticPose();
         }
@@ -187,11 +200,15 @@ export class IK_Comp extends Script {
     }
 
     onDestroy(): void {
+        this.showGizmos=false;
+        this._ik_sys.showDbg=false;
         super.onDestroy();
         this.owner.off(BoneConstraints.DATACHANGE,this,this.onConstraintDataChange);
     }
 
     onUpdate() {
+        if(window.EditorEnv && !this._runInEditor)
+            return;
         if (this._needRebuild ) {
             //创建约束
             this._constraintsMap.clear();
@@ -252,6 +269,7 @@ export class IK_Comp extends Script {
                 if(data.type=='position'){
                     let c = this._ik_sys.chreateChainByBoneName(this,data.end, data.jointCount);
                     c.enable = data.enable;
+                    c.blendWeight = data.blendWeight;
                     c.poleTarget = data.PoleTarget?new IK_Target(data.PoleTarget):null;
                     //c.alignWithTarget = data.alignWithTarget;
                     this._ik_sys.addChain(c);
