@@ -296,8 +296,11 @@ export class Sprite extends Node {
             this._subStructRender.destroy();
             this._subStructRender = null;
         }
+        
         if (this._drawOriRT) {
-            this._drawOriRT.destroy();
+            if (this._drawOriRT !== RenderTexture2D._empty) {
+                RenderTexture2D.recoverToPool(this._drawOriRT);
+            }
             this._drawOriRT = null;
         }
 
