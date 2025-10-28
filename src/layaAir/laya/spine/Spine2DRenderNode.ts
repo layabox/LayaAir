@@ -177,6 +177,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             // let rootBone = this._skeleton.getRootBone();
             // rootBone.x = this._templet.offsetX;
             // rootBone.y = this._templet.offsetY;
+            // rootBone.x = 0;
+            // rootBone.y = 0;
             this.spineItem.changeSkeleton(this._skeleton);
             this._renderHandle.skeleton = this._skeleton;
             this._flushExtSkin();
@@ -448,6 +450,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         // let rootBone = this._skeleton.getRootBone();
         // rootBone.x = this._templet.offsetX;
         // rootBone.y = this._templet.offsetY;
+        // rootBone.x = 0;
+        // rootBone.y = 0;
 
         this._renderHandle.skeleton = this._skeleton;
         this._stateData = new spine.AnimationStateData(this._skeleton.data);
@@ -883,7 +887,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             let matrix = this.owner.globalTrans.getMatrix();
             this._skeleton.x = matrix.tx + this._templet.offsetX;
             this._skeleton.y = matrix.ty + this._templet.offsetY;
-
+            // this._skeleton.x = matrix.tx
+            // this._skeleton.y = matrix.ty
             // if (this.owner.pivotX != 0 || this.owner.pivotY != 0) {
             //     this._offset.setValue(this.owner.pivotX, this.owner.pivotY);
             //     this._renderHandle.offset = this._offset;

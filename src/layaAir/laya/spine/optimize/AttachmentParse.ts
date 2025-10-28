@@ -140,7 +140,9 @@ export class AttachmentParse {
             this.indexArray = QUAD_TRIANGLES;
             this.uvs = region.uvs;
             //region.region.
-            this.textureName = (region.region as any).page.name;
+            if (region.region) {
+                this.textureName = (region.region as any).page.name;
+            }
             this.vertexBones = 1;
             this.bones.add(boneIndex);
         }
