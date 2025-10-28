@@ -179,7 +179,7 @@ export class IK_Comp extends Script {
     beforeOwnerAnim(){
         //if(!this.enableSolver)
         //    return;
-        if(!this._runInEditor && window.EditorEnv)
+        if(!this._runInEditor && (window as any).EditorEnv)
             return;
 
         for(let chain of this._ik_sys.chains){
@@ -207,7 +207,7 @@ export class IK_Comp extends Script {
     }
 
     onUpdate() {
-        if(window.EditorEnv && !this._runInEditor)
+        if((window as any).EditorEnv && !this._runInEditor)
             return;
         if (this._needRebuild ) {
             //创建约束
