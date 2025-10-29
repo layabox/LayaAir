@@ -12,20 +12,19 @@ import { drawAxis } from "./skeleton/RenderUtils";
 
 
 export interface IK_Constraint1 {
-    constraintMat(mat:Matrix4x4):Quaternion;
+    constraintMat(mat:Matrix4x4,outQ:Quaternion):Quaternion;
     constraintQ(q:Quaternion):Quaternion;
     visualize(liner:ILinerender,mat:Matrix4x4):void;
     rotation:Quaternion;
 }
 
 var constraintMatW = new Matrix4x4();
-var constraintMat1W = new Matrix4x4();
 var constrainMatInv = new Matrix4x4();
 var constraintMatLocal = new Matrix4x4();
-var curAxis=new Vector3();
-var vecInCS = new Vector3();
 let matJointW=new Matrix4x4();
-
+let matQ = new Matrix4x4();
+let ypr = new Vector3();
+let constrainedQ = new Quaternion();
 //var transformI = new Transform3D(null);
 /**
  * 这个必须是ik链已经连好了再调用，因为需要用到父关节
@@ -76,9 +75,9 @@ export class IK_ConstraintInstance{
         }
         Matrix4x4.multiply(constrainMatInv,childMat,constraintMatLocal);//todo 左右
         //矩阵要限制到没有缩放，并严格保证element[9]<1 否则下面的函数包含decomposeYawPitchRoll会出NaN
-        let q = this.constraint.constraintMat(ripMatScale(constraintMatLocal));
+        let q = this.constraint.constraintMat(ripMatScale(constraintMatLocal),constrainedQ);
         //然后转到世界空间 
-        let matQ = new Matrix4x4();
+        //let matQ = new Matrix4x4();
         Matrix4x4.createFromQuaternion(q,matQ);
         //再把骨骼对齐的矩阵去掉
         if(this.constraintBone && joint.childDirOff){
@@ -87,7 +86,7 @@ export class IK_ConstraintInstance{
             Matrix4x4.multiply(matQ,dirInv,matQ);
         }
         Matrix4x4.multiply(constraintMatW,matQ,matJointW);
-        let ypr = new Vector3();
+        //let ypr = new Vector3();
         //要去掉矩阵的缩放。否则会得到错误的值。另外带缩放的情况下，Quaternion.createFromMatrix4x4是不对的，所以不用了。
         ripMatScale(matJointW).decomposeYawPitchRoll(ypr);
         Quaternion.createFromYawPitchRoll(ypr.x,ypr.y,ypr.z,joint.rotationQuat);

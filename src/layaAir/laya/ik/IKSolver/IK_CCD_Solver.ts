@@ -6,6 +6,16 @@ import { IK_Target } from "../IK_Pose1";
 import {quaternionFromTo} from "../IK_Utils"
 
 var dpos = new Vector3();
+var QI = new Quaternion();
+const cross = new Vector3();
+const projMid = new Vector3();
+const projPole = new Vector3();
+const tmp = new Vector3();
+let baseToPole = new Vector3();
+let baseToMid = new Vector3();
+let iq = new Quaternion();
+let iq1 = new Quaternion();
+const rot = new Quaternion();
 
 export class IK_CCDSolver implements IK_ISolver {
     dampingFactor: number = 0.1; // 阻尼因子，0-1之间
@@ -74,8 +84,9 @@ export class IK_CCDSolver implements IK_ISolver {
                 // }
 
                 // 应用阻尼因子限制旋转幅度。可以避免抖动，柔化形状
-                let iq = new Quaternion();
-                rotation = Quaternion.slerp(
+                //let iq = new Quaternion();
+                iq.identity();
+                Quaternion.slerp(
                     iq,
                     rotation,
                     this.dampingFactor,
@@ -95,9 +106,9 @@ export class IK_CCDSolver implements IK_ISolver {
             let axis = dpos;
             targetPos.vsub(basePos, axis);
             let polePos = this.poleTarget.pos;
-            let baseToPole = new Vector3();
+            //let baseToPole = new Vector3();
             polePos.vsub(basePos,baseToPole);
-            let baseToMid = new Vector3();
+            //let baseToMid = new Vector3();
             let middPos = chain.joints[1].position;
             middPos.vsub(basePos,baseToMid);
             let EPS = 1e-6;
@@ -106,9 +117,9 @@ export class IK_CCDSolver implements IK_ISolver {
                 axis.normalize();
 
                 // 将 base->mid 与 base->pole 投影到垂直于轴的平面
-                const projMid = new Vector3();
-                const projPole = new Vector3();
-                const tmp = new Vector3();
+                //const projMid = new Vector3();
+                //const projPole = new Vector3();
+                //const tmp = new Vector3();
 
                 // proj(v) = v - axis * dot(v, axis)
                 axis.scale(Vector3.dot(baseToMid, axis), tmp);
@@ -130,7 +141,7 @@ export class IK_CCDSolver implements IK_ISolver {
                 projPole.scale(1/lenPole, projPole);
 
                 const cosTheta = Math.max(-1, Math.min(1, Vector3.dot(projMid, projPole)));
-                const cross = new Vector3();
+                //const cross = new Vector3();
                 Vector3.cross(projMid, projPole, cross);
                 const sinTheta = Vector3.dot(cross, axis);
                 let angle = Math.atan2(sinTheta, cosTheta);
@@ -143,7 +154,7 @@ export class IK_CCDSolver implements IK_ISolver {
                     angle = clamp(angle, -maxStep, maxStep) * damp;
 
                     if(Math.abs(angle) > 1e-5){
-                        const rot = new Quaternion();
+                        //const rot = new Quaternion();
                         Quaternion.createFromAxisAngle(axis, angle, rot);
                         // 绕根节点（base）轴对整链做小角度旋转，微调肘部朝向极点
                         chain.rotateJoint(0, rot);

@@ -9,8 +9,14 @@ import { drawEllipse } from "./skeleton/RenderUtils";
 
 var z = new Vector3(0,0,1);
 
-let d2r = Math.PI/180;
-
+let totalRotation = new Quaternion();
+let curz = new Vector3();
+let qSwingOrig = new Quaternion();
+let qSwingClamped = new Quaternion();
+let axis = new Vector3
+let qSwingInv = new Quaternion();
+let qTwistClamped = new Quaternion();
+let qTwistOrig = new Quaternion();
 /**
  * 从0度开始，0度对应父joint
  * 实际使用的时候，需要放到一个指定的空间，主要是指定转轴
@@ -28,21 +34,23 @@ export class IK_Constraint_SwingTwist implements IK_Constraint1{
     ){
     }
 
-	constraintMat(mat:Matrix4x4){
+	constraintMat(mat:Matrix4x4,outQ:Quaternion){
 		// 先去除缩放，保证旋转正交
 		ripMatScale(mat);
 		let mate = mat.elements;
 		const EPS = 1e-6;
 
 		// 从矩阵提取整体旋转
-		let totalRotation = new Quaternion();
+		//let totalRotation = new Quaternion();
 		Quaternion.createFromMatrix4x4(mat, totalRotation);
 		totalRotation.normalize(totalRotation);
 
 		// 1) 由 z→curz 得到原始 swing（最小摆动，将 z 旋到当前前向）
-		let curz = new Vector3(mate[8],mate[9],mate[10]);
+
+		//let curz = new Vector3(mate[8],mate[9],mate[10]);
+		curz.setValue(mate[8],mate[9],mate[10]);
 		curz.normalize();
-		let qSwingOrig = new Quaternion();
+		//let qSwingOrig = new Quaternion();
 		quaternionFromTo(z, curz, qSwingOrig);
 
 		// 提取轴-角
@@ -66,19 +74,20 @@ export class IK_Constraint_SwingTwist implements IK_Constraint1{
 
 		// 3) 仅裁剪 swing 的角度，保持摆动轴不变
 		const thetaClamped = Math.min(theta, thetaMax);
-		let qSwingClamped = new Quaternion();
+		//let qSwingClamped = new Quaternion();
 		if (thetaClamped < EPS) {
 			qSwingClamped.x = 0; qSwingClamped.y = 0; qSwingClamped.z = 0; qSwingClamped.w = 1;
 		} else {
-			let axis = new Vector3(ux, uy, 0);
+			//let axis = new Vector3(ux, uy, 0);
+			axis.setValue(ux,uy,0);
 			axis.normalize();
 			Quaternion.createFromAxisAngle(axis, thetaClamped, qSwingClamped);
 		}
 
 		// 4) 计算原始 twist = swingOrig^-1 * totalRotation
-		let qSwingInv = new Quaternion();
+		//let qSwingInv = new Quaternion();
 		qSwingOrig.invert(qSwingInv);
-		let qTwistOrig = new Quaternion();
+		//let qTwistOrig = new Quaternion();
 		Quaternion.multiply(qSwingInv, totalRotation, qTwistOrig);
 		qTwistOrig.normalize(qTwistOrig);
 
@@ -87,11 +96,11 @@ export class IK_Constraint_SwingTwist implements IK_Constraint1{
 		while (angle > Math.PI) angle -= 2 * Math.PI;
 		while (angle < -Math.PI) angle += 2 * Math.PI;
 		angle = Math.max(this.zmin, Math.min(this.zmax, angle));
-		let qTwistClamped = new Quaternion();
+		//let qTwistClamped = new Quaternion();
 		Quaternion.createFromAxisAngle(z, angle, qTwistClamped);
 
 		// 6) 合成最终旋转：swing_clamped * twist_clamped
-		let constrainedRotation = new Quaternion();
+		let constrainedRotation = outQ || new Quaternion();
 		Quaternion.multiply(qSwingClamped, qTwistClamped, constrainedRotation);
 		return constrainedRotation;
 	}
