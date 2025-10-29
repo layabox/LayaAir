@@ -8,12 +8,12 @@ import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState
 import { BoneConstraints } from "./BoneConstraints";
 import { IK_Chain } from "./IK_Chain";
 import { IK_ChainData } from "./IK_ChainData";
-import { IK_Constraint1, IK_ConstraintInstance } from "./IK_Constraint1";
+import { IK_Constraint1, IK_ConstraintInstance } from "./IK_Constraint";
 import { IK_Constraint_Euler } from "./IK_Constraint_Euler";
 import { IK_Constraint_SwingTwist } from "./IK_Constraint_SwingTwist";
 import { IK_ConstraintData } from "./IK_ConstraintData";
 import { IK_Lookat } from "./IK_Lookat";
-import { IK_Target } from "./IK_Pose1";
+import { IK_Target } from "./IK_Target";
 import { IK_System, SHOW_DBG } from "./IK_System";
 import { ILinerender } from "./LineRender";
 

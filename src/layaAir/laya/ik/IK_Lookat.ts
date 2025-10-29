@@ -4,9 +4,9 @@ import { Quaternion } from "../maths/Quaternion";
 import { Vector3 } from "../maths/Vector3";
 import { IK_ChainBase } from "./IK_ChainBase";
 import { IK_Comp } from "./IK_Comp";
-import { IK_ConstraintInstance } from "./IK_Constraint1";
+import { IK_ConstraintInstance } from "./IK_Constraint";
 import { IK_Joint } from "./IK_Joint";
-import { IK_Target } from "./IK_Pose1";
+import { IK_Target } from "./IK_Target";
 import { quaternionFromTo, ripMatScale, solveLookat } from "./IK_Utils";
 import { ILinerender } from "./LineRender";
 

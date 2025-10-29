@@ -3,7 +3,7 @@ import { Vector3 } from "../../maths/Vector3";
 import { IK_Chain } from "../IK_Chain";
 import { IK_ISolver } from "../IK_ISolver";
 import { IK_Joint } from "../IK_Joint";
-import { IK_Target } from "../IK_Pose1";
+import { IK_Target } from "../IK_Target";
 import { quaternionFromTo } from "../IK_Utils";
 
 

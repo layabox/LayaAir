@@ -6,7 +6,7 @@ import { IK_AnimLayer, IK_LayerMgr } from "./IK_AnimLayer";
 import { IK_Comp } from "./IK_Comp";
 import { IK_Joint } from "./IK_Joint";
 import { getJointMgr, IK_JointManager } from "./IK_JointManager";
-import { IK_Target } from "./IK_Pose1";
+import { IK_Target } from "./IK_Target";
 import { quaternionFromTo } from "./IK_Utils";
 import { ILinerender } from "./LineRender";
 

@@ -1,6 +1,6 @@
 import { Vector3 } from "../maths/Vector3";
 import { IK_Chain } from "./IK_Chain";
-import { IK_Target } from "./IK_Pose1";
+import { IK_Target } from "./IK_Target";
 
 // IK求解器接口
 export interface IK_ISolver {

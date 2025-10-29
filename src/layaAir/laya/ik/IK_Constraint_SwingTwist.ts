@@ -2,7 +2,7 @@ import { Color } from "../maths/Color";
 import { Matrix4x4 } from "../maths/Matrix4x4";
 import { Quaternion } from "../maths/Quaternion";
 import { Vector3 } from "../maths/Vector3";
-import { IK_Constraint1 } from "./IK_Constraint1";
+import { IK_Constraint1 } from "./IK_Constraint";
 import { quaternionFromTo, ripMatScale } from "./IK_Utils";
 import { ILinerender } from "./LineRender";
 import { drawEllipse } from "./skeleton/RenderUtils";

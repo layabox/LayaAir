@@ -1,7 +1,7 @@
 import { Matrix4x4 } from "../maths/Matrix4x4";
 import { Quaternion } from "../maths/Quaternion";
 import { Vector3 } from "../maths/Vector3";
-import { IK_Constraint1 } from "./IK_Constraint1";
+import { IK_Constraint1 } from "./IK_Constraint";
 import { ILinerender } from "./LineRender";
 import { drawEulerRange } from "./skeleton/RenderUtils";
 

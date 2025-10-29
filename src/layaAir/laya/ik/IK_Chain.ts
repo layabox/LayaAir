@@ -1,4 +1,4 @@
-import { IK_Target } from "./IK_Pose1";
+import { IK_Target } from "./IK_Target";
 import { isCollinear, quaternionFromTo, ripMatScale } from "./IK_Utils";
 import { IK_Comp } from "./IK_Comp";
 import { IK_ISolver } from "./IK_ISolver";
