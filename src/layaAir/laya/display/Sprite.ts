@@ -2330,7 +2330,7 @@ export class Sprite extends Node {
 
         //判断待考虑
         if (oldRT) {
-            if (maskRect.width === rect.width && maskRect.height === rect.height) {
+            if (!oldRT.destroyed && maskRect.width === rect.width && maskRect.height === rect.height) {
                 this._subStructRender._updateRenderOffset(rect, oriRect, scaleX, scaleY);
                 rect.recover();
                 oriRect.recover();
