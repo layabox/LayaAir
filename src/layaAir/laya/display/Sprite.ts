@@ -35,6 +35,7 @@ import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
 import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
 import { Config } from "../../Config";
+import { MathUtil } from "../maths/MathUtil";
 
 const hiddenBits = NodeFlags.NOT_IN_PAGE;
 
@@ -2310,6 +2311,8 @@ export class Sprite extends Node {
         let oldRT = this._drawOriRT;
         let maskRect = this._subStructRender._rtRect;
 
+        rect.width = MathUtil.roundTo(rect.width);
+        rect.height = MathUtil.roundTo(rect.height);
         rect.cloneTo(oriRect);
 
         if (Config.useRetinalCanvas) {
@@ -2330,7 +2333,7 @@ export class Sprite extends Node {
 
         //判断待考虑
         if (oldRT) {
-            if (!oldRT.destroyed && maskRect.width === rect.width && maskRect.height === rect.height) {
+            if (maskRect.width === rect.width && maskRect.height === rect.height) {
                 this._subStructRender._updateRenderOffset(rect, oriRect, scaleX, scaleY);
                 rect.recover();
                 oriRect.recover();
@@ -2444,15 +2447,12 @@ export class Sprite extends Node {
     }
 
     private _checkSubRenderPass() {
-        if (this._renderType & SpriteConst.DRAW2RT) {
-            if (this._needUpdateSubpass()) {
-                if (this._subpassUpdateFlag || !this._drawOriRT) {
-                    this.setSubpassFlag(SubPassFlag.RenderTexture);
-                }
+        if (this._needUpdateSubpass()) {
+            if (this._subpassUpdateFlag || (this._renderType & SpriteConst.DRAW2RT && !this._drawOriRT)) {
+                this.setSubpassFlag(SubPassFlag.RenderTexture);
             }
-            else {
-                ILaya.stage._subpassUpdateList.delete(this);
-            }
+        }else if (this._subpassUpdateFlag) {
+            ILaya.stage._subpassUpdateList.delete(this);
         }
 
         if (this._mask) {
@@ -2463,7 +2463,7 @@ export class Sprite extends Node {
     private _refreshRenderPass() {
 
         if (this._oriRenderPass) {
-            let result = this._needUpdateSubpass() && this._oriRenderPass.enable;
+            let result = this._needUpdateSubpass() && this._oriRenderPass.enable && this._renderType & SpriteConst.DRAW2RT;
             if (result) {
                 ILaya.stage.passManager.addPass(this._oriRenderPass);
             }
