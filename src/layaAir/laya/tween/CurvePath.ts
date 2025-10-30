@@ -153,7 +153,7 @@ export class CurvePath {
      * @returns 表示指定点切线方向的旋转角度（度）。
      */
     getRotationAt(t: number, out?: Vector3): Vector3 {
-        if (!this.rotationType) return null;
+        if (!this.rotationType || 1 === t) return null;
         if (RotationType.RotateAlongMotionPath === this.rotationType) {
             const ret = CurvePath.getRotation(this._parPos, this._curPt);
             if (!this._parPos) {
@@ -184,9 +184,9 @@ export class CurvePath {
             this.getTangentAtSegment(seg, 0, tangent);
         }
         else if (t == 1) {
-            // 在终点，使用最后一个段的结束切线
-            let seg = this._segments[cnt - 1];
-            this.getTangentAtSegment(seg, 1, tangent);
+            // 回绕到起点切线，和 getPointAt 的 t==1 行为一致
+            let seg = this._segments[0];
+            this.getTangentAtSegment(seg, 0, tangent);
         }
         else {
             // 找到对应的段和段内的t值
@@ -396,14 +396,13 @@ export class CurvePath {
 
         let pts = this._points;
         if (t == 1) {
-            let seg = this._segments[cnt - 1];
-
-            if (seg.type == CurveType.Straight)
-                Vector3.lerp(pts[seg.ptStart], pts[seg.ptStart + 1], t, out);
-            else if (seg.type == CurveType.Bezier || seg.type == CurveType.CubicBezier)
-                this.onBezierCurve(seg.ptStart, seg.ptCount, t, out);
-            else
-                this.onCRSplineCurve(seg.ptStart, seg.ptCount, t, out);
+            let firstSeg = this._segments[0];
+            if (firstSeg.type == CurveType.Straight || firstSeg.type == CurveType.Bezier || firstSeg.type == CurveType.CubicBezier)
+                out.setValue(pts[firstSeg.ptStart].x, pts[firstSeg.ptStart].y, pts[firstSeg.ptStart].z);
+            else {
+                const startIndex = firstSeg.ptStart + 1;
+                out.setValue(pts[startIndex].x, pts[startIndex].y, pts[startIndex].z);
+            }
             return out;
         }
 
