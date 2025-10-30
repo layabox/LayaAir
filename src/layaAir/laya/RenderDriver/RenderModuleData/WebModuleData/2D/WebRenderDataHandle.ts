@@ -87,7 +87,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     private _clonesViews: Web2DGraphic2DIndexCloneDataView[];
 
     applyVertexBufferBlock(blocks: IGraphics2DBufferBlock[]): void {
-        this._bufferBlocks = blocks;
+        this._bufferBlocks = blocks.slice();
         this._needUpdateBuffer = blocks.length > 0;
         this.updateCloneView();
     }

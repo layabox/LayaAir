@@ -733,6 +733,7 @@ export class Sprite extends Node {
         if (value) {
             if (!this._graphicsData)
                 this._graphicsData = new GraphicsRenderData(this);
+            else this._graphicsData.clear();
             value._data = this._graphicsData;
             value.owner = this;
             value._checkDisplay();

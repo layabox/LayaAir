@@ -169,6 +169,9 @@ export class Graphics {
         else
             this._cmds.length = 0;
         
+        if (this._data) {
+            this._data.clear();
+        }
         this.repaint();
     }
 
