@@ -311,6 +311,9 @@ export class Graphics {
             if (struct.renderElements === this._data._renderElements) {
                 struct.renderElements = [];
             }
+            if (this._data) {
+                this._data.clear();
+            }
             struct.renderType = -1;
             struct.renderDataHandler = null;
         }
