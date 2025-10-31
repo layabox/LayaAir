@@ -844,8 +844,9 @@ export class Animator extends Component {
                             break;
                     }
                     let v2 = nodeOwner.value as Vector2;
-                    v2.x = srcValue.r + crossWeight * (desValue.r - srcValue.r);
-                    v2.y = srcValue.g + crossWeight * (desValue.g - srcValue.g);
+                    // srcValue和desValue是Vector2类型，使用.x, .y而非.r, .g
+                    v2.x = srcValue.x + crossWeight * (desValue.x - srcValue.x);
+                    v2.y = srcValue.y + crossWeight * (desValue.y - srcValue.y);
                     nodeOwner.value = v2;
                     lastpro = proPat[m];
                     if (!nodeOwner.isMaterial) {
@@ -869,6 +870,7 @@ export class Animator extends Component {
                     v4.x = srcValue.x + crossWeight * (desValue.x - srcValue.x);
                     v4.y = srcValue.y + crossWeight * (desValue.y - srcValue.y);
                     v4.z = srcValue.z + crossWeight * (desValue.z - srcValue.z);
+                    v4.w = srcValue.w + crossWeight * (desValue.w - srcValue.w);  // 添加缺失的w分量
                     nodeOwner.value = v4;
                     lastpro = proPat[m];
                     if (!nodeOwner.isMaterial) {
