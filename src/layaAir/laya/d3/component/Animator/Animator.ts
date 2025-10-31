@@ -187,7 +187,7 @@ export class Animator extends Component {
         this._keyframeNodeOwnerMap = {};
         this._updateMark = 0;
     }
-    
+
     private _addKeyframeNodeOwner(clipOwners: KeyframeNodeOwner[], node: KeyframeNode, propertyOwner: any): void {
         var nodeIndex = node._indexInList;
         var fullPath = node.fullPath;
@@ -205,7 +205,8 @@ export class Animator extends Component {
                     const type = node.type;
                     switch (type) {
                         case KeyFrameValueType.Color:
-                            property = property.shaderData.getColor(shaderPropId);
+                            const color = property.shaderData.getColor(shaderPropId);
+                            property = new Vector4(color.r, color.g, color.b, color.a);
                             break;
                         case KeyFrameValueType.Vector2:
                             property = property.shaderData.getVector2(shaderPropId);
@@ -818,10 +819,10 @@ export class Animator extends Component {
                             break;
                     }
                     let v44 = nodeOwner.value as Vector4;
-                    v44.x = srcValue.r + crossWeight * (desValue.r - srcValue.r);
-                    v44.y = srcValue.g + crossWeight * (desValue.g - srcValue.g);
-                    v44.z = srcValue.b + crossWeight * (desValue.b - srcValue.b);
-                    v44.w = srcValue.a + crossWeight * (desValue.a - srcValue.a);
+                    v44.x = srcValue.x + crossWeight * (desValue.x - srcValue.x);
+                    v44.y = srcValue.y + crossWeight * (desValue.y - srcValue.y);
+                    v44.z = srcValue.z + crossWeight * (desValue.z - srcValue.z);
+                    v44.w = srcValue.w + crossWeight * (desValue.w - srcValue.w);
 
                     nodeOwner.value = v44;
                     lastpro = proPat[m];
