@@ -29,6 +29,7 @@ import { Delegate } from "../../../utils/Delegate";
 import { Browser } from "../../../utils/Browser";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { StatElement } from "../../../layagl/StatisticsContext";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 
 export type AnimatorParams = { [key: number]: number | boolean };
 
@@ -186,6 +187,7 @@ export class Animator extends Component {
         this._keyframeNodeOwnerMap = {};
         this._updateMark = 0;
     }
+    
     private _addKeyframeNodeOwner(clipOwners: KeyframeNodeOwner[], node: KeyframeNode, propertyOwner: any): void {
         var nodeIndex = node._indexInList;
         var fullPath = node.fullPath;
@@ -197,9 +199,35 @@ export class Animator extends Component {
         } else {
             var property = propertyOwner;
             for (var i = 0, n = node.propertyCount; i < n; i++) {
-                property = property[node.getPropertyByIndex(i)];
+                if (mat) {
+                    // 使用 KeyframeNode 的缓存方法，直接获取 shader property ID
+                    const shaderPropId = node.getMaterialPropertyId(i);
+                    const type = node.type;
+                    switch (type) {
+                        case KeyFrameValueType.Color:
+                            property = property.shaderData.getColor(shaderPropId);
+                            break;
+                        case KeyFrameValueType.Vector2:
+                            property = property.shaderData.getVector2(shaderPropId);
+                            break;
+                        case KeyFrameValueType.Vector3:
+                            property = property.shaderData.getVector3(shaderPropId);
+                            break;
+                        case KeyFrameValueType.Vector4:
+                            property = property.shaderData.getVector(shaderPropId);
+                            break;
+                        case KeyFrameValueType.Float:
+                            property = property.shaderData.getNumber(shaderPropId);
+                            break;
+                        case KeyFrameValueType.Boolean:
+                            property = property.shaderData.getBool(shaderPropId);
+                            break;
+                    }
+                } else {
+                    property = property[node.getPropertyByIndex(i)];
+                }
                 if (property instanceof Material) {
-                    mat = true
+                    mat = true;
                 }
                 if (!property)
                     break;
@@ -232,10 +260,6 @@ export class Animator extends Component {
                     keyframeNodeOwner.value = new property.constructor();
                     keyframeNodeOwner.crossFixedValue = new property.constructor();
                 }
-            }
-            if (null == keyframeNodeOwner.value && node.type === KeyFrameValueType.Color) {
-                keyframeNodeOwner.value = new Vector4();
-                keyframeNodeOwner.crossFixedValue = new Vector4();
             }
 
             this._keyframeNodeOwners.push(keyframeNodeOwner);
