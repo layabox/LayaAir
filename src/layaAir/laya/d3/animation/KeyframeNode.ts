@@ -1,5 +1,6 @@
 import { KeyFrameValueType } from "../component/Animator/KeyframeNodeOwner";
 import { Keyframe } from "../../maths/Keyframe";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 
 /**
  * @en The KeyframeNode class is used for animation keyframes.
@@ -8,6 +9,7 @@ import { Keyframe } from "../../maths/Keyframe";
 export class KeyframeNode {
 	private _ownerPath: string[] = [];
 	private _propertys: string[] = [];
+	private _materialId: number;
 
 	/**@internal */
 	_keyFrames: Keyframe[] = [];
@@ -134,6 +136,22 @@ export class KeyframeNode {
 	 */
 	getPropertyByIndex(index: number): string {
 		return this._propertys[index];
+	}
+
+	/**
+	 * @internal
+	 * @en Get cached material property ID by index (for shader properties)
+	 * @param index The index of the property
+	 * @returns The shader property ID
+	 * @zh 通过索引获取缓存的材质属性ID（用于shader属性）
+	 * @param index 索引
+	 * @returns shader属性ID
+	 */
+	getMaterialPropertyId(index: number): number {
+		if (null == this._materialId) {
+			this._materialId = Shader3D.propertyNameToID(this._propertys[index]);
+		}
+		return this._materialId;
 	}
 
 	/**
