@@ -127,7 +127,11 @@ export class PAL {
     static hasAPI(arg0: any, arg1?: string): boolean {
         let g = arg1 ? (arg0 || PAL.g) : PAL.g;
         let name = arg1 || arg0;
-        return Object.getOwnPropertyDescriptor(g, name) != null || (g !== PAL.g && g[name] != null);
+        if (g.willGenerateUndefinedAPIs)
+            //某些对象（例如wx）在获取不支持的API时不会返回undefined，而是返回一个打印警告信息的函数，所以不能直接用g[name]来判断
+            return Object.getOwnPropertyDescriptor(g, name) != null;
+        else
+            return g[name] != null;
     }
 }
 

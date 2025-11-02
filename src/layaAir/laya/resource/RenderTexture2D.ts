@@ -60,15 +60,23 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      */
     static createFromPool(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat) {
 
-        let n = RenderTexture2D._pool.length;
-        for (let index = 0; index < n; index++) {
-            let rt = RenderTexture2D._pool[index];
+        // 从后往前遍历，同时清理已销毁的对象
+        for (let i = RenderTexture2D._pool.length - 1; i >= 0; i--) {
+            let rt = RenderTexture2D._pool[i];
+
+            if (rt.destroyed) {
+                RenderTexture2D._pool.splice(i, 1);
+                //已经被销毁了无法释放计数
+                let gpuMem = rt._renderTarget ? (rt._renderTarget.gpuMemory / 1024 / 1024) : 0;
+                RenderTexture2D._poolMemory -= gpuMem;
+                RenderTexture2D._poolTimeouts.delete(rt._id);
+                continue;
+            }
 
             if (rt.width == width && rt.height == height && rt.getColorFormat() == colorFormat && rt.depthStencilFormat == depthFormat) {
                 rt._inPool = false;
-                let end = RenderTexture2D._pool[n - 1];
-                RenderTexture2D._pool[index] = end;
-                RenderTexture2D._pool.length -= 1;
+                // 直接移除当前位置，避免再做尾部交换
+                RenderTexture2D._pool.splice(i, 1);
                 RenderTexture2D._poolMemory -= (rt._renderTarget.gpuMemory / 1024 / 1024);
                 // 从池中取出时，移除时间记录
                 RenderTexture2D._poolTimeouts.delete(rt._id);

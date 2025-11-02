@@ -43,6 +43,7 @@ export class MgTextInputAdapter extends TextInputAdapter {
                 multiple: target.multiline,
                 confirmHold: true,
                 confirmType: target.confirmType,
+                keyboardType: 'text',
                 success: resolve,
                 fail: reject
             });

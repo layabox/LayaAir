@@ -279,7 +279,7 @@ export class Utils {
     */
     static uint8ArrayToArrayBufferAsync(rendertexture: RenderTexture | RenderTexture2D): Promise<string> {
         if ((window as any).conch) {
-            return Promise.resolve("not surpport");
+            return Promise.resolve("not supported");
         }
         let pixelArray: Uint8Array | Float32Array;
         const width = rendertexture.width;
@@ -295,7 +295,7 @@ export class Utils {
                 pixelArray = new Float32Array(pixelCount);
                 break;
             default:
-                throw "this function is not surpprt " + rendertexture.format.toString() + "format Material";
+                throw "this function is not supported " + rendertexture.format.toString() + "format Material";
         }
         return rendertexture.getDataAsync(0, 0, width, height, pixelArray).then(() => {
             //tranceTo

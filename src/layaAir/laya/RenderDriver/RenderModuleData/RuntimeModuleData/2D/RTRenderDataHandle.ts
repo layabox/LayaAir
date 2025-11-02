@@ -10,6 +10,7 @@ import { RTRenderStruct2D } from "./RTRenderStruct2D";
 import { Vector2 } from "../../../../maths/Vector2";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
 import { RT2DGraphic2DIndexDataView, RT2DGraphic2DVertexDataView } from "./RT2DGraphic2DBufferDataView";
+import { Matrix } from "../../../../maths/Matrix";
 
 export abstract class RTRender2DDataHandle implements IRender2DDataHandle {
     _nativeObj: any;
@@ -124,6 +125,20 @@ export class RTPrimitiveDataHandle extends RTRender2DDataHandle implements I2DPr
     set mask(value: RTRenderStruct2D | null) {
         this._mask = value;
         this._nativeObj.setMask(value ? value._nativeObj : null);
+    }
+
+    private _logicMatrix: Matrix | null = null;
+    get logicMatrix(): Matrix | null {
+        return this._logicMatrix;
+    }
+    set logicMatrix(value: Matrix | null) {
+        if(value){
+            if (!this._logicMatrix) {
+                this._logicMatrix = new Matrix();
+            }
+            value.copyTo(this._logicMatrix);
+        }
+        this._nativeObj.setLogicMatrix(this._logicMatrix , !!value);
     }
 
     private _blocks: RTGraphics2DBufferBlock[] = null;

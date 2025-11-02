@@ -233,6 +233,10 @@ export class Animator extends Component {
                     keyframeNodeOwner.crossFixedValue = new property.constructor();
                 }
             }
+            if (null == keyframeNodeOwner.value && node.type === KeyFrameValueType.Color) {
+                keyframeNodeOwner.value = new Vector4();
+                keyframeNodeOwner.crossFixedValue = new Vector4();
+            }
 
             this._keyframeNodeOwners.push(keyframeNodeOwner);
             clipOwners[nodeIndex] = keyframeNodeOwner;
@@ -1546,8 +1550,10 @@ export class Animator extends Component {
 
 
             var animatorState: AnimatorState = name ? controllerLayer.getAnimatorState(name) : defaultState;
-            if (!animatorState._clip)
+            if (!animatorState || !animatorState._clip) {
+                throw new Error("Animator:must have clip value,please set clip property.");
                 return;
+            }
 
             var clipDuration: number = animatorState._clip!._duration;
             var calclipduration = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
