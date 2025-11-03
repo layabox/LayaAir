@@ -185,6 +185,7 @@ export class WebForwardAddClusterRP implements IMain3DRP {
         LayaGL.statAgent.recordTimeData(StatElement.T_CullMain, performance.now() - time);
 
         time = performance.now();
+        this._opaqueList.mergeQueue();
         if ((this.depthTextureMode & DepthTextureMode.Depth) != 0)
             this._renderDepthPass(context);
         if ((this.depthTextureMode & DepthTextureMode.DepthNormals) != 0)
@@ -214,7 +215,7 @@ export class WebForwardAddClusterRP implements IMain3DRP {
         context.setScissor(Vector4.TEMP);
         context.setClearData(RenderClearFlag.Color | RenderClearFlag.Depth, this._defaultNormalDepthColor, 1, 0);
         context.setRenderTarget(this.depthNormalTarget, RenderClearFlag.Color | RenderClearFlag.Depth);
-        this._opaqueList.renderQueue(context);
+        this._opaqueList.renderQueueOnly(context);
         LayaGL.statAgent.recordCTData(StatElement.CT_DepthCastDrawCall, this._opaqueList.elements.length);
         Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.DepthNormals, this.camera);
     }
@@ -236,7 +237,7 @@ export class WebForwardAddClusterRP implements IMain3DRP {
         context.setScissor(Vector4.TEMP);
         context.setRenderTarget(this.depthTarget, RenderClearFlag.Depth);
         context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
-        this._opaqueList.renderQueue(context);
+        this._opaqueList.renderQueueOnly(context);
         LayaGL.statAgent.recordCTData(StatElement.CT_DepthCastDrawCall, this._opaqueList.elements.length);
         //渲染完后传入使用的参数
         const far = this.camera.farPlane;
@@ -257,7 +258,7 @@ export class WebForwardAddClusterRP implements IMain3DRP {
         context.setClearData(this.clearFlag, this.clearColor, 1, 0);
 
         var time = performance.now();//T_Render_OpaqueRender Stat
-        this._opaqueList.renderQueue(context);
+        this._opaqueList.renderQueueOnly(context);
         LayaGL.statAgent.recordTimeData(StatElement.T_3DMainPass_Opaque, performance.now() - time);//Stat
 
         RenderPassUtil.renderCmd(this._beforeSkyboxCmds, context);
