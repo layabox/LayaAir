@@ -589,7 +589,7 @@ export class Animator extends Component {
 
     private _applyColor(defaultValue: Color, nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, data: Vector4) {
         if (!defaultValue) return null;
-        if (!nodeOwner.defaultValue) nodeOwner.defaultValue = defaultValue.clone();
+        if (!nodeOwner.defaultValue) nodeOwner.defaultValue = new Vector4(defaultValue.r, defaultValue.g, defaultValue.b, defaultValue.a);
         if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
             if (additive) {
                 defaultValue.r += weight * data.x;
@@ -606,10 +606,10 @@ export class Animator extends Component {
         } else {
             if (isFirstLayer) {
                 if (additive) {
-                    defaultValue.r = nodeOwner.defaultValue.r + data.x;
-                    defaultValue.g = nodeOwner.defaultValue.g + data.y;
-                    defaultValue.b = nodeOwner.defaultValue.b + data.z;
-                    defaultValue.a = nodeOwner.defaultValue.a + data.w;
+                    defaultValue.r = nodeOwner.defaultValue.x + data.x;
+                    defaultValue.g = nodeOwner.defaultValue.y + data.y;
+                    defaultValue.b = nodeOwner.defaultValue.z + data.z;
+                    defaultValue.a = nodeOwner.defaultValue.w + data.w;
                 }
                 else {
                     //data.cloneTo(defaultValue);
@@ -618,16 +618,16 @@ export class Animator extends Component {
 
             } else {
                 if (additive) {
-                    defaultValue.r = nodeOwner.defaultValue.r + weight * (data.x);
-                    defaultValue.g = nodeOwner.defaultValue.g + weight * (data.y);
-                    defaultValue.b = nodeOwner.defaultValue.b + weight * (data.z);
-                    defaultValue.a = nodeOwner.defaultValue.a + weight * (data.w);
+                    defaultValue.r = nodeOwner.defaultValue.x + weight * (data.x);
+                    defaultValue.g = nodeOwner.defaultValue.y + weight * (data.y);
+                    defaultValue.b = nodeOwner.defaultValue.z + weight * (data.z);
+                    defaultValue.a = nodeOwner.defaultValue.w + weight * (data.w);
                 } else {
-                    var defValue: Color = nodeOwner.defaultValue;
-                    defaultValue.r = defValue.r + weight * (data.x - defValue.r);
-                    defaultValue.g = defValue.g + weight * (data.y - defValue.g);
-                    defaultValue.b = defValue.b + weight * (data.z - defValue.b);
-                    defaultValue.a = defValue.a + weight * (data.w - defValue.a);
+                    var defValue: Vector4 = nodeOwner.defaultValue;
+                    defaultValue.r = defValue.x + weight * (data.x - defValue.x);
+                    defaultValue.g = defValue.y + weight * (data.y - defValue.y);
+                    defaultValue.b = defValue.z + weight * (data.z - defValue.z);
+                    defaultValue.a = defValue.w + weight * (data.w - defValue.w);
                 }
             }
         }
@@ -1256,10 +1256,10 @@ export class Animator extends Component {
                             }
                             value = proPat[m];
                             if (!nodeOwner.defaultValue) break;
-                            _tempColor.r = nodeOwner.defaultValue.r;
-                            _tempColor.g = nodeOwner.defaultValue.g;
-                            _tempColor.b = nodeOwner.defaultValue.b;
-                            _tempColor.a = nodeOwner.defaultValue.a;
+                            _tempColor.r = nodeOwner.defaultValue.x;
+                            _tempColor.g = nodeOwner.defaultValue.y;
+                            _tempColor.b = nodeOwner.defaultValue.z;
+                            _tempColor.a = nodeOwner.defaultValue.w;
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = _tempColor);
                                 if (nodeOwner.callbackFun) {
