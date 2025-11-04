@@ -98,7 +98,7 @@ export class ColorGradEffect extends PostProcessEffect {
 
 	/**@internal */
 	_lutTex: RenderTexture;
-	private _lutBuilderMat = new Material();
+	private _lutBuilderMat: Material;
 
 
 	private _LUTShader: Shader3D;
