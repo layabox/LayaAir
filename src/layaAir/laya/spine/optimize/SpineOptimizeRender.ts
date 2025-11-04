@@ -497,8 +497,10 @@ class RenderOptimize implements IRender {
      * @param boneMat 用于渲染的骨骼矩阵。
      */
     render(curTime: number, boneMat: Float32Array) {
+        let offsetX = -this._skeleton.x + this._templet.offsetX;
+        let offsetY = -this._skeleton.y + this._templet.offsetY;
         // this.currentAnimation.render(this.bones, this.slots, this.skinUpdate, curTime, boneMat, -this._skeleton.x, -this._skeleton.y);//TODO bone
-        this.currentAnimation.render(this.bones, this.slots, this.skinUpdate, curTime, boneMat, -this._skeleton.x + this._templet.offsetX, -this._skeleton.y + this._templet.offsetY);//TODO bone
+        this.currentAnimation.render(this.bones, this.slots, this.skinUpdate, curTime, boneMat, offsetX, offsetY);//TODO bone
         // this.material.boneMat = boneMat;
         this._renderNode._spriteShaderData.setBuffer(SpineShaderInit.BONEMAT, boneMat);
     }

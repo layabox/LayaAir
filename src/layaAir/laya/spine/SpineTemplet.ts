@@ -197,8 +197,6 @@ export class SpineTemplet extends Resource {
         this.mainBlendMode = this.skeletonData.slots[0]?.blendMode || 0;
         this.mainTexture = this._mainTexture;
         
-        
-
         this._premultipliedAlpha = premultipliedAlpha;
         this.hasPhysics = this.skeletonData.physicsConstraints && this.skeletonData.physicsConstraints.length > 0;
         //需要无物理环境
@@ -207,34 +205,29 @@ export class SpineTemplet extends Resource {
         this.sketonOptimise.checkMainAttach(this.skeletonData);
 
         let skeleton = this.sketonOptimise.sketon;
-        let offset = new spine.Vector2;
-        let size = new spine.Vector2;
-        skeleton.setToSetupPose();
-        skeleton.updateWorldTransform(0);
-        skeleton.getBounds(offset, size);
-        this.offsetX = offset.x + size.x;
-        this.offsetY = - (offset.y + size.y);
-        // let rootBone = skeleton.getRootBone();
         // 有效值
         if (
-            size.x !== Infinity 
-            && size.y !== Infinity
-            && offset.x !== Infinity
-            && offset.y !== Infinity
+            this.skeletonData.x == undefined 
+            || this.skeletonData.y == undefined
+            || this.skeletonData.width == undefined
+            || this.skeletonData.height == undefined
         ) {
+            let offset = new spine.Vector2;
+            let size = new spine.Vector2;
+            skeleton.setToSetupPose();
+            skeleton.updateWorldTransform(0);
+            skeleton.getBounds(offset, size);
+
             this.width = size.x;
             this.height = size.y;
             this.offsetX = offset.x + size.x;
             this.offsetY = -(offset.y + size.y);
         }else{
-            let rootBone = skeleton.getRootBone();
             this.width = this.skeletonData.width || 0;
             this.height = this.skeletonData.height || 0;
-            this.offsetX = (this.skeletonData.x || 0) + this.width + rootBone.x;
-            this.offsetY = -((this.skeletonData.y || 0) + this.height - rootBone.y);
+            this.offsetX = (this.skeletonData.x || 0) + this.width;
+            this.offsetY = -((this.skeletonData.y || 0) + this.height);
         }
-        // rootBone.x = this.offsetX;
-        // rootBone.y = this.offsetY;
     }
 
     /**
