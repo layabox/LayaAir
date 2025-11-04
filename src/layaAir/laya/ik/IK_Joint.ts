@@ -3,7 +3,7 @@ import { Transform3D } from "../d3/core/Transform3D";
 import { Matrix4x4 } from "../maths/Matrix4x4";
 import { Quaternion } from "../maths/Quaternion";
 import { Vector3 } from "../maths/Vector3";
-import { IK_ConstraintInstance } from "./IK_Constraint1";
+import { IK_ConstraintInstance } from "./IK_Constraint";
 import { ILinerender } from "./LineRender";
 
 // 实现基本关节类

@@ -53,6 +53,8 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    owner: Sprite;
 
+   globalAlpha: number = 1.0;
+
    private _dcOptimize: boolean = false;
    public get dcOptimize(): boolean {
       return this._dcOptimize;
@@ -122,8 +124,10 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
 
    public set subStruct(value: RTRenderStruct2D) {
-      value._parent = this._parent;
-      value._blendMode = this._blendMode;
+      if (value) {
+         value._parent = this._parent;
+         value._blendMode = this._blendMode;
+      }
 
       this._subStruct = value;
       this._nativeObj.setSubStruct(value ? value._nativeObj : null);
@@ -178,15 +182,6 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
    get renderMatrix(): Matrix {
       return this._renderMatrix;
-   }
-
-   private _globalAlpha: number;
-   set globalAlpha(value: number) {
-      this._globalAlpha = value;
-      this._nativeObj.globalAlpha = value;
-   }
-   get globalAlpha(): number {
-      return this._globalAlpha;
    }
 
    private _alpha: number;

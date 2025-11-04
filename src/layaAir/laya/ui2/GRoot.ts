@@ -48,7 +48,6 @@ export class GRoot extends GWidget {
         this._modalLayer.mouseEnabled = true;
         this._modalLayer.hideFlags |= HideFlags.HideAndDontSave;
         this._modalLayer.size(this.width, this.height);
-        this._modalLayer.graphics.drawRect(0, 0, 1, 1, UIConfig2.modalLayerColor, null, 0, true);
         this._modalLayer.addRelation(this, RelationType.Size);
 
         ILaya.stage.on(Event.RESIZE, () => {
@@ -290,6 +289,9 @@ export class GRoot extends GWidget {
         for (let i = cnt - 1; i >= 0; i--) {
             let g = this.getChildAt(i);
             if ((g instanceof GWindow) && g.modal) {
+                if (this._modalLayer.graphics.cmds.length === 0)
+                    this._modalLayer.graphics.drawRect(0, 0, 1, 1, UIConfig2.modalLayerColor, null, 0, true);
+
                 if (this._modalLayer.parent == null)
                     this.addChildAt(this._modalLayer, i);
                 else

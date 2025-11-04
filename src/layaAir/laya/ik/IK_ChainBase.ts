@@ -6,11 +6,13 @@ import { IK_AnimLayer, IK_LayerMgr } from "./IK_AnimLayer";
 import { IK_Comp } from "./IK_Comp";
 import { IK_Joint } from "./IK_Joint";
 import { getJointMgr, IK_JointManager } from "./IK_JointManager";
-import { IK_Target } from "./IK_Pose1";
+import { IK_Target } from "./IK_Target";
 import { quaternionFromTo } from "./IK_Utils";
 import { ILinerender } from "./LineRender";
 
 let invQ = new Quaternion();
+let endPos = new Vector3();
+let lastQuat = new Quaternion();
 
 export class IK_ChainBase{
     name=''
@@ -137,8 +139,8 @@ export class IK_ChainBase{
     //从某个joint开始旋转，会调整每个joint的位置
     rotateJoint(jointId: number, deltaQuat: Quaternion) {
         let joints = this.joints;
-        let endPos = new Vector3();
-        let lastQuat = new Quaternion();
+        //let endPos = new Vector3();
+        //let lastQuat = new Quaternion();
         //更新子的位置和朝向
         for (let i = jointId; i < joints.length; i++) { //注意，最后一节也要调整，比如朝向的话需要最后一节的旋转，所以不能是joints.length-1
             const curJoint = joints[i];
@@ -157,7 +159,7 @@ export class IK_ChainBase{
                     //约束会直接修改joint的旋转
                     curJoint.constraint.doConsraint(curJoint);
                     //计算新的delta
-                    let invLast = new Quaternion();
+                    let invLast = invQ;//new Quaternion();
                     lastQuat.invert(invLast);
                     Quaternion.multiply(curJoint.rotationQuat,invLast,deltaQuat);
                     deltaQuat.normalize(deltaQuat);    

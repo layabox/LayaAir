@@ -168,7 +168,10 @@ export class Graphics {
         }
         else
             this._cmds.length = 0;
-        this._checkDisplay();
+        
+        if (this._data) {
+            this._data.clear();
+        }
         this.repaint();
     }
 
@@ -184,6 +187,7 @@ export class Graphics {
     repaint(): void {
         this._modified = true;
         this._graphicBounds?.reset();
+        this._checkDisplay();
         this.owner?.repaint(RepaintFlag.Graphics);
     }
 
@@ -203,7 +207,6 @@ export class Graphics {
             });
         }
         this._cmds = value;
-        this._checkDisplay();
         this.repaint();
     }
 
@@ -223,7 +226,7 @@ export class Graphics {
             this._cmds.push(cmd);
         else
             this._cmds.splice(index, 0, cmd);
-        this._checkDisplay();
+        // this.repaint();
         this.repaint();
         return cmd;
     }
@@ -240,7 +243,6 @@ export class Graphics {
         let i = this.cmds.indexOf(cmd);
         if (i != -1) {
             this._cmds.splice(i, 1);
-            this._checkDisplay();
             this.repaint();
         }
 
@@ -267,12 +269,10 @@ export class Graphics {
                 this._cmds[index] = newCmd;
             else
                 this._cmds.push(newCmd);
-            this._checkDisplay();
             this.repaint();
         }
         else if (index != -1) {
             this._cmds.splice(index, 1);
-            this._checkDisplay();
             this.repaint();
         }
 
@@ -310,6 +310,9 @@ export class Graphics {
             this.owner._renderType &= ~SpriteConst.GRAPHICS;
             if (struct.renderElements === this._data._renderElements) {
                 struct.renderElements = [];
+            }
+            if (this._data) {
+                this._data.clear();
             }
             struct.renderType = -1;
             struct.renderDataHandler = null;

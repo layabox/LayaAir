@@ -1,7 +1,7 @@
 import { Matrix4x4 } from "../maths/Matrix4x4";
 import { Quaternion } from "../maths/Quaternion";
 import { Vector3 } from "../maths/Vector3";
-import { IK_Constraint1 } from "./IK_Constraint1";
+import { IK_Constraint1 } from "./IK_Constraint";
 import { ILinerender } from "./LineRender";
 import { drawEulerRange } from "./skeleton/RenderUtils";
 
@@ -12,6 +12,7 @@ function neq(v1:number,v2:number){
 }
 
 let d2r = Math.PI/180;
+let ypr = new Vector3();
 /**
  * 从0度开始，0度对应父joint
  * 实际使用的时候，需要放到一个指定的空间，主要是指定转轴
@@ -29,8 +30,8 @@ export class IK_Constraint_Euler implements IK_Constraint1{
     ){
     }
 
-    constraintMat(mat:Matrix4x4){
-        let ypr = new Vector3();
+    constraintMat(mat:Matrix4x4,outQ:Quaternion){
+        //let ypr = new Vector3();
         mat.decomposeYawPitchRoll(ypr);
         let yaw = ypr.x;
         let pitch = ypr.y;
@@ -56,7 +57,7 @@ export class IK_Constraint_Euler implements IK_Constraint1{
             roll = this.zmax;
         }
 
-        let q = new Quaternion();
+        let q = outQ || new Quaternion();
         Quaternion.createFromYawPitchRoll(yaw,pitch,roll,q);
         return q;
     }

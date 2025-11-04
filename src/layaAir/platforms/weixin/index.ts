@@ -13,6 +13,7 @@ MgBrowserAdapter.beforeInit = function () {
     Browser.isIOSHighPerformanceMode = GameGlobal.isIOSHighPerformanceMode;
     Browser.isIOSHighPerformanceModePlus = GameGlobal.isIOSHighPerformanceModePlus;
     PAL.g = (window as any).wx;
+    PAL.g.willGenerateUndefinedAPIs = true;
 };
 
 MgBrowserAdapter.afterInit = function () {
