@@ -79,12 +79,13 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         for (let index = 0; index < n; index++) {
             let rt = RenderTexture._pool[index];
 
-            if (rt.width == width && rt.height == height && rt.colorFormat == colorFormat && rt.depthStencilFormat == depthFormat && rt._generateMipmap == mipmap && rt.multiSamples == multiSamples && rt.generateDepthTexture == depthTexture && rt._gammaSpace == sRGB && rt._storage == storage) {
+            if (rt.width == width && rt.height == height && rt.colorFormat == colorFormat && rt.depthStencilFormat == depthFormat && rt._generateMipmap == mipmap && rt.multiSamples == multiSamples && rt._gammaSpace == sRGB && rt._storage == storage) {
                 rt._inPool = false;
                 let end = RenderTexture._pool[n - 1];
                 RenderTexture._pool[index] = end;
                 RenderTexture._pool.length -= 1;
                 RenderTexture._poolMemory -= (rt._renderTarget.gpuMemory / 1024 / 1024);
+                rt.generateDepthTexture = depthTexture;
                 return rt;
             }
         }
