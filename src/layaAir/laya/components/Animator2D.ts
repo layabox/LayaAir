@@ -197,6 +197,20 @@ export class Animator2D extends Component {
 
     /**
      * @internal
+     * 更新所有已缓存的owner的defVal为当前属性值
+     */
+    private _updateDefVal(): void {
+        if (!this._ownerMap) return;
+        
+        this._ownerMap.forEach((ownerData) => {
+            if (ownerData.pro && ownerData.pro.ower) {
+                ownerData.pro.defVal = ownerData.pro.ower[ownerData.pro.key];
+            }
+        });
+    }
+
+    /**
+     * @internal
      * @param node 
      * @returns 
      */
@@ -552,6 +566,9 @@ export class Animator2D extends Component {
             var clipDuration = animatorState._clip!._duration;
             var calclipduration = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
 
+            // 更新owner映射中的defVal，以支持additive模式基于最新值叠加
+            this._updateDefVal();
+
             playStateInfo._resetPlayState(clipDuration * normalizedTime, calclipduration);
             playStateInfo._normalizedPlayTime = normalizedTime;
             controllerLayer._playType = 0;
@@ -601,6 +618,9 @@ export class Animator2D extends Component {
             var clipDuration = animatorState._clip!._duration;
             var calclipduration = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
 
+            // 更新owner映射中的defVal，以支持additive模式基于最新值叠加
+            this._updateDefVal();
+
             // this.resetDefOwerVal();
             // playStateInfo._resetPlayState(0.0, calclipduration);
             // if (curPlayState != animatorState) {
@@ -640,6 +660,16 @@ export class Animator2D extends Component {
      */
     stop() {
         this._isPlaying = false;
+    }
+
+    /**
+     * @en Reset the base values for additive animations. Call this when you manually modify animated properties and want the additive animation to use the new values as base.
+     * @zh 重置additive动画的基础值。当手动修改了被动画控制的属性，并希望additive动画基于新值叠加时调用此方法。
+     */
+    resetAdditiveBaseValues() {
+        if (this._ownerMap) {
+            this._ownerMap.clear();
+        }
     }
 
     /**

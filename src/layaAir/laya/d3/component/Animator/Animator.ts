@@ -1477,6 +1477,85 @@ export class Animator extends Component {
     }
 
     /**
+     * @internal
+     * 更新所有已缓存的keyframe owner的defaultValue为当前属性值
+     */
+    private _updateDefaultValues(): void {
+        for (let i = 0, n = this._keyframeNodeOwners.length; i < n; i++) {
+            let nodeOwner = this._keyframeNodeOwners[i];
+            if (!nodeOwner || !nodeOwner.propertyOwner || !nodeOwner.property) continue;
+            
+            let pro = nodeOwner.propertyOwner;
+            
+            // 根据类型获取并更新defaultValue
+            switch (nodeOwner.type) {
+                case KeyFrameValueType.Float:
+                case KeyFrameValueType.Boolean:
+                    var proPat = nodeOwner.property;
+                    var m = proPat.length - 1;
+                    for (var j = 0; j < m; j++) {
+                        pro = pro[proPat[j]];
+                        if (!pro) break;
+                    }
+                    if (pro && !nodeOwner.isMaterial) {
+                        nodeOwner.defaultValue = pro[proPat[m]];
+                    }
+                    break;
+                    
+                case KeyFrameValueType.Position:
+                    if (pro.localPosition && nodeOwner.defaultValue) {
+                        pro.localPosition.cloneTo(nodeOwner.defaultValue);
+                    }
+                    break;
+                    
+                case KeyFrameValueType.Rotation:
+                    if (pro.localRotation && nodeOwner.defaultValue) {
+                        pro.localRotation.cloneTo(nodeOwner.defaultValue);
+                    }
+                    break;
+                    
+                case KeyFrameValueType.Scale:
+                    if (pro.localScale && nodeOwner.defaultValue) {
+                        pro.localScale.cloneTo(nodeOwner.defaultValue);
+                    }
+                    break;
+                    
+                case KeyFrameValueType.RotationEuler:
+                    if (pro.localRotationEuler && nodeOwner.defaultValue) {
+                        pro.localRotationEuler.cloneTo(nodeOwner.defaultValue);
+                    }
+                    break;
+                    
+                case KeyFrameValueType.Vector2:
+                case KeyFrameValueType.Vector3:
+                case KeyFrameValueType.Vector4:
+                case KeyFrameValueType.Color:
+                    proPat = nodeOwner.property;
+                    m = proPat.length - 1;
+                    for (j = 0; j < m; j++) {
+                        pro = pro[proPat[j]];
+                        if (!pro) break;
+                    }
+                    if (pro && !nodeOwner.isMaterial && nodeOwner.defaultValue) {
+                        let value = pro[proPat[m]];
+                        if (value && value.cloneTo) {
+                            value.cloneTo(nodeOwner.defaultValue);
+                        }
+                    }
+                    break;
+            }
+        }
+    }
+
+    /**
+     * @en Reset the base values for additive animations. Call this when you manually modify animated properties and want the additive animation to use the new values as base.
+     * @zh 重置additive动画的基础值。当手动修改了被动画控制的属性，并希望additive动画基于新值叠加时调用此方法。
+     */
+    resetAdditiveBaseValues(): void {
+        this._updateDefaultValues();
+    }
+
+    /**
      * @en Gets the default animation state.
      * @param layerIndex The layer index.
      * @returns The default animation state.
@@ -1568,6 +1647,9 @@ export class Animator extends Component {
             if (!animatorState._clip)
                 return;
 
+            // 更新keyframe owner的defaultValue以支持additive模式基于最新值叠加
+            this._updateDefaultValues();
+
             var clipDuration: number = animatorState._clip!._duration;
             var calclipduration = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
             if (curPlayState !== animatorState) {
@@ -1622,6 +1704,9 @@ export class Animator extends Component {
                     this.play(name, layerIndex, normalizedTime);
                     return;
                 }
+
+                // 在状态转换开始时更新defaultValue，支持additive模式基于最新值叠加
+                this._updateDefaultValues();
 
                 var crossPlayStateInfo = controllerLayer._crossPlayStateInfo;
                 var crossNodeOwners = controllerLayer._crossNodesOwners;
