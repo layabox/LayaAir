@@ -13,7 +13,7 @@ import { allBundles } from "./config.mjs";
 const tscOutPath = "./bin/tsc/";
 const buildOutPath = "./build/libs/";
 
-const ignoreCircularDependencyWarnings = process.argv.indexOf("-cd") == -1;
+const ignoreCircularDependencyWarnings = true;//process.argv.indexOf("-cd") == -1;
 
 buildBundles().then(buildDeclarations);
 

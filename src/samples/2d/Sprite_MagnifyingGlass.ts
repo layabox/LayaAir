@@ -47,6 +47,12 @@ export class Sprite_MagnifyingGlass {
 		this.bg2.mask = this.maskSp;
 
 		Laya.stage.on("mousemove", this, this.onMouseMove);
+
+		Laya.stage.on("click", this, this.onMouseClick);
+	}
+
+	private onMouseClick(_e: any = null): void {
+		this.bg2.visible = !this.bg2.visible;
 	}
 
 	private onMouseMove(_e: any = null): void {

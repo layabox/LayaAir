@@ -9,6 +9,7 @@ import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Main } from "./../Main";
+import { Event } from "laya/events/Event";
 
 export class PerformanceTest_Maggots2 {
 	private texturePath: string = "res/tinyMaggot.png";
@@ -42,19 +43,23 @@ export class PerformanceTest_Maggots2 {
 		this.maggotContainer = this.createNewContainer();
 		this.maggotTexture = Laya.loader.getRes(this.texturePath);
 		Laya.timer.frameLoop(1, this, this.animate);
-		Laya.timer.loop(2000, this, this.initMaggots);
+		Laya.stage.on(Event.MOUSE_DOWN, this, () => {
+			this.initMaggots();
+		});
+		// Laya.timer.loop(2000, this, this.initMaggots);
 	}
 
 	private onTextureLoaded(e: any = null): void {
 		this.maggotTexture = Laya.loader.getRes(this.texturePath);
 		this.initMaggots();
-		Laya.timer.frameLoop(1, this, this.animate);
+
+		// Laya.timer.frameLoop(1, this, this.animate);
 	}
 
 	/**
 	 * @param num
 	 */
-	private initMaggots(num: number = 1000): void {
+	private initMaggots(num: number = 8192): void {
 		this.nowTime = performance.now();
 		this.maggotAmount += num;
 		for (var i: number = 0; i < num; i++) {
@@ -131,7 +136,7 @@ export class PerformanceTest_Maggots2 {
 
 		var currentTime: number = performance.now();
 		var chazhi: number = currentTime - this.nowTime;
-		console.log("------------chazhi:" + chazhi);
+		// console.log("------------chazhi:" + chazhi);
 		if (Stat.FPS < 50 && (chazhi > 4990) && !this._isClear) {
 			this._isClear = true;
 			console.log("---------clear---------");

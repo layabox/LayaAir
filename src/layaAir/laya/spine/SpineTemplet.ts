@@ -1,11 +1,10 @@
 import { Resource } from "../resource/Resource";
-import { SketonOptimise } from "./optimize/SketonOptimise";
 import { Material } from "../resource/Material";
-import { SpineShaderInit } from "./material/SpineShaderInit";
+import { SpineShaderInit } from "./shader/SpineShaderInit";
 import { Texture2D } from "../resource/Texture2D";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
+import { ISkeletonOptimise, ISpineTempletParser } from "./interface/ISpineParse";
 import { SpineTexture } from "./SpineTexture";
-
 
 /**
  * @en Base class for Spine animation template
@@ -13,26 +12,13 @@ import { SpineTexture } from "./SpineTexture";
  */
 export class SpineTemplet extends Resource {
     /**
-     * @en Runtime version of Spine
-     * @zh Spine运行时版本
-     */
-    public static RuntimeVersion: string = "3.8";
-
-    /**
-     * @en Skeleton data for the Spine animation
-     * @zh Spine动画的骨骼数据
-     */
-    public skeletonData: spine.SkeletonData;
-
-    /**
      * @en Map of materials used in the Spine animation
      * @zh Spine动画中使用的材质映射
      */
     materialMap: Map<string, Material> = new Map();
 
-    private _textures: Record<string, Texture2D>;
-    private _atlas: spine.TextureAtlas;
-    private _basePath: string;
+    /** @internal */
+    _textures: Record<string, Texture2D>;
     /**
      * @en Base width of spine animation
      * @zh spine 动画基础宽度
@@ -59,11 +45,10 @@ export class SpineTemplet extends Resource {
      */
     public needSlot: boolean;
 
-    /**
-     * @en Skeleton optimization object
-     * @zh 骨骼优化对象
-     */
-    sketonOptimise: SketonOptimise;
+    public parse: ISpineTempletParser;
+
+    public optimize: ISkeletonOptimise;
+
     /**
      * 4.2版本以上支持物理
      * @en Indicates if physics is needed
@@ -74,54 +59,17 @@ export class SpineTemplet extends Resource {
     /** @ignore */
     constructor() {
         super();
-        this._textures = {};
-        this.sketonOptimise = new SketonOptimise();
     }
 
-    /** @internal */
-    get _mainTexture(): Texture2D {
-        let i = 0;
-        let tex: Texture2D;
-        for (let k in this._textures) {
-            tex = this._textures[k];
-            if (tex) {
-                i++;
-                if (i > 1) {
-                    return null;
-                }
-            }
-        }
-        return tex;
-    }
-
-    /**
-     * @en The main texture of the Spine animation
-     * @zh Spine动画的主纹理
-     */
-    mainTexture: Texture2D;
-
-    /**
-     * @en The main blend mode of the Spine animation
-     * @zh Spine动画的主混合模式
-     */
-    mainBlendMode: number = 0;
-    
     /** @internal */
     _premultipliedAlpha = true;
+
     /**
      * @en Switch for premultipliedAlpha.
      * @zh 透明预乘的开关。
      */
     public get premultipliedAlpha() {
         return this._premultipliedAlpha;
-    }
-
-    /**
-     * @en The base path of the Spine animation resources
-     * @zh Spine动画资源的基础路径
-     */
-    get basePath(): string {
-        return this._basePath;
     }
 
     /**
@@ -260,78 +208,6 @@ export class SpineTemplet extends Resource {
 
         return region;
     }
-
-    /**
-     * @en Check if Templet needs transparent premultiplied
-     * @zh 检查Templet是否需要透明预乘
-     */
-    checkPremultipliedAlpha() {
-        let premultipliedAlpha = true;
-
-        let pages = this._atlas.pages;
-        for (let i = 0, len = pages.length; i < len; i++) {
-            let page = pages[i];
-            if (page) {
-                let tex = (page.texture as unknown as SpineTexture).realTexture as Texture2D;
-                premultipliedAlpha = page.pma || (tex._premultiplyAlpha && premultipliedAlpha);
-            }
-        }
-        
-        return premultipliedAlpha;
-    }
-
-    /** @internal */
-    _parse(desc: string | ArrayBuffer, atlas: spine.TextureAtlas, textures: Record<string, Texture2D>, premultipliedAlpha = true): void {
-
-        let atlasLoader = new spine.AtlasAttachmentLoader(atlas);
-        if (desc instanceof ArrayBuffer) {
-            //@ts-ignore
-            let skeletonBinary = new spine.SkeletonBinary(atlasLoader, false);
-            this.skeletonData = skeletonBinary.readSkeletonData(new Uint8Array(desc));
-        } else {
-            //@ts-ignore
-            let skeletonJson = new spine.SkeletonJson(atlasLoader, false);
-            this.skeletonData = skeletonJson.readSkeletonData(desc);
-        }
-
-        this._textures = textures;
-        this._atlas = atlas;
-        this.mainBlendMode = this.skeletonData.slots[0]?.blendMode || 0;
-        this.mainTexture = this._mainTexture;
-        
-        this._premultipliedAlpha = premultipliedAlpha;
-        this.hasPhysics = this.skeletonData.physicsConstraints && this.skeletonData.physicsConstraints.length > 0;
-        //需要无物理环境
-        this.sketonOptimise.canCache = this.sketonOptimise.canCache && !this.hasPhysics;
-
-        this.sketonOptimise.checkMainAttach(this.skeletonData);
-
-        let skeleton = this.sketonOptimise.sketon;
-        // 有效值
-        if (
-            this.skeletonData.x == undefined 
-            || this.skeletonData.y == undefined
-            || this.skeletonData.width == undefined
-            || this.skeletonData.height == undefined
-        ) {
-            let offset = new spine.Vector2;
-            let size = new spine.Vector2;
-            skeleton.setToSetupPose();
-            skeleton.updateWorldTransform(0);
-            skeleton.getBounds(offset, size);
-
-            this.width = size.x;
-            this.height = size.y;
-            this.offsetX = offset.x + size.x;
-            this.offsetY = -(offset.y + size.y);
-        }else{
-            this.width = this.skeletonData.width || 0;
-            this.height = this.skeletonData.height || 0;
-            this.offsetX = (this.skeletonData.x || 0) + this.width;
-            this.offsetY = -((this.skeletonData.y || 0) + this.height);
-        }
-    }
-
     /**
      * @en Get the animation name by its index
      * @param index The index of the animation
@@ -339,10 +215,7 @@ export class SpineTemplet extends Resource {
      * @param index 动画的索引
      */
     getAniNameByIndex(index: number): string {
-        //@ts-ignore
-        let tAni = this.skeletonData.getAnimationByIndex(index);
-        if (tAni) return tAni.name;
-        return null;
+        return this.optimize.getAniNameByIndex(index);
     }
 
     /**
@@ -354,7 +227,7 @@ export class SpineTemplet extends Resource {
      * @returns 找到的动画索引，如果未找到则返回-1
      */
     findAnimation(name: string) {
-        return this.skeletonData.findAnimation(name);
+        return this.optimize.findAnimation(name);
     }
 
     /**
@@ -364,8 +237,7 @@ export class SpineTemplet extends Resource {
      * @param skinName 皮肤名称
      */
     getSkinIndexByName(skinName: string): number {
-        //@ts-ignore
-        return this.skeletonData.getSkinIndexByName(skinName);
+        return this.optimize.getSkinIndexByName(skinName);
     }
 
     /**
@@ -374,7 +246,7 @@ export class SpineTemplet extends Resource {
      */
     protected _disposeResource(): void {
 
-        this.sketonOptimise.destroy();
+        this.parse.destroy();
 
         for (let k in this._textures) {
             let tex = this._textures[k];
@@ -392,7 +264,6 @@ export class SpineTemplet extends Resource {
             console.error("SpineTemplet is using");
         }
 
-        this.skeletonData = null;
-        this.sketonOptimise = null;
+        this.parse = null;
     }
 }
