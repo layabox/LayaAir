@@ -16,6 +16,7 @@ import { IK_Lookat } from "./IK_Lookat";
 import { IK_Target } from "./IK_Target";
 import { IK_System, SHOW_DBG } from "./IK_System";
 import { ILinerender } from "./LineRender";
+import { IK_Joint } from "./IK_Joint";
 
 
 @regClass() @runInEditor

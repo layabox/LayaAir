@@ -44,8 +44,8 @@ export class IK_ChainData{
     //     return this._alignWithTarget;
     // }
 
-    //@property({type:"int",hidden:"data.type=='lookat'",min:2,max:5})
-    //jointCount=2;
+    @property({type:"int",hidden:"data.type=='lookat'",min:2,max:5})
+    jointCount=2;
 
     //@property({type:"int",hidden:"data.type=='position'",min:1,max:5,default:1})
     //lookJointCount=1
