@@ -46,49 +46,6 @@ export function delay(time:number) {
     });
 }
 
-
-class ConstrainedRotation {
-    // 计算约束后的四元数
-    static calculateConstrainedQuaternion(fromVector: Vector3, toVector: Vector3, axis: Vector3): Quaternion {
-        // 步骤 1: 计算未约束的四元数
-        let unconstrained = new Quaternion();
-        quaternionFromTo(fromVector, toVector, unconstrained);
-
-        // 步骤 2: 将四元数投影到指定轴上
-        let constrainedQ = this.projectQuaternionOnAxis(unconstrained, axis);
-
-        // 步骤 3: 归一化结果
-        constrainedQ.normalize(constrainedQ);
-
-        return constrainedQ;
-    }
-
-    // 将四元数投影到指定轴上
-    private static projectQuaternionOnAxis(q: Quaternion, axis: Vector3): Quaternion {
-        // 计算四元数的轴角表示
-        let angle = 2 * Math.acos(q.w);
-        let sinHalfAngle = Math.sin(angle / 2);
-
-        let qAxis = new Vector3();
-        if (sinHalfAngle !== 0) {
-            qAxis.x = q.x / sinHalfAngle;
-            qAxis.y = q.y / sinHalfAngle;
-            qAxis.z = q.z / sinHalfAngle;
-        }
-
-        // 计算投影
-        let dotProduct = Vector3.dot(qAxis, axis);
-        let projectedAxis = new Vector3();
-        Vector3.scale(axis, dotProduct, projectedAxis);
-
-        // 创建新的四元数
-        let projectedQ = new Quaternion();
-        Quaternion.createFromAxisAngle(projectedAxis, angle, projectedQ);
-
-        return projectedQ;
-    }
-}
-
 /**
  * 判断3点共线
  */
@@ -101,40 +58,6 @@ export function isCollinear(p1: Vector3, p2: Vector3, p3: Vector3, epsilon: numb
     // 如果点积的绝对值接近1，则三点共线
     const dot = Math.abs(v1.dot(v2));
     return Math.abs(dot - 1) < epsilon;
-}
-
-export class ClsInst{
-    static map = new Map<string,any[]>();
-    static addInst(obj:any){
-        let clsid = obj.constructor.clsid;
-        //debug
-        if(!clsid){
-            console.error('no clsid');
-            return;
-        }
-        //debug
-        let list = this.map.get(clsid);
-        if(!list){
-            list = [];
-            this.map.set(clsid,list);
-        }else{
-            if(list.indexOf(obj)>=0)
-                return;
-        }
-        list.push(obj);
-    }
-
-    static upateType(cls:any){
-        let list = this.map.get(cls.clsid);
-        if(list){
-            for(let o of list){
-                o.__proto__ = cls.prototype;
-                if(o['onProtoChange']){
-                    o['onProtoChange'].call(o);
-                }
-            }
-        }
-    }
 }
 
 //||v1+λv2||=||v3|| 求λ（返回绝对值最小的实根，若无实解返回NaN）

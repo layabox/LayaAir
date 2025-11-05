@@ -5,35 +5,35 @@ export class BoneData {
     disabled: boolean;
 }
 
-@regClass()
+//@regClass()
 export class IK_ChainData{
 
-    @property(String)
+    //@property(String)
     name:string
 
-    @property({type:String,enumSource: [{name:"position"}, {name:"lookat"}],default:'position'})
+    //@property({type:String,enumSource: [{name:"position"}, {name:"lookat"}],default:'position'})
     type="position"    
 
-    @property(Sprite3D)
+    //@property(Sprite3D)
     end:Sprite3D=null;
 
-    @property(Sprite3D)
+    //@property(Sprite3D)
     root:Sprite3D=null;    
 
-    @property({type:BoneData})
+    //@property({type:BoneData})
     bones: BoneData[];
 
 
-    @property({type:Boolean,caption:'末端关节固定'})
+    //@property({type:Boolean,caption:'末端关节固定'})
     fixedEnd=false
 
-    @property({type:String,enumSource:['no','y','all'],default:'',caption:'末端朝向对齐'})
+    //@property({type:String,enumSource:['no','y','all'],default:'',caption:'末端朝向对齐'})
     alignTarget:'no'|'y'|'all'='no'
 
-    @property(Sprite3D)
+    //@property(Sprite3D)
     target:Sprite3D=null;
 
-    @property(Sprite3D)
+    //@property(Sprite3D)
     PoleTarget:Sprite3D=null;
     // @property(Boolean)
     // set alignWithTarget(v:boolean){
@@ -44,16 +44,16 @@ export class IK_ChainData{
     //     return this._alignWithTarget;
     // }
 
-    @property({type:"int",hidden:"data.type=='lookat'",min:2,max:5})
+    //@property({type:"int",hidden:"data.type=='lookat'",min:2,max:5})
     jointCount=2;
 
     //@property({type:"int",hidden:"data.type=='position'",min:1,max:5,default:1})
     //lookJointCount=1
 
-    @property({type:Number,caption:"混合权重",default:1})
+    //@property({type:Number,caption:"混合权重",default:1})
     blendWeight=1;
 
-    @property({type:Boolean,default:true})
+    //@property({type:Boolean,default:true})
     enable=true
 
 }
