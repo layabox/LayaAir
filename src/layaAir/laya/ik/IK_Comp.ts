@@ -210,6 +210,7 @@ export class IK_Comp extends Script {
         if ((window as any).EditorEnv && !this._runInEditor)
             return;
         if (this._needRebuild) {
+            let _fixedBone = new Set<Sprite3D>();
             //创建约束
             this._constraintsMap.clear();
             if (this._constraintDatas) {
@@ -247,6 +248,9 @@ export class IK_Comp extends Script {
                             constraint = this._createConstraintInstanceFromData(cdata, c);
                         }
                             break;
+                        case 'fixed':
+                            _fixedBone.add(cdata.bone);
+                            break;
                         default:
                             break;
                     }
@@ -259,13 +263,15 @@ export class IK_Comp extends Script {
             //创建chain
             this._ik_sys.clear();
             this.chainDatas.forEach(data => {
-                if (!data.jointCount || !data.end || !data.enable)
+                let cnt = data.bones?.length||data.jointCount;
+                if (!cnt || !data.end || !data.enable)
                     return;
                 let name = data.name;
                 if (!name) {
                     name = data.end.name;
                 }
 
+                let chain_joints:IK_Joint[]=null;
                 if (data.type == 'position') {
                     let c = this._ik_sys.chreateChainByBoneName(this, data.end, data.jointCount);
                     c.enable = data.enable;
@@ -281,18 +287,40 @@ export class IK_Comp extends Script {
                     if (data.alignTarget && data.alignTarget != 'no') {
                         c.endAlign = data.alignTarget;
                     }
+                    chain_joints = c.joints;
                 } else if (data.type == 'lookat') {
-                    if (data.lookJointCount) {
-                        let lookat = this._ik_sys.chreateLookatByEndSprite(this, data.end, data.lookJointCount);
-                        if (lookat) {
-                            lookat.enable = data.enable;
-                            //lookat.alignWithTarget = data.alignWithTarget;
-                            this._ik_sys.lookats.push(lookat);
-                            if (data.target) {
-                                lookat.target = new IK_Target(data.target);
+                    let lookat = this._ik_sys.chreateLookatByEndSprite(this, data.end, cnt);
+                    if (lookat) {
+                        lookat.enable = data.enable;
+                        //lookat.alignWithTarget = data.alignWithTarget;
+                        this._ik_sys.lookats.push(lookat);
+                        if (data.target) {
+                            lookat.target = new IK_Target(data.target);
+                        }
+                        chain_joints = lookat.joints;
+                    }
+                }
+                //如果有bones数据，应用一下
+                if(data.bones){
+                    let joints = chain_joints;
+                    data.bones.forEach(b=>{
+                        if(b.disabled){
+                            for(let i=0,n=cnt;i<n;i++){
+                                if(joints[i].bone==b.data){
+                                    joints[i].fixed=true;
+                                    break;
+                                }
                             }
                         }
-                    }
+                    })
+                }
+                //固定约束
+                if(_fixedBone.size){
+                    chain_joints.forEach(j=>{
+                        if(_fixedBone.has(j.bone)){
+                            j.fixed=true;
+                        }
+                    })
                 }
             })
             this._needRebuild = false;
