@@ -11,7 +11,7 @@ import { Main } from "./../Main";
 import { Image } from "laya/ui/Image";
 
 export class PerformanceTest_Cartoon2 {
-	private amount: number = 500;
+	private amount: number = 1;
 
 	private character1: any[] = ["res/cartoon2/yd-6_01.png",
 		"res/cartoon2/yd-6_02.png",
@@ -80,8 +80,8 @@ export class PerformanceTest_Cartoon2 {
 			charSkin = this.characterSkins[Math.floor(Math.random() * this.characterSkins.length)];
 			char = new Character(charSkin);
 
-			char.x = Math.random() * (Laya.stage.width + Character.WIDTH * 2);
-			char.y = Math.random() * (Laya.stage.height - Character.HEIGHT);
+			char.x = 0;
+			char.y = 0;
 			char.zOrder = char.y;
 
 			char.setSpeed(Math.floor(Math.random() * 2 + 3));
@@ -116,7 +116,7 @@ class Character extends Sprite {
 	static WIDTH: number = 110;
 	static HEIGHT: number = 110;
 
-	private speed: number = 5;
+	private speed: number = 0;
 
 	private bloodBar: Sprite;
 	private animation: Animation;
@@ -141,7 +141,8 @@ class Character extends Sprite {
 		this.bloodBar = new Sprite();
 		this.bloodBar.loadImage("res/cartoon2/blood_1_r.png");
 		this.bloodBar.x = 20;
-		this.addChild(this.bloodBar);
+		// this.bloodBar.zIndex = 2;
+		// this.addChild(this.bloodBar);
 	}
 
 	private createNameLabel(): void {
@@ -151,7 +152,9 @@ class Character extends Sprite {
 		this.nameLabel.fontSize = 13;
 		this.nameLabel.width = Character.WIDTH;
 		this.nameLabel.align = "center";
-		this.addChild(this.nameLabel);
+		// this.nameLabel.zIndex = 3;
+		// this.nameLabel.singleCharRender = true;
+		// this.addChild(this.nameLabel);
 	}
 
 	setSpeed(value: number): void {

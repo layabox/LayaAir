@@ -7,6 +7,8 @@
     "start": "npm-run-all clean copyShaders copyJsLibs --parallel watchShaders watchSamples",
     "build": "node scripts/buildEngine.mjs",
     "buildSamples": "node scripts/buildSamples.mjs",
+    "esbuildSamplesWebGL": "node scripts/watchSamples.mjs webgl",
+    "esbuildSamplesWebGPU": "node scripts/watchSamples.mjs webgpu",
     "buildApi": "node scripts/buildApiDoc.mjs",
     "watchShaders": "copy-and-watch --skip-initial-copy --watch src/**/*.{glsl,vs,fs} bin/tsc/",
     "watchSamples": "cd ./src/samples && tsc -b --force --watch",
@@ -50,7 +52,9 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "i18next": "^23.11.2"
+    "dpdm": "^3.14.0",
+    "i18next": "^23.11.2",
+    "rollup-plugin-esbuild": "^6.2.1"
   },
   "bugs": {
     "url": "https://ask.layaAir.com/"

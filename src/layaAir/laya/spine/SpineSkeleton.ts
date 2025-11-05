@@ -2,7 +2,6 @@ import { Sprite } from "../display/Sprite";
 import { ExternalSkin } from "./ExternalSkin";
 import { Spine2DRenderNode } from "./Spine2DRenderNode";
 import { SpineTemplet } from "./SpineTemplet";
-import { ISpineOptimizeRender } from "./optimize/interface/ISpineOptimizeRender";
 
 /**
  * @deprecated 请使用Sprite+Spine2DRenderNode组件
@@ -107,17 +106,6 @@ export class SpineSkeleton extends Sprite {
     get playState(): number {
         return this._spineComponent.playState;
     }
-
-
-    public get spineItem(): ISpineOptimizeRender {
-        return this._spineComponent.spineItem;
-    }
-
-
-    public set spineItem(value: ISpineOptimizeRender) {
-        this._spineComponent.spineItem = value;
-    }
-
 
     /**
      * 播放动画

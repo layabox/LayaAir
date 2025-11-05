@@ -53,6 +53,7 @@ export const allBundles = [{
         'laya/tween/**/*.*',
         'laya/tools/**/*.*',
         'laya/html/**/*.*',
+        'laya/large/**/*.*',
         'Config3D.ts',
         "laya/bt/**/*.*",
         'laya/physics/IPhysiscs2DFactory.ts',

@@ -8,23 +8,24 @@ import { Handler } from "../utils/Handler";
 import { Timer } from "../utils/Timer";
 import { ExternalSkin } from "./ExternalSkin";
 import { SpineTemplet } from "./SpineTemplet";
-import { ISpineOptimizeRender } from "./optimize/interface/ISpineOptimizeRender";
 import { Event } from "../events/Event";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { LayaGL } from "../layagl/LayaGL";
-import { SpineShaderInit } from "./material/SpineShaderInit";
+import { SpineShaderInit } from "./shader/SpineShaderInit";
 import { Material } from "../resource/Material";
 import { ClassUtils } from "../utils/ClassUtils";
-import { SpineNormalRender } from "./optimize/SpineNormalRender";
-import { SketonOptimise } from "./optimize/SketonOptimise";
-import { SpineEmptyRender } from "./optimize/SpineEmptyRender";
 import { Mesh2D } from "../resource/Mesh2D";
-import { SpineOptimizeRender } from "./optimize/SpineOptimizeRender";
 import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { ISpineRenderDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
 import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
+import { Sprite } from "../display/Sprite";
+import { Text } from "../display/Text";
+import { Matrix } from "../maths/Matrix";
+import { ISpineRender } from "./interface/ISpineRender";
+import { ESpineRenderMode, ESpineRenderState, SpineConst } from "./SpineConst";
+import { SpineEmptyRender } from "./SpineEmptyRender";
 import { Texture } from "../resource/Texture";
 import { SlotUtils } from "./optimize/SlotUtils";
 import { RepaintFlag } from "../display/SpriteConst";
@@ -66,8 +67,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         }
     }
 
-    /** @ignore */
-    spineItem: ISpineOptimizeRender;
+    private _createBone: boolean = false;
+
+    protected _spineRender: ISpineRender = SpineEmptyRender.instance;
+    
     /** @internal */
     _mesh: Mesh2D;
     /** 
@@ -76,21 +79,24 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      **/
     physicsUpdate = 2;
 
-    /**状态-停止 */
+    /** @deprecated 状态-停止 */
     static readonly STOPPED: number = 0;
-    /**状态-暂停 */
+    /** @deprecated 状态-暂停 */
     static readonly PAUSED: number = 1;
-    /**状态-播放中 */
+    /** @deprecated 状态-播放中 */
     static readonly PLAYING: number = 2;
 
     protected _renderHandle: ISpineRenderDataHandle;
     protected _source: string;
     protected _templet: SpineTemplet;
-    protected _timeKeeper: TimeKeeper;
-    protected _skeleton: spine.Skeleton;
-    protected _state: spine.AnimationState;
-    protected _stateData: spine.AnimationStateData;
-    protected _currentPlayTime: number = 0;
+    protected _maxDeltaTime: number = 0.1;
+
+    // protected _skeleton: spine.Skeleton;
+    // protected _state: spine.AnimationState;
+    // protected _stateData: spine.AnimationStateData;
+
+    // protected _currentPlayTime: number = 0;
+
     private _pause: boolean = true;
     private _needUpdate: boolean = false;
     /** 动画播放的起始时间位置*/
@@ -117,12 +123,23 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     _setPreAlphaFlag = false;
     private _premultipliedAlpha = true;
 
+    protected _bones: Sprite[];
+    protected _boneMap: Map<string, Sprite>;
+    /**
+     * @zh 骨骼映射
+     * @en Bone mapping
+     */
+    get boneMap(): Map<string, Sprite> {
+        return this._boneMap;
+    }
+
+    private _rootBone: Sprite;
+
     /** @ignore */
     constructor() {
         super();
         this._renderElements = [];
         this._materials = [];
-        this.spineItem = SpineEmptyRender.instance;
     }
 
     protected _isMaterialVaild(value: Material): boolean {
@@ -137,6 +154,93 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         let handle = LayaGL.render2DRenderPassFactory.createSpineRenderDataHandle();
         handle.offset = this._offset;
         return handle;
+    }
+
+    /**
+     * @zh 是否创建骨骼
+     * @en Whether to create bones
+     */
+    get createBone() {
+        return this._createBone;
+    }
+    
+    set createBone(value: boolean) {
+        if (this._createBone === value)
+            return;
+        this._createBone = value;
+
+        if (value) {
+            this._createBones();
+        } else {
+            this._rootBone.destroy();
+            this._rootBone = null;
+        }
+    }
+
+    private _createBones() {
+        if (this._rootBone || !this._skeleton)
+            return;
+        this._bones = [];
+        let bones = this._skeleton.bones;
+        let map: Map<string, Sprite> = new Map;
+        this._rootBone = new Sprite();
+        this._rootBone.name = "__bone_root__";
+        this.owner.addChild(this._rootBone);
+        
+        // 计算坐标系偏移，与 Spine 渲染时使用的偏移保持一致
+        let offsetX = -this._skeleton.x + this._templet.offsetX;
+        let offsetY = -this._skeleton.y + this._templet.offsetY;
+        
+        for (let i = 0; i < bones.length; i++) {
+            let bone = bones[i];
+            let boneSprite = new Sprite();
+            boneSprite.name = bone.data.name;
+
+            let attachSprite = new Sprite();
+            attachSprite.name = bone.data.name + "__attach";
+            attachSprite.scaleY = -1;
+
+            // if (this._showBoneDebug) {
+            //     attachSprite.graphics.drawCircle(0, 0, 5, "#ff0000", "#ff0000");
+
+            //     if (bone.data.length > 0) {
+            //         attachSprite.graphics.drawLine(0, 0, bone.data.length, 0, "#00ff00", 2);
+            //     }
+                
+            //     let textLabel = new Text();
+            //     textLabel.text = bone.data.name;
+            //     textLabel.font = "Arial";
+            //     textLabel.fontSize = 20;
+            //     textLabel.color = "#ffff00";
+            //     textLabel.y = 10;
+            //     attachSprite.addChild(textLabel);
+            // }
+
+            boneSprite.x = bone.worldX + offsetX;
+            boneSprite.y = -(bone.worldY + offsetY);
+
+            boneSprite.addChild(attachSprite);
+            this._rootBone.addChild(boneSprite);
+
+            // 外层节点用于矩阵同步
+            this._bones.push(boneSprite);
+            // 名称映射返回可挂载且正向的节点
+            map.set(bone.data.name, attachSprite);
+        }
+
+        this._boneMap = map;
+    }
+
+    /**
+     * @zh 获取骨骼
+     * @param boneName 骨骼名称
+     * @returns 骨骼节点
+     * @en Get bone
+     * @param boneName The name of the bone.
+     * @returns The bone node.
+     */
+    getBone(boneName: string) {
+        return this._boneMap.get(boneName);
     }
 
     /**
@@ -259,11 +363,11 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @en The current spine animation state.
      */
     get maxDetlaTime(): number {
-        return this._timeKeeper.maxDelta;
+        return this._maxDeltaTime;
     }
 
     set maxDetlaTime(value: number) {
-        this._timeKeeper.maxDelta = value;
+        this._maxDeltaTime = value;
     }
 
     /**
@@ -336,19 +440,24 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (value < this._playStart || (!!this._playEnd && value > this._playEnd) || value > this._duration)
             throw new Error("AnimationPlayer: value must large than playStartTime,small than playEndTime.");
 
-        this._state.update(value - this._currentPlayTime);
-        this._currentPlayTime = value;
+        this._spineRender.currentTime = value;
+    }
+
+    get currentTime(): number {
+        if (!this._templet)
+            return 0;
+        return this._spineRender.currentTime;
     }
 
     /**
      * @zh 获取当前播放状态
      * @en Get the current play time.
      */
-    get playState(): number {
+    get playState(): ESpineRenderState {
         if (this._pause)
-            if (this._currentPlayTime) return Spine2DRenderNode.PAUSED;
-            else return Spine2DRenderNode.STOPPED;
-        return Spine2DRenderNode.PLAYING;
+            if (this.currentTime) return ESpineRenderState.Paused;
+            else return ESpineRenderState.Stopped;
+        return ESpineRenderState.Playing;
     }
 
 
@@ -462,17 +571,15 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             return;
 
         this._templet._addReference();
-        this._skeleton = new spine.Skeleton(this._templet.skeletonData);
 
         this._renderHandle.skeleton = this._skeleton;
-        this._stateData = new spine.AnimationStateData(this._skeleton.data);
-        // 动画状态类
-        this._state = new spine.AnimationState(this._stateData);
-        //this._renerer = new SpineSkeletonRenderer(templet, false);
-        this._timeKeeper = new TimeKeeper(Laya.timer);
-        //let sMesh=this._templet.slotManger.init(this._skeleton.drawOrder, this._templet,this._templet.mainTexture);
-        if (this.spineItem)
-            this.spineItem.destroy();
+
+        if (this._spineRender) {
+            this._spineRender.destroy();
+        }
+
+        // if (this.spineItem)
+        //     this.spineItem.destroy();
 
         this._struct.renderElements = [];
         this._struct.setRepaint();
@@ -481,17 +588,15 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             this._doAutoAdjust();
         }
 
+        if (this._createBone) {
+            this._createBones();
+        }
         this.onTransformChanged();
 
         this.boundsChange = true;
 
-        if (!this._useFastRender) {
-            let before = SketonOptimise.normalRenderSwitch;
-            SketonOptimise.normalRenderSwitch = true;
-            this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
-            SketonOptimise.normalRenderSwitch = before;
-        } else
-            this.spineItem = this._templet.sketonOptimise._initSpineRender(this._skeleton, this._templet, this, this._state);
+        this._spineRender = SpineConst.factory.createSpineRender();
+        this._spineRender.mode = this._useFastRender ? ESpineRenderMode.Optimize : ESpineRenderMode.Normal;
 
         let skinIndex = this._templet.getSkinIndexByName(this._skinName);
         if (skinIndex != -1)
@@ -535,7 +640,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
                 // console.log("event:", entry, event);
                 this.owner.event(Event.LABEL, eventData);
                 if (this._playAudio && eventData.audioValue) {
-                    let channel = SoundManager.playSound(templet.basePath + eventData.audioValue, 1, Handler.create(this, this._onAniSoundStoped), null, (this._currentPlayTime * 1000 - eventData.time) / 1000);
+                    let channel = SoundManager.playSound(eventData.audioValue, 1, Handler.create(this, this._onAniSoundStoped), null, (this._currentPlayTime * 1000 - eventData.time) / 1000);
                     SoundManager.playbackRate = this._playbackRate;
                     channel && this._soundChannelArr.push(channel);
                 }
@@ -614,28 +719,53 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     private _update(): void {
-        this._timeKeeper.update();
-        let state = this._state;
-        let delta = this._timeKeeper.delta * this._playbackRate;
-        // 在游戏循环中，update被调用，这样AnimationState就可以跟踪时间
-        state.update(delta);
+        let timerDelta = Laya.timer.delta / 1000 * this._playbackRate;
+        
+        if (timerDelta > this._maxDeltaTime)
+            timerDelta = this._maxDeltaTime;
 
-        //@ts-ignore
-        let currentPlayTime = this._currentPlayTime = state.getCurrentPlayTime(this.trackIndex);
+        let delta = timerDelta * this._playbackRate;
+
+        let currentPlayTime = this._spineRender.currentTime;
 
         // 使用当前动画和事件设置骨架
-        state.apply(this._skeleton);
+        this._spineRender.update(delta);
 
         // spine在state.apply中发送事件，开发者可能会在事件中进行destory等操作，导致无法继续执行
-        if (!this._state || !this._skeleton || this.destroyed) {
+        if (this.destroyed) {
             return;
         }
 
-        this._skeleton.update && this._skeleton.update(delta);
-        // 计算骨骼的世界SRT(world SRT)
-        this._skeleton.updateWorldTransform(this.physicsUpdate);// spine.Physics.update;
-        this.spineItem.render(currentPlayTime);
+        this._spineRender.render(currentPlayTime);
         this.owner.repaint(RepaintFlag.UpdateRT);
+    }
+
+    private _updateBones() {
+        if (!this._createBone) return;
+        
+        let offsetX = -this._skeleton.x + this._templet.offsetX;
+        let offsetY = -this._skeleton.y + this._templet.offsetY;
+        
+        let bones = this._skeleton.bones;
+        for (let i = 0; i < bones.length; i++) {
+            let bone = bones[i];
+            let boneSprite = this._bones[i];
+            
+            let matrix = boneSprite.transform;
+            if (!matrix) {
+                matrix = new Matrix();
+                boneSprite.transform = matrix;
+            }
+            // 由于 Y 轴翻转，需要调整矩阵
+            matrix.a = bone.a;
+            matrix.b = bone.b;
+            matrix.c = -bone.c;
+            matrix.d = -bone.d; 
+            matrix.tx = bone.worldX + offsetX;
+            matrix.ty = -(bone.worldY + offsetY);
+            
+            boneSprite.transform = matrix;
+        }
     }
 
     private _flushExtSkin() {
@@ -669,8 +799,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     getAniNameByIndex(index: number): string {
         return this._templet.getAniNameByIndex(index);
     }
-    /**
 
+    /**
      * @zh 通过名字得到插槽的引用
      * @param slotName 插槽的名字
      * @en Get the reference to the slot by name.
@@ -799,10 +929,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     reset() {
         this._templet._removeReference(1);
         this._templet = null;
-        this._timeKeeper = null;
-        this._skeleton = null;
-        this._state.clearListeners();
-        this._state = null;
+        // this._skeleton = null;
+        // this._state.clearListeners();
+        // this._state = null;
         this._pause = true;
         this._needUpdate = false;
         if (this._soundChannelArr.length > 0)
@@ -937,6 +1066,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             // }
         }
     }
+    
     /**
      * @zh 替换插槽皮肤
      * @param slotName 插槽名称
@@ -1008,6 +1138,13 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             this.clear();
         }
         this.spineItem.destroy();
+        
+        // 清理骨骼可视化
+        if (this._rootBone) {
+            this._rootBone.destroy();
+            this._rootBone = null;
+            this._bones = null;
+        }
     }
 
     /** @internal */

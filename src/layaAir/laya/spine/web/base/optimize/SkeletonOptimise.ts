@@ -1,0 +1,462 @@
+import { AttachmentParse } from "./AttachmentParse";
+import { IBCreator } from "../buffer/IBCreator";
+import { VBBoneCreator, VBCreator, VBRigBodyCreator } from "../buffer/VBCreator";
+import { ISkeletonOptimise } from "../../../interface/ISpineParse";
+import { ESpineRenderType } from "../../../SpineSkeleton";
+import { ESpineRenderMode, SpineConst, TSpineBakeData } from "../../../SpineConst";
+import { AnimationRender } from "./AnimationRender";
+
+/**
+ * @en SketonOptimise class used for skeleton optimization.
+ * @zh SketonOptimise 类用于骨骼优化。
+ */
+export class SkeletonOptimise implements ISkeletonOptimise {
+
+    /**
+     * @en Indicates whether caching is possible.
+     * @zh 表示是否可以缓存。
+     */
+    canCache: boolean;
+    /**
+     * @en The spine skeleton object.
+     * @zh spine骨骼对象。
+     */
+    skeleton: spine.Skeleton;
+    /**
+     * @en The spine skeleton data.
+     * @zh spine骨骼数据。
+     */
+    data: spine.SkeletonData;
+
+    _stateData: spine.AnimationStateData;
+    _state: spine.AnimationState;
+
+    /**
+     * @en Map of blend modes.
+     * @zh 混合模式的映射。
+     */
+    blendModeMap: Map<number, number> = new Map();
+
+    /**
+     * @en Array of animation renderers.
+     * @zh 动画渲染器数组。
+     */
+    animators: AnimationRender[] = [];
+
+    /**
+     * @en Array of skin attachments.
+     * @zh 皮肤附件数组。
+     */
+    skinAttachArray: SkinAttach[] = [];
+
+    /**
+     * @en Default skin attachment.
+     * @zh 默认皮肤附件。
+     */
+    defaultSkinAttach: SkinAttach;
+
+    private _tempIbCreate: IBCreator;
+
+    /**
+     * @en Maximum number of bones.
+     * @zh 最大骨骼数量。
+     */
+    maxBoneNumber: number;
+
+    /**
+     * @en Baked spine data.
+     * @zh 烘焙的spine数据。    
+     */
+    bakeData: TSpineBakeData;
+
+    /** @ignore */
+    constructor() {
+    }
+
+    getAniNameByIndex(index: number): string | null {
+        //@ts-ignore
+        let tAni = this.data.getAnimationByIndex(index);
+        if (tAni) return tAni.name;
+        return null;
+    }
+
+    findAnimation(name: string): any | null {
+        return this.data.findAnimation(name);
+    }
+    
+    getSkinIndexByName(skinName: string): number {
+        //@ts-ignore
+        return this.data.getSkinIndexByName(skinName);
+    }
+
+    /** @internal */
+    _updateState(delta: number) {
+        this._state.update(delta);
+        let trackEntry = this._state.getCurrent(0);
+        this._state.apply(this.skeleton);
+        this.skeleton.updateWorldTransform(2);// spine.Physics.update;
+        return this.skeleton.bones;
+    }
+
+    /** @internal */
+    _play(animationName: string) {
+        // 设置执行哪个动画
+        let trackEntry = this._state.setAnimation(0, animationName, true);
+        // 设置起始和结束时间
+        trackEntry.animationStart = 0;
+        //trackEntry.animationEnd = end;
+        //@ts-ignore
+        let animationDuration = trackEntry.animation.duration;
+        //this._duration = animationDuration;
+        return animationDuration;
+    }
+
+    /**
+     * @en Check and initialize the main attachment.
+     * @param skeleton The skeleton
+     * @param skeletonData The skeleton data to check.
+     * @zh 检查并初始化主附件。
+     * @param skeleton 骨骼对象。
+     * @param skeletonData 要检查的骨骼数据。
+     */
+    checkMainAttach(skeleton: spine.Skeleton, data: spine.SkeletonData) {
+        this.skeleton = skeleton;
+        this.data = data;
+        //@ts-ignore
+        this._stateData = new spine.AnimationStateData(data);
+        // 动画状态类
+        this._state = new spine.AnimationState(this._stateData);
+
+        this.attachMentParse(data);
+        this.initAnimation(data.animations);
+    }
+
+    /**
+     * @en Parse attachments from skeleton data.
+     * @param skeletonData The skeleton data to parse.
+     * @zh 从骨骼数据解析附件。
+     * @param skeletonData 要解析的骨骼数据。
+     */
+    attachMentParse(skeletonData: spine.SkeletonData) {
+        let skins = skeletonData.skins;
+        let slots = skeletonData.slots;
+        let defaultSkinAttach;
+
+        this._tempIbCreate = new IBCreator();
+
+        for (let i = 0, n = skins.length; i < n; i++) {
+            let skin = skins[i];
+            let skinAttach = new SkinAttach();
+            skinAttach.name = skin.name;
+            skinAttach._tempIbCreate = this._tempIbCreate;
+            if (i != 0) {
+                skinAttach.copyFrom(defaultSkinAttach);
+            }
+            skinAttach.attachMentParse(skin, slots);
+            this.skinAttachArray.push(skinAttach);
+            skinAttach.init(slots);
+
+            if (i == 0) {
+                defaultSkinAttach = skinAttach;
+            }
+        }
+    }
+
+    /**
+     * @en Initialize animations from the skeleton data.
+     * @param animations Array of animations to initialize.
+     * @zh 从骨骼数据初始化动画。
+     * @param animations 要初始化的动画数组。
+     */
+    initAnimation(animations: spine.Animation[]) {
+        let maxBoneNumber = 0;
+        //不同skin vbib长度可能不一致
+        for (let i = 0, n = animations.length; i < n; i++) {
+            let animation = animations[i];
+            let animator = new AnimationRender();
+            animator.check(animation, this);
+            this.animators.push(animator);
+            this.skinAttachArray.forEach((value: SkinAttach) => {
+                value.initAnimator(animator);
+            });
+            animator.skinDataArray.forEach((skinData) => {
+                if (!skinData.isNormalRender) {
+                    let boneNumber = skinData.vb.boneArray.length / 2;
+                    if (boneNumber > maxBoneNumber) {
+                        maxBoneNumber = boneNumber;
+                    }
+                }
+            });
+        }
+
+        this.maxBoneNumber = maxBoneNumber;
+    }
+
+    /**
+     * @en Cache bone data for optimization.
+     * @zh 缓存骨骼数据以进行优化。
+     */
+    cacheBone() {
+        if (!SpineConst.cacheSwitch) {
+            for (let i = 0, n = this.animators.length; i < n; i++) {
+                let animator = this.animators[i];
+                if (animator.boneFrames.length == 0) {
+                    animator.cacheBones(this);
+                }
+                //animator.cacheBone();
+            }
+        }
+    }
+
+    destroy() {
+        for (let i = 0, n = this.animators.length; i < n; i++)
+            this.animators[i].destroy();
+        this.animators.length = 0;
+    }
+}
+
+/**
+ * @en SkinAttach class represents skin attachment.
+ * @zh SkinAttach类表示皮肤附件。
+ */
+export class SkinAttach {
+    /**
+     * @en Name of the skin attachment.
+     * @zh 皮肤附件的名称。
+     */
+    name: string;
+    /**
+     * @en Attachments for each slot
+     * @zh 每个插槽的附件。
+     */
+    slotAttachMap: Map<number, Map<string, AttachmentParse>>;
+    /**
+     * @en Order of main attachments.
+     * @zh 主要附件的顺序。
+     */
+    mainAttachMentOrder: AttachmentParse[];
+    /**
+     * @en Indicates if normal rendering is used.
+     * @zh 表示是否使用普通渲染。
+     */
+    isNormalRender: boolean;
+    /**
+     * @en Main vertex buffer creator.
+     * @zh 主顶点缓冲区创建器。
+     */
+    mainVB: VBCreator;
+    /**
+     * @en Main index buffer creator.
+     * @zh 主索引缓冲区创建器。
+     */
+    mainIB: IBCreator;
+    /**
+     * @en Used for constructing temp Mesh2D
+     * @zh 用于构建临时Mesh2D
+     */
+    _tempIbCreate: IBCreator;
+    /**
+     * @en Indicates if there's any normal rendering.
+     * @zh 表示是否存在任何普通渲染。
+     */
+    hasNormalRender: boolean;
+    /**
+     * @en Type of spine rendering.
+     * @zh spine渲染的类型。
+     */
+    type: ESpineRenderType;
+    /**
+     * @en The number of bones that affect a vertex.
+     * @zh 影响一个顶点的最大骨骼数。
+     */
+    vertexBones: number = 0;
+    /**
+     * @en The index of the rigid body bone.
+     * @zh 刚体骨骼的索引。
+     */
+    rbBoneIndex: number = -1;
+
+    /** @ignore */
+    constructor() {
+        this.slotAttachMap = new Map();
+        this.mainAttachMentOrder = [];
+    }
+
+    /**
+     * @en Copy data from another SkinAttach.
+     * @param other The SkinAttach to copy from.
+     * @zh 从另一个SkinAttach复制数据。
+     * @param other 要复制的SkinAttach。
+     */
+    copyFrom(other: SkinAttach) {
+        other.slotAttachMap.forEach((value, key) => {
+            this.slotAttachMap.set(key, new Map(value));
+        });
+    }
+
+    /**
+     * @en Parse attachments from skin data.
+     * @param skinData The spine skin data.
+     * @param slots Array of spine slot data.
+     * @zh 从皮肤数据解析附件。
+     * @param skinData spine皮肤数据。
+     * @param slots spine插槽数据数组。
+     */
+    attachMentParse(skinData: spine.Skin, slots: spine.SlotData[]) {
+        let vertexBones = 0;
+        let attachments = skinData.attachments;
+        let vertexCount = 0;
+        let indexCount = 0;
+        let twoColorTint = false;
+        let bones = new Set<number>();
+        
+        for (let i = 0, n = slots.length; i < n; i++) {
+            let attachment = attachments[i];
+            let slot = slots[i];
+            let boneIndex = slot.boneData.index;
+            let map = this.slotAttachMap.get(i);
+            let slotAttachName = slot.attachmentName;
+
+            if (!map) {
+                map = new Map();
+                this.slotAttachMap.set(i, map);
+            }
+
+            if (attachment) {
+                for (let key in attachment) {
+                    let attach = attachment[key];
+                    let deform = null;//slot.deform; TODO
+                    let parse = new AttachmentParse();
+
+                    parse.init(attach, boneIndex, i, deform, slot);
+                    // if (parse.isNormalRender) this.isNormalRender = true;
+                    vertexBones = Math.max(vertexBones, parse.vertexBones);
+                    indexCount += parse.indexCount;
+                    vertexCount += parse.vertexCount;
+                    twoColorTint = twoColorTint || !!parse.darkColor;
+                    map.set(key, parse);
+                    parse.bones.forEach(bone => {
+                        bones.add(bone);
+                    });
+                }
+            } else if (slotAttachName) {
+                let parse = map.get(slotAttachName);
+                if (parse) {
+                    indexCount += parse.indexCount;
+                    vertexCount += parse.vertexCount;
+                    vertexBones = Math.max(vertexBones, parse.vertexBones);
+                    twoColorTint = twoColorTint || !!parse.darkColor;
+                    parse.bones.forEach(bone => {
+                        bones.add(bone);
+                    });
+                }
+            }
+
+            if (!map.get(null)) {
+                let nullAttachment = new AttachmentParse();
+                nullAttachment.slotId = i;
+                nullAttachment.color = slot.color;
+                nullAttachment.boneIndex = boneIndex;
+                nullAttachment.attachment = null;
+                map.set(nullAttachment.attachment, nullAttachment);
+            }
+        }
+
+        let size = bones.size;
+        if (size > 1) {
+            this.type = ESpineRenderType.boneGPU;
+        }
+        else if(size === 1){
+            this.type = ESpineRenderType.rigidBody;
+            this.rbBoneIndex = bones.values().next().value;
+        }
+        else {
+            this.type = ESpineRenderType.normal;
+        }
+        this.vertexBones = vertexBones;
+
+        let flag: string;
+        switch (this.type) {
+            case ESpineRenderType.normal:
+                flag = "UV,COLOR,POSITION,BONE";
+                if (twoColorTint) flag += ",COLOR2";
+                this.mainVB = new VBBoneCreator(flag, vertexCount);
+                break;
+            case ESpineRenderType.boneGPU:
+                flag = "UV,COLOR,POSITION,BONE";
+                if (twoColorTint) flag += ",COLOR2";
+                this.mainVB = new VBBoneCreator(flag, vertexCount);
+                break;
+            case ESpineRenderType.rigidBody:
+                flag = "UV,COLOR,POSITION";
+                if (twoColorTint) flag += ",COLOR2";
+                this.mainVB = new VBRigBodyCreator(flag, vertexCount);
+                break;
+        }
+
+        //皮肤的基础长度
+        this.mainIB = new IBCreator();
+        this.mainIB.updateFormat(vertexCount);
+        this.mainIB.setBufferLength(indexCount);
+    }
+
+    /**
+     * @en Initialize the skin attachment.
+     * @param slots Array of spine slot data.
+     * @zh 初始化皮肤附件。
+     * @param slots spine插槽数据数组。
+     */
+    init(slots: spine.SlotData[]) {
+        let mainAttachMentOrder = this.mainAttachMentOrder;
+        slots.forEach((slot: spine.SlotData, index: number) => {
+            let attchment = slot.attachmentName;
+            if (attchment) {
+                let attach = this.slotAttachMap.get(index).get(attchment);
+                if (attach) {
+                    this.mainVB.appendVB(attach);
+                }
+                else {
+                    attach = this.slotAttachMap.get(index).get(null);
+                }
+                if (attach.isClip) this.isNormalRender = true;
+                mainAttachMentOrder.push(attach);
+            }
+            else {
+                let attach = this.slotAttachMap.get(index).get(null);
+                mainAttachMentOrder.push(attach);
+            }
+        });
+        this.mainVB.initBoneMat();
+        this.mainIB.createIB(mainAttachMentOrder, this.mainVB);
+    }
+
+    /**
+     * @en Initialize an animator with this skin attachment.
+     * @param animator The animation renderer to initialize.
+     * @zh 使用此皮肤附件初始化动画器。
+     * @param animator 要初始化的动画渲染器。
+     */
+    initAnimator(animator: AnimationRender) {
+        let skinData = animator.createSkinData(
+            this.mainVB, this.mainIB, this._tempIbCreate, this.slotAttachMap, this.mainAttachMentOrder, this.type
+        );
+
+        skinData.name = this.name;
+
+        if (this.isNormalRender) {
+            skinData.isNormalRender = true;
+        }
+        // skinData.mainibRender = this.mainIB;
+        if (skinData.isNormalRender) {
+            this.hasNormalRender = true;
+        }
+    }
+}
+
+
+export type SketonDynamicInfo = {
+    /** 所有皮肤动画的最大顶点数 */
+    maxVertexCount: number;
+    /** 所有皮肤动画的最大索引数 */
+    maxIndexCount: number;
+}

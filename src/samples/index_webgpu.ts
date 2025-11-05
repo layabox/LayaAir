@@ -14,8 +14,14 @@ import "laya/platform/PlatformAdapters";
 import "laya/platform/StorageAdapter";
 import "laya/platform/TextInputAdapter";
 import "./importWebGPU"
+import { PerformanceTest_Cartoon2 } from "./2d/PerformanceTest_Cartoon2";
+import Sprite_ScreenShot from "./2d/Sprite_ScreenShot";
+import { Camera2DDemo } from "./2d/Camera2DDemo";
+import { PerformanceTest_Maggots } from "./2d/PerformanceTest_Maggots";
+import { Sprite_MagnifyingGlass } from "./2d/Sprite_MagnifyingGlass";
+import { Sprite_LargeTexManager_Simple } from "./2d/Sprite_LargeTexManager_Simple";
 
 Resource.DEBUG = true;
 Physics2D.I._factory = new physics2DwasmFactory();
 Laya3D.PhysicsCreateUtil = new btPhysicsCreateUtil();
-new Main(false, false);
+new Main(false,false, Sprite_LargeTexManager_Simple );
