@@ -1,6 +1,9 @@
 import { property, regClass } from "../../Decorators";
 import { Sprite3D } from "../d3/core/Sprite3D";
-
+export class BoneData {
+    data: Sprite3D;
+    disabled: boolean;
+}
 
 @regClass()
 export class IK_ChainData{
@@ -13,6 +16,13 @@ export class IK_ChainData{
 
     @property(Sprite3D)
     end:Sprite3D=null;
+
+    @property(Sprite3D)
+    root:Sprite3D=null;    
+
+    @property({type:BoneData})
+    bones: BoneData[];
+
 
     @property({type:Boolean,caption:'末端关节固定'})
     fixedEnd=false
@@ -34,11 +44,11 @@ export class IK_ChainData{
     //     return this._alignWithTarget;
     // }
 
-    @property({type:"int",hidden:"data.type=='lookat'",min:2,max:5})
-    jointCount=2;
+    //@property({type:"int",hidden:"data.type=='lookat'",min:2,max:5})
+    //jointCount=2;
 
-    @property({type:"int",hidden:"data.type=='position'",min:1,max:5,default:1})
-    lookJointCount=1
+    //@property({type:"int",hidden:"data.type=='position'",min:1,max:5,default:1})
+    //lookJointCount=1
 
     @property({type:Number,caption:"混合权重",default:1})
     blendWeight=1;
