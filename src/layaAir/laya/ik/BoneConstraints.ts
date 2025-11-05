@@ -4,12 +4,12 @@ import { IK_Comp } from "./IK_Comp";
 import { IK_ConstraintData } from "./IK_ConstraintData";
 
 
-@regClass() @runInEditor
+//@regClass() @runInEditor
 export class BoneConstraints extends Script {
     static DATACHANGE='constraint_data_change';
 
     private _constraintDatas:IK_ConstraintData[]
-    @property({type:[IK_ConstraintData],onChange:'onConstraintDataChange'})
+    //@property({type:[IK_ConstraintData],onChange:'onConstraintDataChange'})
     set constraints(cs:IK_ConstraintData[]){
         this._constraintDatas=cs;
     }

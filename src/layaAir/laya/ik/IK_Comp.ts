@@ -16,9 +16,9 @@ import { IK_Lookat } from "./IK_Lookat";
 import { IK_Target } from "./IK_Target";
 import { IK_System, SHOW_DBG } from "./IK_System";
 import { ILinerender } from "./LineRender";
+import { IK_Joint } from "./IK_Joint";
 
-
-@regClass() @runInEditor
+//@regClass() @runInEditor
 export class IK_Comp extends Script {
     private _ik_sys: IK_System;
     //_ske3d = new Skeleton3D();
@@ -29,7 +29,7 @@ export class IK_Comp extends Script {
     private _visualSp: PixelLineSprite3D = null
     private _visualInPlay = true;
     private _chainDatas: IK_ChainData[] = [];
-    @property({ type: [IK_ChainData], onChange: "onChainDataChange" })
+    //@property({ type: [IK_ChainData], onChange: "onChainDataChange" })
     set chainDatas(v: IK_ChainData[]) {
         this._chainDatas = v;
         this._needRebuild = true;
@@ -40,7 +40,7 @@ export class IK_Comp extends Script {
 
 
     private _solverIteration = 10;
-    @property({ type: 'int', max: 100, min: 1 })
+    //@property({ type: 'int', max: 100, min: 1 })
     set solverIteration(v: number) {
         this._solverIteration = v;
         this._ik_sys.setMaxIterations(v);
@@ -50,7 +50,7 @@ export class IK_Comp extends Script {
     }
 
     private _dirsolverIteration = 10;
-    @property({ type: 'int', max: 100, min: 1 })
+    //@property({ type: 'int', max: 100, min: 1 })
     set dirSolverIteration(v: number) {
         this._dirsolverIteration = v;
         IK_Lookat.dirIt = v;
@@ -59,7 +59,7 @@ export class IK_Comp extends Script {
         return this._dirsolverIteration;
     }
 
-    @property({ type: Number, min: 0, max: 1 })
+    //@property({ type: Number, min: 0, max: 1 })
     set dampingFactor(v: number) {
         this._ik_sys.setDampingFactor(v);
     }
@@ -83,7 +83,7 @@ export class IK_Comp extends Script {
         //this._needRebuild=true;
     }
 
-    @property({ type: Boolean, catalog: 'debug' })
+    //@property({ type: Boolean, catalog: 'debug' })
     set showGizmos(v: boolean) {
         this._showDbg = v;
         if (this._ik_sys) {
@@ -94,7 +94,7 @@ export class IK_Comp extends Script {
         return this._showDbg;
     }
 
-    @property({ type: Boolean, catalog: 'debug' })
+    //@property({ type: Boolean, catalog: 'debug' })
     set 显示约束(v: boolean) {
         if (v)
             SHOW_DBG.add(SHOW_DBG.CONSTRAINT);
@@ -104,7 +104,7 @@ export class IK_Comp extends Script {
     get 显示约束() {
         return SHOW_DBG.has(SHOW_DBG.CONSTRAINT);
     }
-    @property({ type: Boolean, catalog: 'debug' })
+    //@property({ type: Boolean, catalog: 'debug' })
     set 显约束轴(v: boolean) {
         if (v)
             SHOW_DBG.add(SHOW_DBG.CONSTRAINT_AXIS);
@@ -124,7 +124,7 @@ export class IK_Comp extends Script {
     // }
 
     private _runInEditor = true;
-    @property({ type: Boolean })
+    //@property({ type: Boolean })
     get RunInEditor() {
         return this._runInEditor;
     }
@@ -132,7 +132,7 @@ export class IK_Comp extends Script {
         this._runInEditor = b;
     }
 
-    @property({ type: Boolean, catalog: 'debug', caption: '使用动画层' })
+    //@property({ type: Boolean, catalog: 'debug', caption: '使用动画层' })
     set useAnimLayer(b: boolean) {
         this._ik_sys.useAnimLayer = b;
     }
