@@ -183,19 +183,19 @@ export class IK_System {
 
     chreateChainByBoneName(comp:IK_Comp, nameOrSp3d:string|Sprite3D, length:number):IK_Chain{
         let bones:Sprite3D[];
-        let name:string;
+        let endName:string;
         if(typeof nameOrSp3d=='string'){
-            name = nameOrSp3d;
+            endName = nameOrSp3d;
             bones = this.getBoneChain(nameOrSp3d,length);
         }else if(nameOrSp3d instanceof Sprite3D){
-            name = nameOrSp3d.name;
+            endName = nameOrSp3d.name;
             bones = this.getBoneChainBySprite(nameOrSp3d,length);
         }
         if(!bones || bones.length!=length){
-            console.error(`没有找到骨骼:${name}或者长度不足${length}`)
+            console.error(`没有找到骨骼:${endName}或者长度不足${length}`)
             return null;
         }
-        let chain = new IK_Chain(name,comp);
+        let chain = new IK_Chain('',comp);
         
         //创建chain
         //确定对应关系
