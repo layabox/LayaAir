@@ -274,6 +274,7 @@ export class IK_Comp extends Script {
                 let chain_joints:IK_Joint[]=null;
                 if (data.type == 'position') {
                     let c = this._ik_sys.chreateChainByBoneName(this, data.end, cnt);
+                    c.name = name;
                     c.enable = data.enable;
                     c.blendWeight = data.blendWeight;
                     c.poleTarget = data.PoleTarget ? new IK_Target(data.PoleTarget) : null;
@@ -291,6 +292,7 @@ export class IK_Comp extends Script {
                 } else if (data.type == 'lookat') {
                     let lookat = this._ik_sys.chreateLookatByEndSprite(this, data.end, cnt);
                     if (lookat) {
+                        lookat.name = name;
                         lookat.enable = data.enable;
                         //lookat.alignWithTarget = data.alignWithTarget;
                         this._ik_sys.lookats.push(lookat);
