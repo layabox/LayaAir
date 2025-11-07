@@ -26,11 +26,6 @@ import { WebGLVertexBuffer } from "../RenderDevice/WebGLVertexBuffer";
 import { WebGLRenderElement2D } from "./WebGLRenderElement2D";
 
 export class WebglRenderContext2D implements IRenderContext2D {
-    //兼容ConchWebGL
-    static isCreateBlitScreenELement = false;
-    //兼容ConchWebGL
-    static blitScreenElement: WebGLRenderElement2D;
-    static blitContext: WebglRenderContext2D;
 
     private _clearColor: Color = new Color(0, 0, 0, 0);
     _destRT: WebGLInternalRT;
@@ -45,110 +40,9 @@ export class WebglRenderContext2D implements IRenderContext2D {
 
     constructor() {
         this._globalConfigShaderData = Shader3D._configDefineValues as WebDefineDatas;
-        if (LayaEnv.isConch && !WebglRenderContext2D.isCreateBlitScreenELement) {
-            (!WebglRenderContext2D.isCreateBlitScreenELement) && this.setBlitScreenElement();
-            WebglRenderContext2D.blitContext = new WebglRenderContext2D();
-            let engine = LayaGL.renderEngine as WebGLEngine;
-            engine.on("endFrame", () => {
-                let last_main_frame_buffer = WebGLEngine._lastFrameBuffer_WebGLOBJ;
-                let last_main_frame = WebGLEngine._lastFrameBuffer;
-                WebGLEngine._lastFrameBuffer_WebGLOBJ = null;
-                WebGLEngine._lastFrameBuffer = null;
-                WebglRenderContext2D.blitContext.setOffscreenView((engine as WebGLEngine).getInnerWidth(), (engine as WebGLEngine).getInnerHeight());
-
-                WebglRenderContext2D.blitContext.setRenderTarget(null, true, Color.BLACK);
-                WebglRenderContext2D.blitScreenElement.materialShaderData._setInternalTexture(Shader3D.propertyNameToID("u_MainTex"), last_main_frame._textures[0]);
-                WebglRenderContext2D.blitContext.drawRenderElementOne(WebglRenderContext2D.blitScreenElement);
-                WebGLEngine._lastFrameBuffer_WebGLOBJ = last_main_frame_buffer;
-                WebGLEngine._lastFrameBuffer = last_main_frame;
-                WebGLEngine.instance.getTextureContext().bindRenderTarget(last_main_frame);
-            })
-        }
     }
 
 
-    /**
-     * 兼容ConchWebGL
-     */
-    private setBlitScreenElement() {
-        let blitScreenElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
-        let shaderData = LayaGL.renderDeviceFactory.createShaderData();
-        let _vertices: Float32Array = new Float32Array([
-            1, 1, 1, 1,
-            1, -1, 1, 0,
-            -1, 1, 0, 1,
-            -1, -1, 0, 0]);
-
-        let _vertexBuffer = new WebGLVertexBuffer(BufferTargetType.ARRAY_BUFFER, BufferUsage.Dynamic);
-        _vertexBuffer.setDataLength(64);
-        _vertexBuffer.setData(_vertices.buffer, 0, 0, _vertices.buffer.byteLength);
-        let declaration = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, 0)]);
-        _vertexBuffer.vertexDeclaration = declaration;
-        let geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.TriangleStrip, DrawType.DrawArray);
-        geometry.setDrawArrayParams(0, 4);
-        let bufferState = LayaGL.renderDeviceFactory.createBufferState();
-        bufferState.applyState([_vertexBuffer], null);
-        geometry.bufferState = bufferState;
-
-        //Shader
-        let attributeMap: { [name: string]: [number, ShaderDataType] } = {
-            'a_PositionTexcoord': [0, ShaderDataType.Vector4]
-        }
-        let uniformMap = {
-            "u_MainTex": ShaderDataType.Texture2D,
-        };
-        let shader = Shader3D.add("GLESblitScreen", false, false);
-        shader.shaderType = ShaderFeatureType.Default;
-        let subShader = new SubShader(attributeMap, uniformMap, {});
-        shader.addSubShader(subShader);
-        let vs = `
-            #define SHADER_NAME GLESblitScreenVS
-
-            varying vec2 v_Texcoord0;
-
-            void main()
-            {
-                gl_Position = vec4(- 1.0 + (a_PositionTexcoord.x + 1.0), (1.0 - ((- 1.0 + (-a_PositionTexcoord.y + 1.0)) + 1.0) / 2.0) * 2.0 - 1.0, 0.0, 1.0);
-
-                v_Texcoord0 = a_PositionTexcoord.zw;
-            }
-        `
-        let fs = `
-            #define SHADER_NAME GLESblitScreenFS
-
-            #include "Color.glsl";
-
-            varying vec2 v_Texcoord0;
-
-            void main()
-            {
-                vec4 mainColor = texture2D(u_MainTex, v_Texcoord0);
-               
-                gl_FragColor = mainColor;
-            }
-        `
-        let pass = subShader.addShaderPass(vs, fs);
-        pass.statefirst = true;
-        let blitState = pass.renderState;
-        blitState.depthTest = RenderState.DEPTHTEST_ALWAYS;
-        blitState.depthWrite = false;
-        blitState.cull = RenderState.CULL_NONE;
-        blitState.blend = RenderState.BLEND_DISABLE;
-        blitState.stencilRef = 1;
-        blitState.stencilTest = RenderState.STENCILTEST_OFF;
-        blitState.stencilWrite = false;
-        blitState.stencilOp = new Vector3(RenderState.STENCILOP_KEEP, RenderState.STENCILOP_KEEP, RenderState.STENCILOP_REPLACE);
-
-
-        blitScreenElement.geometry = geometry as WebGLRenderGeometryElement;
-        blitScreenElement.materialShaderData = shaderData as WebGLShaderData;
-        blitScreenElement.subShader = subShader;
-        blitScreenElement.renderStateIsBySprite = false;
-
-
-        WebglRenderContext2D.isCreateBlitScreenELement = true;
-        WebglRenderContext2D.blitScreenElement = blitScreenElement as WebGLRenderElement2D;
-    }
 
     drawRenderElementList(list: FastSinglelist<WebGLRenderElement2D>): number {
         let time = performance.now();
