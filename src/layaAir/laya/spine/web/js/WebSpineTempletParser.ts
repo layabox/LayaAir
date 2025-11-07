@@ -1,13 +1,12 @@
-import { Laya } from "../../../../../Laya";
-import { ILoadTask, ILoadURL, Loader } from "../../../../net/Loader";
-import { URL } from "../../../../net/URL";
-import { TextureFormat } from "../../../../RenderEngine/RenderEnum/TextureFormat";
-import { Texture2D } from "../../../../resource/Texture2D";
-import { ISpineTempletParser } from "../../../interface/ISpineParse";
-import { SpineConst } from "../../../SpineConst";
-import { SpineTemplet } from "../../../SpineTemplet";
-import { SkeletonOptimise } from "../../base/optimize/SkeletonOptimise";
-import { SpineTexture } from "../../SpineTexture";
+import { ILoadTask, ILoadURL, Loader } from "../../../net/Loader";
+import { URL } from "../../../net/URL";
+import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
+import { Texture2D } from "../../../resource/Texture2D";
+import { ISpineTempletParser } from "../../interface/ISpineParse";
+import { SpineConst } from "../../SpineConst";
+import { SpineTemplet } from "../../SpineTemplet";
+import { SkeletonOptimise } from "../base/optimize/SkeletonOptimise";
+import { SpineTexture } from "../SpineTexture";
 
 
 const _premultipliedAlpha = false;
@@ -40,26 +39,29 @@ export class WebSpineTempletParser implements ISpineTempletParser {
         let skeletonOptimise = new SkeletonOptimise();
         
         let skeleton = new spine.Skeleton(skeletonData);
-        // skeleton.setToSetupPose();
-        // skeleton.updateWorldTransform(0);
-        skeleton.getBounds(offset, size);
 
+        // 有效值
         if (
-            size.x !== Infinity 
-            && size.y !== Infinity
-            && offset.x !== Infinity
-            && offset.y !== Infinity
+            skeletonData.x == undefined 
+            || skeletonData.y == undefined
+            || skeletonData.width == undefined
+            || skeletonData.height == undefined
         ) {
+            let offset = new spine.Vector2;
+            let size = new spine.Vector2;
+            skeleton.setToSetupPose();
+            skeleton.updateWorldTransform(0);
+            skeleton.getBounds(offset, size);
+
             templet.width = size.x;
             templet.height = size.y;
             templet.offsetX = offset.x + size.x;
             templet.offsetY = -(offset.y + size.y);
         }else{
-            let rootBone = skeleton.getRootBone();
             templet.width = skeletonData.width || 0;
             templet.height = skeletonData.height || 0;
-            templet.offsetX = (skeletonData.x || 0) + templet.width + rootBone.x;
-            templet.offsetY = -((skeletonData.y || 0) + templet.height - rootBone.y);
+            templet.offsetX = (skeletonData.x || 0) + templet.width;
+            templet.offsetY = -((skeletonData.y || 0) + templet.height);
         }
 
         if (this._version >= 4.1) {

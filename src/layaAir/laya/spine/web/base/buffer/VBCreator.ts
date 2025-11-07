@@ -1,6 +1,6 @@
 import { VertexDeclaration } from "../../../../RenderEngine/VertexDeclaration";
-import { SpineMeshUtils } from "../../../utils/SpineMeshUtils";
 import { AttachmentParse } from "../optimize/AttachmentParse";
+import { SpineShaderInit } from "../../../shader/SpineShaderInit";
 
 /**
  * @en Abstract class for creating vertex buffers in a spine skeleton animation system.
@@ -76,7 +76,7 @@ export abstract class VBCreator{
         this.vbLength = 0;
 
         if (auto) {
-            this._vertexDeclaration = SpineMeshUtils.getVertexDeclaration(this.vertexFlag);
+            this._vertexDeclaration = SpineShaderInit.getVertexDeclaration(this.vertexFlag);
             this.twoColorTint = vertexFlag.indexOf("COLOR2") != -1;
             if (this.twoColorTint) this._baseVtxCount += 4;
             this._vertexSize = this._vertexDeclaration.vertexStride / 4;
@@ -209,78 +209,6 @@ export abstract class VBCreator{
         let pos = this.slotVBMap.get(attach.slotId)?.get(attach.attachment);
         if (pos) {
             this.appendVertexArray(attach, this.vb, pos.offset * this.vertexSize, this);
-        }
-    }
-
-    /**
-     * @en Update bone matrices.
-     * @param bones Array of bones.
-     * @param boneMat Bone matrix array.
-     * @param ofx Offset x.
-     * @param ofy Offset y.
-     * @zh 更新骨骼矩阵。
-     * @param bones 骨骼数组。
-     * @param boneMat 骨骼矩阵数组。
-     * @param ofx 偏移x。
-     * @param ofy 偏移y。
-     */
-    updateBone(bones: spine.Bone[], boneMat: Float32Array, ofx: number = 0, ofy: number = 0) {
-        let boneArray = this.boneArray;
-        for (let i = 0, n = boneArray.length; i < n; i += 2) {
-            let offset = boneArray[i] * 8;
-            let bone = bones[boneArray[i + 1]];
-            boneMat[offset] = bone.a;
-            boneMat[offset + 1] = bone.b;
-            boneMat[offset + 2] = bone.worldX + ofx;
-            boneMat[offset + 3] = 0;
-            boneMat[offset + 4] = bone.c;
-            boneMat[offset + 5] = bone.d;
-            boneMat[offset + 6] = bone.worldY + ofy;
-            boneMat[offset + 7] = 0;
-        }
-    }
-
-    /**
-     * @en Update bone cache.
-     * @param boneFrames Array of bone frame data.
-     * @param frames Frame number.
-     * @param boneMat Bone matrix array.
-     * @zh 更新骨骼缓存。
-     * @param boneFrames 骨骼帧数据数组。
-     * @param frames 帧数。
-     * @param boneMat 骨骼矩阵数组。
-     */
-    updateBoneCache(boneFrames: Float32Array[][], frames: number, boneMat: Float32Array, ofx: number = 0, ofy: number = 0) {
-        let boneArray = this.boneArray;
-        let floor = Math.floor(frames);
-        let detal;
-        if (floor == boneFrames.length - 1) { detal = 0; }
-        else {
-            detal = frames - floor;
-        }
-        let boneFrames1 = boneFrames[floor];
-        let boneFrames2 = boneFrames[floor + 1];
-        if (detal > 0.0001) {
-            for (let i = 0, n = boneArray.length; i < n; i += 2) {
-                let offset = boneArray[i] * 8;
-                let boneFloatArray = boneFrames1[boneArray[i + 1]];
-                let boneFloatArray2 = boneFrames2[boneArray[i + 1]];
-                boneMat[offset] = boneFloatArray[0] + (boneFloatArray2[0] - boneFloatArray[0]) * detal;
-                boneMat[offset + 1] = boneFloatArray[1] + (boneFloatArray2[1] - boneFloatArray[1]) * detal;
-                boneMat[offset + 2] = boneFloatArray[2] + (boneFloatArray2[2] - boneFloatArray[2]) * detal;
-                boneMat[offset + 3] = 0
-                boneMat[offset + 4] = boneFloatArray[4] + (boneFloatArray2[4] - boneFloatArray[4]) * detal;
-                boneMat[offset + 5] = boneFloatArray[5] + (boneFloatArray2[5] - boneFloatArray[5]) * detal;
-                boneMat[offset + 6] = boneFloatArray[6] + (boneFloatArray2[6] - boneFloatArray[6]) * detal;
-                boneMat[offset + 7] = 0;
-            }
-        }
-        else {
-            for (let i = 0, n = boneArray.length; i < n; i += 2) {
-                let offset = boneArray[i] * 8;
-                let bone = boneFrames1[boneArray[i + 1]];
-                boneMat.set(bone, offset);
-            }
         }
     }
 

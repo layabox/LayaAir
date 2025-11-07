@@ -13,13 +13,17 @@ import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderSt
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { VertexElement } from "../../renders/VertexElement";
 import { VertexElementFormat } from "../../renders/VertexElementFormat";
-import { SpineMeshUtils } from "../utils/SpineMeshUtils";
+import { SpineMeshUtils } from "../web/base/utils/SpineMeshUtils";
 import { Mesh2D } from "../../resource/Mesh2D";
+import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
+import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
 /**
  * @en SpineShaderInit class handles the initialization and management of Spine shader-related components.
  * @zh SpineShaderInit 类用于处理 Spine 着色器相关组件的初始化和管理。
  */
 export class SpineShaderInit {
+
+    private static _vertexDeclarationMap: any = {};
 
     /**
      * @en Vertex declaration for normal Spine rendering.
@@ -293,7 +297,7 @@ export class SpineShaderInit {
         //     new VertexElement(32, VertexElementFormat.Single, 4)
         // ])
 
-        SpineShaderInit.SpineNormalVertexDeclaration = SpineMeshUtils.getVertexDeclaration("UV,COLOR,POSITION,COLOR2");
+        SpineShaderInit.SpineNormalVertexDeclaration = SpineShaderInit.getVertexDeclaration("UV,COLOR,POSITION,COLOR2");
 
         // SpineShaderInit.SpineNormalVertexDeclaration = new VertexDeclaration(32, [
         //     new VertexElement(0, VertexElementFormat.Vector2, 0),
@@ -310,6 +314,80 @@ export class SpineShaderInit {
         SpineShaderInit.instanceSimpleAnimatorDeclaration = new VertexDeclaration(16, [
             new VertexElement(0, VertexElementFormat.Vector4, 10),
         ])
+    }
+
+
+    static getVertexDeclaration(vertexFlag: string) {
+        var verDec: VertexDeclaration = SpineShaderInit._vertexDeclarationMap[vertexFlag];
+        if (!verDec) {
+            var subFlags: any[] = vertexFlag.split(",");
+            var elements: VertexElement[] = [];
+            var offset: number = 0;
+
+            for (var i: number = 0, n: number = subFlags.length; i < n; i++) {
+                var element: VertexElement;
+                switch (subFlags[i]) {
+                    case "COLOR2":
+                        element = new VertexElement(offset, VertexElementFormat.Vector4, 11);
+                        offset += 16;
+                        break;
+                    case "BONE":
+                        element = new VertexElement(offset, VertexElementFormat.Single, 3);
+                        elements.push(element);
+                        offset += 4;
+
+                        element = new VertexElement(offset, VertexElementFormat.Single, 4);
+                        elements.push(element);
+                        offset += 4;
+
+                        element = new VertexElement(offset, VertexElementFormat.Vector4, 5);
+                        elements.push(element);
+                        offset += 16;
+
+                        element = new VertexElement(offset, VertexElementFormat.Vector4, 6);
+                        elements.push(element);
+                        offset += 16;
+
+                        element = new VertexElement(offset, VertexElementFormat.Vector4, 7);
+                        offset += 16;
+                        break;
+                    // case "RIGIDBODY":
+                    //     element = new VertexElement(offset, VertexElementFormat.Single, 4);
+                    //     offset += 4;
+                    //     break;
+                    case "UV":
+                        element = new VertexElement(offset, VertexElementFormat.Vector2, 0);
+                        offset += 8;
+                        break;
+                    case "COLOR":
+                        element = new VertexElement(offset, VertexElementFormat.Vector4, 1);
+                        offset += 16;
+                        break;
+                    case "POSITION":
+                        element = new VertexElement(offset, VertexElementFormat.Vector2, 2);
+                        offset += 8
+                        break;
+                    default:
+                        throw new Error("unknown vertex flag.");
+                }
+                elements.push(element);
+            }
+
+            verDec = new VertexDeclaration(offset, elements);
+            SpineShaderInit._vertexDeclarationMap[vertexFlag] = verDec;
+        }
+
+        return verDec;
+    }
+
+    static getIndexFormat(vertexCount: number) {
+        let type = IndexFormat.UInt32;
+        if (vertexCount < 256 && LayaGL.renderEngine.getCapable(RenderCapable.Element_Index_Uint8)) {
+            type = IndexFormat.UInt8;
+        } else if (vertexCount < 65536) {
+            type = IndexFormat.UInt16;
+        }
+        return type;
     }
 }
 

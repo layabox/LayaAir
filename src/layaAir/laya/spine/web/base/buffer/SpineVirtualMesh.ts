@@ -1,4 +1,5 @@
 import { Material } from "../../../../resource/Material";
+import { SpineConst } from "../../../SpineConst";
 import { SpineMeshBase } from "./SpineMeshBase";
 
 /**
@@ -6,16 +7,6 @@ import { SpineMeshBase } from "./SpineMeshBase";
  * @zh SpineVirtualMesh 类用于处理 Spine 骨骼网格渲染。
  */
 export class SpineVirtualMesh extends SpineMeshBase {
-    /**
-     * @en Size of each vertex in the vertex array.
-     * @zh 顶点数组中每个顶点的大小。
-     */
-    static vertexSize: number = 8;
-    /**
-     * @en Size of each vertex in the vertex array with Two Color.
-     * @zh 双顶点色模式顶点数组中每个顶点的大小。
-     */
-    static vertexSize_TwoColor: number = 12;
     /**
      * @en Shared vertex array for all instances.
      * @zh 所有实例共享的顶点数组。
@@ -36,7 +27,7 @@ export class SpineVirtualMesh extends SpineMeshBase {
     constructor(material: Material) {
         super(material);
         if (SpineVirtualMesh.vertexArray == null) {//按最大的来
-            SpineVirtualMesh.vertexArray = new Float32Array(SpineMeshBase.maxVertex * SpineVirtualMesh.vertexSize_TwoColor);
+            SpineVirtualMesh.vertexArray = new Float32Array(SpineMeshBase.maxVertex * SpineConst.VERTEX_TWOCOLOR);
             SpineVirtualMesh.indexArray = new Uint16Array(SpineMeshBase.maxVertex * 3);
         }
         this.vertexArray = SpineVirtualMesh.vertexArray;
@@ -46,18 +37,14 @@ export class SpineVirtualMesh extends SpineMeshBase {
      * @en Append clipped vertices and indices.
      * @param vertices Array of vertex data.
      * @param indices Array of index data.
-     * @param offsetX Axis offset X.
-     * @param offsetY Axis offset Y.
      * @zh 裁剪后的顶点和索引。
      * @param vertices 顶点数据数组。
      * @param indices 索引数据数组。
-     * @param offsetX X 轴偏移量。
-     * @param offsetY Y 轴偏移量。
      */
-    appendVerticesClip(vertices: ArrayLike<number>, indices: ArrayLike<number> , offsetX: number = 0, offsetY: number = 0) {
+    appendVerticesClip(vertices: ArrayLike<number>, indices: ArrayLike<number>) {
         let indicesLength = indices.length;
         let verticesLength = vertices.length;
-        let vertexSize = SpineVirtualMesh.vertexSize_TwoColor;
+        let vertexSize = SpineConst.VERTEX_TWOCOLOR;
         let vertexBuffer = this.vertexArray;
 
         let before = this.verticesLength;
@@ -71,8 +58,8 @@ export class SpineVirtualMesh extends SpineMeshBase {
             vertexBuffer[vlen + 3] = vertices[j + 3];
             vertexBuffer[vlen + 4] = vertices[j + 4];
             vertexBuffer[vlen + 5] = vertices[j + 5];
-            vertexBuffer[vlen + 6] = vertices[j] + offsetX;
-            vertexBuffer[vlen + 7] = vertices[j + 1] + offsetY;
+            vertexBuffer[vlen + 6] = vertices[j];
+            vertexBuffer[vlen + 7] = vertices[j + 1];
             vertexBuffer[vlen + 8] = vertices[j + 8];
             vertexBuffer[vlen + 9] = vertices[j + 9];
             vertexBuffer[vlen + 10] = vertices[j + 10];
@@ -98,7 +85,7 @@ export class SpineVirtualMesh extends SpineMeshBase {
      * @returns 如果网格可以添加则返回 true，否则返回 false。
      */
     canAppend(verticesLength: number, indicesLength: number) {
-        return this.verticesLength + verticesLength < SpineVirtualMesh.maxVertex * SpineVirtualMesh.vertexSize_TwoColor && this.indicesLength + indicesLength < SpineVirtualMesh.maxVertex * 3;
+        return this.verticesLength + verticesLength < SpineVirtualMesh.maxVertex * SpineConst.VERTEX_TWOCOLOR && this.indicesLength + indicesLength < SpineVirtualMesh.maxVertex * 3;
     }
 
     /**
@@ -110,8 +97,6 @@ export class SpineVirtualMesh extends SpineMeshBase {
      * @param finalColor Color to apply to vertices.
      * @param darkColor Color to apply to vertices.
      * @param uvs Array of UV coordinates.
-     * @param offsetX Axis offset X.
-     * @param offsetY Axis offset Y.
      * @zh 向网格添加顶点。
      * @param vertices 顶点位置数组。
      * @param verticesLength 要添加的顶点数量。
@@ -120,11 +105,9 @@ export class SpineVirtualMesh extends SpineMeshBase {
      * @param finalColor 应用于顶点的颜色。
      * @param darkColor 应用于顶点的暗色。
      * @param uvs UV 坐标数组。
-     * @param offsetX X 轴偏移量。
-     * @param offsetY Y 轴偏移量。
      */
-    appendVertices(vertices: ArrayLike<number>, verticesLength: number, indices: number[], indicesLength: number, finalColor: spine.Color , darkColor: spine.Color, uvs: ArrayLike<number> , offsetX: number = 0, offsetY: number = 0) {
-        let vertexSize = SpineVirtualMesh.vertexSize_TwoColor;
+    appendVertices(vertices: ArrayLike<number>, verticesLength: number, indices: number[], indicesLength: number, finalColor: spine.Color , darkColor: spine.Color, uvs: ArrayLike<number>) {
+        let vertexSize = SpineConst.VERTEX_TWOCOLOR;
         let indexStart = this.verticesLength / vertexSize;
         let vertexBuffer = this.vertexArray;
 
@@ -147,8 +130,8 @@ export class SpineVirtualMesh extends SpineMeshBase {
             vertexBuffer[size + 3] = finalColor.g;
             vertexBuffer[size + 4] = finalColor.b;
             vertexBuffer[size + 5] = finalColor.a;
-            vertexBuffer[size + 6] = vertices[v] + offsetX;
-            vertexBuffer[size + 7] = vertices[v + 1] + offsetY;
+            vertexBuffer[size + 6] = vertices[v];
+            vertexBuffer[size + 7] = vertices[v + 1];
 
             vertexBuffer[size + 8] = darkColor.r;
             vertexBuffer[size + 9] = darkColor.g;

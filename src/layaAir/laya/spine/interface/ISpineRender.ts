@@ -1,123 +1,203 @@
 import { Color } from "../../maths/Color";
+import { Vector4 } from "../../maths/Vector4";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { ESpineRenderMode, ESpineRenderState, TSpineBakeData } from "../SpineConst";
 
-export interface ISpineRender {
-    mode: ESpineRenderMode;
-    state: ESpineRenderState;
-    currentTime: number;
-    showSkinByIndex(skinIndex: number): void;
-    setAttachment(slotName: string, attachmentName: string): void;
-    createBones(): void;
-    reset(): void;
-    // stop(): void;
-    update(time: number): void;
-    render(time: number): void;
-    init(owner: Spine2DRenderNode): void;
-    initBake(obj: TSpineBakeData): void;
-    destroy(): void;
+/**
+ * @zh 骨骼信息接口，用于封装骨骼数据，不直接暴露原生spine对象
+ * @en Bone information interface, used to encapsulate bone data without exposing native spine objects
+ */
+export interface IBoneInfo {
+    worldX: number;
+    worldY: number;
+    /** 变换矩阵参数 */
+    a: number;
+    b: number;
+    c: number;
+    d: number;
+    data: {
+        name: string;
+        length: number;
+    };
 }
 
 /**
- * @en Empty implementation of the renderer for optimizing Spine animations.
- * @zh 空实现的渲染器，用于优化 Spine 动画的渲染。
+ * @zh 插槽信息接口
+ * @en Slot information interface
  */
-export class SpineEmptyRender implements ISpineRender {
+export interface ISlotInfo {
+    name: string;
+}
+
+/**
+ * @zh 动画轨道信息接口
+ * @en Animation track information interface
+ */
+export interface ITrackEntry {
+    animationStart: number;
+    animationEnd: number;
+    animation: {
+        duration: number;
+    };
+    trackIndex: number;
+    loop: boolean;
+}
+
+export interface ISpineRender {
+    /** 当前渲染模式 */
     mode: ESpineRenderMode;
+    /** 当前渲染状态 */
     state: ESpineRenderState;
+    /** 当前播放时间（秒） */
     currentTime: number;
-
-    showSkinByIndex(skinIndex: number): void {
-    }
-    setAttachment(slotName: string, attachmentName: string): void {
-    }
-
-    // stop(): void {
-    // }
-
-    createBones(): void {
-    }
-
-    reset(): void {
-    }
     
-    update(time: number): void {
-    }
-    
-    getSpineColor(): Color {
-        return Color.WHITE;
-    }
-    /**
-     * @en Changes the skeleton.
-     * @param skeleton The new spine skeleton.
-     * @zh 更改骨骼。
-     * @param skeleton 新的 Spine 骨骼。
-     */
-    changeSkeleton(skeleton: spine.Skeleton): void {
-        //throw new NotImplementedError();
-    }
-    /**
-     * @en Singleton instance of SpineEmptyRender.
-     * @zh SpineEmptyRender 的单例实例。
-     */
-    static instance: SpineEmptyRender = new SpineEmptyRender();
-    /**
-     * @en Initializes the renderer.
-     * @param skeleton The spine skeleton.
-     * @param templet The spine templet.
-     * @param renderNode The base render node.
-     * @param state The spine animation state.
-     * @zh 初始化渲染器。
-     * @param skeleton Spine 骨骼。
-     * @param templet Spine 模板。
-     * @param renderNode 基础渲染节点。
-     * @param state Spine 动画状态。
-     */
-    init(): void {
-    }
-    /**
-     * @en Plays the specified animation.
-     * @param animationName The name of the animation to play.
-     * @zh 播放指定的动画。
-     * @param animationName 要播放的动画名称。
-     */
-    play(animationName: string): void {
-    }
-    /**
-     * @en Renders the spine animation.
-     * @param time The current time for rendering.
-     * @zh 渲染 Spine 动画。
-     * @param time 当前渲染时间。
-     */
-    render(time: number): void {
-    }
-    /**
-     * @en Sets the skin index.
-     * @param index The index of the skin to set.
-     * @zh 设置皮肤索引。
-     * @param index 要设置的皮肤索引。
-     */
-    setSkinIndex(index: number): void {
-    }
-    /**
-     * @en Initializes bake data.
-     * @param obj The spine bake data.
-     * @zh 初始化烘焙数据。
-     * @param obj Spine 烘焙数据。
-     */
-    initBake(obj: TSpineBakeData): void {
-    }
-    /**
-     * @en Destroys the renderer.
-     * @zh 销毁渲染器。
-     */
-    destroy(): void {
-    }
-    /**
-     * @en Completes the animation.
-     * @zh 完成动画。
-     */
-    complete(): void {
-    }
+    trackEntry: ITrackEntry;
 
+    getSkeleton(): spine.Skeleton;
+    
+    /**
+     * @zh 初始化渲染器
+     * @en Initialize the renderer
+     */
+    init(): void;
+    
+    /**
+     * @zh 播放动画
+     * @param animationName 动画名称
+     * @param loop 是否循环
+     * @param trackIndex 轨道索引
+     * @param start 起始时间（秒）
+     * @param end 结束时间（秒），0表示到结尾
+     * @returns 轨道信息
+     */
+    play(animationName: string, loop?: boolean, trackIndex?: number, start?: number, end?: number): void;
+    
+    /**
+     * @zh 添加动画到队列
+     * @param animationName 动画名称
+     * @param loop 是否循环
+     * @param delay 延迟时间（秒）
+     * @param trackIndex 轨道索引
+     */
+    addAnimation(animationName: string, loop?: boolean, delay?: number, trackIndex?: number): void;
+    
+    /**
+     * @zh 设置动画混合
+     * @param fromAnimation 源动画名称
+     * @param toAnimation 目标动画名称
+     * @param duration 混合持续时间（秒）
+     */
+    setMix(fromAnimation: string, toAnimation: string, duration: number): void;
+    
+    /**
+     * @zh 更新动画
+     * @param delta 时间增量（秒）
+     */
+    update(delta: number): void;
+    
+    /**
+     * @en Render the animation.
+     * @param time The time to render the animation at.
+     * @zh 渲染动画。
+     * @param time 渲染动画的时间。
+     */
+    render(time: number , physicsUpdate: number): void;
+    
+    /**
+     * @zh 设置皮肤索引
+     * @param index 皮肤索引
+     */
+    setSkinIndex(index: number): void;
+    
+    /**
+     * @zh 通过名称显示皮肤
+     * @param name 皮肤名称
+     */
+    showSkinByIndex(skinIndex: number): void;
+    
+    /**
+     * @zh 设置插槽附件
+     * @param slotName 插槽名称
+     * @param attachmentName 附件名称
+     */
+    setAttachment(slotName: string, attachmentName: string): void;
+    
+    /**
+     * @zh 通过名称查找骨骼
+     * @param boneName 骨骼名称
+     * @returns 骨骼信息，如果不存在返回null
+     */
+    findBone(boneName: string): IBoneInfo | null;
+    
+    /**
+     * @zh 通过名称查找插槽
+     * @param slotName 插槽名称
+     * @returns 插槽信息，如果不存在返回null
+     */
+    findSlot(slotName: string): ISlotInfo | null;
+    
+    /**
+     * @zh 设置骨骼位置（用于transform更新）
+     * @param x X坐标
+     * @param y Y坐标
+     */
+    setSkeletonPosition(x: number, y: number): void;
+    
+    /**
+     * @zh 物理移动（支持Spine物理时有效）
+     * @param x X轴偏移
+     * @param y Y轴偏移
+     */
+    physicsTranslate(x: number, y: number): void;
+    
+    /**
+     * @zh 获取骨骼列表（用于创建骨骼可视化）
+     * @returns 骨骼信息数组
+     */
+    getBones(): IBoneInfo[];
+    
+    /**
+     * @zh 获取骨骼位置和偏移
+     * @returns 包含x, y, offsetX, offsetY的对象
+     */
+    getSkeletonTransform(): Vector4;
+    
+    /**
+     * @zh 重置外部皮肤
+     */
+    resetExternalSkin(): void;
+    
+    /**
+     * @zh 重置渲染器
+     */
+    reset(): void;
+    
+    /**
+     * @zh 完成动画
+     */
+    complete(): void;
+    
+    /**
+     * @zh 初始化烘焙数据
+     * @param obj 烘焙数据
+     */
+    initBake(obj: TSpineBakeData): void;
+    
+    /**
+     * @zh 设置动画事件监听器
+     * @param listeners 事件监听器对象
+     */
+    setEventListener(listeners: {
+        start?: (entry: any) => void;
+        interrupt?: (entry: any) => void;
+        end?: (entry: any) => void;
+        dispose?: (entry: any) => void;
+        complete?: (entry: any) => void;
+        event?: (entry: any, event: any) => void;
+    }): void;
+    
+    /**
+     * @zh 销毁渲染器
+     */
+    destroy(): void;
 }

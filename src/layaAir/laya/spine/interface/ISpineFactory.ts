@@ -1,32 +1,15 @@
-import { ISkeletonOptimise, ISpineTempletParser, SpineEmptyTempletParser } from "./ISpineParse";
-import { ISpineRender, SpineEmptyRender } from "./ISpineRender";
+import { ISpineTempletParser } from "./ISpineParse";
+import { ISpineRender } from "./ISpineRender";
+import { Spine2DRenderNode } from "../Spine2DRenderNode";
 
 export interface ISpineFactory {
     createSpineTempletParser(): ISpineTempletParser;
-    createSpineRender(): ISpineRender;
-    // createSkeletonOptimise(): ISkeletonOptimise;
-    // createVBCreator(): IVBCreator;
-    // createIBCreator(): IIBCreator;
-    // createMultiRenderData(): IMultiRenderData;
-    // createAttachmentParse(): IAttachmentParse;
-    // createAnimationRender(): IAnimationRender;
-    // createChange(): IChange;
-    // createIVBChange(): IVBChange;
+    /**
+     * @zh 创建Spine渲染器
+     * @param owner 渲染节点
+     * @en Create Spine renderer
+     * @param owner Render node
+     */
+    createSpineRender(owner: Spine2DRenderNode): ISpineRender;
 }
 
-export class EmptyFactory implements ISpineFactory {
-    createSpineTempletParser(): ISpineTempletParser{
-        return SpineEmptyTempletParser.instance;
-    }
-    createSpineRender(): ISpineRender {
-        return SpineEmptyRender.instance;
-    }
-    // createSkeletonOptimise(): ISkeletonOptimise;
-    // createVBCreator(): IVBCreator;
-    // createIBCreator(): IIBCreator;
-    // createMultiRenderData(): IMultiRenderData;
-    // createAttachmentParse(): IAttachmentParse;
-    // createAnimationRender(): IAnimationRender;
-    // createChange(): IChange;
-    // createIVBChange(): IVBChange;
-}
