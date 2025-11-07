@@ -1,4 +1,3 @@
-import { Laya3DRender } from "../../d3/RenderObjs/Laya3DRender";
 import { LayaGL } from "../../layagl/LayaGL";
 import { StatElement } from "../../layagl/StatisticsContext";
 import { FastSinglelist, SingletonList } from "../../utils/SingletonList";
@@ -51,6 +50,24 @@ export class RenderListQueue {
                 }
             }
         }
+        context.drawRenderElementList(this._elements);
+        LayaGL.statAgent.recordCTData(this._isTransparent ? StatElement.CT_TransDrawCall : StatElement.CT_OpaqueDrawCall, this.elements.length)
+    }
+
+    mergeQueue() {
+        this.sort();
+        if (!this._isTransparent && this.batchModule.length > 0) {
+            for (var i = 0, n = this.batchModule.length; i < n; i++) {
+                let list = this.batchModule.elements[i].opaqueList;
+                for (var j = 0, m = list.length; j < m; j++) {
+                    let elements = list.elements;
+                    this._elements.add(elements[j]);
+                }
+            }
+        }
+    }
+
+    renderQueueOnly(context: IRenderContext3D) {
         context.drawRenderElementList(this._elements);
         LayaGL.statAgent.recordCTData(this._isTransparent ? StatElement.CT_TransDrawCall : StatElement.CT_OpaqueDrawCall, this.elements.length)
     }

@@ -56,7 +56,7 @@ export const allBundles = [{
         'Config3D.ts',
         "laya/bt/**/*.*",
         'laya/physics/IPhysiscs2DFactory.ts',
-
+        'laya/large/**/*.*',
         'laya/platform/**/*.*',
     ],
     copy: ['jsLibs/laya.workerloader.js']

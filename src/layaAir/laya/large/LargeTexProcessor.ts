@@ -7,6 +7,7 @@ import { Texture } from "../resource/Texture";
 import { Texture2D } from "../resource/Texture2D";
 import { AutoTextureConfig } from "./AutoTextureConfig";
 import { DynamicAtlasManager } from "./DynamicAtlasManager";
+import { LayaGL } from "../layagl/LayaGL";
 
 
 /**
@@ -17,8 +18,8 @@ export class TextureProcessorAdapter implements ITextureProcessor {
     private _dynamicAtlas: DynamicAtlasManager | null = null;
 
     constructor() {
-        if (AutoTextureConfig.enableAutoDynamicAtlas && !this._dynamicAtlas) {
-            this._dynamicAtlas = new DynamicAtlasManager();
+        if (AutoTextureConfig.enableAutoDynamicAtlas) {
+            this._dynamicAtlas = new DynamicAtlasManager(undefined, true);
         }
     }
 
@@ -41,6 +42,14 @@ export class TextureProcessorAdapter implements ITextureProcessor {
         return bitmap.width < AutoTextureConfig.limitDynamicAtlasSize && 
                bitmap.height < AutoTextureConfig.limitDynamicAtlasSize;
     }
+
+    onUpdate(): void {
+        this._dynamicAtlas?.onUpdate();
+    }
+
+    cleanupUnused(): void {
+        this._dynamicAtlas?.cleanupUnusedTextures();
+    }
 }
 
 
@@ -53,16 +62,16 @@ export class LargeTexProcessor {
 
     private _textureProcessor: ITextureProcessor;
 
-    constructor(textureProcessor?: ITextureProcessor) {
-        this._textureProcessor = textureProcessor || new TextureProcessorAdapter();
-    }
-
     static addMgr(mgr: LargeTexManager) { 
         this._instance.addManager(mgr);
     }
 
     static removeMgr(mgr: LargeTexManager) {
         this._instance.removeManager(mgr);
+    }
+
+    static cleanupUnused(): void {
+        this._instance._textureProcessor.cleanupUnused();
     }
 
     /**
@@ -103,6 +112,7 @@ export class LargeTexProcessor {
     update(force: boolean = false) {
         if (!force && Laya.stage.getTimeFromFrameStart() > 100) return;
 
+        // this.textureProcessor.onUpdate();
         const ary = this.mgrs;
         let n = ary.length;
         for (let i = 0; i < n; i++) {
@@ -117,7 +127,14 @@ export class LargeTexProcessor {
 }
 
 Laya.addAfterInitCallback(() => {
+    let objectName = (LayaGL.renderEngine as any).objectName? (LayaGL.renderEngine as any).objectName as string: '';
+    let isWebGPU = !!objectName.includes('GPU');
+    if (isWebGPU) {
+        AutoTextureConfig.enableAutoDynamicAtlas = true;
+    }
     TextureMergeShaderInit.init();
-    LargeTexProcessor._instance = new LargeTexProcessor();
-    Render2DProcessor.runner._textureProcessor = LargeTexProcessor._instance.textureProcessor;
+    let processor = LargeTexProcessor._instance = new LargeTexProcessor();
+    let textureProcessor = new TextureProcessorAdapter();
+    processor.setTextureProcessor(textureProcessor);
+    Render2DProcessor.runner._textureProcessor = textureProcessor;
 });

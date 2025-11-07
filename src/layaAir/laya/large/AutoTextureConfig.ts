@@ -5,5 +5,5 @@
  */
 export class AutoTextureConfig {
     static enableAutoDynamicAtlas: boolean = false;
-    static limitDynamicAtlasSize: number = 256;
+    static limitDynamicAtlasSize: number = 1024;
 }

@@ -79,7 +79,7 @@ export class TextureItem {
      * @en Command
      * @zh 命令
      * */
-    cmd?: Command2D;
+    // cmd?: Command2D;
 
     cloneTo(ti: TextureItem) {
         ti.id = this.id;
@@ -217,6 +217,11 @@ export class LargeTexBase {
      * */
     sRGB: boolean = false;
     /** 
+     * @en The gamma correction value of the texture. If set to 1.0, texture sampling will be linear without any correction.
+     * @zh 纹理的伽马校正值。如果设置为1.0，则纹理采样将为线性，不进行任何校正。
+     */
+    gammaCorrection: number = 1.0;
+    /** 
      * @en Whether to check duplicates
      * @zh 是否查重
      * */
@@ -268,7 +273,7 @@ export class LargeTexBase {
      * @en Update hook
      * @zh 更新钩子
      * */
-    updateHook:() => void;
+    updateHook:(index: number, completedIds: number[]) => void = null;
 
     //可选的大纹理尺寸
     protected static _largeTexSize = [
@@ -346,10 +351,10 @@ export class LargeTexBase {
         for (let i = 0, len = this.largeTexs.length; i < len; i++) {
             const o: LargeTex = this.largeTexs[i];
             if (!o) continue;
-            o.onUpdate(force);
+            let completedIds = o.onUpdate(force);
+            this.updateHook?.(i, completedIds);
             if (!force && ILaya.stage.getTimeFromFrameStart() > this.delay) break;
         }
-        this.updateHook?.();
         return true;
     }
 
@@ -475,15 +480,11 @@ export class LargeTexBase {
      */
     areTextureMerged(ui: number | string, largeTextureIndex: number = -1) {
         let result = false;
-
         if (largeTextureIndex >= 0) {
             let ti = this._findTexture(ui, largeTextureIndex);
             if (ti) {
                 let lt = this.largeTexs[largeTextureIndex];
-                if (ti.cmd) {
-                    if (!lt.commands.has(ti.cmd))
-                       return true;
-                }else return true;
+                return lt.hasWaitMerge(ti.id);
             }
         } else {
             for (let i = 0; i < this.LARGE_TEX_N; i++) {
@@ -819,15 +820,16 @@ export class LargeTexBase {
      * @param largeTextureIndex 大纹理编号
      * @param sRGB 大图是否sRGB格式
      */
-    createLargeTex(largeTextureIndex: number, sRGB?: boolean) {
+    createLargeTex(largeTextureIndex: number, sRGB?: boolean, gammaCorrection?: number) {
         const mipMap = this.mipMap;
         const texMode = this.texMode;
         const anisoLevel = this.texAnisoLevel;
         sRGB = sRGB ? sRGB : this.sRGB;
-
+        gammaCorrection = gammaCorrection ? gammaCorrection : this.gammaCorrection;
+        
         if (largeTextureIndex >= 0 && largeTextureIndex < this.LARGE_TEX_N) {
             if (!this.largeTexs[largeTextureIndex]) {
-                const lt = new LargeTex(this.LARGE_TEX_W, this.LARGE_TEX_H, this.texFormat, null, mipMap, 4, sRGB);
+                const lt = new LargeTex(this.LARGE_TEX_W, this.LARGE_TEX_H, this.texFormat, null, mipMap, 4, sRGB , this.gammaCorrection);
                 lt.lock = true;
                 lt.filterMode = texMode;
                 lt.anisoLevel = anisoLevel;
@@ -899,7 +901,7 @@ export class LargeTexBase {
                 this.createLargeTex(ti.largeTextureIndex);
             let cmd = this.largeTexs[ti.largeTextureIndex].addTexture(this.TEX_SIZE_MIN * ti.pos.x + this.EXTEND_SIZE,
                 this.TEX_SIZE_MIN * ti.pos.y + this.EXTEND_SIZE, tw, th, this.EXTEND_SIZE, tex, needRemove);
-            ti.cmd = cmd;
+            // ti.cmd = cmd;
             return ti;
         } else {
             const ss = LargeTexBase.calcTexSize(tex.width, tex.height, scale, this.TEX_SIZE_MIN, this.EXTEND_SIZE);
@@ -935,7 +937,7 @@ export class LargeTexBase {
                     this.createLargeTex(ti.largeTextureIndex);
                 let cmd = this.largeTexs[ti.largeTextureIndex].addTexture(this.TEX_SIZE_MIN * room[2] + this.EXTEND_SIZE,
                     this.TEX_SIZE_MIN * room[1] + this.EXTEND_SIZE, ss[0], ss[1], this.EXTEND_SIZE, tex, needRemove);
-                ti.cmd = cmd;
+                // ti.cmd = cmd;
                 return ti;
             }
         }

@@ -1,7 +1,7 @@
 
+import { Config } from "../../Config";
 import { Laya } from "../../Laya";
 import { Blit2DCMD } from "../display/Scene2DSpecial/RenderCMD2D/Blit2DCMD";
-import { Command2D } from "../display/Scene2DSpecial/RenderCMD2D/Command2D";
 import { CommandBuffer2D } from "../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { LayaGL } from "../layagl/LayaGL";
 import { Vector4 } from "../maths/Vector4";
@@ -13,7 +13,6 @@ import { RenderTexture } from "../resource/RenderTexture";
 import { Texture2D } from "../resource/Texture2D";
 import { TextureArrayRegistry2D } from "../webgl/utils/TextureArrayRegistry2D";
 import { TextureMergeShaderInit } from "./shader/TextureMergeShaderInit";
-
 
 export class LargeTex extends RenderTexture {
     cmdBuffer: CommandBuffer2D;
@@ -29,10 +28,15 @@ export class LargeTex extends RenderTexture {
      * @en Commands
      * @zh 命令
      */
-    commands: Set<Command2D> = new Set();
+    commands: Set<Blit2DCMD> = new Set();
+    /**
+     * @en Wait merge ids
+     * @zh 等待合并的纹理ID
+     */
+    private _waitMergeIds: Set<number> = new Set();
 
     constructor(width: number, height: number, format: RenderTargetFormat = RenderTargetFormat.R8G8B8A8,
-        depthStencilFormat: RenderTargetFormat = null, mipmap: boolean = false, limitMipmap: number = -1, sRGB: boolean = true) {
+        depthStencilFormat: RenderTargetFormat = null, mipmap: boolean = false, limitMipmap: number = -1, sRGB: boolean = true , gammaCorrection: number = 1.0) {
         super(width, height, format, depthStencilFormat, mipmap, 1, false, sRGB);
         this._limitMipmap = limitMipmap;
         this.anisoLevel = 1;
@@ -43,8 +47,7 @@ export class LargeTex extends RenderTexture {
         this._shader = Shader3D.find("TexMerge");
 
         // WebGPU：将渲染目标直接指向 Texture2DArray 的单层
-        const isWebGPU = !!((LayaGL.renderEngine as any).objectName as string).includes('GPU');
-        if (isWebGPU) {
+        if (Config.useTextureArray) {
             const alloc = TextureArrayRegistry2D.allocateLayerAsTexture(width, height, <any>TextureFormat.R8G8B8A8, 64, sRGB);
             const tc: any = LayaGL.textureContext;
             if (alloc && tc) {
@@ -56,30 +59,48 @@ export class LargeTex extends RenderTexture {
                     depthStencilFormat, sRGB);
                 // RenderTexture 的采样源沿用 color attachment
                 // @ts-ignore
-                this._texture = (this._renderTarget as any)._textures[0];
+                this._texture = this._renderTarget._textures[0];
                 // 注册映射：采样 LargeTex 时自动切换为数组纹理指定层
                 TextureArrayRegistry2D.register(this as any, alloc.array, alloc.layer);
             }
         }
+        //
+        this._texture.gammaCorrection = gammaCorrection;
     }
 
     /**
      * 分帧调用的Update函数
+     * @param force 是否强制更新
+     * @returns 完成绘制的纹理ID列表
      */
     onUpdate(force: boolean = false) {
-
-        if (!this.cmdBuffer || !this.commands.size) return;
+        if (!this.cmdBuffer || !this.commands.size) return null;
 
         let values = this.commands.values();
         let cmd = values.next().value;
+        let ids = [];
         while (cmd && (force || Laya.stage.getTimeFromFrameStart() < 30)) {
             this.cmdBuffer.addCacheCommand(cmd);
             this.cmdBuffer.applyOne(true);
             this.commands.delete(cmd);
+
+            this._waitMergeIds.delete(cmd.source.id);
+            ids.push(cmd.source.id);
+
             cmd = values.next().value;
         }
 
         this.commands.size || this._doDestoryTex();
+        return ids;
+    }
+
+    /**
+     * 是否等待合并
+     * @param id 纹理ID
+     * @returns 是否等待合并
+     */
+    hasWaitMerge(id: number): boolean {
+        return this._waitMergeIds.has(id);
     }
 
     /**
@@ -250,29 +271,39 @@ export class LargeTex extends RenderTexture {
         const height = this.height; //大贴图高度
         const offsetScale = new Vector4(); //偏移和放缩系数
         offsetScale.x = Math.max(0, x - expand) / width;
-        offsetScale.y = Math.max(0, height - y - h - expand) / height;
+
+        if (LayaGL.renderEngine._screenInvertY) {
+            offsetScale.y = Math.max(0, y - expand) / height;
+        } else {
+            offsetScale.y = Math.max(0, height - y - h - expand) / height;
+        }
         offsetScale.z = (w + expand * 2) / width;
         offsetScale.w = (h + expand * 2) / height;
 
-        if (LayaGL.renderEngine._screenInvertY) {
-            offsetScale.y = expand;
-        }
 
         let sd = TextureMergeShaderInit._sdNotChange;
-        if (this.gammaSpace && !smallTex.gammaSpace) {
-            sd = TextureMergeShaderInit._sdGammaToLinear;
-            console.log("gamma to linear url =", smallTex.url);
-        }
-        else if (!this.gammaSpace && smallTex.gammaSpace) {
-            sd = TextureMergeShaderInit._sdLinearToGamma;
-            console.log("linear to gamma url =", smallTex.url);
+        if (this.gammaSpace) {
+            if (smallTex.gammaSpace) {
+                sd = TextureMergeShaderInit._sdNotChange;
+            } else {
+                sd = TextureMergeShaderInit._sdLinearToGamma;
+            }
+        } else {
+            if (smallTex.gammaSpace) {
+                sd = TextureMergeShaderInit._sdGammaToLinear;
+            } else {
+                sd = TextureMergeShaderInit._sdNotChange;
+            }
         }
         //采用实时渲染方式将小贴图绘制到大贴图上
         let cmd = Blit2DCMD.create(smallTex, this, offsetScale, this._shader, sd);
         this.commands.add(cmd);
+        
         //立即执行绘制
         if (this.immediately) {
             this.onUpdate(true);
+        } else {
+            this._waitMergeIds.add(smallTex.id);
         }
 
         return cmd;

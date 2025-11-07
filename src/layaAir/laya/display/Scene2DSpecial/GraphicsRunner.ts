@@ -41,7 +41,6 @@ import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { Resource } from "../../resource/Resource";
 import { Texture2DArray } from "../../resource/Texture2DArray";
 import { TextureArrayRegistry2D } from "../../webgl/utils/TextureArrayRegistry2D";
-import { TextureArrayAutoPacker2D } from "../../webgl/utils/TextureArrayAutoPacker2D";
 import { ITextureProcessor, EmptyTextureProcessor } from "../../large/ITextureProcessor";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
@@ -1020,14 +1019,6 @@ export class GraphicsRunner {
             this._setClipInfo(material);
             // 如果外部已注册到数组纹理，替换材质与合批键，并设置层索引
             let reg = TextureArrayRegistry2D.resolve(tex);
-            // 若未注册，尝试自动打包（可读像素时）
-            if (!reg && tex instanceof Texture) {
-                const packed = TextureArrayAutoPacker2D.packIfPossible(tex);
-                if (packed) {
-                    TextureArrayRegistry2D.register(tex, packed.array, packed.layer);
-                    reg = { array: packed.array, layer: packed.layer };
-                }
-            }
             if (reg && reg.array instanceof Texture2DArray) {
                 material.textureHost = reg.array;
                 // 记录层索引，用于 a_attribFlags.b
@@ -1235,13 +1226,6 @@ export class GraphicsRunner {
             submit = this._curSubmit = this.createSubmit(mesh);
             // 若有数组纹理注册，替换为数组纹理并设置层索引
             let reg = TextureArrayRegistry2D.resolve(tex);
-            if (!reg && (tex instanceof Texture || (tex as any)?._getSource)) {
-                const packed = (tex instanceof Texture) ? TextureArrayAutoPacker2D.packIfPossible(tex) : null;
-                if (packed) {
-                    TextureArrayRegistry2D.register(tex as Texture, packed.array, packed.layer);
-                    reg = { array: packed.array, layer: packed.layer } as any;
-                }
-            }
             if (reg && reg.array instanceof Texture2DArray) {
                 submit._internalInfo.textureHost = reg.array;
                 submit._internalInfo.texArrayLayer = reg.layer | 0;
