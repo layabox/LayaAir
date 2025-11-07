@@ -1,5 +1,5 @@
 import { ESpineRenderType } from "../../../SpineSkeleton";
-import { AttachmentParse } from "../../base/optimize/AttachmentParse";
+import { AttachmentParse } from "../optimize/AttachmentParse";
 
 /**
  * @en Utility class for Spine slot operations.

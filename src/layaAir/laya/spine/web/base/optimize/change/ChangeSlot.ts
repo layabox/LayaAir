@@ -1,6 +1,7 @@
-import { AttachmentParse } from "../optimize/AttachmentParse";
-import { VBCreator } from "../optimize/VBCreator";
-import { IChange } from "../interface/IChange";
+import { IChange } from "../../../interface/IWebSpine";
+import { VBCreator } from "../../buffer/VBCreator";
+import { AttachmentParse } from "../AttachmentParse";
+
 
 /**
  * @en Represents a change in slot attachment for a spine animation.

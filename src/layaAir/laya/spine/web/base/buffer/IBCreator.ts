@@ -1,8 +1,9 @@
 import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
-import { SpineMeshUtils } from "../../../utils/SpineMeshUtils";
+import { SpineMeshUtils } from "../utils/SpineMeshUtils";
 import { AttachmentParse } from "../optimize/AttachmentParse";
 import { MultiRenderData } from "./MultiRenderData";
 import { VBCreator } from "./VBCreator";
+import { SpineShaderInit } from "../../../shader/SpineShaderInit";
 
 /**
  * @en Creator class for index buffer (IB) in spine rendering.
@@ -51,7 +52,7 @@ export class IBCreator {
      * @param vertexCount 顶点数目
      */
     updateFormat(vertexCount: number) {
-        let ntype: IndexFormat = SpineMeshUtils.getIndexFormat(vertexCount);
+        let ntype: IndexFormat = SpineShaderInit.getIndexFormat(vertexCount);
         if (this.type === ntype) return
         this.type = ntype;
         this._updateBuffer();
@@ -160,7 +161,7 @@ export class IBCreator {
         }
 
         let vertexCount = vbCreator.maxVertexCount;
-        let ntype: IndexFormat = SpineMeshUtils.getIndexFormat(vertexCount);
+        let ntype: IndexFormat = SpineShaderInit.getIndexFormat(vertexCount);
 
         let needUpdateBuffer = false;
         if (ntype !== this.type) {

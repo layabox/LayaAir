@@ -4,7 +4,7 @@ import { VBBoneCreator, VBCreator, VBRigBodyCreator } from "../buffer/VBCreator"
 import { ISkeletonOptimise } from "../../../interface/ISpineParse";
 import { ESpineRenderType } from "../../../SpineSkeleton";
 import { ESpineRenderMode, SpineConst, TSpineBakeData } from "../../../SpineConst";
-import { AnimationRender } from "./AnimationRender";
+import { AnimationRender, SkinAniRenderData } from "./AnimationRender";
 
 /**
  * @en SketonOptimise class used for skeleton optimization.
@@ -71,6 +71,10 @@ export class SkeletonOptimise implements ISkeletonOptimise {
 
     /** @ignore */
     constructor() {
+    }
+    
+    getAnimationCount(): number {
+        return this.data.animations.length;
     }
 
     getAniNameByIndex(index: number): string | null {
@@ -147,6 +151,7 @@ export class SkeletonOptimise implements ISkeletonOptimise {
         for (let i = 0, n = skins.length; i < n; i++) {
             let skin = skins[i];
             let skinAttach = new SkinAttach();
+            skinAttach.index = i;
             skinAttach.name = skin.name;
             skinAttach._tempIbCreate = this._tempIbCreate;
             if (i != 0) {
@@ -176,10 +181,9 @@ export class SkeletonOptimise implements ISkeletonOptimise {
             let animator = new AnimationRender();
             animator.check(animation, this);
             this.animators.push(animator);
+
             this.skinAttachArray.forEach((value: SkinAttach) => {
-                value.initAnimator(animator);
-            });
-            animator.skinDataArray.forEach((skinData) => {
+                let skinData = value.initAnimator(animator);
                 if (!skinData.isNormalRender) {
                     let boneNumber = skinData.vb.boneArray.length / 2;
                     if (boneNumber > maxBoneNumber) {
@@ -187,9 +191,36 @@ export class SkeletonOptimise implements ISkeletonOptimise {
                     }
                 }
             });
-        }
 
+            if (this.canCache) {
+                this._initBoneFrame(animator);
+            }
+        }
         this.maxBoneNumber = maxBoneNumber;
+    }
+
+    private _initBoneFrame(animator: AnimationRender) {
+        let duration = this._play(animator.name);
+        let totalFrame = Math.round(duration / SpineConst.SPINE_STEP) || 1;
+        for (let i = 0; i <= totalFrame; i++) {
+            let bones = this._updateState(i == 0 ? 0 : SpineConst.SPINE_STEP);
+            let frame: Float32Array[] = [];
+            animator.boneFrames.push(frame);
+            for (let j = 0; j < bones.length; j++) {
+                let bone = bones[j];
+                let rs = new Float32Array(8);
+                rs[0] = bone.a;
+                rs[1] = bone.b;
+                rs[2] = bone.worldX;
+                rs[3] = 0;
+                rs[4] = bone.c;
+                rs[5] = bone.d;
+                rs[6] = bone.worldY;
+                rs[7] = 0;
+                frame.push(rs);
+            }
+        }
+        animator.isCache = true;
     }
 
     /**
@@ -201,9 +232,8 @@ export class SkeletonOptimise implements ISkeletonOptimise {
             for (let i = 0, n = this.animators.length; i < n; i++) {
                 let animator = this.animators[i];
                 if (animator.boneFrames.length == 0) {
-                    animator.cacheBones(this);
+                    this._initBoneFrame(animator);
                 }
-                //animator.cacheBone();
             }
         }
     }
@@ -220,6 +250,11 @@ export class SkeletonOptimise implements ISkeletonOptimise {
  * @zh SkinAttach类表示皮肤附件。
  */
 export class SkinAttach {
+    /**
+     * @en Index of the skin attachment.
+     * @zh 皮肤附件的索引。
+     */
+    index: number;
     /**
      * @en Name of the skin attachment.
      * @zh 皮肤附件的名称。
@@ -436,7 +471,7 @@ export class SkinAttach {
      * @zh 使用此皮肤附件初始化动画器。
      * @param animator 要初始化的动画渲染器。
      */
-    initAnimator(animator: AnimationRender) {
+    initAnimator(animator: AnimationRender): SkinAniRenderData {
         let skinData = animator.createSkinData(
             this.mainVB, this.mainIB, this._tempIbCreate, this.slotAttachMap, this.mainAttachMentOrder, this.type
         );
@@ -447,9 +482,12 @@ export class SkinAttach {
             skinData.isNormalRender = true;
         }
         // skinData.mainibRender = this.mainIB;
+        
         if (skinData.isNormalRender) {
             this.hasNormalRender = true;
         }
+
+        return skinData;
     }
 }
 

@@ -1,20 +1,26 @@
-import { BaseRender2DType } from "../../display/SpriteConst";
-import { Vector2 } from "../../maths/Vector2";
-import { Vector3 } from "../../maths/Vector3";
-import { Vector4 } from "../../maths/Vector4";
-import { Texture2D } from "../../resource/Texture2D";
-import { ISpineRender } from "../interface/ISpineRender";
-import { SpineShaderInit } from "../shader/SpineShaderInit";
-import { Spine2DRenderNode } from "../Spine2DRenderNode";
-import { SpineTemplet } from "../SpineTemplet";
-import { AnimationRenderProxy } from "../animation/AnimationRenderProxy";
-import { SkinRenderUpdate } from "./SkinRenderUpdate";
+
+import { AnimatorUpdater } from "./AnimatorUpdater";
+import { BaseRender2DType } from "../../../../display/SpriteConst";
+import { Vector2 } from "../../../../maths/Vector2";
+import { Vector3 } from "../../../../maths/Vector3";
+import { Vector4 } from "../../../../maths/Vector4";
+import { Texture2D } from "../../../../resource/Texture2D";
+import { ISpineRender } from "../../../interface/ISpineRender";
+import { SpineShaderInit } from "../../../shader/SpineShaderInit";
+import { Spine2DRenderNode } from "../../../Spine2DRenderNode";
+import { SpineTemplet } from "../../../SpineTemplet";
+import { SpineConst } from "../../../SpineConst";
+import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { IRenderStruct2D } from "../../../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
+import { INormalRenderUpdater } from "../../interface/IWebSpine";
+import { JSSpineFactory } from "../../js/JSSpineFactory";
 
 export interface IRender {
-    changeSkeleton(skeleton: spine.Skeleton): void;
-    change(skinRender: SkinRenderUpdate, currentAnimation: AnimationRenderProxy): void;
+    bind( updater: AnimatorUpdater, skeleton: spine.Skeleton): void;
+    change(): void;
     leave(): void;
-    render(curTime: number, boneMat: Float32Array): void;
+    render(curTime: number, offsetX?: number, offsetY?: number): void;
+    destroy():void;
 }
 
 /**
@@ -23,11 +29,11 @@ export interface IRender {
  */
 export abstract class SpineBaseRenderer implements IRender {
     /** @internal */
-    protected _renderNode: Spine2DRenderNode;
+    protected _shaderData: ShaderData;
+    /** @internal */
+    protected _struct: IRenderStruct2D;
     /** @internal */
     protected _skeleton: spine.Skeleton;
-    /** @internal */
-    protected _templet: SpineTemplet;
     /**
      * @en Array of Spine bones.
      * @zh Spine 骨骼数组。
@@ -40,27 +46,23 @@ export abstract class SpineBaseRenderer implements IRender {
     slots: spine.Slot[];
 
     /**
-     * @en The current skin updater.
-     * @zh 当前皮肤更新器
+     * @en The current updater.
+     * @zh 当前更新器
      */
-    skinUpdate: SkinRenderUpdate;
+    updater: AnimatorUpdater | null;
     
-    /**
-     * @en The current animation render proxy.
-     * @zh 当前动画渲染代理。
-     */
-    currentAnimation: AnimationRenderProxy;
-
     /**
      * @en Create a new instance of SpineBaseRenderer.
      * @param renderNode The Spine2D render node.
      * @zh 创建 SpineBaseRenderer 的新实例。
      * @param renderNode Spine2D 渲染节点。
      */
-    constructor(renderNode: Spine2DRenderNode) {
-        this._renderNode = renderNode;
-        this.changeSkeleton(renderNode.getSkeleton());
-        this._templet = renderNode.templet;
+    constructor(struct: IRenderStruct2D) {
+        this._struct = struct;
+        this._shaderData = struct.spriteShaderData;
+    }
+
+    destroy() {
     }
 
     /**
@@ -69,21 +71,20 @@ export abstract class SpineBaseRenderer implements IRender {
      * @zh 更改当前骨骼。
      * @param skeleton 要使用的新骨骼。
      */
-    changeSkeleton(skeleton: spine.Skeleton): void {
+    bind( updater: AnimatorUpdater, skeleton: spine.Skeleton): void {
+        this.updater = updater;
         this._skeleton = skeleton;
         this.bones = skeleton.bones;
         this.slots = skeleton.slots;
     }
 
     /**
-     * @en Abstract method to change the current skin renderer and animation.
-     * @param skinRender The new skin renderer to use.
-     * @param currentAnimation The new animation render proxy to use.
-     * @zh 更改当前皮肤渲染器和动画的抽象方法。
-     * @param skinRender 要使用的新皮肤渲染器。
-     * @param currentAnimation 要使用的新动画渲染代理。
+     * @en Abstract method to change the current render context.
+     * @param context The render context containing skin and animation updaters.
+     * @zh 更改当前渲染上下文的抽象方法。
+     * @param context 包含皮肤和动画更新器的渲染上下文。
      */
-    abstract change(skinRender: SkinRenderUpdate, currentAnimation: AnimationRenderProxy): void;
+    abstract change(): void;
 
     /**
      * @en Abstract method called when leaving the current render state.
@@ -99,7 +100,7 @@ export abstract class SpineBaseRenderer implements IRender {
      * @param curTime 渲染的当前时间。
      * @param boneMat 用于渲染的骨骼矩阵。
      */
-    abstract render(curTime: number, boneMat: Float32Array): void;
+    abstract render(curTime: number, offsetX?: number, offsetY?: number): void;
 }
 
 /**
@@ -111,25 +112,28 @@ export class RigidBodySpineRenderer extends SpineBaseRenderer {
     private _matrix_1 = new Vector3(0,1,0);
 
     leave(): void {
+        this._shaderData.removeDefine(SpineShaderInit.SPINE_RB);
     }
 
-    change(currentRender: SkinRenderUpdate, currentAnimation: AnimationRenderProxy) {
-        this.skinUpdate = currentRender;
-        this.currentAnimation = currentAnimation;
-        this._renderNode._spriteShaderData.setVector3(SpineShaderInit.BONEMAT_0, this._matrix_0);
-        this._renderNode._spriteShaderData.setVector3(SpineShaderInit.BONEMAT_1, this._matrix_1);
+    change() {
+        this._shaderData.addDefine(SpineShaderInit.SPINE_RB);
+
+        this._shaderData.setVector3(SpineShaderInit.BONEMAT_0, this._matrix_0);
+        this._shaderData.setVector3(SpineShaderInit.BONEMAT_1, this._matrix_1);
     }
 
-    render(curTime: number, boneMat: Float32Array) {
-        this.currentAnimation.renderWithOutMat(this.slots, this.skinUpdate, curTime);
-
-        let bone = this.bones[this.skinUpdate.rbBoneIndex];
+    render(curTime: number, offsetX: number = 0, offsetY: number = 0) {
+        if (!this.updater) return;
+        
+        this.updater.renderWithOutMat(this.slots, this.updater, curTime);
+        
+        let bone = this.bones[this.updater.skinAttach.rbBoneIndex];
         if (!bone) { 
             return
         } 
 
-        let x = bone.worldX - this._skeleton.x + this._templet.offsetX;
-        let y = bone.worldY - this._skeleton.y + this._templet.offsetY;
+        let x = bone.worldX + offsetX;
+        let y = bone.worldY + offsetY;
         if (bone.a === this._matrix_0.x
             && bone.b === this._matrix_0.y
             && bone.c === this._matrix_1.x
@@ -146,106 +150,9 @@ export class RigidBodySpineRenderer extends SpineBaseRenderer {
         this._matrix_1.y = bone.d;
         this._matrix_1.z = y;
        
-        this._renderNode._spriteShaderData.setVector3(SpineShaderInit.BONEMAT_0, this._matrix_0);
-        this._renderNode._spriteShaderData.setVector3(SpineShaderInit.BONEMAT_1, this._matrix_1);
+        this._shaderData.setVector3(SpineShaderInit.BONEMAT_0, this._matrix_0);
+        this._shaderData.setVector3(SpineShaderInit.BONEMAT_1, this._matrix_1);
     }
-}
-
-/**
- * @en OptimizedSpineRenderer used for optimized rendering of Spine animations.
- * @zh OptimizedSpineRenderer 类用于优化 Spine 动画的渲染。
- */
-export class OptimizedSpineRenderer extends SpineBaseRenderer {
-    /**
-     * @en Change the current skin renderer and animation.
-     * @param currentRender The new skin renderer to use.
-     * @param currentAnimation The new animation render proxy to use.
-     * @zh 更改当前皮肤渲染器和动画。
-     * @param currentRender 要使用的新皮肤渲染器。
-     * @param currentAnimation 要使用的新动画渲染代理。
-     */
-    change(currentRender: SkinRenderUpdate, currentAnimation: AnimationRenderProxy) {
-        this.skinUpdate = currentRender;
-        this.currentAnimation = currentAnimation;
-    }
-
-    /**
-     * @en Called when leaving the current render state.
-     * @zh 离开当前渲染状态时调用。
-     */
-    leave(): void {
-    }
-
-    /**
-     * @en Render the current animation at a specific time.
-     * @param curTime The current time for rendering.
-     * @param boneMat The bone matrix for rendering.
-     * @zh 在特定时间渲染当前动画。
-     * @param curTime 渲染的当前时间。
-     * @param boneMat 用于渲染的骨骼矩阵。
-     */
-    render(curTime: number, boneMat: Float32Array) {
-        let offsetX = -this._skeleton.x + this._templet.offsetX;
-        let offsetY = -this._skeleton.y + this._templet.offsetY;
-        this.currentAnimation.render(this.bones, this.slots, this.skinUpdate, curTime, boneMat, offsetX, offsetY);//TODO bone
-        this._renderNode._spriteShaderData.setBuffer(SpineShaderInit.BONEMAT, boneMat);
-    }
-}
-
-/**
- * @en StandardSpineRenderer used for standard rendering of Spine animations.
- * @zh StandardSpineRenderer 类用于标准的 Spine 动画渲染。
- */
-export class StandardSpineRenderer extends SpineBaseRenderer {
-    /** @internal */
-    _renderer: ISpineRender;
-    /**
-     * @en Create a new instance of StandardSpineRenderer.
-     * @param skeleton The Spine skeleton.
-     * @param renderNode The Spine2D render node.
-     * @zh 创建 StandardSpineRenderer 的一个新实例。
-     * @param skeleton Spine 骨骼。
-     * @param renderNode Spine2D 渲染节点。
-     */
-    constructor(renderNode: Spine2DRenderNode) {
-        super(renderNode);
-    }
-
-    /**
-     * @en Called when leaving the current render state.
-     * @zh 离开当前渲染状态时调用。
-     */
-    leave(): void {
-        this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_COLOR2);
-    }
-
-    /**
-     * @en Change the current skin renderer and animation.
-     * @param currentRender The new skin renderer to use.
-     * @param currentAnimation The new animation render proxy to use.
-     * @zh 更改当前皮肤渲染器和动画。
-     * @param currentRender 要使用的新皮肤渲染器。
-     * @param currentAnimation 要使用的新动画渲染代理。
-     */
-    change(currentRender: SkinRenderUpdate, currentAnimation: AnimationRenderProxy) {
-        this._renderer = currentRender._renderer;
-        this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
-    }
-
-    /**
-     * @en Render the current animation at a specific time.
-     * @param curTime The current time for rendering.
-     * @param boneMat The bone matrix for rendering .
-     * @zh 在特定时间渲染当前动画。
-     * @param curTime 渲染的当前时间。
-     * @param boneMat 用于渲染的骨骼矩阵。
-     */
-    render(curTime: number, boneMat: Float32Array) {
-        this._renderNode.clear();
-        this._renderer.draw(this._skeleton, this._renderNode, -1, -1);
-        this._renderNode.owner._struct.renderElements = this._renderNode._renderElements;
-    }
-
 }
 
 /**
@@ -283,9 +190,9 @@ export class BakedSpineRenderer extends SpineBaseRenderer {
         }
         this._simpleAnimatorTexture = value;
         this._simpleAnimatorTextureSize = value.width;
-        this._renderNode._spriteShaderData.setTexture(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURE, value);
+        this._shaderData.setTexture(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURE, value);
         value._addReference();
-        this._renderNode._spriteShaderData.setNumber(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURESIZE, this._simpleAnimatorTextureSize);
+        this._shaderData.setNumber(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURESIZE, this._simpleAnimatorTextureSize);
     }
 
     /**
@@ -312,27 +219,23 @@ export class BakedSpineRenderer extends SpineBaseRenderer {
      * @zh 离开当前渲染状态时调用。
      */
     leave() {
-        this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_SIMPLE);
-        //this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
-        this._renderNode._renderType = BaseRender2DType.spine;
+        this._shaderData.removeDefine(SpineShaderInit.SPINE_SIMPLE);
+        //this._shaderData.removeDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
+        this._struct.renderType = BaseRender2DType.spine;
     }
 
     /**
-     * @en Change the current skin renderer and animation.
-     * @param currentRender The new skin renderer to use.
-     * @param currentAnimation The new animation render proxy to use.
-     * @zh 更改当前皮肤渲染器和动画。
-     * @param currentRender 要使用的新皮肤渲染器。
-     * @param currentAnimation 要使用的新动画渲染代理。
+     * @en Change the current render context.
+     * @param context The render context containing skin and animation updaters.
+     * @zh 更改当前渲染上下文。
+     * @param context 包含皮肤和动画更新器的渲染上下文。
      */
-    change(currentRender: SkinRenderUpdate, currentAnimation: AnimationRenderProxy) {
-        this.skinUpdate = currentRender;
-        this.currentAnimation = currentAnimation;
-        this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_SIMPLE);
-        this._simpleAnimatorOffset.x = this.aniOffsetMap[currentAnimation.name];
-        if (currentAnimation.currentSKin.canInstance) {
-            this._renderNode._renderType = BaseRender2DType.spineSimple;
-            // this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
+    change() {
+        this._shaderData.addDefine(SpineShaderInit.SPINE_SIMPLE);
+        this._simpleAnimatorOffset.x = this.aniOffsetMap[this.updater.animationName];
+        if (this.updater.currentSKin && this.updater.currentSKin.canInstance) {
+            this._struct.renderType = BaseRender2DType.spineSimple;
+            // this._shaderData.addDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
         }
     }
 
@@ -365,12 +268,106 @@ export class BakedSpineRenderer extends SpineBaseRenderer {
      * @param curTime 渲染的当前时间。
      * @param boneMat 用于渲染的骨骼矩阵。
      */
-    render(curTime: number, boneMat: Float32Array) {
-        this.currentAnimation.renderWithOutMat(this.slots, this.skinUpdate, curTime);
+    render(curTime: number , offsetX: number = 0, offsetY: number = 0) {
+        if (!this.updater) return;
+        this.updater.renderWithOutMat(this.slots, this.updater, curTime);
         this._simpleAnimatorOffset.y = curTime / this.step;
         this._computeAnimatorParamsData();
-        // let boneMat = this.currentAnimation.render(this.bones, this.slots, this.skinRender, curTime);//TODO bone
-        // this.material.boneMat = boneMat;
-        this._renderNode._spriteShaderData.setVector(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
+        this._shaderData.setVector(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
+    }
+}
+
+
+/**
+ * @en OptimizedSpineRenderer used for optimized rendering of Spine animations.
+ * @zh OptimizedSpineRenderer 类用于优化 Spine 动画的渲染。
+ */
+export class OptimizedSpineRenderer extends SpineBaseRenderer {
+
+    private _boneMat: Float32Array;
+
+    constructor(struct: IRenderStruct2D) {
+        super(struct);
+        this._boneMat = new Float32Array(SpineConst.MAX_BONES * 8);
+    }
+
+    /**
+     * @en Change the current render context.
+     * @param context The render context containing skin and animation updaters.
+     * @zh 更改当前渲染上下文。
+     * @param context 包含皮肤和动画更新器的渲染上下文。
+     */
+    change() {
+        this._shaderData.addDefine(SpineShaderInit.SPINE_FAST);
+    }
+
+    /**
+     * @en Called when leaving the current render state.
+     * @zh 离开当前渲染状态时调用。
+     */
+    leave(): void {
+        this._shaderData.removeDefine(SpineShaderInit.SPINE_FAST);
+    }
+
+    /**
+     * @en Render the current animation at a specific time.
+     * @param curTime The current time for rendering.
+     * @param offsetX X轴偏移。
+     * @param offsetY Y轴偏移。
+     * @zh 在特定时间渲染当前动画。
+     * @param curTime 渲染的当前时间。
+     * @param offsetX X轴偏移。
+     * @param offsetY Y轴偏移。
+     */
+    render(curTime: number , offsetX: number = 0, offsetY: number = 0) {
+        this.updater.renderWithMat(this.bones, this.slots, this.updater, curTime, this._boneMat, offsetX, offsetY);
+        this._shaderData.setBuffer(SpineShaderInit.BONEMAT, this._boneMat);
+    }
+}
+
+/**
+ * @en StandardSpineRenderer used for standard rendering of Spine animations (optimize mode).
+ * @zh StandardSpineRenderer 类用于优化模式下的标准 Spine 动画渲染。
+ */
+export class StandardSpineRenderer extends SpineBaseRenderer {
+
+    normalUpdater: INormalRenderUpdater
+    /**
+     * @en Create a new instance of StandardSpineRenderer.
+     * @param struct The render struct.
+     * @zh 创建 StandardSpineRenderer 的一个新实例。
+     * @param struct 渲染结构。
+     */
+    constructor(struct: IRenderStruct2D) {
+        super(struct);
+        this.normalUpdater = (SpineConst.factory as JSSpineFactory).createNormalRenderUpdater();
+    }
+
+    /**
+     * @en Called when leaving the current render state.
+     * @zh 离开当前渲染状态时调用。
+     */
+    leave(): void {
+        this._shaderData.removeDefine(SpineShaderInit.SPINE_COLOR2);
+    }
+
+    /**
+     * @en Change the current render context.
+     * @param context The render context containing skin and animation updaters.
+     * @zh 更改当前渲染上下文。
+     * @param context 包含皮肤和动画更新器的渲染上下文。
+     */
+    change() {
+        this._shaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
+    }
+
+    /**
+     * @en Render the current animation at a specific time.
+     * @param curTime The current time for rendering.
+     * @zh 在特定时间渲染当前动画。
+     * @param curTime 渲染的当前时间。
+     */
+    render(curTime: number , offsetX: number = 0, offsetY: number = 0) {
+        this.normalUpdater.renderUpdate(this._skeleton, this.updater, -1, -1 , offsetX , offsetY);
     }
 }

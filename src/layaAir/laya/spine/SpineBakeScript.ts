@@ -6,7 +6,7 @@ import { Loader } from "../../net/Loader";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { TSpineBakeData } from "./web/base/optimize/SkeletonOptimise";
-import { SpineEmptyRender } from "./SpineEmptyRender";
+import { SpineEmptyRender } from "./interface/SpineEmptyFactroy";
 import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 
 
@@ -46,8 +46,8 @@ export class SpineBakeScript extends Script {
      */
     onDisable(): void {
         let spine = this.owner.getComponent(Spine2DRenderNode) as Spine2DRenderNode;
-        if (spine.spineItem)
-            spine.spineItem.initBake(null);
+        if (spine._spineRender && !(spine._spineRender instanceof SpineEmptyRender))
+            spine._spineRender.initBake(null);
     }
 
     /**
@@ -87,11 +87,11 @@ export class SpineBakeScript extends Script {
         data.texture2d = texture;
 
         let spine = this.owner.getComponent(Spine2DRenderNode) as Spine2DRenderNode;
-        if (spine.spineItem && !(spine.spineItem instanceof SpineEmptyRender)) {
-            spine.spineItem.initBake(data);
+        if (spine._spineRender && !(spine._spineRender instanceof SpineEmptyRender)) {
+            spine._spineRender.initBake(data);
         } else {
             this.owner.on(Event.READY, this, () => {
-                spine.spineItem.initBake(data);
+                spine._spineRender.initBake(data);
             });
         }
     }

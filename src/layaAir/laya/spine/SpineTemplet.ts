@@ -218,6 +218,10 @@ export class SpineTemplet extends Resource {
         return this.optimize.getAniNameByIndex(index);
     }
 
+    getAnimationCount(): number {
+        return this.optimize.getAnimationCount();
+    }
+
     /**
      * @en Find the animation by its name
      * @param name The name of the animation to find

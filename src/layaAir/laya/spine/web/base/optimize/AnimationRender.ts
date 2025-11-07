@@ -9,10 +9,10 @@ import { ChangeSlot } from "./change/ChangeSlot";
 import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
 import { Mesh2D } from "../../../../resource/Mesh2D";
 import { ESpineRenderType } from "../../../SpineSkeleton";
-import { SpineMeshUtils } from "../../../utils/SpineMeshUtils";
-import { IChange } from "../../../interface/IChange";
-import { IVBChange } from "../../../interface/IVBChange";
+import { SpineMeshUtils } from "../utils/SpineMeshUtils";
 import { SkeletonOptimise } from "../optimize/SkeletonOptimise";
+import { IChange, IVBChange } from "../../interface/IWebSpine";
+import { SpineConst } from "../../../SpineConst";
 
 export type FrameRenderData = {
     ib?: Uint16Array | Uint32Array | Uint8Array;
@@ -26,7 +26,7 @@ export type FrameChanges = {
     iChanges?: IChange[],
     vChanges?: IVBChange[]
 }
-const step = 1 / 30;
+
 /**
  * @en Represents an animation renderer for spine animations.
  * @zh 表示骨骼动画的动画渲染器。
@@ -76,26 +76,13 @@ export class AnimationRender {
      * @en Indicates if the animation is cached.
      * @zh 指示动画是否已缓存。
      */
-    isCache: boolean;
+    isCache: boolean = false;
 
     /**
-     * @en Creates a Float32Array representing a bone's transform.
-     * @param bone The spine bone to get the transform from.
-     * @zh 创建表示骨骼变换的Float32Array。
-     * @param bone 要获取变换的spine骨骼。
+     * @en Indicates if the animation contains clipped attachments.
+     * @zh 指示动画是否包含剪辑附件。
      */
-    static getFloat32Array(bone: spine.Bone) {
-        let rs = new Float32Array(8);
-        rs[0] = bone.a;
-        rs[1] = bone.b;
-        rs[2] = bone.worldX;
-        rs[3] = 0;
-        rs[4] = bone.c;
-        rs[5] = bone.d;
-        rs[6] = bone.worldY;
-        rs[7] = 0;
-        return rs;
-    }
+    hasClip: boolean = false;
 
     /** @ignore */
     constructor() {
@@ -124,35 +111,14 @@ export class AnimationRender {
     }
 
     /**
-     * @en Caches bone transforms for the animation.
-     * @param preRender The pre-renderer to use for caching.
-     * @zh 缓存动画的骨骼变换。
-     * @param preRender 用于缓存的预渲染器。
-     */
-    cacheBones(preRender: SkeletonOptimise) {
-        let duration = preRender._play(this.name);
-        let totalFrame = Math.round(duration / step) || 1;
-        for (let i = 0; i <= totalFrame; i++) {
-            let bones = preRender._updateState(i == 0 ? 0 : step);
-            let frame: Float32Array[] = [];
-            this.boneFrames.push(frame);
-            for (let j = 0; j < bones.length; j++) {
-                let bone = bones[j];
-                let rs = AnimationRender.getFloat32Array(bone);
-                frame.push(rs);
-            }
-        }
-    }
-
-    /**
      * @en Checks and prepares the animation data.
      * @param animation The spine animation to check.
-     * @param preRender The pre-renderer to use.
+     * @param optimise The optimizer to use.
      * @zh 检查并准备动画数据。
      * @param animation 要检查的spine动画。
-     * @param preRender 要使用的预渲染器。
+     * @param optimise 要使用的优化器。
      */
-    check(animation: spine.Animation, preRender: SkeletonOptimise) {
+    check(animation: spine.Animation, optimise: SkeletonOptimise) {
         this.name = animation.name;
 
         let timeline = animation.timelines;
@@ -264,13 +230,13 @@ export class AnimationRender {
                 hasClip = true;
             }
             else if (time instanceof window.spine.EventTimeline) {
-                if (preRender.canCache) {
+                if (optimise.canCache) {
                     let eventTime = time as spine.EventTimeline;
                     let events = eventTime.events;
                     for (let j = 0, m = frames.length; j < m; j++) {
                         let frame = frames[j];
                         let event = events[j];
-                        let arr = this.eventsFrames[Math.round(frame / step)] = this.eventsFrames[frame] || [];
+                        let arr = this.eventsFrames[Math.round(frame / SpineConst.SPINE_STEP)] = this.eventsFrames[frame] || [];
                         arr.push(event);
                     }
                 }
@@ -312,13 +278,8 @@ export class AnimationRender {
 
         this.isDynamic = !!changeMap.size;
         renderFrames.sort();
-
-        if (!hasClip) {
-            if (preRender.canCache) {
-                this.cacheBones(preRender);
-                this.isCache = true;
-            }
-        }
+        this.hasClip = hasClip;
+       
         this.frameNumber = renderFrames.length;
     }
 
@@ -349,7 +310,6 @@ export class AnimationRender {
         skinData.type = type;
         let frames = this.frames;
         skinData.init(this.changeMap, mainVB, mainIB, tempIbCreate, frames, slotAttachMap, attachMap, this.isDynamic);
-        skinData.updateBoneMat = this.isCache ? (this.eventsFrames.length == 0 ? skinData.updateBoneMatCache : skinData.updateBoneMatCacheEvent) : skinData.updateBoneMatByBone;
         this.skinDataArray.push(skinData);
         return skinData;
     }
@@ -425,21 +385,11 @@ export class SkinAniRenderData {
      * @zh 指示是否需要正常渲染。
      */
     isNormalRender: boolean;
-    // checkVBChange: (slots: spine.Slot[]) => boolean;
-    /**
-     * @en Function to update bone matrices.
-     * @zh 更新骨骼矩阵的函数。
-     */
-    updateBoneMat: (delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array, ofx: number, ofy: number) => void;
 
     /** @ignore */
     constructor() {
-        // this.ibs = [];
         this.renderDatas = [];
-        // this.materials = [];
-        // this.checkVBChange = this.checkVBChangeEmpty;
     }
-
 
     getMesh() {
         return this._defaultMesh;
@@ -447,95 +397,6 @@ export class SkinAniRenderData {
 
     getFrameData(frameIndex: number) {
         return this.renderDatas[frameIndex] || this._defaultFrameData;
-    }
-
-    /**
-     * @en Updates bone matrices using cached data.
-     * @param delta Time delta.
-     * @param animation Animation render data.
-     * @param bones Spine bones.
-     * @param state Spine animation state.
-     * @param boneMat Bone matrix array.
-     * @zh 使用缓存数据更新骨骼矩阵。
-     * @param delta 时间增量。
-     * @param animation 动画渲染数据。
-     * @param bones 骨骼数组。
-     * @param state 骨骼动画状态。
-     * @param boneMat 骨骼矩阵数组。
-     */
-    updateBoneMatCache(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array, ofx: number = 0, ofy: number = 0): void {
-        this.vb.updateBoneCache(animation.boneFrames, delta / step, boneMat, ofx, ofy);
-    }
-
-    /**
-     * @en Updates bone matrices using cached data and handles events.
-     * @param delta Time delta.
-     * @param animation Animation render data.
-     * @param bones Spine bones.
-     * @param state Spine animation state.
-     * @param boneMat Bone matrix array.
-     * @zh 使用缓存数据更新骨骼矩阵并处理事件。
-     * @param delta 时间增量。
-     * @param animation 动画渲染数据。
-     * @param bones 骨骼数组。
-     * @param state 骨骼动画状态。
-     * @param boneMat 骨骼矩阵数组。
-     */
-    updateBoneMatCacheEvent(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array): void {
-        let f = delta / step;
-        this.vb.updateBoneCache(animation.boneFrames, f, boneMat);
-        let currFrame = Math.round(f);
-        //@ts-ignore
-        let curentTrack: spine.TrackEntry = state.currentTrack;
-        //@ts-ignore
-        let lastEventFrame = curentTrack.lastEventFrame;
-        if (lastEventFrame == currFrame) {
-            return;
-        }
-        if (lastEventFrame > currFrame || lastEventFrame == undefined) {
-            lastEventFrame = -1;
-        }
-
-        if (currFrame - lastEventFrame <= 1) {
-            let events = animation.eventsFrames[currFrame];
-            if (events) {
-                for (let i = 0, n = events.length; i < n; i++) {
-                    //@ts-ignore
-                    state.dispatchEvent(null, "event", events[i]);//TODO enty
-                }
-            }
-        }
-        else {
-            for (let i = lastEventFrame + 1; i <= currFrame; i++) {
-                let events = animation.eventsFrames[i];
-                if (events) {
-                    for (let j = 0, m = events.length; j < m; j++) {
-                        //@ts-ignore
-                        state.dispatchEvent(null, "event", events[j]);//TODO enty
-                    }
-                }
-            }
-        }
-        //@ts-ignore
-        curentTrack.lastEventFrame = currFrame;
-    }
-
-    /**
-     * @en Updates bone matrices using individual bone data.
-     * @param delta Time delta.
-     * @param animation Animation render data.
-     * @param bones Spine bones.
-     * @param state Spine animation state.
-     * @param boneMat Bone matrix array.
-     * @zh 使用单个骨骼数据更新骨骼矩阵。
-     * @param delta 时间增量。
-     * @param animation 动画渲染数据。
-     * @param bones 骨骼数组。
-     * @param state 骨骼动画状态。
-     * @param boneMat 骨骼矩阵数组。
-     */
-    updateBoneMatByBone(delta: number, animation: AnimationRender, bones: spine.Bone[], state: spine.AnimationState, boneMat: Float32Array, ofx: number = 0, ofy: number = 0): void {
-        this.vb.updateBone(bones, boneMat, ofx, ofy);
     }
 
     /**

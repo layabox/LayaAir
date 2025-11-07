@@ -239,9 +239,11 @@ export class SpineSkeleton extends Sprite {
 
     /**
      * 获取Skeleton(spine.Skeleton)
+     * @deprecated 不再直接暴露原生spine对象
      */
     getSkeleton() {
-        return this._spineComponent.getSkeleton();
+        // 返回null，不再暴露原生对象
+        return null;
     }
 
     /**

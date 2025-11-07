@@ -1,20 +1,19 @@
-import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
-import { IVertexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
-import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
-import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
-import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
-import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
-import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
-import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
-import { LayaGL } from "../../layagl/LayaGL";
-import { VertexElement } from "../../renders/VertexElement";
-import { VertexElementFormat } from "../../renders/VertexElementFormat";
-import { Mesh2D } from "../../resource/Mesh2D";
-import { ESpineRenderType } from "../SpineSkeleton";
-import { SpineShaderInit } from "../shader/SpineShaderInit";
-import { FrameRenderData } from "../web/base/animation/AnimationRender";
-import { IBCreator } from "../web/base/buffer/IBCreator";
-import { VBCreator } from "../web/base/buffer/VBCreator";
+import { IRenderGeometryElement } from "../../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
+import { IVertexBuffer } from "../../../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
+import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
+import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
+import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
+import { RenderCapable } from "../../../../RenderEngine/RenderEnum/RenderCapable";
+import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
+import { VertexDeclaration } from "../../../../RenderEngine/VertexDeclaration";
+import { LayaGL } from "../../../../layagl/LayaGL";
+import { VertexElement } from "../../../../renders/VertexElement";
+import { VertexElementFormat } from "../../../../renders/VertexElementFormat";
+import { Mesh2D } from "../../../../resource/Mesh2D";
+import { ESpineRenderType } from "../../../SpineSkeleton";
+import { IBCreator } from "../buffer/IBCreator";
+import { VBCreator } from "../buffer/VBCreator";
+import { FrameRenderData } from "../optimize/AnimationRender";
 
 export class SpineMeshUtils {
 
@@ -82,7 +81,6 @@ export class SpineMeshUtils {
         //     vb:vbCreator.vb.slice(0,vbCreator.vbLength),
         //     ib:ibCreator.ib.slice(0,ibCreator.ibLength)
         // }
-8
         let subMeshes: IRenderGeometryElement[] = [];
 
         let multi = ibCreator.outRenderData;
@@ -171,80 +169,5 @@ export class SpineMeshUtils {
             }
         }
         return needUpdate;
-    }
-
-    private static _vertexDeclarationMap: any = {};
-
-    static getVertexDeclaration(vertexFlag: string) {
-        var verDec: VertexDeclaration = SpineMeshUtils._vertexDeclarationMap[vertexFlag];
-        if (!verDec) {
-            var subFlags: any[] = vertexFlag.split(",");
-            var elements: VertexElement[] = [];
-            var offset: number = 0;
-
-            for (var i: number = 0, n: number = subFlags.length; i < n; i++) {
-                var element: VertexElement;
-                switch (subFlags[i]) {
-                    case "COLOR2":
-                        element = new VertexElement(offset, VertexElementFormat.Vector4, 11);
-                        offset += 16;
-                        break;
-                    case "BONE":
-                        element = new VertexElement(offset, VertexElementFormat.Single, 3);
-                        elements.push(element);
-                        offset += 4;
-
-                        element = new VertexElement(offset, VertexElementFormat.Single, 4);
-                        elements.push(element);
-                        offset += 4;
-
-                        element = new VertexElement(offset, VertexElementFormat.Vector4, 5);
-                        elements.push(element);
-                        offset += 16;
-
-                        element = new VertexElement(offset, VertexElementFormat.Vector4, 6);
-                        elements.push(element);
-                        offset += 16;
-
-                        element = new VertexElement(offset, VertexElementFormat.Vector4, 7);
-                        offset += 16;
-                        break;
-                    // case "RIGIDBODY":
-                    //     element = new VertexElement(offset, VertexElementFormat.Single, 4);
-                    //     offset += 4;
-                    //     break;
-                    case "UV":
-                        element = new VertexElement(offset, VertexElementFormat.Vector2, 0);
-                        offset += 8;
-                        break;
-                    case "COLOR":
-                        element = new VertexElement(offset, VertexElementFormat.Vector4, 1);
-                        offset += 16;
-                        break;
-                    case "POSITION":
-                        element = new VertexElement(offset, VertexElementFormat.Vector2, 2);
-                        offset += 8
-                        break;
-                    default:
-                        throw new Error("unknown vertex flag.");
-                }
-                elements.push(element);
-            }
-
-            verDec = new VertexDeclaration(offset, elements);
-            SpineMeshUtils._vertexDeclarationMap[vertexFlag] = verDec;
-        }
-
-        return verDec;
-    }
-
-    static getIndexFormat(vertexCount: number) {
-        let type = IndexFormat.UInt32;
-        if (vertexCount < 256 && LayaGL.renderEngine.getCapable(RenderCapable.Element_Index_Uint8)) {
-            type = IndexFormat.UInt8;
-        } else if (vertexCount < 65536) {
-            type = IndexFormat.UInt16;
-        }
-        return type;
     }
 }

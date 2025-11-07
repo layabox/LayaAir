@@ -2,17 +2,19 @@ import { Color } from "../../../../maths/Color";
 import { ISpineRenderDataHandle } from "../../../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { VertexDeclaration } from "../../../../RenderEngine/VertexDeclaration";
 import { Mesh2D } from "../../../../resource/Mesh2D";
-import { ISpineRender } from "../../../interface/ISpineRender";
-import { SpineShaderInit } from "../../../shader/SpineShaderInit";
+import { ISpineRender, IBoneInfo, ISlotInfo, ITrackEntry } from "../../../interface/ISpineRender";
 import { Spine2DRenderNode } from "../../../Spine2DRenderNode";
 import { ESpineRenderMode, ESpineRenderState, SpineConst, TSpineBakeData } from "../../../SpineConst";
 import { ESpineRenderType } from "../../../SpineSkeleton";
-import { SpineTemplet } from "../../../SpineTemplet";
-import { SpineMeshUtils } from "../../../utils/SpineMeshUtils";
-import { AnimationRenderProxy } from "./AnimationRenderProxy";
-import { SkeletonOptimise } from "./SkeletonOptimise";
-import { SkinRenderUpdate } from "./SkinRenderUpdate";
+import { SpineMeshUtils } from "../utils/SpineMeshUtils";
+import { SkeletonOptimise, SkinAttach } from "./SkeletonOptimise";
+import { AnimatorUpdater } from "./AnimatorUpdater";
 import { IRender, BakedSpineRenderer, OptimizedSpineRenderer, StandardSpineRenderer, RigidBodySpineRenderer } from "./SpineRendererTypes";
+import { AnimationRender } from "./AnimationRender";
+import { Vector4 } from "../../../../maths/Vector4";
+import { SpineTemplet } from "../../../SpineTemplet";
+import { LayaGL } from "../../../../layagl/LayaGL";
+import { IRenderElement2D } from "../../../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 
 enum ERenderProxyType {
     RenderNormal,
@@ -26,27 +28,35 @@ enum ERenderProxyType {
  * @zh SpineOptimizeRender 类用于优化 Spine 动画的渲染。
  */
 export class SpineOptimizeRender implements ISpineRender {
-    /**
-     * @en Map of animation names to AnimationRenderProxy objects.
-     * @zh 动画名称到 AnimationRenderProxy 对象的映射。
-     */
-    animatorMap: Map<string, AnimationRenderProxy>;
-    /**
-     * @en Current animation being rendered.
-     * @zh 当前正在渲染的动画。
-     */
-    currentAnimation: AnimationRenderProxy;
-    /**
-     * @en Array of SkinRender objects.
-     * @zh SkinRender 对象数组。
-     */
-    skinRenderArray: SkinRenderUpdate[];
 
+    /** @ignore @blueprintIgnore */
+    static _pool: IRenderElement2D[] = [];
+
+    /** @ignore @blueprintIgnore */
+    static createRenderElement2D() {
+        let element: IRenderElement2D;
+        if (this._pool.length > 0) {
+            element = this._pool.pop();
+        } else {
+            element = LayaGL.render2DRenderPassFactory.createRenderElement2D();
+        }
+        element.renderStateIsBySprite = false;
+        element.nodeCommonMap = ["spine2D"];
+        return element;
+    }
+
+    /** @ignore @blueprintIgnore */
+    static recoverRenderElement2D(value: IRenderElement2D) {
+        if (!(value as any).canotPool) {
+            this._pool.push(value);
+        }
+    }
+    
     /**
-     * @en Current SkinUpdator being used.
-     * @zh 当前使用的 SkinUpdator。
+     * @en Current AnimatorUpdater being used.
+     * @zh 当前使用的 AnimatorUpdater。
      */
-    currentUpdator: SkinRenderUpdate;
+    updater: AnimatorUpdater;
 
     /** @internal */
     _skinIndex: number = 0;
@@ -54,7 +64,7 @@ export class SpineOptimizeRender implements ISpineRender {
     _curAnimationName: string;
 
     /** @internal */
-    _dynamicMap: Map<number, Mesh2D>;
+    _dynamicMap: Map<number, Mesh2D[]>;
 
     /**
      * @en Color of the Spine object.
@@ -64,12 +74,16 @@ export class SpineOptimizeRender implements ISpineRender {
     /** @internal */
     _optimize: SkeletonOptimise;
     /** @internal */
-    private _skeleton: spine.Skeleton;
+    _skeleton: spine.Skeleton;
     /** @internal */
-    private _state: spine.AnimationState;
+    protected _state: spine.AnimationState;
     /** @internal */
-    private _stateData: spine.AnimationStateData;
+    protected _stateData: spine.AnimationStateData;
 
+    /** @internal */
+    private _skinAttach: SkinAttach = null;
+    /** @internal */
+    private _currentAnimator: AnimationRender = null;
     /**
      * @en Current render proxy.
      * @zh 当前渲染代理。
@@ -83,18 +97,8 @@ export class SpineOptimizeRender implements ISpineRender {
 
     /** @internal */
     _owner: Spine2DRenderNode;
-
-    /**
-     * @en Float32Array for bone matrices.
-     * @zh 用于骨骼矩阵的 Float32Array。
-     */
-    boneMat: Float32Array;
-
-    /**
-     * @en Indicates if the animation is baked.
-     * @zh 指示动画是否被烘焙。
-     */
-    isBake: boolean = false;
+    /** @internal */
+    _templet: SpineTemplet;
 
     /**
      * @en Bake data for the Spine animation.
@@ -102,49 +106,97 @@ export class SpineOptimizeRender implements ISpineRender {
      */
     bakeData: TSpineBakeData;
  
-    private _renderProxytype: ERenderProxyType;
+    private _transform: Vector4 = new Vector4();
 
-    mode: ESpineRenderMode;
+    /** 
+     * @en Current render mode.
+     * @zh 当前渲染模式。
+     */
+    private _mode: ESpineRenderMode = ESpineRenderMode.Optimize;
 
-    state: ESpineRenderState;
+    public get mode(): ESpineRenderMode {
+        return this._mode;
+    }
 
-    currentTime: number;
+    public set mode(value: ESpineRenderMode) {
+        if (this._mode === value) return;
+        
+        this._mode = value;
 
+        // 如果当前有动画，需要重新应用
+        if (this._curAnimationName) {
+            this._clear();
+            this.play(this._curAnimationName);
+        }
+    }
+
+    state: ESpineRenderState = ESpineRenderState.Stopped;
+
+    currentTime: number = 0;
+
+    private _handle: ISpineRenderDataHandle;
  
+    trackEntry: spine.TrackEntry = null;
+
     /** @ignore */
-    constructor() {
-        // spineOptimize.skinAttachArray.forEach((value) => {
-        //     this.skinRenderArray.push(new SkinRenderUpdate(this, value));
-        // })
-
-        // let animators = spineOptimize.animators;
-        // for (let i = 0, n = animators.length; i < n; i++) {
-        //     let animator = animators[i];
-        //     this.animatorMap.set(animator.name, new AnimationRenderProxy(animator));
-        // }
-        // this.currentRender = this.skinRenderArray[this._skinIndex];//default
+    constructor(owner: Spine2DRenderNode) {
+        this._owner = owner;
+        this.spineColor = new Color();
+        this._handle = this._owner._getRenderHandle() as ISpineRenderDataHandle;
+        this._handle.baseColor = this.spineColor;
+        this.updater = new AnimatorUpdater(this);
     }
 
-    stop(): void {
+    getSkeleton(): spine.Skeleton {
+        return this._skeleton;
     }
+
     showSkinByIndex(skinIndex: number): void {
+        this.setSkinIndex(skinIndex);
     }
+    
     setAttachment(slotName: string, attachmentName: string): void {
+        if (this._skeleton) {
+            this._skeleton.setAttachment(slotName, attachmentName);
+        }
+    }
+    
+    reset(): void {
+        // 重置逻辑
+    }
+    
+    update(delta: number): void {
+        this._state.update(delta);
+        this._state.apply(this._skeleton);
+        this.currentTime = this.trackEntry.getAnimationTime();
     }
 
-    createBones(): void {
+    /**
+     * @en Render the current animation at a specific time.
+     * @param time The time to render the animation at.
+     * @zh 在特定时间渲染当前动画。
+     * @param time 要渲染动画的时间。
+     */
+    render(time: number, physicsUpdate: number): void {
+
+        this._skeleton.update && this._skeleton.update(time);
+        this._skeleton.updateWorldTransform(physicsUpdate);
+
+        let offsetX = - this._skeleton.x + this._templet.offsetX;
+        let offsetY = - this._skeleton.y + this._templet.offsetY;
+
+        if (this.renderProxy) {
+            this.renderProxy.render(this.currentTime, offsetX, offsetY);
+        }
     }
-    reset(): void {
-    }
-    update(time: number): void {
-    }
+
     getSpineColor(): Color {
         return this.spineColor;
     }
 
-    init(owner: Spine2DRenderNode): void {
-        this._owner = owner;
-        let templet = owner.templet;
+    init(): void {
+        let templet = this._owner.templet;
+        this._templet = templet;
         let optimize = this._optimize = templet.optimize as SkeletonOptimise;
         let skeleton = this._skeleton = new spine.Skeleton(optimize.data);
         this._stateData = new spine.AnimationStateData(optimize.data);
@@ -152,34 +204,29 @@ export class SpineOptimizeRender implements ISpineRender {
         this._state = new spine.AnimationState(this._stateData);
 
         let scolor = this._skeleton.color;
-        this.spineColor = new Color(scolor.r, scolor.g, scolor.b, scolor.a);
-        (owner._getRenderHandle() as ISpineRenderDataHandle).baseColor = this.spineColor;
+        this.spineColor.setValue(scolor.r, scolor.g, scolor.b, scolor.a);
+        this._handle.skeleton = this._skeleton;
         
-
         this.renderProxyMap = new Map();
         this._dynamicMap = new Map;
-        this.animatorMap = new Map();
-        this.skinRenderArray = [];
-        this.boneMat = new Float32Array(SpineConst.MAX_BONES * 8);
+        this.updater.clear();
 
-        let renderOptimize = new OptimizedSpineRenderer(this._owner);
-        let renderNormal = new StandardSpineRenderer(this._owner);
-        let renderRigidBody = new RigidBodySpineRenderer(this._owner);
+        let struct = this._owner._struct;
+        let renderOptimize = new OptimizedSpineRenderer(struct);
+        let renderNormal = new StandardSpineRenderer(struct);
+        let renderRigidBody = new RigidBodySpineRenderer(struct);
         this.renderProxyMap.set(ERenderProxyType.RenderNormal, renderNormal);
         this.renderProxyMap.set(ERenderProxyType.RenderOptimize, renderOptimize);
         this.renderProxyMap.set(ERenderProxyType.RenderRigidBody, renderRigidBody);
+        
+        // 初始化所有renderer的skeleton
+        this.renderProxyMap.forEach(render => {
+            render.bind(this.updater, this._skeleton);
+        });
 
-        optimize.skinAttachArray.forEach((value) => {
-            this.skinRenderArray.push(new SkinRenderUpdate(this, value));
-        })
-
-        let animators = optimize.animators;
-        for (let i = 0, n = animators.length; i < n; i++) {
-            let animator = animators[i];
-            this.animatorMap.set(animator.name, new AnimationRenderProxy(animator));
-        }
-
-        this.currentUpdator = this.skinRenderArray[this._skinIndex];//default
+        this._skinAttach = optimize.skinAttachArray[this._skinIndex];
+        this.updater.init(this._skeleton, templet);
+        this.updater.skinAttach = this._skinAttach;
     }
 
     /**
@@ -187,10 +234,18 @@ export class SpineOptimizeRender implements ISpineRender {
      * @zh 销毁 SpineOptimizeRender 实例。
      */
     destroy(): void {
-        this.skinRenderArray.forEach(skin => skin.destroy());
-        this._dynamicMap.forEach(mesh => mesh.destroy());
-        this._dynamicMap.clear();
-        this._owner._onMeshChange(null);
+        if (this.renderProxy) {
+            this.renderProxy.destroy();
+        }
+    
+        if (this._dynamicMap) {
+            this._dynamicMap.forEach(meshes => meshes.forEach(mesh => mesh.destroy()));
+            this._dynamicMap.clear();
+        }
+
+        if (this._state) {
+            this._state.clearListeners();
+        }
     }
 
     /**
@@ -202,13 +257,14 @@ export class SpineOptimizeRender implements ISpineRender {
     initBake(obj: TSpineBakeData): void {
         this.bakeData = obj;
         if (obj) {
-            let render = this.renderProxyMap.get(ERenderProxyType.RenderBake) as BakedSpineRenderer || new BakedSpineRenderer(this._owner);
+            let render = this.renderProxyMap.get(ERenderProxyType.RenderBake) as BakedSpineRenderer || new BakedSpineRenderer(this._owner._struct);
             render.simpleAnimatorTexture = obj.texture2d;
             render._bonesNums = obj.bonesNums;
             render.aniOffsetMap = obj.aniOffsetMap;
             this.renderProxyMap.set(ERenderProxyType.RenderBake, render);
         }
-        this.isBake = !!obj;
+        this.mode = ESpineRenderMode.Bake;
+
         if (this._curAnimationName) {
             this._clear();
             this.play(this._curAnimationName);
@@ -223,71 +279,12 @@ export class SpineOptimizeRender implements ISpineRender {
      */
     changeSkeleton(skeleton: spine.Skeleton) {
         this._skeleton = skeleton;
-        this.renderProxyMap.forEach(render => {
-            render.changeSkeleton(skeleton);
+        this.renderProxyMap.forEach(proxy => {
+            proxy.bind(this.updater, skeleton);
         });
         //@ts-ignore
         skeleton.showSkinByIndex(this._skinIndex);
         this._skeleton.setSlotsToSetupPose();
-    }
-
-    /**
-     * @en Initialize the SpineOptimizeRender with necessary components.
-     * @param skeleton The spine skeleton.
-     * @param templet The spine templet.
-     * @param renderNode The Spine2DRenderNode.
-     * @param state The spine animation state.
-     * @zh 使用必要的组件初始化 SpineOptimizeRender。
-     * @param skeleton Spine 骨骼。
-     * @param templet Spine 模板。
-     * @param renderNode Spine2DRenderNode。
-     * @param state Spine 动画状态。
-     */
-    // init(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: Spine2DRenderNode, state: spine.AnimationState): void {
-    //     this._skeleton = skeleton;
-    //     this._owner = renderNode;
-    //     let scolor = skeleton.color;
-
-    //     this.spineColor = new Color(scolor.r, scolor.g, scolor.b, scolor.a);
-    //     (renderNode._getRenderHandle() as ISpineRenderDataHandle).baseColor = this.spineColor;
-
-    //     this.skinRenderArray.forEach((value) => {
-    //         value.init(skeleton, templet, renderNode);
-    //     });
-    //     this._state = state;
-
-    //     this.animatorMap.forEach((value, key) => {
-    //         value.state = state;
-    //     });
-
-    //     let renderOptimize = new OptimizedSpineRenderer(this._owner);
-    //     let renderNormal = new StandardSpineRenderer(this._owner);
-    //     let renderRigidBody = new RigidBodySpineRenderer(this._owner);
-    //     this.renderProxyMap.set(ERenderProxyType.RenderNormal, renderNormal);
-    //     this.renderProxyMap.set(ERenderProxyType.RenderOptimize, renderOptimize);
-    //     this.renderProxyMap.set(ERenderProxyType.RenderRigidBody, renderRigidBody);
-    // }
-
-    /**
-     * @en The current render proxy type.
-     * @zh 当前渲染代理类型。
-     */
-    get renderProxytype(): ERenderProxyType {
-        return this._renderProxytype;
-    }
-
-    set renderProxytype(value: ERenderProxyType) {
-        if (this.isBake && value == ERenderProxyType.RenderOptimize) {
-            if (this.bakeData.aniOffsetMap[this._curAnimationName] != undefined) {
-                value = ERenderProxyType.RenderBake;
-            }
-        }
-        this.renderProxy = this.renderProxyMap.get(value);
-        if (value == ERenderProxyType.RenderNormal) {
-            this._owner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
-            this._owner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
-        }
-        this._renderProxytype = value;
     }
 
     /**
@@ -323,24 +320,13 @@ export class SpineOptimizeRender implements ISpineRender {
      * @param index 要设置的皮肤索引。
      */
     setSkinIndex(index: number) {
+        if (index == this._skinIndex || !this._optimize) return;
+
         this._skinIndex = index;
-        this.currentUpdator = this.skinRenderArray[index];
-        switch (this.currentUpdator.skinAttachType) {
-            case ESpineRenderType.boneGPU:
-                this._owner._spriteShaderData.addDefine(SpineShaderInit.SPINE_FAST);
-                this._owner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
-                break;
-            case ESpineRenderType.rigidBody:
-                this._owner._spriteShaderData.addDefine(SpineShaderInit.SPINE_RB);
-                this._owner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
-                break;
-            case ESpineRenderType.normal:
-                this._owner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
-                this._owner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
-                break;
-        }
-        
-        if (this.currentAnimation) {
+        this._skinAttach = this._optimize.skinAttachArray[index];
+        this.updater.skinAttach = this._skinAttach;
+
+        if (this._currentAnimator) {
             this._clear();
             this.play(this._curAnimationName);
         }
@@ -350,16 +336,24 @@ export class SpineOptimizeRender implements ISpineRender {
      * 获取对应类型的 Dynamic mesh
      * @param vertexDeclaration 
      * @param create
+     * @param index [index=0] 
      * @returns 
      */
-    getDynamicMesh(vertexDeclaration: VertexDeclaration, create = true) {
+    getDynamicMesh(vertexDeclaration: VertexDeclaration, create = true , index = 0) {
         let id = vertexDeclaration.id;
-        let mesh = this._dynamicMap.get(id);
+        let meshes = this._dynamicMap.get(id);
+
+        if (!meshes) {
+            meshes = [];
+            this._dynamicMap.set(id, meshes);
+        }
+        
+        let mesh = meshes[index];
         if (!mesh && create) {
             mesh = SpineMeshUtils.createMeshDynamic(vertexDeclaration);
-            mesh.lock = true;
-            this._dynamicMap.set(id, mesh);
+            meshes[index] = mesh;
         }
+
         return mesh;
     }
 
@@ -370,70 +364,150 @@ export class SpineOptimizeRender implements ISpineRender {
     /**
      * @en Play a specific animation.
      * @param animationName The name of the animation to play.
+     * @param loop Whether to loop
+     * @param trackIndex Track index
+     * @param start Start time (seconds)
+     * @param end End time (seconds), 0 means to end
      * @zh 播放特定的动画。
      * @param animationName 要播放的动画名称。
      */
-    play(animationName: string) {
+    play(animationName: string, loop: boolean = true, trackIndex: number = 0, start: number = 0, end: number = 0) : void {
+        // 设置动画轨道信息
+        let trackEntry = this._state.setAnimation(trackIndex, animationName, loop);
+        if (!trackEntry) return null;
+        this.trackEntry = trackEntry;
+
+        trackEntry.animationStart = start;
+        if (end > 0 && end < trackEntry.animationEnd) {
+            trackEntry.animationEnd = end;
+        }
+        
         this._curAnimationName = animationName;
-        let currentRender = this.currentUpdator;
-        let oldRenderProxy = this.renderProxy;
+        let oldProxy = this.renderProxy;
+        
+        this.updater.reset();
 
-        let old = this.currentAnimation;
-        let oldSkinData = old ? old.currentSKin : null;
-        let currentAnimation = this.currentAnimation = this.animatorMap.get(animationName);
-        currentAnimation.skinIndex = this._skinIndex;
-        let currentSKin = currentAnimation.currentSKin;
-        if (old) {
-            old.reset();
-        }
+        let oldAnimator = this._currentAnimator;
+        let skinAttach = this._skinAttach;
 
-        if (currentSKin.isNormalRender) {
-            this.renderProxytype = ERenderProxyType.RenderNormal;
-        }
-        else {
-            if (currentRender.vertexBones > 4) {
-                console.warn(`In FastRender mode - Current skin: ${currentRender.name} has ${currentRender.vertexBones} bones influencing each vertex. This exceeds the recommended limit of 4 bones per vertex.`);
+        let currentAnimator = this._optimize.animators.find(animator => animator.name === animationName);
+
+        if (this.mode === ESpineRenderMode.Optimize || this.mode === ESpineRenderMode.Bake) {
+
+            if (skinAttach.vertexBones > 4) {
+                console.warn(`In FastRender mode - Current skin: ${skinAttach.name} has ${skinAttach.vertexBones} bones influencing each vertex. This exceeds the recommended limit of 4 bones per vertex.`);
             }
 
-            switch (this.currentUpdator.skinAttachType) {
-                case ESpineRenderType.boneGPU:
-                    this._owner._spriteShaderData.addDefine(SpineShaderInit.SPINE_FAST);
-                    this._owner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
-                    this.renderProxytype = ERenderProxyType.RenderOptimize;
-
-                    break;
-                case ESpineRenderType.rigidBody:
-                    this._owner._spriteShaderData.addDefine(SpineShaderInit.SPINE_RB);
-                    this._owner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
-                    this.renderProxytype = ERenderProxyType.RenderRigidBody;
-                    
-                    break;
-                case ESpineRenderType.normal:
-                    this._owner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
-                    this._owner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
-                    this._renderProxytype = ERenderProxyType.RenderNormal;
-                    break;
+            if (this.bakeData && this.bakeData.aniOffsetMap[animationName] != undefined) {
+                this.renderProxy = this.renderProxyMap.get(ERenderProxyType.RenderBake);
+            } else {
+                switch (skinAttach.type) {
+                    case ESpineRenderType.boneGPU:
+                        this.renderProxy = this.renderProxyMap.get(ERenderProxyType.RenderOptimize);
+                        break;
+                    case ESpineRenderType.rigidBody:
+                        this.renderProxy = this.renderProxyMap.get(ERenderProxyType.RenderRigidBody);
+                        break;
+                    case ESpineRenderType.normal:
+                        this.renderProxy = this.renderProxyMap.get(ERenderProxyType.RenderNormal);
+                        break;
+                }
             }
-
-            if (old && oldSkinData.isNormalRender) {
-                this._clear();
-            }
-
-            if (oldSkinData != currentSKin || !this._owner._mesh) {
-                this.currentAnimation.currentFrameIndex = -1;
-            }
+        } else if (this.mode === ESpineRenderMode.Normal) {
+            this.renderProxy = this.renderProxyMap.get(ERenderProxyType.RenderNormal);
         }
 
-        if (oldRenderProxy) {
-            oldRenderProxy.leave();
+        if (oldProxy) {
+            oldProxy.leave();
         }
 
-        this.renderProxy.change(currentRender, currentAnimation);
-        if ((currentAnimation.animator.isCache || this.renderProxytype == ERenderProxyType.RenderBake) && !currentSKin.isNormalRender) {
-            this.beginCache();
+        if (this.renderProxy && currentAnimator) {
+            this.renderProxy.change();
+            this.updater.animator = currentAnimator;
+            const isBakeMode = this.mode === ESpineRenderMode.Bake;
+            if ((this._optimize.canCache || isBakeMode) && !skinAttach.isNormalRender) {
+                this.beginCache();
+            }
+            else {
+                this.endCache();
+            }
         }
-        else {
-            this.endCache();
+    }
+    
+    addAnimation(animationName: string, loop: boolean = false, delay: number = 0, trackIndex: number = 0): void {
+        this._state.addAnimation(trackIndex, animationName, loop, delay);
+    }
+    
+    setMix(fromAnimation: string, toAnimation: string, duration: number): void {
+        this._stateData.setMix(fromAnimation, toAnimation, duration);
+    }
+    
+    findBone(boneName: string): IBoneInfo | null {
+        if (!this._skeleton) return null;
+        return this._skeleton.findBone(boneName);
+    }
+    
+    findSlot(slotName: string): ISlotInfo | null {
+        if (!this._skeleton) return null;
+        let slot = this._skeleton.findSlot(slotName);
+        if (!slot) return null;
+        
+        return {
+            name: slot.data.name
+        };
+    }
+    
+    setSkeletonPosition(x: number, y: number): void {
+        if (this._skeleton) {
+            this._skeleton.x = x;
+            this._skeleton.y = y;
+        }
+    }
+    
+    physicsTranslate(x: number, y: number): void {
+        if (this._skeleton && this._owner.templet.hasPhysics) {
+            this._skeleton.physicsTranslate(x, y);
+        }
+    }
+    
+    getBones(): IBoneInfo[] {
+        if (!this._skeleton) return [];
+        return this._skeleton.bones;
+    }
+    
+
+    getSkeletonTransform(): Vector4{
+        if (!this._skeleton || !this._owner.templet) {
+            return this._transform;
+        }
+
+        this._transform.x = this._skeleton.x;
+        this._transform.y = this._skeleton.y;
+        this._transform.z = this._owner.templet.offsetX;
+        this._transform.w = this._owner.templet.offsetY;
+        return this._transform;
+    }
+    
+    resetExternalSkin(): void {
+        if (!this._skeleton || !this._owner.templet) return;
+        let optimize = this._owner.templet.optimize as any;
+        if (optimize && optimize.data) {
+            let newSkeleton = new spine.Skeleton(optimize.data);
+            this.changeSkeleton(newSkeleton);
+            this._handle.skeleton = newSkeleton;
+        }
+    }
+    
+    setEventListener(listeners: {
+        start?: (entry: any) => void;
+        interrupt?: (entry: any) => void;
+        end?: (entry: any) => void;
+        dispose?: (entry: any) => void;
+        complete?: (entry: any) => void;
+        event?: (entry: any, event: any) => void;
+    }): void {
+        if (this._state) {
+            this._state.addListener(listeners);
         }
     }
 
@@ -442,18 +516,8 @@ export class SpineOptimizeRender implements ISpineRender {
     }
 
     complete(): void {
-        this.currentAnimation.currentFrameIndex = -1;
+        this.updater.currentFrameIndex = -1;
     }
-
-    /**
-     * @en Render the current animation at a specific time.
-     * @param time The time to render the animation at.
-     * @zh 在特定时间渲染当前动画。
-     * @param time 要渲染动画的时间。
-     */
-    render(time: number): void {
-        this.renderProxy.render(time, this.boneMat);
-    }
-
+    
 }
 

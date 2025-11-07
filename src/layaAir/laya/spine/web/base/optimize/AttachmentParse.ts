@@ -1,5 +1,5 @@
 import { Color } from "../../../../maths/Color";
-import { SpineOptimizeConst } from "../../SpineOptimizeConst";
+import { SpineConst } from "../../../SpineConst";
 
 const QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
 /**
@@ -146,7 +146,7 @@ export class AttachmentParse {
         }
         else if (attachment instanceof spine.MeshAttachment) {
             attchmentColor = attachment.color;
-            let vside = SpineOptimizeConst.BONEVERTEX;
+            let vside = SpineConst.VERTEX_BONE;
             //return false;
             let mesh = attachment as spine.MeshAttachment;
             this.textureName = (mesh.region as any).page.name;
