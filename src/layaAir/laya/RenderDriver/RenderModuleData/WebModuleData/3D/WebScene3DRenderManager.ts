@@ -56,10 +56,12 @@ export class WebSceneRenderManager implements ISceneRenderManager {
 
     set list(value) {
         this._list = value;
-        let elemnt = this._list.elements
-        this.baseRenderList.clear();
-        for (let i = 0; i < this._list.length; i++) {
-            this.baseRenderList.add(elemnt[i]._baseRenderNode as WebBaseRenderNode);
+        if (value) {
+            let elemnt = this._list.elements
+            this.baseRenderList.clear();
+            for (let i = 0; i < this._list.length; i++) {
+                this.baseRenderList.add(elemnt[i]._baseRenderNode as WebBaseRenderNode);
+            }
         }
     }
 
@@ -134,7 +136,7 @@ export class WebSceneRenderManager implements ISceneRenderManager {
      * @zh 销毁渲染对象并清理资源。
      */
     destroy(): void {
-        this._list.destroy();
+        this._list?.destroy();
         this.baseRenderList.destroy();
         this._list = null;
         this.baseRenderList = null;
