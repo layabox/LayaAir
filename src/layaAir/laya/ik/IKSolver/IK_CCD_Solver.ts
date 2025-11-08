@@ -151,7 +151,7 @@ export class IK_CCDSolver implements IK_ISolver {
                     const clamp = (v:number, lo:number, hi:number)=> Math.max(lo, Math.min(hi, v));
                     const maxStep = 0.5; // ~28.6°
                     const damp = this.dampingFactor>0 ? clamp(this.dampingFactor, 0.05, 0.5) : 0.1;
-                    angle = clamp(angle, -maxStep, maxStep) * damp;
+                    //angle = clamp(angle, -maxStep, maxStep) * damp;
 
                     if(Math.abs(angle) > 1e-5){
                         //const rot = new Quaternion();
