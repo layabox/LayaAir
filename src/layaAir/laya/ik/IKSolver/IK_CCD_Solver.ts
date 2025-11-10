@@ -48,12 +48,10 @@ export class IK_CCDSolver implements IK_ISolver {
             // 直线检测。可能在初始状态或者调整过程中出现直线状态
             if(chain.isCollinear(targetPos) ){
                 //共线了，随机动一个关节离开共线状态
-                let id = 1
-
+                let id = 0
                 let randomAxis = new Vector3(Math.random()*2-1, Math.random()*2-1, Math.random()*2-1);
                 randomAxis.normalize();
-                const angle = (Math.random() * 10 - 5) * Math.PI / 180;
-
+                const angle = (Math.random() * 2 - 1)*5 * Math.PI / 180;
                 let rotQuat = new Quaternion();
                 Quaternion.createFromAxisAngle(randomAxis, angle, rotQuat);
                 chain.rotateJoint(id,rotQuat);
