@@ -1,6 +1,7 @@
 import { Quaternion } from "../../maths/Quaternion";
 import { Vector3 } from "../../maths/Vector3";
 import { IK_Chain } from "../IK_Chain";
+import { IK_Comp } from "../IK_Comp";
 import { IK_ISolver } from "../IK_ISolver";
 import { IK_Target } from "../IK_Target";
 import {quaternionFromTo} from "../IK_Utils"
@@ -23,18 +24,18 @@ export class IK_CCDSolver implements IK_ISolver {
     epsilon: number;
     poleTarget:IK_Target = null;
 
-    constructor(maxIterations: number = 1, epsilon: number = 0.001) {
+    constructor(maxIterations: number = 1, epsilon: number = 0.01) {
         this.maxIterations = maxIterations;
         this.epsilon = epsilon;
     }
 
     private _targetPos=new Vector3();
-    solve(chain: IK_Chain, target:Vector3, endOffline:boolean) {
+    solve(comp:IK_Comp,chain: IK_Chain, target:Vector3, endOffline:boolean) {
         let targetPos = this._targetPos;
         target.cloneTo(targetPos);
         let joints = chain.joints;
         let cnt = joints.length;
-        const endEffector = chain.joints[endOffline?cnt-2:cnt-1];
+        const endEffector = joints[endOffline?cnt-2:cnt-1];
         let iteration = 0;
         const jointToEndEffector = new Vector3();
         const jointToTarget = new Vector3();
@@ -42,17 +43,21 @@ export class IK_CCDSolver implements IK_ISolver {
         const basePos = chain.joints[0].position;
 
         let dist = 0;
-        // 直线检测相关
-        if(chain.isCollinear(targetPos) ){
-            //共线了，随机动一个关节离开共线状态
-            for (let i = joints.length - 2; i >= 0; i--) {
-                const joint = joints[i];
-                if(joint.perturbJoint())
-                    break;
-            }
-        }
         let touched = false;
         while (iteration < this.maxIterations) {
+            // 直线检测。可能在初始状态或者调整过程中出现直线状态
+            if(chain.isCollinear(targetPos) ){
+                //共线了，随机动一个关节离开共线状态
+                let id = 1
+
+                let randomAxis = new Vector3(Math.random()*2-1, Math.random()*2-1, Math.random()*2-1);
+                randomAxis.normalize();
+                const angle = (Math.random() * 10 - 5) * Math.PI / 180;
+
+                let rotQuat = new Quaternion();
+                Quaternion.createFromAxisAngle(randomAxis, angle, rotQuat);
+                chain.rotateJoint(id,rotQuat);
+            }
             //从末端开始 -2 是因为规定最后一个是end
             let start = joints.length-2;
             if(endOffline) start-=1;
@@ -102,9 +107,13 @@ export class IK_CCDSolver implements IK_ISolver {
             }
             iteration++;
         }
-        if(this.poleTarget && chain.joints.length>2){
+        if(this.poleTarget && joints.length>2){
             let axis = dpos;
-            targetPos.vsub(basePos, axis);
+            let endid = endOffline?joints.length-2:joints.length-1;
+            let end = joints[endid]
+            let endPos=end.position;
+            //targetPos.vsub(basePos, axis);
+            endPos.vsub(basePos, axis);
             let polePos = this.poleTarget.pos;
             //let baseToPole = new Vector3();
             polePos.vsub(basePos,baseToPole);
@@ -133,36 +142,34 @@ export class IK_CCDSolver implements IK_ISolver {
                 // 中间点或极点在轴上，平面不稳定，跳过
                 const EPSL=0.1; 
                 if(lenMid <= EPSL || lenPole <= EPSL){
-                    return;
-                }
-
-                // 归一化投影用于稳健的 atan2 计算
-                projMid.scale(1/lenMid, projMid);
-                projPole.scale(1/lenPole, projPole);
-
-                const cosTheta = Math.max(-1, Math.min(1, Vector3.dot(projMid, projPole)));
-                //const cross = new Vector3();
-                Vector3.cross(projMid, projPole, cross);
-                const sinTheta = Vector3.dot(cross, axis);
-                let angle = Math.atan2(sinTheta, cosTheta);
-
-                if(isFinite(angle)){
-                    // 加阻尼与角度上限，避免一次性大旋转
-                    const clamp = (v:number, lo:number, hi:number)=> Math.max(lo, Math.min(hi, v));
-                    const maxStep = 0.5; // ~28.6°
-                    const damp = this.dampingFactor>0 ? clamp(this.dampingFactor, 0.05, 0.5) : 0.1;
-                    //angle = clamp(angle, -maxStep, maxStep) * damp;
-
-                    if(Math.abs(angle) > 1e-5){
-                        //const rot = new Quaternion();
-                        Quaternion.createFromAxisAngle(axis, angle, rot);
-                        // 绕根节点（base）轴对整链做小角度旋转，微调肘部朝向极点
-                        chain.rotateJoint(0, rot);
-                        //chain.applyIKResult();
+                }else{
+                    // 归一化投影用于稳健的 atan2 计算
+                    projMid.scale(1/lenMid, projMid);
+                    projPole.scale(1/lenPole, projPole);
+    
+                    const cosTheta = Math.max(-1, Math.min(1, Vector3.dot(projMid, projPole)));
+                    //const cross = new Vector3();
+                    Vector3.cross(projMid, projPole, cross);
+                    const sinTheta = Vector3.dot(cross, axis);
+                    let angle = Math.atan2(sinTheta, cosTheta);
+    
+                    if(isFinite(angle)){
+                        comp.pole_rot=angle;
+                        if(Math.abs(angle) > 1e-5){
+                            //const rot = new Quaternion();
+                            Quaternion.createFromAxisAngle(axis, angle, rot);
+                            // 绕根节点（base）轴对整链做小角度旋转，微调肘部朝向极点
+                            chain.rotateJoint(0, rot);
+                            //chain.applyIKResult();
+                        }
                     }
                 }
             }
         }
-    }
 
+
+        //debug
+        comp.current_iteration = iteration;
+        comp.current_error = dist;
+    }
 }

@@ -1,6 +1,7 @@
 import { Quaternion } from "../../maths/Quaternion";
 import { Vector3 } from "../../maths/Vector3";
 import { IK_Chain } from "../IK_Chain";
+import { IK_Comp } from "../IK_Comp";
 import { IK_ISolver } from "../IK_ISolver";
 import { IK_Joint } from "../IK_Joint";
 import { IK_Target } from "../IK_Target";
@@ -25,7 +26,7 @@ export class IK_FABRIK_Solver implements IK_ISolver {
     }
     dampingFactor: number;
 
-    solve(chain: IK_Chain, targetPos: Vector3, endOffline:boolean) {
+    solve(comp:IK_Comp, chain: IK_Chain, targetPos: Vector3, endOffline:boolean) {
         const joints = chain.joints;
         const totalLength = chain.totalLength;
         const basePos = joints[0].position.clone();
@@ -37,16 +38,20 @@ export class IK_FABRIK_Solver implements IK_ISolver {
             return;
         }
 
-        // 直线检测：共线时微扰以避免退化（与 CCD 保持一致）
-        if (chain.isCollinear(targetPos)) {
-            for (let i = joints.length - 2; i >= 0; i--) {
-                const joint = joints[i];
-                if (joint.perturbJoint())
-                    break;
-            }
-        }
-
         for (let iteration = 0; iteration < this.maxIterations; iteration++) {
+            // 直线检测。可能在初始状态或者调整过程中出现直线状态
+            if(chain.isCollinear(targetPos) ){
+                //共线了，随机动一个关节离开共线状态
+                let id = 1
+
+                let randomAxis = new Vector3(Math.random()*2-1, Math.random()*2-1, Math.random()*2-1);
+                randomAxis.normalize();
+                const angle = (Math.random() * 10 - 5) * Math.PI / 180;
+
+                let rotQuat = new Quaternion();
+                Quaternion.createFromAxisAngle(randomAxis, angle, rotQuat);
+                chain.rotateJoint(id,rotQuat);
+            }            
             // Forward pass
             //先把末端设置到目标位置上
             targetPos.cloneTo(joints[joints.length - 1].position);

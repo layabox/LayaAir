@@ -237,13 +237,16 @@ export class IK_ChainBase{
         this.layerMgr.apply(this.joints);
     }
 
-    solve(){}
+    solve(comp:IK_Comp){}
 
     applyIKResult(){
         if(!this.enable)
             return;
         
-        for(let joint of this.joints){
+        for(let i=0,n=this.joints.length; i<n; i++){
+            let joint = this.joints[i]
+            if(joint.fixed)
+                continue;
             //ik可能有位置修改，所以这里也应用pos。根的pos可能会被动画修改，这里再设置一次也没关系
             joint.applyTransform(this.blendWeight);
         }

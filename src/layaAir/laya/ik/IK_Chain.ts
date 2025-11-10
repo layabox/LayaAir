@@ -34,6 +34,9 @@ export class IK_Chain extends IK_ChainBase{
     //如果末端对齐，这个记录parent在末端空间的位置
     private _parentInEnd:Matrix4x4 = null;
 
+    private lastBoneDir:Vector3[]=[];
+    private lastQuat:Quaternion[]=[];
+
     constructor(name:string,mgr:IK_Comp) {
         super(mgr);
         this.name = name;
@@ -94,6 +97,14 @@ export class IK_Chain extends IK_ChainBase{
             line.addLine(pos,end5,Color.BLUE,Color.BLUE);
             line.addLine(pos,end6,Color.BLUE,Color.BLUE);
         }
+        if(this.endAlign!='no'){
+            let e = this.joints[this.joints.length-1].bone.transform.worldMatrix.elements;
+            let ori = new Vector3(e[12],e[13],e[14]);
+            let len = 53;
+            let end = new Vector3(ori.x+e[4]*len,ori.y+e[5]*len,ori.z+e[6]*len);
+            
+            line.addLine(ori,end,Color.RED,Color.YELLOW);
+        }
         let joints = this.joints;
         for(let i=0,n=joints.length; i<n; i++){
             let joint = joints[i];
@@ -133,9 +144,10 @@ export class IK_Chain extends IK_ChainBase{
     }
 
     private _firstGetParentInEnd = true;
-    override solve(){
-        if(!this._target)
+    override solve(comp:IK_Comp){
+        if(!this._target){
             return ;
+        }
         let solver = this.solver;
         solver.poleTarget = this.poleTarget;
 
@@ -144,6 +156,7 @@ export class IK_Chain extends IK_ChainBase{
         //如果需要对齐的处理
         let alignQ:Quaternion=null;
         if(this._isEndAlign){
+            joints[joints.length-1].fixed=true;
             if(true || this._firstGetParentInEnd){
                 //由于不知道什么时候需要重新计算，例如ide调整end朝向，程序调整，所以每次都算
                 this._firstGetParentInEnd=false;
@@ -219,11 +232,45 @@ export class IK_Chain extends IK_ChainBase{
                     break;
             }
         }
-        solver.solve(this,targetPos,this._isEndAlign);
+
+        for(let i=0,n=joints.length; i<n-1; i++){
+            let cjoint = joints[i];
+            if(cjoint.fixed)
+                continue;
+            let njoint = joints[i+1];
+            let boneDir:Vector3;
+            if(this.lastBoneDir[i])boneDir = this.lastBoneDir[i]
+            else{
+                boneDir = this.lastBoneDir[i] = new Vector3();
+            }
+            njoint.position.vsub(cjoint.position,boneDir);
+            boneDir.normalize();
+            this.lastQuat[i] = joints[i].rotationQuat.clone();
+        }
+
+        solver.solve(comp,this,targetPos,this._isEndAlign);
+
+        //美化旋转，根据骨骼方向简化旋转四元数
+        for(let i=0,n=joints.length; i<n-1; i++){
+            let cjoint = joints[i];
+            if(cjoint.fixed)
+                continue;
+            let njoint = joints[i+1];
+            let boneDir = new Vector3();
+            njoint.position.vsub(cjoint.position,boneDir);
+            boneDir.normalize();
+            let lastDir = this.lastBoneDir[i];
+            let q = cjoint.rotationQuat
+            let dq = new Quaternion();
+            quaternionFromTo(lastDir,boneDir,dq);
+            Quaternion.multiply(dq,this.lastQuat[i],q)
+            cjoint.rotationQuat = q;
+        }
+
 
         //根据 alignQ 更新一下末端的朝向
         if(this._isEndAlign && alignQ){
-            //计算dq
+            //计算dq。根据parent的旋转和parent的期望的旋转，计算一个dq，用来旋转parent，这样就会导致末端符合朝向要求
             let curParentQ = joints[joints.length-2].rotationQuat;
             let invParQ = new Quaternion();
             curParentQ.invert(invParQ)
