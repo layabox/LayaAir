@@ -34,6 +34,9 @@ export class IK_Chain extends IK_ChainBase{
     //如果末端对齐，这个记录parent在末端空间的位置
     private _parentInEnd:Matrix4x4 = null;
 
+    private lastBoneDir:Vector3[]=[];
+    private lastQuat:Quaternion[]=[];
+
     constructor(name:string,mgr:IK_Comp) {
         super(mgr);
         this.name = name;
@@ -229,7 +232,41 @@ export class IK_Chain extends IK_ChainBase{
                     break;
             }
         }
+
+        for(let i=0,n=joints.length; i<n-1; i++){
+            let cjoint = joints[i];
+            if(cjoint.fixed)
+                continue;
+            let njoint = joints[i+1];
+            let boneDir:Vector3;
+            if(this.lastBoneDir[i])boneDir = this.lastBoneDir[i]
+            else{
+                boneDir = this.lastBoneDir[i] = new Vector3();
+            }
+            njoint.position.vsub(cjoint.position,boneDir);
+            boneDir.normalize();
+            this.lastQuat[i] = joints[i].rotationQuat.clone();
+        }
+
         solver.solve(comp,this,targetPos,this._isEndAlign);
+
+        //美化旋转，根据骨骼方向简化旋转四元数
+        for(let i=0,n=joints.length; i<n-1; i++){
+            let cjoint = joints[i];
+            if(cjoint.fixed)
+                continue;
+            let njoint = joints[i+1];
+            let boneDir = new Vector3();
+            njoint.position.vsub(cjoint.position,boneDir);
+            boneDir.normalize();
+            let lastDir = this.lastBoneDir[i];
+            let q = cjoint.rotationQuat
+            let dq = new Quaternion();
+            quaternionFromTo(lastDir,boneDir,dq);
+            Quaternion.multiply(dq,this.lastQuat[i],q)
+            cjoint.rotationQuat = q;
+        }
+
 
         //根据 alignQ 更新一下末端的朝向
         if(this._isEndAlign && alignQ){
