@@ -29,6 +29,10 @@ export class IK_Comp extends Script {
     private _visualSp: PixelLineSprite3D = null
     private _visualInPlay = true;
     private _chainDatas: IK_ChainData[] = [];
+    //运行时信息
+    current_iteration =0;
+    current_error =0.0;
+    pole_rot=0;
     //@property({ type: [IK_ChainData], onChange: "onChainDataChange" })
     set chainDatas(v: IK_ChainData[]) {
         this._chainDatas = v;
@@ -144,7 +148,7 @@ export class IK_Comp extends Script {
         super();
     }
     protected _onAdded(): void {
-        let ik = this._ik_sys = new IK_System(this.owner as Sprite3D);
+        let ik = this._ik_sys = new IK_System(this);
         ik.setRoot(this.owner as Sprite3D);
         ik.showDbg = this._showDbg;
     }
@@ -273,7 +277,7 @@ export class IK_Comp extends Script {
 
                 let chain_joints:IK_Joint[]=null;
                 if (data.type == 'position') {
-                    let c = this._ik_sys.chreateChainByBoneName(this, data.end, cnt);
+                    let c = this._ik_sys.chreateChainByBoneName(data.end, cnt);
                     c.name = name;
                     c.enable = data.enable;
                     c.blendWeight = data.blendWeight;
@@ -290,7 +294,7 @@ export class IK_Comp extends Script {
                     }
                     chain_joints = c.joints;
                 } else if (data.type == 'lookat') {
-                    let lookat = this._ik_sys.chreateLookatByEndSprite(this, data.end, cnt);
+                    let lookat = this._ik_sys.chreateLookatByEndSprite(data.end, cnt);
                     if (lookat) {
                         lookat.name = name;
                         lookat.enable = data.enable;

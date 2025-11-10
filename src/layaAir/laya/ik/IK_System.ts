@@ -54,16 +54,13 @@ export class IK_System {
     //private _scene:Scene3D;
     constraintsMap:Map<Sprite3D,IK_ConstraintInstance>;
     enableSolver=true;
-    owner:Sprite3D = null;
+    ikcomp:IK_Comp=null;
     useAnimLayer=false;
 
-    constructor(owner:Sprite3D) {
+    constructor(comp:IK_Comp) {
+        this.ikcomp=comp;
         this.solver = new IK_CCDSolver();
         //this.solver = new IK_FABRIK_Solver();
-        //this._scene = scene;
-        this.owner = owner;
-        //debug
-        (window as any).iks = this;
     }
     
     setRoot(r:Sprite3D){
@@ -181,7 +178,8 @@ export class IK_System {
         return ret;
     }    
 
-    chreateChainByBoneName(comp:IK_Comp, nameOrSp3d:string|Sprite3D, length:number):IK_Chain{
+    chreateChainByBoneName(nameOrSp3d:string|Sprite3D, length:number):IK_Chain{
+        let comp = this.ikcomp;
         let bones:Sprite3D[];
         let endName:string;
         if(typeof nameOrSp3d=='string'){
@@ -214,7 +212,8 @@ export class IK_System {
         return chain;
     }
 
-    chreateLookatByEndSprite(comp:IK_Comp, end:Sprite3D, length:number):IK_Lookat{
+    chreateLookatByEndSprite(end:Sprite3D, length:number):IK_Lookat{
+        let comp = this.ikcomp;
         let bones:Sprite3D[];
         // if(length>2){
         //     console.error('looat 长度最大为2');
@@ -285,7 +284,7 @@ export class IK_System {
                     chain.captureAnimPose();
                     chain.copyInitPose();
                     //chain.copyCurPoseAsInitPose();
-                    chain.solve();
+                    chain.solve(this.ikcomp);
                     chain.ik_result.captureIKResult(chain.joints);
                     chain.layerMgr.set(chain.ik_result);
                     chain.applyResult();                    
@@ -296,7 +295,7 @@ export class IK_System {
             }else{
                 if(isRunning){
                     chain.copyCurPoseAsInitPose();
-                    chain.solve();
+                    chain.solve(this.ikcomp);
                     chain.applyIKResult();
                 }
             }                
