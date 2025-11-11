@@ -1438,6 +1438,7 @@ export class Sprite extends Node {
     }
 
     /**
+     * @deprecated
      * @en Draws the current Sprite to a Canvas and returns an HtmlCanvas object.
      * The drawing result can be used as an image source to be drawn into other Sprites.
      * It can also obtain the original image data, send it to the server, or save it as an image to achieve a screenshot effect.
@@ -1459,6 +1460,7 @@ export class Sprite extends Node {
         return Sprite.drawToCanvas(this, canvasWidth, canvasHeight, offsetX, offsetY);
     }
     /**
+     * @deprecated
      * @ignore
      * @en Draws the specified Sprite to a Canvas and returns an HtmlCanvas object.
      * @param sprite The Sprite to draw.
