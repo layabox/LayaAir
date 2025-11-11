@@ -399,7 +399,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (!this._templet)
             return;
         this._spineRender.mode = !SpineConst.normalRenderSwitch && value ? ESpineRenderMode.Optimize : ESpineRenderMode.Normal;
-        this.play(this._animationName, this._loop, true, this._spineRender.currentTime * 1000);
+        // this.play(this._animationName, this._loop, true, this._spineRender.currentTime * 1000);
     }
 
     get offset(): Vector2 {
@@ -510,6 +510,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         let skinIndex = this._templet.getSkinIndexByName(this._skinName);
         if (skinIndex != -1)
             this.showSkinByIndex(skinIndex);
+
+        this.onTransformChanged();
 
         // 设置事件监听器
         this._spineRender.setEventListener({
@@ -839,6 +841,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this._needUpdate = false;
         if (this._soundChannelArr.length > 0)
             this._onAniSoundStoped(true);
+        this.owner.repaint();
     }
 
     // ------------------------------------新增加的接口----------------------------------------------------
@@ -963,7 +966,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             this.clear();
         }
         this._spineRender.destroy();
-        
+        this._spineRender = null;
         // 清理骨骼可视化
         if (this._rootBone) {
             this._rootBone.destroy();

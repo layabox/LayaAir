@@ -43,6 +43,9 @@ export class SpineEmptyTempletParser implements ISpineTempletParser {
  * @zh 空实现的渲染器，用于优化 Spine 动画的渲染。
  */
 export class SpineEmptyRender implements ISpineRender {
+    getSkeleton(): spine.Skeleton {
+        return null;
+    }
     trackEntry: ITrackEntry = null;
     mode: ESpineRenderMode = ESpineRenderMode.Normal;
     state: ESpineRenderState = ESpineRenderState.Stopped;

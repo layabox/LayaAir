@@ -173,34 +173,6 @@ export class SpineShaderInit {
     static SPINE_PREMULTIPLYALPHA: ShaderDefine;
 
     /**
-     * @en Change the vertex define for the mesh.
-     * @zh 更改网格的顶点定义。
-     * @param shaderData 着色器数据。
-     * @param mesh 网格。
-     */
-    static changeVertexDefine(shaderData: ShaderData, mesh: Mesh2D) {
-
-        let hasTwoColor = false;
-
-        let vertexBuffers = mesh.vertexBuffers;
-        for (let i = 0; i < vertexBuffers.length; i++) {
-            let vertexBuffer = vertexBuffers[i];
-            let vertexDeclaration = vertexBuffer.vertexDeclaration;
-            let vertexElement = vertexDeclaration.getVertexElementByUsage(11);
-            if (vertexElement) {
-                hasTwoColor = true;
-                break
-            }
-        }
-
-        if (hasTwoColor) {
-            shaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
-        } else {
-            shaderData.removeDefine(SpineShaderInit.SPINE_COLOR2);
-        }
-    }
-
-    /**
      * @en TextureSV Mesh Descript.
      * @zh 纹理 Spine 顶点属性描述。
      */
@@ -390,5 +362,3 @@ export class SpineShaderInit {
         return type;
     }
 }
-
-Laya.addAfterInitCallback(SpineShaderInit.init);

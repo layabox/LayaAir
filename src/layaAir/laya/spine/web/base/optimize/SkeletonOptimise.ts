@@ -310,6 +310,11 @@ export class SkinAttach {
      * @zh 刚体骨骼的索引。
      */
     rbBoneIndex: number = -1;
+    /**
+     * @en Indicates if two color tint is used.
+     * @zh 表示是否使用双色着色。
+     */
+    twoColorTint: boolean = false;
 
     /** @ignore */
     constructor() {
@@ -409,7 +414,8 @@ export class SkinAttach {
             this.type = ESpineRenderType.normal;
         }
         this.vertexBones = vertexBones;
-
+        
+        this.twoColorTint = twoColorTint;
         let flag: string;
         switch (this.type) {
             case ESpineRenderType.normal:
