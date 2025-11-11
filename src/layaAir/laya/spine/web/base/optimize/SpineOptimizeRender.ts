@@ -8,13 +8,19 @@ import { ESpineRenderMode, ESpineRenderState, SpineConst, TSpineBakeData } from 
 import { ESpineRenderType } from "../../../SpineSkeleton";
 import { SpineMeshUtils } from "../utils/SpineMeshUtils";
 import { SkeletonOptimise, SkinAttach } from "./SkeletonOptimise";
-import { AnimatorUpdater } from "./AnimatorUpdater";
+import { SpineRenderUpdater } from "./SpineRenderUpdater";
 import { IRender, BakedSpineRenderer, OptimizedSpineRenderer, StandardSpineRenderer, RigidBodySpineRenderer } from "./SpineRendererTypes";
 import { AnimationRender } from "./AnimationRender";
 import { Vector4 } from "../../../../maths/Vector4";
 import { SpineTemplet } from "../../../SpineTemplet";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { IRenderElement2D } from "../../../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { IRenderGeometryElement } from "../../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
+import { Material } from "../../../../resource/Material";
+import { IRenderStruct2D } from "../../../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
+import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { SpineShaderInit } from "../../../shader/SpineShaderInit";
+import { Texture2D } from "../../../../resource/Texture2D";
 
 enum ERenderProxyType {
     RenderNormal,
@@ -41,22 +47,29 @@ export class SpineOptimizeRender implements ISpineRender {
             element = LayaGL.render2DRenderPassFactory.createRenderElement2D();
         }
         element.renderStateIsBySprite = false;
-        element.nodeCommonMap = ["spine2D"];
+        element.nodeCommonMap = ["BaseRender2D", "Spine2D"];
         return element;
     }
 
     /** @ignore @blueprintIgnore */
     static recoverRenderElement2D(value: IRenderElement2D) {
         if (!(value as any).canotPool) {
+            value.materialShaderData = null;
+            value.geometry = null;
+            value.subShader = null;
+            value.owner = null;
             this._pool.push(value);
         }
     }
     
     /**
-     * @en Current AnimatorUpdater being used.
-     * @zh 当前使用的 AnimatorUpdater。
+     * @en Current SpineRenderUpdater being used.
+     * @zh 当前使用的 SpineRenderUpdater。
      */
-    updater: AnimatorUpdater;
+    updater: SpineRenderUpdater;
+
+    /** @internal */
+    private _renderElements: IRenderElement2D[] = [];
 
     /** @internal */
     _skinIndex: number = 0;
@@ -123,10 +136,9 @@ export class SpineOptimizeRender implements ISpineRender {
         
         this._mode = value;
 
-        // 如果当前有动画，需要重新应用
         if (this._curAnimationName) {
-            this._clear();
-            this.play(this._curAnimationName);
+            this._clearRenderElements();
+            this.play(this._curAnimationName , this.trackEntry.loop , this.trackEntry.trackIndex , this.currentTime);
         }
     }
 
@@ -144,7 +156,7 @@ export class SpineOptimizeRender implements ISpineRender {
         this.spineColor = new Color();
         this._handle = this._owner._getRenderHandle() as ISpineRenderDataHandle;
         this._handle.baseColor = this.spineColor;
-        this.updater = new AnimatorUpdater(this);
+        this.updater = new SpineRenderUpdater(this);
     }
 
     getSkeleton(): spine.Skeleton {
@@ -159,10 +171,6 @@ export class SpineOptimizeRender implements ISpineRender {
         if (this._skeleton) {
             this._skeleton.setAttachment(slotName, attachmentName);
         }
-    }
-    
-    reset(): void {
-        // 重置逻辑
     }
     
     update(delta: number): void {
@@ -187,6 +195,136 @@ export class SpineOptimizeRender implements ISpineRender {
 
         if (this.renderProxy) {
             this.renderProxy.render(this.currentTime, offsetX, offsetY);
+            if (this.renderProxy.afterRender) {
+                this.renderProxy.afterRender(this);
+            }
+        }
+    }
+
+    /**
+     * @en Update render elements from subMeshes and materials.
+     * This method is called from renderProxy.afterRender().
+     * @param subMeshes Array of sub meshes.
+     * @param materials Array of materials.
+     * @zh 根据子网格和材质数组更新渲染元素。
+     * 此方法由 renderProxy.afterRender() 调用。
+     * @param subMeshes 子网格数组。
+     * @param materials 材质数组。
+     */
+    _updateRenderElements(subMeshes: IRenderGeometryElement[], materials: Material[]): void {
+        if (!this._owner || !this._owner._struct) {
+            return;
+        }
+
+        const struct = this._owner._struct;
+        const shaderData = this._owner._spriteShaderData;
+
+        this._updateRenderElementsFromData(
+            struct,
+            shaderData,
+            subMeshes,
+            materials
+        );
+    }
+
+    /**
+     * @en Update render elements from subMeshes and materials arrays.
+     * Updates internal _renderElements first, then syncs to struct.renderElements.
+     * @param struct The render struct to set renderElements.
+     * @param shaderData The shader data for render elements.
+     * @param subMeshes Array of sub meshes.
+     * @param materials Array of materials.
+     * @param getCommonUniformMap Function to get common uniform map.
+     * @zh 根据子网格和材质数组更新渲染元素。
+     * 先更新内部的 _renderElements，然后同步到 struct.renderElements。
+     * @param struct 要设置 renderElements 的渲染结构。
+     * @param shaderData 渲染元素的着色器数据。
+     * @param subMeshes 子网格数组。
+     * @param materials 材质数组。
+     * @param getCommonUniformMap 获取通用 uniform map 的函数。
+     */
+    private _updateRenderElementsFromData(
+        struct: IRenderStruct2D,
+        shaderData: ShaderData,
+        subMeshes: IRenderGeometryElement[],
+        materials: Material[]
+    ): void {
+        if (!subMeshes || !materials || subMeshes.length === 0 || materials.length === 0) {
+            // 清理所有元素
+            this._clearRenderElements();
+            struct.renderElements = [];
+            return;
+        }
+
+        const subMeshCount = subMeshes.length;
+        const materialCount = materials.length;
+        const targetCount = Math.max(subMeshCount, materialCount);
+
+        let need = false;
+        
+        // 更新或创建 RenderElements
+        for (let i = 0; i < targetCount; i++) {
+            let element = this._renderElements[i];
+            const subMesh = subMeshes[i];
+            const material = materials[i];
+
+            if (subMesh && material) {
+                // 检查是否需要更新 element
+                let needUpdate = false;
+                if (!element) {
+                    // 需要创建新的 element
+                    element = SpineOptimizeRender.createRenderElement2D();
+                    this._renderElements[i] = element;
+                    needUpdate = true;
+                } else {
+                    // 对比检查是否需要更新现有 element
+                    if (element.geometry !== subMesh || 
+                        element.materialShaderData !== material.shaderData ||
+                        element.value2DShaderData !== shaderData ||
+                        element.owner !== struct
+                    ) {
+                        needUpdate = true;
+                    }
+                }
+
+                if (needUpdate) {
+                    element.geometry = subMesh;
+                    element.materialShaderData = material.shaderData;
+                    element.subShader = material._shader.getSubShaderAt(0);
+                    element.value2DShaderData = shaderData;
+                    element.owner = struct;
+                    need = true;
+                }
+            } else {
+                // 清理不需要的 element
+                if (element) {
+                    SpineOptimizeRender.recoverRenderElement2D(element);
+                }
+            }
+        }
+
+        this._renderElements.length = subMeshCount;
+
+        if (need) {
+            struct.renderElements = this._renderElements;
+        }
+    }
+
+    /**
+     * @en Clear all render elements.
+     * @zh 清除所有渲染元素。
+     */
+    private _clearRenderElements(): void {
+        for (let i = 0, len = this._renderElements.length; i < len; i++) {
+            const element = this._renderElements[i];
+            if (element) {
+                SpineOptimizeRender.recoverRenderElement2D(element);
+            }
+        }
+        this._renderElements.length = 0;
+        
+        if (this._owner && this._owner._struct) {
+            this._owner._struct.renderElements = [];
         }
     }
 
@@ -224,9 +362,14 @@ export class SpineOptimizeRender implements ISpineRender {
             render.bind(this.updater, this._skeleton);
         });
 
-        this._skinAttach = optimize.skinAttachArray[this._skinIndex];
-        this.updater.init(this._skeleton, templet);
+        this._skinAttach = this._optimize.skinAttachArray[this._skinIndex];
         this.updater.skinAttach = this._skinAttach;
+
+        if (this._skinAttach.twoColorTint) {
+            struct.spriteShaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
+        } else {
+            struct.spriteShaderData.removeDefine(SpineShaderInit.SPINE_COLOR2);
+        }
     }
 
     /**
@@ -234,18 +377,15 @@ export class SpineOptimizeRender implements ISpineRender {
      * @zh 销毁 SpineOptimizeRender 实例。
      */
     destroy(): void {
-        if (this.renderProxy) {
-            this.renderProxy.destroy();
-        }
+        this.reset();
     
         if (this._dynamicMap) {
             this._dynamicMap.forEach(meshes => meshes.forEach(mesh => mesh.destroy()));
             this._dynamicMap.clear();
         }
 
-        if (this._state) {
-            this._state.clearListeners();
-        }
+        this.updater.destroy();
+        this.updater = null;
     }
 
     /**
@@ -266,7 +406,7 @@ export class SpineOptimizeRender implements ISpineRender {
         this.mode = ESpineRenderMode.Bake;
 
         if (this._curAnimationName) {
-            this._clear();
+            this._clearRenderElements();
             this.play(this._curAnimationName);
         }
     }
@@ -326,10 +466,26 @@ export class SpineOptimizeRender implements ISpineRender {
         this._skinAttach = this._optimize.skinAttachArray[index];
         this.updater.skinAttach = this._skinAttach;
 
+        if (this._skinAttach.twoColorTint) {
+            this._owner._spriteShaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
+        } else {
+            this._owner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_COLOR2);
+        }
+        
         if (this._currentAnimator) {
-            this._clear();
+            this._clearRenderElements();
             this.play(this._curAnimationName);
         }
+    }
+
+    /** @internal */
+    _getMaterialByName(name: string, blendMode: number): Material {
+        return this._templet.getMaterial(this._templet.getTexture(name), blendMode);
+    }
+    
+    /** @internal */
+    _getMaterial(texture: Texture2D, blendMode: number): Material {
+        return this._templet.getMaterial(texture, blendMode);
     }
 
     /**
@@ -357,8 +513,26 @@ export class SpineOptimizeRender implements ISpineRender {
         return mesh;
     }
 
-    private _clear() {
-        this._owner.clear();
+    reset(): void {
+        this._skinIndex = 0;
+        this._curAnimationName = null;
+        this._currentAnimator = null;
+        this._skinAttach = null;
+        this.updater.clear();
+        this.renderProxyMap.forEach(render => {
+            render.destroy();
+        });
+        this.renderProxyMap.clear();
+        this.renderProxy = null;
+        this._skeleton = null;
+        this._optimize = null;
+        if (this._state) {
+            this._state.clearListeners();
+        }
+        this._state = null;
+        this._templet = null;
+        this._stateData = null;
+        this._clearRenderElements();
     }
 
     /**
@@ -402,7 +576,7 @@ export class SpineOptimizeRender implements ISpineRender {
                 this.renderProxy = this.renderProxyMap.get(ERenderProxyType.RenderBake);
             } else {
                 switch (skinAttach.type) {
-                    case ESpineRenderType.boneGPU:
+                    case ESpineRenderType.boneGPU: 
                         this.renderProxy = this.renderProxyMap.get(ERenderProxyType.RenderOptimize);
                         break;
                     case ESpineRenderType.rigidBody:

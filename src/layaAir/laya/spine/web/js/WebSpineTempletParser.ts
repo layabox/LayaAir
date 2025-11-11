@@ -33,9 +33,6 @@ export class WebSpineTempletParser implements ISpineTempletParser {
             skeletonData = skeletonJson.readSkeletonData(data);
         }
 
-        let offset = new spine.Vector2;
-        let size = new spine.Vector2;
-
         let skeletonOptimise = new SkeletonOptimise();
         
         let skeleton = new spine.Skeleton(skeletonData);
@@ -62,10 +59,6 @@ export class WebSpineTempletParser implements ISpineTempletParser {
             templet.height = skeletonData.height || 0;
             templet.offsetX = (skeletonData.x || 0) + templet.width;
             templet.offsetY = -((skeletonData.y || 0) + templet.height);
-        }
-
-        if (this._version >= 4.1) {
-            templet.needSlot = true;
         }
 
         templet._textures = textures;

@@ -1,10 +1,9 @@
 import { VBCreator } from "../buffer/VBCreator";
 import { SpineOptimizeRender } from "./SpineOptimizeRender";
 import { MultiRenderData } from "../buffer/MultiRenderData";
-import { SkeletonOptimise, SkinAttach } from "./SkeletonOptimise";
+import { SkinAttach } from "./SkeletonOptimise";
 import { Material } from "../../../../resource/Material";
 import { Mesh2D } from "../../../../resource/Mesh2D";
-import { Spine2DRenderNode } from "../../../Spine2DRenderNode";
 import { SpineTemplet } from "../../../SpineTemplet";
 import { SpineMeshUtils } from "../utils/SpineMeshUtils";
 import { IVBChange } from "../../interface/IWebSpine";
@@ -12,16 +11,16 @@ import { SkinAniRenderData, FrameRenderData, AnimationRender } from "./Animation
 import { SpineConst } from "../../../SpineConst";
 import { VertexDeclaration } from "../../../../RenderEngine/VertexDeclaration";
 import { Texture2D } from "../../../../resource/Texture2D";
-import { IRenderElement2D } from "../../../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { SpineShaderInit } from "../../../shader/SpineShaderInit";
 
 /**
- * @en Animatorupdater used for updating animation render data and skin rendering.
- * @zh Animatorupdater 类用于更新动画渲染数据和皮肤渲染。
+ * @en SpineRenderUpdater used for updating animation render data and skin rendering.
+ * @zh SpineRenderUpdater 类用于更新动画渲染数据和皮肤渲染。
  */
-export class AnimatorUpdater {
+export class SpineRenderUpdater {
     /**
-     * @en The owner of this Animatorupdater.
-     * @zh 此 Animatorupdater 的所有者。
+     * @en The owner of this SpineRenderUpdater.
+     * @zh 此 SpineRenderUpdater 的所有者。
      */
     owner: SpineOptimizeRender;
 
@@ -31,11 +30,6 @@ export class AnimatorUpdater {
      */
     name: string;
 
-    /**
-     * @en The Spine template.
-     * @zh Spine 模板。
-     */
-    templet: SpineTemplet;
 
     /**
      * @en Array of current materials.
@@ -88,14 +82,17 @@ export class AnimatorUpdater {
     /** @internal */
     _mesh: Mesh2D;
 
-    /** @internal */
-    private _renderElements: IRenderElement2D[] = [];
+    getSubMeshes() {
+        return this._mesh ? this._mesh._subMeshes : [];
+    }
+
+    needUpdate = true;
 
     /**
-     * @en Create a new instance of Animatorupdater.
-     * @param owner The SpineOptimizeRender that owns this Animatorupdater.
-     * @zh 创建 Animatorupdater 的新实例。
-     * @param owner 拥有此 Animatorupdater 的 SpineOptimizeRender。
+     * @en Create a new instance of SpineRenderUpdater.
+     * @param owner The SpineOptimizeRender that owns this SpineRenderUpdater.
+     * @zh 创建 SpineRenderUpdater 的新实例。
+     * @param owner 拥有此 SpineRenderUpdater 的 SpineOptimizeRender。
      */
     constructor(owner: SpineOptimizeRender) {
         this.owner = owner;
@@ -152,36 +149,16 @@ export class AnimatorUpdater {
     }
 
     clear() {
+        this.cacheMaterials.length = 0;
         this.currentTime = -1;
         this.currentFrameIndex = -1;
         this.currentSKin = null;
         this.state = null;
         this._skinAttach = null;
         this._animator = null;
-    }
-
-    /**
-     * @en Get material by name and blend mode.
-     * @param name The name of the texture.
-     * @param blendMode The blend mode.
-     * @zh 通过名称和混合模式获取材质。
-     * @param name 纹理的名称。
-     * @param blendMode 混合模式。
-     */
-    getMaterialByName(name: string, blendMode: number): Material {
-        return this.templet.getMaterial(this.templet.getTexture(name), blendMode);
-    }
-
-    /**
-     * @en Get material by texture and blend mode.
-     * @param texture The texture.
-     * @param blendMode The blend mode.
-     * @zh 通过纹理和混合模式获取材质。
-     * @param texture 纹理。
-     * @param blendMode 混合模式。
-     */
-    getMaterial(texture: Texture2D, blendMode:number): Material{
-        return this.templet.getMaterial(texture, blendMode);
+        this.vChanges.length = 0;
+        this._updateMaterials(null);
+        this._mesh = null;
     }
 
     /**
@@ -192,7 +169,6 @@ export class AnimatorUpdater {
      * @param lastFrame 上一帧
      */
     renderUpdate(slots: spine.Slot[], skindata: SkinAniRenderData, frame: number, lastFrame: number) {
-        const renderNode = this.owner._owner;
         let needUpdate = false;
         if (skindata.isDynamic) {
             needUpdate = this.updateDynamicRender(slots, skindata, frame, lastFrame);
@@ -200,9 +176,7 @@ export class AnimatorUpdater {
             needUpdate = this.handleRender(skindata, frame, skindata.getMesh());
         }
 
-        if (needUpdate) {
-            this._updateRenderElements();
-        }
+        this.needUpdate = this.needUpdate || needUpdate;
     }
 
     private updateDynamicRender(slots: spine.Slot[], skindata: SkinAniRenderData, frame: number, lastFrame: number): boolean {
@@ -251,11 +225,12 @@ export class AnimatorUpdater {
             this.uploadIndexBuffer(frameData, mesh);
         }
 
-        let needUpdateMesh = SpineMeshUtils._updateSpineSubMesh(mesh, frameData);
-        return this.handleRender(skindata, frame, mesh, needUpdateMesh);
+        let needUpdate = SpineMeshUtils._updateSpineSubMesh(mesh, frameData);
+        needUpdate = this.handleRender(skindata, frame, mesh) || needUpdate;
+        return needUpdate;
     }
 
-    private handleRender(skindata: SkinAniRenderData, frame: number,  mesh: Mesh2D, forceUpdateMesh = false): boolean {
+    private handleRender(skindata: SkinAniRenderData, frame: number,  mesh: Mesh2D): boolean {
         let frameData = skindata.getFrameData(frame);
         let needUpdate = false;
         let mulitRenderData = frameData.mulitRenderData;
@@ -267,16 +242,31 @@ export class AnimatorUpdater {
             }
         }
 
-        let meshChanged = this._onMeshChange(mesh, forceUpdateMesh);
-        return !meshChanged || needUpdate;
+        if (this._mesh !== mesh) {
+            this._mesh = mesh;
+            needUpdate = true;
+        }
+        return needUpdate;
     }
 
     private createMaterials(mulitRenderData: MultiRenderData): Material[] {
         let mats = mulitRenderData.renderData.map(data =>
-            this.getMaterialByName(data.textureName, data.blendMode)
+            this.owner._getMaterialByName(data.textureName, data.blendMode)
         );
-        this.cacheMaterials[mulitRenderData.id] = mats;
-        return mats;
+        //和上一次比对
+        if (this.currentMaterials) {
+            for (let i = 0; i < mats.length; i++) {
+                if (this.currentMaterials[i] !== mats[i]) {
+                    this.cacheMaterials[mulitRenderData.id] = mats;
+                    return mats;
+                }
+            }
+            this.cacheMaterials[mulitRenderData.id] = this.currentMaterials;
+            return this.currentMaterials;
+        } else {
+            this.cacheMaterials[mulitRenderData.id] = mats;
+            return mats;
+        }
     }
 
     public getDynamicMesh(vertexDeclaration: VertexDeclaration , index = 0): Mesh2D {
@@ -316,18 +306,6 @@ export class AnimatorUpdater {
     }
 
     /**
-     * @en Initialize renderer
-     * @param skeleton spine.skeleton instance
-     * @param templet Engine spine animation template
-     * @zh 初始化渲染器
-     * @param skeleton spine.skeleton 实例
-     * @param templet 引擎spine动画模板
-     */
-    init(skeleton: spine.Skeleton, templet: SpineTemplet) {
-        this.templet = templet;
-    }
-
-    /**
      * @en Renders the animation without matrix transformation.
      * @param slots The slots to render.
      * @param updater The VB/IB updater (usually this).
@@ -337,7 +315,7 @@ export class AnimatorUpdater {
      * @param updater VB/IB 更新器（通常是 this）。
      * @param curTime 当前动画时间。
      */
-    renderWithOutMat(slots: spine.Slot[], updater: AnimatorUpdater, curTime: number) {
+    renderWithOutMat(slots: spine.Slot[], updater: SpineRenderUpdater, curTime: number) {
         let beforeFrame = this.currentFrameIndex;
         let nowFrame = this.animator.getFrameIndex(curTime, beforeFrame);
         
@@ -365,7 +343,7 @@ export class AnimatorUpdater {
      * @param ofx 偏移x。
      * @param ofy 偏移y。
      */
-    renderWithMat(bones: spine.Bone[], slots: spine.Slot[], updater: AnimatorUpdater, curTime: number, boneMat: Float32Array, ofx: number, ofy: number) {
+    renderWithMat(bones: spine.Bone[], slots: spine.Slot[], updater: SpineRenderUpdater, curTime: number, boneMat: Float32Array, ofx: number, ofy: number) {
         this.renderWithOutMat(slots, updater, curTime);
         this.updateBoneMatrix(curTime, bones, boneMat, ofx, ofy);
     }
@@ -563,78 +541,27 @@ export class AnimatorUpdater {
 
     /** @internal */
     _updateMaterials(elements: Material[]) {
-        for (let i = 0, len = this.currentMaterials.length; i < len; i++) {
-            this.currentMaterials[i]._removeReference();
+        if (this.currentMaterials) {
+            for (let i = 0, len = this.currentMaterials.length; i < len; i++) {
+                this.currentMaterials[i]._removeReference();
+            }
         }
 
-        for (let i = 0, len = elements.length; i < len; i++) {
-            elements[i]._addReference();
+        if (elements) {
+            for (let i = 0, len = elements.length; i < len; i++) {
+                elements[i]._addReference();
+            }
         }
         this.currentMaterials = elements;
     }
 
-    /** @internal */
-    _updateRenderElements() {
-        let elementLength = this._renderElements.length;
-        for (let i = 0; i < elementLength; i++) {
-            let element = this._renderElements[i];
-            let material = this._materials[i];
-            element.materialShaderData = material.shaderData;
-            element.subShader = material._shader.getSubShaderAt(0);
-            element.value2DShaderData = this.owner._shaderData;
-        }
-    }
-
-    /** @internal */
-    _onMeshChange(mesh: Mesh2D, force: boolean = false) {
-        let hasChange = false;
-        if (this._mesh != mesh || force) {
-            hasChange = true;
-            if (mesh) {
-                let subMeshes = mesh._subMeshes;
-                let elementLength = this._renderElements.length;
-                let flength = Math.max(elementLength, mesh.subMeshCount);
-                for (let i = 0; i < flength; i++) {
-                    let element = this._renderElements[i];
-                    let subMesh = subMeshes[i];
-                    if (subMesh) {
-                        if (!element) {
-                            element = Spine2DRenderNode.createRenderElement2D();
-                            this._renderElements[i] = element;
-                        }
-                        let material = this.currentMaterials[i];
-                        element.geometry = subMesh;
-                        element.materialShaderData = material.shaderData;
-                        element.subShader = material._shader.getSubShaderAt(0);
-                        element.value2DShaderData = this.owner._shaderData;
-                        element.nodeCommonMap = this._getcommonUniformMap();
-                        element.owner = this.owner._struct;
-                    } else {
-                        Spine2DRenderNode.recoverRenderElement2D(element);
-                    }
-                }
-                this._renderElements.length = mesh.subMeshCount;
-                SpineShaderInit.changeVertexDefine(this.owner._shaderData, mesh);
-            } else {
-                for (let i = 0, len = this._renderElements.length; i < len; i++)
-                    Spine2DRenderNode.recoverRenderElement2D(this._renderElements[i]);
-                this._renderElements.length = 0;
-            }
-
-            if (this.owner._struct) {
-                this.owner._struct.renderElements = this._renderElements;
-            }
-
-        }
-        this._mesh = mesh;
-        return hasChange;
-    }
-
     /**
-     * @en Destroy the Animatorupdater instance.
-     * @zh 销毁 Animatorupdater 实例。
+     * @en Destroy the SpineRenderUpdater instance.
+     * @zh 销毁 SpineRenderUpdater 实例。
      */
     destroy() {
+        this.clear();
+        this.owner = null;
     }
 }
 

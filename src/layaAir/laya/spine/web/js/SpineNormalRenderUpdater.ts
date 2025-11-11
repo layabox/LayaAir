@@ -8,7 +8,7 @@ import { Material } from "../../../resource/Material";
 import { Mesh2D } from "../../../resource/Mesh2D";
 import { SpineShaderInit } from "../../shader/SpineShaderInit";
 import { SpineConst } from "../../SpineConst";
-import { AnimatorUpdater } from "../base/optimize/AnimatorUpdater";
+import { SpineRenderUpdater } from "../base/optimize/SpineRenderUpdater";
 import { INormalRenderUpdater } from "../interface/IWebSpine";
 import { SpineTexture } from "../SpineTexture";
 
@@ -36,15 +36,23 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
 
     materials: Material[] = [];
     verticesLength = 0;
-    subMeshLength = 0;
-    subMeshOffset = 0;
-    subMeshCount = 0;
     indicesLength = 0;
+    /** @internal */
+    _subMeshLength = 0;
+    /** @internal */
+    _subMeshOffset = 0;
 
-    subMeshs:IRenderGeometryElement[] = [];
+    /** @internal */
+    _subMeshIndex = 0;
+    /** @internal */
+    _materialIndex = 0;
+
+    needUpdate = false;
+
+    subMeshes:IRenderGeometryElement[] = [];
 
     renderUpdate(
-        skeleton: spine.Skeleton, updater: AnimatorUpdater
+        skeleton: spine.Skeleton, updater: SpineRenderUpdater
         , slotRangeStart?: number, slotRangeEnd?: number
         , offsetX: number = 0, offsetY: number = 0
     ): void {
@@ -69,28 +77,37 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
         let _TEMP_COLOR = SpineNormalRenderUpdater._TEMP_COLOR;
         let _TEMP_COLOR2 = SpineNormalRenderUpdater._TEMP_COLOR2;
 
-        let materials = this.materials;
-        materials.length = 0;
-        
-        this.subMeshs.length = 0;
-        this.verticesLength = 0;
-        this.indicesLength = 0;
-        this.subMeshLength = 0;
-        this.subMeshOffset = 0;
-        this.subMeshCount = 0;
+        this._materialIndex = 0;
+        this._subMeshLength = 0;
+        this._subMeshOffset = 0;
 
         let verticesLength = 0;
         let vertexCount = 0;
 
         let vertexDeclaration = SpineShaderInit.SpineNormalVertexDeclaration;;
-        let meshIndex = 0;
-        let currentMesh = updater.getDynamicMesh(vertexDeclaration, meshIndex);
-        let bufferState = currentMesh._bufferState;
-        let subMeshes = currentMesh._subMeshes || [];
+        let meshIndex = -1;
+        let currentMesh: Mesh2D , bufferState: IBufferState , subMeshes: IRenderGeometryElement[];
+
+        const changeMesh = () => {
+            meshIndex++;
+
+            this.uploadBuffer(currentMesh);
+            currentMesh = updater.getDynamicMesh(vertexDeclaration, meshIndex);
+            bufferState = currentMesh._bufferState;
+            subMeshes = currentMesh._subMeshes = currentMesh._subMeshes || [];
+            subMeshes.length = 0;
+
+            this.verticesLength = 0;
+            this.indicesLength = 0;
+            this._subMeshIndex = 0;
+        }
+
+        changeMesh();
 
         for (let i = 0, n = drawOrder.length; i < n; i++) {
             let clippedVertexStride = clipper.isClipping() ? 2 : vertexStride;
             let slot = drawOrder[i];
+            let boneOrSlot = SpineConst.NEED_SLOT ? slot : slot.bone;
 
             if (!slot.bone.active) {
                 clipper.clipEndWithSlot(slot);
@@ -121,7 +138,7 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
                 if (attachment.sequence != null)
                     attachment.sequence.apply(slot, attachment);
 
-                this.computeWorldVertices_RegionAttachment(region, slot.bone, positions, 0, clippedVertexStride, offsetX, offsetY);
+                region.computeWorldVertices(boneOrSlot as any, positions, 0, clippedVertexStride);
                 triangles = QUAD_TRIANGLES;
                 uvs = region.uvs;
                 texture = <SpineTexture>(region.region as any).page.texture;
@@ -135,18 +152,13 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
                     positions = new Float32Array(verticesLength);
                 }
 
-                if (attachment.sequence != null)
-                    attachment.sequence.apply(slot, attachment);
-
-                this.computeWorldVertices_MeshAttachment(mesh, slot, 0, mesh.worldVerticesLength, positions, 0, clippedVertexStride, offsetX, offsetY);
+                mesh.computeWorldVertices(slot, 0, mesh.worldVerticesLength, positions, 0, clippedVertexStride);
                 triangles = mesh.triangles;
                 texture = <SpineTexture>(mesh.region as any).page.texture;
                 uvs = mesh.uvs;
                 attachmentColor = mesh.color;
             } else if (attachment instanceof window.spine.ClippingAttachment) {
-                let clip = <spine.ClippingAttachment>(attachment);
-                // clipper.clipStart(slot, clip);
-                this.clipStart(this.clipper, slot, clip, offsetX, offsetY);
+                this.clipper.clipStart(slot, attachment);
                 continue;
             } else {
                 clipper.clipEndWithSlot(slot);
@@ -192,8 +204,8 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
                 }
 
                 if (needNewMat) {
-                    materials.push(updater.getMaterial(texture.realTexture, blendMode));
-                    this.createSubMesh( bufferState , subMeshes);
+                    this.addMaterial(updater.owner._getMaterial(texture.realTexture, blendMode));
+                    this.createSubMesh(bufferState, subMeshes);
                 }
 
                 if (clipper.isClipping()) {
@@ -201,45 +213,47 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
                     clipper.clipTriangles(positions, verticesLength, triangles, triangles.length, uvs, finalColor, darkColor, twoColorTint);
                     
                     if (!this.canAppend(this.verticesLength + clipper.clippedVertices.length , clipper.clippedTriangles.length)) {
-                        meshIndex++;
-                        this.uploadBuffer(currentMesh);
-                        currentMesh = updater.getDynamicMesh(vertexDeclaration, meshIndex);
-                        this.verticesLength = 0;
-                        this.indicesLength = 0;
+                        changeMesh();
                     }
 
-                    this.appendVerticesClip(clipper.clippedVertices, clipper.clippedTriangles, vertexStride);
+                    this.appendVerticesClip(clipper.clippedVertices, clipper.clippedTriangles, vertexStride , offsetX , offsetY);
                 } else {
 
                     if (!this.canAppend(this.verticesLength + verticesLength , triangles.length)) {
-                        meshIndex++;
-                        this.uploadBuffer(currentMesh);
-                        currentMesh = updater.getDynamicMesh(vertexDeclaration, meshIndex);
-                        this.verticesLength = 0;
-                        this.indicesLength = 0;
+                        changeMesh();
                     }
 
                     if (finalColor.a != 0) {
-                        this.appendVertices(positions, uvs, finalColor, darkColor, verticesLength, triangles, triangles.length, vertexStride);
+                        this.appendVertices(positions, uvs, finalColor, darkColor, verticesLength, triangles, triangles.length, vertexStride ,offsetX , offsetY);
                     }
                 }
-
-                this.verticesLength += vertexCount * vertexStride;
             }
             clipper.clipEndWithSlot(slot);
         }
         clipper.clipEnd();
 
-        this.createSubMesh( bufferState , subMeshes);
-
-        if (subMeshes.length > this.subMeshCount) {
-            for (let i = this.subMeshCount; i < subMeshes.length; i++) {
-                subMeshes[i].destroy();
+        this.createSubMesh(bufferState, subMeshes);
+        
+        if (this._subMeshIndex < this.subMeshes.length) {
+            for (let i = this._subMeshIndex; i < this.subMeshes.length; i++) {
+                this.subMeshes[i].destroy();
             }
-            subMeshes.length = this.subMeshCount;
+            this.subMeshes.length = this._subMeshIndex;
+            this.needUpdate = true;
         }
+
+        this.uploadBuffer(currentMesh);
     }
-    
+
+    private addMaterial(material: Material): void {
+        if (this.materials[this._materialIndex] === material) {
+            this._materialIndex++;
+            return ;
+        }
+        this.materials[this._materialIndex] = material;
+        this._materialIndex++;
+        this.needUpdate = true;
+    }
     /**
      * @en Check if the mesh can append more vertices and indices.
      * @param verticesLength Number of vertices to be appended.
@@ -254,28 +268,34 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
         return this.verticesLength + verticesLength < SpineNormalRenderUpdater.vertices.length && this.indicesLength + indicesLength < SpineNormalRenderUpdater.indices.length;
     }
 
-    private createSubMesh(bufferState: IBufferState , out: IRenderGeometryElement[]): void {
-        if (!this.subMeshLength)
-            return;
+    private createSubMesh(bufferState: IBufferState , out: IRenderGeometryElement[]): boolean {
+        if (!this._subMeshLength)
+            return false;
 
-        let geometry = out[this.subMeshCount];
+        let geometry = this.subMeshes[this._subMeshIndex];
         if (!geometry) {
             geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
-            out[this.subMeshCount] = geometry;
+            this.subMeshes[this._subMeshIndex] = geometry;
+            this.needUpdate = true;
         } else {
             geometry.clearRenderParams();
         }
 
         geometry.bufferState = bufferState;
-        geometry.setDrawElemenParams(this.subMeshLength, this.subMeshOffset * 2);
+        geometry.setDrawElemenParams(this._subMeshLength, this._subMeshOffset * 2);
         geometry.indexFormat = IndexFormat.UInt16;
 
-        this.subMeshs.push(geometry);
-        this.subMeshOffset = this.indicesLength;
-        this.subMeshLength = 0;
+        out.push(geometry);
+
+        this._subMeshOffset = this.indicesLength;
+        this._subMeshLength = 0;
+        this._subMeshIndex++;
+
+        return true;
     }
 
     private uploadBuffer(mesh: Mesh2D): void {
+        if(!mesh) return;
         let vertices = SpineNormalRenderUpdater.vertices;
         let indices = SpineNormalRenderUpdater.indices;
         let vbByteLength = this.verticesLength * 4;
@@ -285,7 +305,7 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
         vertexBuffer.setDataLength(vbByteLength);
         vertexBuffer.setData(vertices.buffer as ArrayBuffer, 0, 0, vbByteLength);
 
-        mesh.indexBuffer._setIndexDataLength(this.indicesLength);
+        mesh.indexBuffer._setIndexDataLength(ibByteLength);
         mesh.indexBuffer.setData(indices.buffer as ArrayBuffer, 0, 0, ibByteLength);
     }
 
@@ -297,9 +317,11 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
      * @param vertices 顶点数据数组。
      * @param indices 索引数据数组。
      */
-    appendVerticesClip(vertices: ArrayLike<number>, indices: ArrayLike<number> , stride: number) {
-        let indicesLength = indices.length;
+    appendVerticesClip(vertices: ArrayLike<number>, indices: ArrayLike<number> , stride: number , offsetX:number , offsetY:number) {
         let verticesLength = vertices.length;
+        if (verticesLength == 0) 
+            return;
+        let indicesLength = indices.length;
         let vertexBuffer = SpineNormalRenderUpdater.vertices;
 
         let before = this.verticesLength;
@@ -313,8 +335,8 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
             vertexBuffer[vlen + 3] = vertices[j + 3];
             vertexBuffer[vlen + 4] = vertices[j + 4];
             vertexBuffer[vlen + 5] = vertices[j + 5];
-            vertexBuffer[vlen + 6] = vertices[j];
-            vertexBuffer[vlen + 7] = vertices[j + 1];
+            vertexBuffer[vlen + 6] = vertices[j] + offsetX;
+            vertexBuffer[vlen + 7] = vertices[j + 1] + offsetY;
             vertexBuffer[vlen + 8] = vertices[j + 8];
             vertexBuffer[vlen + 9] = vertices[j + 9];
             vertexBuffer[vlen + 10] = vertices[j + 10];
@@ -328,15 +350,17 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
             indicesArray[i] = indices[j] + indexStart;
 
         this.indicesLength += indicesLength;
-        this.subMeshLength += indicesLength;
+        this._subMeshLength += indicesLength;
     }
 
     appendVertices(
         positions: spine.NumberArrayLike, uvs: spine.NumberArrayLike, finalColor: spine.Color, darkColor: spine.Color,
         verticesLength: number,
         indices: spine.NumberArrayLike, indicesLength: number,
-        stride: number,
+        stride: number, offsetX:number , offsetY:number
     ): void {
+        if (verticesLength == 0) 
+            return;
         let vertices = SpineNormalRenderUpdater.vertices;
         let before = this.verticesLength;
         let indexStart = before / stride;
@@ -349,8 +373,8 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
             vertices[size + 3] = finalColor.g;
             vertices[size + 4] = finalColor.b;
             vertices[size + 5] = finalColor.a;
-            vertices[size + 6] = positions[v];
-            vertices[size + 7] = positions[v + 1];
+            vertices[size + 6] = positions[v] + offsetX;
+            vertices[size + 7] = positions[v + 1] + offsetY;
 
             vertices[size + 8] = darkColor.r;
             vertices[size + 9] = darkColor.g;
@@ -365,157 +389,6 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
 
         this.verticesLength = before + verticesLength;
         this.indicesLength += indicesLength;
-        this.subMeshLength += indicesLength;
+        this._subMeshLength += indicesLength;
     }
-
-    /**
-     * @param clipper 
-     * @param slot 
-     * @param clip 
-     * @param ofx 
-     * @param ofy 
-     * @returns 
-     */
-    clipStart(clipper: spine.SkeletonClipping, slot: spine.Slot, clip: spine.VertexAttachment, ofx: number, ofy: number) {
-        //@ts-ignore
-        if (clipper.clipAttachment)
-            return 0;
-        //@ts-ignore
-        clipper.clipAttachment = clip;
-        let n = clip.worldVerticesLength;
-        //@ts-ignore
-        let vertices: spine.NumberArrayLike = spine.Utils.setArraySize(clipper.clippingPolygon, n);
-        // clip.computeWorldVertices(slot, 0, n, vertices, 0, 2);
-        this.computeWorldVertices_MeshAttachment(clip, slot, 0, n, vertices, 0, 2, ofx, ofy);
-        //@ts-ignore
-        let clippingPolygon = clipper.clippingPolygon;
-        spine.SkeletonClipping.makeClockwise(clippingPolygon);
-        //@ts-ignore
-        let clippingPolygons = clipper.clippingPolygons = clipper.triangulator.decompose(clippingPolygon, clipper.triangulator.triangulate(clippingPolygon));
-        for (let i = 0, n = clippingPolygons.length; i < n; i++) {
-            let polygon = clippingPolygons[i];
-            spine.SkeletonClipping.makeClockwise(polygon);
-            polygon.push(polygon[0]);
-            polygon.push(polygon[1]);
-        }
-        return clippingPolygons.length;
-    }
-
-    /**
-     * @param attachment 
-     * @param bone 
-     * @param worldVertices 
-     * @param offset 
-     * @param stride 
-     * @param ofx 
-     * @param ofy 
-     */
-    private computeWorldVertices_RegionAttachment(attachment: spine.RegionAttachment, bone: spine.Bone, worldVertices: spine.NumberArrayLike, offset: number, stride: number, ofx: number, ofy: number) {
-        // RegionAttachment.OX1 = 0;
-        // RegionAttachment.OY1 = 1;
-        // RegionAttachment.OX2 = 2;
-        // RegionAttachment.OY2 = 3;
-        // RegionAttachment.OX3 = 4;
-        // RegionAttachment.OY3 = 5;
-        // RegionAttachment.OX4 = 6;
-        // RegionAttachment.OY4 = 7;
-        let vertexOffset = attachment.offset;
-        let x = bone.worldX + ofx, y = bone.worldY + ofy;
-        let a = bone.a, b = bone.b, c = bone.c, d = bone.d;
-        let offsetX = 0, offsetY = 0;
-        offsetX = vertexOffset[0];
-        offsetY = vertexOffset[1];
-        worldVertices[offset] = offsetX * a + offsetY * b + x;
-        worldVertices[offset + 1] = offsetX * c + offsetY * d + y;
-        offset += stride;
-        offsetX = vertexOffset[2];
-        offsetY = vertexOffset[3];
-        worldVertices[offset] = offsetX * a + offsetY * b + x;
-        worldVertices[offset + 1] = offsetX * c + offsetY * d + y;
-        offset += stride;
-        offsetX = vertexOffset[4];
-        offsetY = vertexOffset[5];
-        worldVertices[offset] = offsetX * a + offsetY * b + x;
-        worldVertices[offset + 1] = offsetX * c + offsetY * d + y;
-        offset += stride;
-        offsetX = vertexOffset[6];
-        offsetY = vertexOffset[7];
-        worldVertices[offset] = offsetX * a + offsetY * b + x;
-        worldVertices[offset + 1] = offsetX * c + offsetY * d + y;
-    }
-
-    /**
-     * @param attachment 
-     * @param slot 
-     * @param start 
-     * @param count 
-     * @param worldVertices 
-     * @param offset 
-     * @param stride 
-     * @param ofx 
-     * @param ofy 
-     * @returns 
-     */
-    private computeWorldVertices_MeshAttachment(attachment: spine.VertexAttachment, slot: spine.Slot, start: number, count: number, worldVertices: spine.NumberArrayLike, offset: number, stride: number, ofx: number, ofy: number) {
-        count = offset + (count >> 1) * stride;
-        let skeleton = slot.bone.skeleton;
-        //@ts-ignore
-        let deformArray = slot.deform || slot.attachmentVertices;
-        
-        let vertices = attachment.vertices;
-        let bones = attachment.bones;
-        if (bones == null) {
-            if (deformArray.length > 0)
-                vertices = deformArray;
-            let bone = slot.bone;
-            let x = bone.worldX + ofx;
-            let y = bone.worldY + ofy;
-            let a = bone.a, b = bone.b, c = bone.c, d = bone.d;
-            for (let v = start, w = offset; w < count; v += 2, w += stride) {
-                let vx = vertices[v], vy = vertices[v + 1];
-                worldVertices[w] = vx * a + vy * b + x;
-                worldVertices[w + 1] = vx * c + vy * d + y;
-            }
-            return;
-        }
-        let v = 0, skip = 0;
-        for (let i = 0; i < start; i += 2) {
-            let n = bones[v];
-            v += n + 1;
-            skip += n;
-        }
-        let skeletonBones = skeleton.bones;
-        if (deformArray.length == 0) {
-            for (let w = offset, b = skip * 3; w < count; w += stride) {
-                let wx = 0, wy = 0;
-                let n = bones[v++];
-                n += v;
-                for (; v < n; v++, b += 3) {
-                    let bone = skeletonBones[bones[v]];
-                    let vx = vertices[b], vy = vertices[b + 1], weight = vertices[b + 2];
-                    wx += (vx * bone.a + vy * bone.b + bone.worldX + ofx) * weight;
-                    wy += (vx * bone.c + vy * bone.d + bone.worldY + ofy) * weight;
-                }
-                worldVertices[w] = wx;
-                worldVertices[w + 1] = wy;
-            }
-        }
-        else {
-            let deform = deformArray;
-            for (let w = offset, b = skip * 3, f = skip << 1; w < count; w += stride) {
-                let wx = 0, wy = 0;
-                let n = bones[v++];
-                n += v;
-                for (; v < n; v++, b += 3, f += 2) {
-                    let bone = skeletonBones[bones[v]];
-                    let vx = vertices[b] + deform[f], vy = vertices[b + 1] + deform[f + 1], weight = vertices[b + 2];
-                    wx += (vx * bone.a + vy * bone.b + bone.worldX + ofx) * weight;
-                    wy += (vx * bone.c + vy * bone.d + bone.worldY + ofy) * weight;
-                }
-                worldVertices[w] = wx;
-                worldVertices[w + 1] = wy;
-            }
-        }
-    }
-    
 }

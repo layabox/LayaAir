@@ -39,11 +39,6 @@ export class SpineTemplet extends Resource {
      * @zh spine 动画Y轴偏移
      */
     offsetY: number = 0;
-    /**
-     * @en Indicates if slot is needed
-     * @zh 是否需要插槽
-     */
-    public needSlot: boolean;
 
     public parse: ISpineTempletParser;
 

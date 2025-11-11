@@ -1,25 +1,23 @@
 
-import { AnimatorUpdater } from "./AnimatorUpdater";
+import { SpineRenderUpdater } from "./SpineRenderUpdater";
+import { SpineOptimizeRender } from "./SpineOptimizeRender";
 import { BaseRender2DType } from "../../../../display/SpriteConst";
 import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Texture2D } from "../../../../resource/Texture2D";
-import { ISpineRender } from "../../../interface/ISpineRender";
 import { SpineShaderInit } from "../../../shader/SpineShaderInit";
-import { Spine2DRenderNode } from "../../../Spine2DRenderNode";
-import { SpineTemplet } from "../../../SpineTemplet";
 import { SpineConst } from "../../../SpineConst";
 import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IRenderStruct2D } from "../../../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
-import { INormalRenderUpdater } from "../../interface/IWebSpine";
-import { JSSpineFactory } from "../../js/JSSpineFactory";
+import { INormalRenderUpdater, IWebSpineFactory } from "../../interface/IWebSpine";
 
 export interface IRender {
-    bind( updater: AnimatorUpdater, skeleton: spine.Skeleton): void;
+    bind( updater: SpineRenderUpdater, skeleton: spine.Skeleton): void;
     change(): void;
     leave(): void;
     render(curTime: number, offsetX?: number, offsetY?: number): void;
+    afterRender?(optimizeRender: SpineOptimizeRender): void;
     destroy():void;
 }
 
@@ -49,7 +47,7 @@ export abstract class SpineBaseRenderer implements IRender {
      * @en The current updater.
      * @zh 当前更新器
      */
-    updater: AnimatorUpdater | null;
+    updater: SpineRenderUpdater | null;
     
     /**
      * @en Create a new instance of SpineBaseRenderer.
@@ -71,7 +69,7 @@ export abstract class SpineBaseRenderer implements IRender {
      * @zh 更改当前骨骼。
      * @param skeleton 要使用的新骨骼。
      */
-    bind( updater: AnimatorUpdater, skeleton: spine.Skeleton): void {
+    bind( updater: SpineRenderUpdater, skeleton: spine.Skeleton): void {
         this.updater = updater;
         this._skeleton = skeleton;
         this.bones = skeleton.bones;
@@ -101,6 +99,17 @@ export abstract class SpineBaseRenderer implements IRender {
      * @param boneMat 用于渲染的骨骼矩阵。
      */
     abstract render(curTime: number, offsetX?: number, offsetY?: number): void;
+
+    /**
+     * @en Called after render to update render elements if needed.
+     * Subclasses can override this to handle render element updates.
+     * @param optimizeRender The SpineOptimizeRender instance.
+     * @zh 渲染后调用，用于更新渲染元素（如果需要）。
+     * 子类可以重写此方法以处理渲染元素更新。
+     * @param optimizeRender SpineOptimizeRender 实例。
+     */
+    afterRender?(optimizeRender: SpineOptimizeRender): void {
+    }
 }
 
 /**
@@ -117,7 +126,7 @@ export class RigidBodySpineRenderer extends SpineBaseRenderer {
 
     change() {
         this._shaderData.addDefine(SpineShaderInit.SPINE_RB);
-
+        this.updater.needUpdate = true;
         this._shaderData.setVector3(SpineShaderInit.BONEMAT_0, this._matrix_0);
         this._shaderData.setVector3(SpineShaderInit.BONEMAT_1, this._matrix_1);
     }
@@ -152,6 +161,19 @@ export class RigidBodySpineRenderer extends SpineBaseRenderer {
        
         this._shaderData.setVector3(SpineShaderInit.BONEMAT_0, this._matrix_0);
         this._shaderData.setVector3(SpineShaderInit.BONEMAT_1, this._matrix_1);
+    }
+
+    /**
+     * @en Called after render to update render elements.
+     * @param optimizeRender The SpineOptimizeRender instance.
+     * @zh 渲染后调用，更新渲染元素。
+     * @param optimizeRender SpineOptimizeRender 实例。
+     */
+    afterRender(optimizeRender: SpineOptimizeRender): void {
+        if (this.updater.needUpdate) {
+            optimizeRender._updateRenderElements(this.updater.getSubMeshes(), this.updater.currentMaterials);
+            this.updater.needUpdate = false;
+        }
     }
 }
 
@@ -237,6 +259,7 @@ export class BakedSpineRenderer extends SpineBaseRenderer {
             this._struct.renderType = BaseRender2DType.spineSimple;
             // this._shaderData.addDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
         }
+        this.updater.needUpdate = true;
     }
 
     /**
@@ -269,11 +292,22 @@ export class BakedSpineRenderer extends SpineBaseRenderer {
      * @param boneMat 用于渲染的骨骼矩阵。
      */
     render(curTime: number , offsetX: number = 0, offsetY: number = 0) {
-        if (!this.updater) return;
         this.updater.renderWithOutMat(this.slots, this.updater, curTime);
         this._simpleAnimatorOffset.y = curTime / this.step;
         this._computeAnimatorParamsData();
         this._shaderData.setVector(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
+        this.updater.needUpdate = true;
+    }
+
+    /**
+     * @en Called after render to update render elements.
+     * @param optimizeRender The SpineOptimizeRender instance.
+     * @zh 渲染后调用，更新渲染元素。
+     * @param optimizeRender SpineOptimizeRender 实例。
+     */
+    afterRender(optimizeRender: SpineOptimizeRender): void {
+        // 从 updater 获取数据并更新
+        optimizeRender._updateRenderElements(this.updater.getSubMeshes(), this.updater.currentMaterials);
     }
 }
 
@@ -299,6 +333,7 @@ export class OptimizedSpineRenderer extends SpineBaseRenderer {
      */
     change() {
         this._shaderData.addDefine(SpineShaderInit.SPINE_FAST);
+        this.updater.needUpdate = true;
     }
 
     /**
@@ -323,6 +358,19 @@ export class OptimizedSpineRenderer extends SpineBaseRenderer {
         this.updater.renderWithMat(this.bones, this.slots, this.updater, curTime, this._boneMat, offsetX, offsetY);
         this._shaderData.setBuffer(SpineShaderInit.BONEMAT, this._boneMat);
     }
+
+    /**
+     * @en Called after render to update render elements.
+     * @param optimizeRender The SpineOptimizeRender instance.
+     * @zh 渲染后调用，更新渲染元素。
+     * @param optimizeRender SpineOptimizeRender 实例。
+     */
+    afterRender(optimizeRender: SpineOptimizeRender): void {
+        if (this.updater.needUpdate) {
+            optimizeRender._updateRenderElements(this.updater.getSubMeshes(), this.updater.currentMaterials);
+            this.updater.needUpdate = false;
+        }
+    }
 }
 
 /**
@@ -340,7 +388,7 @@ export class StandardSpineRenderer extends SpineBaseRenderer {
      */
     constructor(struct: IRenderStruct2D) {
         super(struct);
-        this.normalUpdater = (SpineConst.factory as JSSpineFactory).createNormalRenderUpdater();
+        this.normalUpdater = (SpineConst.factory as IWebSpineFactory).createNormalRenderUpdater();
     }
 
     /**
@@ -359,6 +407,7 @@ export class StandardSpineRenderer extends SpineBaseRenderer {
      */
     change() {
         this._shaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
+        this.normalUpdater.needUpdate = true;
     }
 
     /**
@@ -369,5 +418,18 @@ export class StandardSpineRenderer extends SpineBaseRenderer {
      */
     render(curTime: number , offsetX: number = 0, offsetY: number = 0) {
         this.normalUpdater.renderUpdate(this._skeleton, this.updater, -1, -1 , offsetX , offsetY);
+    }
+
+    /**
+     * @en Called after render to update render elements.
+     * @param optimizeRender The SpineOptimizeRender instance.
+     * @zh 渲染后调用，更新渲染元素。
+     * @param optimizeRender SpineOptimizeRender 实例。
+     */
+    afterRender(optimizeRender: SpineOptimizeRender): void {
+        if (this.normalUpdater.needUpdate) {
+            optimizeRender._updateRenderElements(this.normalUpdater.subMeshes, this.normalUpdater.materials);
+            this.normalUpdater.needUpdate = false;
+        }
     }
 }

@@ -1,5 +1,7 @@
+import { Laya } from "../../Laya";
 import { Texture2D } from "../resource/Texture2D";
 import { ISpineFactory } from "./interface/ISpineFactory";
+import { SpineShaderInit } from "./shader/SpineShaderInit";
 
 export class SpineConst {
     /**
@@ -68,6 +70,12 @@ export class SpineConst {
      * @zh Spine 动画的步长。
      */
     static SPINE_STEP: number = 1 / 30;
+
+    /**
+     * @en Indicates if slot is needed
+     * @zh 是否需要插槽
+     */
+    static NEED_SLOT: boolean = false;
 }
 
 export enum ESpineRenderMode {
@@ -91,3 +99,8 @@ export type TSpineBakeData = {
     texture2d?: Texture2D;
     simpPath?: string;
 }
+
+Laya.addAfterInitCallback(() => {
+    SpineConst.NEED_SLOT = parseFloat(SpineConst.VERSION) >= 4.1;
+    SpineShaderInit.init();
+});

@@ -3,7 +3,12 @@ import { BaseRenderNode2D } from "../../../NodeRender2D/BaseRenderNode2D";
 import { SpineTemplet } from "../../SpineTemplet";
 import { VBCreator } from "../base/buffer/VBCreator";
 import { AttachmentParse } from "../base/optimize/AttachmentParse";
-import { AnimatorUpdater } from "../base/optimize/AnimatorUpdater";
+import { SpineRenderUpdater } from "../base/optimize/SpineRenderUpdater";
+import { IRenderStruct2D } from "../../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
+import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { IRenderGeometryElement } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
+import { Material } from "../../../resource/Material";
+import { ISpineFactory } from "../../interface/ISpineFactory";
 
 
 export interface IVBChange {
@@ -22,5 +27,12 @@ export interface IChange {
 }
 
 export interface INormalRenderUpdater {
-    renderUpdate(skeleton: spine.Skeleton, updater: AnimatorUpdater, slotRangeStart?: number, slotRangeEnd?: number , offsetX?: number , offsetY?: number ): void;
+    needUpdate: boolean;
+    materials: Material[];
+    subMeshes:IRenderGeometryElement[];
+    renderUpdate(skeleton: spine.Skeleton, updater: SpineRenderUpdater, slotRangeStart?: number, slotRangeEnd?: number , offsetX?: number , offsetY?: number ): void;
+}
+
+export interface IWebSpineFactory extends ISpineFactory{
+    createNormalRenderUpdater(): INormalRenderUpdater;
 }
