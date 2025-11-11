@@ -151,19 +151,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     /** @ignore @blueprintIgnore */
     renderUpdate(context: IRenderContext2D) {
-
-        // Vector2.TEMP.setValue(context.width, context.height);
-        // shaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, Vector2.TEMP);
-
-        // if (this._renderAlpha !==  context.globalAlpha) {
-        //     let scolor = this.spineItem.getSpineColor();
-        //     let a = scolor.a * context.globalAlpha;
-        //     let color = shaderData.getColor(BaseRenderNode2D.BASERENDER2DCOLOR) || new Color();
-        //     color.setValue(scolor.r , scolor.g , scolor.b , a);
-        //     shaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, color);
-        //     this._renderAlpha =  context.globalAlpha;
-        // }
-
         this._updateLight();
     }
 
@@ -174,11 +161,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     resetExternalSkin() {
         if (this._skeleton) {
             this._skeleton = new spine.Skeleton(this._templet.skeletonData);
-            // let rootBone = this._skeleton.getRootBone();
-            // rootBone.x = this._templet.offsetX;
-            // rootBone.y = this._templet.offsetY;
-            // rootBone.x = 0;
-            // rootBone.y = 0;
             this.spineItem.changeSkeleton(this._skeleton);
             this._renderHandle.skeleton = this._skeleton;
             this._flushExtSkin();
@@ -447,11 +429,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
         this._templet._addReference();
         this._skeleton = new spine.Skeleton(this._templet.skeletonData);
-        // let rootBone = this._skeleton.getRootBone();
-        // rootBone.x = this._templet.offsetX;
-        // rootBone.y = this._templet.offsetY;
-        // rootBone.x = 0;
-        // rootBone.y = 0;
 
         this._renderHandle.skeleton = this._skeleton;
         this._stateData = new spine.AnimationStateData(this._skeleton.data);
@@ -629,15 +606,12 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (null == this._skeleton) return;
         let skins = this._externalSkins;
         if (skins) {
-            let normal = false;//todo 需要修改顶点构成?
+            // let normal = false;//todo 需要修改顶点构成?
             for (let i = skins.length - 1; i >= 0; i--) {
                 skins[i].flush();
                 // normal = skins[i].normal || normal;
             }
-
-            // if (normal) {
             this.useFastRender = false;
-            // }
         }
     }
     /**
@@ -713,10 +687,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (!this._pause) {
             this._pause = true;
             this._needUpdate = false;
-            //this.timer.clear(this, this._update);
             this._state.update(-this._currentPlayTime);
-            // this._skeleton.setToSetupPose();
-            // this._state.clearTrack(this.trackIndex);
             this._currentPlayTime = 0;
             this.owner.event(Event.STOPPED);
 
@@ -885,8 +856,11 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     private onTransformChanged() {
         if (this._skeleton) {
             let matrix = this.owner.globalTrans.getMatrix();
+            // this._skeleton.x = matrix.tx;
+            // this._skeleton.y = matrix.ty;
             this._skeleton.x = matrix.tx + this._templet.offsetX;
             this._skeleton.y = matrix.ty + this._templet.offsetY;
+            // this._offset.setValue(this.owner.pivotX, this.owner.pivotY);
             // this._skeleton.x = matrix.tx
             // this._skeleton.y = matrix.ty
             // if (this.owner.pivotX != 0 || this.owner.pivotY != 0) {

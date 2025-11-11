@@ -43,12 +43,16 @@ export class NativeBrowserAdapter extends BrowserAdapter {
     }
 
     createMainCanvas() {
-        let canvas = this.createElement("canvas");
-        Browser.document.body.appendChild(canvas);
-
-        return canvas;
+        return PAL.g.createCanvas() as any;
     }
-
+    createElement<K extends keyof HTMLElementTagNameMap>(tagName: K): HTMLElementTagNameMap[K] {
+        let ele: any;
+        if (tagName === "canvas" && typeof (PAL.g.createCanvas) === "function")
+            ele = PAL.g.createCanvas();
+        else
+            ele = super.createElement(tagName);
+        return ele;
+    }
     get supportArrayBufferURL(): boolean {
         return true;
     }
@@ -59,6 +63,20 @@ export class NativeBrowserAdapter extends BrowserAdapter {
 
     revokeBufferURL(url: string): void {
         return (window as any).wx.revokeBufferURL(url);
+    }
+    protected onCaptureGlobalError(enabled: boolean, func: (e: any) => void): void {
+        if (enabled) {
+            if (PAL.hasAPI("onError"))
+                PAL.g.onError(func);
+            if (PAL.g.onUnhandledRejection)
+                PAL.g.onUnhandledRejection(func);
+        }
+        else {
+            if (PAL.hasAPI("offError"))
+                PAL.g.offError(func);
+            if (PAL.g.offUnhandledRejection)
+                PAL.g.offUnhandledRejection(func);
+        }
     }
 }
 

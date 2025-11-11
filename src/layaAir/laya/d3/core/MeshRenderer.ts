@@ -392,7 +392,6 @@ export class MeshRenderer extends BaseRender {
             this.sharedMaterials = materials;
             this.boundsChange = true;
         } else if (!mesh) {
-            this._renderElements.forEach
             this._renderElements.forEach(element => {
                 element._renderElementOBJ.destroy();
                 element.destroy();
