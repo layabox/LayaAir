@@ -87,8 +87,10 @@ export class Graphics {
     private _graphicBounds: GraphicsBounds | null = null;
     private _material: Material;
     private _renderDataHandle: I2DPrimitiveDataHandle;
-    private _modified: boolean = false;
-    private _display: boolean = false;
+    /** @internal */
+    _modified: boolean = false;
+    /** @internal */
+    _display: boolean = false;
 
     /**
     * @en Whether to use sprite state.
@@ -115,7 +117,6 @@ export class Graphics {
         return value.checkType(ShaderFeatureType.D2_TextureSV);
     }
 
-    /** @internal */
     onModified() {
         this._modified = true;
     }

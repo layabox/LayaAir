@@ -268,6 +268,7 @@ export class Sprite extends Node {
 
         this._shaderData = LayaGL.renderDeviceFactory.createShaderData();
         BlendModeHandler.initBlendMode(this._shaderData);
+        BlendModeHandler.setShaderData(this._struct.blendMode, this._shaderData);
         this._struct.spriteShaderData = this._shaderData;
         this._struct.isRenderStruct = true;
     }
@@ -1682,7 +1683,7 @@ export class Sprite extends Node {
                     passSet.add(sprite._struct.pass);
             }
 
-            if (sprite._graphics) {
+            if (sprite._needGraphicsUpdate()) {
                 sprite._graphics._render(runner, 0, 0);
             }
 
@@ -2052,6 +2053,11 @@ export class Sprite extends Node {
             this._maskParent.setSubpassFlag(SubPassFlag.Mask);
             this._maskParent.repaint(flag);
         }
+    }
+
+    /** @internal */
+    _needGraphicsUpdate(): boolean {
+        return !!(this._graphics && this._graphics._display && (this.displayedInStage || this._maskParent));
     }
 
     /**
@@ -2496,6 +2502,12 @@ export class Sprite extends Node {
     /** @ignore */
     _setDisplay(value: boolean): void {
         super._setDisplay(value);
+        //默认有父节点改变，需要重绘 graphics
+        if (this._needGraphicsUpdate()) {
+            this._graphics && this._graphics.onModified();
+            this.stage._graphicUpdateList.add(this);
+            this._globalTrans._notifyRenderSpriteTransChange();
+        }
         this._checkSubRenderPass();
         this._refreshRenderPass();
     }
