@@ -20,6 +20,7 @@ import { ComputeShader } from "laya/RenderDriver/DriverDesign/RenderDevice/Compu
 import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { RenderCapable } from "laya/RenderEngine/RenderEnum/RenderCapable";
+import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 
 export class SceneLoad1 {
 	constructor() {
@@ -54,6 +55,19 @@ export class SceneLoad1 {
 							let storage = true;
 							let storageTex = new RenderTexture(512, 512, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false, 1, false, false, storage);
 
+							let plane = scene.getChildByName("Plane");
+							let render = plane.getComponent(MeshRenderer);
+							console.log(render);
+
+							let originMat = render.sharedMaterial;
+							let originTex = originMat.getTextureByIndex(86);
+
+							let material = new UnlitMaterial();
+							material.albedoTexture = storageTex;
+
+							console.log(material);
+
+
 							let textureWidth = storageTex.width;
 							let textureHeight = storageTex.height;
 
@@ -64,21 +78,19 @@ export class SceneLoad1 {
 							let shaderData = LayaGL.renderDeviceFactory.createShaderData();
 
 							shaderData.setTexture(Shader3D.propertyNameToID("image"), storageTex);
+							shaderData.setColor(Shader3D.propertyNameToID("u_Color"), new Color(1.0, 0.0, 0.0, 1.0));
+							shaderData.setTexture(Shader3D.propertyNameToID("u_Tex"), originTex);
 
 							let shaderDefine = LayaGL.unitRenderModuleDataFactory.createDefineDatas();
+							shaderDefine.add(Shader3D.getDefineByName("MULTIPLY_COLOR"));
+
 							if (LayaGL.renderEngine.getCapable(RenderCapable.ComputeShader)) {
 								let command = new ComputeCommandBuffer();
 								command.addDispatchCommand(computeShader, "main", shaderDefine, [shaderData], dispatchParams);
 
-								let plane = scene.getChildByName("Plane");
-								let render = plane.getComponent(MeshRenderer);
-								let material = new BlinnPhongMaterial();
-								render.sharedMaterial = material;
-
 								Laya.timer.frameLoop(1, this, () => {
 									command.executeCMDs();
-
-									material.albedoTexture = storageTex;
+									render.sharedMaterial = material;
 								});
 							}
 
