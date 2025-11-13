@@ -145,6 +145,9 @@ export class NoRenderRenderContext3D implements IRenderContext3D {
 
     }
 
+    clearRenderTarget(): void {
+
+    }
 }
 
 export class NoRenderRenderElement3D implements IRenderElement3D {

@@ -15,7 +15,7 @@
     // 平行光阴影
 	#ifdef SHADOW
 	    #define CALCULATE_SHADOWS
-varying vec4 v_ShadowCoord; 
+varying vec4 v_ShadowCoord;
 
 float sampleShdowMapFiltered4(vec3 shadowCoord, vec4 shadowMapSize)
 {
@@ -110,15 +110,12 @@ mediump int computeCascadeIndex(in vec3 positionWS)
     vec3 fromCenter2 = positionWS - u_ShadowSplitSpheres[2].xyz;
     vec3 fromCenter3 = positionWS - u_ShadowSplitSpheres[3].xyz;
 
-    mediump vec4 comparison = vec4(dot(fromCenter0, fromCenter0) < u_ShadowSplitSpheres[0].w,
-	dot(fromCenter1, fromCenter1) < u_ShadowSplitSpheres[1].w,
-	dot(fromCenter2, fromCenter2) < u_ShadowSplitSpheres[2].w,
-	dot(fromCenter3, fromCenter3) < u_ShadowSplitSpheres[3].w);
+    mediump vec4 comparison = vec4(dot(fromCenter0, fromCenter0) < u_ShadowSplitSpheres[0].w, dot(fromCenter1, fromCenter1) < u_ShadowSplitSpheres[1].w, dot(fromCenter2, fromCenter2) < u_ShadowSplitSpheres[2].w, dot(fromCenter3, fromCenter3) < u_ShadowSplitSpheres[3].w);
 
     comparison.yzw = clamp(comparison.yzw - comparison.xyz, 0.0, 1.0); // keep the nearest
     mediump vec4 indexCoefficient = vec4(4.0, 3.0, 2.0, 1.0);
     mediump int index = 4 - int(dot(comparison, indexCoefficient));
-    return index;
+    return clamp(index, 0, 3);
 }
 	#endif
 
@@ -131,22 +128,22 @@ vec4 getShadowCoord(in vec3 positionWS)
     mat4 shadowMat = u_ShadowMatrices[cascadeIndex];
 	    #else // GRAPHICS_API_GLES3
     mat4 shadowMat;
-    if (cascadeIndex == 0)
-	{
-	    shadowMat = u_ShadowMatrices[0];
-	}
-    else if (cascadeIndex == 1)
-	{
-	    shadowMat = u_ShadowMatrices[1];
-	}
-    else if (cascadeIndex == 2)
-	{
-	    shadowMat = u_ShadowMatrices[2];
-	}
+    if(cascadeIndex == 0)
+    {
+        shadowMat = u_ShadowMatrices[0];
+    }
+    else if(cascadeIndex == 1)
+    {
+        shadowMat = u_ShadowMatrices[1];
+    }
+    else if(cascadeIndex == 2)
+    {
+        shadowMat = u_ShadowMatrices[2];
+    }
     else
-	{
-	    shadowMat = u_ShadowMatrices[3];
-	}
+    {
+        shadowMat = u_ShadowMatrices[3];
+    }
 	    #endif // GRAPHICS_API_GLES3
 
     return shadowMat * vec4(positionWS, 1.0);
@@ -165,23 +162,26 @@ float sampleShadowmap(in vec4 shadowCoord)
 
     vec3 coord = shadowCoord.xyz / shadowCoord.w;
 
+    if(coord.z <= 0.0 || coord.z >= 1.0)
+    {
+        return 1.0;
+    }
+
     vec4 shadowmapSize = u_ShadowMapSize;
 
     // if (coord.z > 0.0 && coord.z < 1.0)
     {
 	#if defined(SHADOW_SOFT_SHADOW_HIGH)
-	attenuation = sampleShdowMapFiltered9(coord, shadowmapSize);
+        attenuation = sampleShdowMapFiltered9(coord, shadowmapSize);
 	#elif defined(SHADOW_SOFT_SHADOW_LOW)
-	attenuation = sampleShdowMapFiltered4(coord, shadowmapSize);
+        attenuation = sampleShdowMapFiltered4(coord, shadowmapSize);
 	#else // hard
-	attenuation = SAMPLE_TEXTURE2D_SHADOW(u_ShadowMap, coord);
+        attenuation = SAMPLE_TEXTURE2D_SHADOW(u_ShadowMap, coord);
 	#endif // SHADOW_SOFT_SHADOW_HIGH
-	attenuation = mix(1.0, attenuation, ShadowStrength);
+        attenuation = mix(1.0, attenuation, ShadowStrength);
     }
 
-    if (coord.z > 0.0 && coord.z < 1.0)
-	return attenuation;
-    return 1.0;
+    return attenuation;
 }
 
     #endif // CALCULATE_SHADOWS
@@ -219,8 +219,8 @@ float sampleSpotShadowmap(vec4 shadowCoord)
     attenuation = mix(1.0, attenuation, SpotShadowStrength);
     //}
 
-    if (coord.z > 0.0 && coord.z < 1.0)
-	return attenuation;
+    if(coord.z > 0.0 && coord.z < 1.0)
+        return attenuation;
     return 1.0;
 }
 
