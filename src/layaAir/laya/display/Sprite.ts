@@ -268,6 +268,7 @@ export class Sprite extends Node {
 
         this._shaderData = LayaGL.renderDeviceFactory.createShaderData();
         BlendModeHandler.initBlendMode(this._shaderData);
+        BlendModeHandler.setShaderData(this._struct.blendMode, this._shaderData);
         this._struct.spriteShaderData = this._shaderData;
         this._struct.isRenderStruct = true;
     }
@@ -1438,6 +1439,7 @@ export class Sprite extends Node {
     }
 
     /**
+     * @deprecated
      * @en Draws the current Sprite to a Canvas and returns an HtmlCanvas object.
      * The drawing result can be used as an image source to be drawn into other Sprites.
      * It can also obtain the original image data, send it to the server, or save it as an image to achieve a screenshot effect.
@@ -1459,6 +1461,7 @@ export class Sprite extends Node {
         return Sprite.drawToCanvas(this, canvasWidth, canvasHeight, offsetX, offsetY);
     }
     /**
+     * @deprecated
      * @ignore
      * @en Draws the specified Sprite to a Canvas and returns an HtmlCanvas object.
      * @param sprite The Sprite to draw.
@@ -2052,6 +2055,11 @@ export class Sprite extends Node {
         }
     }
 
+    /** @internal */
+    _needGraphicsUpdate(): boolean {
+        return !!(this._graphics && this._graphics._display && (this.displayedInStage || this._maskParent));
+    }
+
     /**
      * @en Clear the repaint flag.
      * @zh 清除重绘标志。
@@ -2494,6 +2502,12 @@ export class Sprite extends Node {
     /** @ignore */
     _setDisplay(value: boolean): void {
         super._setDisplay(value);
+        //默认有父节点改变，需要重绘 graphics
+        if (this._needGraphicsUpdate()) {
+            this._graphics && this._graphics.onModified();
+            this.stage._graphicUpdateList.add(this);
+            this._globalTrans._notifyRenderSpriteTransChange();
+        }
         this._checkSubRenderPass();
         this._refreshRenderPass();
     }

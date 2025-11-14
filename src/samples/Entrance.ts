@@ -51,7 +51,7 @@ export class Entrance {
         Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
         Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
         LayaGL.render2DRenderPassFactory = new WebGLRender2DProcess()
-        SpineTemplet.RuntimeVersion = "4.1";
+        SpineTemplet.RuntimeVersion = "3.8";
         // new Sprite3DLoad();
         // return;
         // new Sprite3DLoad();
@@ -59,7 +59,8 @@ export class Entrance {
 
         // new Sprite3DLoad();
         // return;
-        Laya.init(Browser.width, Browser.height).then(async () => {
+        Laya.init(0, 0).then(async () => {
+            Laya.stage.scaleMode = "full";
             let sizeString=Browser.getQueryString("size")||"1";
             let size:number=parseInt(sizeString);
 
@@ -92,7 +93,7 @@ export class Entrance {
             //a.graphics.drawSpineTriangles(texture, 100, 200, new Float32Array([0, 0,0,0,0,0,0,0, 50, 0,0,0,0,0,0.5,0, 100, 100,0,0,0,0,1,1, 0, 100,0,0,0,0,0,1]),new Float32Array([0, 0, 1, 0, 1, 1, 0, 1]),new Uint16Array([0, 1, 2, 0, 2, 3]));
             //Laya.stage.addChild(a);
       // Laya.loader.load("res/spine/Sp_staff.json", Loader.SPINE).then((templet: SpineTemplet) => {
-        Laya.loader.load("res/spine/07.json", Loader.SPINE).then(async (templet: SpineTemplet) => {
+        Laya.loader.load("sample-resource/res/spine/spineboy-pma.skel", Loader.SPINE).then(async (templet: SpineTemplet) => {
          //  let a= Laya.loader.getRes("res/spine/spineboy-pma.skel");
            //debugger;
         // Laya.loader.load("res/spine/mesh.json", Loader.SPINE).then((templet: SpineTemplet) => {
@@ -112,9 +113,9 @@ export class Entrance {
                     let renderNode2 =  a.addComponent(Spine2DRenderNode);
                     renderNode2.templet = templet;
                     
-                    let sb= s.addComponent(SpineBakeScript)
-                    sb.url="res/spine/test.ktx";
-                    await sb.attach(renderNode.spineItem);
+                    // let sb= s.addComponent(SpineBakeScript)
+                    // sb.url="res/spine/test.ktx";
+                    // await sb.attach(renderNode.spineItem);
 
                     Laya.stage.addChild(s);
                     Laya.stage.addChild(a);
