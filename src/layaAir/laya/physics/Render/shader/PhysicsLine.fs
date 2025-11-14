@@ -8,7 +8,7 @@ varying float v_lineLength;
 varying vec2 v_linedir;
 varying float v_lineWidth;
 
-uniform vec4 u_TilingOffset;
+// uniform vec4 u_TilingOffset;
 
 
 vec2 dotToline(in vec2 a, vec2 b,in vec2 p){
