@@ -19,6 +19,7 @@ import { Transform3D } from "../../Transform3D";
 import { DrawElementCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRender3DCMD";
 import { IRenderElement3D } from "../../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { Pool } from "../../../../utils/Pool";
+import { ReflectionProbe } from "../../../component/Volume/reflectionProbe/ReflectionProbe";
 
 /**
  * @en DrawMeshInstancedCMD class for instanced mesh drawing command.
@@ -294,6 +295,10 @@ export class DrawMeshInstancedCMD extends Command {
      */
     renderUpdateElement(renderElement: RenderElement, context: RenderContext3D): IRenderElement3D {
         let renderObj = renderElement._renderElementOBJ;
+        renderObj.owner.probeReflection = context.scene.sceneReflectionProb._dataModule;
+        renderObj.owner.additionShaderData.set(ReflectionProbe.BlockName, context.scene.sceneReflectionProb.shaderData);
+        renderObj.owner.additionShaderData = renderObj.owner.additionShaderData;
+        renderObj.owner._applyReflection();
         renderObj.isRender = renderElement._geometry._prepareRender(context);
         renderElement._geometry._updateRenderParams(context);
         return renderObj;
