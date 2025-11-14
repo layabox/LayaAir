@@ -2,7 +2,7 @@ let wasm_bindgen;
 (function() {
     const __exports = {};
     let script_src;
-    if (typeof document !== 'undefined' && document.currentScript !== null) {
+    if (typeof document !== 'undefined' && document.currentScript != null) {
         script_src = new URL(document.currentScript.src, location.href).toString();
     }
     let wasm = undefined;
@@ -231,14 +231,14 @@ let wasm_bindgen;
             console.log(arg0, arg1);
         };
         imports.wbg.__wbindgen_init_externref_table = function() {
-            const table = wasm.__wbindgen_export_0;
-            const offset = table.grow(4);
-            table.set(0, undefined);
-            table.set(offset + 0, undefined);
-            table.set(offset + 1, null);
-            table.set(offset + 2, true);
-            table.set(offset + 3, false);
-            ;
+            // const table = wasm.__wbindgen_export_0;
+            // const offset = table.grow(4);
+            // table.set(0, undefined);
+            // table.set(offset + 0, undefined);
+            // table.set(offset + 1, null);
+            // table.set(offset + 2, true);
+            // table.set(offset + 3, false);
+            // ;
         };
         imports.wbg.__wbindgen_string_new = function(arg0, arg1) {
             const ret = getStringFromWasm0(arg0, arg1);
@@ -320,5 +320,19 @@ let wasm_bindgen;
     }
 
     wasm_bindgen = Object.assign(__wbg_init, { initSync }, __exports);
+
+        // new nagabind 10/25 15.11
+    var _in__wbg_load = __wbg_load;
+    myWasmLoad = function (url, imp) {
+        if (!qg.instantiate) {
+            console.warn("不支持wasm加载使用");
+        }
+        return qg.instantiate("libs/nagabind_bg.wasm", imp);
+    }
+    if (window.qg) {
+        __wbg_load = myWasmLoad;
+    } else {
+        __wbg_load = _in__wbg_load;
+    }
 
 })();
