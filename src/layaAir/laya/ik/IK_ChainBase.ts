@@ -30,6 +30,7 @@ export class IK_ChainBase{
     protected _end_effector: IK_Joint;
     totalLength=0;
     blendWeight=1.0;
+    maxError=0.04;
 
     constructor(mgr:IK_Comp ){
         this._jointMgr = getJointMgr(mgr.owner as Sprite3D);

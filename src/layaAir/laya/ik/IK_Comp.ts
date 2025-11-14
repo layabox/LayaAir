@@ -282,6 +282,7 @@ export class IK_Comp extends Script {
                     c.enable = data.enable;
                     c.blendWeight = data.blendWeight;
                     c.poleTarget = data.PoleTarget ? new IK_Target(data.PoleTarget) : null;
+                    if(data.maxError) c.maxError = data.maxError;
                     //c.alignWithTarget = data.alignWithTarget;
                     this._ik_sys.addChain(c);
                     if (data.target)

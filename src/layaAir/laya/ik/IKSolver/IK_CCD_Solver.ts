@@ -21,12 +21,10 @@ const rot = new Quaternion();
 export class IK_CCDSolver implements IK_ISolver {
     dampingFactor: number = 0.1; // 阻尼因子，0-1之间
     maxIterations: number;
-    epsilon: number;
     poleTarget:IK_Target = null;
 
-    constructor(maxIterations: number = 1, epsilon: number = 0.01) {
+    constructor(maxIterations: number = 1) {
         this.maxIterations = maxIterations;
-        this.epsilon = epsilon;
     }
 
     private _targetPos=new Vector3();
@@ -41,6 +39,7 @@ export class IK_CCDSolver implements IK_ISolver {
         const jointToTarget = new Vector3();
         let rotation = new Quaternion();
         const basePos = chain.joints[0].position;
+        let epsilon = chain.maxError;
 
         let dist = 0;
         let touched = false;
@@ -68,7 +67,7 @@ export class IK_CCDSolver implements IK_ISolver {
                     //endeffector和joint重合的情况
                     continue;
 
-                if ((dist = Vector3.distanceSquared(endEffector.position, targetPos)) < this.epsilon**2) {
+                if ((dist = Vector3.distanceSquared(endEffector.position, targetPos)) < epsilon**2) {
                     touched = true;
                     break;
                 }
@@ -100,7 +99,7 @@ export class IK_CCDSolver implements IK_ISolver {
             }
             //赋值给实际的骨骼，否则约束的时候直接取骨骼的矩阵是错误的，会导致剧烈抖动
             //chain.applyIKResult();
-            if (touched || (dist = Vector3.distanceSquared(endEffector.position, targetPos)) < this.epsilon**2) {
+            if (touched || (dist = Vector3.distanceSquared(endEffector.position, targetPos)) < epsilon**2) {
                 break;
             }
             iteration++;

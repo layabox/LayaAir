@@ -56,4 +56,7 @@ export class IK_ChainData{
     //@property({type:Boolean,default:true})
     enable=true
 
+    //@property({type:Number,default:0.04})
+    maxError=0.04
+
 }
