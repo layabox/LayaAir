@@ -79,6 +79,11 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      */
     mesh: IMeshFactory;
 
+    /** @internal 标记 */
+    _dynamic: Vector4 = null;
+
+    private _tempUVs: Float32Array = null;
+
     /**
      * @en Create a DrawTrianglesCmd instance
      * @param texture The texture to be drawn
@@ -119,6 +124,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
         cmd.alpha = alpha ?? 1;
         cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
         cmd.blendMode = blendMode;
+        cmd._dynamic = texture._dynamic?.uv;
         return cmd;
     }
 
@@ -142,6 +148,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
         cmd.y = 0;
         cmd.mesh = mesh;
         cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
+        cmd._dynamic = texture._dynamic?.uv;
         return cmd;
     }
 
@@ -157,6 +164,8 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
         this.indices = null;
         this.matrix = null;
         this.mesh = null;
+        this._dynamic = null;
+        this._tempUVs = null;
         Pool.recover(className, this);
     }
 
@@ -175,9 +184,6 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
             return;
 
         if (this.mesh) {
-            if (!this.mesh)
-                return;
-
             let vb = VertexStream.pool.take(this.texture);
             vb.contentRect.setTo(0, 0, runner.sprite.width, runner.sprite.height);
             if (this.color)
@@ -195,7 +201,27 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
             VertexStream.pool.recover(vb);
         }
         else {
-            runner.drawTriangles(this.texture, this.x + gx, this.y + gy, this.vertices, this.uvs, this.indices,
+            let uvs = this.uvs;
+            if (this.texture._dynamic) {
+                let dynamicUV = this.texture._dynamic.uv;
+                let needsNewBuffer = !this._tempUVs || this._tempUVs.length !== uvs.length;
+                let dynamicChanged = this._dynamic !== dynamicUV;
+
+                if (needsNewBuffer) {
+                    this._tempUVs = new Float32Array(uvs.length);
+                }
+
+                if (dynamicChanged || needsNewBuffer) {
+                    this._dynamic = dynamicUV;
+                    for (let i = 0; i < uvs.length; i += 2) {
+                        this._tempUVs[i] = this._dynamic.x + this._dynamic.z * uvs[i];
+                        this._tempUVs[i + 1] = this._dynamic.y + this._dynamic.w * uvs[i + 1];
+                    }
+                }
+                uvs = this._tempUVs
+            }
+            
+            runner.drawTriangles(this.texture, this.x + gx, this.y + gy, this.vertices, uvs, this.indices,
                 this.matrix, this.alpha, this.blendMode, this.color);
         }
     }
