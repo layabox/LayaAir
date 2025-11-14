@@ -6,6 +6,7 @@ import { ILaya } from "../../ILaya";
 import { BaseTexture } from "./BaseTexture";
 import { Resource } from "./Resource";
 import { AtlasResource } from "./AtlasResource";
+import { Vector4 } from "../maths/Vector4";
 
 const _rect1 = new Rectangle();
 const _rect2 = new Rectangle();
@@ -101,7 +102,7 @@ export class Texture extends Resource {
     _atlas: AtlasResource;
     
     /** @internal 动态图集的信息 */
-    _dynamic: {referenceCount: number} = null;
+    _dynamic: {referenceCount: number , uv : Vector4 } = null;
 
     /**
      * @internal 
