@@ -25,6 +25,8 @@ import { ISpineRenderDataHandle } from "../RenderDriver/RenderModuleData/Design/
 import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
 import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
+import { Texture } from "../resource/Texture";
+import { SlotUtils } from "./optimize/SlotUtils";
 
 /**
  * @zh Spine动画渲染节点。
@@ -111,6 +113,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     private _skin: string;
     private _offset: Vector2 = new Vector2();
 
+    private _premultipliedAlpha = true;
+
     /** @ignore */
     constructor() {
         super();
@@ -165,6 +169,28 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             this._renderHandle.skeleton = this._skeleton;
             this._flushExtSkin();
         }
+    }
+
+    /**
+     * @zh 是否启用透明预乘。
+     * @en Whether to enable transparent premultiplied.
+     * @returns 是否启用透明预乘。
+     * @returns Whether to enable transparent premultiplied.
+     */
+    get premultipliedAlpha(): boolean {
+        return this._premultipliedAlpha;
+    }
+
+    set premultipliedAlpha(value: boolean) {
+        if (this._premultipliedAlpha === value) {
+            return;
+        }
+
+        if (this.spineItem instanceof SpineOptimizeRender) {
+            this.spineItem.skinRenderArray.forEach(item=>item.clearCacheMaterials);
+        }
+        
+        this._premultipliedAlpha = value;
     }
 
     /**
@@ -446,6 +472,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (this._autoAdjust) {
             this._doAutoAdjust();
         }
+
+        this.onTransformChanged();
 
         this.boundsChange = true;
 
@@ -792,6 +820,36 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         }
         this._animationName = animationName;
         this._state.addAnimation(this.trackIndex, animationName, loop, delay);
+    }
+
+    /**
+     * @zh 设置插槽纹理
+     * @param slotName 插槽名称
+     * @param texture 纹理对象
+     * @param createAttachment 是否创建新的附件副本
+     * @en Set slot texture
+     * @param slotName Slot name
+     * @param texture Texture object
+     * @param createAttachment Whether to create a new attachment copy
+     */
+    setSlotTexture(slotName: string, texture: Texture, createAttachment: boolean = true) {
+        if (this._useFastRender) {
+            console.log("setSlotTexture: useFastRender is true, return");
+            return
+        }
+
+        if (!this._skeleton){
+            console.log("setSlotTexture: skeleton not found, return");
+            return;
+        }
+        
+        let slot = this._skeleton.findSlot(slotName);
+        if (!slot){
+            console.log("setSlotTexture: slot not found, slotName: " + slotName);
+            return;
+        }
+        
+        SlotUtils.setSlotTexture(slot, texture, this._templet, createAttachment);
     }
 
     /**
