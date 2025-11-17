@@ -68,7 +68,7 @@ class BatchBuffer {
         return cview._geometry;
         //@ts-ignore
         // return block.indexView._geometry;
-    }   
+    }
 
     _addWebgpu(element: IPrimitiveRenderElement2D) {
 
@@ -97,7 +97,7 @@ class BatchBuffer {
         // return block.indexView._geometry;
     }
 
-    add(element: IPrimitiveRenderElement2D) : IRenderGeometryElement {
+    add(element: IPrimitiveRenderElement2D): IRenderGeometryElement {
         // let handle = element.owner.renderDataHandler as WebPrimitiveDataHandle;
         // let blocks = handle._getBlocks();
         // if (!blocks)
@@ -207,7 +207,7 @@ class BatchContext {
         this.fillTexture = this.primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
         this.texRange = this.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE) as Vector4;
     }
-    
+
     _setHeadWebgpu(element: IPrimitiveRenderElement2D): void {
         //@ts-ignore
         this.primitiveShaderData = element._primitiveShaderData;
@@ -249,29 +249,16 @@ class BatchContext {
 
         let elementLowType = elementType & 63;
         let elementTexId = elementType & (~63);
-        let elementOwner = element.owner as WebRenderStruct2D;
-
-        //@ts-ignore
-        let primitiveShaderData = element.primitiveShaderData;
-        let fillTexture = primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
-        let range = primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE);
-        // 如果元素存在texRange，则不能批次化
-        if (
-            (!fillTexture && this.fillTexture)
-            ||(fillTexture && (!this.fillTexture || range.equal(this.texRange)))
-        ) {
-                return false;
-        }
+        // 纹理检查放最前，因为这是文字的图片的差别
+        if (elementTexId !== 0 && elementTexId !== this.textureId && this.textureId !== 0)
+            return false;
 
         // 检查低位类型（最常见的不匹配）
         if (this.lowType !== elementLowType) {
             return false;
         }
 
-        // 检查材质 自定义材质直接比对 shaderdata
-        if (this.lowType & 16 && element.materialShaderData !== this.materialShaderData) {
-            return false;
-        }
+        let elementOwner = element.owner as WebRenderStruct2D;
 
         // 检查透明度（数值比较，较快）
         if (this.globalAlpha !== elementOwner.globalAlpha) {
@@ -286,18 +273,29 @@ class BatchContext {
             return false;
         }
 
-        // 纹理ID检查（放在最后，因为可能需要更新状态）
-        if (this.textureId === 0) {
-            // 批次还没有确定贴图，接受任何贴图并更新状态
-            if (elementTexId !== 0) {
-                this.textureId = elementTexId;
-                this.primitiveShaderData = primitiveShaderData;
-            }
-            return true;
+        // 检查材质 自定义材质直接比对 shaderdata
+        if ((this.lowType & 16) !== 0 && element.materialShaderData !== this.materialShaderData) {
+            return false;
         }
 
-        // 批次已有确定的贴图ID，检查是否匹配
-        return elementTexId === 0 || elementTexId === this.textureId;
+        let fillTexture = element.primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
+        if (fillTexture) {
+            if (!this.fillTexture)
+                return false;
+
+            // 如果元素存在texRange，则不能批次化
+            if (!element.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE).equal(this.texRange))
+                return false;
+        }
+        else if (this.fillTexture)
+            return false;
+
+        if (this.textureId === 0 && elementTexId !== 0) {
+            this.textureId = elementTexId;
+            this.primitiveShaderData = element.primitiveShaderData;
+        }
+
+        return true;
     }
 
     /**
@@ -317,30 +315,16 @@ class BatchContext {
 
         let elementLowType = elementType & 63;
         let elementTexId = elementType & (~63);
-        let elementOwner = element.owner as WebRenderStruct2D;
-
-        //@ts-ignore
-        let primitiveShaderData = element._primitiveShaderData;
-        let fillTexture = primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
-        let range = primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE);
-        // 如果元素存在texRange，则不能批次化
-        if (
-            (!fillTexture && this.fillTexture)
-            ||(fillTexture && (!this.fillTexture || range.equal(this.texRange)))
-        ) {
-                return false;
-        }
+        // 纹理检查放最前，因为这是文字的图片的差别
+        if (elementTexId !== 0 && elementTexId !== this.textureId && this.textureId !== 0)
+            return false;
 
         // 检查低位类型（最常见的不匹配）
         if (this.lowType !== elementLowType) {
             return false;
         }
 
-        // 检查材质 自定义材质直接比对 shaderdata
-        //@ts-ignore
-        if (this.lowType & 16 && element._materialShaderData !== this.materialShaderData) {
-            return false;
-        }
+        let elementOwner = element.owner as WebRenderStruct2D;
 
         // 检查透明度（数值比较，较快）
         if (this.globalAlpha !== elementOwner.globalAlpha) {
@@ -355,18 +339,30 @@ class BatchContext {
             return false;
         }
 
-        // 纹理ID检查（放在最后，因为可能需要更新状态）
-        if (this.textureId === 0) {
-            // 批次还没有确定贴图，接受任何贴图并更新状态
-            if (elementTexId !== 0) {
-                this.textureId = elementTexId;
-                this.primitiveShaderData = primitiveShaderData;
-            }
-            return true;
+        // 检查材质 自定义材质直接比对 shaderdata
+        if (this.lowType & 16 && (element as any)._materialShaderData !== this.materialShaderData) {
+            return false;
         }
 
-        // 批次已有确定的贴图ID，检查是否匹配
-        return elementTexId === 0 || elementTexId === this.textureId;
+        let primitiveShaderData = (element as any)._primitiveShaderData;
+        let fillTexture = primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
+        if (fillTexture) {
+            if (!this.fillTexture)
+                return false;
+
+            // 如果元素存在texRange，则不能批次化
+            if (!primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE).equal(this.texRange))
+                return false;
+        }
+        else if (this.fillTexture)
+            return false;
+
+        if (this.textureId === 0 && elementTexId !== 0) {
+            this.textureId = elementTexId;
+            this.primitiveShaderData = primitiveShaderData;
+        }
+
+        return true;
     }
 
     /**
@@ -428,64 +424,121 @@ export class WebGraphicsBatch implements IBatch2DProvider {
         let elementArray = list.elements;
         let ctx = this._context;
         ctx.setHead(elementArray[start]);
-        let batchStart = start;
+        let cnt = end - start + 1;
+        if (cnt > 1000) //大于1000个元素无法自动优化排序
+            allowReorder = false;
 
-        for (let i = start + 1; i <= end; i++) {
-            let element = elementArray[i];
-            if (ctx.isCompatible(element))
-                continue;
+        if (allowReorder) {
+            if (elementFlags == null)
+                initCache(1000);
 
-            if (allowReorder) {
-                for (let j = i + 1; j <= end; j++) {
-                    let element2 = elementArray[j];
-                    if (ctx.isCompatible(element2)) {
-                        for (let k = j - 1; k >= i; k--) {
-                            if (element2.owner.rect.intersects(elementArray[k].owner.rect)) {
-                                element2 = null;
-                                break;
-                            }
-                        }
-                        if (element2 != null) {
-                            elementArray.splice(j, 1);
-                            elementArray.splice(i, 0, element2);
-                            element = elementArray[++i];
-                        }
-                    }
-                }
+            let headGroup = 0;
+            let indiceLen = 1;
+            elementIndice[0] = start;
+            elementFlags[0] = 0;
+
+            for (let i = 1; i < cnt; i++) {
+                let element = elementArray[start + i];
+                elementFlags[i] = -1; //undetermined
+                let rect = element.owner.rect;
+                rectLeftCache[i] = rect.x;
+                rectTopCache[i] = rect.y;
+                rectRightCache[i] = rect.x + rect.width;
+                rectBottomCache[i] = rect.y + rect.height;
             }
 
-            if (i - batchStart > 1)
-                this.merge(list, batchStart, i - 1, ctx);
-            else
-                this.addSingle(list, elementArray[batchStart]);
+            for (let i = 1; i < cnt; i++) {
+                let element = elementArray[start + i];
+                let group = elementFlags[i];
+                if (group === -2) { //already merged
+                    continue;
+                }
 
-            batchStart = i;
-            ctx.setHead(element);
+                if (group !== -1) {
+                    if (group === headGroup) {
+                        elementIndice[indiceLen++] = start + i;
+                        continue;
+                    }
+                }
+                else {
+                    if (ctx.isCompatible(element)) {
+                        elementIndice[indiceLen++] = start + i;
+                        continue;
+                    }
+
+                    elementFlags[i] = group = headGroup + 1;
+                }
+
+                for (let j = i + 1; j < cnt; j++) {
+                    let element2 = elementArray[start + j];
+                    if (elementFlags[j] !== -1) {
+                        if (elementFlags[j] !== headGroup)
+                            continue;
+                    }
+                    else {
+                        if (!ctx.isCompatible(element2))
+                            continue;
+                    }
+
+                    //尝试向前移动
+                    for (let k = j - 1; k >= i; k--) {
+                        if (elementFlags[k] !== -2
+                            && rectLeftCache[j] < rectRightCache[k] && rectRightCache[j] > rectLeftCache[k]
+                            && rectTopCache[j] < rectBottomCache[k] && rectBottomCache[j] > rectTopCache[k]) {
+                            element2 = null;
+                            break;
+                        }
+                    }
+
+                    if (element2 != null) {
+                        elementIndice[indiceLen++] = start + j;
+                        elementFlags[j] = -2;
+                    }
+                    else
+                        elementFlags[j] = headGroup;
+                }
+
+                list.add(this.merge(elementArray, 0, indiceLen - 1, ctx, elementIndice));
+                indiceLen = 1;
+                elementIndice[0] = start + i;
+                headGroup = group;
+                ctx.setHead(element);
+            }
+            list.add(this.merge(elementArray, 0, indiceLen - 1, ctx, elementIndice));
+        }
+        else {
+            let batchStart = start;
+            for (let i = start + 1; i <= end; i++) {
+                let element = elementArray[i];
+                if (!ctx.isCompatible(element)) {
+                    list.add(this.merge(elementArray, batchStart, i - 1, ctx));
+                    batchStart = i;
+                    ctx.setHead(element);
+                }
+            }
+            list.add(this.merge(elementArray, batchStart, end, ctx));
+        }
+    }
+
+    private merge(elementArray: Array<IPrimitiveRenderElement2D>, start: number, end: number, batchContext: BatchContext, indice?: Int16Array): IPrimitiveRenderElement2D {
+        if (start === end) {
+            let element = elementArray[indice !== undefined ? indice[start] : start];
+            this._buffer.add(element);
+            return element;
         }
 
-        if (end - batchStart > 0)
-            this.merge(list, batchStart, end, ctx);
-        else
-            this.addSingle(list, elementArray[batchStart]);
-    }
-
-    private addSingle(list: FastSinglelist<IPrimitiveRenderElement2D>, element: IPrimitiveRenderElement2D) {
-        this._buffer.add(element);
-        list.add(element);
-    }
-
-    private merge(list: FastSinglelist<IPrimitiveRenderElement2D>, start: number, end: number, batchContext: BatchContext): void {
-        let elementArray = list.elements;
         let staticBatchRenderElement = WebGraphicsBatch._pool.take();
         this._merged.push(staticBatchRenderElement);
-        let drawArray: number[][] = [];
-        let drawLengths: number[] = [];
+        let batchedGeometry = staticBatchRenderElement.geometry;
+        let currentOffset = 0;
+        let currentCount = 0;
+        let isFirst = true;
 
         for (let i = start; i <= end; i++) {
-            let element = elementArray[i];
+            let element = elementArray[indice !== undefined ? indice[i] : i];
             let geometry = this._buffer.add(element) || element.geometry;
             if (i === start) {
-                staticBatchRenderElement.geometry.bufferState = geometry.bufferState;
+                batchedGeometry.bufferState = geometry.bufferState;
                 staticBatchRenderElement.materialShaderData = element.materialShaderData;
                 staticBatchRenderElement.value2DShaderData = element.value2DShaderData;
                 staticBatchRenderElement.subShader = element.subShader;
@@ -494,20 +547,8 @@ export class WebGraphicsBatch implements IBatch2DProvider {
                 staticBatchRenderElement.owner = element.owner;
             }
 
-            geometry.getDrawDataParams(TEMP_SINGLE_LIST);
-            drawArray.push(TEMP_SINGLE_LIST.elements.slice());
-            drawLengths.push(TEMP_SINGLE_LIST.length);
-        }
-
-        let geometry = staticBatchRenderElement.geometry;
-        let len = drawArray.length;
-        let currentOffset = 0;
-        let currentCount = 0;
-        let isFirst = true;
-
-        for (let i = 0; i < len; i++) {
-            let drawParam = drawArray[i];
-            let drawLength = drawLengths[i];
+            let drawParam = geometry.drawParams.elements;
+            let drawLength = geometry.drawParams.length;
             for (let j = 0; j < drawLength; j += 2) {
                 let offset = drawParam[j];
                 let count = drawParam[j + 1];
@@ -523,7 +564,7 @@ export class WebGraphicsBatch implements IBatch2DProvider {
                 if (currentOffset + currentCount * 2 === offset) {
                     currentCount += count;
                 } else {
-                    geometry.setDrawElemenParams(currentCount, currentOffset);
+                    batchedGeometry.setDrawElemenParams(currentCount, currentOffset);
                     currentOffset = offset;
                     currentCount = count;
                 }
@@ -532,13 +573,26 @@ export class WebGraphicsBatch implements IBatch2DProvider {
 
         // 一次性合并完整了
         if (!isFirst) {
-            geometry.setDrawElemenParams(currentCount, currentOffset);
+            batchedGeometry.setDrawElemenParams(currentCount, currentOffset);
         }
 
-        list.add(staticBatchRenderElement);
+        return staticBatchRenderElement;
     }
 }
 
-const TEMP_SINGLE_LIST = new FastSinglelist<number>();
 const _STEP_ = 1024;
-
+var elementFlags: Int16Array;
+var elementIndice: Int16Array;
+var rectLeftCache: Float32Array;
+var rectTopCache: Float32Array;
+var rectRightCache: Float32Array;
+var rectBottomCache: Float32Array;
+function initCache(maxElements: number) {
+    elementFlags = new Int16Array(new ArrayBuffer(maxElements * 2));
+    elementIndice = new Int16Array(new ArrayBuffer(maxElements * 2));
+    maxElements *= 4;
+    rectLeftCache = new Float32Array(new ArrayBuffer(maxElements));
+    rectTopCache = new Float32Array(new ArrayBuffer(maxElements));
+    rectRightCache = new Float32Array(new ArrayBuffer(maxElements));
+    rectBottomCache = new Float32Array(new ArrayBuffer(maxElements));
+}
