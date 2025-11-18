@@ -433,107 +433,105 @@ export class TextRender extends EventDispatcher {
             if (!find) {
                 throw 'err1'; //TODO
             }
-            // 清理旧的
-            this.cleanAtlases();
         }
         return atlas;
     }
 
-    /**
-     * 清理利用率低的大图集
-     */
-    GC(): void {
-        var i = 0;
-        var sz = this.textAtlases.length;
-        var dt = 0;
-        var destroyDt = TextRenderConfig.destroyAtlasDt;
-        var totalUsedRateAtlas = 0;
-        var curloop = Stat.loopCount;
+    // /**
+    //  * 清理利用率低的大图集
+    //  */
+    // GC(): void {
+    //     var i = 0;
+    //     var sz = this.textAtlases.length;
+    //     var dt = 0;
+    //     var destroyDt = TextRenderConfig.destroyAtlasDt;
+    //     var totalUsedRateAtlas = 0;
+    //     var curloop = Stat.loopCount;
 
-        //var minUsedRateID:int = -1;
-        //var minUsedRate:Number = 1;
-        var maxWasteRateID = -1;
-        var maxWasteRate = 0;
-        var tex: TextTexture = null;
-        var curatlas: TextAtlas = null;
-        // 图集的清理
-        for (; i < sz; i++) {
-            curatlas = this.textAtlases[i];
-            tex = curatlas.texture;
-            if (tex) {
-                curatlas.updateTextureUsage();
-                totalUsedRateAtlas += tex.curUsedCovRateAtlas;
-                // 浪费掉的图集
-                // (已经占用的图集和当前使用的图集的差。图集不可局部重用，所以有占用的和使用的的区别)
-                var waste = curatlas.usedRate - tex.curUsedCovRateAtlas;
-                // 记录哪个图集浪费的最多
-                if (maxWasteRate < waste) {
-                    maxWasteRate = waste;
-                    maxWasteRateID = i;
-                }
-                /*
-                if (minUsedRate > tex.curUsedCovRate) {
-                    minUsedRate = tex.curUsedCovRate;
-                    minUsedRateID = i;
-                }
-                */
-            }
-            // 如果当前贴图的touch时间超出了指定的间隔（单位是帧，例如），则设置回收
-            // 可能同时会有多个图集被回收
-            dt = curloop - curatlas.texture.lastTouchTm;
-            if (dt > destroyDt) {
-                TextRenderConfig.showLog && console.log('TextRender GC delete atlas ' + (tex ? curatlas.texture.id : 'unk'));
-                curatlas.destroy();
-                this.textAtlases[i] = this.textAtlases[sz - 1];	// 把最后的拿过来冲掉
-                sz--;
-                i--;
-                maxWasteRateID = -1;
-            }
-        }
-        // 缩减图集数组的长度
-        this.textAtlases.length = sz;
+    //     //var minUsedRateID:int = -1;
+    //     //var minUsedRate:Number = 1;
+    //     var maxWasteRateID = -1;
+    //     var maxWasteRate = 0;
+    //     var tex: TextTexture = null;
+    //     var curatlas: TextAtlas = null;
+    //     // 图集的清理
+    //     for (; i < sz; i++) {
+    //         curatlas = this.textAtlases[i];
+    //         tex = curatlas.texture;
+    //         if (tex) {
+    //             curatlas.updateTextureUsage();
+    //             totalUsedRateAtlas += tex.curUsedCovRateAtlas;
+    //             // 浪费掉的图集
+    //             // (已经占用的图集和当前使用的图集的差。图集不可局部重用，所以有占用的和使用的的区别)
+    //             var waste = curatlas.usedRate - tex.curUsedCovRateAtlas;
+    //             // 记录哪个图集浪费的最多
+    //             if (maxWasteRate < waste) {
+    //                 maxWasteRate = waste;
+    //                 maxWasteRateID = i;
+    //             }
+    //             /*
+    //             if (minUsedRate > tex.curUsedCovRate) {
+    //                 minUsedRate = tex.curUsedCovRate;
+    //                 minUsedRateID = i;
+    //             }
+    //             */
+    //         }
+    //         // 如果当前贴图的touch时间超出了指定的间隔（单位是帧，例如），则设置回收
+    //         // 可能同时会有多个图集被回收
+    //         dt = curloop - curatlas.texture.lastTouchTm;
+    //         if (dt > destroyDt) {
+    //             TextRenderConfig.showLog && console.log('TextRender GC delete atlas ' + (tex ? curatlas.texture.id : 'unk'));
+    //             curatlas.destroy();
+    //             this.textAtlases[i] = this.textAtlases[sz - 1];	// 把最后的拿过来冲掉
+    //             sz--;
+    //             i--;
+    //             maxWasteRateID = -1;
+    //         }
+    //     }
+    //     // 缩减图集数组的长度
+    //     this.textAtlases.length = sz;
 
-        // 引用计数
-        // 独立贴图的清理 TODO 如果多的话，要不要分开处理
-        // sz = this.isoTextures.length;
-        // for (i = 0; i < sz; i++) {
-        //     tex = this.isoTextures[i];
-        //     dt = curloop - tex.lastTouchTm;
-        //     if (dt > TextRender.destroyUnusedTextureDt) {
-        //         tex.ri.deleted = true;
-        //         tex.ri.texture = null;
-        //         // 直接删除，不回收
-        //         tex.destroy();
-        //         this.isoTextures[i] = this.isoTextures[sz - 1];
-        //         sz--;
-        //         i--;
-        //     }
-        // }
-        // this.isoTextures.length = sz;
+    //     // 引用计数
+    //     // 独立贴图的清理 TODO 如果多的话，要不要分开处理
+    //     // sz = this.isoTextures.length;
+    //     // for (i = 0; i < sz; i++) {
+    //     //     tex = this.isoTextures[i];
+    //     //     dt = curloop - tex.lastTouchTm;
+    //     //     if (dt > TextRender.destroyUnusedTextureDt) {
+    //     //         tex.ri.deleted = true;
+    //     //         tex.ri.texture = null;
+    //     //         // 直接删除，不回收
+    //     //         tex.destroy();
+    //     //         this.isoTextures[i] = this.isoTextures[sz - 1];
+    //     //         sz--;
+    //     //         i--;
+    //     //     }
+    //     // }
+    //     // this.isoTextures.length = sz;
 
-        // 如果超出内存需要清理不常用
-        var needGC = this.textAtlases.length > 1 && this.textAtlases.length - totalUsedRateAtlas >= 2;	// 总量浪费了超过2张
-        if (TextRenderConfig.atlasWidth * TextRenderConfig.atlasWidth * 4 * this.textAtlases.length > TextRenderConfig.cleanMem || needGC || TextRenderConfig.simClean) {
-            TextRenderConfig.simClean = false;
-            TextRenderConfig.showLog && console.log('清理使用率低的贴图。总使用率:', totalUsedRateAtlas, ':', this.textAtlases.length, '最差贴图:' + maxWasteRateID);
-            if (maxWasteRateID >= 0) {
-                curatlas = this.textAtlases[maxWasteRateID];
-                curatlas.destroy();
-                this.textAtlases[maxWasteRateID] = this.textAtlases[this.textAtlases.length - 1];
-                this.textAtlases.length = this.textAtlases.length - 1;
-                this.event('GC');
-            }
-        }
+    //     // 如果超出内存需要清理不常用
+    //     var needGC = this.textAtlases.length > 1 && this.textAtlases.length - totalUsedRateAtlas >= 2;	// 总量浪费了超过2张
+    //     if (TextRenderConfig.atlasWidth * TextRenderConfig.atlasWidth * 4 * this.textAtlases.length > TextRenderConfig.cleanMem || needGC || TextRenderConfig.simClean) {
+    //         TextRenderConfig.simClean = false;
+    //         TextRenderConfig.showLog && console.log('清理使用率低的贴图。总使用率:', totalUsedRateAtlas, ':', this.textAtlases.length, '最差贴图:' + maxWasteRateID);
+    //         if (maxWasteRateID >= 0) {
+    //             curatlas = this.textAtlases[maxWasteRateID];
+    //             curatlas.destroy();
+    //             this.textAtlases[maxWasteRateID] = this.textAtlases[this.textAtlases.length - 1];
+    //             this.textAtlases.length = this.textAtlases.length - 1;
+    //             this.event('GC');
+    //         }
+    //     }
 
-        //TextTexture.clean();
-    }
+    //     //TextTexture.clean();
+    // }
 
-    /**
-     * 尝试清理大图集
-     */
-    cleanAtlases(): void {
-        // TODO 根据覆盖率决定是否清理
-    }
+    // /**
+    //  * 尝试清理大图集
+    //  */
+    // cleanAtlases(): void {
+    //     // TODO 根据覆盖率决定是否清理
+    // }
 }
 
 const tmpAtlasPos = new Point();
