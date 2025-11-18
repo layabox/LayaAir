@@ -468,7 +468,6 @@ export class Stat {
         Stat._currentShowArray = views || Stat.AllShow;
         Stat._statUI.show(x, y, Stat._currentShowArray);
         ILaya.systemTimer.frameLoop(1, null, Stat.loop);
-        ILaya.timer.frameLoop(1, null, Stat.clear);
     }
 
     /**
@@ -490,7 +489,6 @@ export class Stat {
         Stat._currentToggleArray = views;
         Stat._statUI.showToggle(x, y, views);
         ILaya.systemTimer.frameLoop(1, null, Stat.loop);
-        ILaya.timer.frameLoop(1, null, Stat.clear);
     }
 
     private static checkUI() {
@@ -518,7 +516,6 @@ export class Stat {
         Stat._currentShowArray = null;
         Stat._currentToggleArray = null;
         ILaya.timer.clear(null, Stat.loop);
-        ILaya.timer.clear(null, Stat.clear);
         if (Stat._statUI)
             Stat._statUI.hide();
     }
@@ -537,16 +534,17 @@ export class Stat {
         //计算更精确的FPS值
         Stat.FPS = Math.round((count * 1000) / (timer - Stat._timer));
 
+        Stat.updateEngineData();
+
         if (Stat._show) {
-            Stat.updateEngineData();
             let delay: string = Stat.FPS > 0 ? Math.floor(1000 / Stat.FPS).toString() : " ";
             Stat._fpsStr = Stat.FPS + (Stat.renderSlow ? " slow" : "") + " " + delay + "ms";
             Stat._statUI.update();
-            // Stat.clear();
         }
 
         Stat._count = 0;
         Stat._timer = timer;
+        Stat.clear();
     }
 
     /**
@@ -570,12 +568,12 @@ export class Stat {
      * @zh 清零性能统计计算相关的数据。
      */
     static clear(): void {
-        if (!Stat._currentShowArray || Stat._count)
-            return;
-        Stat._currentShowArray.forEach(element => {
-            if (element.mode == "average")
-                (Stat as any)[element.value] = 0;
-        });
+        if (Stat._currentShowArray) {
+            Stat._currentShowArray.forEach(element => {
+                if (element.mode == "average")
+                    (Stat as any)[element.value] = 0;
+            });
+        }
         LayaGL.renderEngine.clearStatisticsInfo();
         Stat.renderPassStatArray.fill(0);
     }
