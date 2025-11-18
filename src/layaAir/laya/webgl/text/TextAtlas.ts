@@ -24,10 +24,6 @@ export class TextAtlas {
         this.atlasgrid = new AtlasGrid(this.texWidth / TextRenderConfig.atlasGridW, this.texHeight / TextRenderConfig.atlasGridW, this.texture.id);
     }
 
-    setProtecteDist(d: number): void {
-        //this.protectDist = d;
-    }
-
     /**
      * 如果返回null，则表示无法加入了
      * 分配的时候优先选择最接近自己高度的节点
@@ -57,15 +53,15 @@ export class TextAtlas {
     }
     */
 
-    updateTextureUsage(): void {
-        this.texture.touchTexture();
-        for (var k in this.charMaps) {
-            var ri: CharRenderInfo = this.charMaps[k];
-            if (ri.referenceCount > 0) {
-                ri.touch();
-            }
-        }
-    }
+    // updateTextureUsage(): void {
+    //     this.texture.touchTexture();
+    //     for (var k in this.charMaps) {
+    //         var ri: CharRenderInfo = this.charMaps[k];
+    //         if (ri.referenceCount > 0) {
+    //             ri.touch();
+    //         }
+    //     }
+    // }
 
     destroy(): void {
         for (var k in this.charMaps) {
@@ -73,10 +69,6 @@ export class TextAtlas {
             ri.deleted = true;
         }
         this.texture.discard();
-    }
-
-    printDebugInfo(): void {
-
     }
 }
 
