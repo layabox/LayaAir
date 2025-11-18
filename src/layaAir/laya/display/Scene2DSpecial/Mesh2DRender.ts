@@ -1,5 +1,6 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { Color } from "../../maths/Color";
+import { Vector4 } from "../../maths/Vector4";
 import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { IRenderContext2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { IMesh2DRenderDataHandle } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
@@ -46,6 +47,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
 
     protected _initDefaultRenderData(): void {
         this.color = new Color();
+        this.textureRange = new Vector4(0, 0, 1, 1);
         this.texture = null;
     }
 
@@ -102,6 +104,30 @@ export class Mesh2DRender extends BaseRenderNode2D {
 
     get color() {
         return this._renderHandle.baseColor;
+    }
+
+    /**
+     * @en Texture range，if textureRangeIsClip is false, xy represents texture offset, zw represents scaling, if textureRangeIsClip is true, xy represents texture min, zw represents texture max
+     * @zh 纹理范围，如果textureRangeIsClip为false，xy表示纹理偏移，zw表示缩放，如果textureRangeIsClip为true，xy表示纹理最小值，zw表示纹理最大值
+     */
+    set textureRange(value: Vector4) {
+        this._renderHandle.baseTextureRange = value;
+    }
+
+    get textureRange(): Vector4 {
+        return this._renderHandle.baseTextureRange;
+    }
+
+    /**
+     * @en If textureRangeIsClip is true, the texture will be clipped to the textureRange, otherwise the texture will be stretched to the textureRange
+     * @zh 如果textureRangeIsClip为true，纹理将被裁剪到textureRange,否则纹理将被拉伸到textureRange
+     */
+    set textureRangeIsClip(value: boolean) {
+        this._renderHandle.textureRangeIsClip = value;
+    }
+
+    get textureRangeIsClip(): boolean {
+        return this._renderHandle.textureRangeIsClip;
     }
 
     /**

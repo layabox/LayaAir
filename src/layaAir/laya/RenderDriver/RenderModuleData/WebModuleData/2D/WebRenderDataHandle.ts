@@ -271,6 +271,8 @@ const _setRenderColor: Color = new Color(1, 1, 1, 1);
 
 export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle implements IMesh2DRenderDataHandle {
     private _baseColor: Color = new Color(1, 1, 1, 1);
+    private _textureRangeIsClip: boolean;
+    private _baseTextureRange: Vector4 = new Vector4();
     private _baseTexture: BaseTexture;
     private _normal2DTexture: BaseTexture;
     private _renderAlpha = -1;
@@ -307,6 +309,29 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
             } else {
                 this._owner.spriteShaderData.removeDefine(ShaderDefines2D.GAMMATEXTURE);
             }
+        }
+    }
+
+    public get baseTextureRange(): Vector4 {
+        return this._baseTextureRange;
+    }
+    public set baseTextureRange(value: Vector4) {
+        if (!value)
+            return;
+        this._owner.spriteShaderData.setVector(BaseRenderNode2D.BASERENDER2DTEXTURERANGE, value);
+        value ? value.cloneTo(this._baseTextureRange) : null;
+    }
+
+    public get textureRangeIsClip(): boolean {
+        return this._textureRangeIsClip;
+    }
+    public set textureRangeIsClip(value: boolean) {
+        if (this._textureRangeIsClip != value) {
+            this._textureRangeIsClip = value;
+            if (value)
+                this._owner.spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
+            else
+                this._owner.spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_CLIPMODE);
         }
     }
 
