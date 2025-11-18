@@ -69,6 +69,11 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         this._glParam.format = null;
         this._glParam.type = null;
         switch (format) {
+            case TextureFormat.Alpha8:
+                this._glParam.internalFormat = gl.ALPHA;
+                this._glParam.format = gl.ALPHA;
+                this._glParam.type = gl.UNSIGNED_BYTE;
+                break;
             case TextureFormat.R8G8B8:
                 this._glParam.internalFormat = useSRGB ? this._sRGB.SRGB_EXT : gl.RGB;
                 this._glParam.format = this._glParam.internalFormat;
@@ -334,6 +339,12 @@ export class GLTextureContext extends GLObject implements ITextureContext {
             typedSize: 1
         }
         switch (format) {
+            case TextureFormat.Alpha8:
+                formatParams.channels = 1;
+                formatParams.bytesPerPixel = 1;
+                formatParams.dataTypedCons = Uint8Array
+                formatParams.typedSize = 1;
+                return formatParams;
             case TextureFormat.R8G8B8A8:
                 formatParams.channels = 4;
                 formatParams.bytesPerPixel = 4;
@@ -397,6 +408,9 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let srgb_alpha = this._sRGB ? this._sRGB.SRGB_ALPHA_EXT : gl.RGBA;
 
         switch (tex.internalFormat) {
+            case gl.ALPHA:
+                channels = 1;
+                break;
             case srgb:
             case gl.RGB:
                 channels = 3;
