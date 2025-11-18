@@ -98,8 +98,8 @@ export class DrawMeshCMD extends Command {
     set mesh(value: Mesh) {
         if (this._mesh == value)
             return;
+        this._meshRender._onMeshChange(value);
         this._mesh = value;
-        this._meshRender._onMeshChange(this._mesh);
         this._renderElemnts = this._meshRender._renderElements;
         this._renderElemnts.forEach(element => {
             element.material = this._material;
