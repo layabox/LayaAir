@@ -983,7 +983,7 @@ export class Text extends Sprite {
      * @param force 是否强制排版。
      */
     typeset(force?: boolean) {
-        (this._isChanged || force) && ILaya.systemTimer.runCallLater(this, this._typeset);
+        (this._isChanged || force) && ILaya.systemTimer.runCallLater(this, this._typeset, true);
     }
 
     /**
