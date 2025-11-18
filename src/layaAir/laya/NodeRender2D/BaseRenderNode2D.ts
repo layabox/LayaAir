@@ -41,7 +41,7 @@ export class BaseRenderNode2D extends Component {
      * 渲染节点纹理范围ID
      * @readonly
      */
-    static BASERENDER2DTEXTURERANGE: number;
+    static TILINGOFFSET: number;
     /**
      * 渲染节点size ID
      * @readonly
@@ -77,15 +77,13 @@ export class BaseRenderNode2D extends Component {
     static SHADERDEFINE_LIGHT2D_SUBMODE: ShaderDefine;
     /** @readonly */
     static SHADERDEFINE_LIGHT2D_NORMAL_PARAM: ShaderDefine;
-    /** @readonly */
-    static SHADERDEFINE_CLIPMODE: ShaderDefine;
     /**
      * @internal
      */
     static initBaseRender2DCommandEncoder() {
         BaseRenderNode2D.BASERENDER2DCOLOR = Shader3D.propertyNameToID("u_baseRenderColor");
         BaseRenderNode2D.BASERENDER2DTEXTURE = Shader3D.propertyNameToID("u_baseRender2DTexture");
-        BaseRenderNode2D.BASERENDER2DTEXTURERANGE = Shader3D.propertyNameToID("u_baseRender2DTextureRange");
+        BaseRenderNode2D.TILINGOFFSET = Shader3D.propertyNameToID("u_tilingOffset");
         // BaseRenderNode2D.BASERENDERSIZE = Shader3D.propertyNameToID("u_baseRenderSize2D");
 
         BaseRenderNode2D.NORMAL2DTEXTURE = Shader3D.propertyNameToID("u_normal2DTexture");
@@ -97,8 +95,7 @@ export class BaseRenderNode2D extends Component {
         BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ADDMODE = Shader3D.getDefineByName("LIGHT2D_SCENEMODE_ADD");
         BaseRenderNode2D.SHADERDEFINE_LIGHT2D_SUBMODE = Shader3D.getDefineByName("LIGHT2D_SCENEMODE_SUB");
         BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM = Shader3D.getDefineByName("LIGHT2D_NORMAL_PARAM");
-        BaseRenderNode2D.SHADERDEFINE_CLIPMODE = Shader3D.getDefineByName("CLIPMODE");
-        
+
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseRender2D");
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_NMATRIX_0, "u_NMatrix_0", ShaderDataType.Vector3);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_NMATRIX_1, "u_NMatrix_1", ShaderDataType.Vector3);
@@ -106,7 +103,7 @@ export class BaseRenderNode2D extends Component {
         // commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_NMATRIX_1, "u_NMatrix_1", ShaderDataType.Vector3);
         commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DCOLOR, "u_baseRenderColor", ShaderDataType.Color);
         commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DTEXTURE, "u_baseRender2DTexture", ShaderDataType.Texture2D);
-        commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDER2DTEXTURERANGE, "u_baseRender2DTextureRange", ShaderDataType.Vector4);
+        commandUniform.addShaderUniform(BaseRenderNode2D.TILINGOFFSET, "u_tilingOffset", ShaderDataType.Vector4);
         // commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDERSIZE, "u_baseRenderSize2D", ShaderDataType.Vector2);
         commandUniform.addShaderUniform(BaseRenderNode2D.NORMAL2DTEXTURE, "u_normal2DTexture", ShaderDataType.Texture2D);
         commandUniform.addShaderUniform(BaseRenderNode2D.NORMAL2DSTRENGTH, "u_normal2DStrength", ShaderDataType.Float);
