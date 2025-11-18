@@ -978,10 +978,12 @@ export class Text extends Sprite {
 
     /**
      * @en Typeset the text.
+     * @param force Whether to force typesetting.
      * @zh 排版文本。
+     * @param force 是否强制排版。
      */
-    typeset() {
-        this._isChanged && ILaya.systemTimer.runCallLater(this, this._typeset);
+    typeset(force?: boolean) {
+        (this._isChanged || force) && ILaya.systemTimer.runCallLater(this, this._typeset);
     }
 
     /**
