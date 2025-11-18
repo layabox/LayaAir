@@ -913,7 +913,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
             element.geometry.setDrawElemenParams(elements[i][1], elements[i][2]);
             let material = elements[i][0];
             this._renderElements.push(element);
-            if (this._materials[0] != null) {
+            if (this._materials[i] != null) {
                 let rendernodeMaterial = this._materials[i];
                 rendernodeMaterial.setTextureByIndex(SpineShaderInit.SpineTexture, material.getTextureByIndex(SpineShaderInit.SpineTexture));
                 rendernodeMaterial.blendSrc = material.blendSrc;
