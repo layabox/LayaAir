@@ -113,14 +113,6 @@ export class Graphics {
         this._renderDataHandle = LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle();
     }
 
-    protected _isMaterialVaild(value: Material): boolean {
-        return value.checkType(ShaderFeatureType.D2_TextureSV);
-    }
-
-    onModified() {
-        this._modified = true;
-    }
-
     /**
      * @en Destroy this object.
      * @zh 销毁此对象。
@@ -169,7 +161,7 @@ export class Graphics {
         }
         else
             this._cmds.length = 0;
-        
+
         if (this._data) {
             this._data.clear();
         }
@@ -353,7 +345,7 @@ export class Graphics {
     }
 
     set material(value: Material) {
-        if (value && !this._isMaterialVaild(value))
+        if (value && !value.checkType(ShaderFeatureType.D2_TextureSV))
             return;
 
         if (this._material == value)

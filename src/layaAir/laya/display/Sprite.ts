@@ -298,7 +298,7 @@ export class Sprite extends Node {
             this._subStructRender.destroy();
             this._subStructRender = null;
         }
-        
+
         if (this._drawOriRT) {
             if (this._drawOriRT !== RenderTexture2D._empty) {
                 RenderTexture2D.recoverToPool(this._drawOriRT);
@@ -1641,7 +1641,7 @@ export class Sprite extends Node {
                         sprite._oriRenderPass.renderTexture = destrt;
                         if (sprite.mask) {
                             sprite._oriRenderPass.mask = sprite.mask._struct;
-                        }else
+                        } else
                             sprite._oriRenderPass.mask = null;
 
                         if (result) {
@@ -2019,7 +2019,7 @@ export class Sprite extends Node {
         if (this._destroyed) return;
 
         if (
-            this._repaint < Stat.loopCount 
+            this._repaint < Stat.loopCount
             || (this._repaint === Stat.loopCount && this._repaintCount < Stat.render2DCount)
             || !this._previousType
         ) {
@@ -2032,18 +2032,19 @@ export class Sprite extends Node {
 
             if (this._renderType & SpriteConst.DRAW2RT) {
                 if (
-                    !this._drawOriRT 
-                    || this._subpassUpdateFlag 
+                    !this._drawOriRT
+                    || this._subpassUpdateFlag
                     || flag & RepaintFlag.UpdateRT
                     || (this.transform && this._maskParent)
                 ) {
                     this.setSubpassFlag(SubPassFlag.RenderTexture);
                 }
-            } 
-            
+            }
+
             if (this._renderType & SpriteConst.GRAPHICS) {
                 if (flag & RepaintFlag.Graphics) {
-                    this._graphics?.onModified();
+                    if (this._graphics)
+                        this._graphics._modified = true;
                 }
                 this._globalTrans._notifyRenderSpriteTransChange();
             }
@@ -2460,7 +2461,7 @@ export class Sprite extends Node {
             if (this._subpassUpdateFlag || (this._renderType & SpriteConst.DRAW2RT && !this._drawOriRT)) {
                 this.setSubpassFlag(SubPassFlag.RenderTexture);
             }
-        }else if (this._subpassUpdateFlag) {
+        } else if (this._subpassUpdateFlag) {
             ILaya.stage._subpassUpdateList.delete(this);
         }
 
@@ -2504,7 +2505,8 @@ export class Sprite extends Node {
         super._setDisplay(value);
         //默认有父节点改变，需要重绘 graphics
         if (this._needGraphicsUpdate()) {
-            this._graphics && this._graphics.onModified();
+            if (this._graphics)
+                this._graphics._modified = true;
             this.stage._graphicUpdateList.add(this);
             this._globalTrans._notifyRenderSpriteTransChange();
         }
