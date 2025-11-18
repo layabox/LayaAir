@@ -1,5 +1,7 @@
 import { Quaternion } from "../../../maths/Quaternion";
+import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
+import { Vector4 } from "../../../maths/Vector4";
 
 export enum KeyFrameValueType {
 	None = -1,
@@ -119,16 +121,25 @@ export class KeyframeNodeOwner {
 		var pro: any = this.propertyOwner;
 		if (pro) {
 			switch (this.type) {
-				case 0:
+				case KeyFrameValueType.Float:
+				case KeyFrameValueType.Boolean:
 					this.crossFixedValue = this.value;
 					break;
-				case 1:
-				case 3:
-				case 4:
+				case KeyFrameValueType.Position:
+				case KeyFrameValueType.Scale:
+				case KeyFrameValueType.RotationEuler:
+				case KeyFrameValueType.Vector3:
 					(<Vector3>this.value).cloneTo(this.crossFixedValue);
 					break;
-				case 2:
+				case KeyFrameValueType.Rotation:
 					(<Quaternion>this.value).cloneTo(this.crossFixedValue);
+					break;
+				case KeyFrameValueType.Vector2:
+					(<Vector2>this.value).cloneTo(this.crossFixedValue);
+					break;
+				case KeyFrameValueType.Vector4:
+				case KeyFrameValueType.Color:
+					(<Vector4>this.value).cloneTo(this.crossFixedValue);
 					break;
 				default:
 					throw new Error("Animator:unknown type.");
