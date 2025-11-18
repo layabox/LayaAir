@@ -296,7 +296,7 @@ export class IK_System {
                 if(isRunning){
                     chain.copyCurPoseAsInitPose();
                     chain.solve(this.ikcomp);
-                    chain.applyIKResult();
+                    chain.applyIKResult(this.ikcomp);
                 }
             }                
         }
@@ -320,7 +320,7 @@ export class IK_System {
                     lookat.captureAnimPose();
                     lookat.copyInitPose();
                     lookat.solve();
-                    lookat.applyIKResult();
+                    lookat.applyIKResult(this.ikcomp);
                 }
             }
         }

@@ -7,7 +7,7 @@ import { IK_Comp } from "./IK_Comp";
 import { IK_Joint } from "./IK_Joint";
 import { getJointMgr, IK_JointManager } from "./IK_JointManager";
 import { IK_Target } from "./IK_Target";
-import { quaternionFromTo } from "./IK_Utils";
+import { NumberSmooth, quaternionFromTo } from "./IK_Utils";
 import { ILinerender } from "./LineRender";
 
 let invQ = new Quaternion();
@@ -31,9 +31,24 @@ export class IK_ChainBase{
     totalLength=0;
     blendWeight=1.0;
     maxError=0.04;
+    private _weightSmooth=1;
+    wSmoother:NumberSmooth;
 
     constructor(mgr:IK_Comp ){
         this._jointMgr = getJointMgr(mgr.owner as Sprite3D);
+    }
+
+    get weightSmooth(){
+        return this._weightSmooth;
+    }
+
+    set weightSmooth(v:number){
+        this._weightSmooth=v;
+        if(v<1&&v>0){
+            this.wSmoother = new NumberSmooth(v);
+        }else{
+            this.wSmoother=null;
+        }
     }
 
     set isRunning(v:boolean){
@@ -240,16 +255,20 @@ export class IK_ChainBase{
 
     solve(comp:IK_Comp){}
 
-    applyIKResult(){
+    applyIKResult(comp:IK_Comp){
         if(!this.enable)
             return;
         
+        let bw = this.wSmoother?this.wSmoother.in(this.blendWeight):this.blendWeight;
+        comp.blendW = bw;
+
         for(let i=0,n=this.joints.length; i<n; i++){
             let joint = this.joints[i]
             if(joint.fixed)
                 continue;
             //ik可能有位置修改，所以这里也应用pos。根的pos可能会被动画修改，这里再设置一次也没关系
-            joint.applyTransform(this.blendWeight);
+            if(bw>0)
+                joint.applyTransform(bw);
         }
     }
 
