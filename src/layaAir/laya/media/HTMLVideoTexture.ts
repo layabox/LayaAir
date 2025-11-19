@@ -26,6 +26,9 @@ export class HTMLVideoTexture extends VideoTexture {
             if (!this._playing)
                 this.render(true);
         });
+        ele.addEventListener("ended", () => {
+            this.event("ended");
+        });
 
         if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) {
             const scope = this;
