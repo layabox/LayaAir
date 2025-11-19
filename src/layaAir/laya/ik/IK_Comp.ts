@@ -33,6 +33,8 @@ export class IK_Comp extends Script {
     current_iteration =0;
     current_error =0.0;
     pole_rot=0;
+    targetChange=0;
+    blendW=0;
     //@property({ type: [IK_ChainData], onChange: "onChainDataChange" })
     set chainDatas(v: IK_ChainData[]) {
         this._chainDatas = v;
@@ -282,6 +284,13 @@ export class IK_Comp extends Script {
                     c.enable = data.enable;
                     c.blendWeight = data.blendWeight;
                     c.poleTarget = data.PoleTarget ? new IK_Target(data.PoleTarget) : null;
+                    if(data.smoothBlendWeight){
+                        c.weightSmooth = data.smoothBlendWeight;
+                    }
+                    if(data.maxError) c.maxError = data.maxError;
+                    if(!data.enablePoleTarget){
+                        c.poleTarget = null;
+                    }
                     //c.alignWithTarget = data.alignWithTarget;
                     this._ik_sys.addChain(c);
                     if (data.target)

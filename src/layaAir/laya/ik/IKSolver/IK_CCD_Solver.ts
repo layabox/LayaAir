@@ -21,12 +21,10 @@ const rot = new Quaternion();
 export class IK_CCDSolver implements IK_ISolver {
     dampingFactor: number = 0.1; // 阻尼因子，0-1之间
     maxIterations: number;
-    epsilon: number;
     poleTarget:IK_Target = null;
 
-    constructor(maxIterations: number = 1, epsilon: number = 0.01) {
+    constructor(maxIterations: number = 1) {
         this.maxIterations = maxIterations;
-        this.epsilon = epsilon;
     }
 
     private _targetPos=new Vector3();
@@ -35,12 +33,49 @@ export class IK_CCDSolver implements IK_ISolver {
         target.cloneTo(targetPos);
         let joints = chain.joints;
         let cnt = joints.length;
-        const endEffector = joints[endOffline?cnt-2:cnt-1];
+        let endid = endOffline?cnt-2:cnt-1;
+        const endEffector = joints[endid];
         let iteration = 0;
         const jointToEndEffector = new Vector3();
         const jointToTarget = new Vector3();
         let rotation = new Quaternion();
         const basePos = chain.joints[0].position;
+        let epsilon = chain.maxError;
+        let b2t = new Vector3();
+        target.vsub(basePos,b2t);
+        let totalLength=0;
+        for(let i=0; i<=endid-1; i++){
+            totalLength += joints[i].length;
+        }
+
+		// 目标不可达：直接将链条朝向目标方向拉直，避免在边界附近反复调整产生抖动
+		if(totalLength < b2t.length()){
+			// 从根开始，逐节将“关节->子关节”的方向对齐到“关节->目标”的方向
+			for (let i = 0; i < endid; i++) {
+				const joint = joints[i];
+				if(joint.fixed)
+					continue;
+				const next = joints[i+1];
+				if(!next) break;
+				// 关节当前朝向（指向子关节）
+				next.position.vsub(joint.position, tmp);
+				if(tmp.lengthSquared()<1e-5)
+					continue;
+				tmp.normalize();
+				// 目标方向（关节->目标）
+				targetPos.vsub(joint.position, jointToTarget);
+				if(jointToTarget.lengthSquared()<1e-5)
+					continue;
+				jointToTarget.normalize();
+				// 将每节骨骼的end朝向target
+				quaternionFromTo(tmp, jointToTarget, rotation);
+				chain.rotateJoint(i, rotation);
+			}
+			// 不可达时跳过极点微调，防止围绕轴的细微抖动
+			comp.current_iteration = 1;
+			comp.current_error = Math.sqrt(Vector3.distanceSquared(endEffector.position, targetPos));
+			return false;
+		}
 
         let dist = 0;
         let touched = false;
@@ -68,7 +103,7 @@ export class IK_CCDSolver implements IK_ISolver {
                     //endeffector和joint重合的情况
                     continue;
 
-                if ((dist = Vector3.distanceSquared(endEffector.position, targetPos)) < this.epsilon**2) {
+                if ((dist = Vector3.distanceSquared(endEffector.position, targetPos)) < epsilon**2) {
                     touched = true;
                     break;
                 }
@@ -100,7 +135,7 @@ export class IK_CCDSolver implements IK_ISolver {
             }
             //赋值给实际的骨骼，否则约束的时候直接取骨骼的矩阵是错误的，会导致剧烈抖动
             //chain.applyIKResult();
-            if (touched || (dist = Vector3.distanceSquared(endEffector.position, targetPos)) < this.epsilon**2) {
+            if (touched || (dist = Vector3.distanceSquared(endEffector.position, targetPos)) < epsilon**2) {
                 break;
             }
             iteration++;
@@ -138,7 +173,7 @@ export class IK_CCDSolver implements IK_ISolver {
                 const lenMid = projMid.length();
                 const lenPole = projPole.length();
                 // 中间点或极点在轴上，平面不稳定，跳过
-                const EPSL=0.1; 
+                const EPSL=0.001; 
                 if(lenMid <= EPSL || lenPole <= EPSL){
                 }else{
                     // 归一化投影用于稳健的 atan2 计算
@@ -164,10 +199,9 @@ export class IK_CCDSolver implements IK_ISolver {
                 }
             }
         }
-
-
         //debug
         comp.current_iteration = iteration;
-        comp.current_error = dist;
+        comp.current_error = Math.sqrt(dist);
+        return touched;
     }
 }

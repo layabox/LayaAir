@@ -35,7 +35,7 @@ export class IK_FABRIK_Solver implements IK_ISolver {
         //如果长度超出伸直之后的范围，直接朝向目标
         if (dPos.length() > totalLength) {
             this.stretchToTarget(chain, targetPos);
-            return;
+            return false;
         }
 
         for (let iteration = 0; iteration < this.maxIterations; iteration++) {
@@ -129,6 +129,7 @@ export class IK_FABRIK_Solver implements IK_ISolver {
 
         // 调整完位置,最后再计算朝向，确保未受约束的关节也得到合理四元数
         chain.updateRotations();
+        return true;    //TODO
     }
 
     // 按照从根到末端逐节应用约束。通过零旋转触发 rotateJoint 的约束逻辑并更新后续关节位置

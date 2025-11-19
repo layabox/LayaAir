@@ -185,3 +185,36 @@ export function getVecAngInPlane(axisPos:Vector3, axis:Vector3, zero:Vector3, ve
     return angle;
 }
 
+export class NumberSmooth{
+    lastv=0;
+    constructor(
+        public k=0.5
+    ){
+    }
+
+    in(v:number){
+        let k = this.k;
+        let k1 = 1-k;
+        this.lastv = v*k+this.lastv*k1;
+        return this.lastv;
+    }
+}
+
+export class Vec3Smooth{
+    lastV:Vector3=null;
+    constructor(
+        public k=0.5
+    ){
+
+    }
+    in(v:Vector3){
+        let k = this.k;
+        let k1 = 1-k;
+        if(!this.lastV)
+            this.lastV = v.clone();
+        let v0 = this.lastV;
+        let v1 = v;
+        this.lastV.setValue(v1.x*k+v0.x*k1,v1.y*k+v0.y*k1,v1.z*k+v0.z*k1);
+        return this.lastV;
+    }
+}
