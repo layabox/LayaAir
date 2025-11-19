@@ -1,8 +1,8 @@
 #define SHADER_NAME SpineStandardVS
 
 #include "Sprite2DVertex.glsl";
-
-#include "SpineVertex.glsl";
+#include "SpineVertexCommon.glsl";
+#include "Spine2DVertex.glsl";
 
 varying vec4 v_color2;
 

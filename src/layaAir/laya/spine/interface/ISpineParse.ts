@@ -5,6 +5,7 @@ import { SpineTemplet } from "../SpineTemplet";
 import { ISpineRender } from "./ISpineRender";
 
 export interface ISkeletonOptimise {
+    data: any;
     getAniNameByIndex(index: number): string | null;
     findAnimation(name: string): any | null;
     getSkinIndexByName(skinName: string): number;

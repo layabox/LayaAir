@@ -1,22 +1,25 @@
 import { Shader3D, ShaderFeatureType } from "../../RenderEngine/RenderShader/Shader3D";
-import spineVertex from "./files/SpineVertex.glsl"
-import spineFragment from "./files/SpineFragment.glsl"
 import { LayaGL } from "../../layagl/LayaGL";
 import { ShaderData, ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import spineStandardVS from "./files/SpineStandard.vs"
-import spineStandardFS from "./files/SpineStandard.fs"
+
 import { SubShader } from "../../RenderEngine/RenderShader/SubShader";
-import { Laya } from "../../../Laya";
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Material } from "../../resource/Material";
 import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { VertexElement } from "../../renders/VertexElement";
 import { VertexElementFormat } from "../../renders/VertexElementFormat";
-import { SpineMeshUtils } from "../web/base/utils/SpineMeshUtils";
-import { Mesh2D } from "../../resource/Mesh2D";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
+import spineVertexCommon from "./files/SpineVertexCommon.glsl";
+import spineFragment from "./files/SpineFragment.glsl"
+import spine3DVertex from "./files/Spine3DVertex.glsl";
+import spine2DVertex from "./files/Spine2DVertex.glsl";
+import spineStandardVS from "./files/SpineStandard.vs"
+import spineStandardFS from "./files/SpineStandard.fs"
+import spine3DVS from "./files/Spine3D.vs"
+import spine3DFS from "./files/Spine3D.fs"
+
 /**
  * @en SpineShaderInit class handles the initialization and management of Spine shader-related components.
  * @zh SpineShaderInit 类用于处理 Spine 着色器相关组件的初始化和管理。
@@ -143,6 +146,12 @@ export class SpineShaderInit {
     static SpineTexture: number;
 
     /**
+     * @en Property ID for render size (width, height).
+     * @zh 渲染尺寸的属性 ID (宽度, 高度)。
+     */
+    static SPINE_RENDER_SIZE: number;
+
+    /**
      * @en Shader define for fast Spine rendering.
      * @zh 快速 Spine 渲染的着色器定义。
      */
@@ -206,12 +215,16 @@ export class SpineShaderInit {
      * @zh 初始化 Spine 着色器相关组件。
      */
     static init() {
-        Shader3D.addInclude("SpineVertex.glsl", spineVertex);
         Shader3D.addInclude("SpineFragment.glsl", spineFragment);
+        Shader3D.addInclude("Spine3DVertex.glsl", spine3DVertex);
+        Shader3D.addInclude("Spine2DVertex.glsl", spine2DVertex);
+        Shader3D.addInclude("SpineVertexCommon.glsl", spineVertexCommon);
+        
         SpineShaderInit.BONEMAT = Shader3D.propertyNameToID("u_sBone");
         SpineShaderInit.BONEMAT_0 = Shader3D.propertyNameToID("u_sBone0");
         SpineShaderInit.BONEMAT_1 = Shader3D.propertyNameToID("u_sBone1");
         SpineShaderInit.SpineTexture = Shader3D.propertyNameToID("u_spineTexture");
+        SpineShaderInit.SPINE_RENDER_SIZE = Shader3D.propertyNameToID("u_spineRenderSize");
         SpineShaderInit.SPINE_FAST = Shader3D.getDefineByName("SPINE_FAST");
         SpineShaderInit.SPINE_RB = Shader3D.getDefineByName("SPINE_RB");
         SpineShaderInit.SPINE_UV = Shader3D.getDefineByName("UV");
@@ -238,8 +251,19 @@ export class SpineShaderInit {
         commandUniform.addShaderUniform(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS, "u_SimpleAnimatorParams", ShaderDataType.Vector4);
         commandUniform.addShaderUniform(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURE, "u_SimpleAnimatorTexture", ShaderDataType.Texture2D);
         commandUniform.addShaderUniform(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURESIZE, "u_SimpleAnimatorTextureSize", ShaderDataType.Float);
+        commandUniform.addShaderUniform(SpineShaderInit.SPINE_RENDER_SIZE, "u_spineRenderSize", ShaderDataType.Vector2);
 
         // commandUniform.addShaderUniform(SpineShaderInit.SpineTexture, "u_spineTexture", ShaderDataType.Texture2D);
+
+        // 为3D shader注册全局uniform map
+        const commandUniform3D = LayaGL.renderDeviceFactory.createGlobalUniformMap("Spine3D");
+        commandUniform3D.addShaderUniformArray(SpineShaderInit.BONEMAT, "u_sBone", ShaderDataType.Vector4, 200);
+        commandUniform3D.addShaderUniform(SpineShaderInit.BONEMAT_0, "u_sBone0", ShaderDataType.Vector3);
+        commandUniform3D.addShaderUniform(SpineShaderInit.BONEMAT_1, "u_sBone1", ShaderDataType.Vector3);
+        commandUniform3D.addShaderUniform(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS, "u_SimpleAnimatorParams", ShaderDataType.Vector4);
+        commandUniform3D.addShaderUniform(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURE, "u_SimpleAnimatorTexture", ShaderDataType.Texture2D);
+        commandUniform3D.addShaderUniform(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURESIZE, "u_SimpleAnimatorTextureSize", ShaderDataType.Float);
+        commandUniform3D.addShaderUniform(SpineShaderInit.SPINE_RENDER_SIZE, "u_spineRenderSize", ShaderDataType.Vector2);
 
         let shader = Shader3D.add("SpineStandard", true, false);
         shader.shaderType = ShaderFeatureType.D2_BaseRenderNode2D;
@@ -250,6 +274,15 @@ export class SpineShaderInit {
         shader.addSubShader(subShader);
         let shadingPass = subShader.addShaderPass(spineStandardVS, spineStandardFS);
 
+        // 注册Spine3D shader用于3D世界渲染
+        let shader3D = Shader3D.add("Spine3D", true, false);
+        shader3D.shaderType = ShaderFeatureType.D3;
+        let uniformMap3D = {
+            "u_spineTexture": ShaderDataType.Texture2D
+        }
+        let subShader3D = new SubShader(SpineShaderInit.textureSpineAttribute, uniformMap3D);
+        shader3D.addSubShader(subShader3D);
+        let shadingPass3D = subShader3D.addShaderPass(spine3DVS, spine3DFS);
 
         // SpineShaderInit.SpineFastVertexDeclaration = new VertexDeclaration(88, [
         //     new VertexElement(0, VertexElementFormat.Vector2, 0),
