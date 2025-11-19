@@ -1,17 +1,14 @@
 import { VBCreator } from "../buffer/VBCreator";
-import { SpineOptimizeRender } from "./SpineOptimizeRender";
+import { BaseOptimizeRender } from "./BaseOptimizeRender";
 import { MultiRenderData } from "../buffer/MultiRenderData";
 import { SkinAttach } from "./SkeletonOptimise";
 import { Material } from "../../../../resource/Material";
 import { Mesh2D } from "../../../../resource/Mesh2D";
-import { SpineTemplet } from "../../../SpineTemplet";
 import { SpineMeshUtils } from "../utils/SpineMeshUtils";
 import { IVBChange } from "../../interface/IWebSpine";
 import { SkinAniRenderData, FrameRenderData, AnimationRender } from "./AnimationRender";
 import { SpineConst } from "../../../SpineConst";
 import { VertexDeclaration } from "../../../../RenderEngine/VertexDeclaration";
-import { Texture2D } from "../../../../resource/Texture2D";
-import { SpineShaderInit } from "../../../shader/SpineShaderInit";
 
 /**
  * @en SpineRenderUpdater used for updating animation render data and skin rendering.
@@ -22,7 +19,7 @@ export class SpineRenderUpdater {
      * @en The owner of this SpineRenderUpdater.
      * @zh 此 SpineRenderUpdater 的所有者。
      */
-    owner: SpineOptimizeRender;
+    owner: BaseOptimizeRender;
 
     /**
      * @en The name of the animation.
@@ -90,11 +87,11 @@ export class SpineRenderUpdater {
 
     /**
      * @en Create a new instance of SpineRenderUpdater.
-     * @param owner The SpineOptimizeRender that owns this SpineRenderUpdater.
+     * @param owner The BaseOptimizeRender that owns this SpineRenderUpdater.
      * @zh 创建 SpineRenderUpdater 的新实例。
-     * @param owner 拥有此 SpineRenderUpdater 的 SpineOptimizeRender。
+     * @param owner 拥有此 SpineRenderUpdater 的 BaseOptimizeRender。
      */
-    constructor(owner: SpineOptimizeRender) {
+    constructor(owner: BaseOptimizeRender) {
         this.owner = owner;
         this.reset();
     }

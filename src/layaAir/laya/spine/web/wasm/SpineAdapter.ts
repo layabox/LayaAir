@@ -1,7 +1,4 @@
-import { Laya } from "../../../Laya";
-import { SpineSkeletonRenderer } from "./js/normal/SpineSkeletonRenderer";
-import { SpineTemplet } from "../SpineTemplet";
-import { SpineWasmRender } from "./js/normal/SpineWasmRender";
+import { SpineConst } from "../../SpineConst";
 
 /**
  * @en SpineAdapter is an adapter class for integrating the Spine animation system.
@@ -48,16 +45,6 @@ export class SpineAdapter {
             SpineAdapter.adaptJS();
             SpineAdapter.allAdpat();
         }
-    }
-
-    /**
-     * @en Create a normal render object for Spine animation.
-     * @param templet The Spine template.
-     * @zh 为 Spine 动画创建一个普通渲染对象。
-     * @param templet Spine 模板。
-     */
-    static createNormalRender(templet: SpineTemplet) {
-        return SpineAdapter.isWasm ? new SpineWasmRender(templet) : new SpineSkeletonRenderer(templet);
     }
 
     /**
@@ -174,7 +161,7 @@ export class SpineAdapter {
                 return result;
             }
 
-            if (SpineConfig.VERSION == "3.7") {
+            if (SpineConst.VERSION == "3.7") {
                 let bone_proto = ns.Bone.prototype
                 bone_proto.active = true;
             }
@@ -797,4 +784,3 @@ class TextureAtlas {
 
     }
 }
-Laya.addInitCallback(SpineAdapter.initialize);

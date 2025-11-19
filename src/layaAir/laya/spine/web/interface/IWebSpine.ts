@@ -9,6 +9,7 @@ import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/Shad
 import { IRenderGeometryElement } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { Material } from "../../../resource/Material";
 import { ISpineFactory } from "../../interface/ISpineFactory";
+import { BaseOptimizeRender } from "../base/optimize/BaseOptimizeRender";
 
 
 export interface IVBChange {
@@ -35,4 +36,20 @@ export interface INormalRenderUpdater {
 
 export interface IWebSpineFactory extends ISpineFactory{
     createNormalRenderUpdater(): INormalRenderUpdater;
+}
+
+export interface IRender {
+    bind( updater: SpineRenderUpdater, skeleton: spine.Skeleton): void;
+    change(): void;
+    leave(): void;
+    render(curTime: number, offsetX?: number, offsetY?: number): void;
+    afterRender?(optimizeRender: BaseOptimizeRender): void;
+    destroy():void;
+}
+
+export enum ERenderProxyType {
+    RenderNormal,
+    RenderRigidBody,
+    RenderOptimize,
+    RenderBake
 }

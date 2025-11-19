@@ -2,6 +2,7 @@ import { Color } from "../../maths/Color";
 import { Vector4 } from "../../maths/Vector4";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { ESpineRenderMode, ESpineRenderState, TSpineBakeData } from "../SpineConst";
+import { SpineTemplet } from "../SpineTemplet";
 
 /**
  * @zh 骨骼信息接口，用于封装骨骼数据，不直接暴露原生spine对象
@@ -57,9 +58,11 @@ export interface ISpineRender {
     
     /**
      * @zh 初始化渲染器
+     * @param templet Spine模板，可选参数，如果实现类在构造函数中已经获取了templet，可以不传
      * @en Initialize the renderer
+     * @param templet Spine template, optional parameter. If the implementation class already gets templet in constructor, it can be omitted
      */
-    init(): void;
+    init(templet: SpineTemplet): void;
     
     /**
      * @zh 播放动画

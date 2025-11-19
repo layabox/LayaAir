@@ -1,25 +1,14 @@
-
-import { SpineRenderUpdater } from "./SpineRenderUpdater";
-import { SpineOptimizeRender } from "./SpineOptimizeRender";
-import { BaseRender2DType } from "../../../../display/SpriteConst";
 import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
+import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineShaderInit } from "../../../shader/SpineShaderInit";
 import { SpineConst } from "../../../SpineConst";
-import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { IRenderStruct2D } from "../../../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 import { INormalRenderUpdater, IWebSpineFactory } from "../../interface/IWebSpine";
-
-export interface IRender {
-    bind( updater: SpineRenderUpdater, skeleton: spine.Skeleton): void;
-    change(): void;
-    leave(): void;
-    render(curTime: number, offsetX?: number, offsetY?: number): void;
-    afterRender?(optimizeRender: SpineOptimizeRender): void;
-    destroy():void;
-}
+import { IRender } from "../3d/SpineRendererTypes3D";
+import { BaseOptimizeRender } from "./BaseOptimizeRender";
+import { SpineRenderUpdater } from "./SpineRenderUpdater";
 
 /**
  * @en Base class for all Spine renderers.
@@ -28,8 +17,6 @@ export interface IRender {
 export abstract class SpineBaseRenderer implements IRender {
     /** @internal */
     protected _shaderData: ShaderData;
-    /** @internal */
-    protected _struct: IRenderStruct2D;
     /** @internal */
     protected _skeleton: spine.Skeleton;
     /**
@@ -51,13 +38,12 @@ export abstract class SpineBaseRenderer implements IRender {
     
     /**
      * @en Create a new instance of SpineBaseRenderer.
-     * @param renderNode The Spine2D render node.
+     * @param shaderData The shader data.
      * @zh 创建 SpineBaseRenderer 的新实例。
-     * @param renderNode Spine2D 渲染节点。
+     * @param shaderData 着色器数据。
      */
-    constructor(struct: IRenderStruct2D) {
-        this._struct = struct;
-        this._shaderData = struct.spriteShaderData;
+    constructor(shaderData:ShaderData) {
+        this._shaderData = shaderData
     }
 
     destroy() {
@@ -103,13 +89,12 @@ export abstract class SpineBaseRenderer implements IRender {
     /**
      * @en Called after render to update render elements if needed.
      * Subclasses can override this to handle render element updates.
-     * @param optimizeRender The SpineOptimizeRender instance.
+     * @param optimizeRender The BaseOptimizeRender instance.
      * @zh 渲染后调用，用于更新渲染元素（如果需要）。
      * 子类可以重写此方法以处理渲染元素更新。
-     * @param optimizeRender SpineOptimizeRender 实例。
+     * @param optimizeRender BaseOptimizeRender 实例。
      */
-    afterRender?(optimizeRender: SpineOptimizeRender): void {
-    }
+    abstract afterRender?(optimizeRender: BaseOptimizeRender): void;
 }
 
 /**
@@ -165,14 +150,131 @@ export class RigidBodySpineRenderer extends SpineBaseRenderer {
 
     /**
      * @en Called after render to update render elements.
-     * @param optimizeRender The SpineOptimizeRender instance.
+     * @param optimizeRender The BaseOptimizeRender instance.
      * @zh 渲染后调用，更新渲染元素。
-     * @param optimizeRender SpineOptimizeRender 实例。
+     * @param optimizeRender BaseOptimizeRender 实例。
      */
-    afterRender(optimizeRender: SpineOptimizeRender): void {
+    afterRender(optimizeRender: BaseOptimizeRender): void {
         if (this.updater.needUpdate) {
             optimizeRender._updateRenderElements(this.updater.getSubMeshes(), this.updater.currentMaterials);
             this.updater.needUpdate = false;
+        }
+    }
+}
+
+/**
+ * @en OptimizedSpineRenderer used for optimized rendering of Spine animations.
+ * @zh OptimizedSpineRenderer 类用于优化 Spine 动画的渲染。
+ */
+export class OptimizedSpineRenderer extends SpineBaseRenderer {
+
+    private _boneMat: Float32Array;
+
+    constructor(shaderData: ShaderData) {
+        super(shaderData);
+        this._boneMat = new Float32Array(SpineConst.MAX_BONES * 8);
+    }
+
+    /**
+     * @en Change the current render context.
+     * @param context The render context containing skin and animation updaters.
+     * @zh 更改当前渲染上下文。
+     * @param context 包含皮肤和动画更新器的渲染上下文。
+     */
+    change() {
+        this._shaderData.addDefine(SpineShaderInit.SPINE_FAST);
+        this.updater.needUpdate = true;
+    }
+
+    /**
+     * @en Called when leaving the current render state.
+     * @zh 离开当前渲染状态时调用。
+     */
+    leave(): void {
+        this._shaderData.removeDefine(SpineShaderInit.SPINE_FAST);
+    }
+
+    /**
+     * @en Render the current animation at a specific time.
+     * @param curTime The current time for rendering.
+     * @param offsetX X轴偏移。
+     * @param offsetY Y轴偏移。
+     * @zh 在特定时间渲染当前动画。
+     * @param curTime 渲染的当前时间。
+     * @param offsetX X轴偏移。
+     * @param offsetY Y轴偏移。
+     */
+    render(curTime: number , offsetX: number = 0, offsetY: number = 0) {
+        this.updater.renderWithMat(this.bones, this.slots, this.updater, curTime, this._boneMat, offsetX, offsetY);
+        this._shaderData.setBuffer(SpineShaderInit.BONEMAT, this._boneMat);
+    }
+
+    /**
+     * @en Called after render to update render elements.
+     * @param optimizeRender The BaseOptimizeRender instance.
+     * @zh 渲染后调用，更新渲染元素。
+     * @param optimizeRender BaseOptimizeRender 实例。
+     */
+    afterRender(optimizeRender: BaseOptimizeRender): void {
+        if (this.updater.needUpdate) {
+            optimizeRender._updateRenderElements(this.updater.getSubMeshes(), this.updater.currentMaterials);
+            this.updater.needUpdate = false;
+        }
+    }
+}
+
+/**
+ * @en StandardSpineRenderer used for standard rendering of Spine animations (optimize mode).
+ * @zh StandardSpineRenderer 类用于优化模式下的标准 Spine 动画渲染。
+ */
+export class StandardSpineRenderer extends SpineBaseRenderer {
+
+    normalUpdater: INormalRenderUpdater
+    /** @ignore @blueprintIgnore */
+    constructor(shaderData: ShaderData) {
+        super(shaderData);
+        this.normalUpdater = (SpineConst.factory as IWebSpineFactory).createNormalRenderUpdater();
+    }
+
+    /**
+     * @en Called when leaving the current render state.
+     * @zh 离开当前渲染状态时调用。
+     */
+    leave(): void {
+        this._shaderData.removeDefine(SpineShaderInit.SPINE_COLOR2);
+    }
+
+    /**
+     * @en Change the current render context.
+     * @param context The render context containing skin and animation updaters.
+     * @zh 更改当前渲染上下文。
+     * @param context 包含皮肤和动画更新器的渲染上下文。
+     */
+    change() {
+        this._shaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
+        this.normalUpdater.needUpdate = true;
+    }
+
+    /**
+     * @en Render the current animation at a specific time.
+     * @param curTime The current time for rendering.
+     * @zh 在特定时间渲染当前动画。
+     * @param curTime 渲染的当前时间。
+     */
+    render(curTime: number , offsetX: number = 0, offsetY: number = 0) {
+        this.normalUpdater.renderUpdate(this._skeleton, this.updater, -1, -1 , offsetX , offsetY);
+    }
+
+    /**
+     * @en Called after render to update render elements.
+     * @param optimizeRender The BaseOptimizeRender instance.
+     * @zh 渲染后调用，更新渲染元素。
+     * @param optimizeRender BaseOptimizeRender 实例。
+     */
+    afterRender(optimizeRender: BaseOptimizeRender): void {
+        if (this.normalUpdater.needUpdate) {
+            optimizeRender._updateRenderElements(this.normalUpdater.subMeshes, this.normalUpdater.materials);
+            this.normalUpdater.needUpdate = false;
         }
     }
 }
@@ -242,8 +344,7 @@ export class BakedSpineRenderer extends SpineBaseRenderer {
      */
     leave() {
         this._shaderData.removeDefine(SpineShaderInit.SPINE_SIMPLE);
-        //this._shaderData.removeDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
-        this._struct.renderType = BaseRender2DType.spine;
+        this._shaderData.removeDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
     }
 
     /**
@@ -255,11 +356,11 @@ export class BakedSpineRenderer extends SpineBaseRenderer {
     change() {
         this._shaderData.addDefine(SpineShaderInit.SPINE_SIMPLE);
         this._simpleAnimatorOffset.x = this.aniOffsetMap[this.updater.animationName];
-        if (this.updater.currentSKin && this.updater.currentSKin.canInstance) {
-            this._struct.renderType = BaseRender2DType.spineSimple;
-            // this._shaderData.addDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
-        }
         this.updater.needUpdate = true;
+        // if (this.updater.currentSKin && this.updater.currentSKin.canInstance) {
+            // this._struct.renderType = BaseRender2DType.spineSimple;
+            // this._shaderData.addDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
+        // }
     }
 
     /**
@@ -301,135 +402,12 @@ export class BakedSpineRenderer extends SpineBaseRenderer {
 
     /**
      * @en Called after render to update render elements.
-     * @param optimizeRender The SpineOptimizeRender instance.
+     * @param optimizeRender The BaseOptimizeRender instance.
      * @zh 渲染后调用，更新渲染元素。
-     * @param optimizeRender SpineOptimizeRender 实例。
+     * @param optimizeRender BaseOptimizeRender 实例。
      */
-    afterRender(optimizeRender: SpineOptimizeRender): void {
+    afterRender(optimizeRender: BaseOptimizeRender): void {
         // 从 updater 获取数据并更新
         optimizeRender._updateRenderElements(this.updater.getSubMeshes(), this.updater.currentMaterials);
-    }
-}
-
-
-/**
- * @en OptimizedSpineRenderer used for optimized rendering of Spine animations.
- * @zh OptimizedSpineRenderer 类用于优化 Spine 动画的渲染。
- */
-export class OptimizedSpineRenderer extends SpineBaseRenderer {
-
-    private _boneMat: Float32Array;
-
-    constructor(struct: IRenderStruct2D) {
-        super(struct);
-        this._boneMat = new Float32Array(SpineConst.MAX_BONES * 8);
-    }
-
-    /**
-     * @en Change the current render context.
-     * @param context The render context containing skin and animation updaters.
-     * @zh 更改当前渲染上下文。
-     * @param context 包含皮肤和动画更新器的渲染上下文。
-     */
-    change() {
-        this._shaderData.addDefine(SpineShaderInit.SPINE_FAST);
-        this.updater.needUpdate = true;
-    }
-
-    /**
-     * @en Called when leaving the current render state.
-     * @zh 离开当前渲染状态时调用。
-     */
-    leave(): void {
-        this._shaderData.removeDefine(SpineShaderInit.SPINE_FAST);
-    }
-
-    /**
-     * @en Render the current animation at a specific time.
-     * @param curTime The current time for rendering.
-     * @param offsetX X轴偏移。
-     * @param offsetY Y轴偏移。
-     * @zh 在特定时间渲染当前动画。
-     * @param curTime 渲染的当前时间。
-     * @param offsetX X轴偏移。
-     * @param offsetY Y轴偏移。
-     */
-    render(curTime: number , offsetX: number = 0, offsetY: number = 0) {
-        this.updater.renderWithMat(this.bones, this.slots, this.updater, curTime, this._boneMat, offsetX, offsetY);
-        this._shaderData.setBuffer(SpineShaderInit.BONEMAT, this._boneMat);
-    }
-
-    /**
-     * @en Called after render to update render elements.
-     * @param optimizeRender The SpineOptimizeRender instance.
-     * @zh 渲染后调用，更新渲染元素。
-     * @param optimizeRender SpineOptimizeRender 实例。
-     */
-    afterRender(optimizeRender: SpineOptimizeRender): void {
-        if (this.updater.needUpdate) {
-            optimizeRender._updateRenderElements(this.updater.getSubMeshes(), this.updater.currentMaterials);
-            this.updater.needUpdate = false;
-        }
-    }
-}
-
-/**
- * @en StandardSpineRenderer used for standard rendering of Spine animations (optimize mode).
- * @zh StandardSpineRenderer 类用于优化模式下的标准 Spine 动画渲染。
- */
-export class StandardSpineRenderer extends SpineBaseRenderer {
-
-    normalUpdater: INormalRenderUpdater
-    /**
-     * @en Create a new instance of StandardSpineRenderer.
-     * @param struct The render struct.
-     * @zh 创建 StandardSpineRenderer 的一个新实例。
-     * @param struct 渲染结构。
-     */
-    constructor(struct: IRenderStruct2D) {
-        super(struct);
-        this.normalUpdater = (SpineConst.factory as IWebSpineFactory).createNormalRenderUpdater();
-    }
-
-    /**
-     * @en Called when leaving the current render state.
-     * @zh 离开当前渲染状态时调用。
-     */
-    leave(): void {
-        this._shaderData.removeDefine(SpineShaderInit.SPINE_COLOR2);
-    }
-
-    /**
-     * @en Change the current render context.
-     * @param context The render context containing skin and animation updaters.
-     * @zh 更改当前渲染上下文。
-     * @param context 包含皮肤和动画更新器的渲染上下文。
-     */
-    change() {
-        this._shaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
-        this.normalUpdater.needUpdate = true;
-    }
-
-    /**
-     * @en Render the current animation at a specific time.
-     * @param curTime The current time for rendering.
-     * @zh 在特定时间渲染当前动画。
-     * @param curTime 渲染的当前时间。
-     */
-    render(curTime: number , offsetX: number = 0, offsetY: number = 0) {
-        this.normalUpdater.renderUpdate(this._skeleton, this.updater, -1, -1 , offsetX , offsetY);
-    }
-
-    /**
-     * @en Called after render to update render elements.
-     * @param optimizeRender The SpineOptimizeRender instance.
-     * @zh 渲染后调用，更新渲染元素。
-     * @param optimizeRender SpineOptimizeRender 实例。
-     */
-    afterRender(optimizeRender: SpineOptimizeRender): void {
-        if (this.normalUpdater.needUpdate) {
-            optimizeRender._updateRenderElements(this.normalUpdater.subMeshes, this.normalUpdater.materials);
-            this.normalUpdater.needUpdate = false;
-        }
     }
 }

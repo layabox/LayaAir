@@ -1,26 +1,20 @@
 import { Color } from "../../../../maths/Color";
-import { ISpineRenderDataHandle } from "../../../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { VertexDeclaration } from "../../../../RenderEngine/VertexDeclaration";
 import { Mesh2D } from "../../../../resource/Mesh2D";
 import { ISpineRender, IBoneInfo, ISlotInfo, ITrackEntry } from "../../../interface/ISpineRender";
-import { Spine2DRenderNode } from "../../../Spine2DRenderNode";
 import { ESpineRenderMode, ESpineRenderState, SpineConst, TSpineBakeData } from "../../../SpineConst";
 import { ESpineRenderType } from "../../../SpineSkeleton";
 import { SpineMeshUtils } from "../utils/SpineMeshUtils";
 import { SkeletonOptimise, SkinAttach } from "./SkeletonOptimise";
 import { SpineRenderUpdater } from "./SpineRenderUpdater";
-import { IRender, BakedSpineRenderer, OptimizedSpineRenderer, StandardSpineRenderer, RigidBodySpineRenderer } from "./SpineRendererTypes";
 import { AnimationRender } from "./AnimationRender";
 import { Vector4 } from "../../../../maths/Vector4";
 import { SpineTemplet } from "../../../SpineTemplet";
-import { LayaGL } from "../../../../layagl/LayaGL";
-import { IRenderElement2D } from "../../../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
-import { IRenderGeometryElement } from "../../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { Material } from "../../../../resource/Material";
-import { IRenderStruct2D } from "../../../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
-import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { SpineShaderInit } from "../../../shader/SpineShaderInit";
 import { Texture2D } from "../../../../resource/Texture2D";
+import { IRenderGeometryElement } from "../../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
+import { IRender } from "../../interface/IWebSpine";
+import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 enum ERenderProxyType {
     RenderNormal,
@@ -30,46 +24,13 @@ enum ERenderProxyType {
 }
 
 /**
- * @en SpineOptimizeRender used for optimized rendering of Spine animations.
- * @zh SpineOptimizeRender 类用于优化 Spine 动画的渲染。
+ * @en Base class for Spine optimize render, supporting both 2D and 3D rendering.
+ * @zh Spine优化渲染基类,支持2D和3D渲染。
  */
-export class SpineOptimizeRender implements ISpineRender {
-
-    /** @ignore @blueprintIgnore */
-    static _pool: IRenderElement2D[] = [];
-
-    /** @ignore @blueprintIgnore */
-    static createRenderElement2D() {
-        let element: IRenderElement2D;
-        if (this._pool.length > 0) {
-            element = this._pool.pop();
-        } else {
-            element = LayaGL.render2DRenderPassFactory.createRenderElement2D();
-        }
-        element.renderStateIsBySprite = false;
-        element.nodeCommonMap = ["BaseRender2D", "Spine2D"];
-        return element;
-    }
-
-    /** @ignore @blueprintIgnore */
-    static recoverRenderElement2D(value: IRenderElement2D) {
-        if (!(value as any).canotPool) {
-            value.materialShaderData = null;
-            value.geometry = null;
-            value.subShader = null;
-            value.owner = null;
-            this._pool.push(value);
-        }
-    }
-    
-    /**
-     * @en Current SpineRenderUpdater being used.
-     * @zh 当前使用的 SpineRenderUpdater。
-     */
-    updater: SpineRenderUpdater;
+export abstract class BaseOptimizeRender implements ISpineRender {
 
     /** @internal */
-    private _renderElements: IRenderElement2D[] = [];
+    updater: SpineRenderUpdater;
 
     /** @internal */
     _skinIndex: number = 0;
@@ -94,9 +55,9 @@ export class SpineOptimizeRender implements ISpineRender {
     protected _stateData: spine.AnimationStateData;
 
     /** @internal */
-    private _skinAttach: SkinAttach = null;
+    protected _skinAttach: SkinAttach = null;
     /** @internal */
-    private _currentAnimator: AnimationRender = null;
+    protected _currentAnimator: AnimationRender = null;
     /**
      * @en Current render proxy.
      * @zh 当前渲染代理。
@@ -108,8 +69,6 @@ export class SpineOptimizeRender implements ISpineRender {
      */
     renderProxyMap: Map<ERenderProxyType, IRender>;
 
-    /** @internal */
-    _owner: Spine2DRenderNode;
     /** @internal */
     _templet: SpineTemplet;
 
@@ -146,18 +105,78 @@ export class SpineOptimizeRender implements ISpineRender {
 
     currentTime: number = 0;
 
-    private _handle: ISpineRenderDataHandle;
- 
     trackEntry: spine.TrackEntry = null;
 
+    /**
+     * @en Whether this is for 3D rendering.
+     * @zh 是否用于3D渲染。
+     */
+    protected abstract readonly is3D: boolean;
+
     /** @ignore */
-    constructor(owner: Spine2DRenderNode) {
-        this._owner = owner;
+    constructor() {
         this.spineColor = new Color();
-        this._handle = this._owner._getRenderHandle() as ISpineRenderDataHandle;
-        this._handle.baseColor = this.spineColor;
         this.updater = new SpineRenderUpdater(this);
     }
+
+    /**
+     * @en Initialize the renderer.
+     * @param templet The Spine template. Optional, subclasses can get it from owner if not provided.
+     * @zh 初始化渲染器。
+     * @param templet Spine 模板。可选，子类可以从owner获取如果未提供。
+     */
+    init(templet: SpineTemplet): void { 
+        this._templet = templet;
+        let optimize = this._optimize = this._templet.optimize as any;
+        this._skeleton = new spine.Skeleton(optimize.data);
+        this._stateData = new spine.AnimationStateData(optimize.data);
+        this._state = new spine.AnimationState(this._stateData);
+
+        let scolor = this._skeleton.color;
+        this.spineColor.setValue(scolor.r, scolor.g, scolor.b, scolor.a);
+        
+        this._skinAttach = this._optimize.skinAttachArray[this._skinIndex];
+        this.updater.skinAttach = this._skinAttach;
+
+        this.initRenderProxies();
+        this._updateSkinShaderDefines();
+    }
+
+    /**
+     * @en Update render elements from subMeshes and materials.
+     * @param subMeshes Array of sub meshes.
+     * @param materials Array of materials.
+     * @zh 根据子网格和材质数组更新渲染元素。
+     * @param subMeshes 子网格数组。
+     * @param materials 材质数组。
+     */
+    abstract _updateRenderElements(subMeshes: IRenderGeometryElement[], materials: Material[]): void;
+
+    /**
+     * @en Clear all render elements.
+     * @zh 清除所有渲染元素。
+     */
+    abstract _clearRenderElements(): void;
+
+    /**
+     * @en Get material by name and blend mode.
+     * @param name Texture name.
+     * @param blendMode Blend mode.
+     * @zh 通过名称和混合模式获取材质。
+     * @param name 纹理名称。
+     * @param blendMode 混合模式。
+     */
+    abstract _getMaterialByName(name: string, blendMode: number): Material;
+    
+    /**
+     * @en Get material by texture and blend mode.
+     * @param texture Texture.
+     * @param blendMode Blend mode.
+     * @zh 通过纹理和混合模式获取材质。
+     * @param texture 纹理。
+     * @param blendMode 混合模式。
+     */
+    abstract _getMaterial(texture: Texture2D, blendMode: number): Material;
 
     getSkeleton(): spine.Skeleton {
         return this._skeleton;
@@ -186,7 +205,6 @@ export class SpineOptimizeRender implements ISpineRender {
      * @param time 要渲染动画的时间。
      */
     render(time: number, physicsUpdate: number): void {
-
         this._skeleton.update && this._skeleton.update(time);
         this._skeleton.updateWorldTransform(physicsUpdate);
 
@@ -201,162 +219,26 @@ export class SpineOptimizeRender implements ISpineRender {
         }
     }
 
-    /**
-     * @en Update render elements from subMeshes and materials.
-     * This method is called from renderProxy.afterRender().
-     * @param subMeshes Array of sub meshes.
-     * @param materials Array of materials.
-     * @zh 根据子网格和材质数组更新渲染元素。
-     * 此方法由 renderProxy.afterRender() 调用。
-     * @param subMeshes 子网格数组。
-     * @param materials 材质数组。
-     */
-    _updateRenderElements(subMeshes: IRenderGeometryElement[], materials: Material[]): void {
-        if (!this._owner || !this._owner._struct) {
-            return;
-        }
-
-        const struct = this._owner._struct;
-        const shaderData = this._owner._spriteShaderData;
-
-        this._updateRenderElementsFromData(
-            struct,
-            shaderData,
-            subMeshes,
-            materials
-        );
-    }
-
-    /**
-     * @en Update render elements from subMeshes and materials arrays.
-     * Updates internal _renderElements first, then syncs to struct.renderElements.
-     * @param struct The render struct to set renderElements.
-     * @param shaderData The shader data for render elements.
-     * @param subMeshes Array of sub meshes.
-     * @param materials Array of materials.
-     * @param getCommonUniformMap Function to get common uniform map.
-     * @zh 根据子网格和材质数组更新渲染元素。
-     * 先更新内部的 _renderElements，然后同步到 struct.renderElements。
-     * @param struct 要设置 renderElements 的渲染结构。
-     * @param shaderData 渲染元素的着色器数据。
-     * @param subMeshes 子网格数组。
-     * @param materials 材质数组。
-     * @param getCommonUniformMap 获取通用 uniform map 的函数。
-     */
-    private _updateRenderElementsFromData(
-        struct: IRenderStruct2D,
-        shaderData: ShaderData,
-        subMeshes: IRenderGeometryElement[],
-        materials: Material[]
-    ): void {
-        if (!subMeshes || !materials || subMeshes.length === 0 || materials.length === 0) {
-            // 清理所有元素
-            this._clearRenderElements();
-            struct.renderElements = [];
-            return;
-        }
-
-        const subMeshCount = subMeshes.length;
-        const materialCount = materials.length;
-        const targetCount = Math.max(subMeshCount, materialCount);
-
-        let need = false;
-        
-        // 更新或创建 RenderElements
-        for (let i = 0; i < targetCount; i++) {
-            let element = this._renderElements[i];
-            const subMesh = subMeshes[i];
-            const material = materials[i];
-
-            if (subMesh && material) {
-                // 检查是否需要更新 element
-                let needUpdate = false;
-                if (!element) {
-                    // 需要创建新的 element
-                    element = SpineOptimizeRender.createRenderElement2D();
-                    this._renderElements[i] = element;
-                    needUpdate = true;
-                } else {
-                    // 对比检查是否需要更新现有 element
-                    if (element.geometry !== subMesh || 
-                        element.materialShaderData !== material.shaderData ||
-                        element.value2DShaderData !== shaderData ||
-                        element.owner !== struct
-                    ) {
-                        needUpdate = true;
-                    }
-                }
-
-                if (needUpdate) {
-                    element.geometry = subMesh;
-                    element.materialShaderData = material.shaderData;
-                    element.subShader = material._shader.getSubShaderAt(0);
-                    element.value2DShaderData = shaderData;
-                    element.owner = struct;
-                    need = true;
-                }
-            } else {
-                // 清理不需要的 element
-                if (element) {
-                    SpineOptimizeRender.recoverRenderElement2D(element);
-                }
-            }
-        }
-
-        this._renderElements.length = subMeshCount;
-
-        if (need) {
-            struct.renderElements = this._renderElements;
-        }
-    }
-
-    /**
-     * @en Clear all render elements.
-     * @zh 清除所有渲染元素。
-     */
-    private _clearRenderElements(): void {
-        for (let i = 0, len = this._renderElements.length; i < len; i++) {
-            const element = this._renderElements[i];
-            if (element) {
-                SpineOptimizeRender.recoverRenderElement2D(element);
-            }
-        }
-        this._renderElements.length = 0;
-        
-        if (this._owner && this._owner._struct) {
-            this._owner._struct.renderElements = [];
-        }
-    }
-
     getSpineColor(): Color {
         return this.spineColor;
     }
 
-    init(): void {
-        let templet = this._owner.templet;
-        this._templet = templet;
-        let optimize = this._optimize = templet.optimize as SkeletonOptimise;
-        let skeleton = this._skeleton = new spine.Skeleton(optimize.data);
-        this._stateData = new spine.AnimationStateData(optimize.data);
-
-        this._state = new spine.AnimationState(this._stateData);
-
-        let scolor = this._skeleton.color;
-        this.spineColor.setValue(scolor.r, scolor.g, scolor.b, scolor.a);
-        this._handle.skeleton = this._skeleton;
+    /**
+     * @en Initialize render proxies.
+     * @zh 初始化渲染代理。
+     */
+    protected initRenderProxies(): void {
+        if (!this._templet || !this._optimize) {
+            return;
+        }
         
         this.renderProxyMap = new Map();
-        this._dynamicMap = new Map;
+        this._dynamicMap = new Map();
         this.updater.clear();
 
-        let struct = this._owner._struct;
-        let renderOptimize = new OptimizedSpineRenderer(struct);
-        let renderNormal = new StandardSpineRenderer(struct);
-        let renderRigidBody = new RigidBodySpineRenderer(struct);
-        this.renderProxyMap.set(ERenderProxyType.RenderNormal, renderNormal);
-        this.renderProxyMap.set(ERenderProxyType.RenderOptimize, renderOptimize);
-        this.renderProxyMap.set(ERenderProxyType.RenderRigidBody, renderRigidBody);
-        
+        // 子类需要实现创建renderProxy的逻辑
+        this._createRenderProxies();
+
         // 初始化所有renderer的skeleton
         this.renderProxyMap.forEach(render => {
             render.bind(this.updater, this._skeleton);
@@ -364,17 +246,17 @@ export class SpineOptimizeRender implements ISpineRender {
 
         this._skinAttach = this._optimize.skinAttachArray[this._skinIndex];
         this.updater.skinAttach = this._skinAttach;
-
-        if (this._skinAttach.twoColorTint) {
-            struct.spriteShaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
-        } else {
-            struct.spriteShaderData.removeDefine(SpineShaderInit.SPINE_COLOR2);
-        }
     }
 
     /**
-     * @en Destroy the SpineOptimizeRender instance.
-     * @zh 销毁 SpineOptimizeRender 实例。
+     * @en Create render proxies. Subclasses should implement this.
+     * @zh 创建渲染代理。子类应该实现此方法。
+     */
+    protected abstract _createRenderProxies(): void;
+
+    /**
+     * @en Destroy the BaseOptimizeRender instance.
+     * @zh 销毁 BaseOptimizeRender 实例。
      */
     destroy(): void {
         this.reset();
@@ -397,11 +279,16 @@ export class SpineOptimizeRender implements ISpineRender {
     initBake(obj: TSpineBakeData): void {
         this.bakeData = obj;
         if (obj) {
-            let render = this.renderProxyMap.get(ERenderProxyType.RenderBake) as BakedSpineRenderer || new BakedSpineRenderer(this._owner._struct);
-            render.simpleAnimatorTexture = obj.texture2d;
-            render._bonesNums = obj.bonesNums;
-            render.aniOffsetMap = obj.aniOffsetMap;
-            this.renderProxyMap.set(ERenderProxyType.RenderBake, render);
+            let render = this.renderProxyMap.get(ERenderProxyType.RenderBake);
+            if (!render) {
+                render = this._createBakedRenderer();
+                this.renderProxyMap.set(ERenderProxyType.RenderBake, render);
+            }
+            if (render) {
+                (render as any).simpleAnimatorTexture = obj.texture2d;
+                (render as any)._bonesNums = obj.bonesNums;
+                (render as any).aniOffsetMap = obj.aniOffsetMap;
+            }
         }
         this.mode = ESpineRenderMode.Bake;
 
@@ -410,6 +297,12 @@ export class SpineOptimizeRender implements ISpineRender {
             this.play(this._curAnimationName);
         }
     }
+
+    /**
+     * @en Create baked renderer. Subclasses should implement this.
+     * @zh 创建烘焙渲染器。子类应该实现此方法。
+     */
+    protected abstract _createBakedRenderer(): IRender;
 
     /**
      * @en Change the current skeleton.
@@ -466,11 +359,7 @@ export class SpineOptimizeRender implements ISpineRender {
         this._skinAttach = this._optimize.skinAttachArray[index];
         this.updater.skinAttach = this._skinAttach;
 
-        if (this._skinAttach.twoColorTint) {
-            this._owner._spriteShaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
-        } else {
-            this._owner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_COLOR2);
-        }
+        this._updateSkinShaderDefines();
         
         if (this._currentAnimator) {
             this._clearRenderElements();
@@ -478,15 +367,11 @@ export class SpineOptimizeRender implements ISpineRender {
         }
     }
 
-    /** @internal */
-    _getMaterialByName(name: string, blendMode: number): Material {
-        return this._templet.getMaterial(this._templet.getTexture(name), blendMode);
-    }
-    
-    /** @internal */
-    _getMaterial(texture: Texture2D, blendMode: number): Material {
-        return this._templet.getMaterial(texture, blendMode);
-    }
+    /**
+     * @en Update shader defines based on skin. Subclasses should implement this.
+     * @zh 根据皮肤更新着色器定义。子类应该实现此方法。
+     */
+    protected abstract _updateSkinShaderDefines(): void;
 
     /**
      * 获取对应类型的 Dynamic mesh
@@ -530,7 +415,6 @@ export class SpineOptimizeRender implements ISpineRender {
             this._state.clearListeners();
         }
         this._state = null;
-        this._templet = null;
         this._stateData = null;
         this._clearRenderElements();
     }
@@ -598,6 +482,7 @@ export class SpineOptimizeRender implements ISpineRender {
         if (this.renderProxy && currentAnimator) {
             this.renderProxy.change();
             this.updater.animator = currentAnimator;
+            this._currentAnimator = currentAnimator;
             const isBakeMode = this.mode === ESpineRenderMode.Bake;
             if ((this._optimize.canCache || isBakeMode) && !skinAttach.isNormalRender) {
                 this.beginCache();
@@ -639,7 +524,7 @@ export class SpineOptimizeRender implements ISpineRender {
     }
     
     physicsTranslate(x: number, y: number): void {
-        if (this._skeleton && this._owner.templet.hasPhysics) {
+        if (this._skeleton && this._templet.hasPhysics) {
             this._skeleton.physicsTranslate(x, y);
         }
     }
@@ -648,27 +533,25 @@ export class SpineOptimizeRender implements ISpineRender {
         if (!this._skeleton) return [];
         return this._skeleton.bones;
     }
-    
 
     getSkeletonTransform(): Vector4{
-        if (!this._skeleton || !this._owner.templet) {
+        if (!this._skeleton || !this._templet) {
             return this._transform;
         }
 
         this._transform.x = this._skeleton.x;
         this._transform.y = this._skeleton.y;
-        this._transform.z = this._owner.templet.offsetX;
-        this._transform.w = this._owner.templet.offsetY;
+        this._transform.z = this._templet.offsetX;
+        this._transform.w = this._templet.offsetY;
         return this._transform;
     }
     
     resetExternalSkin(): void {
-        if (!this._skeleton || !this._owner.templet) return;
-        let optimize = this._owner.templet.optimize as any;
+        if (!this._skeleton || !this._templet) return;
+        let optimize = this._templet.optimize as any;
         if (optimize && optimize.data) {
             let newSkeleton = new spine.Skeleton(optimize.data);
             this.changeSkeleton(newSkeleton);
-            this._handle.skeleton = newSkeleton;
         }
     }
     
@@ -694,4 +577,3 @@ export class SpineOptimizeRender implements ISpineRender {
     }
     
 }
-

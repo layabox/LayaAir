@@ -4,7 +4,6 @@ import { SpineShaderInit } from "./shader/SpineShaderInit";
 import { Texture2D } from "../resource/Texture2D";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { ISkeletonOptimise, ISpineTempletParser } from "./interface/ISpineParse";
-import { SpineTexture } from "./SpineTexture";
 
 /**
  * @en Base class for Spine animation template
@@ -71,21 +70,23 @@ export class SpineTemplet extends Resource {
      * @en Get or create a material for the given texture and blend mode
      * @param texture The texture to use
      * @param blendMode The blend mode to use
+     * @param is3D Whether this is for 3D rendering (default: false for 2D)
      * @zh 获取或创建给定纹理和混合模式的材质
      * @param texture 要使用的纹理
      * @param blendMode 要使用的混合模式
+     * @param is3D 是否用于3D渲染 (默认: false 表示2D)
      */
-    getMaterial(texture: Texture2D, blendMode: number , premultipliedAlpha: boolean): Material {
+    getMaterial(texture: Texture2D, blendMode: number, is3D: boolean = false): Material {
         if (!texture) {
             console.error("SpineError:cant Find Main Texture");
             texture = Texture2D.whiteTexture;
         }
 
-        let key = texture.id + "_" + blendMode;
+        let key = texture.id + "_" + blendMode + "_" + (is3D ? "3D" : "2D");
         let mat = this.materialMap.get(key);
         if (!mat) {
             mat = new Material();
-            mat.setShaderName("SpineStandard");
+            mat.setShaderName(is3D ? "Spine3D" : "SpineStandard");
             SpineShaderInit.initSpineMaterial(mat);
             mat.setTextureByIndex(SpineShaderInit.SpineTexture, texture);
 
@@ -95,9 +96,9 @@ export class SpineTemplet extends Resource {
                 mat.removeDefine(ShaderDefines2D.GAMMATEXTURE);
             }
 
-            SpineShaderInit.SetSpineBlendMode(blendMode, mat, premultipliedAlpha);
+            SpineShaderInit.SetSpineBlendMode(blendMode, mat, this._premultipliedAlpha);
 
-            if (premultipliedAlpha) {
+            if (this._premultipliedAlpha) {
                 mat.addDefine(SpineShaderInit.SPINE_PREMULTIPLYALPHA);
             } else {
                 mat.removeDefine(SpineShaderInit.SPINE_PREMULTIPLYALPHA);
@@ -105,10 +106,6 @@ export class SpineTemplet extends Resource {
             mat._addReference();
             this.materialMap.set(key, mat);
         }
-        else if (blendMode == 0) {// Normal
-            SpineShaderInit.SetSpineBlendMode(blendMode, mat, premultipliedAlpha);
-        }
-
         return mat;
     }
 
@@ -126,83 +123,6 @@ export class SpineTemplet extends Resource {
         this._textures[name] = tex;
     }
 
-    private _registTextures: Record<string, spine.TextureAtlasPage> = {};
-
-    /**
-     * @zh 注册纹理，将 Texture 对象与 Spine 的 TextureRegion 和 AtlasPage 建立对应关系
-     * @param texture Texture 对象，对应 TextureRegion
-     * @en Register texture, establish correspondence between Texture object and Spine's TextureRegion and AtlasPage
-     * @param texture Texture object, corresponding to TextureRegion
-     */
-    registerTexture(texture: any) :spine.TextureAtlasRegion {
-        if (!texture) return null;
-
-        let tex2d = texture.bitmap as Texture2D;
-        if (!tex2d) return null;
-
-        let bitmapUrl = tex2d.url;
-        let spineTexture = new SpineTexture(tex2d);
-
-        let page = this._registTextures[bitmapUrl];
-        if (!page) {
-            let urlFileName = bitmapUrl ? bitmapUrl.split('/').pop().split('\\').pop() : null;
-            // 如果没找到，创建一个新的 page
-            if (!page) {
-                page = new spine.TextureAtlasPage(urlFileName || bitmapUrl || "texture");
-            }
-            page.name = urlFileName;
-            
-            //@ts-ignore
-            page.texture = spineTexture;
-            page.width = tex2d.width;
-            page.height = tex2d.height;
-            
-            this._registTextures[bitmapUrl] = page;
-            
-            let pageName = page.name;
-            if (pageName) {
-                this.setTexture(pageName, tex2d);
-            }
-        }
-
-        let textureName = texture.name;
-        if (!textureName){
-            let textureURL = texture.url;
-            textureName = textureURL.split('/').pop().split('\\').pop();
-        }
-
-        let region: spine.TextureAtlasRegion = null;
-        
-        if (!region) {
-            region = new spine.TextureAtlasRegion(page, textureName);
-            region.page = page;
-            region.name = textureName;
-        }
-        
-        region.width = texture.width;
-        region.height = texture.height;
-        region.originalWidth = texture.sourceWidth ;
-        region.originalHeight = texture.sourceHeight ;
-        region.offsetX = texture.offsetX;
-        region.offsetY = texture.offsetY;
-        
-        if (texture.uv && texture.uv.length >= 8) {
-            region.u = texture.uv[0];
-            region.v = texture.uv[1];
-            region.u2 = texture.uv[4];
-            region.v2 = texture.uv[5];
-        } else {
-            // 默认使用完整纹理
-            region.u = 0;
-            region.v = 0;
-            region.u2 = 1.0;
-            region.v2 = 1.0;
-        }
-        
-        region.texture = spineTexture;
-
-        return region;
-    }
     /**
      * @en Get the animation name by its index
      * @param index The index of the animation
