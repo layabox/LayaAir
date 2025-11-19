@@ -9,17 +9,25 @@
 
 #include "Spine3DVertex.glsl";
 
+#ifdef SPINE_BILLBOARD
+uniform mat4 u_spineBillboardMatrix;
+#endif
+
 varying vec2 v_texcoord;
 varying vec4 v_color;
 varying vec4 v_color2;
 
 mat4 getWorldMatrix(){
-    #ifdef GPU_INSTANCE
-    mat4 worldMat = a_WorldMat;
+    #ifdef SPINE_BILLBOARD
+        return u_spineBillboardMatrix;
     #else
-    mat4 worldMat = u_WorldMat;
-    #endif // GPU_INSTANCE
-    return worldMat;
+        #ifdef GPU_INSTANCE
+        mat4 worldMat = a_WorldMat;
+        #else
+        mat4 worldMat = u_WorldMat;
+        #endif // GPU_INSTANCE
+        return worldMat;
+    #endif
 }
 
 void main()
@@ -47,7 +55,7 @@ void main()
     vec3 positionWS = pos.xyz / pos.w;
     
     gl_Position = getPositionCS(positionWS);
-    
+
     gl_Position = remapPositionZ(gl_Position);
 
     #ifdef FOG

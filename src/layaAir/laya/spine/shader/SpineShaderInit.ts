@@ -182,6 +182,18 @@ export class SpineShaderInit {
     static SPINE_PREMULTIPLYALPHA: ShaderDefine;
 
     /**
+     * @en Shader define for Spine billboard rendering (always face camera).
+     * @zh Spine 广告牌渲染的着色器定义（始终面向相机）。
+     */
+    static SPINE_BILLBOARD: ShaderDefine;
+
+    /**
+     * @en Property ID for Spine billboard world matrix.
+     * @zh Spine 广告牌世界矩阵的属性 ID。
+     */
+    static SPINE_BILLBOARD_MATRIX: number;
+
+    /**
      * @en TextureSV Mesh Descript.
      * @zh 纹理 Spine 顶点属性描述。
      */
@@ -239,6 +251,8 @@ export class SpineShaderInit {
         SpineShaderInit.SPINE_GPU_INSTANCE = Shader3D.getDefineByName("GPU_INSTANCE");
         SpineShaderInit.SPINE_TWOCOLORTINT = Shader3D.getDefineByName("TWOCOLORTINT");
         SpineShaderInit.SPINE_COLOR2 = Shader3D.getDefineByName("COLOR2");
+        SpineShaderInit.SPINE_BILLBOARD = Shader3D.getDefineByName("SPINE_BILLBOARD");
+        SpineShaderInit.SPINE_BILLBOARD_MATRIX = Shader3D.propertyNameToID("u_spineBillboardMatrix");
 
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Spine2D");
         commandUniform.addShaderUniformArray(SpineShaderInit.BONEMAT, "u_sBone", ShaderDataType.Vector4, 200);
@@ -264,6 +278,7 @@ export class SpineShaderInit {
         commandUniform3D.addShaderUniform(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURE, "u_SimpleAnimatorTexture", ShaderDataType.Texture2D);
         commandUniform3D.addShaderUniform(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURESIZE, "u_SimpleAnimatorTextureSize", ShaderDataType.Float);
         commandUniform3D.addShaderUniform(SpineShaderInit.SPINE_RENDER_SIZE, "u_spineRenderSize", ShaderDataType.Vector2);
+        commandUniform3D.addShaderUniform(SpineShaderInit.SPINE_BILLBOARD_MATRIX, "u_spineBillboardMatrix", ShaderDataType.Matrix4x4);
 
         let shader = Shader3D.add("SpineStandard", true, false);
         shader.shaderType = ShaderFeatureType.D2_BaseRenderNode2D;
