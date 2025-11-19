@@ -92,6 +92,11 @@ export class MgBrowserAdapter extends BrowserAdapter {
         if (Browser.onHWMiniGame) {
             this._pixelRatio = 1;
         }
+        else {
+            //常见于小游戏在PC真机跑，低dpr会导致画面模糊，强制取2
+            if (this._pixelRatio === 1 && Browser.onPC && !Browser.onDevTools)
+                this._pixelRatio = 2;
+        }
 
         PAL.g.onShow(() => {
             this._visible = true;
