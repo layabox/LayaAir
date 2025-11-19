@@ -20,12 +20,16 @@ import { IBaseRenderNode } from "../RenderDriver/RenderModuleData/Design/3D/I3DR
 import { Laya3DRender } from "../d3/RenderObjs/Laya3DRender";
 import { Stat } from "../utils/Stat";
 import { LayaGL } from "../layagl/LayaGL";
+import { Matrix4x4 } from "../maths/Matrix4x4";
+import { Vector4 } from "../maths/Vector4";
 
 /**
  * @zh Spine动画3D渲染节点。
  * @en Spine animation 3D render node.
  */
 export class Spine3DRenderNode extends BaseRender {
+    private static _tempCameraUp: Vector3 = new Vector3();
+    private static _tempCameraForward: Vector3 = new Vector3();
 
     protected _spineRender: ISpineRender;
     
@@ -53,10 +57,20 @@ export class Spine3DRenderNode extends BaseRender {
     private _useFastRender: boolean = true;
 
     /** 
+     * @zh 是否启用面向相机渲染（Billboard）
+     * @en Whether to enable billboard rendering (always face camera)
+     */
+    private _billboard: boolean = false;
+
+    /** 
      * @zh 渲染尺寸 (宽度, 高度)
      * @en Render size (width, height)
      */
     private _renderSize: Vector2 = new Vector2(0, 0);
+    private _billboardMatrix: Matrix4x4 = new Matrix4x4();
+    
+    private _cacheMoved: Vector2 = new Vector2(-1, -1);
+    private _worldParams: Vector4 = new Vector4();
 
     get renderSize(): Vector2 {
         return this._renderSize;
@@ -65,6 +79,25 @@ export class Spine3DRenderNode extends BaseRender {
     set renderSize(value: Vector2) {
         value.cloneTo(this._renderSize);
         this._baseRenderNode.shaderData.setVector2(SpineShaderInit.SPINE_RENDER_SIZE, this._renderSize);
+    }
+
+    /**
+     * @zh 是否启用面向相机渲染（Billboard）。启用后，Spine动画将始终面向相机。
+     * @en Whether to enable billboard rendering. When enabled, the Spine animation will always face the camera.
+     */
+    get billboard(): boolean {
+        return this._billboard;
+    }
+
+    set billboard(value: boolean) {
+        if (this._billboard === value)
+            return;
+        this._billboard = value;
+        if (this._billboard) {
+            this._baseRenderNode.shaderData.addDefine(SpineShaderInit.SPINE_BILLBOARD);
+        } else {
+            this._baseRenderNode.shaderData.removeDefine(SpineShaderInit.SPINE_BILLBOARD);
+        }
     }
 
     declare readonly owner: Sprite3D;
@@ -86,12 +119,62 @@ export class Spine3DRenderNode extends BaseRender {
         return ["Sprite3D", "Spine3D"];
     }
 
+    
 
-     /**
+    _renderUpdate(context3D: IRenderContext3D): void {
+        let renderNode = this._baseRenderNode;
+        renderNode._applyReflection();
+        renderNode._applyLightProb();
+
+        if (renderNode.ismoved.x > this._cacheMoved.x || (renderNode.ismoved.x == this._cacheMoved.x && renderNode.ismoved.y > this._cacheMoved.y)) {
+            let trans = renderNode.transform;
+            renderNode.shaderData.setMatrix4x4(Sprite3D.WORLDMATRIX, trans.worldMatrix);
+            this._worldParams.x = trans.getFrontFaceValue();
+            renderNode.shaderData.setVector(Sprite3D.WORLDINVERTFRONT, this._worldParams);
+            renderNode.ismoved.cloneTo(this._cacheMoved);
+        }
+
+        this._updateBillboardMatrix(renderNode, context3D);
+    }
+
+    private _updateBillboardMatrix(renderNode: IBaseRenderNode, context3D: IRenderContext3D): void {
+        if (!this._billboard || !context3D)
+            return;
+
+        let cameraTransform = context3D.cameraModuleData?.transform;
+        if (!cameraTransform)
+            return;
+
+        let transform = renderNode.transform;
+        let cameraUp = Spine3DRenderNode._tempCameraUp;
+        let cameraForward = Spine3DRenderNode._tempCameraForward;
+        cameraTransform.getUp(cameraUp);
+        cameraTransform.getForward(cameraForward);
+
+        Matrix4x4.billboard(transform.position, cameraTransform.position, cameraUp, cameraForward, this._billboardMatrix);
+
+        const lossyScale = transform.getWorldLossyScale();
+        const elements = this._billboardMatrix.elements;
+        //反向
+        elements[0] *= -lossyScale.x;
+        elements[1] *= -lossyScale.x;
+        elements[2] *= -lossyScale.x;
+        elements[4] *= lossyScale.y;
+        elements[5] *= lossyScale.y;
+        elements[6] *= lossyScale.y;
+        elements[8] *= lossyScale.z;
+        elements[9] *= lossyScale.z;
+        elements[10] *= lossyScale.z;
+
+        renderNode.shaderData.setMatrix4x4(SpineShaderInit.SPINE_BILLBOARD_MATRIX, this._billboardMatrix);
+    }
+
+
+    /**
      * @internal
      * BaseRender motion
      */
-     protected _onWorldMatNeedChange(flag: number): void {
+    protected _onWorldMatNeedChange(flag: number): void {
         super._onWorldMatNeedChange(flag);
         this._baseRenderNode.ismoved.setValue(Stat.loopCount, LayaGL.renderEngine._framePassCount);
         this._baseRenderNode.ismoved = this._baseRenderNode.ismoved;
@@ -299,7 +382,7 @@ export class Spine3DRenderNode extends BaseRender {
 
         this._initBounds();
         this.onTransformChanged();
-
+        
         // 设置事件监听器
         this._spineRender.setEventListener({
             start: (entry: any) => {
