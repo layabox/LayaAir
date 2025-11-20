@@ -187,7 +187,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         }
 
         if (this.spineItem instanceof SpineOptimizeRender) {
-            this.spineItem.skinRenderArray.forEach(item=>item.clearCacheMaterials);
+            this.spineItem.skinRenderArray.forEach(item=>item.clearCacheMaterials());
         }
         
         this._premultipliedAlpha = value;
