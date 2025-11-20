@@ -112,7 +112,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     private _externalSkins: ExternalSkin[];
     private _skin: string;
     private _offset: Vector2 = new Vector2();
-
+    /** @internal */
+    _setPreAlphaFlag = false;
     private _premultipliedAlpha = true;
 
     /** @ignore */
@@ -178,19 +179,26 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @returns Whether to enable transparent premultiplied.
      */
     get premultipliedAlpha(): boolean {
-        return this._premultipliedAlpha;
+        return this._setPreAlphaFlag ? this._premultipliedAlpha : this._templet.premultipliedAlpha;
     }
 
     set premultipliedAlpha(value: boolean) {
+        this._premultipliedAlpha = value;
+    }
+    
+    /**
+     * @en Set the transparent premultiplied.
+     * @zh 设置透明预乘。
+     * @param value Whether to enable transparent premultiplied.
+     * @param value 是否启用透明预乘。
+     */
+    setPremultipliedAlpha(value: boolean) {
         if (this._premultipliedAlpha === value) {
             return;
         }
-
-        if (this.spineItem instanceof SpineOptimizeRender) {
-            this.spineItem.skinRenderArray.forEach(item=>item.clearCacheMaterials());
-        }
-        
+        this.spineItem.clearCacheMaterials();
         this._premultipliedAlpha = value;
+        this._setPreAlphaFlag = true;
     }
 
     /**

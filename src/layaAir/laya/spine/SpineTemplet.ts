@@ -105,8 +105,9 @@ export class SpineTemplet extends Resource {
      * @zh Spine动画的主混合模式
      */
     mainBlendMode: number = 0;
-
-    private _premultipliedAlpha = true;
+    
+    /** @internal */
+    _premultipliedAlpha = true;
     /**
      * @en Switch for premultipliedAlpha.
      * @zh 透明预乘的开关。
@@ -138,11 +139,6 @@ export class SpineTemplet extends Resource {
         }
 
         let key = texture.id + "_" + blendMode;
-        
-        if (blendMode == 0) {// Normal
-            key += "_" + premultipliedAlpha;
-        }
-
         let mat = this.materialMap.get(key);
         if (!mat) {
             mat = new Material();
@@ -166,6 +162,10 @@ export class SpineTemplet extends Resource {
             mat._addReference();
             this.materialMap.set(key, mat);
         }
+        else if (blendMode == 0) {// Normal
+            SpineShaderInit.SetSpineBlendMode(blendMode, mat, premultipliedAlpha);
+        }
+
         return mat;
     }
 
@@ -259,6 +259,25 @@ export class SpineTemplet extends Resource {
         region.texture = spineTexture;
 
         return region;
+    }
+
+    /**
+     * @en Check if Templet needs transparent premultiplied
+     * @zh 检查Templet是否需要透明预乘
+     */
+    checkPremultipliedAlpha() {
+        let premultipliedAlpha = true;
+
+        let pages = this._atlas.pages;
+        for (let i = 0, len = pages.length; i < len; i++) {
+            let page = pages[i];
+            if (page) {
+                let tex = (page.texture as unknown as SpineTexture).realTexture as Texture2D;
+                premultipliedAlpha = page.pma || (tex._premultiplyAlpha && premultipliedAlpha);
+            }
+        }
+        
+        return premultipliedAlpha;
     }
 
     /** @internal */

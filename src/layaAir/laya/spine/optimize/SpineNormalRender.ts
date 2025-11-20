@@ -13,6 +13,9 @@ import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
  * @zh 普通 Spine 渲染实现类。
  */
 export class SpineNormalRender implements ISpineOptimizeRender {
+    clearCacheMaterials(): void {
+        //throw new NotImplementedError();
+    }
     getSpineColor(): Color {
         return this._spineColor;
     }
