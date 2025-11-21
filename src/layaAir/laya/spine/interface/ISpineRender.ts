@@ -45,6 +45,8 @@ export interface ITrackEntry {
 }
 
 export interface ISpineRender {
+    /** 是否启用透明预乘 */
+    premultipliedAlpha: boolean;
     /** 当前渲染模式 */
     mode: ESpineRenderMode;
     /** 当前渲染状态 */

@@ -70,13 +70,15 @@ export class SpineTemplet extends Resource {
      * @en Get or create a material for the given texture and blend mode
      * @param texture The texture to use
      * @param blendMode The blend mode to use
+     * @param premultipliedAlpha Whether to enable transparent premultiplied
      * @param is3D Whether this is for 3D rendering (default: false for 2D)
      * @zh 获取或创建给定纹理和混合模式的材质
      * @param texture 要使用的纹理
      * @param blendMode 要使用的混合模式
+     * @param premultipliedAlpha 是否启用透明预乘
      * @param is3D 是否用于3D渲染 (默认: false 表示2D)
      */
-    getMaterial(texture: Texture2D, blendMode: number, is3D: boolean = false): Material {
+    getMaterial(texture: Texture2D, blendMode: number , premultipliedAlpha: boolean, is3D: boolean = false): Material {
         if (!texture) {
             console.error("SpineError:cant Find Main Texture");
             texture = Texture2D.whiteTexture;
@@ -96,15 +98,18 @@ export class SpineTemplet extends Resource {
                 mat.removeDefine(ShaderDefines2D.GAMMATEXTURE);
             }
 
-            SpineShaderInit.SetSpineBlendMode(blendMode, mat, this._premultipliedAlpha);
+            SpineShaderInit.SetSpineBlendMode(blendMode, mat, premultipliedAlpha);
 
-            if (this._premultipliedAlpha) {
+            if (premultipliedAlpha) {
                 mat.addDefine(SpineShaderInit.SPINE_PREMULTIPLYALPHA);
             } else {
                 mat.removeDefine(SpineShaderInit.SPINE_PREMULTIPLYALPHA);
             }
             mat._addReference();
             this.materialMap.set(key, mat);
+        }
+        else if (blendMode == 0) {// Normal
+            SpineShaderInit.SetSpineBlendMode(blendMode, mat, premultipliedAlpha);
         }
         return mat;
     }

@@ -552,6 +552,10 @@ export class SpineRenderUpdater {
         this.currentMaterials = elements;
     }
 
+    _clearCacheMaterials() {
+        this.cacheMaterials.length = 0;
+    }
+
     /**
      * @en Destroy the SpineRenderUpdater instance.
      * @zh 销毁 SpineRenderUpdater 实例。
