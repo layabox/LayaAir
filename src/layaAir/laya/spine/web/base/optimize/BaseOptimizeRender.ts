@@ -107,6 +107,19 @@ export abstract class BaseOptimizeRender implements ISpineRender {
 
     trackEntry: spine.TrackEntry = null;
 
+    /** @internal */
+    _premultipliedAlpha: boolean = true;
+ 
+    get premultipliedAlpha(): boolean {
+        return this._premultipliedAlpha;
+    }
+
+    set premultipliedAlpha(value: boolean) {
+        if (this._premultipliedAlpha === value) return;
+        this.updater._clearCacheMaterials();
+        this._premultipliedAlpha = value;
+    }
+
     /**
      * @en Whether this is for 3D rendering.
      * @zh 是否用于3D渲染。

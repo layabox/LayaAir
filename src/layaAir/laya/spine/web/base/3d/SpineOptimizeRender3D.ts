@@ -197,12 +197,12 @@ export class SpineOptimizeRender3D extends BaseOptimizeRender {
 
     /** @internal */
     _getMaterialByName(name: string, blendMode: number): Material {
-        return this._templet.getMaterial(this._templet.getTexture(name), blendMode, true);
+        return this._templet.getMaterial(this._templet.getTexture(name), blendMode, this._premultipliedAlpha, true);
     }
     
     /** @internal */
     _getMaterial(texture: Texture2D, blendMode: number): Material {
-        return this._templet.getMaterial(texture, blendMode, true);
+        return this._templet.getMaterial(texture, blendMode, this._premultipliedAlpha, true);
     }
 
     _getRenderHandle(): any {

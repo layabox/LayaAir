@@ -1,30 +1,9 @@
-/**
- * @description
- * 在3D场景中展示Spine动画的示例
- * 仿照 Entrance.ts 实现，但使用3D场景和Spine3DRenderNode
- */
-import "laya/d3/core/scene/Scene3D";
-import "laya/ModuleDef";
-import "laya/d3/ModuleDef";
-import "laya/d3/physics/ModuleDef";
-import "laya/ui/ModuleDef";
-import "laya/ani/ModuleDef";
-import "laya/spine/ModuleDef";
-
 import { Laya } from "Laya";
 import { Event } from "laya/events/Event";
-import { LayaGL } from "laya/layagl/LayaGL";
 import { Loader } from "laya/net/Loader";
 import { SpineTemplet } from "laya/spine/SpineTemplet";
 import { Browser } from "laya/utils/Browser";
 import { Stat } from "laya/utils/Stat";
-import { WebUnitRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/WebUnitRenderModuleDataFactory";
-import { LengencyRenderEngine3DFactory } from "laya/RenderDriver/DriverDesign/3DRenderPass/LengencyRenderEngine3DFactory";
-import { Web3DRenderModuleFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/3D/Web3DRenderModuleFactory";
-import { WebGL3DRenderPassFactory } from "laya/RenderDriver/WebGLDriver/3DRenderPass/WebGL3DRenderPassFactory";
-import { WebGLRenderDeviceFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderDeviceFactory";
-import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";
-import { WebGLRender2DProcess } from "laya/RenderDriver/WebGLDriver/2DRenderPass/WebGLRender2DProcess";
 import { Spine3DRenderNode } from "laya/spine/Spine3DRenderer";
 import { SpineConst } from "laya/spine/SpineConst";
 import { SpineAdapter } from "laya/spine/web/js/SpineAdapter";
@@ -41,8 +20,8 @@ import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 
 export class Spine3DDemo {
 
-    private skeleton: Spine3DRenderNode | null = null;
-    private sprite3D:Sprite3D | null = null;
+    private skeleton: Spine3DRenderNode;
+    private sprite3D:Sprite3D;
 
     private skeletonInfos: Array<{ name: string; url: string }> = [
         { name: "spineboy-pma", url: "res/spine/38/spineboy-pma.skel" },
@@ -59,18 +38,20 @@ export class Spine3DDemo {
     private currentAnimationNames: string[] = [];
     private currentSkinNames: string[] = [];
 
-    private templetButton: Button | null = null;
-    private animationButton: Button | null = null;
-    private skinButton: Button | null = null;
-    private fastRenderButton: Button | null = null;
+    private templetButton: Button;
+    private animationButton: Button;
+    private skinButton: Button;
+    private fastRenderButton: Button;
+    private billboardButton: Button;
 
     private useFastRender: boolean = true;
+    private enableBillboard: boolean = false;
 
     private buttonURL = "res/ui/button-7.png";
     private maxSpineSize: number = 600;
 
-    private scene: Scene3D | null = null;
-    private camera: Camera | null = null;
+    private scene: Scene3D;
+    private camera: Camera;
 
     constructor() {
         SpineConst.VERSION = "3.8";
@@ -89,11 +70,9 @@ export class Spine3DDemo {
             Laya.stage.bgColor = "#000000";
             Stat.show();
 
-            // 创建3D场景
             this.scene = <Scene3D>Laya.stage.addChild(new Scene3D());
             this.scene.ambientColor = new Color(1, 1, 1);
 
-            // 创建相机
             this.camera = <Camera>this.scene.addChild(new Camera(0, 0.1, 100));
             this.camera.transform.translate(new Vector3(0, 0, 3));
             this.camera.transform.lookAt(new Vector3(0, 0, 0) , Vector3.Up);
@@ -104,21 +83,29 @@ export class Spine3DDemo {
             mesh.transform.position = new Vector3(1, 0, 0);
             this.scene.addChild(mesh);
 
-            try {
-                await this.preloadTemplets();
-            } catch (error) {
-                console.error("Spine 模板加载失败", error);
-                return;
-            }
+            let tasks = this.skeletonInfos.map(async (info) => {
+                let templet = await Laya.loader.load(info.url, Loader.SPINE) as SpineTemplet;
+                this.skeletonTemplets.set(info.name, templet);
+            });
+            tasks.push(Laya.loader.load(this.buttonURL, Loader.IMAGE));
 
-            this.createRenderNodes(size);
+            await Promise.all(tasks);
+
+            let scale = 0.01;
+            this.sprite3D = new Sprite3D();
+            this.scene.addChild(this.sprite3D);
+            this.sprite3D.transform.position = new Vector3(0,0,0);
+            this.sprite3D.on(Event.STOPPED, this, this.play);
+            this.sprite3D.transform.localScale = new Vector3(scale,scale,scale);
+
+            this.skeleton = this.sprite3D.addComponent(Spine3DRenderNode);
+
+            this.initUI();
             this.applyTemplet(this.currentTempletIndex);
-            this.init();
-            this.updateButtonLabels();
         });
     }
 
-    private init(): void {
+    private initUI(): void {
         let x = (Laya.stage.width - 150 * 4) / 2;
         let width = 150;
         let height = 60;
@@ -128,6 +115,9 @@ export class Spine3DDemo {
         this.animationButton = this.creatButton(x + spacing, y, width, height, this, this.play, "切换动画");
         this.skinButton = this.creatButton(x + spacing * 2, y, width, height, this, this.switchSkin, "切换皮肤");
         this.fastRenderButton = this.creatButton(x + spacing * 3, y, width, height, this, this.switchFastRender, "快速渲染");
+        this.billboardButton = this.creatButton(x + spacing * 4, y, width, height, this, this.switchBillboard, "面向相机");
+
+        this.updateButtonLabels();
     }
 
     private creatButton(x: number, y: number, width: number, height: number, call: any, handle: any, name: string): Button {
@@ -151,39 +141,8 @@ export class Spine3DDemo {
         this.applyAnimation();
     }
 
-    private async preloadTemplets(): Promise<void> {
-        const tasks = this.skeletonInfos.map(async (info) => {
-            const templet = await Laya.loader.load(info.url, Loader.SPINE) as SpineTemplet;
-            this.skeletonTemplets.set(info.name, templet);
-        });
-        tasks.push(Laya.loader.load(this.buttonURL, Loader.IMAGE));
-        await Promise.all(tasks);
-    }
-
-    private createRenderNodes(count: number): void {
-        // 清理旧的节点
-        if (this.sprite3D) {
-            this.sprite3D.off(Event.STOPPED, this, this.play);
-            this.sprite3D.destroy();
-        }
-
-        if (!this.scene) {
-            return;
-        }
-
-        let scale = 0.01;
-        // 创建3D精灵节点
-        this.sprite3D = new Sprite3D();
-        this.scene.addChild(this.sprite3D);
-        this.sprite3D.transform.position = new Vector3(0,0,0);
-        this.sprite3D.on(Event.STOPPED, this, this.play);
-        this.sprite3D.transform.localScale = new Vector3(scale,scale,scale);
-
-        this.skeleton = this.sprite3D.addComponent(Spine3DRenderNode);
-    }
-
     private applyTemplet(index: number): void {
-        const templet = this.getTempletByIndex(index);
+        let templet = this.getTempletByIndex(index);
         if (!templet) {
             console.warn("未找到指定索引的 Spine 模板", index);
             return;
@@ -214,8 +173,7 @@ export class Spine3DDemo {
         }
 
         this.currentAnimationIndex = this.normalizeIndex(this.currentAnimationIndex, this.currentAnimationNames.length);
-        const animationName = this.currentAnimationNames[this.currentAnimationIndex];
-        this.skeleton.play(animationName, false, true);
+        this.skeleton.play(this.currentAnimationNames[this.currentAnimationIndex], false, true);
         this.updateButtonLabels();
     }
 
@@ -230,10 +188,7 @@ export class Spine3DDemo {
     }
 
     private switchTemplet(): void {
-        if (this.skeletonInfos.length === 0) {
-            return;
-        }
-        const nextIndex = this.normalizeIndex(this.currentTempletIndex + 1, this.skeletonInfos.length);
+        let nextIndex = this.normalizeIndex(this.currentTempletIndex + 1, this.skeletonInfos.length);
         this.applyTemplet(nextIndex);
     }
 
@@ -251,30 +206,32 @@ export class Spine3DDemo {
         this.updateButtonLabels();
     }
 
-    private updateButtonLabels(): void {
-        const templetInfo = this.skeletonInfos[this.currentTempletIndex];
-        const animationName = this.currentAnimationNames[this.currentAnimationIndex] ?? "无";
-        const skinName = this.currentSkinNames[this.currentSkinIndex] ?? "无";
+    private switchBillboard(): void {
+        this.enableBillboard = !this.enableBillboard;
+        if (this.skeleton) {
+            this.skeleton.billboard = this.enableBillboard;
+        }
+        this.updateButtonLabels();
+    }
 
-        if (this.templetButton) {
-            const total = this.skeletonInfos.length;
-            this.templetButton.label = `切换模板 (${templetInfo ? templetInfo.name : "无"} ${total ? `${this.currentTempletIndex + 1}/${total}` : ""})`;
-        }
-        if (this.animationButton) {
-            const total = this.currentAnimationNames.length;
-            this.animationButton.label = `切换动画 (${animationName}${total ? ` ${this.currentAnimationIndex + 1}/${total}` : ""})`;
-        }
-        if (this.skinButton) {
-            const total = this.currentSkinNames.length;
-            this.skinButton.label = `切换皮肤 (${skinName}${total ? ` ${this.currentSkinIndex + 1}/${total}` : ""})`;
-        }
-        if (this.fastRenderButton) {
-            this.fastRenderButton.label = `快速渲染 (${this.useFastRender ? "开启" : "关闭"})`;
-        }
+    private updateButtonLabels(): void {
+        let templetInfo = this.skeletonInfos[this.currentTempletIndex];
+        let animationName = this.currentAnimationNames[this.currentAnimationIndex] ?? "无";
+        let skinName = this.currentSkinNames[this.currentSkinIndex] ?? "无";
+
+        let skeletonTotal = this.skeletonInfos.length;
+        let animationTotal = this.currentAnimationNames.length;
+        let skinTotal = this.currentSkinNames.length;
+
+        this.templetButton.label = `切换模板 (${templetInfo ? templetInfo.name : "无"} ${skeletonTotal ? `${this.currentTempletIndex + 1}/${skeletonTotal}` : ""})`;
+        this.animationButton.label = `切换动画 (${animationName}${animationTotal ? ` ${this.currentAnimationIndex + 1}/${animationTotal}` : ""})`;
+        this.skinButton.label = `切换皮肤 (${skinName}${skinTotal ? ` ${this.currentSkinIndex + 1}/${skinTotal}` : ""})`;
+        this.fastRenderButton.label = `快速渲染 (${this.useFastRender ? "开启" : "关闭"})`;
+        this.billboardButton.label = `面向相机 (${this.enableBillboard ? "开启" : "关闭"})`;
     }
 
     private getTempletByIndex(index: number): SpineTemplet | undefined {
-        const info = this.skeletonInfos[this.normalizeIndex(index, this.skeletonInfos.length)];
+        let info = this.skeletonInfos[this.normalizeIndex(index, this.skeletonInfos.length)];
         if (!info) {
             return undefined;
         }
@@ -323,11 +280,7 @@ export class Spine3DDemo {
     }
 
     private normalizeIndex(index: number, length: number): number {
-        if (length <= 0) {
-            return 0;
-        }
-        const result = index % length;
-        return result < 0 ? result + length : result;
+        return index % length;
     }
 }
 

@@ -119,7 +119,38 @@ export class Spine3DRenderNode extends BaseRender {
         return ["Sprite3D", "Spine3D"];
     }
 
+    private _premultipliedAlpha: boolean = true;
+    /** @internal */
+    _setPreAlphaFlag: boolean = false;
+    /**
+     * @zh 是否启用透明预乘。设置属性需要使用setPremultipliedAlpha方法。
+     * @en Whether to enable transparent premultiplied. The attribute needs to be set using the setPremultipliedAlpha method.
+     */
+    get premultipliedAlpha(): boolean {
+        return this._setPreAlphaFlag ? this._premultipliedAlpha : this._spineRender.premultipliedAlpha;
+    }
+
+    /** @internal */
+    set premultipliedAlpha(value: boolean) {
+        if (this._setPreAlphaFlag) {
+            this._spineRender.premultipliedAlpha = value;
+        } else {
+            this._spineRender.premultipliedAlpha = this._premultipliedAlpha;
+        }
+        this._premultipliedAlpha = value;
+    }
     
+    /**
+     * @en Set the transparent premultiplied.
+     * @zh 设置透明预乘。
+     * @param value Whether to enable transparent premultiplied.
+     * @param value 是否启用透明预乘。
+     */
+    setPremultipliedAlpha(value: boolean) {
+        this._premultipliedAlpha = value;
+        this._spineRender.premultipliedAlpha = value;
+        this._setPreAlphaFlag = true;
+    }
 
     _renderUpdate(context3D: IRenderContext3D): void {
         let renderNode = this._baseRenderNode;
