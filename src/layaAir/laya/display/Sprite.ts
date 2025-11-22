@@ -1683,7 +1683,7 @@ export class Sprite extends Node {
                     passSet.add(sprite._struct.pass);
             }
 
-            if (sprite._graphics) {
+            if (sprite._needGraphicsUpdate()) {
                 sprite._graphics._render(runner, 0, 0);
             }
 
@@ -2058,7 +2058,7 @@ export class Sprite extends Node {
 
     /** @internal */
     _needGraphicsUpdate(): boolean {
-        return !!(this._graphics && this._graphics._display && (this.displayedInStage || this._maskParent));
+        return this._struct.enabled && this._graphics && this._graphics._display && !!(this.displayedInStage || this._maskParent);
     }
 
     /**

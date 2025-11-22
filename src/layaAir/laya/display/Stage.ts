@@ -863,7 +863,7 @@ export class Stage extends Sprite {
         this._updateMatrixList(this._tranMatrixUpdateList, Stat.loopCount);
 
         for (let sprite of this._graphicUpdateList) {
-            if (sprite._graphics) {
+            if (sprite._needGraphicsUpdate()) {
                 sprite._graphics._render(Render2DProcessor.runner);
             }
         }

@@ -1,3 +1,4 @@
+import { Event } from "../../events/Event";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Matrix } from "../../maths/Matrix";
 import { Rectangle } from "../../maths/Rectangle";
@@ -15,6 +16,7 @@ import { IAutoExpiringResource } from "../../renders/ResNeedTouch";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
 import { RenderTexture2D } from "../../resource/RenderTexture2D";
+import { Resource } from "../../resource/Resource";
 import { Texture } from "../../resource/Texture";
 import { IPool, Pool } from "../../utils/Pool";
 import { FastSinglelist } from "../../utils/SingletonList";
@@ -75,6 +77,8 @@ export class GraphicsRenderData {
 
    owner: Sprite;
 
+   texturesMap: Map<number, Texture> = new Map();
+
    constructor(owner: Sprite) {
       this.owner = owner;
    }
@@ -104,6 +108,11 @@ export class GraphicsRenderData {
       }
       elements.length = 0;
 
+      this.texturesMap.forEach(res => {
+         res.off(Event.CHANGE, this, this._resourceRepaint);
+      });
+      this.texturesMap.clear();
+
       let submits = this._submits.elements;
       for (let i = 0; i < this._submits.length; i++) {
          submits[i].destroy();
@@ -113,6 +122,15 @@ export class GraphicsRenderData {
 
       this.owner = null;
 
+   }
+
+   /** @internal */
+   _check(){
+      let result = true;
+      this.texturesMap.forEach(texture=>{
+         result = texture._getSource() && result;
+      })
+      return result;
    }
 
    /**
@@ -237,6 +255,24 @@ export class GraphicsRenderData {
    touchRes(res: IAutoExpiringResource) {
       // res.referenceCount++;
       // this.touchResources.push(res);
+   }
+
+   referenceRes(runner: GraphicsRunner, res: Resource) {
+      if (res instanceof Texture) {
+         let old = this.texturesMap.get(res.id);
+         if (!old) {
+            res.on(Event.CHANGE, this, this._resourceRepaint);
+            this.texturesMap.set(res.id, res);
+         }
+      }
+   }
+
+   private _resourceRepaint() {
+      if (this.owner._needGraphicsUpdate()) {
+         this.owner._graphics.repaint();
+      }else{
+         this.owner._graphics._modified = true;
+      }
    }
 
 }

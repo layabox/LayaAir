@@ -173,10 +173,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * @zh 是否启用透明预乘。
-     * @en Whether to enable transparent premultiplied.
-     * @returns 是否启用透明预乘。
-     * @returns Whether to enable transparent premultiplied.
+     * @zh 是否启用透明预乘。设置属性需要使用setPremultipliedAlpha方法。
+     * @en Whether to enable transparent premultiplied. Set the attribute needs to use the setPremultipliedAlpha method.
      */
     get premultipliedAlpha(): boolean {
         return this._setPreAlphaFlag ? this._premultipliedAlpha : this._templet.premultipliedAlpha;
@@ -193,9 +191,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @param value 是否启用透明预乘。
      */
     setPremultipliedAlpha(value: boolean) {
-        if (this._premultipliedAlpha === value) {
-            return;
-        }
         this.spineItem.clearCacheMaterials();
         this._premultipliedAlpha = value;
         this._setPreAlphaFlag = true;
