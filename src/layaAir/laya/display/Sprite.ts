@@ -2045,6 +2045,11 @@ export class Sprite extends Node {
         }
     }
 
+    /** @internal */
+    _needGraphicsUpdate(): boolean {
+        return !!(this._graphics && this._graphics._display && (this.displayedInStage || this._maskParent));
+    }
+
     /**
      * @en Clear the repaint flag.
      * @zh 清除重绘标志。

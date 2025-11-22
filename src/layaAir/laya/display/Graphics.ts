@@ -87,8 +87,10 @@ export class Graphics {
     private _graphicBounds: GraphicsBounds | null = null;
     private _material: Material;
     private _renderDataHandle: I2DPrimitiveDataHandle;
-    private _modified: boolean = false;
-    private _display: boolean = false;
+    /** @internal */
+    _modified: boolean = false;
+    /** @internal */
+    _display: boolean = false;
 
     /**
     * @en Whether to use sprite state.
@@ -712,7 +714,7 @@ export class Graphics {
             return;
 
         if (!this._modified
-            && this._check() //校验是否都有效
+            && this._data._check() //校验是否都有效
             // && this._data.offsetX === x
             // && this._data.offsetY === y
         ) {
@@ -743,20 +745,6 @@ export class Graphics {
         runner._graphicsData = null;
         runner.sprite = null;
         this._modified = false;
-    }
-
-    private _check(): boolean {
-        let len = this._data._submits.length;
-        for (let i = 0; i < len; i++) {
-            let submit = this._data._submits.elements[i];
-            let texture = submit._internalInfo.textureHost;
-            if (!texture) continue;
-            let bitmap = (texture as Texture).bitmap;
-            if (bitmap && bitmap.destroyed) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private _renderSpriteTexture(runner: GraphicsRunner, x: number, y: number): void {

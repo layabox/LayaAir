@@ -6,11 +6,12 @@
 
 import { ILaya } from "../../ILaya";
 import { Laya } from "../../Laya";
+import { Event } from "../events/Event";
 import { Vector4 } from "../maths/Vector4";
 import { Loader } from "../net/Loader";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Resource } from "../resource/Resource";
-import { Texture } from "../resource/Texture";
+import { DynamicTexInfo, Texture } from "../resource/Texture";
 import { Texture2D } from "../resource/Texture2D";
 import { LargeTexBase, LargeTexManager, TextureItem, TextureOut } from "./LargeTexManager";
 
@@ -23,11 +24,17 @@ type _$TextureData = {
 /**
  * 纹理信息接口
  */
-export interface TextureInfo {
+export class TextureInfo implements DynamicTexInfo{
+
+    recover(){
+        this.owner.removeTexture(this.source.id, -1, false);
+    }
+
+    owner: DynamicAtlasManager;
     /** 原始纹理对象 */
     textureMap: Map<number, _$TextureData>;
     /** 原始texture2d */
-    otexture2d?: Texture2D;
+    source: Texture2D;
     /** 纹理ID */
     textureId: number;
     /** 纹理URL */
@@ -197,24 +204,23 @@ export class DynamicAtlasManager {
 
         let textureOut = this._largeTexManager.getTexture(textureId, result);
 
-        textureInfo = {
-            textureMap: new Map(),
-            otexture2d:texture2D,
-            textureId: textureId,
-            url: texture2D.url || "",
-            uv: new Vector4(
-                textureOut.texItem.x,
-                textureOut.texItem.y,
-                textureOut.texItem.w,
-                textureOut.texItem.h
-            ),
-            largeTextureIndex: result,
-            isInAtlas: true,
-            merged: false,
-            drawCompletedCount: 0,
-            referenceCount: 0,
-        };
-    
+        textureInfo = new TextureInfo();
+        textureInfo.textureMap = new Map();
+        textureInfo.source = texture2D;
+        textureInfo.textureId = textureId;
+        textureInfo.url = texture2D.url || "";
+        textureInfo.uv = new Vector4(
+            textureOut.texItem.x,
+            textureOut.texItem.y,
+            textureOut.texItem.w,
+            textureOut.texItem.h);
+        textureInfo.largeTextureIndex = result;
+        textureInfo.isInAtlas = true;
+        textureInfo.merged = false;
+        textureInfo.drawCompletedCount = 0;
+        textureInfo.referenceCount = 0;
+        textureInfo.owner = this;
+
         //一次性替换所有小图
         this._findSmallTexture(texture, textureInfo);
         this._textureMap.set(textureId, textureInfo);
@@ -342,13 +348,15 @@ export class DynamicAtlasManager {
      * @en Remove texture from atlas
      * @param textureId textureId to remove
      * @param largeTextureIndex largeTextureIndex to remove
+     * @param event event to remove
      * @returns boolean whether remove texture from atlas successfully
      * @zh 从图集中移除纹理
      * @param textureId 纹理ID
      * @param largeTextureIndex 大纹理索引，-1表示从所有大纹理中移除
+     * @param event 是否触发事件，默认true
      * @returns 是否移除成功
      */
-    public removeTexture(textureId: number, largeTextureIndex: number = -1): boolean {
+    public removeTexture(textureId: number, largeTextureIndex: number = -1 , event: boolean = true): boolean {
         if (this._isDestroyed) return false;
 
         let textureInfo = this._textureMap.get(textureId);
@@ -358,16 +366,18 @@ export class DynamicAtlasManager {
         this._textureMap.delete(textureId);
 
         //还原
-        let otexture2d = Laya.loader.getRes(textureInfo.url , Loader.TEXTURE2D) || textureInfo.otexture2d;
+        let otexture2d = Laya.loader.getRes(textureInfo.url , Loader.TEXTURE2D) || textureInfo.source;
+        if (otexture2d.destroyed) {
+            return true;
+        }
+
         textureInfo.textureMap.forEach(({ texture, uv }, id) => {
-            let oSWidth = texture.sourceWidth;
-            let oSHeight = texture.sourceHeight;
-            let oWidth = texture.width;
-            let oHeight = texture.height;
-            texture.setTo(otexture2d, uv, oSWidth, oSHeight);
-            texture.width = oWidth;
-            texture.height = oHeight;
+            texture.bitmap = otexture2d;
+            texture.uv = uv;
             texture._dynamic = null;
+            if (event) {
+                texture.event(Event.CHANGE);
+            }
         })
         return true;
     }
@@ -445,6 +455,7 @@ export class DynamicAtlasManager {
                 }
                 
                 texture.setTo(rt, nuv, oSWidth, oSHeight);
+                texture.event(Event.CHANGE);
                 texture.width = oWidth;
                 texture.height = oHeight;
                 texture._dynamic = textureInfo;
@@ -625,7 +636,6 @@ export class DynamicAtlasManager {
             }
         }
         
-        // 移除标记的纹理
         for (const textureId of textureIdsToRemove) {
             if (this.removeTexture(textureId)) {
                 cleanedCount++;
