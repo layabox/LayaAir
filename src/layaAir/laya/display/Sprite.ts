@@ -2058,7 +2058,7 @@ export class Sprite extends Node {
 
     /** @internal */
     _needGraphicsUpdate(): boolean {
-        return this._struct.enabled && this._graphics && this._graphics._display && !!(this.displayedInStage || this._maskParent);
+        return !this._destroyed && this._struct.enabled && this._graphics && this._graphics._display && !!(this.displayedInStage || this._maskParent);
     }
 
     /**
