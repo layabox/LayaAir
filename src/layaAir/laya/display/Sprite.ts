@@ -1683,7 +1683,7 @@ export class Sprite extends Node {
                     passSet.add(sprite._struct.pass);
             }
 
-            if (sprite._needGraphicsUpdate()) {
+            if (sprite._graphics) {
                 sprite._graphics._render(runner, 0, 0);
             }
 
