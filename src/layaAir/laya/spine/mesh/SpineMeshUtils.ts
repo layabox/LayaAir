@@ -53,7 +53,7 @@ export class SpineMeshUtils {
         let vbUploadLength = vbCreator.vbLength * Float32Array.BYTES_PER_ELEMENT;
         vertexBuffer.setDataLength(vbByteLength);
         if (uploadBuffer) {
-            vertexBuffer.setData(vbCreator.vb.buffer, 0, 0, vbUploadLength);
+            vertexBuffer.setData(vbCreator.vb.buffer as ArrayBuffer, 0, 0, vbUploadLength);
         }
         vertexBuffers.push(vertexBuffer);
 
@@ -208,10 +208,10 @@ export class SpineMeshUtils {
                         element = new VertexElement(offset, VertexElementFormat.Vector4, 7);
                         offset += 16;
                         break;
-                    case "RIGIDBODY":
-                        element = new VertexElement(offset, VertexElementFormat.Single, 4);
-                        offset += 4;
-                        break;
+                    // case "RIGIDBODY":
+                    //     element = new VertexElement(offset, VertexElementFormat.Single, 4);
+                    //     offset += 4;
+                    //     break;
                     case "UV":
                         element = new VertexElement(offset, VertexElementFormat.Vector2, 0);
                         offset += 8;

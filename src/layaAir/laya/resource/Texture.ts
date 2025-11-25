@@ -119,6 +119,12 @@ export class Texture extends Resource {
     _rotate: boolean = false;
 
     /**
+     * @internal 
+     * 是否旋转。
+     */
+    _rotate: boolean = false;
+
+    /**
      * @en Creates a `Texture` object based on the specified source, coordinates, dimensions, and offsets.
      * @param source The source texture, either a `Texture2D` or a `Texture` object.
      * @param x The starting absolute x coordinate.
@@ -322,6 +328,56 @@ export class Texture extends Resource {
         this._bitmap && this._bitmap._removeReference(this._referenceCount);
         this._bitmap = value;
         value && (value._addReference(this._referenceCount));
+        this.event(Event.CHANGE);
+    }
+
+    public get rotate(): boolean {
+        return this._rotate;
+    }
+
+    public set rotate(value: boolean) {
+        if (value != this._rotate) {
+            this._rotateTexture(value);
+        }
+        this._rotate = value;
+    }
+
+    _rotateTexture(rotate: boolean): void {
+        let uv = new Float32Array(8);
+        if (rotate) { //uv 被旋转过，还原
+            // 顺时针旋转90度：UV坐标从 [0,0, 1,0, 1,1, 0,1] 变为 [1,0, 1,1, 0,1, 0,0]
+            // 原右上角(1,0) -> 新左上角(0,0)
+            uv[0] = this._uv[2];
+            uv[1] = this._uv[3]; 
+            // 原右下角(1,1) -> 新右上角(1,0)  
+            uv[2] = this._uv[4]; 
+            uv[3] = this._uv[5]; 
+            // 原左下角(0,1) -> 新右下角(1,1)
+            uv[4] = this._uv[6];
+            uv[5] = this._uv[7];
+            // 原左上角(0,0) -> 新左下角(0,1)
+            uv[6] = this._uv[0];
+            uv[7] = this._uv[1];
+        } else {
+            // 恢复默认UV坐标：顺时针旋转90度,从 [1,0, 1,1, 0,1, 0,0] 变为 [0,0, 1,0, 1,1, 0,1]
+            // 原左上角(0,0) -> 新右上角(1,0)
+            uv[2] = this._uv[0];     
+            uv[3] = this._uv[1]; 
+            // 原右上角(1,0) -> 新右下角(1,1)
+            uv[4] = this._uv[2];
+            uv[5] = this._uv[3]; 
+            // 原右下角(1,1) -> 新左下角(0,1)
+            uv[6] = this._uv[4];    
+            uv[7] = this._uv[5];
+            // 原左下角(0,1) -> 新左上角(0,0)
+            uv[0] = this._uv[6];
+            uv[1] = this._uv[7];
+        }
+        
+        this.uv = uv;
+        let height = this._h;
+        this._h = this._w;
+        this._w = height;
     }
 
     public get rotate(): boolean {

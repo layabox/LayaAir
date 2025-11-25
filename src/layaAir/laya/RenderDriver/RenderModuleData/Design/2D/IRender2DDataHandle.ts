@@ -1,4 +1,5 @@
 import { Color } from "../../../../maths/Color";
+import { Matrix } from "../../../../maths/Matrix";
 import { Vector2 } from "../../../../maths/Vector2";
 import { Vector4 } from "../../../../maths/Vector4";
 import { BaseTexture } from "../../../../resource/BaseTexture";
@@ -79,6 +80,7 @@ export interface IGraphics2DBufferBlock {
  */
 export interface I2DPrimitiveDataHandle extends IRender2DDataHandle {
     mask: IRenderStruct2D | null;
+    logicMatrix: Matrix | null;
     applyVertexBufferBlock(views: IGraphics2DBufferBlock[]): void;
 }
 

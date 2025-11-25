@@ -173,6 +173,11 @@ export class SpineAdapter {
                 this.currentTrack = result;
                 return result;
             }
+
+            if (SpineTemplet.RuntimeVersion == "3.7") {
+                let bone_proto = ns.Bone.prototype
+                bone_proto.active = true;
+            }
         }
     }
 
@@ -792,4 +797,4 @@ class TextureAtlas {
 
     }
 }
-Laya.addBeforeInitCallback(SpineAdapter.initialize);
+Laya.addInitCallback(SpineAdapter.initialize);

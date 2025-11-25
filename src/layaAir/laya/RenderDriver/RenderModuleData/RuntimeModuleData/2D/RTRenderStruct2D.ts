@@ -53,14 +53,15 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    owner: Sprite;
 
+   globalAlpha: number = 1.0;
+
    private _dcOptimize: boolean = false;
    public get dcOptimize(): boolean {
       return this._dcOptimize;
    }
    public set dcOptimize(value: boolean) {
       this._dcOptimize = value;
-      // 暂时屏蔽
-      // this._nativeObj.setDcOptimize(value);
+      this._nativeObj.setDcOptimize(value);
    }
 
    public get inheritedDcOptimize(): boolean {
@@ -123,6 +124,11 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
 
    public set subStruct(value: RTRenderStruct2D) {
+      if (value) {
+         value._parent = this._parent;
+         value._blendMode = this._blendMode;
+      }
+
       this._subStruct = value;
       this._nativeObj.setSubStruct(value ? value._nativeObj : null);
    }
@@ -130,6 +136,9 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    private _parent: RTRenderStruct2D = null;
    set parent(value: RTRenderStruct2D) {
       this._parent = value;
+      if (this._subStruct) {
+         this._subStruct._parent = value;
+      }
       this._nativeObj.setParent(value ? (value as unknown as RTRenderStruct2D)._nativeObj : null);
    }
    get parent(): RTRenderStruct2D | null {
@@ -175,15 +184,6 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       return this._renderMatrix;
    }
 
-   private _globalAlpha: number;
-   set globalAlpha(value: number) {
-      this._globalAlpha = value;
-      this._nativeObj.globalAlpha = value;
-   }
-   get globalAlpha(): number {
-      return this._globalAlpha;
-   }
-
    private _alpha: number;
    public get alpha(): number {
       return this._alpha;
@@ -196,10 +196,16 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    private _blendMode: BlendMode;
    public get blendMode(): BlendMode {
+      if (this._subStruct && this._subStruct.enabled) {
+         return BlendMode.normal;
+      }
       return this._blendMode || this._parent?.blendMode || BlendMode.normal;
    }
 
    public set blendMode(value: BlendMode) {
+      if (this._subStruct && this._subStruct.enabled) {
+         this._subStruct._blendMode = value;
+      }
       this._blendMode = value;
       this._nativeObj.blendMode = this._blendMode;
    }

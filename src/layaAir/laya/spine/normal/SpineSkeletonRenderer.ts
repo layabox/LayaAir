@@ -340,6 +340,8 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
         let virtualMesh: SpineVirtualMesh;
         let spineTex;
         let staticVetices = SpineSkeletonRenderer.vertices;
+        let offsetX = -skeleton.x + this.templet.offsetX;
+        let offsetY = -skeleton.y + this.templet.offsetY;
         for (let i = 0, n = drawOrder.length; i < n; i++) {
             let clippedVertexSize = clipper.isClipping() ? 2 : vertexSize;
             let slot = drawOrder[i];
@@ -374,7 +376,7 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
                 if (attachment.sequence != null)
                     attachment.sequence.apply(slot, attachment);
 
-                this.computeWorldVertices_RegionAttachment(region, slot.bone, renderable.vertices, 0, clippedVertexSize, -skeleton.x, -skeleton.y);
+                this.computeWorldVertices_RegionAttachment(region, slot.bone, renderable.vertices, 0, clippedVertexSize, offsetX, offsetY);
                 triangles = QUAD_TRIANGLES;
                 uvs = region.uvs;
                 texture = <SpineTexture>(region.region as any).page.texture;
@@ -395,7 +397,7 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
                 if (attachment.sequence != null)
                     attachment.sequence.apply(slot, attachment);
 
-                this.computeWorldVertices_MeshAttachment(mesh, slot, 0, mesh.worldVerticesLength, renderable.vertices, 0, clippedVertexSize, -skeleton.x, -skeleton.y);
+                this.computeWorldVertices_MeshAttachment(mesh, slot, 0, mesh.worldVerticesLength, renderable.vertices, 0, clippedVertexSize, offsetX, offsetY);
                 triangles = mesh.triangles;
                 texture = <SpineTexture>(mesh.region as any).page.texture;
                 uvs = mesh.uvs;
@@ -403,7 +405,7 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
             } else if (attachment instanceof window.spine.ClippingAttachment) {
                 let clip = <spine.ClippingAttachment>(attachment);
                 // clipper.clipStart(slot, clip);
-                this.clipStart(this.clipper, slot, clip, -skeleton.x, -skeleton.y);
+                this.clipStart(this.clipper, slot, clip, offsetX, offsetY);
                 continue;
             } else {
                 clipper.clipEndWithSlot(slot);
@@ -574,7 +576,9 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
     private computeWorldVertices_MeshAttachment(attachment: spine.VertexAttachment, slot: spine.Slot, start: number, count: number, worldVertices: spine.NumberArrayLike, offset: number, stride: number, ofx: number, ofy: number) {
         count = offset + (count >> 1) * stride;
         let skeleton = slot.bone.skeleton;
-        let deformArray = slot.deform;
+        //@ts-ignore
+        let deformArray = slot.deform || slot.attachmentVertices;
+        
         let vertices = attachment.vertices;
         let bones = attachment.bones;
         if (bones == null) {

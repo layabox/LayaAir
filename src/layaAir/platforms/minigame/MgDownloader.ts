@@ -38,7 +38,7 @@ export class MgDownloader extends Downloader {
         if (Browser.onVVMiniGame || Browser.onQGMiniGame) //vivo&oppo
             this.supportSubPackageMultiLevelFolders = false;
 
-        if (Browser.onWXMiniGame || Browser.onHWMiniGame) //微信小游戏不需要这个
+        if (Browser.onWXMiniGame || Browser.onHWMiniGame) //微信小游戏、华为小游戏不需要这个
             this.escapeZhCharsInURL = false;
 
         if (enableCache) {

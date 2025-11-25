@@ -119,6 +119,18 @@ export class SpineShaderInit {
      * @zh 简单动画器纹理尺寸。
      */
     static SIMPLE_SIMPLEANIMATORTEXTURESIZE: number;
+    /**
+     * @internal
+     * @en Bone matrix 0.
+     * @zh Rigidbody骨骼矩阵0。
+     */
+    static BONEMAT_0: number;
+    /**
+     * @internal
+     * @en Bone matrix 1.
+     * @zh Rigidbody骨骼矩阵1。
+     */
+    static BONEMAT_1: number;
 
     /**
      * @en Property ID for Spine texture.
@@ -221,6 +233,8 @@ export class SpineShaderInit {
         Shader3D.addInclude("SpineVertex.glsl", spineVertex);
         Shader3D.addInclude("SpineFragment.glsl", spineFragment);
         SpineShaderInit.BONEMAT = Shader3D.propertyNameToID("u_sBone");
+        SpineShaderInit.BONEMAT_0 = Shader3D.propertyNameToID("u_sBone0");
+        SpineShaderInit.BONEMAT_1 = Shader3D.propertyNameToID("u_sBone1");
         SpineShaderInit.SpineTexture = Shader3D.propertyNameToID("u_spineTexture");
         SpineShaderInit.SPINE_FAST = Shader3D.getDefineByName("SPINE_FAST");
         SpineShaderInit.SPINE_RB = Shader3D.getDefineByName("SPINE_RB");
@@ -239,6 +253,8 @@ export class SpineShaderInit {
 
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Spine2D");
         commandUniform.addShaderUniformArray(SpineShaderInit.BONEMAT, "u_sBone", ShaderDataType.Vector4, 200);
+        commandUniform.addShaderUniform(SpineShaderInit.BONEMAT_0, "u_sBone0", ShaderDataType.Vector3);
+        commandUniform.addShaderUniform(SpineShaderInit.BONEMAT_1, "u_sBone1", ShaderDataType.Vector3);
         // commandUniform.addShaderUniform(SpineShaderInit.NMatrix, "u_NMatrix", ShaderDataType.Buffer);
         // commandUniform.addShaderUniform(SpineShaderInit.Color, "u_color", ShaderDataType.Color);
         // commandUniform.addShaderUniform(SpineShaderInit.Size, "u_size", ShaderDataType.Vector2);
@@ -250,7 +266,7 @@ export class SpineShaderInit {
         // commandUniform.addShaderUniform(SpineShaderInit.SpineTexture, "u_spineTexture", ShaderDataType.Texture2D);
 
         let shader = Shader3D.add("SpineStandard", true, false);
-        shader.shaderType = ShaderFeatureType.D2_BaseRednerNode2D;
+        shader.shaderType = ShaderFeatureType.D2_BaseRenderNode2D;
         let uniformMap = {
             "u_spineTexture": ShaderDataType.Texture2D
         }

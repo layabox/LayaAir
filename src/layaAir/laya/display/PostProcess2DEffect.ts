@@ -3,7 +3,7 @@ import { PostProcess2D, PostProcessRenderContext2D } from "./PostProcess2D";
 export abstract class PostProcess2DEffect {
    protected _active: boolean = true;
    protected _owner: PostProcess2D;
-
+   destroyed = false;
    protected _singleton: boolean = false;
 
    /**
@@ -49,15 +49,18 @@ export abstract class PostProcess2DEffect {
 
    /**
     * @en Clears the render texture.
+    * @param context The post-processing rendering context.
     * @zh 清理渲染纹理。
+    * @param context 后期处理渲染上下文。
     */
-   abstract clearRT(): void;
+   abstract clearRT(context: PostProcessRenderContext2D): void;
    
    /**
     * @en Destroys the effect.
     * @zh 销毁效果。
     */
-   abstract destroy(): void;
-
+   destroy(): void { 
+      this.destroyed = true;
+   }
    
 }

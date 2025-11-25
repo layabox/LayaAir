@@ -32,7 +32,7 @@ export class Area2D extends Sprite {
     }
 
     _setMainCamera(camera: Camera2D) {
-        if (camera == this._mainCamera)
+        if (camera == this._mainCamera || !LayaEnv.isPlaying)
             return;
         this._mainCamera && (this._mainCamera._isMain = false);
 

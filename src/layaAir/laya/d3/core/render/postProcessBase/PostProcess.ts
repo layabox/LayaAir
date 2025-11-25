@@ -192,7 +192,7 @@ export class PostProcess {
         context.command!.clear();
         context.source = screenTexture;
         context.indirectTarget = screenTexture;
-        context.destination = this._effects.length == 2 ? Indirect[0] : cameraTarget;
+        context.destination = Indirect[0];
         context.compositeShaderData!.clearDefine();
 
         if (internalRT) {
@@ -207,12 +207,16 @@ export class PostProcess {
             this._ColorGradEffect._buildLUT();
         }
         let runIndex = 0;
+        let hasActiveEffects = false;
+
         for (let i: number = 0, n: number = this._effects.length; i < n; i++) {
             if (this._effects[i].active) {
                 this._effects[i].render(context);
+                hasActiveEffects = true;
                 context.indirectTarget = context.destination;
-                context.destination = Indirect[(runIndex + 1) % 2];
                 runIndex++;
+                // 确保下一个目标不会与当前目标冲突
+                context.destination = Indirect[runIndex % 2];
             }
         }
 

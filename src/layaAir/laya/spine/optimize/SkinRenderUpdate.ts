@@ -11,6 +11,7 @@ import { IVBChange } from "./interface/IVBChange";
 import { SpineOptimizeRender } from "./SpineOptimizeRender";
 import { SkinAniRenderData, FrameRenderData } from "./AnimationRender";
 import { MultiRenderData } from "./MultiRenderData";
+import { SkinAttach } from "./SketonOptimise";
 
 /**
  * @en SkinRenderUpdate used for rendering Spine skins.
@@ -70,6 +71,12 @@ export class SkinRenderUpdate {
     vertexBones: number = 0;
 
     /**
+     * @en The index of the rigid body bone.
+     * @zh 刚体骨骼的索引。
+     */
+    rbBoneIndex: number = -1;
+
+    /**
      * @en Create a new instance of SkinRender.
      * @param owner The SpineOptimizeRender that owns this SkinRender.
      * @param skinAttach The SkinAttach data.
@@ -77,12 +84,13 @@ export class SkinRenderUpdate {
      * @param owner 拥有此 SkinRender 的 SpineOptimizeRender。
      * @param skinAttach SkinAttach 数据。
      */
-    constructor(owner: SpineOptimizeRender, skinAttach: any) {
+    constructor(owner: SpineOptimizeRender, skinAttach: SkinAttach) {
         this.owner = owner;
         this.name = skinAttach.name;
         this.hasNormalRender = skinAttach.hasNormalRender;
         this.vertexBones = skinAttach.vertexBones;
         this.skinAttachType = skinAttach.type;
+        this.rbBoneIndex = skinAttach.rbBoneIndex;
     }
 
     /**
@@ -217,7 +225,7 @@ export class SkinRenderUpdate {
         let vertexBuffer = mesh.vertexBuffers[0];
         let vblen = vbCreator.vbLength * 4;
         vertexBuffer.setDataLength(vbCreator.maxVertexCount * vbCreator.vertexSize * 4);
-        vertexBuffer.setData(vbCreator.vb.buffer, 0, 0, vblen);
+        vertexBuffer.setData(vbCreator.vb.buffer as ArrayBuffer, 0, 0, vblen);
     }
 
     /**

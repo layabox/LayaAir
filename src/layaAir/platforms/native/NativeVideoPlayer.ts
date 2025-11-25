@@ -11,7 +11,6 @@ export class NativeVideoPlayer extends VideoPlayer {
     readonly video: any;
 
     private _loop: boolean = false;
-    private _currentTime: number;
     private _ended: boolean = false;
     private _muted: boolean = false;
     private _playbackRate: number = 1;
@@ -31,7 +30,9 @@ export class NativeVideoPlayer extends VideoPlayer {
     }
 
     get currentTime(): number {
-        return this._currentTime;
+        if (this.video)
+            return this.video.tell();
+        return 0.0;
     }
 
     set currentTime(value: number) {

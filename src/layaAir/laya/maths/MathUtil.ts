@@ -254,6 +254,25 @@ export class MathUtil {
             return _sortFun(a[key], b[key]);
         }
     }
+
+    /**
+     * @en Round a number to fixed decimals and zero-out near-zero values to avoid floating errors.
+     * @param value Input number.
+     * @param decimals Decimals to keep. Default 3.
+     * @param epsilon Threshold to clamp to 0. Default 1e-6.
+     * @returns Rounded number, with near-zero clamped to 0.
+     * @zh 将数字按小数位四舍五入，并将接近 0 的值归零，避免浮点误差。
+     * @param value 输入数字。
+     * @param decimals 保留小数位数，默认 3。
+     * @param epsilon 接近 0 判定阈值，默认 1e-6。
+     * @returns 处理后的数字。
+     */
+    static roundTo(value: number, decimals: number = 3, epsilon: number = 1e-6): number {
+        if (!isFinite(value)) return value;
+        const factor = Math.pow(10, decimals);
+        const rounded = Math.round(value * factor) / factor;
+        return Math.abs(rounded) < epsilon ? 0 : rounded;
+    }
 }
 
 

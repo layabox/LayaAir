@@ -77,7 +77,7 @@ export class Shader2D {
 
         //meshspriteShader
         Shader2D.render2DNodeShader = Shader3D.add("baseRender2D", false, false);
-        Shader2D.render2DNodeShader.shaderType = ShaderFeatureType.D2_BaseRednerNode2D;
+        Shader2D.render2DNodeShader.shaderType = ShaderFeatureType.D2_BaseRenderNode2D;
         subShader = new SubShader(Shader2D.Render2DNodeAttribute, {}, {});
         Shader2D.render2DNodeShader.addSubShader(subShader);
         subShader.addShaderPass(baseRender2D_vs, baseRender2D_ps);

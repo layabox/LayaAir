@@ -42,7 +42,7 @@ export class PhysicsLineShader {
             u_TilingOffset: ShaderDataType.Vector4,
         };
         let shader = Shader3D.add("PhysicsLineShader", true, false);
-        shader.shaderType = ShaderFeatureType.DEFAULT;
+        shader.shaderType = ShaderFeatureType.Default;
         let subShader = new SubShader(attributeMap, uniformMap, {});
         shader.addSubShader(subShader);
         let forwardPass = subShader.addShaderPass(PhysicsLineVs, PhysicsLineFs);

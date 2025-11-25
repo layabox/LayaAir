@@ -195,8 +195,6 @@ export class WebGLRenderElement3D implements IRenderElement3D {
     protected _compileShader(context: WebGLRenderContext3D) {
         this._clearShaderInstance();
 
-        let comDef = this._getShaderInstanceDefines(context);
-
         var passes: ShaderPass[] = this.subShader._passes;
         for (var j: number = 0, m: number = passes.length; j < m; j++) {
             let pass = passes[j];
@@ -214,6 +212,8 @@ export class WebGLRenderElement3D implements IRenderElement3D {
             if (this.owner) {
                 passdata.additionShaderData = this.owner._additionShaderDataKeys;
             }
+            // 每次重新获取comDef，确保每个pass都有完整的宏定义
+            let comDef = this._getShaderInstanceDefines(context);
             var shaderIns = pass.withCompile(comDef) as WebGLShaderInstance;
 
             this._addShaderInstance(shaderIns);

@@ -114,9 +114,6 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
     protected _compileShader(context: WebGLRenderContext3D) {
         this._clearShaderInstance();
 
-        let comDef = this._getShaderInstanceDefines(context);
-        comDef.add(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
-
         let passes = this.subShader._passes;
         for (let i = 0; i < passes.length; i++) {
             let pass = passes[i];
@@ -134,6 +131,9 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
             if (this.owner) {
                 pass.additionShaderData = this.owner._additionShaderDataKeys;
             }
+
+            let comDef = this._getShaderInstanceDefines(context);
+            comDef.add(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
 
             let shaderIns = <WebGLShaderInstance>pass.withCompile(comDef);
             this._addShaderInstance(shaderIns);

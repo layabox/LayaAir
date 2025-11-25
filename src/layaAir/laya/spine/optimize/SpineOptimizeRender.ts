@@ -16,6 +16,14 @@ import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
 import { SkinRenderUpdate } from "./SkinRenderUpdate"; // 新增导入
 import { BaseRender2DType } from "../../display/SpriteConst";
 import { ISpineRenderDataHandle } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { IRender, BakedSpineRenderer, OptimizedSpineRenderer, StandardSpineRenderer, RigidBodySpineRenderer } from "./SpineRendererTypes";
+
+enum ERenderProxyType {
+    RenderNormal,
+    RenderRigidBody,
+    RenderOptimize,
+    RenderBake
+}
 
 /**
  * @en SpineOptimizeRender used for optimized rendering of Spine animations.
@@ -50,8 +58,6 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
 
     /** @internal */
     _dynamicMap: Map<number, Mesh2D>;
-
-    private _isRender: boolean;
 
     /**
      * @en Color of the Spine object.
@@ -144,7 +150,7 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     initBake(obj: TSpineBakeData): void {
         this.bakeData = obj;
         if (obj) {
-            let render = this.renderProxyMap.get(ERenderProxyType.RenderBake) as RenderBake || new RenderBake(this._nodeOwner);
+            let render = this.renderProxyMap.get(ERenderProxyType.RenderBake) as BakedSpineRenderer || new BakedSpineRenderer(this._nodeOwner);
             render.simpleAnimatorTexture = obj.texture2d;
             render._bonesNums = obj.bonesNums;
             render.aniOffsetMap = obj.aniOffsetMap;
@@ -202,10 +208,12 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
             value.state = state;
         });
 
-        let renderOptimize = new RenderOptimize(this._nodeOwner);
-        let renderNormal = new RenderNormal(this._nodeOwner);
+        let renderOptimize = new OptimizedSpineRenderer(this._nodeOwner);
+        let renderNormal = new StandardSpineRenderer(this._nodeOwner);
+        let renderRigidBody = new RigidBodySpineRenderer(this._nodeOwner);
         this.renderProxyMap.set(ERenderProxyType.RenderNormal, renderNormal);
         this.renderProxyMap.set(ERenderProxyType.RenderOptimize, renderOptimize);
+        this.renderProxyMap.set(ERenderProxyType.RenderRigidBody, renderRigidBody);
     }
 
     /**
@@ -304,7 +312,6 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
 
     private _clear() {
         this._nodeOwner.clear();
-        this._isRender = false;
     }
 
     /**
@@ -339,14 +346,19 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
                 case ESpineRenderType.boneGPU:
                     this._nodeOwner._spriteShaderData.addDefine(SpineShaderInit.SPINE_FAST);
                     this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
+                    this.renderProxytype = ERenderProxyType.RenderOptimize;
+
                     break;
                 case ESpineRenderType.rigidBody:
                     this._nodeOwner._spriteShaderData.addDefine(SpineShaderInit.SPINE_RB);
                     this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
+                    this.renderProxytype = ERenderProxyType.RenderRigidBody;
+                    
                     break;
                 case ESpineRenderType.normal:
                     this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_FAST);
                     this._nodeOwner._spriteShaderData.removeDefine(SpineShaderInit.SPINE_RB);
+                    this._renderProxytype = ERenderProxyType.RenderNormal;
                     break;
             }
 
@@ -356,27 +368,6 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
 
             if (oldSkinData != currentSKin || !this._nodeOwner._mesh) {
                 this.currentAnimation.currentFrameIndex = -1;
-            }
-            // old.animator.mutiRenderAble
-            // let mutiRenderAble = currentSKin.mutiRenderAble;
-            if (this._isRender) {
-                //
-                // if (mutiRenderAble != oldSkinData.mutiRenderAble) {
-                // this._clear();
-                // }
-            }
-            else {
-                // else (!this._isRender) {
-                this.renderProxytype = ERenderProxyType.RenderOptimize;
-                // if (mutiRenderAble) {
-                //     //this._nodeOwner.drawGeos(currentRender.geo, currentRender.elements);
-                // this.renderProxytype = ERenderProxyType.RenderOptimize;
-                // }
-                // else {
-                //     // currentRender.material&&this._nodeOwner.drawGeo(currentRender.geo, currentRender.material);
-                //     this.renderProxytype = ERenderProxyType.RenderOptimize;
-                // }
-                this._isRender = true;
             }
         }
 
@@ -409,331 +400,3 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
 
 }
 
-enum ERenderProxyType {
-    RenderNormal,
-    RenderOptimize,
-    RenderBake
-}
-interface IRender {
-    changeSkeleton(skeleton: spine.Skeleton): void;
-    change(skinRender: SkinRenderUpdate, currentAnimation: AnimationRenderProxy): void;
-    leave(): void;
-    render(curTime: number, boneMat: Float32Array): void;
-}
-/**
- * @en RenderOptimize used for optimized rendering of Spine animations.
- * @zh RenderOptimize 类用于优化 Spine 动画的渲染。
- */
-class RenderOptimize implements IRender {
-    /**
-     * @en Array of Spine bones.
-     * @zh Spine 骨骼数组。
-     */
-    bones: spine.Bone[];
-    /**
-     * @en Array of Spine slots.
-     * @zh Spine 插槽数组。
-     */
-    slots: spine.Slot[];
-    /** @internal */
-    _renderNode: Spine2DRenderNode;
-    /** @internal */
-    _skeleton: spine.Skeleton;
-    /**
-     * @en The current skin renderer.
-     * @zh 当前皮肤渲染器。
-     */
-    skinUpdate: SkinRenderUpdate;
-    /**
-     * @en The current animation render proxy.
-     * @zh 当前动画渲染代理。
-     */
-    currentAnimation: AnimationRenderProxy;
-
-    /**
-     * @en Create a new instance of RenderOptimize.
-     * @param renderNode The Spine2D render node.
-     * @zh 创建 RenderOptimize 的新实例。
-     * @param renderNode Spine2D 渲染节点。
-     */
-    constructor(renderNode: Spine2DRenderNode) {
-        this._renderNode = renderNode;
-        this.changeSkeleton(renderNode.getSkeleton());
-    }
-
-    changeSkeleton(skeleton: spine.Skeleton) {
-        this._skeleton = skeleton;
-        this.bones = skeleton.bones;
-        this.slots = skeleton.slots;
-    }
-    /**
-     * @en Change the current skin renderer and animation.
-     * @param currentRender The new skin renderer to use.
-     * @param currentAnimation The new animation render proxy to use.
-     * @zh 更改当前皮肤渲染器和动画。
-     * @param currentRender 要使用的新皮肤渲染器。
-     * @param currentAnimation 要使用的新动画渲染代理。
-     */
-    change(currentRender: SkinRenderUpdate, currentAnimation: AnimationRenderProxy) {
-        this.skinUpdate = currentRender;
-        this.currentAnimation = currentAnimation;
-    }
-    /**
-     * @en Called when leaving the current render state.
-     * @zh 离开当前渲染状态时调用。
-     */
-    leave(): void {
-    }
-
-    /**
-     * @en Render the current animation at a specific time.
-     * @param curTime The current time for rendering.
-     * @param boneMat The bone matrix for rendering.
-     * @zh 在特定时间渲染当前动画。
-     * @param curTime 渲染的当前时间。
-     * @param boneMat 用于渲染的骨骼矩阵。
-     */
-    render(curTime: number, boneMat: Float32Array) {
-        this.currentAnimation.render(this.bones, this.slots, this.skinUpdate, curTime, boneMat, -this._skeleton.x, -this._skeleton.y);//TODO bone
-        // this.material.boneMat = boneMat;
-        this._renderNode._spriteShaderData.setBuffer(SpineShaderInit.BONEMAT, boneMat);
-    }
-}
-
-/**
- * @en RenderNormal used for standard rendering of Spine animations.
- * @zh RenderNormal 类用于标准的 Spine 动画渲染。
- */
-class RenderNormal implements IRender {
-    /** @internal */
-    _renderNode: Spine2DRenderNode;
-    /** @internal */
-    _renderer: ISpineRender;
-    /** @internal */
-    _skeleton: spine.Skeleton;
-
-    /**
-     * @en Create a new instance of RenderNormal.
-     * @param skeleton The Spine skeleton.
-     * @param renderNode The Spine2D render node.
-     * @zh 创建 RenderNormal 的一个新实例。
-     * @param skeleton Spine 骨骼。
-     * @param renderNode Spine2D 渲染节点。
-     */
-    constructor(renderNode: Spine2DRenderNode) {
-        this._renderNode = renderNode;
-        this.changeSkeleton(renderNode.getSkeleton());
-    }
-
-    changeSkeleton(skeleton: spine.Skeleton) {
-        this._skeleton = skeleton;
-    }
-
-    /**
-     * @en Called when leaving the current render state.
-     * @zh 离开当前渲染状态时调用。
-     */
-    leave(): void {
-        this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_COLOR2);
-    }
-
-    /**
-     * @en Change the current skin renderer and animation.
-     * @param currentRender The new skin renderer to use.
-     * @param currentAnimation The new animation render proxy to use.
-     * @zh 更改当前皮肤渲染器和动画。
-     * @param currentRender 要使用的新皮肤渲染器。
-     * @param currentAnimation 要使用的新动画渲染代理。
-     */
-    change(currentRender: SkinRenderUpdate, currentAnimation: AnimationRenderProxy) {
-        this._renderer = currentRender._renderer;
-        this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
-    }
-
-    /**
-     * @en Render the current animation at a specific time.
-     * @param curTime The current time for rendering.
-     * @param boneMat The bone matrix for rendering .
-     * @zh 在特定时间渲染当前动画。
-     * @param curTime 渲染的当前时间。
-     * @param boneMat 用于渲染的骨骼矩阵。
-     */
-    render(curTime: number, boneMat: Float32Array) {
-        this._renderNode.clear();
-        this._renderer.draw(this._skeleton, this._renderNode, -1, -1);
-        this._renderNode.owner._struct.renderElements = this._renderNode._renderElements;
-    }
-
-}
-
-/**
- * @en RenderBake used for baked Spine animation rendering.
- * @zh RenderBake 类用于烘焙 Spine 动画的渲染。
- */
-class RenderBake implements IRender {
-    /**
-     * @en Array of Spine bones.
-     * @zh Spine 骨骼数组。
-     */
-    bones: spine.Bone[];
-    /**
-     * @en Array of Spine slots.
-     * @zh Spine 插槽数组。
-     */
-    slots: spine.Slot[];
-    /** @internal */
-    _simpleAnimatorParams: Vector4;
-
-    private _simpleAnimatorTextureSize: number;
-
-    private _simpleAnimatorTexture: Texture2D;
-    /** x simpleAnimation offset,y simpleFrameOffset*/
-    private _simpleAnimatorOffset: Vector2;
-    /** @internal */
-    _bonesNums: number;
-    /**
-     * @en Map of animation offsets.
-     * @zh 动画偏移量映射。
-     */
-    aniOffsetMap: Record<string, number>;
-    /**
-     * @en Animatioin frame texture.
-     * @zh 动画帧贴图。
-     */
-    get simpleAnimatorTexture(): Texture2D {
-        return this._simpleAnimatorTexture;
-    }
-
-    set simpleAnimatorTexture(value: Texture2D) {
-        if (this._simpleAnimatorTexture) {
-            this._simpleAnimatorTexture._removeReference();
-        }
-        this._simpleAnimatorTexture = value;
-        this._simpleAnimatorTextureSize = value.width;
-        this._renderNode._spriteShaderData.setTexture(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURE, value);
-        value._addReference();
-        this._renderNode._spriteShaderData.setNumber(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURESIZE, this._simpleAnimatorTextureSize);
-    }
-
-    /**
-     * @en The simple animator offset.
-     * @zh 简单动画偏移量
-     */
-    get simpleAnimatorOffset(): Vector2 {
-        return this._simpleAnimatorOffset;
-    }
-
-    set simpleAnimatorOffset(value: Vector2) {
-        value.cloneTo(this._simpleAnimatorOffset);
-    }
-
-    /** @internal */
-    _skeleton: spine.Skeleton;
-
-    /** @internal */
-    _renderNode: Spine2DRenderNode;
-    /**
-     * @en The current skin renderer.
-     * @zh 当前皮肤渲染器。
-     */
-    skinRender: SkinRenderUpdate;
-    /**
-     * @en The current animation render proxy.
-     * @zh 当前动画渲染代理。
-     */
-    currentAnimation: AnimationRenderProxy;
-    /**
-     * @en The time step for animation.
-     * @zh 动画的时间步长。
-     */
-    step = 1 / 60;
-    /**
-     * @en Create a new instance of RenderBake.
-     * @param bones Array of Spine bones.
-     * @param slots Array of Spine slots.
-     * @param renderNode The Spine2D render node.
-     * @zh 创建 RenderBake 的新实例。
-     * @param bones Spine 骨骼数组。
-     * @param slots Spine 插槽数组。
-     * @param renderNode Spine2D 渲染节点。
-     */
-    constructor(renderNode: Spine2DRenderNode) {
-        this._simpleAnimatorParams = new Vector4();
-        this._renderNode = renderNode;
-        this._simpleAnimatorOffset = new Vector2();
-        this.changeSkeleton(renderNode.getSkeleton());
-    }
-
-    changeSkeleton(skeleton: spine.Skeleton) {
-        this._skeleton = skeleton;
-        this.bones = skeleton.bones;
-        this.slots = skeleton.slots;
-    }
-
-    /**
-     * @en Called when leaving the current render state.
-     * @zh 离开当前渲染状态时调用。
-     */
-    leave() {
-        this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_SIMPLE);
-        //this._renderNode._spriteShaderData.removeDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
-        this._renderNode._renderType = BaseRender2DType.spine;
-    }
-
-    /**
-     * @en Change the current skin renderer and animation.
-     * @param currentRender The new skin renderer to use.
-     * @param currentAnimation The new animation render proxy to use.
-     * @zh 更改当前皮肤渲染器和动画。
-     * @param currentRender 要使用的新皮肤渲染器。
-     * @param currentAnimation 要使用的新动画渲染代理。
-     */
-    change(currentRender: SkinRenderUpdate, currentAnimation: AnimationRenderProxy) {
-        this.skinRender = currentRender;
-        this.currentAnimation = currentAnimation;
-        this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_SIMPLE);
-        this._simpleAnimatorOffset.x = this.aniOffsetMap[currentAnimation.name];
-        if (currentAnimation.currentSKin.canInstance) {
-            this._renderNode._renderType = BaseRender2DType.spineSimple;
-            // this._renderNode._spriteShaderData.addDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
-        }
-    }
-
-    /**
-     * @internal
-     */
-    _computeAnimatorParamsData() {
-        this._simpleAnimatorParams.x = this._simpleAnimatorOffset.x;
-        this._simpleAnimatorParams.y = Math.round(this._simpleAnimatorOffset.y) * this._bonesNums * 2;
-    }
-
-    /**
-     * @en Set custom data for the animator.
-     * @param value1 First custom value.
-     * @param value2 Second custom value.
-     * @zh 为动画器设置自定义数据。
-     * @param value1 自定义数据1。
-     * @param value2 自定义数据2。
-     */
-    setCustomData(value1: number, value2: number = 0) {
-        this._simpleAnimatorParams.z = value1;
-        this._simpleAnimatorParams.w = value2;
-    }
-
-    /**
-     * @en Render the current animation at a specific time.
-     * @param curTime The current time for rendering.
-     * @param boneMat The bone matrix for rendering.
-     * @zh 在特定时间渲染当前动画。
-     * @param curTime 渲染的当前时间。
-     * @param boneMat 用于渲染的骨骼矩阵。
-     */
-    render(curTime: number, boneMat: Float32Array) {
-        this.currentAnimation.renderWithOutMat(this.slots, this.skinRender, curTime);
-        this._simpleAnimatorOffset.y = curTime / this.step;
-        this._computeAnimatorParamsData();
-        // let boneMat = this.currentAnimation.render(this.bones, this.slots, this.skinRender, curTime);//TODO bone
-        // this.material.boneMat = boneMat;
-        this._renderNode._spriteShaderData.setVector(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
-    }
-}

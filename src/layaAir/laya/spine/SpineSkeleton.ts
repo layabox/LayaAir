@@ -214,7 +214,7 @@ export class SpineSkeleton extends Sprite {
      */
     destroy(destroyChild: boolean = true): void {
         if (this._spineComponent.templet) {
-            this._spineComponent.reset();
+            this._spineComponent.clear();
         }
         super.destroy(destroyChild);
     }
