@@ -1,6 +1,8 @@
 import { Laya } from "../../Laya";
+import { NodeFlags } from "../Const";
 import { Render2DProcessor } from "../display/Render2DProcessor";
 import { Sprite } from "../display/Sprite";
+import { SpriteConst } from "../display/SpriteConst";
 import { Text } from "../display/Text";
 import { Event } from "../events/Event";
 import { LayaGL } from "../layagl/LayaGL";
@@ -86,8 +88,17 @@ export class StatUI {
         this._txt.x = this._title.textWidth + 10;
         this._sp.size(this._title.textWidth + 100, this._title.textHeight + 10);
         this._sp.pos(x || 0, y || 0);
+        // 验证通过
+        this._sp._parent = Laya.stage;
+        this._sp._setDisplay(true);
     }
 
+    hide(){
+        if(!this._sp) return;
+
+        this._sp._parent = null;
+        this._sp._setDisplay(false);
+    }
     update(): void {
         strArray.length = 0;
         for (let i = 0; i < this._items.length; i++) {
