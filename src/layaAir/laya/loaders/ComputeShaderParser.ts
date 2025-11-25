@@ -18,7 +18,7 @@ export class ComputeShaderParser {
 
     static parse(data: string, basePath?: string) {
 
-        type uniformType = { [name: string]: { type: ShaderDataType, format?: string } };
+        type uniformType = { [name: string]: { type: ShaderDataType, format?: string, access?: "readonly" | "writeonly" | "readwrite" } };
 
         let obj: IShaderObjStructor = ShaderParser.getShaderBlock(data);
         let glslMap = ShaderParser.getCGBlock(data);
@@ -62,9 +62,16 @@ export class ComputeShaderParser {
 
                     if (dataType == ShaderDataType.StorageTexture2D) {
                         let format = entry.format ? entry.format : "rgba8";
+                        let access = entry.access ? entry.access : "writeonly";
                         newUniformMap[k].format = format;
+                        newUniformMap[k].access = access;
                     }
                     else if (dataType == ShaderDataType.DeviceBuffer) {
+                        let access = entry.access ? entry.access : "readwrite";
+                        if (access == "readonly") {
+                            newUniformMap[k].type = ShaderDataType.ReadOnlyDeviceBuffer;
+                        }
+                        newUniformMap[k].access = access;
                     }
                 }
             });
@@ -102,9 +109,8 @@ export class ComputeShaderParser {
                         uniformMap.addShaderUniformArray(propertyID, uniformName, shaderDataType.type, arrayLength);
                     }
                     else {
-                        uniformMap.addShaderUniform(propertyID, k, shaderDataType.type, shaderDataType.format);
+                        uniformMap.addShaderUniform(propertyID, k, shaderDataType.type, { format: shaderDataType.format, access: shaderDataType.access });
                     }
-
                 }
 
             });

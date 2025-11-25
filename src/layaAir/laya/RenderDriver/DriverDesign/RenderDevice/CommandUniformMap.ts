@@ -6,8 +6,14 @@ export type UniformProperty = {
     propertyName: string,
     uniformtype: ShaderDataType,
     arrayLength: number,
-    format?: string
+    format?: string,
+    access?: 'readonly' | 'writeonly' | 'readwrite'
 };
+
+export type UniformOptions = {
+    format?: string,
+    access?: 'readonly' | 'writeonly' | 'readwrite'
+}
 
 /**
  * @blueprintIgnore
@@ -23,7 +29,7 @@ export class CommandUniformMap {
      * @param propertyID 
      * @param propertyKey 
      */
-    addShaderUniform(propertyID: number, propertyKey: string, uniformtype: ShaderDataType, format?: string): void {
+    addShaderUniform(propertyID: number, propertyKey: string, uniformtype: ShaderDataType, options?: UniformOptions): void {
         throw "need override it";
     }
 
