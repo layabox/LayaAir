@@ -11,15 +11,13 @@ import { IRenderStruct2D } from "../../RenderDriver/RenderModuleData/Design/2D/I
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
-import { IAutoExpiringResource } from "../../renders/ResNeedTouch";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
 import { RenderTexture2D } from "../../resource/RenderTexture2D";
 import { Texture } from "../../resource/Texture";
 import { IPool, Pool } from "../../utils/Pool";
 import { FastSinglelist } from "../../utils/SingletonList";
-import { Utils } from "../../utils/Utils";
-import { BlendMode, BlendModeHandler } from "../../webgl/canvas/BlendMode";
+import { BlendModeHandler } from "../../webgl/canvas/BlendMode";
 import { Shader2D } from "../../webgl/shader/d2/Shader2D";
 import { GraphicsShaderInfo } from "../../webgl/shader/d2/value/GraphicsShaderInfo";
 import { SubmitBase } from "../../webgl/submit/SubmitBase";
@@ -231,14 +229,6 @@ export class GraphicsRenderData {
 
       return submit;
    }
-
-   // touchResources: IAutoExpiringResource[] = [];
-
-   touchRes(res: IAutoExpiringResource) {
-      // res.referenceCount++;
-      // this.touchResources.push(res);
-   }
-
 }
 
 /** @internal */

@@ -1,5 +1,4 @@
 import { Byte } from "./Byte";
-import { WordText } from "./WordText";
 
 /**
  * @en JsonBin class provides methods for parsing and writing binary JSON-like data.
@@ -337,12 +336,12 @@ function readOne(parent: any, data: Byte, key: string, type: number, keyMap: Rea
             value = keyMap.keyArray[data.readUint16()][0];
             break;
         case WORDTEXT:
-            n = data.readUint16();
-            value = keyMap.keyArray[n][3];
-            if (!value) {
-                value = keyMap.keyArray[n][3] = new WordText();
-                (value as WordText).setText(keyMap.keyArray[n][0]);
-            }
+            // n = data.readUint16();
+            // value = keyMap.keyArray[n][3];
+            // if (!value) {
+            //     value = keyMap.keyArray[n][3] = new WordText();
+            //     (value as WordText).setText(keyMap.keyArray[n][0]);
+            // }
             break;
         case ARRAYEMPTY:
             data.readUint8();
@@ -583,8 +582,6 @@ function getObjectTypeof(value: any): string {
         return "Int16Array";
     if (value instanceof Float32Array)
         return "Float32Array";
-    if ((value instanceof WordText) || isWordText(value))
-        return "WordText";
     return "object";
 }
 

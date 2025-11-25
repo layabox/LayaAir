@@ -88,6 +88,11 @@ export class StatUI {
         this._sp.pos(x || 0, y || 0);
     }
 
+    hide() {
+        this._title.text = null;
+        this._txt.text = null;
+    }
+
     update(): void {
         strArray.length = 0;
         for (let i = 0; i < this._items.length; i++) {

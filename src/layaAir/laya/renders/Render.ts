@@ -20,10 +20,6 @@ export class Render {
      */
     static lastFrame = 0;
 
-    // 全局重画标志。一个get一个set是为了把标志延迟到下一帧的开始，防止部分对象接收不到。
-    private static _globalRepaintSet: boolean = false;
-    private static _globalRepaintGet: boolean = false;
-
     /**
      * @internal
      */
@@ -82,8 +78,6 @@ export class Render {
      */
     static loop(timestamp: number) {
         LayaGL.statAgent.startFrameLogic(timestamp);
-        this._globalRepaintGet = this._globalRepaintSet;
-        this._globalRepaintSet = false;
         ILaya.stage.render(timestamp);
         LayaGL.statAgent.endFrameLogic(timestamp);
     }
@@ -93,20 +87,6 @@ export class Render {
      */
     static vsyncTime() {
         return Render.lastFrame * Render.frameInterval;
-    }
-
-    /**
-     * @ignore
-     */
-    static isGlobalRepaint(): boolean {
-        return Render._globalRepaintGet;
-    }
-
-    /**
-     * @ignore
-     */
-    static setGlobalRepaint(): void {
-        Render._globalRepaintSet = true;
     }
 
     /** @deprecated */
