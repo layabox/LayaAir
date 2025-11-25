@@ -30,7 +30,6 @@ import { Rectangle } from "../maths/Rectangle"
 import { Texture } from "../resource/Texture"
 import { Utils } from "../utils/Utils"
 import { ILaya } from "../../ILaya";
-import { WordText } from "../utils/WordText";
 import { ColorUtils } from "../utils/ColorUtils";
 import type { Material } from "../resource/Material";
 import { DrawEllipseCmd } from "./cmd/DrawEllipseCmd";
@@ -514,7 +513,7 @@ export class Graphics {
      * @param color 定义文本颜色，例如"#ff0000"
      * @param textAlign 文本对齐方式。可选值："left"、"center"、"right"
      */
-    fillText(text: string | WordText, x: number, y: number, font: string, color: string, textAlign: string): FillTextCmd {
+    fillText(text: string, x: number, y: number, font: string, color: string, textAlign: string): FillTextCmd {
         return this.addCmd(FillTextCmd.create(text, x, y, font, color, textAlign, 0, ""));
     }
 
@@ -538,7 +537,7 @@ export class Graphics {
      * @param lineWidth 镶边线条宽度
      * @param borderColor 定义镶边文本颜色
      */
-    fillBorderText(text: string | WordText, x: number, y: number, font: string, fillColor: string, textAlign: string, lineWidth: number, borderColor: string): FillTextCmd {
+    fillBorderText(text: string, x: number, y: number, font: string, fillColor: string, textAlign: string, lineWidth: number, borderColor: string): FillTextCmd {
         return this.addCmd(FillTextCmd.create(text, x, y, font, fillColor, textAlign, lineWidth, borderColor));
     }
 
@@ -560,7 +559,7 @@ export class Graphics {
      * @param lineWidth 线条宽度
      * @param textAlign 文本对齐方式。可选值："left"、"center"、"right"
      */
-    strokeText(text: string | WordText, x: number, y: number, font: string, color: string, lineWidth: number, textAlign: string): FillTextCmd {
+    strokeText(text: string, x: number, y: number, font: string, color: string, lineWidth: number, textAlign: string): FillTextCmd {
         return this.addCmd(FillTextCmd.create(text, x, y, font, null, textAlign, lineWidth, color));
     }
 

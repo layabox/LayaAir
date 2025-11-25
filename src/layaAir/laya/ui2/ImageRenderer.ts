@@ -84,6 +84,11 @@ export class ImageRenderer {
         else
             drawClass = DrawTextureCmd;
         if (this._drawCmd && this._drawCmd.cmdID === drawClass.ID) {
+            let oldTexture = this._drawCmd.texture;
+            if (oldTexture !== this._tex) {
+                oldTexture?._removeReference();
+                this._tex?._addReference();
+            }
             this._drawCmd.texture = this._tex;
             if (drawClass === DrawTrianglesCmd)
                 (this._drawCmd as DrawTrianglesCmd).mesh = this._meshFactory;

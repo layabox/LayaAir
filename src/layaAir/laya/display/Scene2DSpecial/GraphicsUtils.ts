@@ -12,7 +12,6 @@ import { IRenderStruct2D } from "../../RenderDriver/RenderModuleData/Design/2D/I
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
-import { IAutoExpiringResource } from "../../renders/ResNeedTouch";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
 import { RenderTexture2D } from "../../resource/RenderTexture2D";
@@ -20,8 +19,7 @@ import { Resource } from "../../resource/Resource";
 import { Texture } from "../../resource/Texture";
 import { IPool, Pool } from "../../utils/Pool";
 import { FastSinglelist } from "../../utils/SingletonList";
-import { Utils } from "../../utils/Utils";
-import { BlendMode, BlendModeHandler } from "../../webgl/canvas/BlendMode";
+import { BlendModeHandler } from "../../webgl/canvas/BlendMode";
 import { Shader2D } from "../../webgl/shader/d2/Shader2D";
 import { GraphicsShaderInfo } from "../../webgl/shader/d2/value/GraphicsShaderInfo";
 import { SubmitBase } from "../../webgl/submit/SubmitBase";
@@ -125,9 +123,9 @@ export class GraphicsRenderData {
    }
 
    /** @internal */
-   _check(){
+   _check() {
       let result = true;
-      this.texturesMap.forEach(texture=>{
+      this.texturesMap.forEach(texture => {
          result = texture._getSource() && result;
       })
       return result;
@@ -250,13 +248,6 @@ export class GraphicsRenderData {
       return submit;
    }
 
-   // touchResources: IAutoExpiringResource[] = [];
-
-   touchRes(res: IAutoExpiringResource) {
-      // res.referenceCount++;
-      // this.touchResources.push(res);
-   }
-
    referenceRes(runner: GraphicsRunner, res: Resource) {
       if (res instanceof Texture) {
          let old = this.texturesMap.get(res.id);
@@ -270,7 +261,7 @@ export class GraphicsRenderData {
    private _resourceRepaint() {
       if (this.owner._needGraphicsUpdate()) {
          this.owner._graphics.repaint();
-      }else{
+      } else {
          this.owner._graphics._modified = true;
       }
    }
@@ -336,7 +327,7 @@ export class SubStructRender {
     * @param scaleX
     * @param scaleY
     */
-   _updateRenderOffset(rect: Rectangle , oriRect: Rectangle, scaleX :number, scaleY :number) {
+   _updateRenderOffset(rect: Rectangle, oriRect: Rectangle, scaleX: number, scaleY: number) {
       rect.cloneTo(this._rtRect);
 
       if (!oriRect.equals(this._oriRect)) {
@@ -356,7 +347,7 @@ export class SubStructRender {
       if (sprite.mask) {
          this._updateLogicMatrix(sprite.mask, sprite.globalTrans.getMatrix(), rect.x, rect.y, matrix);
       }
-      else if(sprite._maskParent && sprite.transform){
+      else if (sprite._maskParent && sprite.transform) {
          this._updateLogicMatrix(sprite, sprite.globalTrans.getMatrix(), rect.x, rect.y, matrix);
       }
       else {
@@ -372,7 +363,7 @@ export class SubStructRender {
       originPass.offsetMatrix = matrix;
    }
 
-   private _updateLogicMatrix(sprite: Sprite , global: Matrix, offsetX: number, offsetY: number, out: Matrix ) {
+   private _updateLogicMatrix(sprite: Sprite, global: Matrix, offsetX: number, offsetY: number, out: Matrix) {
       if (!this._logicMatrix) {
          this._logicMatrix = new Matrix;
       }
@@ -387,9 +378,9 @@ export class SubStructRender {
       let y = sprite.y - sprite._pivotY;
       logicMatrix.tx = x * parentGlobal.a + y * parentGlobal.c + parentGlobal.tx;
       logicMatrix.ty = x * parentGlobal.b + y * parentGlobal.d + parentGlobal.ty;
-      
+
       logicMatrix.copyTo(out);
-      Matrix.mul(logicMatrix , global.copyTo(Matrix.TEMP).invert(), logicMatrix);
+      Matrix.mul(logicMatrix, global.copyTo(Matrix.TEMP).invert(), logicMatrix);
       this._handle.logicMatrix = this._logicMatrix;
 
       //逻辑父节点localMatrix

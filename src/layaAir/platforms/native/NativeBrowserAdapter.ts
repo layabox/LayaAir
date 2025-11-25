@@ -35,10 +35,6 @@ export class NativeBrowserAdapter extends BrowserAdapter {
             });
         };
 
-        Laya.addAfterInitCallback(() => {
-            PAL.g.setGlobalRepaint(Render.setGlobalRepaint);
-        });
-
         super.init();
     }
 

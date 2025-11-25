@@ -93,12 +93,16 @@ export class StatUI {
         this._sp._setDisplay(true);
     }
 
-    hide(){
-        if(!this._sp) return;
+    hide() {
+        if (!this._sp) return;
+
+        this._title.text = null;
+        this._txt.text = null;
 
         this._sp._parent = null;
         this._sp._setDisplay(false);
     }
+
     update(): void {
         strArray.length = 0;
         for (let i = 0; i < this._items.length; i++) {
