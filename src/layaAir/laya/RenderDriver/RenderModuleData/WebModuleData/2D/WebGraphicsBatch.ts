@@ -433,6 +433,7 @@ export class WebGraphicsBatch implements IBatch2DProvider {
                 initCache(1000);
 
             let headGroup = 0;
+            let maxGroup = 1;
             let indiceLen = 1;
             elementIndice[0] = start;
             elementFlags[0] = 0;
@@ -466,7 +467,7 @@ export class WebGraphicsBatch implements IBatch2DProvider {
                         continue;
                     }
 
-                    elementFlags[i] = group = headGroup + 1;
+                    elementFlags[i] = group = maxGroup++;
                 }
 
                 for (let j = i + 1; j < cnt; j++) {
