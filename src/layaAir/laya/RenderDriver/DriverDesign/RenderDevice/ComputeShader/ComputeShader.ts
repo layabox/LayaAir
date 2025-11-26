@@ -1,4 +1,5 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { IComputeShaderCompileObj, ShaderCompile } from "../../../../webgl/utils/ShaderCompile";
 import { ShaderNode } from "../../../../webgl/utils/ShaderNode";
 import { IDefineDatas } from "../../../RenderModuleData/Design/IDefineDatas";
 import { CommandUniformMap } from "../CommandUniformMap";
@@ -8,10 +9,10 @@ export class ComputeShader {
     /**@internal */
     static _CompileShader: Record<string, ComputeShader> = {};
     static createComputeShader(name: string, code: string, other: any) {
-        // if (!ComputeShader._CompileShader[name]) {
-        //     return new ComputeShader(name, code, other);
-        // } else
-        return ComputeShader._CompileShader[name];
+        if (!ComputeShader._CompileShader[name]) {
+            return new ComputeShader(name, ShaderCompile.compileCompute(code), other);
+        } else
+            return ComputeShader._CompileShader[name];
     }
 
     /** @internal */
@@ -24,9 +25,9 @@ export class ComputeShader {
     node: ShaderNode;
     uniformMaps: CommandUniformMap[];
 
-    constructor(name: string, node: ShaderNode, uniformMaps: CommandUniformMap[]) {
+    constructor(name: string, node: IComputeShaderCompileObj, uniformMaps: CommandUniformMap[]) {
         this.name = name;
-        this.node = node;
+        this.node = node.node;
         this.uniformMaps = uniformMaps.slice();
     }
 

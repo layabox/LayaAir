@@ -163,6 +163,29 @@ export class ShaderCompile {
         return this._loadIncludesDeep(result, includes, 0) as Promise<IShaderCompiledObj>;
     }
 
+    static compileCompute(code: string, basePath?: string): IComputeShaderCompileObj {
+        let result: IComputeShaderCompileObj = {
+            node: new ShaderNode([]),
+            includeNames: new Set(),
+            defs: new Set()
+        };
+
+        let includes: Array<IncludeItem> = [];
+
+        code = code.replace(_clearCR, "");
+
+        ShaderCompile._compileToTree(result.node, code, result.defs, includes, basePath);
+
+        for (let inc of includes) {
+            if (inc.file)
+                result.includeNames.add(inc.name);
+            else
+                console.warn(`ShaderCompile missing file ${inc.name}`);
+        }
+
+        return result;
+    }
+
     static compileComputeAsync(code: string, basePath?: string): Promise<IComputeShaderCompileObj> {
         let result: IComputeShaderCompileObj = {
             node: new ShaderNode([]),

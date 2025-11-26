@@ -117,7 +117,7 @@ export class ComputeShaderParser {
 
             let node = compileObjs.node;
             compileObjs.defs
-            let computeShader = new ComputeShader(shaderName, node, uniformMaps);
+            let computeShader = new ComputeShader(shaderName, compileObjs, uniformMaps);
 
             return computeShader;
         });
