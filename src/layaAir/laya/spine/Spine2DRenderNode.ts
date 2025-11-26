@@ -382,6 +382,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this._offset = value;
         this._renderHandle.offset = this._offset;
         this.boundsChange = true;
+        
+        if (this.playState !== Spine2DRenderNode.PLAYING) {
+            this.owner.repaint(RepaintFlag.UpdateRT);
+        }
     }
 
     private _autoAdjust: boolean = false;
