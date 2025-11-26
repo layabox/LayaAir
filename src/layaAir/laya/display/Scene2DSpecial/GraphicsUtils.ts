@@ -248,11 +248,11 @@ export class GraphicsRenderData {
       return submit;
    }
 
-   referenceRes(runner: GraphicsRunner, res: Resource) {
+   addResRef(res: Resource) {
       if (res instanceof Texture) {
          let old = this.texturesMap.get(res.id);
          if (!old) {
-            res.on(Event.CHANGE, this, this._resourceRepaint);
+            res.on("dispose", this, this._resourceRepaint);
             this.texturesMap.set(res.id, res);
          }
       }

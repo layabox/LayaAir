@@ -42,7 +42,7 @@ export class Render {
         let requestFrame = PAL.browser.requestFrame;
         let lastTime: number = null;
         let first = true;
-        let startTm = 0; //刚启动的时间。由于微信的rAF不标准，传入的stamp参数不对，因此自己计算一个从启动开始的相对时间
+        let startTm = 0;
         let leftTime = 0;
 
         function loop(timestamp: number) {

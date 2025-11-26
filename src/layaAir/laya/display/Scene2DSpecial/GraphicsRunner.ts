@@ -154,15 +154,6 @@ export class GraphicsRunner {
     set miterLimit(value: string) {
     }
 
-    /**
-     * 添加需要引用的资源
-     * @param res 
-     */
-    referenceRes(res: Resource) {
-        this._graphicsData.referenceRes(this, res);
-    }
-
-
     transformByMatrix(matrix: Matrix, tx: number, ty: number): void {
         this.transform(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx + tx, matrix.ty + ty);
     }
@@ -739,7 +730,7 @@ export class GraphicsRunner {
         if (!this._getImageSource(texture)) {
             return;
         }
-        this.referenceRes(texture);
+        this._graphicsData.addResRef(texture);
         this._fillTexture(texture, texture.width, texture.height, texture.uvrect, x, y, width, height, type, offset.x, offset.y, color);
     }
 
@@ -840,12 +831,11 @@ export class GraphicsRunner {
     }
 
     drawTextures(tex: Texture, pos: ArrayLike<number>, tx: number, ty: number, colors: number[]): void {
-        if (!this._getImageSource(tex)) //source内调用tex.active();
-        {
+        if (!this._getImageSource(tex)) { //source内调用tex.active();
             return;
         }
 
-        this.referenceRes(tex);
+        this._graphicsData.addResRef(tex);
         //TODO 还没实现
         var n = pos.length / 2;
         var ipos = 0;
@@ -862,7 +852,7 @@ export class GraphicsRunner {
         if (!this._getImageSource(tex)) { //source内调用tex.active();
             return false;
         }
-        this.referenceRes(tex);
+        this._graphicsData.addResRef(tex);
         return this._inner_drawTexture(tex, (tex.bitmap as Texture2D).id, x, y, width, height, m, uv, alpha, color);
     }
 
@@ -1136,7 +1126,7 @@ export class GraphicsRunner {
         if (!this._getImageSource(tex)) { //source内调用tex.active();
             return;
         }
-        this.referenceRes(tex);
+        this._graphicsData.addResRef(tex);
 
         if (alpha == null) alpha = 1.0;
         if (colorNum == null) colorNum = 0xffffffff;

@@ -510,7 +510,7 @@ export class Texture extends Resource {
     disposeBitmap(): void {
         if (!this._destroyed && this._bitmap) {
             this._bitmap.destroy();
-            this.event(Event.CHANGE);
+            this.event("dispose");
         }
     }
 

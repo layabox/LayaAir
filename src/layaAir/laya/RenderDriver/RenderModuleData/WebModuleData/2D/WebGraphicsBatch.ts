@@ -589,11 +589,10 @@ var rectTopCache: Float32Array;
 var rectRightCache: Float32Array;
 var rectBottomCache: Float32Array;
 function initCache(maxElements: number) {
-    elementFlags = new Int16Array(new ArrayBuffer(maxElements * 2));
-    elementIndice = new Int16Array(new ArrayBuffer(maxElements * 2));
-    maxElements *= 4;
-    rectLeftCache = new Float32Array(new ArrayBuffer(maxElements));
-    rectTopCache = new Float32Array(new ArrayBuffer(maxElements));
-    rectRightCache = new Float32Array(new ArrayBuffer(maxElements));
-    rectBottomCache = new Float32Array(new ArrayBuffer(maxElements));
+    elementFlags = new Int16Array(maxElements);
+    elementIndice = new Int16Array(maxElements);
+    rectLeftCache = new Float32Array(maxElements);
+    rectTopCache = new Float32Array(maxElements);
+    rectRightCache = new Float32Array(maxElements);
+    rectBottomCache = new Float32Array(maxElements);
 }
