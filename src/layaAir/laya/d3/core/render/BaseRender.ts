@@ -60,7 +60,8 @@ export enum propertyChangeFlag {
     receiveShadow,
     transform,
     lightmapData,
-    RenderCustomData
+    RenderCustomData,
+    VisibalRange,
 }
 
 /**
@@ -224,6 +225,7 @@ export class BaseRender extends Component {
     set visibalMin(value: number) {
         if (VisibalRangeFlag.BASERENDERSET >= this._baseRenderNode.visibalRangeBit) {
             this._baseRenderNode.visibalMin = value;
+            this._batchRender && this._batchRender.updateProperty(this, propertyChangeFlag.VisibalRange);
         }
     }
 
@@ -234,6 +236,7 @@ export class BaseRender extends Component {
     set visibalMax(value: number) {
         if (VisibalRangeFlag.BASERENDERSET >= this._baseRenderNode.visibalRangeBit) {
             this._baseRenderNode.visibalMax = value;
+            this._batchRender && this._batchRender.updateProperty(this, propertyChangeFlag.VisibalRange);
         }
     }
 

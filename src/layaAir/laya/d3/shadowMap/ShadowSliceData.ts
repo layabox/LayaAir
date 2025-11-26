@@ -55,6 +55,8 @@ export class CameraCullInfo {
  * @zh 阴影裁剪信息
  */
 export class ShadowCullInfo {
+
+    cameraPosition: Vector3;
     /**
      * @en Position.
      * @zh 位置。

@@ -9,6 +9,7 @@ import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData
 import { SpriteConst } from "./SpriteConst";
 import { Matrix } from "../maths/Matrix";
 import { Scene2DSpecialManager } from "./Scene2DSpecial/Scene2DSpecialManager";
+import { LayaEnv } from "../../LayaEnv";
 
 export class Area2D extends Sprite {
     private _mainCamera: Camera2D;

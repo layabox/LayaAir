@@ -1,6 +1,6 @@
 import { Component } from "../../components/Component";
 import { Camera } from "../core/Camera";
-import { BaseRender, RenderBitFlag, VisibalRangeFlag } from "../core/render/BaseRender";
+import { BaseRender, propertyChangeFlag, RenderBitFlag, VisibalRangeFlag } from "../core/render/BaseRender";
 import { Sprite3D } from "../core/Sprite3D";
 import { Bounds } from "../math/Bounds";
 import { Event } from "../../events/Event";
@@ -56,13 +56,17 @@ export class LODInfo {
 
     set maxVisibalDistance(value: number) {
         for (var i = 0; i < this._renders.length; i++) {
-            this._renders[i]._baseRenderNode.visibalMax = value;
+            let render = this._renders[i];
+            render._baseRenderNode.visibalMax = value;
+            render._batchRender && render._batchRender.updateProperty(render, propertyChangeFlag.VisibalRange);
         }
     }
 
     set minVisibalDistance(value: number) {
         for (var i = 0; i < this._renders.length; i++) {
-            this._renders[i]._baseRenderNode.visibalMin = value;
+            let render = this._renders[i];
+            render._baseRenderNode.visibalMin = value;
+            render._batchRender && render._batchRender.updateProperty(render, propertyChangeFlag.VisibalRange);
         }
     }
 
@@ -116,8 +120,10 @@ export class LODInfo {
         if (ren._isRenderNode > 0) {
             let components = ren.components;
             for (let comp of components) {
-                if ((comp instanceof BaseRender) && this._renders.indexOf(comp) == -1)
+                if ((comp instanceof BaseRender) && this._renders.indexOf(comp) == -1) {
                     this._renders.push(comp);
+                    (comp as BaseRender)._baseRenderNode.visibalRangeBit = VisibalRangeFlag.LOD;
+                }
             }
             this._group && node.transform.on(Event.TRANSFORM_CHANGED, this._group, this._group._updateRecaculateFlag);
         }
@@ -466,19 +472,19 @@ export class LODGroup extends Component {
         let preLODLength: number;
         for (var i = 0; i < this._lods.length; i++) {
             let lod = this._lods[i];
-            if (lod.mincullRate == 0) {
+            if (i == 0) {
                 lod.minVisibalDistance = 0;
             } else {
-                preLODLength = (this._size / lod.mincullRate) / maxYDistance * cameraFarLength;
                 lod.minVisibalDistance = preLODLength;
-                if (preLOD) {
-                    preLOD.maxVisibalDistance = preLODLength
-                }
             }
-            if (i == this.lods.length - 1) {
-                lod.maxVisibalDistance = cameraFarLength;
-            }
+            preLODLength = (this._size / lod.mincullRate) / maxYDistance * cameraFarLength;
+            preLODLength *= preLODLength;
+            lod.maxVisibalDistance = preLODLength;
 
+            if (i == this.lods.length - 1) {
+                lod.maxVisibalDistance = cameraFarLength * cameraFarLength;
+            }
+            preLOD = lod;
         }
     }
 
@@ -491,6 +497,7 @@ export class LODGroup extends Component {
         this.recalculateBounds();
         if (this._needChangeLODVisibal) {
             this._needChangeLODVisibal = false;
+            this._changeLODVisibal();
         }
         if (LayaEnv.isEditor) {
             let checkCamera = (this.owner.scene as Scene3D).cullInfoCamera;

@@ -235,7 +235,7 @@ export class WebDirCascadeShadowRP implements IDirShadowRP {
         for (var i: number = 0, n: number = this._cascadeCount; i < n; i++) {
             var shadowCullInfo = this._shadowCullInfo[i];
             var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
-
+            shadowCullInfo.cameraPosition = this._camera.transform.position;
             shadowCullInfo.position = sliceData.position;
             shadowCullInfo.cullPlanes = sliceData.cullPlanes;
             shadowCullInfo.cullPlaneCount = sliceData.cullPlaneCount;
