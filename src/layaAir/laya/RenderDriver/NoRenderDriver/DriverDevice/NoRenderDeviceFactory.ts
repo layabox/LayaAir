@@ -18,7 +18,7 @@ import { Resource } from "../../../resource/Resource";
 import { NotImplementedError } from "../../../utils/Error";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { ShaderProcessInfo, ShaderCompileDefineBase } from "../../../webgl/utils/ShaderCompileDefineBase";
-import { CommandUniformMap, UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
+import { CommandUniformMap, UniformOptions, UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
 import { IIndexBuffer } from "../../DriverDesign/RenderDevice/IIndexBuffer";
 import { SetRenderDataCMD, RenderCMDType, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
@@ -69,7 +69,7 @@ export class NoRenderCommandUnifojrmMap extends CommandUniformMap {
      * @param propertyID 
      * @param propertyKey 
      */
-    addShaderUniform(propertyID: number, propertyKey: string, uniformtype: ShaderDataType, block: string = null): void {
+    addShaderUniform(propertyID: number, propertyKey: string, uniformtype: ShaderDataType, options?: UniformOptions): void {
 
     }
 

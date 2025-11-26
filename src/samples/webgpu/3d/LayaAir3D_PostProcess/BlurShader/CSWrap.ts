@@ -47,7 +47,7 @@ export class CSWrap {
         const numGroupsY = Math.ceil(numIterationsY / this._groupSizes.y);
         const numGroupsZ = Math.ceil(numIterationsZ / this._groupSizes.z);
         this._dispatchParams.setValue(numGroupsX, numGroupsY, numGroupsZ);
-        cmd.addDispatchCommand(this._cs, this._entryPoint, this._shaderDefine, [this.shaderData], this._dispatchParams);
+        cmd.addDispatchCommand(this._cs, this._shaderDefine, [this.shaderData], this._dispatchParams);
     }
 }
 

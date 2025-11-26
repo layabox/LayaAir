@@ -28,6 +28,8 @@ const shaderDataOBJ: Record<string, ShaderDataType> = {
     "TextureCube": ShaderDataType.TextureCube,
     "Texture2DArray": ShaderDataType.Texture2DArray,
     "Texture3D": ShaderDataType.Texture3D,
+    "StorageTexture2D": ShaderDataType.StorageTexture2D,
+    "StorageBuffer": ShaderDataType.DeviceBuffer,
 };
 
 //TODO 格式改变

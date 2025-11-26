@@ -273,8 +273,8 @@ export class GCA_InstanceRenderElementCollect {
     //将Compute命令加入到ComputeCommandBuffer中，最后apply变可生效结果
     insertComputeCommand(compute: ComputeCommandBuffer) {
         // clear Buffer 的操作TODO
-        compute.addDispatchCommand(this._clearBufferShader, "computeMain", this._shaderDefine, [this._deviceBuffer], this._clearBufferDispartchParams)
-        compute.addDispatchCommand(this._computeShader, "computeMain", this._shaderDefine, this._shaderList, this._dispartchParams);
+        compute.addDispatchCommand(this._clearBufferShader, this._shaderDefine, [this._deviceBuffer], this._clearBufferDispartchParams)
+        compute.addDispatchCommand(this._computeShader, this._shaderDefine, this._shaderList, this._dispartchParams);
     }
     //=========== compute 操作 end =============
 

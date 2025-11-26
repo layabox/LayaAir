@@ -34,7 +34,6 @@ export enum EComputeCMDMemoryOperate {
 
 export interface IComputeCMD_Dispatch {
     shader: IComputeShader;
-    Kernel: string
     shaderData: ShaderData[];
     dispatchParams: Vector3;
 }
