@@ -177,7 +177,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @en Whether to enable transparent premultiplied. Set the attribute needs to use the setPremultipliedAlpha method.
      */
     get premultipliedAlpha(): boolean {
-        return this._setPreAlphaFlag ? this._premultipliedAlpha : this._templet.premultipliedAlpha;
+        return  !this._templet || this._setPreAlphaFlag ? this._premultipliedAlpha : this._templet.premultipliedAlpha;
     }
 
     set premultipliedAlpha(value: boolean) {
