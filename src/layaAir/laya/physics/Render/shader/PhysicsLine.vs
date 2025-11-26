@@ -7,7 +7,7 @@ varying vec4 v_linePionts;
 varying float v_lineLength;
 varying vec2 v_linedir;
 varying float v_lineWidth;
-uniform float u_lineWidth;
+// uniform float u_lineWidth;
 
 
 void lineMat(in vec2 left,in vec2 right,inout vec3 xDir,inout vec3 yDir,float LineWidth){

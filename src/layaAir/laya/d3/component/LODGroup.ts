@@ -1,7 +1,6 @@
 import { Component } from "../../components/Component";
 import { Camera } from "../core/Camera";
 import { BaseRender, RenderBitFlag } from "../core/render/BaseRender";
-import { Scene3D } from "../core/scene/Scene3D";
 import { Sprite3D } from "../core/Sprite3D";
 import { Bounds } from "../math/Bounds";
 import { Event } from "../../events/Event";
@@ -424,25 +423,24 @@ export class LODGroup extends Component {
      * @zh 重新计算包围盒
      */
     recalculateBounds() {
-        if (!this._needcaculateBounds) {
-            return;
+        if (this._needcaculateBounds) {
+            let firstBounds = true;
+            for (let i = 0, n = this._lods.length; i < n; i++) {
+                let lod = this._lods[i];
+                lod._renders.forEach(element => {
+                    if (firstBounds) {
+                        element.bounds.cloneTo(this._bounds);
+                        firstBounds = false;
+                    }
+                    else
+                        Bounds.merge(this._bounds, element.bounds, this._bounds);
+                });
+            }
+            this._lodPosition = this._bounds._imp.getCenter();
+            let extend = this._bounds.getExtent();
+            this._size = 2 * Math.max(extend.x, extend.y, extend.z);
+            this._needcaculateBounds = false;
         }
-        let firstBounds = true;
-        for (let i = 0, n = this._lods.length; i < n; i++) {
-            let lod = this._lods[i];
-            lod._renders.forEach(element => {
-                if (firstBounds) {
-                    element.bounds.cloneTo(this._bounds);
-                    firstBounds = false;
-                }
-                else
-                    Bounds.merge(this._bounds, element.bounds, this._bounds);
-            });
-        }
-        this._lodPosition = this._bounds._imp.getCenter();
-        let extend = this._bounds.getExtent();
-        this._size = 2 * Math.max(extend.x, extend.y, extend.z);
-        this._needcaculateBounds = false;
     }
 
     /**

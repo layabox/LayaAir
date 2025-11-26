@@ -6,7 +6,7 @@ import { Color } from "../maths/Color";
 import { Matrix } from "../maths/Matrix";
 import { Vector2 } from "../maths/Vector2";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
-import { Material } from "../resource/Material";
+import { Material, MaterialRenderMode } from "../resource/Material";
 import { Mesh2D, VertexMesh2D } from "../resource/Mesh2D";
 import { Texture2D } from "../resource/Texture2D";
 import { PhysicsDrawLine2DCMD } from "./Render/PhysicsDrawLine2DCMD";
@@ -44,8 +44,6 @@ export class Physics2DDebugDraw {
         this._camera.m_height = 800;
 
         this._cmdBuffer = new CommandBuffer2D("Physics2DDebugDraw");
-        this._material = new Material();
-        this._material.setShaderName("baseRender2D");
     }
 
     setActive(value: boolean) {
@@ -173,12 +171,18 @@ export class Physics2DDebugDraw {
 
 
     createCircleMeshByVertices(center: { x: number, y: number }, radius: number, numSegments: number): Mesh2D {
+        // 确保至少有3个分段
+        if (numSegments < 3) numSegments = 3;
+        if (radius <= 0) return null;
+
         const twoPi = Math.PI * 2;
         // 每个顶点有5个数据：x,y,z, u,v，最后一个顶点是圆心
         let vertices = new Float32Array((numSegments + 1) * 5);
         // 每个三角形3个索引，共numSegments个三角形
         let indices = new Uint16Array(numSegments * 3);
+
         let pos = 0;
+        // 生成圆周上的顶点
         for (let i = 0; i < numSegments; i++, pos += 5) {
             const angle = twoPi * i / numSegments;
             // 计算环上顶点（已加圆心偏移）
@@ -187,10 +191,11 @@ export class Physics2DDebugDraw {
             vertices[pos] = x;
             vertices[pos + 1] = y;
             vertices[pos + 2] = 0;
-            // 计算UV坐标：将环上顶点转换为相对于圆心的局部坐标，再映射到[0, 1]
-            vertices[pos + 3] = 0.5 + (x - center.x) / (2 * radius);
-            vertices[pos + 4] = 0.5 + (y - center.y) / (2 * radius);
+            // 修复UV坐标计算：使用标准化的局部坐标
+            vertices[pos + 3] = 0.5 + 0.5 * Math.cos(angle);
+            vertices[pos + 4] = 0.5 + 0.5 * Math.sin(angle);
         }
+
         // 添加圆心顶点
         vertices[pos] = center.x;
         vertices[pos + 1] = center.y;
@@ -198,17 +203,14 @@ export class Physics2DDebugDraw {
         vertices[pos + 3] = 0.5;
         vertices[pos + 4] = 0.5;
 
-        // 根据扇形原理构建三角形索引（numSegments个扇形）
+        // 修复索引生成：确保正确的三角形顶点顺序（逆时针）
         let ibIndex = 0;
-        for (let i = 1; i < numSegments; i++, ibIndex += 3) {
-            indices[ibIndex] = i;
-            indices[ibIndex + 1] = i - 1;
-            indices[ibIndex + 2] = numSegments; // 圆心索引
+        for (let i = 0; i < numSegments; i++, ibIndex += 3) {
+            const nextIndex = (i + 1) % numSegments;
+            indices[ibIndex] = numSegments;     // 圆心索引
+            indices[ibIndex + 1] = i;           // 当前顶点
+            indices[ibIndex + 2] = nextIndex;   // 下一个顶点
         }
-        // 最后一个三角形：连接第一个顶点、最后一个顶点与圆心
-        indices[ibIndex] = 0;
-        indices[ibIndex + 1] = numSegments - 1;
-        indices[ibIndex + 2] = numSegments;
 
         // 根据项目中现有的接口获取顶点声明并创建Mesh2D
         var declaration = VertexMesh2D.getVertexDeclaration(["POSITION,UV"], false)[0];
@@ -223,6 +225,7 @@ export class Physics2DDebugDraw {
     }
 
     addMeshDebugDrawCMD(mesh2D: Mesh2D, color: Color, matrix?: Matrix) {
+        if (!mesh2D) return;
         if (!matrix) matrix = this._matrix;
         let cmd = DrawMesh2DCMD.create(mesh2D, matrix, Texture2D.whiteTexture, color, this._material);
         cmd && this._cmdDrawMeshList.push(cmd);

@@ -307,22 +307,19 @@ export class WebDirCascadeShadowRP implements IDirShadowRP {
             var offsetX: number = sliceData.offsetX;
             var offsetY: number = sliceData.offsetY;
 
+            Viewport.TEMP.set(offsetX, offsetY, resolution, resolution);
+            Vector4.TEMP.setValue(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);
+            context.setViewPort(Viewport.TEMP);
+            context.setScissor(Vector4.TEMP);
 
             if (this._renderQueue.elements.length > 0) {// if one cascade have anything to render.
-                Viewport.TEMP.set(offsetX, offsetY, resolution, resolution);
-                Vector4.TEMP.setValue(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);
-                context.setViewPort(Viewport.TEMP);
-                context.setScissor(Vector4.TEMP);
+                this._renderQueue.renderQueue(context);
             }
             else {
-                Viewport.TEMP.set(offsetX, offsetY, resolution, resolution);
-                context.setViewPort(Viewport.TEMP);
-                Vector4.TEMP.setValue(offsetX, offsetY, resolution, resolution);
-                context.setScissor(Vector4.TEMP);
+                context.clearRenderTarget();
             }
 
-            context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
-            this._renderQueue.renderQueue(context);
+            // context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
             LayaGL.statAgent.recordCTData(StatElement.CT_ShadowDrawCall, this._renderQueue.elements.length);
             this._applyCasterPassCommandBuffer(context);
         }

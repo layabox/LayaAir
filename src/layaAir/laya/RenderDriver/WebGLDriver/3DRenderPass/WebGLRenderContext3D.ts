@@ -309,4 +309,9 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         WebGLEngine.instance.scissor(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
     }
 
+    clearRenderTarget() {
+        this._bindRenderTarget();
+        this._start();
+    }
+
 }

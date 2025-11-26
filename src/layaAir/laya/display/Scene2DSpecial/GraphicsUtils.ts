@@ -126,6 +126,15 @@ export class GraphicsRenderData {
 
    }
 
+   /** @internal */
+   _check(){
+      let result = true;
+      this.texturesMap.forEach(texture=>{
+         result = texture._getSource() && result;
+      })
+      return result;
+   }
+
    /**
     * 提交所有mesh的数据
     * @param graphics 图形
@@ -268,7 +277,11 @@ export class GraphicsRenderData {
    }
 
    private _resourceRepaint() {
-      this.owner._graphics.repaint();
+      if (this.owner._needGraphicsUpdate()) {
+         this.owner._graphics.repaint();
+      }else{
+         this.owner._graphics._modified = true;
+      }
    }
 
 }

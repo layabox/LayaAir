@@ -124,4 +124,8 @@ export class GLESRenderContext3D implements IRenderContext3D {
         this._nativeObj.runCMDList(nativeobCMDs);
     }
 
+    clearRenderTarget(): void {
+        throw new Error("Method not implemented.");
+    }
+
 }

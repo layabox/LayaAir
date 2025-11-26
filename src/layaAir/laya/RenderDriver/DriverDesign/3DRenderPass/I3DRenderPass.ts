@@ -118,6 +118,7 @@ export interface IRenderContext3D {
     drawRenderElementOne(node: IRenderElement3D): number;
     runOneCMD(cmd: IRenderCMD): void
     runCMDList(cmds: IRenderCMD[]): void;
+    clearRenderTarget(): void;
 }
 
 /**

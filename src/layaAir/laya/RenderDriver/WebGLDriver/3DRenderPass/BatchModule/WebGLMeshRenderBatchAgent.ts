@@ -99,7 +99,7 @@ export class WebGLMeshRenderBatchAgent implements IBatchModuleAgent {
     }
 
     protected _canBatch(element: WebGLRenderElement3D) {
-        return element.materialRenderQueue < 2500 && element.canDynamicBatch && element.subShader._owner._enableInstancing;
+        return element.materialRenderQueue < 2500 && element.canDynamicBatch && element.subShader?._owner._enableInstancing;
     }
     protected _getBatchMark(element: WebGLRenderElement3D) {
         const renderNode = element.owner;
