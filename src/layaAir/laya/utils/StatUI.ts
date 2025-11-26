@@ -3,7 +3,7 @@ import { Laya } from "../../Laya";
 import { NodeFlags } from "../Const";
 import { Render2DProcessor } from "../display/Render2DProcessor";
 import { Sprite } from "../display/Sprite";
-import { SpriteConst } from "../display/SpriteConst";
+import { SpriteConst, TransformKind } from "../display/SpriteConst";
 import { Text } from "../display/Text";
 import { Event } from "../events/Event";
 import { LayaGL } from "../layagl/LayaGL";
@@ -43,6 +43,7 @@ export class StatUI {
         leftText.pos(5, 5);
         leftText.color = "#ffffff";
         leftText.fontSize = fontSize;
+        leftText.name = "title";
         sp.addChild(leftText);
 
         let rightText = this._txt = new Text();
@@ -50,11 +51,23 @@ export class StatUI {
         rightText.pos(100, 5);
         rightText.color = "#ffffff";
         rightText.fontSize = fontSize;
+        rightText.name = "txt";
         sp.addChild(rightText);
 
         sp.graphics.clear();
         sp.graphics.alpha(0.5);
         sp.graphics.drawRect(0, 0, 1, 1, "#999999", null, null, true);
+    }
+
+    private _displayChild(node: Sprite, display: boolean): void {
+        for (let child of node._children) {
+            if (child._children.length > 0) {
+                this._displayChild(child, display);
+            } else {
+                child._setDisplay(display);
+            }
+        }
+        node._setDisplay(display);
     }
 
     show(x?: number, y?: number): void {
@@ -91,9 +104,8 @@ export class StatUI {
         this._sp.pos(x || 0, y || 0);
         // 验证通过
         this._sp._parent = Laya.stage;
-        this._sp._setDisplay(true);
-        this._title._setDisplay(true);
-        this._txt._setDisplay(true);
+        this._sp._globalTrans._spTransChanged(TransformKind.TRS);
+        this._displayChild(this._sp, true);
     }
 
     hide() {
@@ -103,9 +115,7 @@ export class StatUI {
         this._txt.text = null;
 
         this._sp._parent = null;
-        this._sp._setDisplay(false);
-        this._title._setDisplay(false);
-        this._txt._setDisplay(false);
+        this._displayChild(this._sp, false);
     }
 
     update(): void {
