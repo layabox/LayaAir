@@ -27,6 +27,7 @@ import { Vector4 } from "../maths/Vector4";
 import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
 import { Texture } from "../resource/Texture";
 import { SlotUtils } from "./optimize/SlotUtils";
+import { RepaintFlag } from "../display/SpriteConst";
 
 /**
  * @zh Spine动画渲染节点。
@@ -630,7 +631,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         // 计算骨骼的世界SRT(world SRT)
         this._skeleton.updateWorldTransform(this.physicsUpdate);// spine.Physics.update;
         this.spineItem.render(currentPlayTime);
-        this.owner.repaint();
+        this.owner.repaint(RepaintFlag.UpdateRT);
     }
 
     private _flushExtSkin() {
@@ -1077,8 +1078,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     get rect(): Vector4 {
         if (this._boundsChange) {
-            this._rect.z = this._templet.width;
-            this._rect.w = this._templet.height;
+            this._rect.z = this._templet.width + this._offset.x;
+            this._rect.w = this._templet.height + this._offset.y;
             this._rect.x = this._offset.x;
             this._rect.y = this._offset.y;
             this._boundsChange = false;
