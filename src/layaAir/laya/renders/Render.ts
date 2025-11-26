@@ -5,6 +5,7 @@ import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Texture2D } from "../resource/Texture2D";
 import { Texture2DArray } from "../resource/Texture2DArray";
 import { TextureCube } from "../resource/TextureCube";
+import { Browser } from "../utils/Browser";
 import { HalfFloatUtils } from "../utils/HalfFloatUtils";
 import { BlendMode } from "../webgl/canvas/BlendMode";
 import { Shader2D } from "../webgl/shader/d2/Shader2D";
@@ -30,13 +31,11 @@ export class Render {
 
     /** 当前的帧数 */
     private static lastFrm = 0;
-    /** 第一次运行标记 */
-    private _first = true;
-    /** 刚启动的时间。由于微信的rAF不标准，传入的stamp参数不对，因此自己计算一个从启动开始的相对时间 */
-    private _startTm = 0;
-
-    /** @internal */
-    private static ifps = 1000 / 60;
+    /**
+     * @en The interval time of each frame in milliseconds.
+     * @zh 每帧的间隔时间，单位为毫秒。
+     */
+    static frameInterval = 1000 / 60;
 
     static _Render: Render;
 
@@ -91,33 +90,34 @@ export class Render {
         } else {
             requestAnimationFrame(loop);
         }
-        let me = this;
-        let lastFrmTm = performance.now();
-        let fps = Config.FPS;
-        let ifps = Render.ifps = 1000 / fps; //如果VR的话，需要改这个
-        function loop(stamp: number) {
-            //let perf = PerfHUD.inst;
-            let sttm = performance.now();
-            //perf && perf.updateValue(0, sttm-lastFrmTm);
-            lastFrmTm = sttm;
-            if (me._first) {
+        let lastTime: number = null;
+        let first = true;
+        let startTm = 0;
+        let leftTime = 0;
+
+        Render.frameInterval = 1000 / Config.FPS;
+        let isMini = Browser._isMiniGame;
+        function loop(timestamp: number) {
+            //使用传入的timestamp值可以获得平稳的间隔时间，如果自己用performance.now计算差值则会有波动
+            //但在小游戏平台（例如淘宝），rAF的stamp参数可能与performance.now()差距较大，所以一刀切不使用
+            if (timestamp == null || isMini)
+                timestamp = performance.now();
+            let interval = Render.frameInterval;
+
+            if (first) {
                 // 把starttm转成帧对齐
-                me._startTm = Math.floor(stamp / ifps) * ifps;
-                me._first = false;
+                startTm = Math.floor(timestamp / interval) * interval;
+                first = false;
             }
-            // 与第一帧开始时间的delta
-            stamp -= me._startTm;
-            // 计算当前帧数
-            let frm = Math.floor(stamp / ifps);    // 不能|0 在微信下会变成负的
-            // 是否已经跨帧了
-            let dfrm = frm - Render.lastFrm;
-            //去掉了 LayaEnv.isConch 。不知道会不会有问题
-            if (dfrm > 0 || !Config.fixedFrames) {
-                //不限制
-                Render.lastFrm = frm;
+
+            let delta = leftTime + timestamp - lastTime;
+            if (delta + 1 >= interval || !Config.fixedFrames) {
+                leftTime = Math.min(delta - interval, interval);
+                lastTime = timestamp;
+
+                Render.lastFrm = Math.floor((timestamp - startTm) / interval);
                 ILaya.stage._loop();
             }
-            //perf && perf.updateValue(1, performance.now()-sttm);
 
             if (!!Render._customRequestAnimationFrame && !!Render._loopFunction) {
                 Render._customRequestAnimationFrame(Render._loopFunction);
@@ -156,7 +156,7 @@ export class Render {
      * @returns 
      */
     static vsyncTime() {
-        return Render.lastFrm * Render.ifps;
+        return Render.lastFrm * Render.frameInterval;
     }
 
     initRender(canvas: HTMLCanvas, w: number, h: number): boolean {
