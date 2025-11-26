@@ -43,7 +43,9 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     lightmap: WebLightmap;
     probeReflection: WebReflectionProbe;
     volumetricGI: WebVolumetricGI;
-
+    visibalRangeBit: number;
+    visibalMin: number;
+    visibalMax: number;
     baseGeometryBounds: Bounds;
     transform: Transform3D;
     _worldParams: Vector4;
@@ -122,6 +124,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         this.set_caculateBoundingBox(this, this._ownerCalculateBoundingBox);
         this._additionShaderData = new Map();
     }
+
 
     setNodeCustomData(dataSlot: ENodeCustomData, data: number): void {
         switch (dataSlot) {

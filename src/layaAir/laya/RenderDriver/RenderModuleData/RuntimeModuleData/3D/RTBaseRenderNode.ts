@@ -220,6 +220,9 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this.baseGeometryBounds = this._defaultBaseGeometryBounds;
         this.renderelements = [];
     }
+    visibalRangeBit: number;
+    visibalMin: number;
+    visibalMax: number;
     ismoved: Vector2 = new Vector2();//TODO Native
 
     private _worldParams: Vector4 = new Vector4();

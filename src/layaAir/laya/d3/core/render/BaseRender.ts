@@ -30,12 +30,16 @@ import { StatElement } from "../../../layagl/StatisticsContext";
 import { IBatchModuleAgent } from "../../../RenderDriver/DriverDesign/3DRenderPass/IBatchModuleAgent";
 
 export enum RenderBitFlag {
-    RenderBitFlag_CullFlag = 0,
-    RenderBitFlag_Batch = 1,
-    RenderBitFlag_Editor = 2,
-    RenderBitFlag_InstanceBatch = 3,
-    RenderBitFlag_VertexMergeBatch = 4,
+    RenderBitFlag_Batch = 0,
+    RenderBitFlag_Editor = 1,
+    RenderBitFlag_InstanceBatch = 2,
+    RenderBitFlag_VertexMergeBatch = 3,
+}
 
+export enum VisibalRangeFlag {
+    None,
+    BASERENDERSET = 1,
+    LOD = 2
 }
 
 export enum IrradianceMode {
@@ -171,12 +175,6 @@ export class BaseRender extends Component {
     /** @internal */
     _scene: any;//Scene3D
 
-    /** @internal */
-    _sceneUpdateMark: number = -1;
-
-    /** @internal 属于相机的标记*/
-    _updateMark: number = -1;
-
     /** @internal 是否需要反射探针*/
     _probReflection: ReflectionProbe;
 
@@ -188,12 +186,6 @@ export class BaseRender extends Component {
 
     /**@internal */
     _supportVolumetricGI: boolean = false;
-
-    /**@internal motion list index，not motion is -1*/
-    _motionIndexList: number = -1;
-
-    /**@internal TODO*/
-    _LOD: number = -1;
 
     /**@internal TODO*/
     _batchRender: IBatchModuleAgent;
@@ -209,11 +201,7 @@ export class BaseRender extends Component {
     /** 如果这个值不是0,说明有一些条件使他不能加入渲染队列，例如如果是1，证明此节点被lod淘汰*/
     private _volume: Volume;
 
-    protected _asynNative: boolean;
-
     private _materialsInstance: boolean[];
-
-    private _renderid: number;
 
     private _lightmapScaleOffset: Vector4 = new Vector4();
 
@@ -232,6 +220,27 @@ export class BaseRender extends Component {
         super.enabled = value;
         this._baseRenderNode.enable = value;
     }
+
+    set visibalMin(value: number) {
+        if (VisibalRangeFlag.BASERENDERSET >= this._baseRenderNode.visibalRangeBit) {
+            this._baseRenderNode.visibalMin = value;
+        }
+    }
+
+    get visibalMin() {
+        return this._baseRenderNode.visibalMin;
+    }
+
+    set visibalMax(value: number) {
+        if (VisibalRangeFlag.BASERENDERSET >= this._baseRenderNode.visibalRangeBit) {
+            this._baseRenderNode.visibalMax = value;
+        }
+    }
+
+    get visibalMax() {
+        return this._baseRenderNode.visibalMax;
+    }
+
 
     /**
      * @en The sorting fudge value.
@@ -272,16 +281,6 @@ export class BaseRender extends Component {
         return this._baseRenderNode;
     }
 
-    /**
-     * @en The distance used for sorting.
-     * @zh 排序距离。
-     */
-    get distanceForSort() {
-        return this._baseRenderNode.distanceForSort;
-    }
-    set distanceForSort(value: number) {
-        this._baseRenderNode.distanceForSort = value;
-    }
 
     /**
      * @en The Geometry Bounds.
@@ -582,10 +581,9 @@ export class BaseRender extends Component {
     constructor() {
         super();
         this._baseRenderNode = this._createBaseRenderNode();
+        this._baseRenderNode.visibalRangeBit = 0;
         this._baseRenderNode.setCommonUniformMap(this._getcommonUniformMap());
         this._baseRenderNode.shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
-        //this._rendernode.owner = this;
-        this._renderid = ++BaseRender._uniqueIDCounter;
         this._baseRenderNode.bounds = this._bounds = new Bounds(Vector3.ZERO, Vector3.ZERO);
         this._enabled = true;
         this._baseRenderNode.enable = true;
@@ -601,7 +599,6 @@ export class BaseRender extends Component {
             this._baseRenderNode.set_renderUpdatePreCall(this, this._renderUpdate);
         }
         this.runInEditor = true;
-        this._asynNative = true;
         this.boundsChange = true;
         this._baseRenderNode.renderbitFlag = 0;
         this._baseRenderNode.staticMask = 1;
@@ -702,7 +699,6 @@ export class BaseRender extends Component {
         //按理说this.owner不会是空，但引擎里有直接new BaseRender的特殊用法
         if (this.owner)
             this.owner._isRenderNode--;
-        (this._motionIndexList !== -1) && (this._scene._sceneRenderManager.removeMotionObject(this));
         (this._scene) && this._scene.sceneRenderableManager.removeRenderObject(this);
         this._baseRenderNode.destroy();
         this._baseRenderNode = null;
@@ -901,5 +897,18 @@ export class BaseRender extends Component {
         this.sharedMaterials = value;
         this._isSupportRenderFeature();
     }
+
+    /**
+     * @deprecated 会在底层计算
+     * @en The distance used for sorting.
+     * @zh 排序距离。
+     */
+    get distanceForSort() {
+        return this._baseRenderNode.sortingFudge;
+    }
+    set distanceForSort(value: number) {
+        this._baseRenderNode.sortingFudge = value;
+    }
+
 }
 

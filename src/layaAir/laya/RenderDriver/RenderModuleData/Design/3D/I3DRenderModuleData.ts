@@ -47,6 +47,10 @@ export interface IBaseRenderNode {
     receiveShadow: boolean;
     enable: boolean;
     renderbitFlag: number;
+    //裁剪范围
+    visibalRangeBit: number;
+    visibalMin: number;
+    visibalMax: number;
     layer: number;
     bounds: Bounds;
     baseGeometryBounds: Bounds;
