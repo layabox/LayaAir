@@ -34,15 +34,9 @@ export class StatUI {
         this._sp._struct.pass = this._pass;
         this._pass.doClearColor = false;
 
-        Laya.stage.on(Event.RESIZE, this, () => {
-            this._updateScale();
-        });
-        this._updateScale();
         let leftText = this._title = new Text();
-        leftText.singleCharRender = false;
         leftText.pos(5, 5);
         leftText.color = "#ffffff";
-        leftText.fontSize = fontSize;
         leftText.name = "title";
         sp.addChild(leftText);
 
@@ -50,29 +44,27 @@ export class StatUI {
         rightText.singleCharRender = true;
         rightText.pos(100, 5);
         rightText.color = "#ffffff";
-        rightText.fontSize = fontSize;
         rightText.name = "txt";
         sp.addChild(rightText);
 
         sp.graphics.clear();
         sp.graphics.alpha(0.5);
         sp.graphics.drawRect(0, 0, 1, 1, "#999999", null, null, true);
+
+        Laya.stage.on(Event.RESIZE, this, this.updateSize);
     }
 
-    private _updateScale(){
-        let canvasScale = Laya.stage._canvasTransform.a;
-        let scaleX = finalSize / (fontSize * canvasScale * Laya.stage.clientScaleX);
-        let scaleY = finalSize / (fontSize * canvasScale * Laya.stage.clientScaleY);
-        
-        if (Config.useRetinalCanvas) {
-            scaleX *= Browser.pixelRatio;
-            scaleY *= Browser.pixelRatio;
-        }
-        if (scaleX != this._sp.scaleX || scaleY != this._sp.scaleY) {
-            this._sp.scale(scaleX , scaleY);
-        }else{
-            this._sp._globalTrans._spTransChanged(TransformKind.TRS);
-        }
+    private updateSize() {
+        let fontSize = Browser.onMobile ? 10 : 12; //手机dpi一般比较高，字体可以相对小一些
+        fontSize = Math.max(fontSize, fontSize / (Laya.stage._canvasTransform.a * Laya.stage.clientScaleX));
+
+        this._txt.fontSize = fontSize;
+        this._title.fontSize = fontSize;
+
+        this._txt.x = this._title.textWidth + 10;
+        this._sp.size(this._title.textWidth + fontSize * 8, this._title.textHeight + 10);
+
+        this._sp._globalTrans._spTransChanged(TransformKind.TRS);
     }
 
     private _displayChild(node: Sprite, display: boolean): void {
@@ -115,12 +107,10 @@ export class StatUI {
             this.createUI();
 
         this._title.text = strArray.join("\n");
-        this._txt.x = this._title.textWidth + 10;
-        this._sp.size(this._title.textWidth + 100, this._title.textHeight + 10);
         this._sp.pos(x || 0, y || 0);
         // 验证通过
         this._sp._parent = Laya.stage;
-        this._sp._globalTrans._spTransChanged(TransformKind.TRS);
+        this.updateSize();
         this._displayChild(this._sp, true);
     }
 
@@ -152,9 +142,7 @@ export class StatUI {
     }
 }
 
-const fontSize: number = 16;
-const finalSize: number = 20;
-const strArray: Array<string> = []; 
+const strArray: Array<string> = [];
 const digitPattern = /\.0*$|(\.\d*[1-9])0+$/;
 
 Stat._statUIClass = StatUI;
