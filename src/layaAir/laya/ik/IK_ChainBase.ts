@@ -30,12 +30,15 @@ export class IK_ChainBase{
     protected _end_effector: IK_Joint;
     totalLength=0;
     blendWeight=1.0;
-    maxError=0.04;
+    maxError=0.01;
     private _weightSmooth=1;
     wSmoother:NumberSmooth;
 
     constructor(mgr:IK_Comp ){
         this._jointMgr = getJointMgr(mgr.owner as Sprite3D);
+        if(this._weightSmooth){
+            this.wSmoother = new NumberSmooth(0.1);
+        }
     }
 
     get weightSmooth(){

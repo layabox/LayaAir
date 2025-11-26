@@ -14,14 +14,14 @@ export function quaternionFromTo(from: Vector3, to: Vector3, out: Quaternion): b
         tmpVec3 = new Vector3();
     }
     var dot: number = Vector3.dot(from, to);
-    if (dot < -0.999999) {// 180度了，可以选择多个轴旋转
+    if (dot < -0.99999999) {// 180度了，可以选择多个轴旋转
         Vector3.cross(xUnitVec3, from, tmpVec3);
         if (Vector3.scalarLength(tmpVec3) < 0.000001)
             Vector3.cross(yUnitVec3, from, tmpVec3);
         Vector3.normalize(tmpVec3, tmpVec3);
         Quaternion.createFromAxisAngle(tmpVec3, Math.PI, out);
         return true
-    } else if (dot > 0.999999) {// 没有变化
+    } else if (dot > 0.99999999) {// 没有变化
         out.x = 0;
         out.y = 0;
         out.z = 0;
