@@ -9,6 +9,7 @@ import { Event } from "../events/Event";
 import { LayaGL } from "../layagl/LayaGL";
 import { StatElement } from "../layagl/StatisticsContext";
 import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
+import { Browser } from "./Browser";
 import { Stat } from "./Stat";
 
 interface StatUIParams {
@@ -33,11 +34,10 @@ export class StatUI {
         this._sp._struct.pass = this._pass;
         this._pass.doClearColor = false;
 
-        sp.scale(1 / Laya.stage.clientScaleX,  1 / Laya.stage.clientScaleY);
         Laya.stage.on(Event.RESIZE, this, () => {
-            sp.scale(1 / Laya.stage.clientScaleX,  1 / Laya.stage.clientScaleY);
+            this._updateScale();
         });
-
+        this._updateScale();
         let leftText = this._title = new Text();
         leftText.singleCharRender = false;
         leftText.pos(5, 5);
@@ -57,6 +57,27 @@ export class StatUI {
         sp.graphics.clear();
         sp.graphics.alpha(0.5);
         sp.graphics.drawRect(0, 0, 1, 1, "#999999", null, null, true);
+    }
+
+    private _updateScale(){
+        let scaleX = 1;
+        let scaleY = 1;
+        if(scaleX > 2){
+            scaleX = 2 / Laya.stage.clientScaleX;
+        }else if(scaleX < 1){
+            scaleX = 1 / Laya.stage.clientScaleX;
+        }
+        if(scaleY > 2){
+            scaleY = 2 / Laya.stage.clientScaleY;
+        }else if(scaleY < 1){
+            scaleY = 1 / Laya.stage.clientScaleY;
+        }
+        
+        if (scaleX != this._sp.scaleX || scaleY != this._sp.scaleY) {
+            this._sp.scale(scaleX , scaleY);
+        }else{
+            this._sp._globalTrans._spTransChanged(TransformKind.TRS);
+        }
     }
 
     private _displayChild(node: Sprite, display: boolean): void {

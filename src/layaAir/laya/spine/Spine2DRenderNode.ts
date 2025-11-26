@@ -1078,8 +1078,13 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     get rect(): Vector4 {
         if (this._boundsChange) {
-            this._rect.z = this._templet.width + this._offset.x;
-            this._rect.w = this._templet.height + this._offset.y;
+            if (this._templet) {
+                this._rect.z = this._templet.width + this._offset.x;
+                this._rect.w = this._templet.height + this._offset.y;
+            }else{
+                this._rect.z = this.owner.width + this._offset.x;
+                this._rect.w = this.owner.height + this._offset.y;
+            }
             this._rect.x = this._offset.x;
             this._rect.y = this._offset.y;
             this._boundsChange = false;
