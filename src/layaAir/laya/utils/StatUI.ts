@@ -60,19 +60,14 @@ export class StatUI {
     }
 
     private _updateScale(){
-        let scaleX = 1;
-        let scaleY = 1;
-        if(scaleX > 2){
-            scaleX = 2 / Laya.stage.clientScaleX;
-        }else if(scaleX < 1){
-            scaleX = 1 / Laya.stage.clientScaleX;
-        }
-        if(scaleY > 2){
-            scaleY = 2 / Laya.stage.clientScaleY;
-        }else if(scaleY < 1){
-            scaleY = 1 / Laya.stage.clientScaleY;
-        }
+        let canvasScale = Laya.stage._canvasTransform.a;
+        let scaleX = finalSize / (fontSize * canvasScale * Laya.stage.clientScaleX);
+        let scaleY = finalSize / (fontSize * canvasScale * Laya.stage.clientScaleY);
         
+        if (Config.useRetinalCanvas) {
+            scaleX *= Browser.pixelRatio;
+            scaleY *= Browser.pixelRatio;
+        }
         if (scaleX != this._sp.scaleX || scaleY != this._sp.scaleY) {
             this._sp.scale(scaleX , scaleY);
         }else{
@@ -158,7 +153,8 @@ export class StatUI {
 }
 
 const fontSize: number = 16;
-const strArray: Array<string> = [];
+const finalSize: number = 20;
+const strArray: Array<string> = []; 
 const digitPattern = /\.0*$|(\.\d*[1-9])0+$/;
 
 Stat._statUIClass = StatUI;
