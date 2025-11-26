@@ -1,3 +1,4 @@
+import { Config } from "../../Config";
 import { Laya } from "../../Laya";
 import { NodeFlags } from "../Const";
 import { Render2DProcessor } from "../display/Render2DProcessor";
@@ -32,9 +33,9 @@ export class StatUI {
         this._sp._struct.pass = this._pass;
         this._pass.doClearColor = false;
 
-        sp.scale(Math.max(Laya.stage.clientScaleX, 1), Math.max(Laya.stage.clientScaleY, 1));
+        sp.scale(1 / Laya.stage.clientScaleX,  1 / Laya.stage.clientScaleY);
         Laya.stage.on(Event.RESIZE, this, () => {
-            this._sp.scale(Math.max(Laya.stage.clientScaleX, 1), Math.max(Laya.stage.clientScaleY, 1));
+            sp.scale(1 / Laya.stage.clientScaleX,  1 / Laya.stage.clientScaleY);
         });
 
         let leftText = this._title = new Text();
@@ -91,6 +92,8 @@ export class StatUI {
         // 验证通过
         this._sp._parent = Laya.stage;
         this._sp._setDisplay(true);
+        this._title._setDisplay(true);
+        this._txt._setDisplay(true);
     }
 
     hide() {
@@ -101,6 +104,8 @@ export class StatUI {
 
         this._sp._parent = null;
         this._sp._setDisplay(false);
+        this._title._setDisplay(false);
+        this._txt._setDisplay(false);
     }
 
     update(): void {
