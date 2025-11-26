@@ -38,23 +38,6 @@ export class GLESComputeShader implements IComputeShader {
     }
 
     /**
-     * 检查是否包含指定的内核函数
-     * @param kernel 内核函数名称
-     * @returns 是否包含该内核
-     */
-    HasKernel(kernel: string): boolean {
-        return this._kernels.has(kernel);
-    }
-
-    /**
-     * 添加内核函数
-     * @param kernel 内核函数名称
-     */
-    addKernel(kernel: string): void {
-        this._kernels.add(kernel);
-    }
-
-    /**
      * 移除内核函数
      * @param kernel 内核函数名称
      */
@@ -103,8 +86,6 @@ export class GLESComputeShader implements IComputeShader {
             const success = this._nativeObj.compile(code, defineData);
 
             if (success) {
-                // 编译成功，从着色器中提取内核函数信息
-                this._extractKernelsFromShader(code);
                 this.compilete = true;
             } else {
                 throw new Error(`Failed to compile compute shader: ${this.name}`);
@@ -118,42 +99,11 @@ export class GLESComputeShader implements IComputeShader {
     }
 
     /**
-     * 从着色器代码中提取内核函数
-     * @param code 着色器代码
-     */
-    private _extractKernelsFromShader(code: string): void {
-        // 这里需要解析GLSL计算着色器代码，提取入口点
-        // 简化实现：假设使用标准的main函数作为入口点
-        // 在实际实现中，可能需要更复杂的解析逻辑
-
-        // 查找compute shader的入口点
-        const kernelRegex = /^\s*void\s+(\w+)\s*\(/gm;
-        let match;
-
-        while ((match = kernelRegex.exec(code)) !== null) {
-            const kernelName = match[1];
-            // 通常main函数是默认的入口点
-            if (kernelName === 'main' || kernelName.startsWith('cs_') || kernelName.startsWith('compute_')) {
-                this.addKernel(kernelName);
-            }
-        }
-
-        // 如果没有找到任何内核，添加默认的main
-        if (this._kernels.size === 0) {
-            this.addKernel('main');
-        }
-    }
-
-    /**
      * 获取计算着色器程序对象
      * @param kernel 内核函数名称
      * @returns 着色器程序对象
      */
     getProgram(kernel: string): any {
-        if (!this.HasKernel(kernel)) {
-            throw new Error(`Kernel '${kernel}' not found in compute shader '${this.name}'`);
-        }
-
         return this._nativeObj.getProgram(kernel);
     }
 
@@ -165,11 +115,6 @@ export class GLESComputeShader implements IComputeShader {
         if (!this.compilete) {
             throw new Error(`Compute shader '${this.name}' is not compiled`);
         }
-
-        if (!this.HasKernel(kernel)) {
-            throw new Error(`Kernel '${kernel}' not found in compute shader '${this.name}'`);
-        }
-
         this._nativeObj.bind(kernel);
     }
 

@@ -12,6 +12,5 @@ export interface ComputeShaderProcessInfo {
 
 export interface IComputeShader {
     name: string;
-    HasKernel(kernel: string): boolean;
     compilete: boolean;
 }

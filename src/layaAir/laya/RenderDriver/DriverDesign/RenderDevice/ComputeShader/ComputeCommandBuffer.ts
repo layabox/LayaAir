@@ -43,10 +43,9 @@ export class ComputeCommandBuffer {
      * @param datas 需要传递给着色器的数据列表
      * @param dispatchParams 调度参数，通常是一个Vector3，表示计算的工作组大小。
      */
-    addDispatchCommand(computeshader: ComputeShader, kernel: string, shaderDefine: IDefineDatas, datas: ShaderData[], dispatchParams: Vector3): void {
+    addDispatchCommand(computeshader: ComputeShader, shaderDefine: IDefineDatas, datas: ShaderData[], dispatchParams: Vector3): void {
         let cmd: IComputeCMD_Dispatch = {
             shader: computeshader.getCacheShader(shaderDefine),
-            Kernel: kernel,
             shaderData: datas,
             dispatchParams: dispatchParams.clone()
         }
@@ -115,7 +114,7 @@ export class ComputeCommandBuffer {
      * @param copySize 拷贝大小
      */
     addTextureToTextureCommand(srcTextureInfo: CopyTextureInfo, destTextureInfo: CopyTextureInfo, copySize: any): void {
-        this._context.addTextureToTextureCommand(srcTextureInfo,destTextureInfo,copySize);
+        this._context.addTextureToTextureCommand(srcTextureInfo, destTextureInfo, copySize);
     };
 
     /**

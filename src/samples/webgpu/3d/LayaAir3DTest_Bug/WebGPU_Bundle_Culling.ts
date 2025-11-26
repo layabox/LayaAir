@@ -229,7 +229,6 @@ export class WebGPU_Bundle_Culling {
         //compute dispatch
         for (let i = 0; i < drawlength; i++) {
             commandBuffer.addDispatchCommand(WebGPU_Bundle_CullingUtil.Cull_RenderBundle_ComputeShader,
-                "computeMain",
                 shaderDefine,
                 [rendernode.renderNode.shaderData, this.renderelements[i].cullShaderData],
                 new Vector3(Math.ceil(WebGPU_Bundle_CullingUtil.MAX_INSTANCES_PER_DRAWABLE / WebGPU_Bundle_CullingUtil.CULLING_WORKGROUP_SIZE), 1, 1));
