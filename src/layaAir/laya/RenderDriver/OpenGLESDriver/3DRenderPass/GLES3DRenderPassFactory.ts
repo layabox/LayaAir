@@ -1,11 +1,12 @@
 import { Laya } from "../../../../Laya";
 import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
 import { NotImplementedError } from "../../../utils/Error";
-import { IInstanceRenderBatch, IInstanceRenderElement3D, IRender3DProcess, IRenderContext3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRender3DProcess, IRenderContext3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
+import { IBatchModuleAgent } from "../../DriverDesign/3DRenderPass/IBatchModuleAgent";
 import { DrawNodeCMDData, BlitQuadCMDData, DrawElementCMDData, SetViewportCMD, SetRenderTargetCMD } from "../../DriverDesign/3DRenderPass/IRender3DCMD";
 import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
-import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
+import { ComputeCommandAppatchCMD, SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { RTScene3DRenderManager } from "../../RenderModuleData/RuntimeModuleData/3D/RTScene3DRenderManager";
 import { GLESSetRenderData, GLESSetShaderDefine } from "../RenderDevice/GLESRenderCMD";
 import { GLESDirectLightShadowRP } from "./GLESDirectLightShadowRP";
@@ -19,12 +20,15 @@ import { GLESSkinRenderElement3D } from "./GLESSkinRenderElement3D";
 import { GLESSpotLightShadowRP } from "./GLESSpotLightShadowRP";
 
 export class GLES3DRenderPassFactory implements I3DRenderPassFactory {
-    createInstanceBatch(): IInstanceRenderBatch {
-        throw new NotImplementedError();
+    createMeshRenderBatchModule(): IBatchModuleAgent {
+        throw new NotImplementedError;
+    }
+    createComputeCommandAppatchCMD?(): ComputeCommandAppatchCMD {
+        throw new NotImplementedError;
     }
 
     createRender3DProcess(): IRender3DProcess {
-        return new GLESRender3DProcess();
+        return null;
     }
 
     createRenderContext3D(): IRenderContext3D {
@@ -65,10 +69,6 @@ export class GLES3DRenderPassFactory implements I3DRenderPassFactory {
     }
     createSkinRenderElement(): GLESSkinRenderElement3D {
         return new GLESSkinRenderElement3D();
-    }
-
-    createInstanceRenderElement3D(): IInstanceRenderElement3D {
-        throw new NotImplementedError();
     }
 
     createDirectLightShadowRP(): GLESDirectLightShadowRP {

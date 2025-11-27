@@ -49,17 +49,30 @@ varying vec2 v_cliped;
     varying vec4 v_customs;
 
     //uniform
-    uniform sampler2D u_spriteTexture;
+    #ifdef USE_TEX_ARRAY
+        varying float v_texLayer;                 // 来自 VS 的图层索引
+        uniform sampler2DArray u_spriteTextureArray;
+    #else
+        uniform sampler2D u_spriteTexture;
+    #endif
 
     #ifdef FILLTEXTURE
         uniform vec4 u_TexRange; // startu,startv,urange, vrange
     #endif
 
     vec4 getSpriteTextureColor(){
+        vec2 uv;
         #ifdef FILLTEXTURE
-            vec4 color = texture2D(u_spriteTexture, fract(v_texcoordAlpha.xy) * u_TexRange.zw + u_TexRange.xy);
+            uv = fract(v_texcoordAlpha.xy) * u_TexRange.zw + u_TexRange.xy;
         #else
-            vec4 color = texture2D(u_spriteTexture, v_texcoordAlpha.xy);
+            uv = v_texcoordAlpha.xy;
+        #endif
+
+        #ifdef USE_TEX_ARRAY
+            // WebGL2: 使用 texture() 采样 2D Array（layer 为浮点数，内部按整数取层）
+            vec4 color = texture(u_spriteTextureArray, vec3(uv, v_texLayer));
+        #else
+            vec4 color = texture2D(u_spriteTexture, uv);
         #endif
         return transspaceColor(color);
     }

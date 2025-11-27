@@ -68,6 +68,7 @@ export class WebGraphics2DBufferBlock implements IGraphics2DBufferBlock {
     vertexs: IGraphics2DVertexBlock[];
     indexView: I2DGraphicIndexDataView;
     vertexBuffer: IVertexBuffer;
+    textureArrayIndex: number;
 }
 
 export class WebGraphics2DVertexBlock implements IGraphics2DVertexBlock {
@@ -85,6 +86,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     private _needUpdateBuffer: boolean = false;
     private _modifiedFrame: number = -1;
     private _clonesViews: Web2DGraphic2DIndexCloneDataView[];
+    private _globalAlpha: number = 1;
 
     applyVertexBufferBlock(blocks: IGraphics2DBufferBlock[]): void {
         this._bufferBlocks = blocks.slice();
@@ -103,15 +105,14 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             return;
 
         let trans = this._owner.trans;
+        let mat = trans.matrix;
 
         if (
             this._needUpdateBuffer
             || this._modifiedFrame < trans.modifiedFrame
         ) {
-
-            let mat = trans.matrix;
-
             if (!this._bufferBlocks || !this._bufferBlocks.length) {
+
                 //更新位置
                 if (this.logicMatrix) {
                     let temp = Matrix.TEMP;
@@ -127,50 +128,75 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                 this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
                 this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
             } else {
-                let pos = 0, dataViewIndex = 0, ci = 0;
-                let dataView: Web2DGraphic2DVertexDataView = null;
-                let m00 = mat.a, m01 = mat.b, m10 = mat.c, m11 = mat.d, tx = mat.tx, ty = mat.ty;
-                let vbdata = null;
-                let blocks = this._bufferBlocks;
-                let vertexCount = 0, positions: number[] = null, vertexViews: Web2DGraphic2DVertexDataView[] = null;
-                let stride = this._bufferBlocks[0].vertexBuffer.vertexDeclaration.vertexStride / 4;
-
-                for (let i = 0, n = this._bufferBlocks.length; i < n; i++) {
-                    let vertexs = blocks[i].vertexs;
-
-                    for (let index = 0, len = vertexs.length; index < len; index++) {
-                        positions = vertexs[index].positions;
-                        vertexViews = vertexs[index].vertexViews as Web2DGraphic2DVertexDataView[];
-
-                        vertexCount = positions.length / 2;
-                        dataView = null;
-                        pos = 0, ci = 0, dataViewIndex = 0;
-
-                        for (let j = 0; j < vertexCount; j++) {
-
-                            if (!dataView || dataView.length <= pos) {
-                                dataView = vertexViews[dataViewIndex];
-                                dataView._modify();
-                                dataViewIndex++;
-                                pos = 0;
-                                vbdata = dataView._getData();
-                            }
-
-                            let x = positions[ci], y = positions[ci + 1];
-                            vbdata[pos] = x * m00 + y * m10 + tx;
-                            vbdata[pos + 1] = x * m01 + y * m11 + ty;
-                            pos += stride;
-                            ci += 2;
-                        }
-                    }
-
-                }
+                this._updateVertexData(mat, this._owner.globalAlpha, true, true , false);
+                this._globalAlpha = this._owner.globalAlpha;
                 this._needUpdateBuffer = false;
             }
-
             this._modifiedFrame = trans.modifiedFrame;
         }
+        else if (this._globalAlpha != this._owner.globalAlpha) {
+            this._globalAlpha = this._owner.globalAlpha;
+            // 乘到顶点里
+            this._updateVertexData(mat, this._owner.globalAlpha , false, true , false);
+        }
+    }
 
+    private _updateVertexData(
+        mat: Matrix, globalAlpha: number, 
+        updateMatrix: boolean, updateGlobalAlpha: boolean , updateTextureArrayLayerIndex: boolean
+    ) {
+        let pos = 0, dataViewIndex = 0, ci = 0;
+        let dataView: Web2DGraphic2DVertexDataView = null;
+        let m00 = 1, m01 = 0, m10 = 0, m11 = 1, tx = 0, ty = 0;
+        if (updateMatrix) {
+            m00 = mat.a, m01 = mat.b, m10 = mat.c, m11 = mat.d, tx = mat.tx, ty = mat.ty;
+        }
+        let vbdata = null;
+        let vertexCount = 0, positions: number[] = null, vertexViews: Web2DGraphic2DVertexDataView[] = null;
+        let stride = this._bufferBlocks[0].vertexBuffer.vertexDeclaration.vertexStride / 4;
+        let textureArrayLayerIndex = 0;
+        for (let i = 0, n = this._bufferBlocks.length; i < n; i++) {
+            let vertexs = this._bufferBlocks[i].vertexs;
+            textureArrayLayerIndex = this._bufferBlocks[i].textureArrayIndex;
+
+            for (let index = 0, len = vertexs.length; index < len; index++) {
+                positions = vertexs[index].positions;
+                vertexViews = vertexs[index].vertexViews as Web2DGraphic2DVertexDataView[];
+
+                vertexCount = positions.length / 2;
+                dataView = null;
+                pos = 0, ci = 0, dataViewIndex = 0;
+
+                for (let j = 0; j < vertexCount; j++) {
+
+                    if (!dataView || dataView.length <= pos) {
+                        dataView = vertexViews[dataViewIndex];
+                        dataView._modify();
+                        dataViewIndex++;
+                        pos = 0;
+                        vbdata = dataView._getData();
+                    }
+
+                    if (updateMatrix) {
+                        let x = positions[ci], y = positions[ci + 1];
+                        vbdata[pos] = x * m00 + y * m10 + tx;
+                        vbdata[pos + 1] = x * m01 + y * m11 + ty;
+                    }
+
+                    if (updateGlobalAlpha) { 
+                        vbdata[pos + 10] = globalAlpha;
+                    }
+
+                    if (updateTextureArrayLayerIndex) {
+                        vbdata[pos + 11] = textureArrayLayerIndex;
+                    }
+
+                    pos += stride;
+                    ci += 2;
+                }
+            }
+
+        }
     }
 
     getCloneViews(): Web2DGraphic2DIndexCloneDataView[] {

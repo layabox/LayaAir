@@ -29,12 +29,18 @@ export class IK_Comp extends Script {
     private _visualSp: PixelLineSprite3D = null
     private _visualInPlay = true;
     private _chainDatas: IK_ChainData[] = [];
+
     //运行时信息
     current_iteration =0;
     current_error =0.0;
     pole_rot=0;
     targetChange=0;
     blendW=0;
+
+    private _recordIkFrames = false;
+    private _frameRecordDepth = 60;
+    private _frameReplayOffset = 0;
+
     //@property({ type: [IK_ChainData], onChange: "onChainDataChange" })
     set chainDatas(v: IK_ChainData[]) {
         this._chainDatas = v;
@@ -153,6 +159,8 @@ export class IK_Comp extends Script {
         let ik = this._ik_sys = new IK_System(this);
         ik.setRoot(this.owner as Sprite3D);
         ik.showDbg = this._showDbg;
+        ik.setFrameRecorderEnabled(this._recordIkFrames);
+        ik.setFrameRecorderDepth(this._frameRecordDepth);
     }
 
     onAfterDeserialize() {

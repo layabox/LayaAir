@@ -8,6 +8,7 @@ import { I2DGlobalRenderData } from "../RenderDriver/RenderModuleData/Design/2D/
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { SpriteConst } from "./SpriteConst";
 import { Matrix } from "../maths/Matrix";
+import { Scene2DSpecialManager } from "./Scene2DSpecial/Scene2DSpecialManager";
 import { LayaEnv } from "../../LayaEnv";
 
 export class Area2D extends Sprite {
@@ -22,6 +23,7 @@ export class Area2D extends Sprite {
         this._initShaderData();
         this._globalRenderData = LayaGL.render2DRenderPassFactory.create2DGlobalRenderDataHandle();
         this._globalRenderData.globalShaderData = this._globalShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
+        this._globalShaderData.addDefine(Scene2DSpecialManager.SPRITE2DGLOBAL);
         this._globalRenderData.renderLayerMask = -1;
         this._struct.globalRenderData = this._globalRenderData;
     }

@@ -19,11 +19,14 @@ import { Stat } from "laya/utils/Stat";
 import { LayaGL } from "laya/layagl/LayaGL";
 import { StatElement } from "laya/layagl/StatisticsContext";
 import { Button } from "laya/ui/Button";
+import { LargeTexProcessor } from "laya/large/LargeTexProcessor";
 
 export class Sprite_LargeTexManager_Simple {
     Main: typeof Main = null;
     private largeTexManager: LargeTexManager;
     private textures: Texture[] = [];
+    private texture2ds: Texture2D[] = [];
+    private originalUV : Float32Array[] = [];
 
     private _sprites: Sprite[] = [];
     private _container: Box;
@@ -56,7 +59,7 @@ export class Sprite_LargeTexManager_Simple {
     private initLargeTexManager(): void {
         // 创建大图合集管理器
         this.largeTexManager = new LargeTexManager(
-            [512, 512],  // 大纹理尺寸 512x512
+            [1024, 1024],  // 大纹理尺寸 512x512
             2,            // 最多2张大纹理
             16,           // 小纹理单元尺寸 16x16
             1,            // 小纹理扩边尺寸 1像素
@@ -65,6 +68,7 @@ export class Sprite_LargeTexManager_Simple {
         
         this.largeTexManager.name = "SimpleLargeTex";
         this.largeTexManager.immediately = true;
+        this.largeTexManager.gammaCorrection = 2.2;
         
         console.log("LargeTexManager 初始化完成");
     }
@@ -74,12 +78,17 @@ export class Sprite_LargeTexManager_Simple {
      */
     private loadAndMergeTextures(): void {
         // 加载多张图片进行测试
-        const imageUrls = [
+        const loadUrls = [
             "res/apes/monkey1.png",
             "res/apes/monkey2.png",
+            {url:"atlas/comp.atlas", type: Loader.ATLAS}
         ];
 
-        Laya.loader.load(imageUrls, Loader.IMAGE).then(() => {
+        const imageUrls = [
+            "res/apes/monkey1.png",
+            "atlas/comp/image.png"
+        ];
+        Laya.loader.load(loadUrls, Loader.IMAGE).then(() => {
             this.start(imageUrls);
         }).catch((error) => {
             console.error("图片加载失败:", error);
@@ -93,6 +102,9 @@ export class Sprite_LargeTexManager_Simple {
             const texture = Laya.loader.getRes(url, Loader.IMAGE) as Texture;
             if (texture) {
                 this.textures.push(texture);
+                this.texture2ds.push(texture.bitmap as Texture2D);
+                this.originalUV.push((texture.uv as Float32Array).slice());
+                console.log(texture, texture.bitmap);
             }
         }
 
@@ -103,7 +115,8 @@ export class Sprite_LargeTexManager_Simple {
 
         for (const texture of this.textures) {
             const sprite = new Sprite();
-            sprite.texture = texture;
+            // sprite.texture = texture;
+            sprite.graphics.drawTexture(texture, 0, 0);
             this._container.addChild(sprite);
             sprite.pos(0, currentY);
             currentY += texture.height + 60;
@@ -116,13 +129,19 @@ export class Sprite_LargeTexManager_Simple {
         let label = this.createLabel(this._container, `DrawCall: ${0}`, 0, 400, 24, "#ffff00");
         this._drawCallLabel = label;
         this._stepLabel = this.createLabel(this._container, this._stepStrs[0], 0, 424, 24, "#ffff00");
-        this._container.addChild(this._stepLabel);
         Laya.timer.frameLoop(1, this, this.showDrawCall);
         Laya.stage.on(Event.CLICK, this, this.step);
     }
 
     private step(): void {
+        // this._sprites.forEach((sprite) => {
+        //     sprite.destroy();
+        // });
 
+        // this._sprites = [];
+        // LargeTexProcessor.cleanupUnused();
+
+        // return
         this._stepIndex++;
 
         if (this._stepIndex === 1) {
@@ -151,7 +170,7 @@ export class Sprite_LargeTexManager_Simple {
         let largeTextureIndex = -1;
         
         for (let i = 0; i < this.textures.length; i++) {
-            let texture = this.textures[i].bitmap as Texture2D;
+            let texture = this.texture2ds[i];
 
             console.log(`正在合并纹理 ${i + 1}: ID=${texture.id}, 尺寸=${texture.width}x${texture.height}`);
             
@@ -181,33 +200,25 @@ export class Sprite_LargeTexManager_Simple {
         let maxHeight = 0;
 
         for (let i = 0; i < this.textures.length; i++) {
-            const orignalTexture = this.textures[i].bitmap;
-            
+            const texture2d = this.texture2ds[i];
+            const otexture = this.textures[i];
             // 从大图合集中获取纹理和UV坐标
-            const textureOut = this.largeTexManager.getTexture(orignalTexture.id, largeTextureIndex);
+            const textureOut = this.largeTexManager.getTexture(texture2d.id, largeTextureIndex);
             
             if (textureOut && textureOut.texture) {
                 // 创建精灵
                 const sprite = new Sprite();
                 sprite.pos(currentX, currentY);
                 this._container.addChild(sprite);
-
-                let renderTexture = textureOut.texture;
-                let x = textureOut.texItem.x;
-                let y = textureOut.texItem.y;
-                let w = textureOut.texItem.w;
-                let h = textureOut.texItem.h;
-                let uvarr = Float32Array.from([x, y, x + w, y, x + w, y + h, x, y + h]);
-                // let texture = Texture.create(textureOut.texture, x, y, orignalTexture, h, 0, 0, rt.width, rt.height,false);
-                let texture = new Texture(textureOut.texture, uvarr, renderTexture.width, renderTexture.height);
-                texture.width = orignalTexture.width;
-                texture.height = orignalTexture.height;
+                let texture = new Texture(textureOut.texture, null, otexture.width, otexture.height);
+                texture.width = otexture.width;
+                texture.height = otexture.height;
+                this._repaceTexture(texture, this.originalUV[i], textureOut);
                 texture.rotate = true;
-                // 使用大图合集的纹理绘制精灵
-                sprite.texture = texture;
+                sprite.graphics.drawTexture(texture, 0, 0);
 
                 // 添加UV信息标签
-                const uvLabel = this.createLabel(this._container, `UV:\nx:${x},\ny:${y},\nw:${w},\nh:${h}`, currentX + sprite.width + 10, currentY, 12, "#00ff00");
+                const uvLabel = this.createLabel(this._container, `UV:\nx:${textureOut.texItem.x},\ny:${textureOut.texItem.y},\nw:${textureOut.texItem.w},\nh:${textureOut.texItem.h}`, currentX + sprite.width + 10, currentY, 12, "#00ff00");
                 this._container.addChild(uvLabel);
 
                 currentY += texture.height + 60;
@@ -241,23 +252,55 @@ export class Sprite_LargeTexManager_Simple {
         sprite.pos(x, y + 60);
         container.addChild(sprite);
         let texture = new Texture(this.largeTexManager.largeTexs[0]);
-        sprite.texture = texture;
+        // sprite.texture = texture;
+        sprite.graphics.drawTexture(texture, 0, 0);
         sprite.size(512,512);
     }
 
     private repaceLoaderTexture() {
         for (let i = 0; i < this.textures.length; i++) {
-            let originalTexture = this.textures[i].bitmap;
+            let originalTexture = this.texture2ds[i];
             let textureOut = this.largeTexManager.getTexture(originalTexture.id, 0);
-            let x = textureOut.texItem.x;
-            let y = textureOut.texItem.y;
-            let w = textureOut.texItem.w;
-            let h = textureOut.texItem.h;
-            let uvarr = Float32Array.from([x, y, x + w, y, x + w, y + h, x, y + h]);
-            this.textures[i].setTo(textureOut.texture, uvarr);
-            this.textures[i].width = originalTexture.width;
-            this.textures[i].height = originalTexture.height;
+            this._repaceTexture(this.textures[i], this.originalUV[i], textureOut);
         }
+    }
+
+    private _repaceTexture(texture: Texture, uv: Float32Array, textureOut: any): void {
+        let oSWidth = texture.sourceWidth;
+        let oSHeight = texture.sourceHeight;
+        let oWidth = texture.width;
+        let oHeight = texture.height;
+        let x = textureOut.texItem.x;
+        let y = textureOut.texItem.y;
+        let w = textureOut.texItem.w;
+        let h = textureOut.texItem.h;
+        let nuv: Float32Array;
+        if (uv === Texture.DEF_UV) {
+            nuv = Float32Array.from([
+                x, y, 
+                x + w, y, 
+                x + w, y + h, 
+                x, y + h
+            ]);
+        } else {
+            let ox = uv[0];
+            let oy = uv[1];
+            let owidth = uv[2] - ox;
+            let oheight = uv[5] - oy;
+            let nx = x + ox * w;
+            let ny = y + oy * h;
+            let nwidth = owidth * w;
+            let nheight = oheight * h;
+            nuv = Float32Array.from([
+                nx, ny, 
+                nx + nwidth, ny, 
+                nx + nwidth, ny + nheight, 
+                nx, ny + nheight
+            ]);
+        }
+        texture.setTo(textureOut.texture, nuv, oSWidth, oSHeight);
+        texture.width = oWidth;
+        texture.height = oHeight;
     }
 
     createLabel(container: Box, text: string, x: number, y: number , fontSize: number = 14, color: string = "#ffffff"): Label {
@@ -266,7 +309,7 @@ export class Sprite_LargeTexManager_Simple {
         label.fontSize = fontSize;
         label.color = color;
         label.pos(x, y);
-        container.addChild(label);
+        // container.addChild(label);
         label.zIndex = 2;
         return label;
     }

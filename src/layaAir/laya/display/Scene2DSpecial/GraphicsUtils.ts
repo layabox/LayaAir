@@ -1,4 +1,6 @@
 import { Event } from "../../events/Event";
+import { AutoTextureConfig } from "../../large/AutoTextureConfig";
+import { LargeTexProcessor } from "../../large/LargeTexProcessor";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Matrix } from "../../maths/Matrix";
 import { Rectangle } from "../../maths/Rectangle";
@@ -18,6 +20,7 @@ import { Material } from "../../resource/Material";
 import { RenderTexture2D } from "../../resource/RenderTexture2D";
 import { Resource } from "../../resource/Resource";
 import { Texture } from "../../resource/Texture";
+import { Texture2D } from "../../resource/Texture2D";
 import { IPool, Pool } from "../../utils/Pool";
 import { FastSinglelist } from "../../utils/SingletonList";
 import { Utils } from "../../utils/Utils";
@@ -91,6 +94,9 @@ export class GraphicsRenderData {
 
       this.texturesMap.forEach(res => {
          res.off(Event.CHANGE, this, this._resourceRepaint);
+         if (res._dynamic) {
+            res._dynamic.referenceCount--;
+         }
       });
       this.texturesMap.clear();
 
@@ -120,6 +126,15 @@ export class GraphicsRenderData {
 
       this.owner = null;
 
+   }
+
+   /** @internal */
+   _check(){
+      let result = true;
+      this.texturesMap.forEach(texture=>{
+         result = texture._getSource() && result;
+      })
+      return result;
    }
 
    /**
@@ -247,18 +262,28 @@ export class GraphicsRenderData {
       // this.touchResources.push(res);
    }
 
-   referenceRes(res: Resource) {
+   referenceRes(runner: GraphicsRunner, res: Resource) {
       if (res instanceof Texture) {
          let old = this.texturesMap.get(res.id);
          if (!old) {
             res.on(Event.CHANGE, this, this._resourceRepaint);
             this.texturesMap.set(res.id, res);
+            if (runner._textureProcessor.shouldAddToDynamicAtlas(res)) {
+               runner._textureProcessor.addTexture(res);
+            }
+            if (res._dynamic) {
+               res._dynamic.referenceCount ++;
+            }
          }
       }
    }
 
    private _resourceRepaint() {
-      this.owner._graphics.repaint();
+      if (this.owner._needGraphicsUpdate()) {
+         this.owner._graphics.repaint();
+      }else{
+         this.owner._graphics._modified = true;
+      }
    }
 
 }

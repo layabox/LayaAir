@@ -5,6 +5,7 @@ description
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Scene } from "laya/display/Scene";
 import { Stage } from "laya/display/Stage";
 import { Vector3 } from "laya/maths/Vector3";
@@ -16,25 +17,33 @@ export class LodDemo {
     private lodScenePath: string = "res/LOD/LodDemo.ls";
     private scene: Scene;
     private vs: VSlider;
-    private speed: number = 0.5;
     private camera: Camera;
 
-    private pos: Vector3 = new Vector3(0, 0, 0);
-    private targetPos: Vector3 = new Vector3(20.3, 19.0, 20.6);
-    private direction: Vector3 = new Vector3(1, 1, 1);
-    private dirFactor: Vector3 = new Vector3(1, 1, 1);
-    private lastValue: number = 0;
-    private lerpFactor: number = 0.1; // 插值因子，值越小，移动越平滑
-    private changePos: boolean = false;
+    private startPos: Vector3 = new Vector3(0, 0, 0);
+    private startDir: Vector3 = new Vector3();
+    private farDistance = 20;
 
     constructor() {
         Laya.init(0, 0).then(() => {
             Laya.stage.scaleMode = Stage.SCALE_FULL;
             Laya.stage.screenMode = Stage.SCREEN_NONE;
             Stat.show();
+
             Scene.open(this.lodScenePath).then((scene: Scene) => {
                 this.scene = scene;
                 this.camera = ((this.scene.scene3D as Scene3D).getChildByName("Main Camera") as Camera);
+                this.startPos = this.camera.transform.position.clone();
+                this.camera.transform.getForward(this.startDir);
+                let oriSprite = this.scene.scene3D._children[3];
+                let posOffScale = 3;
+                for (var i = 0; i < 3; i++) {
+                    for (var j = 0; j < 3; j++) {
+                        let cloneSprite = (oriSprite as Sprite3D).clone();
+                        cloneSprite.transform.position = new Vector3(-(i + 1)*posOffScale, 0, -(j + 1)*posOffScale);
+                        cloneSprite.transform.setWorldLossyScale(oriSprite.transform.getWorldLossyScale());
+                        this.scene.scene3D.addChild(cloneSprite);
+                    }
+                }
                 this.addUI();
             });
         });
@@ -44,17 +53,9 @@ export class LodDemo {
         Laya.loader.load("res/ui/vscroll.png").then(() => {
             this.placeVSlider();
         });
-        Laya.timer.frameLoop(1, this, this.update);
     }
 
-    update(): void {
-        if (this.changePos) {
-            // 线性插值相机位置
-            Vector3.lerp(this.camera.transform.position, this.targetPos, this.lerpFactor, this.pos);
-            this.camera.transform.position = this.pos;
-            this.changePos = false;
-        }
-    }
+
 
     private placeVSlider(): void {
         this.vs = new VSlider();
@@ -71,29 +72,14 @@ export class LodDemo {
     }
 
     sliderChange(value: number): void {
-        this.changePos = true;
 
-        this.camera.transform.getForward(this.direction);
-        if (value >= this.lastValue) {
-            this.dirFactor.setValue(-1, -1, -1);
-            Vector3.multiply(this.direction, this.dirFactor, this.direction);
-            this.direction.x += this.speed;
-            this.direction.y += this.speed;
-            this.direction.z += this.speed;
-        } else {
-            this.dirFactor.setValue(1, 1, 1);
-            Vector3.multiply(this.direction, this.dirFactor, this.direction);
-            this.direction.x -= this.speed;
-            this.direction.y -= this.speed;
-            this.direction.z -= this.speed;
-        }
-
-        Vector3.add(this.camera.transform.position, this.direction, this.targetPos);
-
-        this.lastValue = value;
+        let factor = value / 100;
+        let tempV3 = Vector3.TEMP;
+        this.startDir.cloneTo(tempV3);
+        tempV3.scale(-factor * this.farDistance, tempV3);
+        tempV3.vadd(this.startPos, tempV3);
+        this.camera.transform.position = tempV3;
     }
 
-    destroy(): void {
-        Laya.timer.clear(this, this.update);
-    }
+
 }

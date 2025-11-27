@@ -220,8 +220,7 @@ export class PostProcess {
             }
         }
 
-        // 只有当有活跃的effects时才执行最终blit，避免反馈循环
-        if (hasActiveEffects) {
+        if (context.indirectTarget !== cameraTarget) {
             context.command.blitScreenTriangle(context.indirectTarget, cameraTarget);
         }
         this._compositeShaderData.addDefine(PostProcess.SHADERDEFINE_FINALPASS);

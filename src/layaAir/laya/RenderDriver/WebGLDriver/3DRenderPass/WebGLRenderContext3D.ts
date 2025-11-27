@@ -24,7 +24,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     /**
      * @internal 
     */
-    _preDrawUniformMaps: Set<string>;
+    preDrawUniformMaps: Set<string>;
 
     /** @internal */
     _cacheGlobalDefines: WebDefineDatas = new WebDefineDatas();
@@ -46,9 +46,9 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     /**@internal */
     private _scissor: Vector4;
     /**@internal */
-    private _sceneUpdataMask: number;
+    private _sceneUpdataMask: number = 0;
     /**@internal */
-    private _cameraUpdateMask: number;
+    private _cameraUpdateMask: number = 0;
     /**@internal */
     private _pipelineMode: PipelineMode;
     /**@internal */
@@ -73,12 +73,12 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         this._sceneData = value;
         if (Config._uniformBlock && this.sceneData) {
 
-            for (let key of this._preDrawUniformMaps) {
-                let uniformMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(key);
-                if (uniformMap._idata.size > 0) {
-                    this.sceneData.createUniformBuffer(key, uniformMap._idata);
-                }
-            }
+            // for (let key of this.preDrawUniformMaps) {
+            //     let uniformMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(key);
+            //     if (uniformMap._idata.size > 0) {
+            //         this.sceneData.createUniformBuffer(key, uniformMap._idata);
+            //     }
+            // }
         }
     }
 
@@ -89,10 +89,10 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     set cameraData(value: WebGLShaderData) {
         this._cameraData = value;
 
-        if (Config._uniformBlock && this.cameraData) {
-            let cameraMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera");
-            this.cameraData.createUniformBuffer("BaseCamera", cameraMap._idata);
-        }
+        // if (Config._uniformBlock && this.cameraData) {
+        //     let cameraMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera");
+        //     this.cameraData.createUniformBuffer("BaseCamera", cameraMap._idata);
+        // }
     }
 
     get sceneModuleData(): WebSceneNodeData {
@@ -139,8 +139,11 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         if (this.sceneData) {
             this.sceneData._defineDatas.cloneTo(contextDef);
 
-            for (let key of this._preDrawUniformMaps) {
-                this.sceneData.updateUBOBuffer(key);
+            for (let key of this.preDrawUniformMaps) {
+                let uniformMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(key);
+                if (uniformMap._idata.size > 0) {
+                    this.sceneData.createUniformBuffer(key, uniformMap._idata, true);
+                }
             }
         }
         else {
@@ -149,8 +152,8 @@ export class WebGLRenderContext3D implements IRenderContext3D {
 
         if (this.cameraData) {
             contextDef.addDefineDatas(this.cameraData._defineDatas);
-
-            this.cameraData.updateUBOBuffer("BaseCamera");
+            let cameraMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera");
+            this.cameraData.createUniformBuffer("BaseCamera", cameraMap._idata, true);
         }
     }
 
@@ -216,7 +219,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     constructor() {
         this._clearColor = new Color();
         this._globalConfigShaderData = Shader3D._configDefineValues as WebDefineDatas;
-        this._preDrawUniformMaps = new Set<string>();
+        this.preDrawUniformMaps = new Set<string>();
         this.cameraUpdateMask = 0;
         WebGLRenderContext3D._instance = this;
     }
@@ -304,6 +307,11 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         if (this._clearFlag != RenderClearFlag.Nothing)
             WebGLEngine.instance.clearRenderTexture(this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil);
         WebGLEngine.instance.scissor(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
+    }
+
+    clearRenderTarget() {
+        this._bindRenderTarget();
+        this._start();
     }
 
 }

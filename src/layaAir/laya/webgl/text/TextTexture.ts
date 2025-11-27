@@ -8,6 +8,8 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { Render } from "../../renders/Render";
 import { TextRenderConfig } from "./TextRenderConfig";
 import { Stat } from "../../utils/Stat";
+import { TextureArrayRegistry2D } from "../utils/TextureArrayRegistry2D";
+import { Config } from "../../../Config";
 
 /**
  * 保存文字的贴图
@@ -42,6 +44,20 @@ export class TextTexture extends Texture2D {
         if (TextRenderConfig.debugUV) {
             this.fillWhite();
         }
+
+        if(Config.useTextureArray && TextRenderConfig.useTextureArray){
+            // 尝试从数组纹理池分配一层并注册映射，使本 TextTexture 被绘制时自动替换为 Texture2DArray+layer
+            //const alloc = TextureArrayRegistry2D.allocateLayerAsTexture(textureW, textureH, TextureFormat.R8G8B8A8, 64, /*sRGB*/ true);
+            const alloc = TextureArrayRegistry2D.allocateLayerAsTexture(textureW, textureH, TextureFormat.R8G8B8A8, 16, /*sRGB*/ false);
+            if (alloc) {
+                // 以当前 TextTexture 为 key 进行注册（基于 id），这样由它派生的子纹理也会命中映射
+                TextureArrayRegistry2D.register(this, alloc.array, alloc.layer);
+                // 同步滤波/包裹到数组纹理
+                //alloc.array.filterMode = this.filterMode;
+                //alloc.array.wrapModeU = this.wrapModeU;
+                //alloc.array.wrapModeV = this.wrapModeV;
+            }
+        }
     }
 
     /**
@@ -53,15 +69,30 @@ export class TextTexture extends Texture2D {
      * @return uv数组  如果uv不为空就返回传入的uv，否则new一个数组
      */
     addChar(data: ImageData | HTMLCanvasElement, x: number, y: number, uv?: number[]): number[] {
-        if (TextRenderConfig.useImageData) {
-            var dt: any = (<ImageData>data).data;
-            if ((<ImageData>data).data instanceof Uint8ClampedArray)
-                dt = new Uint8Array(dt.buffer);
-
-            LayaGL.textureContext.setTextureSubPixelsData(this._texture, dt, 0, false, x, y, data.width, data.height, true, false);
-        }
-        else {
-            LayaGL.textureContext.setTextureSubImageData(this._texture, <HTMLCanvasElement>data, x, y, true, false);
+        const reg = TextureArrayRegistry2D.resolve(this);
+        if (reg) {
+            // 写入数组纹理的指定层
+            if (TextRenderConfig.useImageData) {
+                var dt: any = (<ImageData>data).data;
+                if ((<ImageData>data).data instanceof Uint8ClampedArray){
+                    dt = new Uint8Array(dt.buffer);
+                }
+                reg.array.setSubPixelsData(x, y, reg.layer, data.width, data.height, 1, dt, 0, false, false, false);
+            } else {
+                // Canvas 路径：先读回像素
+                throw 'texturearray怎么上传canvas对象'
+            }
+        } else {
+            // 旧路径：写到自身 Texture2D（非数组纹理）
+            if (TextRenderConfig.useImageData) {
+                var dt: any = (<ImageData>data).data;
+                if ((<ImageData>data).data instanceof Uint8ClampedArray)
+                    dt = new Uint8Array(dt.buffer);
+                LayaGL.textureContext.setTextureSubPixelsData(this._texture, dt, 0, false, x, y, data.width, data.height, true, false);
+            }
+            else {
+                LayaGL.textureContext.setTextureSubImageData(this._texture, <HTMLCanvasElement>data, x, y, true, false);
+            }
         }
 
         let u0: number;
@@ -91,9 +122,16 @@ export class TextTexture extends Texture2D {
      * 填充白色。调试用。
      */
     fillWhite(): void {
-        var dt = new Uint8Array(this.width * this.height * 4);
-        dt.fill(0xff);
-        LayaGL.textureContext.setTextureImageData(this._getSource(), dt as any, true, false);
+        const reg = TextureArrayRegistry2D.resolve(this);
+        if (reg) {
+            var dt = new Uint8Array(this.width * this.height * 4);
+            dt.fill(0xff);
+            reg.array.setSubPixelsData(0, 0, reg.layer, this.width, this.height, 1, dt, 0, false, true, false);
+        } else {
+            var dt = new Uint8Array(this.width * this.height * 4);
+            dt.fill(0xff);
+            LayaGL.textureContext.setTextureImageData(this._getSource(), dt as any, true, false);
+        }
     }
 
     discard(): void {
@@ -105,7 +143,7 @@ export class TextTexture extends Texture2D {
     }
 
     static getTextTexture(w: number, h: number): TextTexture {
-        // 不再回收
+        // 默认走数组纹理路径（构造函数里会分配层并注册），回退则使用单纹理
         return new TextTexture(w, h);
     }
 

@@ -21,6 +21,8 @@ uniform vec4 u_WorldInvertFront; // x: invert front face,yzw NodeCustomData
 
     #endif // GPU_INSTANCE
 
+
+
 vec2 tranformLightMapUV(in vec2 texcoord, in vec4 tilingOffset)
 {
     vec2 lightMapUV = vec2(texcoord.x, 1.0 - texcoord.y) * tilingOffset.xy + tilingOffset.zw;

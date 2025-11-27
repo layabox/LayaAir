@@ -14,7 +14,6 @@ export class RTStatisContext extends DefaultStaticsContext {
     }
 
     protected _createStatBuffer() {
-        debugger;
         this._stateArrayMemory = new NativeMemory(StatElement.StatEnd * 4, false);
         this._statArray = this._stateArrayMemory.float32Array;
         this._timeArrayMemory = new NativeMemory(StatElement.StatEnd * 4, false);

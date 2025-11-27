@@ -10,6 +10,7 @@ import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/Sha
 import { Scene3D } from "../core/scene/Scene3D";
 import { CommandUniformMap } from "../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { Config } from "../../../Config";
+import { IDirectLightData, ISpotLightData } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 
 /**
  * @internal
@@ -92,7 +93,7 @@ export class ShadowCasterPass {
      * @param light 方向光组件。
      * @returns 方向光的阴影贴图纹理。
      */
-    getDirectLightShadowMap(light: DirectionLightCom) {
+    getDirectLightShadowMap(light: IDirectLightData) {
         var shadowMapWidth;
         var shadowMapHeight;
         var atlasResolution: number = light.shadowResolution;
@@ -123,7 +124,7 @@ export class ShadowCasterPass {
      * @param light 聚光灯组件。
      * @returns 聚光灯的阴影贴图纹理。
      */
-    getSpotLightShadowPassData(light: SpotLightCom) {
+    getSpotLightShadowPassData(light: ISpotLightData) {
         this._shadowSpotLightMap && RenderTexture.recoverToPool(this._shadowSpotLightMap);
         var shadowResolution: number = light.shadowResolution;
         var shadowMapWidth = shadowResolution;

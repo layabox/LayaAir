@@ -1,6 +1,6 @@
-import { IBaseRenderNode } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { ComputeCommandAppatchCMD, SetRenderDataCMD, SetShaderDefineCMD } from "../RenderDevice/IRenderCMD";
-import { IInstanceRenderBatch, IInstanceRenderElement3D, IRender3DProcess, IRenderContext3D, IRenderElement3D, ISkinRenderElement3D } from "./I3DRenderPass";
+import { IRender3DProcess, IRenderContext3D, IRenderElement3D, ISkinRenderElement3D } from "./I3DRenderPass";
+import { IBatchModuleAgent } from "./IBatchModuleAgent";
 import { DrawNodeCMDData, BlitQuadCMDData, DrawElementCMDData, SetViewportCMD, SetRenderTargetCMD } from "./IRender3DCMD";
 import { ISceneRenderManager } from "./ISceneRenderManager";
 
@@ -12,14 +12,12 @@ export interface I3DRenderPassFactory {
 
     createRenderElement3D(): IRenderElement3D;
 
-    createInstanceBatch(): IInstanceRenderBatch;
-
-    createInstanceRenderElement3D(): IInstanceRenderElement3D;
-
     createSkinRenderElement(): ISkinRenderElement3D;//TODO
 
     createSceneRenderManager(): ISceneRenderManager;
 
+    createMeshRenderBatchModule?(): IBatchModuleAgent;
+    createSimpleSkinRenderBatchModule?(): IBatchModuleAgent;
     //Render3D CMD
     createDrawNodeCMDData(): DrawNodeCMDData;
 

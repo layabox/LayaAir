@@ -1,12 +1,14 @@
 import { Component } from "../../components/Component";
 import { Camera } from "../core/Camera";
-import { BaseRender, RenderBitFlag } from "../core/render/BaseRender";
-import { Scene3D } from "../core/scene/Scene3D";
+import { BaseRender, propertyChangeFlag, RenderBitFlag, VisibalRangeFlag } from "../core/render/BaseRender";
 import { Sprite3D } from "../core/Sprite3D";
 import { Bounds } from "../math/Bounds";
 import { Event } from "../../events/Event";
 import { Utils3D } from "../utils/Utils3D";
 import { Vector3 } from "../../maths/Vector3";
+import { Vector2 } from "../../maths/Vector2";
+import { Scene3D } from "../core/scene/Scene3D";
+import { LayaEnv } from "../../../LayaEnv";
 
 const tempVec = new Vector3();
 
@@ -52,6 +54,21 @@ export class LODInfo {
         this._mincullRate = value;
     }
 
+    set maxVisibalDistance(value: number) {
+        for (var i = 0; i < this._renders.length; i++) {
+            let render = this._renders[i];
+            render._baseRenderNode.visibalMax = value;
+            render._batchRender && render._batchRender.updateProperty(render, propertyChangeFlag.VisibalRange);
+        }
+    }
+
+    set minVisibalDistance(value: number) {
+        for (var i = 0; i < this._renders.length; i++) {
+            let render = this._renders[i];
+            render._baseRenderNode.visibalMin = value;
+            render._batchRender && render._batchRender.updateProperty(render, propertyChangeFlag.VisibalRange);
+        }
+    }
 
     /**
      * @internal
@@ -61,22 +78,16 @@ export class LODInfo {
     set group(value: LODGroup) {
         if (value == this._group)
             return;
-        if (this._group) {//remove old event
-            // this._renders.forEach(element => {
-            //     element.owner.transform.off(Event.TRANSFORM_CHANGED, this._group._updateRecaculateFlag);
-            //     element._LOD = -1;
-            // })
+        if (this._group) {
             for (let i = 0, n = this._renders.length; i < n; i++) {
                 let element = this._renders[i];
                 element.owner.transform.off(Event.TRANSFORM_CHANGED, this._group._updateRecaculateFlag);
-                element._LOD = -1;
             }
         }
         this._group = value;
         for (let i = 0, n = this._renders.length; i < n; i++) {
             let element = this._renders[i];
             element.owner.transform.on(Event.TRANSFORM_CHANGED, this._group, this._group._updateRecaculateFlag);
-            element._LOD = this._lodIndex;
         }
     }
 
@@ -109,8 +120,10 @@ export class LODInfo {
         if (ren._isRenderNode > 0) {
             let components = ren.components;
             for (let comp of components) {
-                if ((comp instanceof BaseRender) && this._renders.indexOf(comp) == -1)
+                if ((comp instanceof BaseRender) && this._renders.indexOf(comp) == -1) {
                     this._renders.push(comp);
+                    (comp as BaseRender)._baseRenderNode.visibalRangeBit = VisibalRangeFlag.LOD;
+                }
             }
             this._group && node.transform.on(Event.TRANSFORM_CHANGED, this._group, this._group._updateRecaculateFlag);
         }
@@ -133,7 +146,7 @@ export class LODInfo {
             for (let comp of components) {
                 if ((comp instanceof BaseRender) && (index = this._renders.indexOf(comp)) == -1) {
                     this._renders.splice(index, 1);
-                    comp.setRenderbitFlag(RenderBitFlag.RenderBitFlag_CullFlag, false);
+                    comp._baseRenderNode.visibalRangeBit = VisibalRangeFlag.None;
                     this._group && node.transform.off(Event.TRANSFORM_CHANGED, this._group._updateRecaculateFlag);
                 }
             }
@@ -149,7 +162,7 @@ export class LODInfo {
      */
     removeAllRender() {
         this._renders.forEach(element => {
-            element.setRenderbitFlag(RenderBitFlag.RenderBitFlag_CullFlag, false);
+            element._baseRenderNode.visibalRangeBit = VisibalRangeFlag.None;
         })
     }
 }
@@ -208,6 +221,8 @@ export class LODGroup extends Component {
      */
     private _nowRate: number;
 
+    private _needChangeLODVisibal: boolean = false;
+
     declare readonly owner: Sprite3D;
 
     /**
@@ -253,6 +268,7 @@ export class LODGroup extends Component {
             element.group = this;
         }
         this._updateRecaculateFlag();
+        this._notifyChangeLODVisibal();
         this._lodCount = this._lods.length;
     }
 
@@ -278,13 +294,8 @@ export class LODGroup extends Component {
      */
     protected _onEnable(): void {
         super._onEnable();
-        for (var i = 0, n = this._lods.length; i < n; i++) {
-            this._setLODinvisible(i);
-        }
-        this._visialIndex = -1;
+        this._notifyChangeLODVisibal();
 
-
-        this._applyVisibleRate(1);
     }
     /**
      * @internal
@@ -296,58 +307,58 @@ export class LODGroup extends Component {
         })
     }
 
-    /**
-     * 设置显示隐藏组
-     * @param rate 
-     * @returns 
-     */
-    private _applyVisibleRate(rate: number) {
-        for (var i = 0; i < this._lodCount; i++) {
-            let lod = this._lods[i];
-            if (rate > lod.mincullRate) {
-                if (i == -1) {
-                    this._setLODvisible(i);
-                    this._visialIndex = i;
-                    return;
-                }
-                if (i == this._visialIndex)
-                    return;
-                else {
-                    (this._visialIndex != -1) && this._setLODinvisible(this._visialIndex);
-                    this._setLODvisible(i);
-                    this._visialIndex = i;
-                    return;
-                }
-            }
-        }
-        //cull
-        if (this._visialIndex != -1) {
-            this._setLODinvisible(this._visialIndex);
-            this._visialIndex = -1;
-        }
-    }
+    // /**
+    //  * 设置显示隐藏组
+    //  * @param rate 
+    //  * @returns 
+    //  */
+    // private _applyVisibleRate(rate: number) {
+    //     for (var i = 0; i < this._lodCount; i++) {
+    //         let lod = this._lods[i];
+    //         if (rate > lod.mincullRate) {
+    //             if (i == -1) {
+    //                 this._setLODvisible(i);
+    //                 this._visialIndex = i;
+    //                 return;
+    //             }
+    //             if (i == this._visialIndex)
+    //                 return;
+    //             else {
+    //                 (this._visialIndex != -1) && this._setLODinvisible(this._visialIndex);
+    //                 this._setLODvisible(i);
+    //                 this._visialIndex = i;
+    //                 return;
+    //             }
+    //         }
+    //     }
+    //     //cull
+    //     if (this._visialIndex != -1) {
+    //         this._setLODinvisible(this._visialIndex);
+    //         this._visialIndex = -1;
+    //     }
+    // }
 
-    /**
-     * 设置某一级LOD显示
-     * @param index 
-     */
-    private _setLODvisible(index: number): void {
-        let lod = this._lods[index];
-        for (var i = 0, n = lod._renders.length; i < n; i++) {
-            lod._renders[i].setRenderbitFlag(RenderBitFlag.RenderBitFlag_CullFlag, false);
-        }
-    }
+    // /**
+    //  * 设置某一级LOD显示
+    //  * @param index 
+    //  */
+    // private _setLODvisible(index: number): void {
+    //     let lod = this._lods[index];
+    //     for (var i = 0, n = lod._renders.length; i < n; i++) {
+    //         lod._renders[i].setRenderbitFlag(RenderBitFlag.RenderBitFlag_CullFlag, false);
+    //     }
+    // }
 
-    /**
-     * 设置某一级LOD不显示
-     * @param index 
-     */
-    private _setLODinvisible(index: number) {
-        let lod = this._lods[index];
-        for (var i = 0, n = lod._renders.length; i < n; i++) {
-            lod._renders[i].setRenderbitFlag(RenderBitFlag.RenderBitFlag_CullFlag, true);
-        }
-    }
+    // /**
+    //  * 设置某一级LOD不显示
+    //  * @param index 
+    //  */
+    // private _setLODinvisible(index: number) {
+    //     let lod = this._lods[index];
+    //     for (var i = 0, n = lod._renders.length; i < n; i++) {
+    //         lod._renders[i].setRenderbitFlag(RenderBitFlag.RenderBitFlag_CullFlag, true);
+    //     }
+    // }
 
     /**
      * @internal
@@ -443,6 +454,38 @@ export class LODGroup extends Component {
         let extend = this._bounds.getExtent();
         this._size = 2 * Math.max(extend.x, extend.y, extend.z);
         this._needcaculateBounds = false;
+        this._notifyChangeLODVisibal();
+    }
+
+
+    _notifyChangeLODVisibal() {
+        this._needChangeLODVisibal = true;
+    }
+
+    _changeLODVisibal() {
+        //在这里把lod的渲染范围算好填入LODInfo，并通知所有的LODInfo里面的BaseRender
+        let cullCameraInfo = this.owner.scene.cullInfoCamera;
+        let cameraFarLength = cullCameraInfo.farPlane;
+        let maxYDistance = cullCameraInfo.maxlocalYDistance;
+        let cameraFrustum = cullCameraInfo.boundFrustum;
+        let preLOD: LODInfo;
+        let preLODLength: number;
+        for (var i = 0; i < this._lods.length; i++) {
+            let lod = this._lods[i];
+            if (i == 0) {
+                lod.minVisibalDistance = 0;
+            } else {
+                lod.minVisibalDistance = preLODLength;
+            }
+            preLODLength = (this._size / lod.mincullRate) / maxYDistance * cameraFarLength;
+            preLODLength *= preLODLength;
+            lod.maxVisibalDistance = preLODLength;
+
+            if (i == this.lods.length - 1) {
+                lod.maxVisibalDistance = cameraFarLength * cameraFarLength;
+            }
+            preLOD = lod;
+        }
     }
 
     /**
@@ -452,19 +495,25 @@ export class LODGroup extends Component {
      */
     onPreRender() {
         this.recalculateBounds();
-        //查看相机的距离
-        let checkCamera = this.owner.scene.cullInfoCamera as Camera;
-        let maxYDistance = checkCamera.maxlocalYDistance;
-        let cameraFrustum = checkCamera.boundFrustum;
-        Vector3.subtract(this._lodPosition, checkCamera.transform.position, tempVec);
-        //大于farplane,或者不在视锥内.不做lod操作
-        let length = tempVec.length();
-        if (length > checkCamera.farPlane || cameraFrustum.containsPoint(this._lodPosition) == 0) {
-            return;
+        if (this._needChangeLODVisibal) {
+            this._needChangeLODVisibal = false;
+            this._changeLODVisibal();
         }
-        let rateYDistance = length / checkCamera.farPlane * maxYDistance;
-        let rate = (this._size / rateYDistance);
-        this._nowRate = rate;
-        this._applyVisibleRate(rate);
+        if (LayaEnv.isEditor) {
+            let checkCamera = (this.owner.scene as Scene3D).cullInfoCamera;
+            let maxYDistance = checkCamera.maxlocalYDistance;
+            let cameraFrustum = checkCamera.boundFrustum;
+            Vector3.subtract(this._lodPosition, checkCamera.transform.position, tempVec);
+            //大于farplane,或者不在视锥内.不做lod操作
+            let length = tempVec.length();
+            if (length > checkCamera.farPlane || cameraFrustum.containsPoint(this._lodPosition) == 0) {
+                return;
+            }
+            let rateYDistance = length / checkCamera.farPlane * maxYDistance;
+            let rate = (this._size / rateYDistance);
+            this._nowRate = rate;
+        }
+
+        // this._applyVisibleRate(rate);
     }
 }

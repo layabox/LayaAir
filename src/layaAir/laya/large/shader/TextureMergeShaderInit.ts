@@ -8,6 +8,7 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { SubShader } from "../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh";
 
+
 export class TextureMergeShaderInit {
 
     /** @internal */
@@ -22,11 +23,7 @@ export class TextureMergeShaderInit {
     
     private static GAMMA_TO_LINEAR: ShaderDefine;
 
-
-    static inited: boolean = false;
-
     static init() {
-        if (this.inited) return;
         const attributeMap: { [name: string]: [number, ShaderDataType] } = {
             "a_PositionTexcoord": [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4]
         };
@@ -41,9 +38,9 @@ export class TextureMergeShaderInit {
 
         this._sdNotChange = LayaGL.renderDeviceFactory.createShaderData(null);
         this._sdGammaToLinear = LayaGL.renderDeviceFactory.createShaderData(null);
-        this._sdLinearToGamma.addDefine(this.LINEAR_TO_GAMMA);
+        this._sdGammaToLinear.addDefine(this.GAMMA_TO_LINEAR);
         this._sdLinearToGamma = LayaGL.renderDeviceFactory.createShaderData(null);
-        this._sdLinearToGamma.addDefine(this.GAMMA_TO_LINEAR);
+        this._sdLinearToGamma.addDefine(this.LINEAR_TO_GAMMA);
 
         const shader = Shader3D.add("TexMerge");
         const subShader = new SubShader(attributeMap, uniformMap);
@@ -54,6 +51,5 @@ export class TextureMergeShaderInit {
         blitState.depthWrite = false;
         blitState.cull = RenderState.CULL_NONE;
         blitState.blend = RenderState.BLEND_DISABLE;
-        this.inited = true;
     }
 }

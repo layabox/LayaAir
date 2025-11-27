@@ -6,9 +6,18 @@ import { ILaya } from "../../ILaya";
 import { BaseTexture } from "./BaseTexture";
 import { Resource } from "./Resource";
 import { AtlasResource } from "./AtlasResource";
+import { Vector4 } from "../maths/Vector4";
 
 const _rect1 = new Rectangle();
 const _rect2 = new Rectangle();
+
+export interface DynamicTexInfo
+{
+    referenceCount: number , 
+    uv : Vector4 , 
+    source: Texture2D 
+    recover: () => void
+} 
 
 /**
  * @en The Texture is a texture processing class.
@@ -99,6 +108,9 @@ export class Texture extends Resource {
      * 如果是图集中的小图，记录了图集的引用
      */
     _atlas: AtlasResource;
+    
+    /** @internal 动态图集的信息 */
+    _dynamic: DynamicTexInfo = null;
 
     /**
      * @internal 
@@ -572,9 +584,20 @@ export class Texture extends Resource {
      * @zh 强制释放 `bitmap`，无论它是否被引用。
      */
     disposeBitmap(): void {
-        if (!this._destroyed && this._bitmap) {
+        if (this.destroyed) 
+            return;
+        if (this._dynamic) {
+            let source = this._dynamic.source;
+            this._dynamic.recover();
+            if (source) {
+                source.destroy();
+            }
+        }
+        else if (this._bitmap) {
             this._bitmap.destroy();
         }
+        
+        this.event(Event.CHANGE);
     }
 
     /**

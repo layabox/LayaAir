@@ -23,7 +23,6 @@ import { Stat } from "../../utils/Stat"
 import { StatElement } from "../../layagl/StatisticsContext"
 import { Material } from "../../resource/Material"
 
-
 /**
  * @en The `MeshRenderer` class is used for mesh rendering.
  * @zh `MeshRenderer` 类用于网格渲染器。
@@ -433,7 +432,7 @@ export class MeshRenderer extends BaseRender {
             return;
         }
 
-        if (LayaGL.renderEngine.getCapable(RenderCapable.Texture3D) && this._mesh.morphTargetData) {
+        if (this._mesh.morphTargetData &&LayaGL.renderEngine.getCapable(RenderCapable.Texture3D) ) {
             this._applyMorphdata();
         }
 

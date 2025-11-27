@@ -481,6 +481,8 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
         clipper.clipEnd();
         
         virtualMesh && virtualMesh.draw();
+
+        this.updateRenderElements(renderNode);
     }
 
     /**

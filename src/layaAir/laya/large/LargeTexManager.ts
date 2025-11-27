@@ -1,7 +1,6 @@
-import { Laya } from "../../Laya";
-import { Command } from "../d3/core/render/command/Command";
-import { CommandBuffer } from "../d3/core/render/command/CommandBuffer";
-import { RenderContext3D } from "../d3/core/render/RenderContext3D";
+import { ILaya } from "../../ILaya";
+import { Command2D } from "../display/Scene2DSpecial/RenderCMD2D/Command2D";
+import { CommandBuffer2D } from "../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { Vector2 } from "../maths/Vector2";
 import { Vector3 } from "../maths/Vector3";
 import { Vector4 } from "../maths/Vector4";
@@ -12,8 +11,7 @@ import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
 import { Texture2D } from "../resource/Texture2D";
 import { Utils } from "../utils/Utils";
 import { LargeTex } from "./LargeTex";
-import { TextureMergeShaderInit } from "./shader/TextureMergeShaderInit";
-
+import { LargeTexProcessor } from "./LargeTexProcessor";
 
 //被合并的纹理单元
 export class TextureItem {
@@ -81,7 +79,7 @@ export class TextureItem {
      * @en Command
      * @zh 命令
      * */
-    cmd?: Command;
+    // cmd?: Command2D;
 
     cloneTo(ti: TextureItem) {
         ti.id = this.id;
@@ -120,7 +118,7 @@ type ColorItem = {
     b?: number;
     a?: number;
     largeTextureIndex?: number; //合并的大纹理序号
-    cmd?: Command; //合并的命令
+    cmd?: Command2D; //合并的命令
 }
 
 //合并后的大纹理
@@ -219,6 +217,11 @@ export class LargeTexBase {
      * */
     sRGB: boolean = false;
     /** 
+     * @en The gamma correction value of the texture. If set to 1.0, texture sampling will be linear without any correction.
+     * @zh 纹理的伽马校正值。如果设置为1.0，则纹理采样将为线性，不进行任何校正。
+     */
+    gammaCorrection: number = 1.0;
+    /** 
      * @en Whether to check duplicates
      * @zh 是否查重
      * */
@@ -246,7 +249,7 @@ export class LargeTexBase {
      * */
     largeTexs: LargeTex[] = [];
     /** 命令缓冲区 */
-    protected _cmdBuffer = new CommandBuffer();
+    protected _cmdBuffer = new CommandBuffer2D();
 
     /** 
      * @en Whether destroyed
@@ -270,11 +273,7 @@ export class LargeTexBase {
      * @en Update hook
      * @zh 更新钩子
      * */
-    updateHook:() => void;
-
-    static __init__() {
-        TextureMergeShaderInit.init();
-    }
+    updateHook:(index: number, completedIds: number[]) => void = null;
 
     //可选的大纹理尺寸
     protected static _largeTexSize = [
@@ -338,9 +337,6 @@ export class LargeTexBase {
         }
 
         this._tempMaps = new Array<number>(nw * nh).fill(0);
-
-        this._cmdBuffer._context = RenderContext3D._instance;
-        this._cmdBuffer._context.pipelineMode = "Forward";
     }
 
     /**
@@ -355,10 +351,10 @@ export class LargeTexBase {
         for (let i = 0, len = this.largeTexs.length; i < len; i++) {
             const o: LargeTex = this.largeTexs[i];
             if (!o) continue;
-            o.onUpdate(force);
-            if (!force && Laya.stage.getTimeFromFrameStart() > this.delay) break;
+            let completedIds = o.onUpdate(force);
+            this.updateHook?.(i, completedIds);
+            if (!force && ILaya.stage.getTimeFromFrameStart() > this.delay) break;
         }
-        this.updateHook?.();
         return true;
     }
 
@@ -484,15 +480,11 @@ export class LargeTexBase {
      */
     areTextureMerged(ui: number | string, largeTextureIndex: number = -1) {
         let result = false;
-
         if (largeTextureIndex >= 0) {
             let ti = this._findTexture(ui, largeTextureIndex);
             if (ti) {
                 let lt = this.largeTexs[largeTextureIndex];
-                if (ti.cmd) {
-                    if (!lt.commands.has(ti.cmd))
-                       return true;
-                }else return true;
+                return lt.hasWaitMerge(ti.id);
             }
         } else {
             for (let i = 0; i < this.LARGE_TEX_N; i++) {
@@ -828,15 +820,16 @@ export class LargeTexBase {
      * @param largeTextureIndex 大纹理编号
      * @param sRGB 大图是否sRGB格式
      */
-    createLargeTex(largeTextureIndex: number, sRGB?: boolean) {
+    createLargeTex(largeTextureIndex: number, sRGB?: boolean, gammaCorrection?: number) {
         const mipMap = this.mipMap;
         const texMode = this.texMode;
         const anisoLevel = this.texAnisoLevel;
         sRGB = sRGB ? sRGB : this.sRGB;
-
+        gammaCorrection = gammaCorrection ? gammaCorrection : this.gammaCorrection;
+        
         if (largeTextureIndex >= 0 && largeTextureIndex < this.LARGE_TEX_N) {
             if (!this.largeTexs[largeTextureIndex]) {
-                const lt = new LargeTex(this.LARGE_TEX_W, this.LARGE_TEX_H, this.texFormat, null, mipMap, 4, sRGB);
+                const lt = new LargeTex(this.LARGE_TEX_W, this.LARGE_TEX_H, this.texFormat, null, mipMap, 4, sRGB , this.gammaCorrection);
                 lt.lock = true;
                 lt.filterMode = texMode;
                 lt.anisoLevel = anisoLevel;
@@ -908,7 +901,7 @@ export class LargeTexBase {
                 this.createLargeTex(ti.largeTextureIndex);
             let cmd = this.largeTexs[ti.largeTextureIndex].addTexture(this.TEX_SIZE_MIN * ti.pos.x + this.EXTEND_SIZE,
                 this.TEX_SIZE_MIN * ti.pos.y + this.EXTEND_SIZE, tw, th, this.EXTEND_SIZE, tex, needRemove);
-            ti.cmd = cmd;
+            // ti.cmd = cmd;
             return ti;
         } else {
             const ss = LargeTexBase.calcTexSize(tex.width, tex.height, scale, this.TEX_SIZE_MIN, this.EXTEND_SIZE);
@@ -944,7 +937,7 @@ export class LargeTexBase {
                     this.createLargeTex(ti.largeTextureIndex);
                 let cmd = this.largeTexs[ti.largeTextureIndex].addTexture(this.TEX_SIZE_MIN * room[2] + this.EXTEND_SIZE,
                     this.TEX_SIZE_MIN * room[1] + this.EXTEND_SIZE, ss[0], ss[1], this.EXTEND_SIZE, tex, needRemove);
-                ti.cmd = cmd;
+                // ti.cmd = cmd;
                 return ti;
             }
         }
@@ -1146,7 +1139,6 @@ export class LargeTexBase {
  * */
 export class LargeTexManager extends LargeTexBase {
     COLOR_ITEM_SIZE: number = 4; //颜色块尺寸，每个颜色块在纹理中的尺寸为 COLOR_ITEM_SIZE * COLOR_ITEM_SIZE
-    static __LargeTexManagerAll: LargeTexManager[]; //统一管理多个大图合集对象
 
     private _curColor: Vector3[] = []; //当前合并的颜色序号（x：块横向起始，y：块纵向起始, z: 块内序号）
     private _curColorUV: Vector2 = new Vector2(); //当前合并的颜色UV值
@@ -1158,25 +1150,6 @@ export class LargeTexManager extends LargeTexBase {
     active: boolean = true; //当前大图合集对象是否激活
 
     /**
-     * 分帧更新大图
-     * @param force 强制更新
-     */
-    static __updateAll(force: boolean = false) {
-        if (!force && Laya.stage.getTimeFromFrameStart() > 100) return;
-
-        const ary = LargeTexManager.__LargeTexManagerAll;
-        let n = ary.length;
-        for (let i = 0; i < n; i++) {
-            const o = ary[i];
-            if (!o) continue;
-            o.onUpdate();
-            if (!force && Laya.stage.getTimeFromFrameStart() > 30) break;
-        }
-        if (ary.length != n)
-            ary.length = n;
-    }
-
-    /**
      * 构造函数
      * @param lts 大纹理像素尺寸
      * @param ltn 大纹理数量上限
@@ -1186,11 +1159,7 @@ export class LargeTexManager extends LargeTexBase {
      */
     constructor(lts: number[], ltn: number, tsm: number = 16, exs: number = 0, texFormat: RenderTargetFormat = RenderTargetFormat.R8G8B8A8) {
         super(lts, ltn, tsm, exs, texFormat);
-        if (!LargeTexManager.__LargeTexManagerAll) {
-            LargeTexManager.__LargeTexManagerAll = [];
-            Laya.stage.timer.loop(200, LargeTexManager, LargeTexManager.__updateAll);
-        }
-        LargeTexManager.__LargeTexManagerAll.push(this);
+        LargeTexProcessor.addMgr(this);
         for (let i = 0; i < this.LARGE_TEX_N; i++) {
             this._curColor[i] = new Vector3(0, 0, -1);
             this._curColorMap[i] = []; 
@@ -1259,12 +1228,7 @@ export class LargeTexManager extends LargeTexBase {
      * @param keepRes
      */
     destroy(keepRes: boolean = false) {
-        for (let i = 0; i < LargeTexManager.__LargeTexManagerAll.length; i++) {
-            if (LargeTexManager.__LargeTexManagerAll[i] == this) {
-                LargeTexManager.__LargeTexManagerAll.splice(i, 1);
-                break;
-            }
-        }
+        LargeTexProcessor.removeMgr(this);
         super.destroy(keepRes);
         this.active = false;
     }

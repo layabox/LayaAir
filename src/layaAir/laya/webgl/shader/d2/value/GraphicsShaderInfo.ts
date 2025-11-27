@@ -4,6 +4,7 @@ import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { Vector4 } from "../../../../maths/Vector4";
 import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { BaseTexture } from "../../../../resource/BaseTexture";
+import { Texture2DArray } from "../../../../resource/Texture2DArray";
 import { Texture } from "../../../../resource/Texture";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { BlendModeHandler } from "../../../canvas/BlendMode";
@@ -13,6 +14,8 @@ const _TEMP_CLIPDIR: Vector4 = new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_
 export class GraphicsShaderInfo {
 
    shaderData: ShaderData;
+   // 使用 Texture2DArray 时的层索引
+   texArrayLayer: number = 0;
 
    constructor() {
       this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
@@ -62,14 +65,23 @@ export class GraphicsShaderInfo {
       if (!tex) {
          tex = Texture2D.whiteTexture;
       }
-      this.shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, tex);
+      // 切换到数组纹理路径: 传入 Texture2DArray 则启用 USE_TEX_ARRAY 宏与数组uniform
+      if (tex instanceof Texture2DArray) {
+         this.shaderData.addDefine(ShaderDefines2D.USE_TEX_ARRAY);
+         this.shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE_ARRAY, tex);
+      } else {
+         this.shaderData.removeDefine(ShaderDefines2D.USE_TEX_ARRAY);
+         this.shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, tex);
+      }
 
    }
 
    set enableVertexSize(value: boolean) {
       if (value) {
          this.shaderData.addDefine(ShaderDefines2D.VERTEX_SIZE);
+         this.shaderData.removeDefine(ShaderDefines2D.VERTEXALPHA);
       } else {
+         this.shaderData.addDefine(ShaderDefines2D.VERTEXALPHA);
          this.shaderData.removeDefine(ShaderDefines2D.VERTEX_SIZE);
       }
    }
@@ -164,7 +176,13 @@ export class GraphicsShaderInfo {
       } else {
          shaderData.removeDefine(ShaderDefines2D.FILLTEXTURE);
       }
-      shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, tex);
+      if (tex instanceof Texture2DArray) {
+         shaderData.addDefine(ShaderDefines2D.USE_TEX_ARRAY);
+         shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE_ARRAY, tex);
+      } else {
+         shaderData.removeDefine(ShaderDefines2D.USE_TEX_ARRAY);
+         shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, tex);
+      }
    }
 
    clear() {

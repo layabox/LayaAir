@@ -1,3 +1,4 @@
+import { timeStamp } from "console";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { StatElement } from "../../../layagl/StatisticsContext";
 import { InternalRenderTarget } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
@@ -66,6 +67,9 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
         LayaGL.statAgent.recordCountData(StatElement.C_RenderTexture, 1);
     }
 
+    _getSource() {
+        return this._textures[0].resource;
+    }
 
 
     dispose(): void {

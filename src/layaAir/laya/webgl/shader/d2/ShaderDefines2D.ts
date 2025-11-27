@@ -14,13 +14,17 @@ export class ShaderDefines2D {
     static INVERTY: ShaderDefine;
     /**@internal */
     static GAMMATEXTURE: ShaderDefine;
-
+    /** @internal */
     static VERTEX_SIZE: ShaderDefine;
+    /** @internal */
+    static VERTEXALPHA: ShaderDefine;
 
     /**@internal */
     static TEXTURESHADER: ShaderDefine;
     /**@internal */
     static PRIMITIVESHADER: ShaderDefine;
+    /**@internal */
+    static USE_TEX_ARRAY: ShaderDefine;
     /** @internal */
     static RENDERTEXTURE: ShaderDefine;
     /**@internal */
@@ -38,6 +42,7 @@ export class ShaderDefines2D {
     static UNIFORM_VERTALPHA: number;//顶点alpha，给cacheas normal用;
 
     static UNIFORM_SPRITETEXTURE: number;// uniform sampler2D u_spriteTexture;
+    static UNIFORM_SPRITETEXTURE_ARRAY: number;// uniform sampler2DArray u_spriteTextureArray;
 
     static UNIFORM_VERTEX_SIZE: number;// uniform vec4 u_vertexSize;
 
@@ -73,6 +78,8 @@ export class ShaderDefines2D {
         ShaderDefines2D.TEXTURESHADER = Shader3D.getDefineByName("TEXTUREVS");
         ShaderDefines2D.PRIMITIVESHADER = Shader3D.getDefineByName("PRIMITIVEMESH");
 
+        ShaderDefines2D.VERTEXALPHA = Shader3D.getDefineByName("VERTEXALPHA");
+        ShaderDefines2D.USE_TEX_ARRAY = Shader3D.getDefineByName('USE_TEX_ARRAY');
         ShaderDefines2D.initSprite2DCommandEncoder();
     }
 
@@ -106,6 +113,7 @@ export class ShaderDefines2D {
         ShaderDefines2D.UNIFORM_VERTEX_SIZE = Shader3D.propertyNameToID("u_vertexSize");
         ShaderDefines2D.UNIFORM_TEXRANGE = Shader3D.propertyNameToID("u_TexRange");
         ShaderDefines2D.UNIFORM_SPRITETEXTURE = Shader3D.propertyNameToID("u_spriteTexture");
+        ShaderDefines2D.UNIFORM_SPRITETEXTURE_ARRAY = Shader3D.propertyNameToID("u_spriteTextureArray");
 
         const graphicsUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGraphics");
         graphicsUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_MATERIAL_CLIPMATDIR, "u_mClipMatDir", ShaderDataType.Vector4);
@@ -113,6 +121,8 @@ export class ShaderDefines2D {
         graphicsUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_VERTEX_SIZE, "u_vertexSize", ShaderDataType.Vector4);
         graphicsUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_TEXRANGE, "u_TexRange", ShaderDataType.Vector4);
         graphicsUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_SPRITETEXTURE, "u_spriteTexture", ShaderDataType.Texture2D);
+        // 当启用 USE_TEX_ARRAY 宏时，材质将绑定该 uniform
+        graphicsUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_SPRITETEXTURE_ARRAY, "u_spriteTextureArray", ShaderDataType.Texture2DArray);
     }
 }
 

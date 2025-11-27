@@ -157,6 +157,12 @@ export class Config {
      * @zh 声音缓冲区缓存的最大大小（字节）。超出后将清除缓存中最久未使用的音频数据。
      */
     static audioBufferCacheMaxSize: number = 5 * 1024 * 1024;
+
+    /**
+     * @en Whether to use TextureArray
+     * @zh 是否使用TextureArray: 文字和自动图集使用TextureArray来优化
+     */ 
+    static useTextureArray=false;
 }
 
 export const PlayerConfig: {

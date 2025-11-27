@@ -1,6 +1,9 @@
-import { IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { BaseRender } from "../../../d3/core/render/BaseRender";
-import { FastSinglelist } from "../../../utils/SingletonList";
+import { FastSinglelist, SingletonList } from "../../../utils/SingletonList";
+import { BaseRenderType, IBaseRenderNode } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
+import { IBatchModuleAgent } from "./IBatchModuleAgent";
+
+
 
 /**
  * 可替换的SceneManager
@@ -8,7 +11,13 @@ import { FastSinglelist } from "../../../utils/SingletonList";
 export interface ISceneRenderManager {
 
     list: FastSinglelist<BaseRender>;
-
+    baseRenderList: SingletonList<IBaseRenderNode>;
+    batchAgentList: Map<number, IBatchModuleAgent>;
+    /**
+     * 注册批处理模块
+     * @param agent 
+     */
+    registerBatchModuleAgent(renderNodeType: number | BaseRenderType, agent: IBatchModuleAgent): void;
     /**
      * add one BaseRender
      * @param object 
@@ -29,10 +38,19 @@ export interface ISceneRenderManager {
      * @param object 
      */
     addMotionObject(object: BaseRender): void;
+
     /**
      * 更新运动物体
      */
     updateMotionObjects(): void;
+
+    /**
+     * 更新属性
+     * @param object 
+     * @param property 
+     */
+    updateProperty(object: BaseRender, property: string | number): void;
+
     /**
      * release Manager Node
      */

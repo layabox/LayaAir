@@ -13,12 +13,10 @@ import { Mesh } from "../../resource/models/Mesh";
 import { NodeFlags } from "../../../Const";
 import { Sprite3DRenderDeclaration } from "./Sprite3DRenderDeclaration";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { BatchRender } from "../../component/Volume/BatchVolume/BatchRender";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { VolumetricGI } from "../../component/Volume/VolumetricGI/VolumetricGI";
-import { Stat } from "../../../utils/Stat";
 import { Scene3D } from "../scene/Scene3D";
 import { RenderElement } from "./RenderElement";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
@@ -29,20 +27,41 @@ import { ENodeCustomData, IBaseRenderNode } from "../../../RenderDriver/RenderMo
 import { IRenderContext3D, IRenderElement3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { Transform3D } from "../Transform3D";
 import { StatElement } from "../../../layagl/StatisticsContext";
+import { IBatchModuleAgent } from "../../../RenderDriver/DriverDesign/3DRenderPass/IBatchModuleAgent";
 
 export enum RenderBitFlag {
-    RenderBitFlag_CullFlag = 0,
-    RenderBitFlag_Batch = 1,
-    RenderBitFlag_Editor = 2,
-    RenderBitFlag_InstanceBatch = 3,
-    RenderBitFlag_VertexMergeBatch = 4,
+    RenderBitFlag_Batch = 0,
+    RenderBitFlag_Editor = 1,
+    RenderBitFlag_InstanceBatch = 2,
+    RenderBitFlag_VertexMergeBatch = 3,
+}
 
+export enum VisibalRangeFlag {
+    None,
+    BASERENDERSET = 1,
+    LOD = 2
 }
 
 export enum IrradianceMode {
     LightMap,
     VolumetricGI,
     Common
+}
+
+export enum propertyChangeFlag {
+    material,
+    renderELement,
+    geometry,
+    lightmap,
+    invertY,
+    reflection,
+    volumGI,
+    castShadow,
+    receiveShadow,
+    transform,
+    lightmapData,
+    RenderCustomData,
+    VisibalRange,
 }
 
 /**
@@ -157,12 +176,6 @@ export class BaseRender extends Component {
     /** @internal */
     _scene: any;//Scene3D
 
-    /** @internal */
-    _sceneUpdateMark: number = -1;
-
-    /** @internal 属于相机的标记*/
-    _updateMark: number = -1;
-
     /** @internal 是否需要反射探针*/
     _probReflection: ReflectionProbe;
 
@@ -175,14 +188,8 @@ export class BaseRender extends Component {
     /**@internal */
     _supportVolumetricGI: boolean = false;
 
-    /**@internal motion list index，not motion is -1*/
-    _motionIndexList: number = -1;
-
     /**@internal TODO*/
-    _LOD: number = -1;
-
-    /**@internal TODO*/
-    _batchRender: BatchRender;
+    _batchRender: IBatchModuleAgent;
 
     /**@interface */
     _receiveShadow: boolean;
@@ -195,11 +202,7 @@ export class BaseRender extends Component {
     /** 如果这个值不是0,说明有一些条件使他不能加入渲染队列，例如如果是1，证明此节点被lod淘汰*/
     private _volume: Volume;
 
-    protected _asynNative: boolean;
-
     private _materialsInstance: boolean[];
-
-    private _renderid: number;
 
     private _lightmapScaleOffset: Vector4 = new Vector4();
 
@@ -218,6 +221,29 @@ export class BaseRender extends Component {
         super.enabled = value;
         this._baseRenderNode.enable = value;
     }
+
+    set visibalMin(value: number) {
+        if (VisibalRangeFlag.BASERENDERSET >= this._baseRenderNode.visibalRangeBit) {
+            this._baseRenderNode.visibalMin = value;
+            this._batchRender && this._batchRender.updateProperty(this, propertyChangeFlag.VisibalRange);
+        }
+    }
+
+    get visibalMin() {
+        return this._baseRenderNode.visibalMin;
+    }
+
+    set visibalMax(value: number) {
+        if (VisibalRangeFlag.BASERENDERSET >= this._baseRenderNode.visibalRangeBit) {
+            this._baseRenderNode.visibalMax = value;
+            this._batchRender && this._batchRender.updateProperty(this, propertyChangeFlag.VisibalRange);
+        }
+    }
+
+    get visibalMax() {
+        return this._baseRenderNode.visibalMax;
+    }
+
 
     /**
      * @en The sorting fudge value.
@@ -258,16 +284,6 @@ export class BaseRender extends Component {
         return this._baseRenderNode;
     }
 
-    /**
-     * @en The distance used for sorting.
-     * @zh 排序距离。
-     */
-    get distanceForSort() {
-        return this._baseRenderNode.distanceForSort;
-    }
-    set distanceForSort(value: number) {
-        this._baseRenderNode.distanceForSort = value;
-    }
 
     /**
      * @en The Geometry Bounds.
@@ -311,6 +327,7 @@ export class BaseRender extends Component {
         }
         //this._scene && this._applyLightMapParams(); todo miner
         this._getIrradientMode();
+        this._batchRender && this._batchRender.updateProperty(this, propertyChangeFlag.lightmap);
     }
 
     /**
@@ -355,8 +372,8 @@ export class BaseRender extends Component {
             this._materialsInstance[0] = false;
             element.material = value;
         }
-
         this._isSupportRenderFeature();
+        this._batchRender && this._batchRender.updateProperty(this, propertyChangeFlag.material);
     }
 
     /**
@@ -434,6 +451,7 @@ export class BaseRender extends Component {
                 this._baseRenderNode.shaderData.addDefine(RenderableSprite3D.SHADERDEFINE_RECEIVE_SHADOW);
             else
                 this._baseRenderNode.shaderData.removeDefine(RenderableSprite3D.SHADERDEFINE_RECEIVE_SHADOW);
+            this._batchRender && this._batchRender.updateProperty(this, propertyChangeFlag.receiveShadow);
         }
         this._baseRenderNode.receiveShadow = value;
     }
@@ -448,6 +466,7 @@ export class BaseRender extends Component {
 
     set castShadow(value: boolean) {
         this._baseRenderNode.castShadow = value;
+        this._batchRender && this._batchRender.updateProperty(this, propertyChangeFlag.castShadow);
     }
 
     /**
@@ -513,7 +532,7 @@ export class BaseRender extends Component {
             this._baseRenderNode.additionShaderData.delete(ReflectionProbeBlockName);
         }
         this._baseRenderNode.additionShaderData = this._baseRenderNode.additionShaderData;
-
+        this._batchRender && this._batchRender.updateProperty(this, propertyChangeFlag.reflection);
         this._getIrradientMode();
     }
 
@@ -543,7 +562,7 @@ export class BaseRender extends Component {
         }
 
         this._baseRenderNode.additionShaderData = this._baseRenderNode.additionShaderData;
-
+        this._batchRender && this._batchRender.updateProperty(this, propertyChangeFlag.volumGI);
         this._getIrradientMode();
     }
 
@@ -565,10 +584,9 @@ export class BaseRender extends Component {
     constructor() {
         super();
         this._baseRenderNode = this._createBaseRenderNode();
+        this._baseRenderNode.visibalRangeBit = 0;
         this._baseRenderNode.setCommonUniformMap(this._getcommonUniformMap());
         this._baseRenderNode.shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
-        //this._rendernode.owner = this;
-        this._renderid = ++BaseRender._uniqueIDCounter;
         this._baseRenderNode.bounds = this._bounds = new Bounds(Vector3.ZERO, Vector3.ZERO);
         this._enabled = true;
         this._baseRenderNode.enable = true;
@@ -584,7 +602,6 @@ export class BaseRender extends Component {
             this._baseRenderNode.set_renderUpdatePreCall(this, this._renderUpdate);
         }
         this.runInEditor = true;
-        this._asynNative = true;
         this.boundsChange = true;
         this._baseRenderNode.renderbitFlag = 0;
         this._baseRenderNode.staticMask = 1;
@@ -622,7 +639,7 @@ export class BaseRender extends Component {
             arrayElement.push(element._renderElementOBJ);
         });
         this._baseRenderNode.setRenderelements(arrayElement);
-
+        this._batchRender && this._batchRender.updateProperty(this, propertyChangeFlag.renderELement);
     }
 
     /**
@@ -631,7 +648,11 @@ export class BaseRender extends Component {
     protected _onWorldMatNeedChange(flag: number): void {
         this.boundsChange = true;
         this._addReflectionProbeUpdate();
-        this._batchRender && this._batchRender._updateOneRender(this);
+        if (this._batchRender) {//scale 变化的时候 标签才会通过
+            this._transform.getScaleChangeFlag() && this._batchRender.updateProperty(this, propertyChangeFlag.invertY);
+            this._batchRender.updateProperty(this, propertyChangeFlag.transform);
+        }
+
     }
 
     protected _getcommonUniformMap(): Array<string> {
@@ -681,7 +702,6 @@ export class BaseRender extends Component {
         //按理说this.owner不会是空，但引擎里有直接new BaseRender的特殊用法
         if (this.owner)
             this.owner._isRenderNode--;
-        (this._motionIndexList !== -1) && (this._scene._sceneRenderManager.removeMotionObject(this));
         (this._scene) && this._scene.sceneRenderableManager.removeRenderObject(this);
         this._baseRenderNode.destroy();
         this._baseRenderNode = null;
@@ -776,7 +796,7 @@ export class BaseRender extends Component {
         this._scene = scene;
         this._onWorldMatNeedChange(1);
         this._isSupportRenderFeature();
-        this._batchRender && this._batchRender._batchOneRender(this);
+        //this._batchRender && this._batchRender._batchOneRender(this);
         this.setLightmapIndex(this.lightmapIndex);
         this._statAdd();
     }
@@ -798,7 +818,7 @@ export class BaseRender extends Component {
         this._statRemove();
         this._scene._volumeManager.removeMotionObject(this);
         let batch = this._batchRender;
-        this._batchRender && this._batchRender._removeOneRender(this);
+        //this._batchRender && this._batchRender._removeOneRender(this);
         this._batchRender = batch;
         this._scene = null;
     }
@@ -880,5 +900,18 @@ export class BaseRender extends Component {
         this.sharedMaterials = value;
         this._isSupportRenderFeature();
     }
+
+    /**
+     * @deprecated 会在底层计算
+     * @en The distance used for sorting.
+     * @zh 排序距离。
+     */
+    get distanceForSort() {
+        return this._baseRenderNode.sortingFudge;
+    }
+    set distanceForSort(value: number) {
+        this._baseRenderNode.sortingFudge = value;
+    }
+
 }
 

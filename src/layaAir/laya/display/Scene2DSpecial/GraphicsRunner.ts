@@ -39,6 +39,9 @@ import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { Resource } from "../../resource/Resource";
+import { Texture2DArray } from "../../resource/Texture2DArray";
+import { TextureArrayRegistry2D } from "../../webgl/utils/TextureArrayRegistry2D";
+import { ITextureProcessor, EmptyTextureProcessor } from "../../large/ITextureProcessor";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 //const tmpuv1: number[] = [0, 0, 0, 0, 0, 0, 0, 0];
@@ -76,6 +79,7 @@ export class GraphicsRunner {
     private _transedPoints: any[] = new Array(8);	//临时的数组，用来计算4个顶点的转换后的位置。
     private _temp4Points: any[] = new Array(8);		//临时数组。用来保存4个顶点的位置。
 
+    _textureProcessor: ITextureProcessor = new EmptyTextureProcessor();
     _clipRect = SaveClipRect.MAX;
     _globalClipMatrix = defaultClipMatrix.clone();	//用矩阵描述的clip信息。最终的点投影到这个矩阵上，在0~1之间就可见。
     _clip_x: number = 0;	//clip的x坐标
@@ -174,7 +178,7 @@ export class GraphicsRunner {
      * @param res 
      */
     referenceRes(res: Resource) {
-        this._graphicsData.referenceRes(res);
+        this._graphicsData.referenceRes(this, res);
     }
 
     transformByMatrix(matrix: Matrix, tx: number, ty: number): void {
@@ -1013,8 +1017,19 @@ export class GraphicsRunner {
             let material = submit._internalInfo;
             // let shaderValue = Value2D.create(RenderSpriteData.Texture2D);
             this._setClipInfo(material);
-            material.textureHost = tex;
-            submit._key.other = imgid;
+            // 如果外部已注册到数组纹理，替换材质与合批键，并设置层索引
+            let reg = TextureArrayRegistry2D.resolve(tex);
+            if (reg && reg.array instanceof Texture2DArray) {
+                material.textureHost = reg.array;
+                // 记录层索引，用于 a_attribFlags.b
+                material.texArrayLayer = reg.layer | 0;
+                // 使用数组纹理的 id 作为合批键，避免与原单纹理冲突
+                // @ts-ignore
+                submit._key.other = (reg.array as any)._texture?.id ?? imgid;
+            } else {
+                material.textureHost = tex;
+                submit._key.other = imgid;
+            }
             // this._copyClipInfo(submit.shaderValue);
             submit.clipInfoID = this._clipInfoID;
         }
@@ -1209,10 +1224,22 @@ export class GraphicsRunner {
         if (!sameKey) {
             //添加一个新的submit
             submit = this._curSubmit = this.createSubmit(mesh);
-            submit._internalInfo.textureHost = tex;
+            // 若有数组纹理注册，替换为数组纹理并设置层索引
+            let reg = TextureArrayRegistry2D.resolve(tex);
+            if (reg && reg.array instanceof Texture2DArray) {
+                submit._internalInfo.textureHost = reg.array;
+                submit._internalInfo.texArrayLayer = reg.layer | 0;
+            } else {
+                submit._internalInfo.textureHost = tex;
+            }
             this._setClipInfo(submit._internalInfo);
             // submit._key.submitType = SubmitBase.KEY_TRIANGLES;
-            submit._key.other = webGLImg.id;
+            if (reg && reg.array) {
+                // @ts-ignore
+                submit._key.other = (reg.array as any)._texture?.id ?? webGLImg.id;
+            } else {
+                submit._key.other = webGLImg.id;
+            }
             // this._copyClipInfo(submit._internalShaderData);
             submit.clipInfoID = this._clipInfoID;
         }
@@ -2255,6 +2282,12 @@ export class GraphicsRunner {
 
             vbdata[vi + 8] = useTexByte;
             vbdata[vi + 9] = useClipByte;
+            // a_attribFlags.a 用于纹理数组层
+            // 优先取 submit._internalInfo.texArrayLayer
+            // 若未设置则为0
+            // 注意：四个顶点需保持一致
+            // @ts-ignore
+            vbdata[vi + 11] = (submit && submit._internalInfo && submit._internalInfo.texArrayLayer) ? submit._internalInfo.texArrayLayer : 0;
 
             if (uvRange) {
                 vbdata[vi + 12] = uvRange[0];

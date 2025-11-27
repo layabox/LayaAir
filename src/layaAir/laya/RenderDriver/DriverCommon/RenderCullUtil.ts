@@ -1,7 +1,6 @@
 import { FrustumCulling } from "../../d3/graphics/FrustumCulling";
 import { CameraCullInfo, ShadowCullInfo } from "../../d3/shadowMap/ShadowSliceData";
 import { Vector3 } from "../../maths/Vector3";
-import { Stat } from "../../utils/Stat";
 import { IRenderContext3D, IRenderElement3D } from "../DriverDesign/3DRenderPass/I3DRenderPass";
 import { WebBaseRenderNode } from "../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { RenderListQueue } from "./RenderListQueue";
@@ -30,19 +29,23 @@ export class RenderCullUtil {
             render = list[i];
             canPass = ((1 << render.layer) & cullMask) != 0 && (render.renderbitFlag == 0);
             canPass = canPass && ((render.staticMask & staticMask) != 0);
+
             if (canPass) {
                 //needRender方案有问题, 会造成native和js的差异
                 if (!cameraCullInfo.useOcclusionCulling || render._needRender(boundFrustum)) {
-                    render.distanceForSort = Vector3.distanceSquared(render.bounds._imp.getCenter(), cameraCullInfo.position);
-                    render._renderUpdatePre(context);
-                    let element: IRenderElement3D;
-                    const elements = render.renderelements as IRenderElement3D[];
-                    for (let j = 0, len = elements.length; j < len; j++) {
-                        element = elements[j];
-                        if (element.materialRenderQueue > 2500)
-                            transparent.addRenderElement(element);
-                        else opaqueList.addRenderElement(element);
+                    let distance = render.distanceForSort = Vector3.distanceSquared(render.bounds._imp.getCenter(), cameraCullInfo.position);
+                    if (render.visibalRangeBit == 0 || (distance > render.visibalMin && distance < render.visibalMax)) {
+                        render._renderUpdatePre(context);
+                        let element: IRenderElement3D;
+                        const elements = render.renderelements as IRenderElement3D[];
+                        for (let j = 0, len = elements.length; j < len; j++) {
+                            element = elements[j];
+                            if (element.materialRenderQueue > 2500)
+                                transparent.addRenderElement(element);
+                            else opaqueList.addRenderElement(element);
+                        }
                     }
+
                 }
             }
         }
@@ -63,14 +66,16 @@ export class RenderCullUtil {
             const render = list[i];
             if (render.shadowCullPass()) {
                 if (FrustumCulling.cullingRenderBounds(render.bounds, shadowCullInfo)) {
-                    render.distanceForSort = Vector3.distanceSquared(render.bounds._imp.getCenter(), shadowCullInfo.position); //TODO:合并计算浪费,或者合并后取平均值
-                    render._renderUpdatePre(context);
-                    let element: IRenderElement3D;
-                    const elements = render.renderelements as IRenderElement3D[];
-                    for (let j = 0, len = elements.length; j < len; j++) {
-                        element = elements[j];
-                        if (element.materialRenderQueue < 2500)
-                            opaqueList.addRenderElement(element);
+                    let distance = render.distanceForSort = Vector3.distanceSquared(render.bounds._imp.getCenter(), shadowCullInfo.cameraPosition);
+                    if (render.visibalRangeBit == 0 || (distance > render.visibalMin && distance < render.visibalMax)) {
+                        render._renderUpdatePre(context);
+                        let element: IRenderElement3D;
+                        const elements = render.renderelements as IRenderElement3D[];
+                        for (let j = 0, len = elements.length; j < len; j++) {
+                            element = elements[j];
+                            if (element.materialRenderQueue < 2500)
+                                opaqueList.addRenderElement(element);
+                        }
                     }
                 }
             }
@@ -93,14 +98,16 @@ export class RenderCullUtil {
             const render = list[i];
             render._renderUpdatePre(context);
             if (render.shadowCullPass()) {
-                render.distanceForSort = Vector3.distanceSquared(render.bounds._imp.getCenter(), cameraCullInfo.position);
-                if (render._needRender(boundFrustum)) {
-                    let element: IRenderElement3D;
-                    const elements = render.renderelements as IRenderElement3D[];
-                    for (let j = 0, len = elements.length; j < len; j++) {
-                        element = elements[j];
-                        if (element.materialRenderQueue < 2500)
-                            opaqueList.addRenderElement(element);
+                let distance = render.distanceForSort = Vector3.distanceSquared(render.bounds._imp.getCenter(), cameraCullInfo.position);
+                if (render.visibalRangeBit == 0 || (distance > render.visibalMin && distance < render.visibalMax)) {
+                    if (render._needRender(boundFrustum)) {
+                        let element: IRenderElement3D;
+                        const elements = render.renderelements as IRenderElement3D[];
+                        for (let j = 0, len = elements.length; j < len; j++) {
+                            element = elements[j];
+                            if (element.materialRenderQueue < 2500)
+                                opaqueList.addRenderElement(element);
+                        }
                     }
                 }
             }

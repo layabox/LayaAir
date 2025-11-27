@@ -17,6 +17,32 @@ let v1 = new Vector3();
 const QuatI = new Quaternion();
 var tmpMat = new Matrix4x4();
 
+function cloneVector3(v: Vector3) {
+    const out = new Vector3();
+    v.cloneTo(out);
+    return out;
+}
+
+function cloneQuaternion(q: Quaternion) {
+    const out = new Quaternion();
+    q.cloneTo(out);
+    return out;
+}
+
+export interface IK_JointDebugSnapshot {
+    name: string;
+    pos: Vector3;
+    rot: Quaternion;
+}
+
+export interface IK_ChainDebugSnapshot {
+    chainName: string;
+    targetPos?: Vector3;
+    poleTargetPos?: Vector3;
+    poleTargetDir?: Vector3;
+    joints: IK_JointDebugSnapshot[];
+}
+
 /**
  * 从IK_pose1可以方便的绑定到某个骨骼上，随着动画动
  */
@@ -41,8 +67,6 @@ export class IK_Chain extends IK_ChainBase{
         super(mgr);
         this.name = name;
         this.joints = [];
-        //debug
-        (window as any).ccc=this;
     }
 
     //所有的关节是否与目标点共线
@@ -326,5 +350,50 @@ export class IK_Chain extends IK_ChainBase{
 
         // 末端没有子节点，简单继承上一个的旋转以保持连续
         joints[jointCount - 2].rotationQuat.cloneTo(joints[jointCount - 1].rotationQuat);
+    }
+
+    getDebugSnapshot(): IK_ChainDebugSnapshot {
+        const joints = this.joints.map((joint) => ({
+            name: joint.name,
+            pos: cloneVector3(joint.position),
+            rot: cloneQuaternion(joint.rotationQuat),
+        }));
+        const snapshot: IK_ChainDebugSnapshot = {
+            chainName: this.name,
+            joints,
+        };
+        if (this.target) {
+            snapshot.targetPos = cloneVector3(this.target.pos);
+        }
+        if (this.poleTarget && snapshot.poleTargetPos) {
+            this.poleTarget.pos = snapshot.poleTargetPos;
+        }
+        if (this.poleTarget && snapshot.poleTargetDir) {
+            this.poleTarget.dir = snapshot.poleTargetDir;
+        }        
+        return snapshot;
+    }
+
+    applyDebugSnapshot(snapshot: IK_ChainDebugSnapshot) {
+        if (!snapshot) {
+            return;
+        }
+        const count = Math.min(snapshot.joints.length, this.joints.length);
+        for (let i = 0; i < count; i++) {
+            const joint = this.joints[i];
+            const state = snapshot.joints[i];
+            state.pos.cloneTo(joint.transform.position);
+            state.rot.cloneTo(joint.rotationQuat);
+            joint.applyTransform(1);
+        }
+        if (snapshot.targetPos && this.target) {
+            this.target.pos = snapshot.targetPos;
+        }
+        if (this.poleTarget && snapshot.poleTargetPos) {
+            this.poleTarget.pos = snapshot.poleTargetPos;
+        }
+        if (this.poleTarget && snapshot.poleTargetDir) {
+            this.poleTarget.dir = snapshot.poleTargetDir;
+        }        
     }
 }

@@ -11,6 +11,7 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { Config3D } from "Config3D";
 
+
 export class GPUTexture2DTest {
 	constructor() {
 		Laya.init(0, 0).then(() => {

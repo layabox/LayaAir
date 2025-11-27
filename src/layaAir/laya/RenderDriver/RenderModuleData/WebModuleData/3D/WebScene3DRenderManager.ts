@@ -1,6 +1,8 @@
 import { BaseRender } from "../../../../d3/core/render/BaseRender";
 import { SingletonList } from "../../../../utils/SingletonList";
+import { IBatchModuleAgent } from "../../../DriverDesign/3DRenderPass/IBatchModuleAgent";
 import { ISceneRenderManager } from "../../../DriverDesign/3DRenderPass/ISceneRenderManager";
+import { BaseRenderType } from "../../Design/3D/I3DRenderModuleData";
 import { WebBaseRenderNode } from "./WebBaseRenderNode";
 
 /**
@@ -8,18 +10,41 @@ import { WebBaseRenderNode } from "./WebBaseRenderNode";
  * @zh `SceneRenderManagerOBJ` 类用于管理场景的渲染节点。
  */
 export class WebSceneRenderManager implements ISceneRenderManager {
+
     /** @internal */
     _list: SingletonList<BaseRender> = new SingletonList();
-    //_motionRenders: SingletonList<BaseRender> = new SingletonList(); TODO
-    /** @ignore */
-    constructor() {
-    }
+
+    /**@internal 合批队列 */
+    batchAgentList: Map<number, IBatchModuleAgent> = new Map();
 
     /**
      * @en The base render list.
      * @zh 基础渲染节点列表。
      */
     baseRenderList: SingletonList<WebBaseRenderNode> = new SingletonList();
+
+    /** @ignore */
+    constructor() {
+    }
+
+    registerBatchModuleAgent(renderNodeType: number | BaseRenderType, agent: IBatchModuleAgent): void {
+        if (!this.batchAgentList.has(renderNodeType)) {
+            this.batchAgentList.set(renderNodeType, agent)
+            for (let i = 0; i < this.baseRenderList.length; i++) {
+                if (this.baseRenderList.elements[i].renderNodeType == renderNodeType) {
+                    agent.addRenderNode(this._list.elements[i]);
+                }
+            }
+        }
+
+    }
+
+    updateProperty(object: BaseRender, property: string | number): void {
+        let agent = this.batchAgentList.get(object._baseRenderNode.renderNodeType);
+        agent && agent.updateProperty(object, property);
+    }
+
+
 
     /**
      * @en The list of render objects.
@@ -31,10 +56,12 @@ export class WebSceneRenderManager implements ISceneRenderManager {
 
     set list(value) {
         this._list = value;
-        let elemnt = this._list.elements
-        this.baseRenderList.clear();
-        for (let i = 0; i < this._list.length; i++) {
-            this.baseRenderList.add(elemnt[i]._baseRenderNode as WebBaseRenderNode);
+        if (value) {
+            let elemnt = this._list.elements
+            this.baseRenderList.clear();
+            for (let i = 0; i < this._list.length; i++) {
+                this.baseRenderList.add(elemnt[i]._baseRenderNode as WebBaseRenderNode);
+            }
         }
     }
 
@@ -45,8 +72,15 @@ export class WebSceneRenderManager implements ISceneRenderManager {
      * @param object 要添加的渲染对象。
      */
     addRenderObject(object: BaseRender): void {
-        this._list.add(object);
-        this.baseRenderList.add(object._baseRenderNode as WebBaseRenderNode);
+        let agent = this.batchAgentList.get(object._baseRenderNode.renderNodeType);
+        if (agent) {
+            agent.addRenderNode(object);
+            object._batchRender = agent;
+        } else {
+            this._list.add(object);
+            this.baseRenderList.add(object._baseRenderNode as WebBaseRenderNode);
+        }
+
     }
 
     /**
@@ -56,8 +90,15 @@ export class WebSceneRenderManager implements ISceneRenderManager {
      * @param object 要移除的渲染对象。
      */
     removeRenderObject(object: BaseRender): void {
-        this._list.remove(object);
-        this.baseRenderList.remove(object._baseRenderNode as WebBaseRenderNode);
+        let agent = this.batchAgentList.get(object._baseRenderNode.renderNodeType);
+        if (agent) {
+            agent.removeRenderNode(object);
+            object._batchRender = null;
+        } else {
+            this._list.remove(object);
+            this.baseRenderList.remove(object._baseRenderNode as WebBaseRenderNode);
+        }
+
         //this.removeMotionObject(object);TODO
     }
 
@@ -95,10 +136,13 @@ export class WebSceneRenderManager implements ISceneRenderManager {
      * @zh 销毁渲染对象并清理资源。
      */
     destroy(): void {
-        this._list.destroy();
+        this._list?.destroy();
         this.baseRenderList.destroy();
         this._list = null;
         this.baseRenderList = null;
+        for (var [key, value] of this.batchAgentList) {
+            value.release();
+        }
     }
 
 }

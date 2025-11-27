@@ -138,6 +138,9 @@ export class NoInternalRT implements InternalRenderTarget {
 
 
 export class NoTextureContext implements ITextureContext {
+    createRenderTargetFromArrayLayer(arrayTex: InternalTexture, layer: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, sRGB: boolean): InternalRenderTarget {
+        throw new Error("Method not implemented.");
+    }
     needBitmap: boolean;
     createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
         let internalTex = new NoInternalTexture();

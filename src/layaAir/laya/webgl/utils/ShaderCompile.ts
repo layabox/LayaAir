@@ -17,6 +17,12 @@ export interface IShaderCompiledObj {
     defs: Set<string>;
 };
 
+export interface IComputeShaderCompileObj {
+    node: ShaderNode;
+    includeNames: Set<string>;
+    defs: Set<string>;
+}
+
 type IncludeItem = { name: string, node: ShaderNode, codeName: string, file: IncludeFile };
 
 const _clearCR: RegExp = new RegExp("\r", "g");
@@ -154,10 +160,48 @@ export class ShaderCompile {
         ShaderCompile._compileToTree(result.vsNode, vs, result.defs, includes, basePath);
         ShaderCompile._compileToTree(result.psNode, ps, result.defs, includes, basePath);
 
-        return this._loadIncludesDeep(result, includes, 0);
+        return this._loadIncludesDeep(result, includes, 0) as Promise<IShaderCompiledObj>;
     }
 
-    private static _loadIncludesDeep(result: IShaderCompiledObj, includes: Array<IncludeItem>, index: number): Promise<IShaderCompiledObj> {
+    static compileCompute(code: string, basePath?: string): IComputeShaderCompileObj {
+        let result: IComputeShaderCompileObj = {
+            node: new ShaderNode([]),
+            includeNames: new Set(),
+            defs: new Set()
+        };
+
+        let includes: Array<IncludeItem> = [];
+
+        code = code.replace(_clearCR, "");
+
+        ShaderCompile._compileToTree(result.node, code, result.defs, includes, basePath);
+
+        for (let inc of includes) {
+            if (inc.file)
+                result.includeNames.add(inc.name);
+            else
+                console.warn(`ShaderCompile missing file ${inc.name}`);
+        }
+
+        return result;
+    }
+
+    static compileComputeAsync(code: string, basePath?: string): Promise<IComputeShaderCompileObj> {
+        let result: IComputeShaderCompileObj = {
+            node: new ShaderNode([]),
+            includeNames: new Set(),
+            defs: new Set()
+        };
+        let includes: Array<IncludeItem> = [];
+
+        code = code.replace(_clearCR, "");
+
+        ShaderCompile._compileToTree(result.node, code, result.defs, includes, basePath);
+
+        return this._loadIncludesDeep(result, includes, 0) as Promise<IComputeShaderCompileObj>;
+    }
+
+    private static _loadIncludesDeep(result: IShaderCompiledObj | IComputeShaderCompileObj, includes: Array<IncludeItem>, index: number): Promise<IShaderCompiledObj | IComputeShaderCompileObj> {
         let toLoad: Array<IncludeItem>;
         let includesCnt = includes.length;
         for (let i = index; i < includesCnt; i++) {

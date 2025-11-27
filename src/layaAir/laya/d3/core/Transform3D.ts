@@ -109,6 +109,10 @@ export class Transform3D extends EventDispatcher {
         return this._frontFaceValue;
     }
 
+    getScaleChangeFlag(): boolean {
+        return this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE);
+    }
+
 
     /**
      * @en The sprite to which this transform belongs.

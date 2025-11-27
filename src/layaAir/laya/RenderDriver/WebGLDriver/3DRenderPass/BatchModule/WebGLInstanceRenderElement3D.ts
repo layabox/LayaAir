@@ -1,31 +1,29 @@
-import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
-import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
-import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShaderDeclaration";
-import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
-import { SimpleSkinnedMeshSprite3D } from "../../../d3/core/SimpleSkinnedMeshSprite3D";
-import { FastSinglelist } from "../../../utils/SingletonList";
-import { IInstanceRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
-import { BaseRenderType } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
-import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
-import { WebGLBufferState } from "../RenderDevice/WebGLBufferState";
-import { WebGLEngine } from "../RenderDevice/WebGLEngine";
-import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryElement";
-import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
-import { WebGLVertexBuffer } from "../RenderDevice/WebGLVertexBuffer";
-import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
-import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
+import { BufferTargetType, BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
+import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
+import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
+import { MeshSprite3DShaderDeclaration } from "../../../../d3/core/MeshSprite3DShaderDeclaration";
+import { RenderableSprite3D } from "../../../../d3/core/RenderableSprite3D";
+import { SimpleSkinnedMeshSprite3D } from "../../../../d3/core/SimpleSkinnedMeshSprite3D";
+import { FastSinglelist } from "../../../../utils/SingletonList";
+import { BaseRenderType } from "../../../RenderModuleData/Design/3D/I3DRenderModuleData";
+import { WebDefineDatas } from "../../../RenderModuleData/WebModuleData/WebDefineDatas";
+import { WebGLBufferState } from "../../RenderDevice/WebGLBufferState";
+import { WebGLRenderGeometryElement } from "../../RenderDevice/WebGLRenderGeometryElement";
+import { WebGLShaderInstance } from "../../RenderDevice/WebGLShaderInstance";
+import { WebGLVertexBuffer } from "../../RenderDevice/WebGLVertexBuffer";
+import { WebGLRenderContext3D } from "../WebGLRenderContext3D";
+import { WebGLRenderElement3D } from "../WebGLRenderElement3D";
 export interface WebGLInstanceStateInfo {
     state: WebGLBufferState;
     worldInstanceVB?: WebGLVertexBuffer;
     lightmapScaleOffsetVB?: WebGLVertexBuffer;
     simpleAnimatorVB?: WebGLVertexBuffer;
 }
-export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D implements IInstanceRenderElement3D {
+export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
     /**
      * get Instance BufferState
      */
-    private static _instanceBufferStateMap: Map<number, WebGLInstanceStateInfo> = new Map();
+    static _instanceBufferStateMap: Map<number, WebGLInstanceStateInfo> = new Map();
 
     static getInstanceBufferState(geometry: WebGLRenderGeometryElement, renderType: number, spriteDefine: WebDefineDatas) {
         let stateinfo = WebGLInstanceRenderElement3D._instanceBufferStateMap.get(geometry._id);
@@ -71,26 +69,16 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D implement
     static readonly MaxInstanceCount: number = 1024;
 
     /**
-     * @internal
-     */
-    private static _pool: WebGLInstanceRenderElement3D[] = [];
-
-    static create(): WebGLInstanceRenderElement3D {
-        let element = this._pool.pop() || new WebGLInstanceRenderElement3D();
-        return element;
-    }
-
-    /**
      * pool of Buffer
      * @internal
      */
-    private static _bufferPool: Map<number, Float32Array[]> = new Map();
+    private _bufferPool: Map<number, Float32Array[]> = new Map();
 
-    static _instanceBufferCreate(length: number): Float32Array {
-        let array = WebGLInstanceRenderElement3D._bufferPool.get(length);
+    _instanceBufferCreate(length: number): Float32Array {
+        let array = this._bufferPool.get(length);
         if (!array) {
-            WebGLInstanceRenderElement3D._bufferPool.set(length, []);
-            array = WebGLInstanceRenderElement3D._bufferPool.get(length)
+            this._bufferPool.set(length, []);
+            array = this._bufferPool.get(length)
         }
 
         let element = array.pop() || new Float32Array(length);
@@ -118,7 +106,7 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D implement
     addUpdateData(vb: WebGLVertexBuffer, elementLength: number, maxInstanceCount: number): Float32Array {
         this._vertexBuffers[this.updateNums] = vb;
         this._updateDataNum[this.updateNums] = elementLength;
-        let data = this._updateData[this.updateNums] = WebGLInstanceRenderElement3D._instanceBufferCreate(elementLength * maxInstanceCount);
+        let data = this._updateData[this.updateNums] = this._instanceBufferCreate(elementLength * maxInstanceCount);
         this.updateNums++;
         return data;
     }
@@ -249,21 +237,15 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D implement
         this.updateNums = 0;
         this._vertexBuffers.length = 0;
         this._updateData.forEach((data) => {
-            WebGLInstanceRenderElement3D._bufferPool.get(data.length).push(data);
+            this._bufferPool.get(data.length).push(data);
         });
         this._updateData.length = 0;
         this._updateDataNum.length = 0;
     }
 
-    /**
-     * 回收
-     */
-    recover() {
-        WebGLInstanceRenderElement3D._pool.push(this);
-        this.instanceElementList.clear();
-    }
 
     destroy(): void {
+        this._bufferPool.clear();
         super.destroy();
     }
 }

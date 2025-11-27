@@ -1,4 +1,4 @@
-export enum RenderParams{
+export enum RenderParams {
     Max_Active_Texture_Count,//可激活的纹理数量，即shader中的最大纹理数量
     Max_Uniform_Count,//最大Uniform数量
     Max_AnisoLevel_Count,//最大各向异性数量
@@ -9,4 +9,5 @@ export enum RenderParams{
     UNSIGNED_BYTE,
     BYTE,
     UNSIGNED_SHORT,
+    MaxComputeElement,//最大并行计算数
 }

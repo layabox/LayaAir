@@ -1,4 +1,4 @@
-import { CommandUniformMap, UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
+import { CommandUniformMap, UniformOptions, UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 
 export class GLESCommandUniformMap extends CommandUniformMap {
@@ -13,7 +13,7 @@ export class GLESCommandUniformMap extends CommandUniformMap {
      * @param propertyID 
      * @param propertyKey 
      */
-    addShaderUniform(propertyID: number, propertyKey: string, uniformtype: ShaderDataType): void {
+    addShaderUniform(propertyID: number, propertyKey: string, uniformtype: ShaderDataType, options?: UniformOptions): void {
         this._nativeObj.addShaderUniform(propertyID, propertyKey, uniformtype);
     }
 

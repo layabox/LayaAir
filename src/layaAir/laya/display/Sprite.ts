@@ -2036,9 +2036,11 @@ export class Sprite extends Node {
                 ) {
                     this.setSubpassFlag(SubPassFlag.RenderTexture);
                 }
-            } 
-            
-            if (this._renderType & SpriteConst.GRAPHICS) {
+            }
+
+            if (
+                this._renderType & SpriteConst.GRAPHICS
+            ) {
                 if (flag & RepaintFlag.Graphics) {
                     this._graphics?.onModified();
                 }
@@ -2050,6 +2052,11 @@ export class Sprite extends Node {
             this._maskParent.setSubpassFlag(SubPassFlag.Mask);
             this._maskParent.repaint(flag);
         }
+    }
+
+    /** @internal */
+    _needGraphicsUpdate(): boolean {
+        return !!(this._graphics && this._graphics._display && (this.displayedInStage || this._maskParent));
     }
 
     /**

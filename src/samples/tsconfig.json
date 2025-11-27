@@ -20,8 +20,8 @@
         "../../node_modules/@webgpu/types"
     ],
     "exclude": [
-        "./importWebGPU.ts",
-        "./index_webgpu.ts",
-        "./webgpu/**/*"
+        // "./importWebGPU.ts",
+        // "./index_webgpu.ts",
+        // "./webgpu/**/*"
     ]
 }

@@ -117,6 +117,7 @@ export class MgDownloader extends Downloader {
                 this.subPackages[path] = packageName;
             }
         }
+
         let loadSubpackageParams: any = {
             success: () => {
                 onComplete({ loadScript: false });
@@ -135,7 +136,6 @@ export class MgDownloader extends Downloader {
         }
 
         let loadTask = PAL.g.loadSubpackage(loadSubpackageParams);
-
 
         onProgress && loadTask.onProgressUpdate && loadTask.onProgressUpdate(res => onProgress(res.progress));
     }

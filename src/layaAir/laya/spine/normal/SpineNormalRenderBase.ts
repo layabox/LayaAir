@@ -48,16 +48,36 @@ export abstract class SpineNormalRenderBase {
         if (this.vmeshs.length == this.nextBatchIndex) {
             let vmesh = this.createMesh(material);
             this.vmeshs.push(vmesh);
-            spineRenderNode._renderElements[this.nextBatchIndex++] = vmesh.element;
             vmesh.element.value2DShaderData = spineRenderNode._spriteShaderData;
             vmesh.element.owner = spineRenderNode.owner._struct;
+            this.nextBatchIndex++;
             return vmesh;
         }
         let vmesh = this.vmeshs[this.nextBatchIndex];
-        spineRenderNode._renderElements[this.nextBatchIndex++] = vmesh.element;
         vmesh.element.owner = spineRenderNode.owner._struct;
         vmesh.material = material;
+        this.nextBatchIndex++;
         return vmesh;
+    }
+
+    updateRenderElements(spineRenderNode: Spine2DRenderNode) {
+        for (var i = 0; i < this.nextBatchIndex; i++) {
+            if (this.vmeshs[i].element.geometry) {
+                spineRenderNode._renderElements[i] = this.vmeshs[i].element;
+            }
+        }
+    }
+
+    /**
+     * @en Remove the batch at the specified index.
+     * @param index The index of the batch to remove.
+     * @zh 移除指定索引的批次。
+     * @param index 要移除的批次的索引。
+     */
+    removeBatch(index: number) {
+        this.vmeshs[index].clear();
+        this.vmeshs.splice(index, 1);
+        this.nextBatchIndex--;
     }
 
     /**

@@ -151,13 +151,23 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
     varying float v_useClip;
     varying vec4 v_customs;
 
+    #ifdef USE_TEX_ARRAY
+        varying float v_texLayer;
+    #endif
+
     void getVertexInfo(inout vertexInfo info){
        	//texcoordAlpha
         info.texcoordAlpha.xy = a_posuv.zw;
         //color
         info.color = a_attribColor;
-        info.color.a*=u_VertAlpha;
-	    info.color.xyz*= info.color.w;//反正后面也要预乘
+
+        #ifdef VERTEXALPHA
+            info.color.a*=a_attribFlags.z;
+        #else
+            info.color.a*=u_VertAlpha;
+        #endif
+
+	    info.color.xyz*= info.color.a;//反正后面也要预乘
         //useTex
         info.useTex = a_attribFlags.r;
         //useClip
