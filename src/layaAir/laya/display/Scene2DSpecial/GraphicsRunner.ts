@@ -1123,10 +1123,12 @@ export class GraphicsRunner {
         colors?: Float32Array,
         uvRange?: ArrayLike<number>): void {
 
-        if (!this._getImageSource(tex)) { //source内调用tex.active();
-            return;
+        if (tex) {
+            if (!this._getImageSource(tex)) { //source内调用tex.active();
+                return;
+            }
+            this._graphicsData.addResRef(tex);
         }
-        this._graphicsData.addResRef(tex);
 
         if (alpha == null) alpha = 1.0;
         if (colorNum == null) colorNum = 0xffffffff;
@@ -1149,7 +1151,7 @@ export class GraphicsRunner {
         var preKey: SubmitKey = this._curSubmit._key;
         var sameKey =
             this._curSubmit.mesh === mesh
-            && preKey.other === webGLImg.id
+            && (!webGLImg || preKey.other === webGLImg.id)
             //&& preKey.submitType === SubmitBase.KEY_TRIANGLES 
             && preKey.blendShader === this._nBlendType
         // && this._curSubmit.material == this._material;
@@ -1170,9 +1172,7 @@ export class GraphicsRunner {
             submit = this._curSubmit = this.createSubmit(mesh);
             submit._internalInfo.textureHost = tex;
             this._setClipInfo(submit._internalInfo);
-            // submit._key.submitType = SubmitBase.KEY_TRIANGLES;
-            submit._key.other = webGLImg.id;
-            // this._copyClipInfo(submit._internalShaderData);
+            submit._key.other = webGLImg ? webGLImg.id : -1;
             submit.clipInfoID = this._clipInfoID;
         }
 
@@ -1185,12 +1185,12 @@ export class GraphicsRunner {
             }
             Matrix.mul(tmpMat, this._curMat, tmpMat);
             //由于2d动画部分的uvs是绝对的（例如图集的话就是相对图集的）所以最后不传uvrect了。
-            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, tmpMat, null, true, colors, uvRange);
+            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, tmpMat, null, !!tex, colors, uvRange);
         }
         else {
             // 这种情况是drawtexture转成的drawTriangle，直接使用matrix就行，传入的xy都是0
             let m = this._curMat == matrix ? (this._matrixChanged ? this._curMat : null) : matrix;
-            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, m, null, true, colors, uvRange);
+            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, m, null, !!tex, colors, uvRange);
         }
         // this._curSubmit._numEle += indices.length;
         this._appendBlockInfo(vertexResult);
@@ -1200,7 +1200,7 @@ export class GraphicsRunner {
         }
         //return true;
     }
-
+    
     transform(a: number, b: number, c: number, d: number, tx: number, ty: number): void {
         SaveTransform.save(this);
         Matrix.mul(Matrix.TEMP.setTo(a, b, c, d, tx, ty), this._curMat, this._curMat);	//TODO 这里会有效率问题。一堆的set

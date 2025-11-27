@@ -109,7 +109,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
         matrix?: Matrix, alpha?: number, color?: string | number, blendMode?: string): DrawTrianglesCmd {
         var cmd: DrawTrianglesCmd = Pool.getItemByClass(className, DrawTrianglesCmd);
         cmd.texture = texture;
-        texture._addReference();
+        texture?._addReference();
         cmd.x = x;
         cmd.y = y;
         cmd.vertices = vertices;
@@ -137,7 +137,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
     static create2(texture: Texture, mesh: IMeshFactory, color?: string | number): DrawTrianglesCmd {
         var cmd: DrawTrianglesCmd = Pool.getItemByClass(className, DrawTrianglesCmd);
         cmd.texture = texture;
-        texture._addReference();
+        texture?._addReference();
         cmd.x = 0;
         cmd.y = 0;
         cmd.mesh = mesh;
@@ -171,13 +171,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @param gy 全局Y偏移  
      */
     run(runner: GraphicsRunner, gx: number, gy: number): void {
-        if (!this.texture)
-            return;
-
         if (this.mesh) {
-            if (!this.mesh)
-                return;
-
             let vb = VertexStream.pool.take(this.texture);
             vb.contentRect.setTo(0, 0, runner.sprite.width, runner.sprite.height);
             if (this.color)
@@ -190,11 +184,11 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
             }
 
             runner.drawTriangles(this.texture, this.x + gx, this.y + gy, vb.getVertices(), vb.getUVs(), vb.getIndices(),
-                this.matrix, this.alpha, this.blendMode, null, vb.getColors(), this.texture.uvrect);
+                this.matrix, this.alpha, this.blendMode, null, vb.getColors(), this.texture?.uvrect);
 
             VertexStream.pool.recover(vb);
         }
-        else {
+        else if (this.vertices && this.uvs && this.indices) {
             runner.drawTriangles(this.texture, this.x + gx, this.y + gy, this.vertices, this.uvs, this.indices,
                 this.matrix, this.alpha, this.blendMode, this.color);
         }
