@@ -349,6 +349,12 @@ export class RigidBody extends Component {
         if (this._body) Physics2D.I._factory.set_rigidBody_bullet(this._body, value);
     }
 
+    /** */
+    resetVelocitys() {
+        this.linearVelocity = this._linearVelocity;
+        this.angularVelocity = this._angularVelocity;
+    }
+
     /**@internal*/
     _createBody(): void {
         if (this._body || !this.owner) return;
@@ -448,8 +454,6 @@ export class RigidBody extends Component {
                 factory.set_rigidbody_Mass(this._body, this._mass, this._centerofMass, this._inertia);
             }
             factory.set_rigidbody_Awake(this._body, true);
-            this.angularVelocity = this._angularVelocity;
-            this.linearVelocity = this._linearVelocity;
             this.owner.event("shapeChange");
         }
     }

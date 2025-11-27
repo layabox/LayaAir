@@ -191,6 +191,8 @@ export class ColliderBase extends Component {
         let fixtureDef = factory.createFixtureDef(def);
         this._setShapeData(fixtureDef._shape);
         this._fixture = factory.createfixture(body, fixtureDef);
+        //初始化shape之后需要初始化刚体的速度
+        this.rigidBody.resetVelocitys();
     }
 
     /**@protected 设置shape属性*/
