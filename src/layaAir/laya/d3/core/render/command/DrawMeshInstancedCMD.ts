@@ -158,7 +158,17 @@ export class DrawMeshInstancedCMD extends Command {
     set mesh(value: Mesh) {
         if (this._mesh == value)
             return;
+
         BaseRender.changeVertexDefine(this._mesh, value, this._render._baseRenderNode.shaderData);
+
+        if (this._mesh) {
+            this._mesh._removeReference();
+        }
+
+        if (value) {
+            value._addReference();
+        }
+
         this._mesh = value;
         if (!this._mesh)
             return;
