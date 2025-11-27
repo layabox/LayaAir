@@ -29,6 +29,7 @@ import { Delegate } from "../../../utils/Delegate";
 import { Browser } from "../../../utils/Browser";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { StatElement } from "../../../layagl/StatisticsContext";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 
 export type AnimatorParams = { [key: number]: number | boolean };
 
@@ -186,6 +187,7 @@ export class Animator extends Component {
         this._keyframeNodeOwnerMap = {};
         this._updateMark = 0;
     }
+
     private _addKeyframeNodeOwner(clipOwners: KeyframeNodeOwner[], node: KeyframeNode, propertyOwner: any): void {
         var nodeIndex = node._indexInList;
         var fullPath = node.fullPath;
@@ -197,9 +199,36 @@ export class Animator extends Component {
         } else {
             var property = propertyOwner;
             for (var i = 0, n = node.propertyCount; i < n; i++) {
-                property = property[node.getPropertyByIndex(i)];
+                if (mat) {
+                    // 使用 KeyframeNode 的缓存方法，直接获取 shader property ID
+                    const shaderPropId = node.getMaterialPropertyId(i);
+                    const type = node.type;
+                    switch (type) {
+                        case KeyFrameValueType.Color:
+                            const color = property.shaderData.getColor(shaderPropId);
+                            property = new Vector4(color.r, color.g, color.b, color.a);
+                            break;
+                        case KeyFrameValueType.Vector2:
+                            property = property.shaderData.getVector2(shaderPropId);
+                            break;
+                        case KeyFrameValueType.Vector3:
+                            property = property.shaderData.getVector3(shaderPropId);
+                            break;
+                        case KeyFrameValueType.Vector4:
+                            property = property.shaderData.getVector(shaderPropId);
+                            break;
+                        case KeyFrameValueType.Float:
+                            property = property.shaderData.getNumber(shaderPropId);
+                            break;
+                        case KeyFrameValueType.Boolean:
+                            property = property.shaderData.getBool(shaderPropId);
+                            break;
+                    }
+                } else {
+                    property = property[node.getPropertyByIndex(i)];
+                }
                 if (property instanceof Material) {
-                    mat = true
+                    mat = true;
                 }
                 if (!property)
                     break;
@@ -560,7 +589,7 @@ export class Animator extends Component {
 
     private _applyColor(defaultValue: Color, nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, data: Vector4) {
         if (!defaultValue) return null;
-        if (!nodeOwner.defaultValue) nodeOwner.defaultValue = defaultValue.clone();
+        if (!nodeOwner.defaultValue) nodeOwner.defaultValue = new Vector4(defaultValue.r, defaultValue.g, defaultValue.b, defaultValue.a);
         if (nodeOwner.updateMark === this._updateMark) {//一定非第一层
             if (additive) {
                 defaultValue.r += weight * data.x;
@@ -577,10 +606,10 @@ export class Animator extends Component {
         } else {
             if (isFirstLayer) {
                 if (additive) {
-                    defaultValue.r = nodeOwner.defaultValue.r + data.x;
-                    defaultValue.g = nodeOwner.defaultValue.g + data.y;
-                    defaultValue.b = nodeOwner.defaultValue.b + data.z;
-                    defaultValue.a = nodeOwner.defaultValue.a + data.w;
+                    defaultValue.r = nodeOwner.defaultValue.x + data.x;
+                    defaultValue.g = nodeOwner.defaultValue.y + data.y;
+                    defaultValue.b = nodeOwner.defaultValue.z + data.z;
+                    defaultValue.a = nodeOwner.defaultValue.w + data.w;
                 }
                 else {
                     //data.cloneTo(defaultValue);
@@ -589,16 +618,16 @@ export class Animator extends Component {
 
             } else {
                 if (additive) {
-                    defaultValue.r = nodeOwner.defaultValue.r + weight * (data.x);
-                    defaultValue.g = nodeOwner.defaultValue.g + weight * (data.y);
-                    defaultValue.b = nodeOwner.defaultValue.b + weight * (data.z);
-                    defaultValue.a = nodeOwner.defaultValue.a + weight * (data.w);
+                    defaultValue.r = nodeOwner.defaultValue.x + weight * (data.x);
+                    defaultValue.g = nodeOwner.defaultValue.y + weight * (data.y);
+                    defaultValue.b = nodeOwner.defaultValue.z + weight * (data.z);
+                    defaultValue.a = nodeOwner.defaultValue.w + weight * (data.w);
                 } else {
-                    var defValue: Color = nodeOwner.defaultValue;
-                    defaultValue.r = defValue.r + weight * (data.x - defValue.r);
-                    defaultValue.g = defValue.g + weight * (data.y - defValue.g);
-                    defaultValue.b = defValue.b + weight * (data.z - defValue.b);
-                    defaultValue.a = defValue.a + weight * (data.w - defValue.a);
+                    var defValue: Vector4 = nodeOwner.defaultValue;
+                    defaultValue.r = defValue.x + weight * (data.x - defValue.x);
+                    defaultValue.g = defValue.y + weight * (data.y - defValue.y);
+                    defaultValue.b = defValue.z + weight * (data.z - defValue.z);
+                    defaultValue.a = defValue.w + weight * (data.w - defValue.w);
                 }
             }
         }
@@ -790,10 +819,10 @@ export class Animator extends Component {
                             break;
                     }
                     let v44 = nodeOwner.value as Vector4;
-                    v44.x = srcValue.r + crossWeight * (desValue.r - srcValue.r);
-                    v44.y = srcValue.g + crossWeight * (desValue.g - srcValue.g);
-                    v44.z = srcValue.b + crossWeight * (desValue.b - srcValue.b);
-                    v44.w = srcValue.a + crossWeight * (desValue.a - srcValue.a);
+                    v44.x = srcValue.x + crossWeight * (desValue.x - srcValue.x);
+                    v44.y = srcValue.y + crossWeight * (desValue.y - srcValue.y);
+                    v44.z = srcValue.z + crossWeight * (desValue.z - srcValue.z);
+                    v44.w = srcValue.w + crossWeight * (desValue.w - srcValue.w);
 
                     nodeOwner.value = v44;
                     lastpro = proPat[m];
@@ -815,8 +844,9 @@ export class Animator extends Component {
                             break;
                     }
                     let v2 = nodeOwner.value as Vector2;
-                    v2.x = srcValue.r + crossWeight * (desValue.r - srcValue.r);
-                    v2.y = srcValue.g + crossWeight * (desValue.g - srcValue.g);
+                    // srcValue和desValue是Vector2类型，使用.x, .y而非.r, .g
+                    v2.x = srcValue.x + crossWeight * (desValue.x - srcValue.x);
+                    v2.y = srcValue.y + crossWeight * (desValue.y - srcValue.y);
                     nodeOwner.value = v2;
                     lastpro = proPat[m];
                     if (!nodeOwner.isMaterial) {
@@ -840,6 +870,7 @@ export class Animator extends Component {
                     v4.x = srcValue.x + crossWeight * (desValue.x - srcValue.x);
                     v4.y = srcValue.y + crossWeight * (desValue.y - srcValue.y);
                     v4.z = srcValue.z + crossWeight * (desValue.z - srcValue.z);
+                    v4.w = srcValue.w + crossWeight * (desValue.w - srcValue.w);  // 添加缺失的w分量
                     nodeOwner.value = v4;
                     lastpro = proPat[m];
                     if (!nodeOwner.isMaterial) {
@@ -1225,10 +1256,10 @@ export class Animator extends Component {
                             }
                             value = proPat[m];
                             if (!nodeOwner.defaultValue) break;
-                            _tempColor.r = nodeOwner.defaultValue.r;
-                            _tempColor.g = nodeOwner.defaultValue.g;
-                            _tempColor.b = nodeOwner.defaultValue.b;
-                            _tempColor.a = nodeOwner.defaultValue.a;
+                            _tempColor.r = nodeOwner.defaultValue.x;
+                            _tempColor.g = nodeOwner.defaultValue.y;
+                            _tempColor.b = nodeOwner.defaultValue.z;
+                            _tempColor.a = nodeOwner.defaultValue.w;
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = _tempColor);
                                 if (nodeOwner.callbackFun) {
@@ -1546,8 +1577,10 @@ export class Animator extends Component {
 
 
             var animatorState: AnimatorState = name ? controllerLayer.getAnimatorState(name) : defaultState;
-            if (!animatorState._clip)
+            if (!animatorState || !animatorState._clip) {
+                throw new Error("Animator:must have clip value,please set clip property.");
                 return;
+            }
 
             var clipDuration: number = animatorState._clip!._duration;
             var calclipduration = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);

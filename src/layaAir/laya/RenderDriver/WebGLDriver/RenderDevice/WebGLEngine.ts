@@ -160,40 +160,26 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
     }
 
     startFrame(): void {
+        this._framePassCount = 0;
         this.event("startFrame", null);
     }
 
     endFrame(): void {
         this.event("endFrame", null);
-        this._framePassCount = 0;
     }
 
     getInnerWidth() {
-        if (LayaEnv.isConch) {
-            return (window as any).getInnerWidth();
-        } else
-            return this._globalWidth;
+        return this._globalWidth;
     }
 
     getInnerHeight() {
-        if (LayaEnv.isConch) {
-            return (window as any).getInnerHeight();
-        } else
-            return this._globalHeight;
+        return this._globalHeight;
     }
 
 
     resizeOffScreen(width: number, height: number): void {
         this._globalWidth = width;
         this._globalHeight = height;
-        if (LayaEnv.isConch) {
-            if (WebGLEngine._lastFrameBuffer) {
-                WebGLEngine._lastFrameBuffer.dispose();
-                WebGLEngine._lastFrameBuffer_WebGLOBJ = null;
-            }
-            WebGLEngine._lastFrameBuffer = this.getTextureContext().createRenderTargetInternal(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false, false, 1, false) as WebGLInternalRT;
-            WebGLEngine._lastFrameBuffer_WebGLOBJ = WebGLEngine._lastFrameBuffer._framebuffer;
-        }
     }
     addTexGammaDefine(key: number, value: ShaderDefine): void {
         WebGLEngine._texGammaDefine[key] = value;

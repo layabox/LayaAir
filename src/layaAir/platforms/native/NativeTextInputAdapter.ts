@@ -86,6 +86,7 @@ export class NativeTextInputAdapter extends TextInputAdapter {
                 multiple: target.multiline,
                 confirmHold: true,
                 confirmType: target.confirmType,
+                keyboardType: 'text',
                 success: resolve,
                 fail: reject
             });

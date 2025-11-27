@@ -74,7 +74,7 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
         this.materialShaderData && shader.uploadUniforms(shader._materialUniformParamsMap, this.materialShaderData, true);
 
         let encoder = shader._additionUniformParamsMaps.get("Sprite2DGraphics");
-        this.primitiveShaderData && shader.uploadUniforms(encoder, this.primitiveShaderData, true);
+        encoder && this.primitiveShaderData && shader.uploadUniforms(encoder, this.primitiveShaderData, true);
 
         let shaderData = this.value2DShaderData;
         //blend

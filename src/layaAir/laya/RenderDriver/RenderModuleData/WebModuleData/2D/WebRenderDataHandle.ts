@@ -1,7 +1,9 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { Color } from "../../../../maths/Color";
+import { Matrix } from "../../../../maths/Matrix";
 import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
+import { Vector4 } from "../../../../maths/Vector4";
 import { BaseRenderNode2D } from "../../../../NodeRender2D/BaseRenderNode2D";
 import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
@@ -76,7 +78,7 @@ export class WebGraphics2DVertexBlock implements IGraphics2DVertexBlock {
 
 
 export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2DPrimitiveDataHandle {
-
+    logicMatrix: Matrix | null = null;
     mask: WebRenderStruct2D | null = null;
 
     private _bufferBlocks: IGraphics2DBufferBlock[] = null;
@@ -85,7 +87,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     private _clonesViews: Web2DGraphic2DIndexCloneDataView[];
 
     applyVertexBufferBlock(blocks: IGraphics2DBufferBlock[]): void {
-        this._bufferBlocks = blocks;
+        this._bufferBlocks = blocks.slice();
         this._needUpdateBuffer = blocks.length > 0;
         this.updateCloneView();
     }
@@ -111,11 +113,11 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
 
             if (!this._bufferBlocks || !this._bufferBlocks.length) {
                 //更新位置
-                if (this.mask && this.mask.trans) {
-                    let maskMatrix = this.mask.renderMatrix;
-                    //处理掉缩放
-                    this._nMatrix_0.setValue(maskMatrix.a, maskMatrix.c, maskMatrix.tx);
-                    this._nMatrix_1.setValue(maskMatrix.b, maskMatrix.d, maskMatrix.ty);
+                if (this.logicMatrix) {
+                    let temp = Matrix.TEMP;
+                    Matrix.mul(this.logicMatrix, mat.copyTo(temp), temp);
+                    this._nMatrix_0.setValue(temp.a, temp.c, temp.tx);
+                    this._nMatrix_1.setValue(temp.b, temp.d, temp.ty);
                 }
                 else {
                     this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
@@ -269,6 +271,7 @@ const _setRenderColor: Color = new Color(1, 1, 1, 1);
 
 export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle implements IMesh2DRenderDataHandle {
     private _baseColor: Color = new Color(1, 1, 1, 1);
+    private _tilingOffset: Vector4 = new Vector4();
     private _baseTexture: BaseTexture;
     private _normal2DTexture: BaseTexture;
     private _renderAlpha = -1;
@@ -306,6 +309,16 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
                 this._owner.spriteShaderData.removeDefine(ShaderDefines2D.GAMMATEXTURE);
             }
         }
+    }
+
+    public get tilingOffset(): Vector4 {
+        return this._tilingOffset;
+    }
+    public set tilingOffset(value: Vector4) {
+        if (!value)
+            return;
+        this._owner.spriteShaderData.setVector(BaseRenderNode2D.TILINGOFFSET, value);
+        value ? value.cloneTo(this._tilingOffset) : null;
     }
 
     public get normal2DTexture(): BaseTexture {
@@ -347,7 +360,7 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
         super.inheriteRenderData(context);
         if (this._renderAlpha != this._owner.globalAlpha) {
             let a = this._owner.globalAlpha * this._baseColor.a;
-            _setRenderColor.setValue(this._baseColor.r * a, this._baseColor.g * a, this._baseColor.b * a, a);
+            _setRenderColor.setValue(this._baseColor.r, this._baseColor.g , this._baseColor.b, a);
             this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, _setRenderColor);
             this._renderAlpha = this._owner.globalAlpha;
         }
@@ -424,7 +437,7 @@ export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implemen
 
         if (this._renderAlpha != this._owner.globalAlpha) {
             let a = this._owner.globalAlpha * this._baseColor.a;
-            _setRenderColor.setValue(this._baseColor.r * a, this._baseColor.g * a, this._baseColor.b * a, a);
+            _setRenderColor.setValue(this._baseColor.r , this._baseColor.g , this._baseColor.b , a);
             this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, _setRenderColor);
             this._renderAlpha = this._owner.globalAlpha;
         }

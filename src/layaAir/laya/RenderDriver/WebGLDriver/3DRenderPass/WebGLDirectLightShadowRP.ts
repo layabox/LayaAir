@@ -166,6 +166,7 @@ export class WebGLDirectLightShadowRP {
         context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
 
         let originCameraData = context.cameraData;
+        let originInvertY = context.invertY;
 
         //需要把shadowmap clear Depth;
         for (var i: number = 0, n: number = this._cascadeCount; i < n; i++) {
@@ -184,6 +185,7 @@ export class WebGLDirectLightShadowRP {
             LayaGL.statAgent.recordTimeData(StatElement.T_CullShadow, performance.now() - time);
 
             context.cameraData = sliceData.cameraShaderValue as WebGLShaderData;
+            context.invertY = false;
             context.cameraUpdateMask++;
 
             var resolution: number = sliceData.resolution;
@@ -212,6 +214,7 @@ export class WebGLDirectLightShadowRP {
         this._applyRenderData(context.sceneData, context.cameraData);
         this._renderQueue._batch.recoverData();
         context.cameraData = originCameraData;
+        context.invertY = originInvertY;
         context.cameraUpdateMask++;
     }
 

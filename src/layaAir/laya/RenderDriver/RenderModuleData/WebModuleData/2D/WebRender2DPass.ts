@@ -43,7 +43,7 @@ class SortedStructs {
    }
 
    reset() {
-      this._indice.forEach(i => this.lists.get(i).clear());
+      this._indice.forEach(i => this.lists.get(i).length = 0);
       this._indice.clear();
       this._sortedIndice.length = 0;
    }
@@ -69,7 +69,7 @@ class SortedStructs {
  */
 
 export class WebRender2DPass implements IRender2DPass {
-   static buffers: Set<Web2DGraphicWholeBuffer> = new Set();
+   static buffers = new FastSinglelist<Web2DGraphicWholeBuffer>();
 
    private _renderElements = new FastSinglelist<IRenderElement2D>();
    private _elementGroups: FastSinglelist<any> = new FastSinglelist<any>();
@@ -85,9 +85,7 @@ export class WebRender2DPass implements IRender2DPass {
 
    public set priority(value: number) {
       this._priority = value;
-      if (this._mask && this._mask.pass) {
-         this._mask.pass._priority = value + 1;
-      }
+      if (this._mask) this._mask.setMaskParentPass(this);
    }
 
    enable: boolean = true;
@@ -113,10 +111,9 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    public set mask(value: WebRenderStruct2D) {
+      if (this._mask) this._mask.setMaskParentPass(null);
       this._mask = value;
-      if (value && value.pass) {
-         value.pass.priority = this.priority + 1;
-      }
+      if (value) value.setMaskParentPass(this);
    }
 
    private _enableBatch: boolean = true;
@@ -141,9 +138,10 @@ export class WebRender2DPass implements IRender2DPass {
     * rt渲染偏移
     **/
    offsetMatrix: Matrix = new Matrix();
-
-   private _invertMat_0: Vector3 = new Vector3(1, 1);
-   private _invertMat_1: Vector3 = new Vector3(0, 0);
+   /** @internal 反向矩阵 0 */
+   _invertMat_0: Vector3 = new Vector3(1, 1);
+   /** @internal 反向矩阵 1 */
+   _invertMat_1: Vector3 = new Vector3(0, 0);
 
    shaderData: ShaderData = null;
 
@@ -158,7 +156,7 @@ export class WebRender2DPass implements IRender2DPass {
      * @returns 是否需要更新
      */
    needRender(): boolean {
-      // return true;
+      //this.repaint = true;
       return this.enable
          && !this.isSupport
          && (this.repaint || !this.renderTexture);
@@ -182,7 +180,7 @@ export class WebRender2DPass implements IRender2DPass {
 
       let globalRenderData = struct.globalRenderData;
       if (globalRenderData) {
-         if (struct._parentGlobalRenderData
+         if (struct._currentData.globalRenderData
             && (struct.renderLayer & globalRenderData.renderLayerMask) === 0) {
             return;
          }
@@ -209,15 +207,15 @@ export class WebRender2DPass implements IRender2DPass {
          this.cullAndSort(context2D, child);
       }
 
-      if (struct.dcOptimize) {
-         let last = list.length - 1;
-         struct.dcOptimizeEnd = list.elements[last];
-      }
-
       if (oldCol) {
          this._pStructs.appendTo(list);
          this._structsPool.recover(this._pStructs);
          this._pStructs = oldCol;
+      }
+
+      if (struct.dcOptimize) {
+         let last = list.length - 1;
+         struct.dcOptimizeEnd = list.elements[last];
       }
    }
 
@@ -356,26 +354,6 @@ export class WebRender2DPass implements IRender2DPass {
             if (lastRenderType === struct.renderType)
                continue;
 
-            if (allowReorder) {
-               for (let j = i + 1; j <= groupEnd; j++) {
-                  let element2 = elementArray[j];
-                  if (element2.owner.renderType === lastRenderType) {
-                     for (let k = j - 1; k >= i; k--) {
-                        if (element2.owner.rect.intersects(elementArray[k].owner.rect)) {
-                           element2 = null;
-                           break;
-                        }
-                     }
-
-                     if (element2 != null) {
-                        elementArray.splice(j, 1);
-                        elementArray.splice(i, 0, element2);
-                        element = elementArray[++i];
-                     }
-                  }
-               }
-            }
-
             if (i - batchStart > 1)
                this.getBatchProvider(lastRenderType).batch(list, batchStart, i - 1, allowReorder);
             else
@@ -447,12 +425,14 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    static uploadBuffer(): void {
-      if (WebRender2DPass.buffers.size > 0) {
-         WebRender2DPass.buffers.forEach(buffer => {
+      if (WebRender2DPass.buffers.length > 0) {
+         let elements = WebRender2DPass.buffers.elements;
+         for (let i = 0, n = WebRender2DPass.buffers.length; i < n; i++) {
+            let buffer = elements[i];
             buffer._upload();
             buffer._inPass = false;
-         });
-         WebRender2DPass.buffers.clear();
+         }
+         WebRender2DPass.buffers.length = 0;
       }
    }
 
@@ -463,7 +443,7 @@ export class WebRender2DPass implements IRender2DPass {
       let mask = this.mask;
       let offset = this.offsetMatrix;
       if (mask && mask.trans) {
-         let maskMatrix = mask.trans.matrix;
+         let maskMatrix = mask.renderMatrix;
          maskMatrix.copyTo(temp);
       } else {
          rootTrans.matrix.copyTo(temp);

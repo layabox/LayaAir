@@ -25,6 +25,9 @@ import { ISpineRenderDataHandle } from "../RenderDriver/RenderModuleData/Design/
 import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
 import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
+import { Texture } from "../resource/Texture";
+import { SlotUtils } from "./optimize/SlotUtils";
+import { RepaintFlag } from "../display/SpriteConst";
 
 /**
  * @zh Spine动画渲染节点。
@@ -110,6 +113,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     private _externalSkins: ExternalSkin[];
     private _skin: string;
     private _offset: Vector2 = new Vector2();
+    /** @internal */
+    _setPreAlphaFlag = false;
+    private _premultipliedAlpha = true;
 
     /** @ignore */
     constructor() {
@@ -151,19 +157,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     /** @ignore @blueprintIgnore */
     renderUpdate(context: IRenderContext2D) {
-
-        // Vector2.TEMP.setValue(context.width, context.height);
-        // shaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, Vector2.TEMP);
-
-        // if (this._renderAlpha !==  context.globalAlpha) {
-        //     let scolor = this.spineItem.getSpineColor();
-        //     let a = scolor.a * context.globalAlpha;
-        //     let color = shaderData.getColor(BaseRenderNode2D.BASERENDER2DCOLOR) || new Color();
-        //     color.setValue(scolor.r , scolor.g , scolor.b , a);
-        //     shaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, color);
-        //     this._renderAlpha =  context.globalAlpha;
-        // }
-
         this._updateLight();
     }
 
@@ -174,13 +167,34 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     resetExternalSkin() {
         if (this._skeleton) {
             this._skeleton = new spine.Skeleton(this._templet.skeletonData);
-            let rootBone = this._skeleton.getRootBone();
-            rootBone.x = this._templet.offsetX;
-            rootBone.y = this._templet.offsetY;
             this.spineItem.changeSkeleton(this._skeleton);
             this._renderHandle.skeleton = this._skeleton;
             this._flushExtSkin();
         }
+    }
+
+    /**
+     * @zh 是否启用透明预乘。设置属性需要使用setPremultipliedAlpha方法。
+     * @en Whether to enable transparent premultiplied. Set the attribute needs to use the setPremultipliedAlpha method.
+     */
+    get premultipliedAlpha(): boolean {
+        return  !this._templet || this._setPreAlphaFlag ? this._premultipliedAlpha : this._templet.premultipliedAlpha;
+    }
+
+    set premultipliedAlpha(value: boolean) {
+        this._premultipliedAlpha = value;
+    }
+    
+    /**
+     * @en Set the transparent premultiplied.
+     * @zh 设置透明预乘。
+     * @param value Whether to enable transparent premultiplied.
+     * @param value 是否启用透明预乘。
+     */
+    setPremultipliedAlpha(value: boolean) {
+        this.spineItem.clearCacheMaterials();
+        this._premultipliedAlpha = value;
+        this._setPreAlphaFlag = true;
     }
 
     /**
@@ -368,6 +382,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this._offset = value;
         this._renderHandle.offset = this._offset;
         this.boundsChange = true;
+        
+        if (this.playState !== Spine2DRenderNode.PLAYING) {
+            this.owner.repaint(RepaintFlag.UpdateRT);
+        }
     }
 
     private _autoAdjust: boolean = false;
@@ -437,8 +455,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (this.destroyed) return;
         if (this._templet) {
             this.clear();
-            this.reset();
-            //this.graphics.clear();
         }
 
         this._templet = templet;
@@ -447,9 +463,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
         this._templet._addReference();
         this._skeleton = new spine.Skeleton(this._templet.skeletonData);
-        let rootBone = this._skeleton.getRootBone();
-        rootBone.x = this._templet.offsetX;
-        rootBone.y = this._templet.offsetY;
 
         this._renderHandle.skeleton = this._skeleton;
         this._stateData = new spine.AnimationStateData(this._skeleton.data);
@@ -467,6 +480,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (this._autoAdjust) {
             this._doAutoAdjust();
         }
+
+        this.onTransformChanged();
 
         this.boundsChange = true;
 
@@ -620,22 +635,19 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         // 计算骨骼的世界SRT(world SRT)
         this._skeleton.updateWorldTransform(this.physicsUpdate);// spine.Physics.update;
         this.spineItem.render(currentPlayTime);
-        this.owner.repaint();
+        this.owner.repaint(RepaintFlag.UpdateRT);
     }
 
     private _flushExtSkin() {
         if (null == this._skeleton) return;
         let skins = this._externalSkins;
         if (skins) {
-            let normal = false;//todo 需要修改顶点构成?
+            // let normal = false;//todo 需要修改顶点构成?
             for (let i = skins.length - 1; i >= 0; i--) {
                 skins[i].flush();
                 // normal = skins[i].normal || normal;
             }
-
-            // if (normal) {
             this.useFastRender = false;
-            // }
         }
     }
     /**
@@ -711,10 +723,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (!this._pause) {
             this._pause = true;
             this._needUpdate = false;
-            //this.timer.clear(this, this._update);
             this._state.update(-this._currentPlayTime);
-            // this._skeleton.setToSetupPose();
-            // this._state.clearTrack(this.trackIndex);
             this._currentPlayTime = 0;
             this.owner.event(Event.STOPPED);
 
@@ -822,6 +831,36 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
+     * @zh 设置插槽纹理
+     * @param slotName 插槽名称
+     * @param texture 纹理对象
+     * @param createAttachment 是否创建新的附件副本
+     * @en Set slot texture
+     * @param slotName Slot name
+     * @param texture Texture object
+     * @param createAttachment Whether to create a new attachment copy
+     */
+    setSlotTexture(slotName: string, texture: Texture, createAttachment: boolean = true) {
+        if (this._useFastRender) {
+            console.log("setSlotTexture: useFastRender is true, return");
+            return
+        }
+
+        if (!this._skeleton){
+            console.log("setSlotTexture: skeleton not found, return");
+            return;
+        }
+        
+        let slot = this._skeleton.findSlot(slotName);
+        if (!slot){
+            console.log("setSlotTexture: slot not found, slotName: " + slotName);
+            return;
+        }
+        
+        SlotUtils.setSlotTexture(slot, texture, this._templet, createAttachment);
+    }
+
+    /**
      * @zh 设置当动画被改变时，存储混合(交叉淡出)的持续时间
      * @param fromNameOrIndex 原来的动画名字或者索引 
      * @param toNameOrIndex   目标的动画名字或者索引
@@ -883,9 +922,13 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     private onTransformChanged() {
         if (this._skeleton) {
             let matrix = this.owner.globalTrans.getMatrix();
-            this._skeleton.x = matrix.tx;
-            this._skeleton.y = matrix.ty;
-
+            // this._skeleton.x = matrix.tx;
+            // this._skeleton.y = matrix.ty;
+            this._skeleton.x = matrix.tx + this._templet.offsetX;
+            this._skeleton.y = matrix.ty + this._templet.offsetY;
+            // this._offset.setValue(this.owner.pivotX, this.owner.pivotY);
+            // this._skeleton.x = matrix.tx
+            // this._skeleton.y = matrix.ty
             // if (this.owner.pivotX != 0 || this.owner.pivotY != 0) {
             //     this._offset.setValue(this.owner.pivotX, this.owner.pivotY);
             //     this._renderHandle.offset = this._offset;
@@ -912,11 +955,17 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @en Clear method, used to release and reset related resources.
      */
     clear(): void {
+        this.clearRenderElement();
+        this.reset();
+    }
+
+    /** @internal */
+    clearRenderElement(): void {
         this._mesh = null;
         this._renderElements.forEach(element => {
             Spine2DRenderNode.recoverRenderElement2D(element);
         });
-        super.clear();
+        this._renderElements.length = 0;
     }
 
     /**
@@ -956,7 +1005,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      */
     onDestroy(): void {
         if (this._templet) {
-            this.reset();
+            this.clear();
         }
         this.spineItem.destroy();
     }
@@ -1033,8 +1082,13 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     get rect(): Vector4 {
         if (this._boundsChange) {
-            this._rect.z = this._templet.width;
-            this._rect.w = this._templet.height;
+            if (this._templet) {
+                this._rect.z = this._templet.width + this._offset.x;
+                this._rect.w = this._templet.height + this._offset.y;
+            }else{
+                this._rect.z = this.owner.width + this._offset.x;
+                this._rect.w = this.owner.height + this._offset.y;
+            }
             this._rect.x = this._offset.x;
             this._rect.y = this._offset.y;
             this._boundsChange = false;

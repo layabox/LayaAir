@@ -153,6 +153,7 @@ export class Stat {
             return;
 
         Stat._show = false;
+        Stat._statUI.hide();
         ILaya.systemTimer.clear(null, Stat.loop);
     }
 

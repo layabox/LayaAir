@@ -20,10 +20,6 @@ export class Render {
      */
     static lastFrame = 0;
 
-    // 全局重画标志。一个get一个set是为了把标志延迟到下一帧的开始，防止部分对象接收不到。
-    private static _globalRepaintSet: boolean = false;
-    private static _globalRepaintGet: boolean = false;
-
     /**
      * @internal
      */
@@ -46,7 +42,7 @@ export class Render {
         let requestFrame = PAL.browser.requestFrame;
         let lastTime: number = null;
         let first = true;
-        let startTm = 0; //刚启动的时间。由于微信的rAF不标准，传入的stamp参数不对，因此自己计算一个从启动开始的相对时间
+        let startTm = 0;
         let leftTime = 0;
 
         function loop(timestamp: number) {
@@ -82,8 +78,6 @@ export class Render {
      */
     static loop(timestamp: number) {
         LayaGL.statAgent.startFrameLogic(timestamp);
-        this._globalRepaintGet = this._globalRepaintSet;
-        this._globalRepaintSet = false;
         ILaya.stage.render(timestamp);
         LayaGL.statAgent.endFrameLogic(timestamp);
     }
@@ -93,20 +87,6 @@ export class Render {
      */
     static vsyncTime() {
         return Render.lastFrame * Render.frameInterval;
-    }
-
-    /**
-     * @ignore
-     */
-    static isGlobalRepaint(): boolean {
-        return Render._globalRepaintGet;
-    }
-
-    /**
-     * @ignore
-     */
-    static setGlobalRepaint(): void {
-        Render._globalRepaintSet = true;
     }
 
     /** @deprecated */

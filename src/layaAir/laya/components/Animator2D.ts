@@ -14,6 +14,9 @@ import { Animation2DEvent } from "./Animation2DEvent";
 import { AnimatorUpdateMode } from "./AnimatorUpdateMode";
 import { Loader } from "../net/Loader";
 import { ILaya } from "../../ILaya";
+import { Sprite } from "../display/Sprite";
+import { SpriteConst } from "../display/SpriteConst";
+import { Vector3 } from "../maths/Vector3";
 
 /**
  * @en 2D animation components
@@ -109,6 +112,9 @@ export class Animator2D extends Component {
      */
     private _updateStateFinish(animatorState: AnimatorState2D, playState: AnimatorPlayState2D): void {
         if (playState._finish) {
+            if ((this.owner as Sprite)._renderType & SpriteConst.GRAPHICS) {
+                (this.owner as Sprite).graphics.repaint();
+            }
             animatorState._eventExit();//派发播放完成的事件
         }
     }
@@ -156,7 +162,7 @@ export class Animator2D extends Component {
      * @param isFirstLayer 
      * @param data 
      */
-    private _applyFloat(o: { ower: Node, pro?: { ower: any, key: string, defVal: any } }, additive: boolean, weight: number, data: string | number | boolean): void {
+    private _applyFloat(o: { ower: Node, pro?: { ower: any, key: string, defVal: any } }, additive: boolean, weight: number, data: string | number | boolean | Vector3): void {
         var pro = o.pro;
         if (pro && pro.ower) {
             if (additive && "number" === typeof data) {

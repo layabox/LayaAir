@@ -3,6 +3,8 @@ import { KeyframeNode2D } from "./KeyframeNode2D";
 import { Keyframe2D } from "./KeyFrame2D";
 import { Animation2DEvent } from "./Animation2DEvent";
 import { Byte } from "../utils/Byte";
+import { PathPoint } from "../tween/PathPoint";
+import { CurvePath } from "../tween/CurvePath";
 
 /**
  * @en Class for AnimationClip resource parsing
@@ -103,7 +105,25 @@ export class AnimationClip2DParse01 {
     private static timeToFrame(second: number, fps: number): number {
         return Math.round(second * fps);
     }
-
+    private static createPathPoints(arr: any[]): PathPoint[] {
+        const result: PathPoint[] = [];
+        for (var i = 0, len = arr.length; i < len; i++) {
+            const data = arr[i];
+            const point = new PathPoint();
+            point.pos.x = data.pos.x;
+            point.pos.y = data.pos.y;
+            point.pos.z = data.pos.z;
+            point.c1.x = data.c1.x;
+            point.c1.y = data.c1.y;
+            point.c1.z = data.c1.z;
+            point.c2.x = data.c2.x;
+            point.c2.y = data.c2.y;
+            point.c2.z = data.c2.z;
+            point.curve = data.curve;
+            result.push(point);
+        }
+        return result;
+    }
     /**
      * @internal
      */
@@ -204,6 +224,16 @@ export class AnimationClip2DParse01 {
                     k.data.val = this._strings[reader.readUint16()];
                 } else if (2 == num) {
                     k.data.val = !!reader.readByte();
+                } else if (3 == num) {
+                    const jsonData = JSON.parse(reader.readUTFString());
+                    if(Array.isArray(jsonData)){
+                        const curvePath = new CurvePath();
+                        k.data.val = curvePath;
+                        (curvePath as any)._$data = jsonData;
+                        curvePath.create(...this.createPathPoints(jsonData));
+                    }else{
+                        k.data.val = jsonData;
+                    }
                 }
 
                 if (1 == reader.readByte()) {

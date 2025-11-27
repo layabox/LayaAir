@@ -13,6 +13,9 @@ import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
  * @zh 普通 Spine 渲染实现类。
  */
 export class SpineNormalRender implements ISpineOptimizeRender {
+    clearCacheMaterials(): void {
+        //throw new NotImplementedError();
+    }
     getSpineColor(): Color {
         return this._spineColor;
     }
@@ -110,7 +113,7 @@ export class SpineNormalRender implements ISpineOptimizeRender {
      * @param time 当前渲染时间。
      */
     render(time: number) {
-        this._owner.clear();
+        this._owner.clearRenderElement();
         this._renderer.draw(this._skeleton, this._owner, -1, -1);
         this._owner.owner._struct.renderElements = this._owner._renderElements;
     }

@@ -278,9 +278,6 @@ export class Utils {
     * @returns 一个 Promise，该 Promise 将解析为表示 RenderTexture 的 Base64 字符串。
     */
     static uint8ArrayToArrayBufferAsync(rendertexture: RenderTexture | RenderTexture2D): Promise<string> {
-        if ((window as any).conch) {
-            return Promise.resolve("not surpport");
-        }
         let pixelArray: Uint8Array | Float32Array;
         const width = rendertexture.width;
         const height = rendertexture.height;
@@ -295,7 +292,7 @@ export class Utils {
                 pixelArray = new Float32Array(pixelCount);
                 break;
             default:
-                throw "this function is not surpprt " + rendertexture.format.toString() + "format Material";
+                throw "this function is not supported " + rendertexture.format.toString() + "format Material";
         }
         return rendertexture.getDataAsync(0, 0, width, height, pixelArray).then(() => {
             //tranceTo
@@ -310,15 +307,6 @@ export class Utils {
             }
 
             const pixels = pixelArray;
-            // if (LayaEnv.isConch) {
-            //TODO:
-            //var base64img=__JS__("conchToBase64('image/png',1,pixels,canvasWidth,canvasHeight)");
-            //var l = base64img.split(",");
-            //if (isBase64)
-            // return base64img;
-            //return base.utils.DBUtils.decodeArrayBuffer(l[1]);
-            // }
-            // else {
             const canvas = Browser.createElement("canvas");
             canvas.height = height;
             canvas.width = width;
