@@ -21,6 +21,7 @@ import { Stat } from "../utils/Stat";
 import { LayaGL } from "../layagl/LayaGL";
 import { Matrix4x4 } from "../maths/Matrix4x4";
 import { Vector4 } from "../maths/Vector4";
+import { Bounds } from "../d3/math/Bounds";
 
 /**
  * @zh Spine动画3D渲染节点。
@@ -100,6 +101,8 @@ export class Spine3DRenderer extends BaseRender {
     }
 
     declare readonly owner: Sprite3D;
+
+    private _geometryBounds: Bounds = new Bounds();
 
     /** @ignore */
     constructor() {
@@ -470,8 +473,8 @@ export class Spine3DRenderer extends BaseRender {
         let y = data.y;
         let width = data.width;
         let height = data.height;
-        let min = this._bounds.getMin();
-        let max = this._bounds.getMax();
+        let min = this._geometryBounds.getMin();
+        let max = this._geometryBounds.getMax();
         //直接使用spine数据bounds
         min.x = x;
         min.y = y;
@@ -479,10 +482,10 @@ export class Spine3DRenderer extends BaseRender {
         max.x = width + x;
         max.y = height + y;
         max.z = 0;
-        this._bounds.setMin(min);
-        this._bounds.setMax(max);
+        this._geometryBounds.setMin(min);
+        this._geometryBounds.setMax(max);
 
-        this._baseRenderNode.baseGeometryBounds = this._bounds;
+        this._baseRenderNode.baseGeometryBounds = this._geometryBounds;
     }
 
     /**

@@ -139,12 +139,10 @@ export class SpineOptimizeRender3D extends BaseOptimizeRender {
                 // 检查是否需要更新 element
                 let needUpdate = false;
                 if (!element) {
-                    // 需要创建新的 element
                     element = SpineOptimizeRender3D.createRenderElement3D();
                     this._renderElements[i] = element;
                     needUpdate = true;
                 } else {
-                    // 对比检查是否需要更新现有 element
                     if (element.geometry !== subMesh || 
                         element.materialShaderData !== material.shaderData ||
                         element.renderShaderData !== shaderData ||
@@ -204,10 +202,6 @@ export class SpineOptimizeRender3D extends BaseOptimizeRender {
     /** @internal */
     _getMaterial(texture: Texture2D, blendMode: number): Material {
         return this._templet.getMaterial(texture, blendMode, this._premultipliedAlpha, true);
-    }
-
-    _getRenderHandle(): any {
-        return null; // 3D渲染不需要handle
     }
 
     /**
