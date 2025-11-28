@@ -160,6 +160,7 @@ export class SpineOptimizeRender3D extends BaseOptimizeRender {
                     element.subShader = material._shader.getSubShaderAt(0);
                     element.renderShaderData = shaderData;
                     element.owner = this._owner;
+                    element.materialRenderQueue = material.renderQueue;
                     need = true;
                 }
             } else {
