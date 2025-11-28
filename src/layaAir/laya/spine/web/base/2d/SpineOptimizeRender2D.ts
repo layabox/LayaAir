@@ -146,7 +146,6 @@ export class SpineOptimizeRender2D extends BaseOptimizeRender {
         materials: Material[]
     ): void {
         if (!subMeshes || !materials || subMeshes.length === 0 || materials.length === 0) {
-            // 清理所有元素
             this._clearRenderElements();
             struct.renderElements = [];
             return;
@@ -158,22 +157,18 @@ export class SpineOptimizeRender2D extends BaseOptimizeRender {
 
         let need = false;
         
-        // 更新或创建 RenderElements
         for (let i = 0; i < targetCount; i++) {
             let element = this._renderElements[i];
             const subMesh = subMeshes[i];
             const material = materials[i];
 
             if (subMesh && material) {
-                // 检查是否需要更新 element
                 let needUpdate = false;
                 if (!element) {
-                    // 需要创建新的 element
                     element = SpineOptimizeRender2D.createRenderElement2D();
                     this._renderElements[i] = element;
                     needUpdate = true;
                 } else {
-                    // 对比检查是否需要更新现有 element
                     if (element.geometry !== subMesh || 
                         element.materialShaderData !== material.shaderData ||
                         element.value2DShaderData !== shaderData ||

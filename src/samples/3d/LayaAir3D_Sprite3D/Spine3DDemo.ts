@@ -44,9 +44,13 @@ export class Spine3DDemo {
     private skinButton: Button;
     private fastRenderButton: Button;
     private billboardButton: Button;
+    private rotateXButton: Button;
+    private rotateYButton: Button;
+    private rotateZButton: Button;
 
     private useFastRender: boolean = true;
     private enableBillboard: boolean = false;
+    private rotationStep: number = 90; // 每次旋转的角度（度）
 
     private buttonURL = "res/ui/button-7.png";
     private maxSpineSize: number = 600;
@@ -119,6 +123,9 @@ export class Spine3DDemo {
         this.scene.addChild(boundsLine);
         this._boundsLine = boundsLine;
 
+        this.mesh = new MeshSprite3D(PrimitiveMesh.createQuad(1, 1));
+        this.scene.addChild(this.mesh);
+
         Laya.timer.frameLoop(1, this, this._drawBounds);
     }
 
@@ -126,18 +133,42 @@ export class Spine3DDemo {
         if (!this.skeleton) {
             return;
         }
+        
         let bounds = this.skeleton.bounds;
+        let min = bounds.getMin();
+        let max = bounds.getMax();
         this._boundsLine.clear();
-        this._boundsLine.addLine(new Vector3(bounds.min.x, bounds.min.y, bounds.min.z), new Vector3(bounds.max.x, bounds.min.y, bounds.min.z), Color.RED, Color.RED);
-        this._boundsLine.addLine(new Vector3(bounds.min.x, bounds.min.y, bounds.min.z), new Vector3(bounds.min.x, bounds.max.y, bounds.min.z), Color.RED, Color.RED);
-        this._boundsLine.addLine(new Vector3(bounds.min.x, bounds.min.y, bounds.min.z), new Vector3(bounds.min.x, bounds.min.y, bounds.max.z), Color.RED, Color.RED);
-        this._boundsLine.addLine(new Vector3(bounds.max.x, bounds.min.y, bounds.min.z), new Vector3(bounds.max.x, bounds.max.y, bounds.min.z), Color.RED, Color.RED);
-        this._boundsLine.addLine(new Vector3(bounds.max.x, bounds.min.y, bounds.min.z), new Vector3(bounds.max.x, bounds.min.y, bounds.max.z), Color.RED, Color.RED);
-        this._boundsLine.addLine(new Vector3(bounds.max.x, bounds.min.y, bounds.max.z), new Vector3(bounds.max.x, bounds.max.y, bounds.max.z), Color.RED, Color.RED);
-        this._boundsLine.addLine(new Vector3(bounds.max.x, bounds.max.y, bounds.min.z), new Vector3(bounds.max.x, bounds.max.y, bounds.max.z), Color.RED, Color.RED);
-        this._boundsLine.addLine(new Vector3(bounds.max.x, bounds.max.y, bounds.min.z), new Vector3(bounds.min.x, bounds.max.y, bounds.min.z), Color.RED, Color.RED);
-        this._boundsLine.addLine(new Vector3(bounds.max.x, bounds.max.y, bounds.max.z), new Vector3(bounds.min.x, bounds.max.y, bounds.max.z), Color.RED, Color.RED);
-        this._boundsLine.addLine(new Vector3(bounds.max.x, bounds.max.y, bounds.max.z), new Vector3(bounds.max.x, bounds.min.y, bounds.max.z), Color.RED, Color.RED);
+    
+        let v000 = new Vector3(min.x, min.y, min.z);
+        let v100 = new Vector3(max.x, min.y, min.z);
+        let v010 = new Vector3(min.x, max.y, min.z);
+        let v110 = new Vector3(max.x, max.y, min.z);
+        let v001 = new Vector3(min.x, min.y, max.z);
+        let v101 = new Vector3(max.x, min.y, max.z);
+        let v011 = new Vector3(min.x, max.y, max.z);
+        let v111 = new Vector3(max.x, max.y, max.z);
+
+        this._boundsLine.addLine(v000, v100, Color.RED, Color.RED);
+        this._boundsLine.addLine(v010, v110, Color.RED, Color.RED);
+        this._boundsLine.addLine(v000, v010, Color.RED, Color.RED);
+        this._boundsLine.addLine(v100, v110, Color.RED, Color.RED);
+
+        this._boundsLine.addLine(v001, v101, Color.RED, Color.RED);
+        this._boundsLine.addLine(v011, v111, Color.RED, Color.RED);
+        this._boundsLine.addLine(v001, v011, Color.RED, Color.RED);
+        this._boundsLine.addLine(v101, v111, Color.RED, Color.RED);
+
+        this._boundsLine.addLine(v000, v001, Color.RED, Color.RED);
+        this._boundsLine.addLine(v100, v101, Color.RED, Color.RED);
+        this._boundsLine.addLine(v010, v011, Color.RED, Color.RED);
+        this._boundsLine.addLine(v110, v111, Color.RED, Color.RED);
+
+        let center = bounds.getCenter();
+        this.mesh.transform.localPosition = new Vector3(center.x, center.y, center.z);
+        let width = max.x - min.x;
+        let height = max.y - min.y;
+        let depth = max.z - min.z;
+        this.mesh.transform.localScale = new Vector3(width, height, depth);
     }
 
     private initUI(): void {
@@ -151,6 +182,12 @@ export class Spine3DDemo {
         this.skinButton = this.creatButton(x + spacing * 2, y, width, height, this, this.switchSkin, "切换皮肤");
         this.fastRenderButton = this.creatButton(x + spacing * 3, y, width, height, this, this.switchFastRender, "快速渲染");
         this.billboardButton = this.creatButton(x + spacing * 4, y, width, height, this, this.switchBillboard, "面向相机");
+
+        let y2 = y + height + 20;
+        let x2 = (Laya.stage.width - 150 * 3) / 2;
+        this.rotateXButton = this.creatButton(x2, y2, width, height, this, this.rotateX, "旋转X轴");
+        this.rotateYButton = this.creatButton(x2 + spacing, y2, width, height, this, this.rotateY, "旋转Y轴");
+        this.rotateZButton = this.creatButton(x2 + spacing * 2, y2, width, height, this, this.rotateZ, "旋转Z轴");
 
         this.updateButtonLabels();
     }
@@ -208,7 +245,7 @@ export class Spine3DDemo {
         }
 
         this.currentAnimationIndex = this.normalizeIndex(this.currentAnimationIndex, this.currentAnimationNames.length);
-        this.skeleton.play(this.currentAnimationNames[this.currentAnimationIndex], false, true);
+        this.skeleton.play(this.currentAnimationNames[this.currentAnimationIndex], true, true);
         this.updateButtonLabels();
     }
 
@@ -247,6 +284,27 @@ export class Spine3DDemo {
             this.skeleton.billboard = this.enableBillboard;
         }
         this.updateButtonLabels();
+    }
+
+    private rotateX(): void {
+        if (this.sprite3D) {
+            let rotation = new Vector3(this.rotationStep, 0, 0);
+            this.sprite3D.transform.rotate(rotation, true, false);
+        }
+    }
+
+    private rotateY(): void {
+        if (this.sprite3D) {
+            let rotation = new Vector3(0, this.rotationStep, 0);
+            this.sprite3D.transform.rotate(rotation, true, false);
+        }
+    }
+
+    private rotateZ(): void {
+        if (this.sprite3D) {
+            let rotation = new Vector3(0, 0, this.rotationStep);
+            this.sprite3D.transform.rotate(rotation, true, false);
+        }
     }
 
     private updateButtonLabels(): void {
