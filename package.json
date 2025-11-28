@@ -1,6 +1,6 @@
 {
   "name": "layaair",
-  "version": "3.3.3",
+  "version": "3.3.4",
   "description": "LayaAir3.3 Engine",
   "main": "layaAir.config.js",
   "scripts": {

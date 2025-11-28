@@ -26,11 +26,7 @@ export class SingletonList<T> {
         if (index != -1 && index < this.length)
             return;
 
-        if (this.length === this.elements.length)
-            this.elements.push(element);
-        else
-            this.elements[this.length] = element;
-        this.length++;
+        this.elements[this.length++] = element;
     }
 
     /**
@@ -43,10 +39,12 @@ export class SingletonList<T> {
         let len = this.length;
         let len2 = list.length;
         this.length = len + len2;
-        if (this.elements.length < this.length)
-            this.elements.length = this.length;
+        let arr1 = this.elements;
+        let arr2 = list.elements;
+        if (arr1.length < this.length)
+            arr1.length = this.length;
         for (let i = 0; i < len2; i++) {
-            this.elements[len + i] = list.elements[i];
+            arr1[len + i] = arr2[i];
         }
     }
 
@@ -84,7 +82,7 @@ export class SingletonList<T> {
      * @zh 清除列表，移除所有元素。
      */
     clear() {
-        this.elements = [];
+        this.elements.length = 0;
         this.length = 0;
     }
 
@@ -112,11 +110,7 @@ export class SingletonList<T> {
 
 export class FastSinglelist<T> extends SingletonList<T> {
     add(element: T): void {
-        if (this.length === this.elements.length)
-            this.elements.push(element);
-        else
-            this.elements[this.length] = element;
-        this.length++;
+        this.elements[this.length++] = element;
     }
 }
 

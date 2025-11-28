@@ -72,7 +72,7 @@ export class GLESEngine implements IRenderEngine {
     this._nativeObj.addTexGammaDefine(key, value);
   }
   initRenderEngine(canvas: HTMLCanvasElement): void {
-    this._nativeObj.initRenderEngine();
+    this._nativeObj.initRenderEngine((canvas as any)._nativeObj);
     this._GLTextureContext = new GLESTextureContext(this._nativeObj.getTextureContext());
     Config._uniformBlock = Config.enableUniformBufferObject && this.getCapable(RenderCapable.UnifromBufferObject);
     Config.matUseUBO = Config.matUseUBO && this.getCapable(RenderCapable.UnifromBufferObject);

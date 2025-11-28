@@ -595,6 +595,7 @@ export class Texture extends Resource {
         }
         else if (this._bitmap) {
             this._bitmap.destroy();
+            this.event("dispose");
         }
         
         this.event(Event.CHANGE);

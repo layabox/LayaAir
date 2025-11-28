@@ -297,6 +297,7 @@ const _setRenderColor: Color = new Color(1, 1, 1, 1);
 
 export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle implements IMesh2DRenderDataHandle {
     private _baseColor: Color = new Color(1, 1, 1, 1);
+    private _tilingOffset: Vector4 = new Vector4();
     private _baseTexture: BaseTexture;
     private _normal2DTexture: BaseTexture;
     private _renderAlpha = -1;
@@ -334,6 +335,16 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
                 this._owner.spriteShaderData.removeDefine(ShaderDefines2D.GAMMATEXTURE);
             }
         }
+    }
+
+    public get tilingOffset(): Vector4 {
+        return this._tilingOffset;
+    }
+    public set tilingOffset(value: Vector4) {
+        if (!value)
+            return;
+        this._owner.spriteShaderData.setVector(BaseRenderNode2D.TILINGOFFSET, value);
+        value ? value.cloneTo(this._tilingOffset) : null;
     }
 
     public get normal2DTexture(): BaseTexture {

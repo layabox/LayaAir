@@ -157,4 +157,36 @@ export class TileMapUtils {
         return keys.length > 0 ? keys[keys.length - 1] + 1 : 0;
     }
 
+    /**
+     * 将 Tiled 45度 坐标系转换为 TileMapLayer 菱形坐标系。
+     * @param tiledX 
+     * @param tiledY
+     * @param out    复用输出
+     */
+    public static tiledTLayer(tiledX: number, tiledY: number, out: Vector2 = new Vector2()): Vector2 {
+        const tileMapY = tiledX + tiledY;
+        const parity = tileMapY & 1;
+        const tileMapX = (tiledX - tiledY - parity) >> 1;
+        out.x = tileMapX;
+        out.y = tileMapY;
+        return out;
+    }
+
+    /**
+     * 将 TileMapLayer 菱形坐标系转换回 Tiled 45度 坐标系。
+     * @param tileMapX 
+     * @param tileMapY 
+     * @param out      复用输出
+     */
+    public static layerToTiled(tileMapX: number, tileMapY: number, out: Vector2 = new Vector2()): Vector2 {
+        tileMapX = Math.floor(tileMapX);
+        tileMapY = Math.floor(tileMapY);
+        const parity = tileMapY & 1;
+        const tiledX = tileMapX + ((tileMapY + parity) >> 1);
+        const tiledY = tileMapY - tiledX;
+        out.x = tiledX;
+        out.y = tiledY;
+        return out;
+    }
+
 }

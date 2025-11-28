@@ -1,5 +1,6 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { Color } from "../../maths/Color";
+import { Vector4 } from "../../maths/Vector4";
 import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { IRenderContext2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { IMesh2DRenderDataHandle } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
@@ -46,6 +47,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
 
     protected _initDefaultRenderData(): void {
         this.color = new Color();
+        this.tilingOffset = new Vector4(0, 0, 1, 1);
         this.texture = null;
     }
 
@@ -102,6 +104,18 @@ export class Mesh2DRender extends BaseRenderNode2D {
 
     get color() {
         return this._renderHandle.baseColor;
+    }
+
+    /**
+     * @en Tiling offset
+     * @zh 平铺偏移
+     */
+    set tilingOffset(value: Vector4) {
+        this._renderHandle.tilingOffset = value;
+    }
+
+    get tilingOffset(): Vector4 {
+        return this._renderHandle.tilingOffset;
     }
 
     /**

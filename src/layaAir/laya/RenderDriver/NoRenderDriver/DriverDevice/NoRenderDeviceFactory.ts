@@ -141,6 +141,7 @@ export class NoRenderGeometryElement implements IRenderGeometryElement {
     drawType: DrawType;
     instanceCount: number;
     indexFormat: IndexFormat;
+    drawParams: FastSinglelist<number>;
     setDrawArrayParams(first: number, count: number): void {
     }
     setDrawElemenParams(count: number, offset: number): void {

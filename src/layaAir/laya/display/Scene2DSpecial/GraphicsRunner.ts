@@ -3,15 +3,11 @@ import { Bezier } from "../../maths/Bezier";
 import { Matrix } from "../../maths/Matrix";
 import { Point } from "../../maths/Point";
 import { Rectangle } from "../../maths/Rectangle";
-import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
-import { IAutoExpiringResource } from "../../renders/ResNeedTouch";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
 import { Texture } from "../../resource/Texture";
 import { Texture2D } from "../../resource/Texture2D";
-import { FontInfo } from "../../utils/FontInfo";
-import { WordText } from "../../utils/WordText";
 import { BlendMode } from "../../webgl/canvas/BlendMode";
 import { DrawStyle } from "../../webgl/canvas/DrawStyle";
 import { Path } from "../../webgl/canvas/Path";
@@ -76,8 +72,8 @@ export class GraphicsRunner {
     _submitKey = new SubmitKey();	//当前将要使用的设置。用来跟上一次的_curSubmit比较
     _graphicsData: GraphicsRenderData = null;	//保存当前的渲染数据。用来给shader使用。    
     //public var _vbs:Array = [];	//双buffer管理。TODO 临时删掉，需要mesh中加上
-    private _transedPoints: any[] = new Array(8);	//临时的数组，用来计算4个顶点的转换后的位置。
-    private _temp4Points: any[] = new Array(8);		//临时数组。用来保存4个顶点的位置。
+    private _transedPoints: number[] = new Array(8);	//临时的数组，用来计算4个顶点的转换后的位置。
+    private _temp4Points: number[] = new Array(8);		//临时数组。用来保存4个顶点的位置。
 
     _textureProcessor: ITextureProcessor = new EmptyTextureProcessor();
     _clipRect = SaveClipRect.MAX;
@@ -112,19 +108,16 @@ export class GraphicsRunner {
      */
     sprite: Sprite | null = null;
 
-    _textRender: TextRender | null = null;// new TextRender();
-    _italicDeg = 0;//文字的倾斜角度
+    _textRender: TextRender;
     _lastTex: Texture | null = null; //上次使用的texture。主要是给fillrect用，假装自己也是一个drawtexture
 
     _defTexture: Texture | null = null;	//给fillrect用
-
-    drawTexAlign = false;		// 按照像素对齐
 
     constructor() {
         //_ib = IndexBuffer2D.QuadrangleIB;
         this._defTexture = new Texture(Texture2D.whiteTexture);
         // this._lastTex = this._defTexture;
-        this._textRender = new TextRender();
+        this._textRender = new TextRender(this);
         this._other = ContextParams.DEFAULT;
         this._curMat = Matrix.create();
         // this._charSubmitCache = new CharSubmitCache(this);
@@ -163,22 +156,6 @@ export class GraphicsRunner {
 
     /**@private */
     set miterLimit(value: string) {
-    }
-
-    /**
-     * 添加需要touch的资源
-     * @param res 
-     */
-    touchRes(res: IAutoExpiringResource) {
-        this._graphicsData.touchRes(res);
-    }
-
-    /**
-     * 添加需要引用的资源
-     * @param res 
-     */
-    referenceRes(res: Resource) {
-        this._graphicsData.referenceRes(this, res);
     }
 
     transformByMatrix(matrix: Matrix, tx: number, ty: number): void {
@@ -697,25 +674,6 @@ export class GraphicsRunner {
         }
     }
 
-    fillText(txt: string | WordText, x: number, y: number, fontStr: string, color: string, align: string, lineWidth = 0, borderColor: string = ""): void {
-        this._textRender!.filltext(this, txt, x, y, fontStr, color, borderColor, lineWidth, align);
-    }
-    // 与fillText的区别是没有border信息
-    drawText(text: string | WordText, x: number, y: number, font: string, color: string, textAlign: string): void {
-        this._textRender!.filltext(this, text, x, y, font, color, null, 0, textAlign);
-    }
-    strokeWord(text: string | WordText, x: number, y: number, font: string, color: string, lineWidth: number, textAlign: string): void {
-        this._textRender!.filltext(this, text, x, y, font, null, color, lineWidth, textAlign);
-    }
-    fillBorderText(txt: string | WordText, x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number, textAlign: string): void {
-        this._textRender!.filltext(this, txt, x, y, font, color, borderColor, lineWidth, textAlign);
-    }
-
-    /**@internal */
-    _fast_filltext(data: string | WordText, x: number, y: number, fontObj: FontInfo, color: string, strokeColor: string | null, lineWidth: number, textAlign: number): void {
-        this._textRender!._fast_filltext(this, data, x, y, fontObj, color, strokeColor, lineWidth, textAlign);
-    }
-
     private _fillRect(x: number, y: number, width: number, height: number, rgba: number): void {
         var submit = this._curSubmit;
 
@@ -776,7 +734,7 @@ export class GraphicsRunner {
         if (!this._getImageSource(texture)) {
             return;
         }
-        this.referenceRes(texture);
+        this._graphicsData.addResRef(this, texture);
         this._fillTexture(texture, texture.width, texture.height, texture.uvrect, x, y, width, height, type, offset.x, offset.y, color);
     }
 
@@ -877,19 +835,18 @@ export class GraphicsRunner {
     }
 
     drawTextures(tex: Texture, pos: ArrayLike<number>, tx: number, ty: number, colors: number[]): void {
-        if (!this._getImageSource(tex)) //source内调用tex.active();
-        {
+        if (!this._getImageSource(tex)) { //source内调用tex.active();
             return;
         }
 
-        this.referenceRes(tex);
+        this._graphicsData.addResRef(this, tex);
         //TODO 还没实现
         var n = pos.length / 2;
         var ipos = 0;
         var bmpid = (tex.bitmap as Texture2D).id;
         for (var i = 0; i < n; i++) {
             const color = typeof colors[i] === 'number' ? colors[i] : 0xffffffff;
-            this._inner_drawTexture(tex, bmpid, pos[ipos++] + tx, pos[ipos++] + ty, 0, 0, null, null, 1.0, false, color);
+            this._inner_drawTexture(tex, bmpid, pos[ipos++] + tx, pos[ipos++] + ty, 0, 0, null, null, 1.0, color);
         }
     }
 
@@ -899,8 +856,8 @@ export class GraphicsRunner {
         if (!this._getImageSource(tex)) { //source内调用tex.active();
             return false;
         }
-        this.referenceRes(tex);
-        return this._inner_drawTexture(tex, (tex.bitmap as Texture2D).id, x, y, width, height, m, uv, alpha, false, color);
+        this._graphicsData.addResRef(this, tex);
+        return this._inner_drawTexture(tex, (tex.bitmap as Texture2D).id, x, y, width, height, m, uv, alpha, color);
     }
 
     /**@internal */
@@ -937,10 +894,13 @@ export class GraphicsRunner {
      * @param uv
      * @return
      */
-    _inner_drawTexture(tex: Texture | BaseTexture, imgid: number, x: number, y: number, width: number, height: number, m: Matrix | null, uv: ArrayLike<number> | null, alpha: number, lastRender: boolean, color: number): boolean {
+    _inner_drawTexture(tex: Texture | BaseTexture, imgid: number, x: number, y: number, width: number, height: number, m: Matrix | null, uv: ArrayLike<number> | null, alpha: number, color: number,
+        italicDeg?: number, pixelSnap?: boolean): boolean {
         if (width <= 0 || height <= 0) {
             return false;
         }
+        if (italicDeg == null)
+            italicDeg = 0;
         var preKey = this._curSubmit._key;
         uv = uv || (tex as Texture)._uv
         //为了优化，如果上次是画三角形，并且贴图相同，会认为他们是一组的，把这个也转成三角形，以便合并。
@@ -950,8 +910,8 @@ export class GraphicsRunner {
             preKey.other === imgid
         ) {
             let xoff = 0;
-            if (this._italicDeg != 0) {
-                xoff = Math.tan(this._italicDeg * Math.PI / 180) * height;
+            if (italicDeg !== 0) {
+                xoff = Math.tan(italicDeg * Math.PI / 180) * height;
             }
             var tv = _drawTexToDrawTri_Vert;
             tv[0] = x + xoff; tv[1] = y; tv[2] = x + width + xoff, tv[3] = y, tv[4] = x + width, tv[5] = y + height, tv[6] = x, tv[7] = y + height;
@@ -965,12 +925,12 @@ export class GraphicsRunner {
 
         var submit = this._curSubmit;
         // var ops: any[] = lastRender ? this._charSubmitCache.getPos() : this._transedPoints;
-        var ops: any[] = this._transedPoints;
+        var ops = this._transedPoints;
 
         //凡是这个都是在_mesh上操作，不用考虑samekey
-        this.transformQuad(x, y, width || tex.width, height || tex.height, this._italicDeg, m || this._curMat, ops);
+        this.transformQuad(x, y, width || tex.width, height || tex.height, italicDeg, m || this._curMat, ops);
 
-        if (this.drawTexAlign) {
+        if (pixelSnap) {
             var round: Function = Math.round;
             ops[0] = round(ops[0]);//  (ops[0] + 0.5) | 0;	// 这么计算负的时候会有问题
             ops[1] = round(ops[1]);
@@ -980,7 +940,6 @@ export class GraphicsRunner {
             ops[5] = round(ops[5]);
             ops[6] = round(ops[6]);
             ops[7] = round(ops[7]);
-            this.drawTexAlign = false;	//一次性的
         }
 
         var rgba = this._mixRGBandAlpha(color, this._alpha * alpha);
@@ -1063,7 +1022,7 @@ export class GraphicsRunner {
      * @param h
      * @param   italicDeg 倾斜角度，单位是度。0度无，目前是下面不动。以后要做成可调的
      */
-    private transformQuad(x: number, y: number, w: number, h: number, italicDeg: number, m: Matrix, out: any[]): void {
+    private transformQuad(x: number, y: number, w: number, h: number, italicDeg: number, m: Matrix, out: number[]): void {
         var xoff = 0;
         if (italicDeg != 0) {
             xoff = Math.tan(italicDeg * Math.PI / 180) * h;
@@ -1179,11 +1138,13 @@ export class GraphicsRunner {
         colors?: Float32Array,
         uvRange?: ArrayLike<number>): void {
 
-        if (!this._getImageSource(tex)) { //source内调用tex.active();
-            return;
+        if (tex) {
+            if (!this._getImageSource(tex)) { //source内调用tex.active();
+                return;
+            }
+            this._graphicsData.addResRef(this, tex);
         }
-        this.referenceRes(tex);
-        
+
         if (alpha == null) alpha = 1.0;
         if (colorNum == null) colorNum = 0xffffffff;
 
@@ -1205,7 +1166,7 @@ export class GraphicsRunner {
         var preKey: SubmitKey = this._curSubmit._key;
         var sameKey =
             this._curSubmit.mesh === mesh
-            && preKey.other === webGLImg.id
+            && (!webGLImg || preKey.other === webGLImg.id)
             //&& preKey.submitType === SubmitBase.KEY_TRIANGLES 
             && preKey.blendShader === this._nBlendType
         // && this._curSubmit.material == this._material;
@@ -1234,12 +1195,8 @@ export class GraphicsRunner {
             }
             this._setClipInfo(submit._internalInfo);
             // submit._key.submitType = SubmitBase.KEY_TRIANGLES;
-            if (reg && reg.array) {
-                // @ts-ignore
-                submit._key.other = (reg.array as any)._texture?.id ?? webGLImg.id;
-            } else {
-                submit._key.other = webGLImg.id;
-            }
+            submit._key.other = (reg?.array as any)?._texture?.id ?? (webGLImg?.id ?? -1);
+
             // this._copyClipInfo(submit._internalShaderData);
             submit.clipInfoID = this._clipInfoID;
         }
@@ -1253,12 +1210,12 @@ export class GraphicsRunner {
             }
             Matrix.mul(tmpMat, this._curMat, tmpMat);
             //由于2d动画部分的uvs是绝对的（例如图集的话就是相对图集的）所以最后不传uvrect了。
-            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, tmpMat, null, true, colors, uvRange);
+            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, tmpMat, null, !!tex, colors, uvRange);
         }
         else {
             // 这种情况是drawtexture转成的drawTriangle，直接使用matrix就行，传入的xy都是0
             let m = this._curMat == matrix ? (this._matrixChanged ? this._curMat : null) : matrix;
-            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, m, null, true, colors, uvRange);
+            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, m, null, !!tex, colors, uvRange);
         }
         // this._curSubmit._numEle += indices.length;
         this._appendBlockInfo(vertexResult);

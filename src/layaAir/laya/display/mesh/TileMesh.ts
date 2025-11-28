@@ -28,7 +28,9 @@ export class TileMesh implements IMeshFactory {
             tmpRect.recover();
         }
         else {
-            genTileMesh(vb, vb.contentRect, vb.uvRect, tex.sourceWidth, tex.sourceHeight, this.repeatX, this.repeatY);
+            genTileMesh(vb, vb.contentRect, vb.uvRect,
+                tex ? tex.sourceWidth : vb.contentRect.width, tex ? tex.sourceHeight : vb.contentRect.height,
+                this.repeatX, this.repeatY);
         }
     }
 }

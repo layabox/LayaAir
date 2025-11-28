@@ -114,7 +114,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
         matrix?: Matrix, alpha?: number, color?: string | number, blendMode?: string): DrawTrianglesCmd {
         var cmd: DrawTrianglesCmd = Pool.getItemByClass(className, DrawTrianglesCmd);
         cmd.texture = texture;
-        texture._addReference();
+        texture?._addReference();
         cmd.x = x;
         cmd.y = y;
         cmd.vertices = vertices;
@@ -143,7 +143,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
     static create2(texture: Texture, mesh: IMeshFactory, color?: string | number): DrawTrianglesCmd {
         var cmd: DrawTrianglesCmd = Pool.getItemByClass(className, DrawTrianglesCmd);
         cmd.texture = texture;
-        texture._addReference();
+        texture?._addReference();
         cmd.x = 0;
         cmd.y = 0;
         cmd.mesh = mesh;
@@ -180,9 +180,6 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @param gy 全局Y偏移  
      */
     run(runner: GraphicsRunner, gx: number, gy: number): void {
-        if (!this.texture)
-            return;
-
         if (this.mesh) {
             let vb = VertexStream.pool.take(this.texture);
             vb.contentRect.setTo(0, 0, runner.sprite.width, runner.sprite.height);
@@ -196,32 +193,12 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
             }
 
             runner.drawTriangles(this.texture, this.x + gx, this.y + gy, vb.getVertices(), vb.getUVs(), vb.getIndices(),
-                this.matrix, this.alpha, this.blendMode, null, vb.getColors(), this.texture.uvrect);
+                this.matrix, this.alpha, this.blendMode, null, vb.getColors(), this.texture?.uvrect);
 
             VertexStream.pool.recover(vb);
         }
-        else {
-            let uvs = this.uvs;
-            if (this.texture._dynamic) {
-                let dynamicUV = this.texture._dynamic.uv;
-                let needsNewBuffer = !this._tempUVs || this._tempUVs.length !== uvs.length;
-                let dynamicChanged = this._dynamic !== dynamicUV;
-
-                if (needsNewBuffer) {
-                    this._tempUVs = new Float32Array(uvs.length);
-                }
-
-                if (dynamicChanged || needsNewBuffer) {
-                    this._dynamic = dynamicUV;
-                    for (let i = 0; i < uvs.length; i += 2) {
-                        this._tempUVs[i] = this._dynamic.x + this._dynamic.z * uvs[i];
-                        this._tempUVs[i + 1] = this._dynamic.y + this._dynamic.w * uvs[i + 1];
-                    }
-                }
-                uvs = this._tempUVs
-            }
-            
-            runner.drawTriangles(this.texture, this.x + gx, this.y + gy, this.vertices, uvs, this.indices,
+        else if (this.vertices && this.uvs && this.indices) {
+            runner.drawTriangles(this.texture, this.x + gx, this.y + gy, this.vertices, this.uvs, this.indices,
                 this.matrix, this.alpha, this.blendMode, this.color);
         }
     }

@@ -22,7 +22,7 @@ export class FlipMesh implements IMeshFactory {
             uvRect.bottom = tmp;
         }
 
-        let sizeGrid = vb.mainTex._sizeGrid;
+        let sizeGrid = vb.mainTex?._sizeGrid;
         if (sizeGrid) {
             let gridRect = Rectangle.create();
             let sourceWidth = vb.mainTex.sourceWidth;

@@ -43,7 +43,7 @@ class SortedStructs {
    }
 
    reset() {
-      this._indice.forEach(i => this.lists.get(i).clear());
+      this._indice.forEach(i => this.lists.get(i).length = 0);
       this._indice.clear();
       this._sortedIndice.length = 0;
    }
@@ -69,7 +69,7 @@ class SortedStructs {
  */
 
 export class WebRender2DPass implements IRender2DPass {
-   static buffers: Set<Web2DGraphicWholeBuffer> = new Set();
+   static buffers = new FastSinglelist<Web2DGraphicWholeBuffer>();
 
    private _renderElements = new FastSinglelist<IRenderElement2D>();
    private _elementGroups: FastSinglelist<any> = new FastSinglelist<any>();
@@ -207,15 +207,15 @@ export class WebRender2DPass implements IRender2DPass {
          this.cullAndSort(context2D, child);
       }
 
-      if (struct.dcOptimize) {
-         let last = list.length - 1;
-         struct.dcOptimizeEnd = list.elements[last];
-      }
-
       if (oldCol) {
          this._pStructs.appendTo(list);
          this._structsPool.recover(this._pStructs);
          this._pStructs = oldCol;
+      }
+
+      if (struct.dcOptimize) {
+         let last = list.length - 1;
+         struct.dcOptimizeEnd = list.elements[last];
       }
    }
 
@@ -354,26 +354,6 @@ export class WebRender2DPass implements IRender2DPass {
             if (lastRenderType === struct.renderType)
                continue;
 
-            if (allowReorder) {
-               for (let j = i + 1; j <= groupEnd; j++) {
-                  let element2 = elementArray[j];
-                  if (element2.owner.renderType === lastRenderType) {
-                     for (let k = j - 1; k >= i; k--) {
-                        if (element2.owner.rect.intersects(elementArray[k].owner.rect)) {
-                           element2 = null;
-                           break;
-                        }
-                     }
-
-                     if (element2 != null) {
-                        elementArray.splice(j, 1);
-                        elementArray.splice(i, 0, element2);
-                        element = elementArray[++i];
-                     }
-                  }
-               }
-            }
-
             if (i - batchStart > 1)
                this.getBatchProvider(lastRenderType).batch(list, batchStart, i - 1, allowReorder);
             else
@@ -445,12 +425,14 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    static uploadBuffer(): void {
-      if (WebRender2DPass.buffers.size > 0) {
-         WebRender2DPass.buffers.forEach(buffer => {
+      if (WebRender2DPass.buffers.length > 0) {
+         let elements = WebRender2DPass.buffers.elements;
+         for (let i = 0, n = WebRender2DPass.buffers.length; i < n; i++) {
+            let buffer = elements[i];
             buffer._upload();
             buffer._inPass = false;
-         });
-         WebRender2DPass.buffers.clear();
+         }
+         WebRender2DPass.buffers.length = 0;
       }
    }
 
