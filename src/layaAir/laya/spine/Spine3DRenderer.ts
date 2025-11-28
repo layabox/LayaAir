@@ -13,7 +13,6 @@ import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { Laya } from "../../Laya";
 import { SpineShaderInit } from "./shader/SpineShaderInit";
-import { Bounds } from "../d3/math/Bounds";
 import { Vector3 } from "../maths/Vector3";
 import { IRenderContext3D } from "../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { IBaseRenderNode } from "../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
@@ -27,7 +26,7 @@ import { Vector4 } from "../maths/Vector4";
  * @zh Spine动画3D渲染节点。
  * @en Spine animation 3D render node.
  */
-export class Spine3DRenderNode extends BaseRender {
+export class Spine3DRenderer extends BaseRender {
     private static _tempCameraUp: Vector3 = new Vector3();
     private static _tempCameraForward: Vector3 = new Vector3();
 
@@ -177,8 +176,8 @@ export class Spine3DRenderNode extends BaseRender {
             return;
 
         let transform = renderNode.transform;
-        let cameraUp = Spine3DRenderNode._tempCameraUp;
-        let cameraForward = Spine3DRenderNode._tempCameraForward;
+        let cameraUp = Spine3DRenderer._tempCameraUp;
+        let cameraForward = Spine3DRenderer._tempCameraForward;
         cameraTransform.getUp(cameraUp);
         cameraTransform.getForward(cameraForward);
 
@@ -473,14 +472,12 @@ export class Spine3DRenderNode extends BaseRender {
         let height = data.height;
         let min = this._bounds.getMin();
         let max = this._bounds.getMax();
-        let pivotX = width + x;
-        let pivotY = height + y;
-
-        min.x = -pivotX;
-        min.y = -pivotY;
+        //直接使用spine数据bounds
+        min.x = x;
+        min.y = y;
         min.z = 0;
-        max.x = width - pivotX;
-        max.y = height - pivotY;
+        max.x = width + x;
+        max.y = height + y;
         max.z = 0;
         this._bounds.setMin(min);
         this._bounds.setMax(max);

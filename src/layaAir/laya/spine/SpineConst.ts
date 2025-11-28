@@ -50,7 +50,7 @@ export class SpineConst {
     
     /**
      * @en Maximum number of vertices. Limited by 64K indexbuffer constraint.
-     * @zh 最大顶点数。受64K索引缓冲区限制。
+     * @zh 最大顶点数。
      */
     static NORMAL_MAX_VERTEX: number = 10922;//64*1024/3/2 
 

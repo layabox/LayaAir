@@ -5,8 +5,7 @@ import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/S
 import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineShaderInit } from "../../../shader/SpineShaderInit";
 import { SpineConst } from "../../../SpineConst";
-import { INormalRenderUpdater, IWebSpineFactory } from "../../interface/IWebSpine";
-import { IRender } from "../3d/SpineRendererTypes3D";
+import { INormalRenderUpdater, IRender, IWebSpineFactory } from "../../interface/IWebSpine";
 import { BaseOptimizeRender } from "./BaseOptimizeRender";
 import { SpineRenderUpdater } from "./SpineRenderUpdater";
 

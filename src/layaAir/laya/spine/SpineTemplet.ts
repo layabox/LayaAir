@@ -89,6 +89,7 @@ export class SpineTemplet extends Resource {
         if (!mat) {
             mat = new Material();
             mat.setShaderName(is3D ? "Spine3D" : "SpineStandard");
+            mat.renderQueue = is3D ? 2000 : 3000;
             SpineShaderInit.initSpineMaterial(mat);
             mat.setTextureByIndex(SpineShaderInit.SpineTexture, texture);
 

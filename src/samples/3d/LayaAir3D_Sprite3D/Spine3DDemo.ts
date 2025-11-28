@@ -4,7 +4,7 @@ import { Loader } from "laya/net/Loader";
 import { SpineTemplet } from "laya/spine/SpineTemplet";
 import { Browser } from "laya/utils/Browser";
 import { Stat } from "laya/utils/Stat";
-import { Spine3DRenderNode } from "laya/spine/Spine3DRenderer";
+import { Spine3DRenderer } from "laya/spine/Spine3DRenderer";
 import { SpineConst } from "laya/spine/SpineConst";
 import { SpineAdapter } from "laya/spine/web/js/SpineAdapter";
 import { Button } from "laya/ui/Button";
@@ -17,10 +17,11 @@ import { Vector3 } from "laya/maths/Vector3";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
+import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
 
 export class Spine3DDemo {
 
-    private skeleton: Spine3DRenderNode;
+    private skeleton: Spine3DRenderer;
     private sprite3D:Sprite3D;
 
     private skeletonInfos: Array<{ name: string; url: string }> = [
@@ -52,6 +53,10 @@ export class Spine3DDemo {
 
     private scene: Scene3D;
     private camera: Camera;
+    private mesh: MeshSprite3D;
+    private scale = 0.01;
+
+    private _boundsLine: PixelLineSprite3D;
 
     constructor() {
         SpineConst.VERSION = "3.8";
@@ -70,18 +75,7 @@ export class Spine3DDemo {
             Laya.stage.bgColor = "#000000";
             Stat.show();
 
-            this.scene = <Scene3D>Laya.stage.addChild(new Scene3D());
-            this.scene.ambientColor = new Color(1, 1, 1);
-
-            this.camera = <Camera>this.scene.addChild(new Camera(0, 0.1, 100));
-            this.camera.transform.translate(new Vector3(0, 0, 3));
-            this.camera.transform.lookAt(new Vector3(0, 0, 0) , Vector3.Up);
-            // this.camera.transform.rotate(new Vector3(-10, 0, 0), true, false);
-            this.camera.addComponent(CameraMoveScript);
-
-            let mesh = new MeshSprite3D(PrimitiveMesh.createBox(1, 1, 1));
-            mesh.transform.position = new Vector3(1, 0, 0);
-            this.scene.addChild(mesh);
+            this._createWorld();
 
             let tasks = this.skeletonInfos.map(async (info) => {
                 let templet = await Laya.loader.load(info.url, Loader.SPINE) as SpineTemplet;
@@ -91,18 +85,59 @@ export class Spine3DDemo {
 
             await Promise.all(tasks);
 
-            let scale = 0.01;
             this.sprite3D = new Sprite3D();
             this.scene.addChild(this.sprite3D);
-            this.sprite3D.transform.position = new Vector3(0,0,0);
             this.sprite3D.on(Event.STOPPED, this, this.play);
-            this.sprite3D.transform.localScale = new Vector3(scale,scale,scale);
+            this.sprite3D.transform.localScale = new Vector3(this.scale,this.scale,this.scale);
 
-            this.skeleton = this.sprite3D.addComponent(Spine3DRenderNode);
+            this.skeleton = this.sprite3D.addComponent(Spine3DRenderer);
 
             this.initUI();
             this.applyTemplet(this.currentTempletIndex);
         });
+    }
+
+    private _createWorld() {
+        this.scene = <Scene3D>Laya.stage.addChild(new Scene3D());
+        this.scene.ambientColor = new Color(1, 1, 1);
+
+        this.camera = <Camera>this.scene.addChild(new Camera(0, 0.1, 100));
+        this.camera.transform.translate(new Vector3(0, 0, 3));
+        this.camera.transform.lookAt(new Vector3(0, 0, 0) , Vector3.Up);
+        this.camera.addComponent(CameraMoveScript);
+
+        let sphere = new MeshSprite3D(PrimitiveMesh.createSphere());
+        this.scene.addChild(sphere);
+        
+        let line = new PixelLineSprite3D(100);
+        this.scene.addChild(line);
+        line.addLine(new Vector3(0, 0, 0), new Vector3(10, 0, 0), Color.RED, Color.RED);
+        line.addLine(new Vector3(0, 0, 0), new Vector3(0, 10, 0), Color.GREEN, Color.GREEN);
+        line.addLine(new Vector3(0, 0, 0), new Vector3(0, 0, 10), Color.BLUE, Color.BLUE);
+
+        let boundsLine = new PixelLineSprite3D(100);
+        this.scene.addChild(boundsLine);
+        this._boundsLine = boundsLine;
+
+        Laya.timer.frameLoop(1, this, this._drawBounds);
+    }
+
+    private _drawBounds(): void {
+        if (!this.skeleton) {
+            return;
+        }
+        let bounds = this.skeleton.bounds;
+        this._boundsLine.clear();
+        this._boundsLine.addLine(new Vector3(bounds.min.x, bounds.min.y, bounds.min.z), new Vector3(bounds.max.x, bounds.min.y, bounds.min.z), Color.RED, Color.RED);
+        this._boundsLine.addLine(new Vector3(bounds.min.x, bounds.min.y, bounds.min.z), new Vector3(bounds.min.x, bounds.max.y, bounds.min.z), Color.RED, Color.RED);
+        this._boundsLine.addLine(new Vector3(bounds.min.x, bounds.min.y, bounds.min.z), new Vector3(bounds.min.x, bounds.min.y, bounds.max.z), Color.RED, Color.RED);
+        this._boundsLine.addLine(new Vector3(bounds.max.x, bounds.min.y, bounds.min.z), new Vector3(bounds.max.x, bounds.max.y, bounds.min.z), Color.RED, Color.RED);
+        this._boundsLine.addLine(new Vector3(bounds.max.x, bounds.min.y, bounds.min.z), new Vector3(bounds.max.x, bounds.min.y, bounds.max.z), Color.RED, Color.RED);
+        this._boundsLine.addLine(new Vector3(bounds.max.x, bounds.min.y, bounds.max.z), new Vector3(bounds.max.x, bounds.max.y, bounds.max.z), Color.RED, Color.RED);
+        this._boundsLine.addLine(new Vector3(bounds.max.x, bounds.max.y, bounds.min.z), new Vector3(bounds.max.x, bounds.max.y, bounds.max.z), Color.RED, Color.RED);
+        this._boundsLine.addLine(new Vector3(bounds.max.x, bounds.max.y, bounds.min.z), new Vector3(bounds.min.x, bounds.max.y, bounds.min.z), Color.RED, Color.RED);
+        this._boundsLine.addLine(new Vector3(bounds.max.x, bounds.max.y, bounds.max.z), new Vector3(bounds.min.x, bounds.max.y, bounds.max.z), Color.RED, Color.RED);
+        this._boundsLine.addLine(new Vector3(bounds.max.x, bounds.max.y, bounds.max.z), new Vector3(bounds.max.x, bounds.min.y, bounds.max.z), Color.RED, Color.RED);
     }
 
     private initUI(): void {
