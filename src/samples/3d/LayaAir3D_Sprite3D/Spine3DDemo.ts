@@ -44,12 +44,14 @@ export class Spine3DDemo {
     private skinButton: Button;
     private fastRenderButton: Button;
     private billboardButton: Button;
+    private premultipliedButton: Button;
     private rotateXButton: Button;
     private rotateYButton: Button;
     private rotateZButton: Button;
 
     private useFastRender: boolean = true;
     private enableBillboard: boolean = false;
+    private enablePremultiplied: boolean = true;
     private rotationStep: number = 90; // 每次旋转的角度（度）
 
     private buttonURL = "res/ui/button-7.png";
@@ -124,7 +126,7 @@ export class Spine3DDemo {
         this._boundsLine = boundsLine;
 
         this.mesh = new MeshSprite3D(PrimitiveMesh.createQuad(1, 1));
-        this.scene.addChild(this.mesh);
+        // this.scene.addChild(this.mesh);
 
         Laya.timer.frameLoop(1, this, this._drawBounds);
     }
@@ -172,7 +174,7 @@ export class Spine3DDemo {
     }
 
     private initUI(): void {
-        let x = (Laya.stage.width - 150 * 4) / 2;
+        let x = (Laya.stage.width - 150 * 6) / 2;
         let width = 150;
         let height = 60;
         let spacing = 100 + width;
@@ -182,6 +184,7 @@ export class Spine3DDemo {
         this.skinButton = this.creatButton(x + spacing * 2, y, width, height, this, this.switchSkin, "切换皮肤");
         this.fastRenderButton = this.creatButton(x + spacing * 3, y, width, height, this, this.switchFastRender, "快速渲染");
         this.billboardButton = this.creatButton(x + spacing * 4, y, width, height, this, this.switchBillboard, "面向相机");
+        this.premultipliedButton = this.creatButton(x + spacing * 5, y, width, height, this, this.switchPremultiplied, "预乘");
 
         let y2 = y + height + 20;
         let x2 = (Laya.stage.width - 150 * 3) / 2;
@@ -229,6 +232,7 @@ export class Spine3DDemo {
 
         this.skeleton.templet = templet;
         this.skeleton.useFastRender = this.useFastRender;
+        this.skeleton.premultipliedAlpha = this.enablePremultiplied;
 
         this.applySkin();
         this.applyAnimation();
@@ -286,6 +290,14 @@ export class Spine3DDemo {
         this.updateButtonLabels();
     }
 
+    private switchPremultiplied(): void {
+        this.enablePremultiplied = !this.enablePremultiplied;
+        if (this.skeleton) {
+            this.skeleton.setPremultipliedAlpha(this.enablePremultiplied);
+        }
+        this.updateButtonLabels();
+    }
+
     private rotateX(): void {
         if (this.sprite3D) {
             let rotation = new Vector3(this.rotationStep, 0, 0);
@@ -321,6 +333,7 @@ export class Spine3DDemo {
         this.skinButton.label = `切换皮肤 (${skinName}${skinTotal ? ` ${this.currentSkinIndex + 1}/${skinTotal}` : ""})`;
         this.fastRenderButton.label = `快速渲染 (${this.useFastRender ? "开启" : "关闭"})`;
         this.billboardButton.label = `面向相机 (${this.enableBillboard ? "开启" : "关闭"})`;
+        this.premultipliedButton.label = `预乘 (${this.enablePremultiplied ? "开启" : "关闭"})`;
     }
 
     private getTempletByIndex(index: number): SpineTemplet | undefined {
