@@ -208,5 +208,24 @@ export class SpineOptimizeRender3D extends BaseOptimizeRender {
     _getRenderHandle(): any {
         return null; // 3D渲染不需要handle
     }
+
+    /**
+     * @override
+     * @inheritdoc
+     */
+    render(time: number, physicsUpdate: number): void {
+        this._skeleton.update && this._skeleton.update(time);
+        this._skeleton.updateWorldTransform(physicsUpdate);
+
+        let offsetX = - this._skeleton.x;
+        let offsetY = - this._skeleton.y;
+
+        if (this.renderProxy) {
+            this.renderProxy.render(this.currentTime, offsetX, offsetY);
+            if (this.renderProxy.afterRender) {
+                this.renderProxy.afterRender(this);
+            }
+        }
+    }
 }
 

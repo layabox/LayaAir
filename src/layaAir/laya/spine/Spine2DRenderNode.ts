@@ -684,8 +684,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (!bones || bones.length === 0) return;
         
         let transform = this._spineRender.getSkeletonTransform();
-        let offsetX = -transform.x + transform.z;
-        let offsetY = -transform.y + transform.w;
+        let offset = this._offset;
+        let offsetX = -transform.x + transform.z + offset.x;
+        let offsetY = -transform.y + transform.w + offset.y;
 
         for (let i = 0; i < bones.length && i < this._bones.length; i++) {
             let bone = bones[i];
@@ -1005,9 +1006,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     get rect(): Vector4 {
-        if (this._boundsChange) {
-            this._rect.z = this._templet.width;
-            this._rect.w = this._templet.height;
+        if (this._boundsChange ) {
+            if (this._templet) {
+                this._rect.z = this._templet.width + this._offset.x;
+                this._rect.w = this._templet.height + this._offset.y;
+            } else {
+                this._rect.z = this._offset.x + this.owner.width;
+                this._rect.w = this._offset.y + this.owner.height;
+            }
             this._rect.x = this._offset.x;
             this._rect.y = this._offset.y;
             this._boundsChange = false;

@@ -14,6 +14,20 @@ import { SpineTexture } from "../SpineTexture";
 
 const QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
 
+interface BufferInfo {
+    data: Float32Array | Uint16Array;
+    vertexLength: number;
+}
+
+interface SubMeshBufferInfo {
+    bufferIndex: number;
+    vertexStart: number;
+    vertexLength: number;
+    indexStart: number;
+    indexLength: number;
+    material: Material;
+}
+
 export class SpineNormalRenderUpdater implements INormalRenderUpdater {
     /** @internal */
     static _TEMP_COLOR: spine.Color;
@@ -21,26 +35,55 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
     static _TEMP_COLOR2: spine.Color;
 
     static positions: Float32Array;
-    static vertices: Float32Array;
-    static indices: Uint16Array;
+    
     
     static __init__(): void {
         SpineNormalRenderUpdater.positions = new Float32Array(SpineConst.NORMAL_MAX_VERTEX * 2);
-        SpineNormalRenderUpdater.vertices = new Float32Array(SpineConst.NORMAL_MAX_VERTEX * SpineConst.VERTEX_TWOCOLOR);
-        SpineNormalRenderUpdater.indices = new Uint16Array(SpineConst.NORMAL_MAX_VERTEX * 3);
         SpineNormalRenderUpdater._TEMP_COLOR = new spine.Color();
         SpineNormalRenderUpdater._TEMP_COLOR2 = new spine.Color();
     }
 
     private clipper = new spine.SkeletonClipping();
 
+    /**
+     * @en Vertex buffer arrays for normal rendering. Each array can hold up to 65535 vertices.
+     * @zh 普通渲染的顶点缓冲区数组。每个数组最多可容纳 65535 个顶点。
+     */
+    vertices: BufferInfo[] = [];
+
+    /**
+     * @en Index buffer for normal rendering.
+     * @zh 普通渲染的索引缓冲区。
+     */
+    indices: Uint16Array = new Uint16Array(SpineConst.NORMAL_VERTEX_LENGTH * 3);
+
+    /**
+     * @en SubMesh buffer information array, recording vertex and index ranges for each submesh.
+     * @zh SubMesh 缓冲区信息数组，记录每个 submesh 的顶点和索引范围。
+     */
+    subMeshBufferInfos: SubMeshBufferInfo[] = [];
+
+    /**
+     * @en Current buffer index.
+     * @zh 当前缓冲区索引。
+     */
+    private currentBufferIndex = 0;
+
+    /**
+     * @en Maximum vertices per buffer (Uint16 max index value + 1).
+     * @zh 每个缓冲区的最大顶点数（Uint16 最大索引值 + 1）。
+     */
+    private static readonly MAX_VERTICES_PER_BUFFER = 65536;
+
     materials: Material[] = [];
     verticesLength = 0;
     indicesLength = 0;
+
+    _meshIndexStart = 0;
     /** @internal */
-    _subMeshLength = 0;
+    _subMeshIndexStart = 0;
     /** @internal */
-    _subMeshOffset = 0;
+    _subMeshVertexStart = 0;
 
     /** @internal */
     _subMeshIndex = 0;
@@ -50,6 +93,43 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
     needUpdate = false;
 
     subMeshes:IRenderGeometryElement[] = [];
+
+    /**
+     * @en Get current vertices buffer info.
+     * @zh 获取当前顶点缓冲区信息。
+     */
+    private getCurrentVerticesInfo(): BufferInfo {
+        if (!this.vertices[this.currentBufferIndex]) {
+            this.vertices[this.currentBufferIndex] = {
+                data: new Float32Array(SpineConst.NORMAL_VERTEX_LENGTH * SpineConst.VERTEX_TWOCOLOR),
+                vertexLength: 0
+            };
+        }
+        return this.vertices[this.currentBufferIndex];
+    }
+
+    private ensureVerticesCapacity(requiredLength: number): BufferInfo {
+        const bufferInfo = this.getCurrentVerticesInfo();
+        const currentVertices = bufferInfo.data as Float32Array;
+        if (requiredLength > currentVertices.length) {
+            const newLength = Math.max(requiredLength, currentVertices.length);
+            const newVertices = new Float32Array(newLength);
+            newVertices.set(currentVertices);
+            bufferInfo.data = newVertices;
+        }
+
+        return bufferInfo;
+    }
+
+    private ensureIndicesCapacity(requiredLength: number) {
+        const currentIndices = this.indices;
+        if (requiredLength > currentIndices.length) {
+            const newLength = Math.max(requiredLength, currentIndices.length);
+            const newIndices = new Uint16Array(newLength);
+            newIndices.set(currentIndices);
+            this.indices = newIndices;
+        }
+    }
 
     renderUpdate(
         skeleton: spine.Skeleton, updater: SpineRenderUpdater
@@ -78,11 +158,15 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
         let _TEMP_COLOR2 = SpineNormalRenderUpdater._TEMP_COLOR2;
 
         this._materialIndex = 0;
-        this._subMeshLength = 0;
-        this._subMeshOffset = 0;
+        this._subMeshIndex = 0;
+
+        this.currentBufferIndex = -1;
+        this.subMeshBufferInfos.length = 0;
+        
+        this.indicesLength = 0;
+        this._subMeshIndexStart = 0;
 
         let verticesLength = 0;
-        let vertexCount = 0;
 
         let vertexDeclaration = SpineShaderInit.SpineNormalVertexDeclaration;;
         let meshIndex = -1;
@@ -97,9 +181,11 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
             subMeshes = currentMesh._subMeshes = currentMesh._subMeshes || [];
             subMeshes.length = 0;
 
+            this.currentBufferIndex++;
             this.verticesLength = 0;
-            this.indicesLength = 0;
-            this._subMeshIndex = 0;
+            
+            this._meshIndexStart = this.indicesLength;
+            this._subMeshVertexStart = 0;
         }
 
         changeMesh();
@@ -132,7 +218,6 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
             if (attachment instanceof window.spine.RegionAttachment) {
                 // continue;
                 let region = <spine.RegionAttachment>attachment;
-                vertexCount = 4;
                 verticesLength = clippedVertexStride << 2;
 
                 if (attachment.sequence != null)
@@ -146,8 +231,7 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
 
             } else if (attachment instanceof window.spine.MeshAttachment) {
                 let mesh = <spine.MeshAttachment>attachment;
-                vertexCount = (mesh.worldVerticesLength >> 1);
-                verticesLength = vertexCount * clippedVertexStride;
+                verticesLength = (mesh.worldVerticesLength >> 1) * clippedVertexStride;
                 if (verticesLength > positions.length) {
                     positions = new Float32Array(verticesLength);
                 }
@@ -212,14 +296,14 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
 
                     clipper.clipTriangles(positions, verticesLength, triangles, triangles.length, uvs, finalColor, darkColor, twoColorTint);
                     
-                    if (!this.canAppend(this.verticesLength + clipper.clippedVertices.length , clipper.clippedTriangles.length)) {
+                    if (!this.canAppend(clipper.clippedVertices.length)) {
                         changeMesh();
                     }
 
                     this.appendVerticesClip(clipper.clippedVertices, clipper.clippedTriangles, vertexStride , offsetX , offsetY);
                 } else {
 
-                    if (!this.canAppend(this.verticesLength + verticesLength , triangles.length)) {
+                    if (!this.canAppend(verticesLength)) {
                         changeMesh();
                     }
 
@@ -254,22 +338,21 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
         this._materialIndex++;
         this.needUpdate = true;
     }
+
     /**
      * @en Check if the mesh can append more vertices and indices.
      * @param verticesLength Number of vertices to be appended.
-     * @param indicesLength Number of indices to be appended.
      * @returns True if the mesh can append, false otherwise.
      * @zh 检查网格是否能够添加更多的顶点和索引。
      * @param verticesLength 要添加的顶点数量。
-     * @param indicesLength 要添加的索引数量。
      * @returns 如果网格可以添加则返回 true，否则返回 false。
      */
-    canAppend(verticesLength: number, indicesLength: number) {
-        return this.verticesLength + verticesLength < SpineNormalRenderUpdater.vertices.length && this.indicesLength + indicesLength < SpineNormalRenderUpdater.indices.length;
+    canAppend(verticesLength: number) {
+        return (this.verticesLength + verticesLength) / SpineConst.VERTEX_TWOCOLOR < SpineNormalRenderUpdater.MAX_VERTICES_PER_BUFFER;
     }
 
     private createSubMesh(bufferState: IBufferState , out: IRenderGeometryElement[]): boolean {
-        if (!this._subMeshLength)
+        if (this.indicesLength - this._subMeshIndexStart == 0)
             return false;
 
         let geometry = this.subMeshes[this._subMeshIndex];
@@ -282,13 +365,25 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
         }
 
         geometry.bufferState = bufferState;
-        geometry.setDrawElemenParams(this._subMeshLength, this._subMeshOffset * 2);
+        let subMeshLength = this.indicesLength - this._subMeshIndexStart;
+        geometry.setDrawElemenParams(subMeshLength, this._subMeshIndexStart * 2);
         geometry.indexFormat = IndexFormat.UInt16;
 
         out.push(geometry);
+        
 
-        this._subMeshOffset = this.indicesLength;
-        this._subMeshLength = 0;
+        const subMeshInfo: SubMeshBufferInfo = {
+            bufferIndex: this.currentBufferIndex,
+            vertexStart: this._subMeshVertexStart,
+            vertexLength: this.verticesLength - this._subMeshVertexStart,
+            indexStart: this._subMeshIndexStart,
+            indexLength: subMeshLength,
+            material: this.materials[this._materialIndex - 1]
+        };
+        this.subMeshBufferInfos[this._subMeshIndex] = subMeshInfo;
+
+        this._subMeshIndexStart = this.indicesLength;
+        this._subMeshVertexStart = this.verticesLength;
         this._subMeshIndex++;
 
         return true;
@@ -296,33 +391,43 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
 
     private uploadBuffer(mesh: Mesh2D): void {
         if(!mesh) return;
-        let vertices = SpineNormalRenderUpdater.vertices;
-        let indices = SpineNormalRenderUpdater.indices;
+        const verticesInfo = this.getCurrentVerticesInfo();
+        
         let vbByteLength = this.verticesLength * 4;
-        let ibByteLength = this.indicesLength * 2;
+        let ibByteLength = (this.indicesLength - this._meshIndexStart) * 2;
         
         let vertexBuffer = mesh.vertexBuffers[0];
         vertexBuffer.setDataLength(vbByteLength);
-        vertexBuffer.setData(vertices.buffer as ArrayBuffer, 0, 0, vbByteLength);
+        vertexBuffer.setData(verticesInfo.data.buffer as ArrayBuffer, 0, 0, vbByteLength);
 
         mesh.indexBuffer._setIndexDataLength(ibByteLength);
-        mesh.indexBuffer.setData(indices.buffer as ArrayBuffer, 0, 0, ibByteLength);
+        mesh.indexBuffer.setData(this.indices.buffer as ArrayBuffer, 0, this._meshIndexStart * 2, ibByteLength);
     }
 
     /**
      * @en Append clipped vertices and indices.
      * @param vertices Array of vertex data.
      * @param indices Array of index data.
+     * @param stride Vertex stride.
+     * @param offsetX Offset X.
+     * @param offsetY Offset Y.
      * @zh 裁剪后的顶点和索引。
      * @param vertices 顶点数据数组。
      * @param indices 索引数据数组。
+     * @param stride 顶点步长。
+     * @param offsetX 偏移X。
+     * @param offsetY 偏移Y。
      */
     appendVerticesClip(vertices: ArrayLike<number>, indices: ArrayLike<number> , stride: number , offsetX:number , offsetY:number) {
         let verticesLength = vertices.length;
         if (verticesLength == 0) 
             return;
         let indicesLength = indices.length;
-        let vertexBuffer = SpineNormalRenderUpdater.vertices;
+        
+        let verticesInfo = this.ensureVerticesCapacity(this.verticesLength + verticesLength);
+        this.ensureIndicesCapacity(this.indicesLength + indicesLength);
+        
+        let vertexBuffer = verticesInfo.data as Float32Array;
 
         let before = this.verticesLength;
         let indexStart = before / stride;
@@ -345,12 +450,13 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
 
         this.verticesLength = before + verticesLength;
 
-        let indicesArray = SpineNormalRenderUpdater.indices;
+        let indicesArray = this.indices;
         for (let i = this.indicesLength, j = 0; j < indicesLength; i++, j++)
             indicesArray[i] = indices[j] + indexStart;
 
         this.indicesLength += indicesLength;
-        this._subMeshLength += indicesLength;
+        
+        verticesInfo.vertexLength = this.verticesLength;
     }
 
     appendVertices(
@@ -361,7 +467,11 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
     ): void {
         if (verticesLength == 0) 
             return;
-        let vertices = SpineNormalRenderUpdater.vertices;
+        
+        let verticesInfo = this.ensureVerticesCapacity(this.verticesLength + verticesLength);
+        this.ensureIndicesCapacity(this.indicesLength + indicesLength);
+        
+        let vertices = verticesInfo.data as Float32Array;
         let before = this.verticesLength;
         let indexStart = before / stride;
 
@@ -383,12 +493,13 @@ export class SpineNormalRenderUpdater implements INormalRenderUpdater {
         }
 
 
-        let newIndices = SpineNormalRenderUpdater.indices;
+        let newIndices = this.indices;
         for (let i = this.indicesLength, j = 0; j < indicesLength; i++, j++)
             newIndices[i] = indices[j] + indexStart;
 
         this.verticesLength = before + verticesLength;
         this.indicesLength += indicesLength;
-        this._subMeshLength += indicesLength;
+        
+        verticesInfo.vertexLength = this.verticesLength;
     }
 }
