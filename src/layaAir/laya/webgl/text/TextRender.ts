@@ -58,7 +58,7 @@ export class TextRender {
         italicDeg = italic ? 13 : 0;
         let cacheKey = (curFont.id * 10000) + fontSize + (bold ? "b_" : "_");
         let colorNum = ColorUtils.create(color).numColor;
-        let tint = stroke > 0 || !charMode;
+        let tint = stroke > 0 || !charMode && emojiTest.test(text) //染色的条件： 有描边 或 非字符模式下且包含emoji
         if (tint)
             cacheKey += colorNum + "_";
         if (stroke > 0)
@@ -81,10 +81,10 @@ export class TextRender {
 
         if (!renderInfo)
             renderInfo = [];
+        let drawColor = tint ? 0xffffffff : colorNum;
 
         if ((charMode || TextRenderConfig.forceSplitRender) && !TextRenderConfig.forceWholeRender) {
             let mat = this.owner._curMat;
-            let drawColor = stroke === 0 ? colorNum : 0xffffffff;
             renderInfo.length > 0 && this.freeRenderInfo(renderInfo);
 
             for (let i = 0, len = text.length; i < len; i++) {
@@ -109,7 +109,7 @@ export class TextRender {
                 this.owner._inner_drawTexture(ri.tex, ri.tex.id,
                     x + ri.x, y + ri.y, ri.w, ri.h,
                     mat, ri.uv, 1.0,
-                    cc.length > 1 ? 0xffffffff : drawColor, //emoji不染色
+                    cc.length > 1 ? 0xffffffff : drawColor, //emoji总是用白色绘制
                     italicDeg, true);
 
                 x += ri.advance;
@@ -118,7 +118,7 @@ export class TextRender {
         else {
             let key = cacheKey + text;
             let ri = this.textMap.get(key);
-            //先引用住，再清理，对于同一个文本仅重绘时，有极大优化
+            //先引用住，再清理，对于同一个文本仅改色或者重绘时，有极大优化
             ri && ri.ref++;
             renderInfo[0] && this.free(renderInfo[0]);
 
@@ -134,7 +134,7 @@ export class TextRender {
 
             this.owner._inner_drawTexture(ri.tex, ri.tex.id,
                 x + ri.x, y + ri.y, ri.w, ri.h,
-                this.owner._curMat, ri.uv, 1.0, 0xffffffff, italicDeg, true);
+                this.owner._curMat, ri.uv, 1.0, drawColor, italicDeg, true);
 
             for (let i = 1, n = renderInfo.length; i < n; i++)
                 this.free(renderInfo[i]);
@@ -395,6 +395,7 @@ export class TextRender {
 }
 
 const blockGap = 1;
+const emojiTest = /[\uD800-\uDBFF][\uDC00-\uDFFF]/;
 
 var fontIdCounter = 0;
 var fontScale = 1.0;
