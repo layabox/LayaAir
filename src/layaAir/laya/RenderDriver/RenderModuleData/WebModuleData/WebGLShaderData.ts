@@ -17,11 +17,13 @@ import { WebGLUniformBufferBase } from "../../WebGLDriver/RenderDevice/WebGLUnif
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Config } from "../../../../Config";
+import { WebGPUShaderData } from "../../WebGPUDriver/RenderDevice/WebGPUShaderData";
 
 /**
  * 着色器数据类。
  */
 export class WebGLShaderData extends ShaderData {
+    private static pointerCount: number = 0;
     /**@internal */
     protected _gammaColorMap: Map<number, Color>;
     /**@internal */
@@ -29,6 +31,9 @@ export class WebGLShaderData extends ShaderData {
 
     /** @internal */
     _defineDatas: WebDefineDatas = new WebDefineDatas();
+
+
+    _id: number = WebGLShaderData.pointerCount++;
 
     /** @internal */
     private _uniformBuffers: Map<string, WebGLUniformBuffer>;

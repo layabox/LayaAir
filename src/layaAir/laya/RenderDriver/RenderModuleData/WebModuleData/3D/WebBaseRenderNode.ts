@@ -13,6 +13,7 @@ import { WebLightmap } from "./WebLightmap";
 import { WebReflectionProbe } from "./WebReflectionProb";
 import { WebVolumetricGI } from "./WebVolumetricGI";
 import { Vector2 } from "../../../../maths/Vector2";
+import { WebDefineDatas } from "../WebDefineDatas";
 
 interface DynamicBaseRenderClass {
     new(): WebBaseRenderNode;
@@ -52,6 +53,8 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     _commonUniformMap: string[];
     _additionShaderDataKeys: string[];
     ismoved: Vector2 = new Vector2();
+
+    defineDataChangeFlag: Vector2 = new Vector2();
     private _bounds: Bounds;
     private _caculateBoundingBoxCall: any;
     private _caculateBoundingBoxFun: Function;
@@ -106,9 +109,25 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         return this._additionShaderData;
     }
     public set additionShaderData(value: Map<string, ShaderData>) {
+        if (this._additionShaderData && this._additionShaderData.size > 0) {
+            if (!value)
+                for (var [key, date] of this._additionShaderData) {//全删
+                    (date.getDefineData() as WebDefineDatas).removeChangeFlagInfo(this.defineDataChangeFlag);
+                }
+            else {
+                for (var [key, date] of this._additionShaderData) {//删部分
+                    if (!value.has(key)) {
+                        (date.getDefineData() as WebDefineDatas).removeChangeFlagInfo(this.defineDataChangeFlag);
+                    }
+                }
+            }
+        }
         this._additionShaderData = value;
-        if (value) {
+        if (value && value.size > 0) {
             this._additionShaderDataKeys = Array.from(this._additionShaderData.keys());
+            for (var [key, shaderdate] of value) {
+                (shaderdate.getDefineData() as WebDefineDatas).addChangeFlagInfo(this.defineDataChangeFlag);
+            }
         }
         else {
             this._additionShaderDataKeys = [];
@@ -216,6 +235,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         value.forEach(element => {
             this._commonUniformMap.push(element);
         });
+        (this._shaderData.getDefineData() as WebDefineDatas).addChangeFlagInfo(this.defineDataChangeFlag);
     }
 
     /**

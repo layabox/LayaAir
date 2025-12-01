@@ -28,6 +28,49 @@ import { Laya } from "../../../../Laya";
 import { HTMLCanvas } from "../../../resource/HTMLCanvas";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderVariantCollection } from "../../../RenderEngine/RenderShader/ShaderVariantCollection";
+import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
+import { Vector2 } from "../../../maths/Vector2";
+
+export class WebGLGlobalPipeLineCacheInfo {
+    globalDefineData: WebDefineDatas;//用来判断宏是否改动  导致了shader变化
+    globalPipelineCacheKey: string;//包括camera scene的layout数据，包括invertY和destrt的stateCacheID
+    globalDefineChangeFlag: Vector2 = new Vector2();
+    constructor() {
+        this.globalDefineData = LayaGL.unitRenderModuleDataFactory.createDefineDatas() as WebDefineDatas;
+    }
+}
+
+export class OneDrawPassCacheInfo {
+    matCacheFlag: Vector2 = new Vector2(-1, -1);
+    nodeCacheFlag: Vector2 = new Vector2(-1, -1);
+    passDefineCacheFlag: Vector2 = new Vector2(-1, -1);
+    shaderInss: WebGLShaderInstance[] = [];
+}
+
+export function compareCahceFlag(changeFlag: Vector2, cacheFlag: Vector2) {
+    let needUpdate = false;
+    if (changeFlag.x > cacheFlag.x)
+        needUpdate = true;
+    else if (changeFlag.x === cacheFlag.x) {
+        needUpdate = changeFlag.y > cacheFlag.y;
+    }
+    return needUpdate
+}
+
+export function coverCahceFlag(coverFlag: Vector2, oldFlag: Vector2) {
+    let needUpdate = false;
+    if (coverFlag.x > oldFlag.x)
+        needUpdate = true;
+    else if (coverFlag.x === oldFlag.x) {
+        needUpdate = coverFlag.y > oldFlag.y;
+    }
+    if (needUpdate) {
+        coverFlag.cloneTo(oldFlag);
+    }
+    return;
+}
+
+
 export class WebGLRenderDeviceFactory implements IRenderDeviceFactory {
     createShaderData(ownerResource?: Resource): ShaderData {
         return new WebGLShaderData(ownerResource);
