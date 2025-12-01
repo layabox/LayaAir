@@ -1,24 +1,58 @@
 /**
- * @ignore
+ * @en Text rendering configuration
+ * @zh 文字渲染配置
  */
 export class TextRenderConfig {
-    static maxCanvasWidth = 4096; //canvas的最大值
+    /**
+     * @en Maximum canvas size
+     * @zh canvas的最大值
+     */
+    static maxCanvasWidth = 4096;
+    /**
+     * @en Width and height of each text atlas. A new atlas will be created when it is full.
+     * @zh 每张文字图集的宽度和高度。如果满了会创建新的图集。
+     */
     static atlasWidth = 1024;
+    /**
+     * @en Cell size of AtlasGrid
+     * @zh AtlasGrid的单元格大小
+     */
     static atlasGridW = 16;
-    static standardFontSize = 32; // 测量的时候使用的字体大小
+    /**
+     * @en Standard font size used for measurement
+     * @zh 测量时使用的标准字体大小
+     */
+    static standardFontSize = 32;
 
-    static noAtlas = false; // 一串文字用独立贴图
-    static forceSplitRender = false; // 强制把一句话拆开渲染
-    static forceWholeRender = false; // 强制整句话渲染
+    /**
+     * @en If set to true, text will not use atlas and all texts will use independent textures. (Single character rendering mode excepted)
+     * @zh 设置为true则强制不使用图集，所有文本都用独立贴图。(单字渲染模式除外）
+     */
+    static noAtlas = false;
+    /**
+     * @en Force single character rendering mode.
+     * @zh 强制使用单字渲染模式。
+     */
+    static forceSplitRender = false;
+    /**
+     * @zh 强制整句渲染模式。
+     * @en Force whole sentence rendering mode.
+     */
+    static forceWholeRender = false;
 
-    static scaleFontWithCtx = true; // 如果有缩放，则修改字体，以保证清晰度
-    static maxFontScale = 3; //当scaleFontWithCtx为true时，最大允许放大的倍数
-    static fontScale = 1; //设定字体全局缩放，如果设置了scaleFontWithCtx，则这个值会根据舞台比例自动设置。
-
-    static destroyAtlasDt = 10; // 回收图集贴图的时间。单位是帧
-    static checkCleanTextureDt = 2000; // 检查是否要真正删除纹理的时间。单位是ms
-    static destroyUnusedTextureDt = 10; // 长时间不用的纹理删除的时间。单位是帧。设低一点，对ide友好，例如在edit中一直输入
-    static cleanMem = 100 * 1024 * 1024; // 多大内存触发清理图集。这时候占用率低的图集会被清理
-
-    static showLog = false;
+    /**
+     * @zh 如果舞台有缩放，则修改渲染大小，以保证清晰度
+     * @en If the stage is scaled, modify the rendering size to ensure clarity
+     */
+    static scaleFontWithCtx = true;
+    /**
+     * @en Maximum allowed scaling factor when scaleFontWithCtx is true
+     * @zh 当scaleFontWithCtx为true时，最大允许放大的倍数
+     */
+    static maxFontScale = 3;
+    /**
+     * @en Global font scaling factor. If scaleFontWithCtx is set, this value will be automatically set according to the stage scale.
+     * @zh 设定字体全局缩放，如果设置了scaleFontWithCtx，则这个值会根据舞台比例自动设置。
+     */
+    static fontScale = 1;
 }
