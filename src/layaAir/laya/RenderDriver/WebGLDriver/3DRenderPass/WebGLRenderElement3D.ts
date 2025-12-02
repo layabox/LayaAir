@@ -89,7 +89,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
     //spriteRenderNode是否改变
     protected _spriteRenderDataChange: boolean = false;
 
-    protected _matChangeFlag: Vector2;
+    protected _matChangeFlag: Vector2 = new Vector2();
     protected _matDefChangeFlag: Vector2;
 
     protected _renderNodeChangeFlag: Vector2 = new Vector2();
@@ -277,6 +277,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
     protected _compileShader(context: WebGLRenderContext3D) {
         var passes: ShaderPass[] = this._subShader._passes;
+        let renderCount = 0;
         for (var j: number = 0, m: number = passes.length; j < m; j++) {
             let pass = passes[j];
             let passdata = <WebShaderPass>pass.moduleData;
@@ -296,7 +297,10 @@ export class WebGLRenderElement3D implements IRenderElement3D {
             // 每次重新获取comDef，确保每个pass都有完整的宏定义
             let comDef = this._getShaderInstanceDefines(context);
             var shaderIns = pass.withCompile(comDef) as WebGLShaderInstance;
+            this._curDrawCacheInfo.shaderInss[renderCount] = shaderIns;
+            renderCount++
         }
+        this._curDrawCacheInfo.shaderInss.length = renderCount;
     }
 
     drawGeometry(shaderIns: WebGLShaderInstance) {

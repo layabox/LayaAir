@@ -71,7 +71,15 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     }
 
     public set shaderData(value) {
-        this._shaderData = value;
+        if (this._shaderData != value) {
+            let oldCommandMap = this._commonUniformMap.slice();
+            if (this._shaderData) {
+                //移除之前的资源绑定
+                this.setCommonUniformMap([]);
+            }
+            this._shaderData = value;
+            this.setCommonUniformMap(oldCommandMap);
+        }
     }
 
 
@@ -235,7 +243,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         value.forEach(element => {
             this._commonUniformMap.push(element);
         });
-        (this._shaderData.getDefineData() as WebDefineDatas).addChangeFlagInfo(this.defineDataChangeFlag);
+        this._shaderData && (this._shaderData.getDefineData() as WebDefineDatas).addChangeFlagInfo(this.defineDataChangeFlag);
     }
 
     /**
