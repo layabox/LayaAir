@@ -10,6 +10,8 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { AtlasGrid, IAtlasRegion } from "./AtlasGrid";
 import { ILaya } from "../../../ILaya";
 import { ColorUtils } from "../../utils/ColorUtils";
+import { Config } from "../../../Config";
+import { TextureArrayRegistry2D } from "../utils/TextureArrayRegistry2D";
 
 
 /** @ignore @blueprintIgnore */
@@ -269,6 +271,14 @@ export class TextRender {
         tex.wrapModeU = WrapMode.Clamp;
         tex.wrapModeV = WrapMode.Clamp;
 
+        if (Config.useTextureArray && TextRenderConfig.useTextureArray) {
+            // 尝试从数组纹理池分配一层并注册映射，使本 TextTexture 被绘制时自动替换为 Texture2DArray+layer
+            const alloc = TextureArrayRegistry2D.allocateLayerAsTexture(width, height, TextureFormat.R8G8B8A8, 64, /*sRGB*/ false);
+            if (alloc) {
+                TextureArrayRegistry2D.register(tex, alloc.array, alloc.layer);
+            }
+        }
+
         return tex;
     }
 
@@ -277,7 +287,12 @@ export class TextRender {
         if (data instanceof Uint8ClampedArray) //未知原因，是不是WebGL的texSubImage2D不支持Uint8ClampedArray？
             data = new Uint8Array(data.buffer);
 
-        LayaGL.textureContext.setTextureSubPixelsData(tex._texture, data, 0, false, x, y, imgdt.width, imgdt.height, true, false);
+        const reg = TextureArrayRegistry2D.resolve(tex);
+        if (reg) {
+            reg.array.setSubPixelsData(x, y, reg.layer, imgdt.width, imgdt.height, 1, data, 0, false, false, false);
+        } else {
+            LayaGL.textureContext.setTextureSubPixelsData(tex._texture, data, 0, false, x, y, imgdt.width, imgdt.height, true, false);
+        }
 
         let u0 = (x + blockGap) / tex.width;
         let v0 = (y + blockGap) / tex.height;

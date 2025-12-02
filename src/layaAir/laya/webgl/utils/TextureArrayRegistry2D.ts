@@ -39,7 +39,7 @@ export class TextureArrayRegistry2D {
      * @zh 从 Texture2DArray 分组中分配一层，并返回一个绑定该层的 Texture 句柄（已登记映射）。
      */
     static allocateLayerAsTexture(width: number, height: number, format: TextureFormat = TextureFormat.R8G8B8A8, capacity: number = 64, sRGB: boolean = false) {
-        const key = `${width}x${height}_${format}_${sRGB?1:0}`;
+        const key = `${width}x${height}_${format}_${sRGB ? 1 : 0}`;
         let group = this._groupKeyToArray.get(key);
         if (!group) {
             const array = new Texture2DArray(width, height, capacity, format, false, false, sRGB);
@@ -61,7 +61,7 @@ export class TextureArrayRegistry2D {
     }
 
     private static _getTexId(source: Texture | BaseTexture | Texture2D): number | null {
-        if(!source)
+        if (!source)
             return null;
         // Texture → Texture2D
         if (source instanceof Texture) {
