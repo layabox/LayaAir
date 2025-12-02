@@ -62,8 +62,11 @@ export class SoundManager {
 
     static set musicVolume(value: number) {
         value = MathUtil.clamp(value, 0, 1);
-        if (value !== mgr._musicVolume) mgr._musicVolume = value;
-        if (mgr._musicChannel) mgr._musicChannel.volume = value;
+        if (value !== mgr._musicVolume) {
+            mgr._musicVolume = value;
+            if (mgr._musicChannel)
+                mgr._musicChannel.volume = mgr._musicChannel.volume;
+        }
     }
 
     /**
@@ -161,13 +164,13 @@ export class SoundManager {
             startTime = soundClass;
 
         let channel = PAL.media.createSoundChannel(url, false);
+        channel._isMusic = false;
         channel.loops = loops ?? 1;
         channel.startTime = startTime ?? 0;
         channel.playbackRate = this.playbackRate;
-        channel.volume = mgr._soundVolume;
+        channel.volume = 1;
         channel.muted = mgr._soundMuted || mgr._muted;
         channel.completeHandler = complete;
-        channel._isMusic = false;
         channel.play();
         return channel;
     }
@@ -199,13 +202,13 @@ export class SoundManager {
             return null;
 
         let channel = PAL.media.createSoundChannel(url, mgr.useAudioMusic);
+        channel._isMusic = true;
         channel.loops = loops ?? 1;
         channel.startTime = startTime ?? 0;
         channel.playbackRate = this.playbackRate;
-        channel.volume = mgr._musicVolume;
+        channel.volume = 1;
         channel.muted = mgr._musicMuted || mgr._muted;
         channel.completeHandler = complete;
-        channel._isMusic = true;
         channel.play();
         return channel;
     }
