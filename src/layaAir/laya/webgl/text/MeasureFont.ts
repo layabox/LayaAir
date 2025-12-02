@@ -43,6 +43,9 @@ function drawTestChar(ctx: CanvasRenderingContext2D, char: string, fontSize: num
 
     let bmp = ctx.getImageData(0, 0, width, height);
     updateBbx(bmp, pixelBBX, onlyH);
+
+    if (pixelBBX[2] < margin + charWidth)
+        pixelBBX[2] = margin + charWidth;
 }
 
 function updateBbx(data: ImageData, curbbx: number[], onlyH: boolean): void {

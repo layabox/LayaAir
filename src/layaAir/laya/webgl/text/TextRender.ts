@@ -148,7 +148,7 @@ export class TextRender {
         let margin = height / 3 | 0 + lineWidth;
         let rectX = ((margin - fontSizeOffX - lineWidth) * fontScale | 0) - blockGap;
         let rectY = ((margin - fontSizeOffY - lineWidth) * fontScale | 0) - blockGap;
-        let rectW = Math.ceil((width + lineWidth * 2) * fontScale) + blockGap * 2;
+        let rectW = Math.ceil((width + fontSizeOffX + lineWidth * 2) * fontScale) + blockGap * 2;
         let rectH = Math.ceil((fontSizeH + lineWidth * 2) * fontScale) + blockGap * 2;
 
         let needCanvW = Math.min(rectW + Math.ceil(margin * 2 * fontScale), TextRenderConfig.maxCanvasWidth);
