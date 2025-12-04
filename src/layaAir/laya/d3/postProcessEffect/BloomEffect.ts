@@ -511,7 +511,8 @@ export class BloomEffect extends PostProcessEffect {
             dirtTileOffset.setValue(1.0, dirtRatio / screenRatio, 0.0, (1.0 - dirtTileOffset.y) * 0.5);
 
         //合成Shader属性
-        var compositeShaderData: ShaderData = context.compositeShaderData;
+        //var compositeShaderData: ShaderData = context.compositeShaderData;
+        var compositeShaderData: ShaderData = this._shaderData;
         if (this.fastMode)
             compositeShaderData.addDefine(PostProcess.SHADERDEFINE_BLOOM_LOW);
         else
