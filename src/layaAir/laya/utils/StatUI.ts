@@ -1,11 +1,15 @@
+import { Config } from "../../Config";
 import { Laya } from "../../Laya";
+import { NodeFlags } from "../Const";
 import { Render2DProcessor } from "../display/Render2DProcessor";
 import { Sprite } from "../display/Sprite";
+import { SpriteConst, TransformKind } from "../display/SpriteConst";
 import { Text } from "../display/Text";
 import { Event } from "../events/Event";
 import { LayaGL } from "../layagl/LayaGL";
 import { StatElement } from "../layagl/StatisticsContext";
 import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
+import { Browser } from "./Browser";
 import { Stat } from "./Stat";
 
 interface StatUIParams {
@@ -30,28 +34,48 @@ export class StatUI {
         this._sp._struct.pass = this._pass;
         this._pass.doClearColor = false;
 
-        sp.scale(Math.max(Laya.stage.clientScaleX, 1), Math.max(Laya.stage.clientScaleY, 1));
-        Laya.stage.on(Event.RESIZE, this, () => {
-            this._sp.scale(Math.max(Laya.stage.clientScaleX, 1), Math.max(Laya.stage.clientScaleY, 1));
-        });
-
         let leftText = this._title = new Text();
-        leftText.singleCharRender = false;
         leftText.pos(5, 5);
         leftText.color = "#ffffff";
-        leftText.fontSize = fontSize;
+        leftText.name = "title";
         sp.addChild(leftText);
 
         let rightText = this._txt = new Text();
         rightText.singleCharRender = true;
         rightText.pos(100, 5);
         rightText.color = "#ffffff";
-        rightText.fontSize = fontSize;
+        rightText.name = "txt";
         sp.addChild(rightText);
 
         sp.graphics.clear();
         sp.graphics.alpha(0.5);
         sp.graphics.drawRect(0, 0, 1, 1, "#999999", null, null, true);
+
+        Laya.stage.on(Event.RESIZE, this, this.updateSize);
+    }
+
+    private updateSize() {
+        let fontSize = Browser.onMobile ? 10 : 12; //手机dpi一般比较高，字体可以相对小一些
+        fontSize = Math.max(fontSize, fontSize / (Laya.stage._canvasTransform.getScaleX() * Laya.stage.clientScaleX));
+
+        this._txt.fontSize = fontSize;
+        this._title.fontSize = fontSize;
+
+        this._txt.x = this._title.textWidth + 10;
+        this._sp.size(this._title.textWidth + fontSize * 8, this._title.textHeight + 10);
+
+        this._sp._globalTrans._spTransChanged(TransformKind.TRS);
+    }
+
+    private _displayChild(node: Sprite, display: boolean): void {
+        for (let child of node._children) {
+            if (child._children.length > 0) {
+                this._displayChild(child, display);
+            } else {
+                child._setDisplay(display);
+            }
+        }
+        node._setDisplay(display);
     }
 
     show(x?: number, y?: number): void {
@@ -83,9 +107,21 @@ export class StatUI {
             this.createUI();
 
         this._title.text = strArray.join("\n");
-        this._txt.x = this._title.textWidth + 10;
-        this._sp.size(this._title.textWidth + 100, this._title.textHeight + 10);
         this._sp.pos(x || 0, y || 0);
+        // 验证通过
+        this._sp._parent = Laya.stage;
+        this.updateSize();
+        this._displayChild(this._sp, true);
+    }
+
+    hide() {
+        if (!this._sp) return;
+
+        this._title.text = null;
+        this._txt.text = null;
+
+        this._sp._parent = null;
+        this._displayChild(this._sp, false);
     }
 
     update(): void {
@@ -106,7 +142,6 @@ export class StatUI {
     }
 }
 
-const fontSize: number = 16;
 const strArray: Array<string> = [];
 const digitPattern = /\.0*$|(\.\d*[1-9])0+$/;
 

@@ -65,6 +65,9 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
 
    public get inheritedDcOptimize(): boolean {
+      if (this._nativeObj.getInheritedDcOptimize) {
+         return this._nativeObj.getInheritedDcOptimize();
+      }
       return this._dcOptimize || this._parent?.dcOptimize;
    }
 

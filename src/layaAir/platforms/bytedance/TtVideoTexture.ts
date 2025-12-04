@@ -24,8 +24,9 @@ export class TtVideoTexture extends VideoTexture {
             if (this._playing)
                 this.decoder.play();
         });
-        this.decoder.offEnded(() => {
+        this.decoder.onEnded(() => {
             this._ended = true;
+            this.event("ended");
         });
     }
 

@@ -33,8 +33,10 @@ export class NativeVideoTexture extends VideoTexture {
         this.decoder.on("ended", () => {
             if (this._loop)
                 this.decoder.stop().then(() => this.decoder.start(this._startOption));
-            else
+            else {
                 this._ended = true;
+                this.event("ended");
+            }
         });
     }
 
@@ -93,7 +95,7 @@ export class NativeVideoTexture extends VideoTexture {
         this.decoder.stop();
     }
     onRender(): boolean {
-        LayaGL.textureContext.setTextureImageData(this._texture,  this.decoder, false, false);
+        LayaGL.textureContext.setTextureImageData(this._texture, this.decoder, false, false);
         return true;
     }
     protected onDestroy(): void {

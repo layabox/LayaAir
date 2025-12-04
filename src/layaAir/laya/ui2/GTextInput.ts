@@ -3,6 +3,7 @@ import { Input } from "../display/Input";
 import { HideFlags } from "../Const";
 import { TransformKind } from "../display/SpriteConst";
 import { Event } from "../events/Event";
+import { Translations } from "./Translations";
 
 /**
  * @en GTextInput is a widget that provides a text input field with various formatting options.
@@ -23,6 +24,7 @@ export class GTextInput extends GWidget {
         this.textIns.hideFlags |= HideFlags.HideAndDontSave;
         this.textIns.overflow = "hidden";
         this.textIns.padding.fill(2);
+        this.textIns._onTranslate = (text, options, role) => role === 1 ? Translations.translate(text, options) : text;
         this.textIns.on(Event.INPUT, () => this.event(Event.INPUT));
         this.textIns.on(Event.ENTER, () => this.event(Event.ENTER));
         this.textIns.on(Event.CHANGE, () => this.event(Event.CHANGE));

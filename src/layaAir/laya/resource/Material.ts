@@ -1424,6 +1424,7 @@ export class Material extends Resource implements IClone {
     }
 
     /**
+     * @blueprintIgnore
      * @en Checks if the material type matches the expected type.
      * @param type The expected type.
      * @zh 检查材质类型是否匹配预期类型。

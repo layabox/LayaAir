@@ -516,10 +516,11 @@ export class Stage extends Sprite {
 
         //执行高清字体策略
         if (TextRenderConfig.scaleFontWithCtx) {
-            let fontScale = Math.max(Math.max(1, Math.min(TextRenderConfig.maxFontScale, ILaya.stage.scaleX)),
-                Math.max(1, Math.min(TextRenderConfig.maxFontScale, ILaya.stage.scaleY)));
+            let fontScale = Math.min(Math.max(1, ILaya.stage.scaleX, ILaya.stage.scaleY), TextRenderConfig.maxFontScale);
+            fontScale = 0.2 * Math.ceil(fontScale / 0.2); //以0.2倍为步进，避免频繁变更
             if (TextRenderConfig.fontScale !== fontScale) {
                 TextRenderConfig.fontScale = fontScale;
+                Render2DProcessor.runner._textRender.onFontScaleChanged();
 
                 const repaintTexts = (p: Sprite) => {
                     for (let child of p._children) {
@@ -831,7 +832,7 @@ export class Stage extends Sprite {
 
             if (sprite.mask) {
                 sprite._oriRenderPass.mask = sprite.mask._struct;
-            }else{
+            } else {
                 sprite._oriRenderPass.mask = null;
             }
 
@@ -863,7 +864,7 @@ export class Stage extends Sprite {
         this._updateMatrixList(this._tranMatrixUpdateList, Stat.loopCount);
 
         for (let sprite of this._graphicUpdateList) {
-            if (sprite._graphics) {
+            if (sprite._needGraphicsUpdate()) {
                 sprite._graphics._render(Render2DProcessor.runner);
             }
         }

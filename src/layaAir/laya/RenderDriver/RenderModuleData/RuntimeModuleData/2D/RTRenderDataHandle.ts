@@ -11,6 +11,7 @@ import { Vector2 } from "../../../../maths/Vector2";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
 import { RT2DGraphic2DIndexDataView, RT2DGraphic2DVertexDataView } from "./RT2DGraphic2DBufferDataView";
 import { Matrix } from "../../../../maths/Matrix";
+import { Vector4 } from "../../../../maths/Vector4";
 
 export abstract class RTRender2DDataHandle implements IRender2DDataHandle {
     _nativeObj: any;
@@ -203,6 +204,17 @@ export class RTMesh2DRenderDataHandle extends RTBaseRenderDataHandle implements 
     private _baseColor: Color = new Color(1, 1, 1, 1);
     private _baseTexture: BaseTexture;
     private _normal2DTexture: BaseTexture;
+    private _tilingOffset: Vector4 = new Vector4();
+
+    public get tilingOffset(): Vector4 {
+        return this._tilingOffset;
+    }
+    public set tilingOffset(value: Vector4) {
+        if (!value)
+            return;
+        this._owner.spriteShaderData.setVector(BaseRenderNode2D.TILINGOFFSET, value);
+        value ? value.cloneTo(this._tilingOffset) : null;
+    }
 
     public get baseColor(): Color {
         return this._baseColor;

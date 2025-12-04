@@ -1,540 +1,450 @@
-import { TextAtlas } from "./TextAtlas";
-import { TextTexture } from "./TextTexture";
-import { Point } from "../../maths/Point"
-import { FontInfo } from "../../utils/FontInfo"
-import { WordText } from "../../utils/WordText"
-import { CharRenderInfo } from "./CharRenderInfo"
-import { CharRender_Canvas } from "./CharRender_Canvas"
-import { MeasureFont } from "./MeasureFont";
-import { EventDispatcher } from "../../events/EventDispatcher";
 import { TextRenderConfig } from "./TextRenderConfig";
-import { GraphicsRunner } from "../../display/Scene2DSpecial/GraphicsRunner";
-import { Stat } from "../../utils/Stat";
+import { type GraphicsRunner } from "../../display/Scene2DSpecial/GraphicsRunner";
+import { Browser } from "../../utils/Browser";
+import { measureFont } from "./MeasureFont";
+import { Texture2D } from "../../resource/Texture2D";
+import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
+import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
+import { WrapMode } from "../../RenderEngine/RenderEnum/WrapMode";
+import { LayaGL } from "../../layagl/LayaGL";
+import { AtlasGrid, IAtlasRegion } from "./AtlasGrid";
+import { ILaya } from "../../../ILaya";
+import { ColorUtils } from "../../utils/ColorUtils";
 
 
-/** @ignore */
-export class TextRender extends EventDispatcher {
-    readonly charRender: CharRender_Canvas;
-    readonly fontMeasure: MeasureFont;
-    readonly mapFont: Record<string, number> = {}; // 把font名称映射到数字
-    readonly textAtlases: TextAtlas[] = []; // 所有的大图集
-    readonly isoTextures: TextTexture[] = []; // 所有的独立贴图
+/** @ignore @blueprintIgnore */
+export class TextRender {
+    readonly owner: GraphicsRunner;
+    readonly canvas: HTMLCanvasElement;
+    readonly ctx: CanvasRenderingContext2D;
+    readonly fontMap: Map<string, IFontInfo> = new Map();
+    readonly textAtlases: ITextAtlas[] = [];
+    readonly charMap: Map<string, ITextRenderInfo> = new Map();
+    readonly textMap: Map<string, ITextRenderInfo> = new Map();
 
-    /**
-     * fontSizeInfo
-     * 记录每种字体的像素的大小。标准是32px的字体。由4个byte组成，分别表示[xdist,ydist,w,h]。 
-     * xdist,ydist 是像素起点到排版原点的距离，都是正的，表示实际数据往左和上偏多少，如果实际往右和下偏，则算作0，毕竟这个只是一个大概
-     * 例如 [Arial]=0x00002020, 表示宽高都是32
-     */
-    private fontSizeInfo: { [key: string]: number } = {};
-    private fontID = 0;
-    private fontScaleX = 1.0; //临时缩放。
-    private fontScaleY = 1.0;
-    private _curStrPos = 0; //解开一个字符串的时候用的。表示当前解到什么位置了
-    private lastFont: FontInfo | null = null;
-    private fontSizeW = 0;
-    private fontSizeH = 0;
-    private fontSizeOffX = 0;
-    private fontSizeOffY = 0;
-    private renderPerChar = true;	// 是否是单个字符渲染。这个是结果，上面的是配置
-    private fontStr: string; // 因为要去掉italic，所以自己保存一份
+    private freeRegions: IAtlasRegionWithOwner[] = [];
+    private freeIsoTextures: Texture2D[] = [];
 
-    constructor() {
-        super();
-        this.charRender = new CharRender_Canvas(4096, 4096);
-        this.fontMeasure = new MeasureFont(this.charRender);
+    constructor(owner: GraphicsRunner) {
+        this.owner = owner;
+
+        let canvas = <HTMLCanvasElement>Browser.createElement("canvas");
+        this.canvas = canvas;
+        canvas.width = 1024;
+        canvas.height = 512;
+        if (Browser.isDomSupported) {
+            //这个canvas是用来获取字体渲染结果的。由于不可见canvas的字体不能小于12，所以要加到body上
+            //为了避免被发现，设一个在屏幕外的绝对位置。
+            canvas.style.left = "-10000px";
+            canvas.style.position = "absolute";
+            Browser.document.body.appendChild(canvas);
+        }
+        this.ctx = canvas.getContext('2d', { willReadFrequently: true });
+        ILaya.systemTimer.loop(5000, this, this.GC); //5秒清理一次
     }
 
-    getFontSizeInfo(font: string) {
-        let finfo = this.fontSizeInfo[font];
-        if (!finfo)
-            this.fontSizeInfo[font] = finfo = this.fontMeasure.getFontSizeInfo(font, TextRenderConfig.standardFontSize);
-        return finfo;
+    draw(text: string, x: number, y: number,
+        font: string, fontSize: number, bold: boolean, italic: boolean,
+        color: string, stroke: number, strokeColor: string,
+        charMode: boolean, preMeasuredWidth: number, renderInfo?: ITextRenderInfo[]): ITextRenderInfo[] {
+
+        let curFont = this.getFont(font);
+        let info = bold ? curFont.bold : curFont.normal;
+        let k = fontSize / TextRenderConfig.standardFontSize;
+        fontSizeOffX = Math.ceil(info.xoff * k);
+        fontSizeOffY = Math.ceil(info.yoff * k);
+        fontSizeH = Math.ceil(info.bbxh * k);
+        fontScale = TextRenderConfig.fontScale;
+        italicDeg = italic ? 13 : 0;
+        let cacheKey = (curFont.id * 10000) + fontSize + (bold ? "b_" : "_");
+        let colorNum = ColorUtils.create(color).numColor;
+        let tint = stroke > 0 || !charMode && emojiTest.test(text) //染色的条件： 有描边 或 非字符模式下且包含emoji
+        if (tint)
+            cacheKey += colorNum + "_";
+        if (stroke > 0)
+            cacheKey += ColorUtils.create(strokeColor).numColor + "_" + stroke + "_";
+
+        let ctx = this.ctx;
+        ctx.font = (bold ? "bold " : "") + fontSize + "px " + font;
+        ctx.setTransform(fontScale, 0, 0, fontScale, 0, 0);
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = tint ? color : 'white';
+        if (stroke > 0) {
+            //设置文本描边为圆角模式，默认值miter会导致在某些字体的转角字符出现尖刺现象。
+            ctx.lineJoin = "round";
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = stroke;
+        }
+        else {
+            ctx.lineWidth = 0;
+        }
+
+        if (!renderInfo)
+            renderInfo = [];
+        let drawColor = tint ? 0xffffffff : colorNum;
+
+        if ((charMode || TextRenderConfig.forceSplitRender) && !TextRenderConfig.forceWholeRender) {
+            let mat = this.owner._curMat;
+            renderInfo.length > 0 && this.freeRenderInfo(renderInfo);
+
+            for (let i = 0, len = text.length; i < len; i++) {
+                let cc = text.charAt(i);
+                let ccode = cc.charCodeAt(0);
+
+                if (ccode >= 0xD800 && ccode <= 0xDBFF && i + 1 < len) //high surrogate
+                    cc += text.charAt(++i);
+
+                let key = cacheKey + cc;
+                let ri = this.charMap.get(key);
+                if (!ri) {
+                    let width = ctx.measureText(cc).width;
+                    ri = this.drawOffscreen(ctx, cc, width, fontSize, stroke, true);
+                    ri.key = key;
+                    ri.isChar = true;
+                    this.charMap.set(key, ri);
+                }
+                ri.ref++;
+                renderInfo.push(ri);
+
+                this.owner._inner_drawTexture(ri.tex, ri.tex.id,
+                    x + ri.x, y + ri.y, ri.w, ri.h,
+                    mat, ri.uv, 1.0,
+                    cc.length > 1 ? 0xffffffff : drawColor, //emoji总是用白色绘制
+                    italicDeg, true);
+
+                x += ri.advance;
+            }
+        }
+        else {
+            let key = cacheKey + text;
+            let ri = this.textMap.get(key);
+            //先引用住，再清理，对于同一个文本仅改色或者重绘时，有极大优化
+            ri && ri.ref++;
+            renderInfo[0] && this.free(renderInfo[0]);
+
+            if (!ri) {
+                if (preMeasuredWidth == null)
+                    preMeasuredWidth = ctx.measureText(text).width;
+                ri = this.drawOffscreen(ctx, text, preMeasuredWidth, fontSize, stroke, false);
+                ri.key = key;
+                ri.ref = 1;
+                this.textMap.set(key, ri);
+            }
+            renderInfo[0] = ri;
+
+            this.owner._inner_drawTexture(ri.tex, ri.tex.id,
+                x + ri.x, y + ri.y, ri.w, ri.h,
+                this.owner._curMat, ri.uv, 1.0, drawColor, italicDeg, true);
+
+            for (let i = 1, n = renderInfo.length; i < n; i++)
+                this.free(renderInfo[i]);
+            renderInfo.length = 1;
+        }
+
+        return renderInfo;
     }
 
-    /**
-     * 设置当前字体，获得字体的大小信息。
-     * @param font
-     */
-    setFont(font: FontInfo): void {
-        if (this.lastFont == font) return;
-        this.lastFont = font;
-        var fontsz = this.getFontSizeInfo(font._family);
-        var offx = fontsz >> 24
-        var offy = (fontsz >> 16) & 0xff;
-        var fw = (fontsz >> 8) & 0xff;
-        var fh = fontsz & 0xff;
-        var k = font._size / TextRenderConfig.standardFontSize;
-        this.fontSizeOffX = Math.ceil(offx * k);
-        this.fontSizeOffY = Math.ceil(offy * k);
-        this.fontSizeW = Math.ceil(fw * k);
-        this.fontSizeH = Math.ceil(fh * k);
-        if (font._font.indexOf('italic') >= 0) {// 先判断一下效率会高一些
-            this.fontStr = font._font.replace('italic', '');
+    private drawOffscreen(ctx: CanvasRenderingContext2D, text: string, width: number, height: number, lineWidth: number, charMode: boolean): ITextRenderInfo {
+        let margin = height / 3 | 0 + lineWidth;
+        let rectX = ((margin - fontSizeOffX - lineWidth) * fontScale | 0) - blockGap;
+        let rectY = ((margin - fontSizeOffY - lineWidth) * fontScale | 0) - blockGap;
+        let rectW = Math.ceil((width + fontSizeOffX + lineWidth * 2) * fontScale) + blockGap * 2;
+        let rectH = Math.ceil((fontSizeH + lineWidth * 2) * fontScale) + blockGap * 2;
+
+        let needCanvW = Math.min(rectW + Math.ceil(margin * 2 * fontScale), TextRenderConfig.maxCanvasWidth);
+        let needCanvH = Math.min(rectH + Math.ceil(margin * 2 * fontScale), TextRenderConfig.maxCanvasWidth);
+        if (needCanvW > this.canvas.width || needCanvH > this.canvas.height)
+            this.resizeCanvas(ctx, needCanvW, needCanvH);
+
+        ctx.clearRect(0, 0, Math.ceil(needCanvW / fontScale), Math.ceil(needCanvH / fontScale));
+        lineWidth > 0 && ctx.strokeText(text, margin, margin + height / 2);
+        ctx.fillText(text, margin, margin + height / 2);
+
+        let imgdt = ctx.getImageData(rectX, rectY, rectW, rectH);
+
+        let ri: ITextRenderInfo = {
+            x: - (fontSizeOffX + lineWidth),
+            //这里不应该包含fontSizeOffY，否则文字绘制会向上突出
+            //y: - (fontSizeOffY + lineWidth),
+            y: - lineWidth,
+            w: (imgdt.width - blockGap * 2) / fontScale,
+            h: (imgdt.height - blockGap * 2) / fontScale,
+            advance: width,
+            uv: new Array(8),
+            tex: null,
+            region: null,
+            ref: 0
+        };
+
+        if (imgdt.width > TextRenderConfig.atlasWidth || imgdt.height > TextRenderConfig.atlasWidth
+            || !charMode && TextRenderConfig.noAtlas) { //当需要的贴图过大时，使用独立贴图，不加入图集
+            ri.tex = this.createIsoTexture(imgdt.width, imgdt.height);
+            this.setPixelsToTexture(imgdt, ri.tex, 0, 0, ri.uv);
         } else {
-            this.fontStr = font._font;
-        }
-    }
-
-    /**
-     * 从string中取出一个完整的char，例如emoji的话要多个
-     * 会修改 _curStrPos
-     * TODO 由于各种文字中的组合写法，这个需要能扩展，以便支持泰文等
-     * @param str
-     */
-    getNextChar(str: string): string | null {
-        var len = str.length;
-        var start = this._curStrPos;
-        if (!str.substring) return null;	// 保护一下，避免下面 substring 报错
-        if (start >= len)
-            return null;
-
-        //var link: boolean = false;	//如果是连接的话要再加一个完整字符
-        var i = start;
-        var state = 0; //0 初始化 1  正常 2 连续中
-        for (; i < len; i++) {
-            var c = str.charCodeAt(i);
-            if ((c >>> 11) == 0x1b) { //可能是0b110110xx或者0b110111xx。 这都表示2个u16组成一个emoji
-                if (state == 1) break;//新的字符了，要截断
-                state = 1;	// 其他状态都转成正常读取字符状态，只是一次读两个
-                i++;	//跨过一个。
-            }
-            else if (c === 0xfe0e || c === 0xfe0f) {	//样式控制字符
-                // 继续。不改变状态
-            }
-            else if (c == 0x200d) {		//zero width joiner
-                state = 2; 	// 继续
-            } else {
-                if (state == 0) state = 1;
-                else if (state == 1) break;
-                else if (state == 2) {
-                    // 继续
-                }
-            }
-        }
-        this._curStrPos = i;
-        return str.substring(start, i);
-    }
-
-    filltext(runner: GraphicsRunner, data: string | WordText, x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, textAlign: string): void {
-        if (data.length <= 0)
-            return;
-        //以后保存到wordtext中
-        var font = FontInfo.parse(fontStr);
-
-        var nTextAlign = 0;
-        switch (textAlign) {
-            case 'center':
-                nTextAlign = 1;
-                break;
-            case 'right':
-                nTextAlign = 2;
-                break;
-        }
-        this._fast_filltext(runner, data, x, y, font, color, strokeColor, lineWidth, nTextAlign);
-    }
-
-    _fast_filltext(runner: GraphicsRunner, data: string | WordText | null, x: number, y: number, font: FontInfo, color: string, strokeColor: string | null, lineWidth: number, textAlign: number): void {
-        if (data && !(data.length >= 1))
-            return; // length有可能是 undefined
-        if (lineWidth < 0) lineWidth = 0;
-        this.setFont(font);
-        this.fontScaleX = this.fontScaleY = TextRenderConfig.fontScale;
-
-        font._italic && (runner._italicDeg = 13);
-        //准备bmp
-        //拷贝到texture上,得到一个gltexture和uv
-        let wt = <WordText>data;
-        let isWT = data instanceof WordText;
-        let str = data && data.toString();//(<string>data);guo 某种情况下，str还是WordText（没找到为啥），这里保护一下
-
-        /**
-         * sameTexData 
-         * WordText 中保存了一个数组，这个数组是根据贴图排序的，目的是为了能相同的贴图合并。
-         * 类型是 {ri:CharRenderInfo,stx:int,sty:int,...}[文字个数][贴图分组]
-         */
-        let sameTexData: any[] = isWT ? wt.pageChars : [];
-
-        let strWidth = 0;
-        if (isWT) {
-            str = wt.text;
-            strWidth = wt.width;
-            if (strWidth < 0) {
-                strWidth = wt.width = this.charRender.getWidth(this.fontStr, str);	// 字符串长度是原始的。
-            }
-        } else {
-            strWidth = str ? this.charRender.getWidth(this.fontStr, str) : 0;
+            ri.region = this.addToAtlas(imgdt.width, imgdt.height);
+            ri.tex = ri.region.owner.tex;
+            this.setPixelsToTexture(imgdt, ri.tex, ri.region.x, ri.region.y, ri.uv);
         }
 
-        //水平对齐方式
-        switch (textAlign) {
-            case 1:
-                x -= strWidth / 2;
-                break;
-            case 2:
-                x -= strWidth;
-                break;
-        }
-
-        //检查保存的数据是否有的已经被释放了
-        if (isWT) {	// TODO 能利用lastGCCnt么
-            //wt.lastGCCnt = _curPage.gcCnt;
-            if (this.hasFreedText(sameTexData) || wt.pagecharsCtx != runner) {
-                sameTexData = wt.pageChars = [];
-            }
-            // if(isWT && (this.fontScaleX!=wt.scalex || this.fontScaleY!=wt.scaley)) {
-            // 	// 文字缩放要清理缓存
-            // 	sameTexData = wt.pageChars = [];
-            // }
-        }
-        //var oneTex: boolean = isWT || TextRenderConfig.forceWholeRender;	// 如果能缓存的话，就用一张贴图
-        let splitTex = this.renderPerChar = (!isWT) || TextRenderConfig.forceSplitRender || (isWT && wt.splitRender); 	// 拆分字符串渲染，这个优先级高
-        if (!sameTexData || sameTexData.length < 1) {
-            if (isWT) {
-                wt.scalex = this.fontScaleX;
-                wt.scaley = this.fontScaleY;
-            }
-            // 重新构建缓存的贴图信息
-            // TODO 还是要ctx.scale么
-            if (splitTex) {
-                // 如果要拆分字符渲染
-                let stx = 0;
-                let sty = 0;
-
-                this._curStrPos = 0;
-                let curstr: string | null;
-                while (true) {
-                    curstr = this.getNextChar(str);
-                    if (!curstr)
-                        break;
-                    let ri = this.getCharRenderInfo(curstr, font, color, strokeColor, lineWidth, false);
-                    if (!ri) {
-                        // 没有分配到。。。
-                        break;
-                    }
-                    if (ri.isSpace) {	// 空格什么都不做
-                    } else {
-                        //分组保存
-                        var add = sameTexData[ri.texture.id];
-                        if (!add) {
-                            var o1 = { texgen: ri.texture.genID, tex: ri.texture, words: new Array() };	// 根据genid来减少是否释放的判断量
-                            sameTexData[ri.texture.id] = o1;
-                            add = o1.words;
-                        } else {
-                            add = add.words;
-                        }
-                        //不能直接修改ri.bmpWidth, 否则会累积缩放，所以把缩放保存到独立的变量中
-                        add.push({ ri: ri, x: stx, y: sty, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY });
-                        stx += ri.width;	// TODO 缩放
-                    }
-                }
-
-            } else {
-                // 如果要整句话渲染
-                let margin = (font._size / 3 | 0);  // margin保持与charrender_canvas的一致
-                let isotex = TextRenderConfig.noAtlas || (strWidth + margin + margin) * this.fontScaleX > TextRenderConfig.atlasWidth;	// 独立贴图还是大图集。需要考虑margin
-                let ri = this.getCharRenderInfo(str, font, color, strokeColor, lineWidth, isotex);
-                // 整句渲染，则只有一个贴图
-                sameTexData[0] = { texgen: ri.texture.genID, tex: ri.texture, words: [{ ri: ri, x: 0, y: 0, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY }] };
-            }
-            isWT && (wt.pagecharsCtx = runner);
-            //TODO getbmp 考虑margin 字体与标准字体的关系
-        }
-
-        this._drawResortedWords(runner, x, y, sameTexData);
-        runner._italicDeg = 0;
-    }
-
-    /**
-     * 画出重新按照贴图顺序分组的文字。
-     * @param samePagesData
-     * @param  startx 保存的数据是相对位置，所以需要加上这个偏移。用相对位置更灵活一些。
-     * @param y {int} 因为这个只能画在一行上所以没有必要保存y。所以这里再把y传进来
-     */
-    protected _drawResortedWords(runner: GraphicsRunner, startx: number, starty: number, samePagesData: { [key: number]: any }): void {
-        var isLastRender = false;
-        // var isLastRender = runner._charSubmitCache ? runner._charSubmitCache._enable : false;
-        var mat = runner._curMat;
-        //samePagesData可能是个不连续的数组，比如只有一个samePagesData[29999] = dt; 所以不要用普通for循环
-        for (var id in samePagesData) {
-            var dt = samePagesData[id];
-            if (!dt) continue;
-            var pri: any[] = dt.words;
-            var count = pri.length; if (count <= 0) continue;
-            var tex = <TextTexture>samePagesData[id].tex;
-            for (var j = 0; j < count; j++) {
-                var riSaved: any = pri[j];
-                var ri: CharRenderInfo = riSaved.ri;
-                if (ri.isSpace) continue;
-                runner.touchRes(ri);
-                runner.drawTexAlign = true;
-                runner._inner_drawTexture(tex, tex.id,
-                    startx + riSaved.x - ri.orix, starty + riSaved.y - ri.oriy, riSaved.w, riSaved.h,
-                    mat, ri.uv, 1.0, isLastRender, 0xffffffff);
-            }
-        }
-    }
-
-    /**
-     * 检查 txts数组中有没有被释放的资源
-     * @param txts {{ri:CharRenderInfo,...}[][]}
-     * @param startid
-     * @return
-     */
-    hasFreedText(txts: any[]): boolean {
-        for (let i in txts) {
-            var pri = txts[i];
-            if (!pri) continue;
-            var tex = <TextTexture>pri.tex;
-            if (tex.destroyed || tex.genID != pri.texgen) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    getCharRenderInfo(str: string, font: FontInfo, color: string, strokeColor: string | null, lineWidth: number, isoTexture: boolean = false): CharRenderInfo {
-        var fid = this.mapFont[font._family];
-        if (fid == undefined) {
-            this.mapFont[font._family] = fid = this.fontID++;
-        }
-        var key = str + '_' + fid + '_' + font._size + '_' + color;
-        if (lineWidth > 0)
-            key += '_' + strokeColor! + lineWidth;
-        if (font._bold)
-            key += 'P';
-        if (this.fontScaleX != 1 || this.fontScaleY != 1) {
-            key += (this.fontScaleX * 20 | 0) + '_' + (this.fontScaleY * 20 | 0);	// 这个精度可以控制占用资源的大小，精度越高越能细分缩放。
-        }
-
-        // 遍历所有的大图集看是否存在
-        var sz = this.textAtlases.length;
-        if (!isoTexture) {
-            for (let i = 0; i < sz; i++) {
-                ri = this.textAtlases[i].charMaps[key];
-                atlas = this.textAtlases[i];
-                if (ri) {
-                    return ri;
-                }
-            }
-        }
-
-        var ri: CharRenderInfo;
-        var atlas: TextAtlas;
-
-        // 没有找到，要创建一个
-        ri = new CharRenderInfo();
-        let charRender = this.charRender;
-        charRender.scale(this.fontScaleX, this.fontScaleY);
-        ri.char = str;
-        ri.height = font._size;
-        var margin = (font._size / 3 | 0);	// 凑的。 注意这里不能乘以缩放，因为ctx会自动处理
-
-        // 先大约测量文字宽度 
-
-        if (!lineWidth) {
-            lineWidth = 0;
-        }
-        var w1 = Math.ceil((charRender.getWidth(this.fontStr, str) + 2 * lineWidth) * this.fontScaleX);
-        let needCanvW = Math.min(TextRenderConfig.maxCanvasWidth, w1 + margin * 2 * this.fontScaleX);//注意margin要*缩放，否则可能文字放不下
-        //let needCanvW = w1 + margin * 2 * this.fontScaleX;//注意margin要*缩放，否则可能文字放不下
-        if (needCanvW > charRender.canvasWidth) {
-            charRender.canvasWidth = needCanvW;
-        }
-
-        if (isoTexture) {
-            // 独立贴图
-            charRender.fontsz = font._size;
-            let tex: TextTexture;
-            let imgdt: ImageData | HTMLCanvasElement;
-            if (TextRenderConfig.useImageData)
-                imgdt = charRender.getCharBmp(str, this.fontStr, lineWidth, color, strokeColor, ri, margin, margin, margin, margin);
-            else
-                imgdt = charRender.getCharCanvas(str, this.fontStr, lineWidth, color, strokeColor, ri, margin, margin, margin, margin);
-            tex = TextTexture.getTextTexture(imgdt.width, imgdt.height);
-            tex.addChar(imgdt, 0, 0, ri.uv);
-            ri.texture = tex;
-            ri.orix = margin; // 这里是原始的，不需要乘scale,因为scale的会创建一个scale之前的rect
-            ri.oriy = margin;
-            tex.ri = ri;
-            this.isoTextures.push(tex);
-        } else {
-            // 大图集
-            var len = str.length;
-            if (len > 1) {
-                // emoji或者组合的
-            }
-            var lineExt = lineWidth * 1;	// 这里，包括下面的*2 都尽量用整数。否则在取整以后可能有有偏移。
-            var fw = Math.ceil((this.fontSizeW + lineExt * 2) * this.fontScaleX); 	//本来只要 lineWidth就行，但是这样安全一些
-            var fh = Math.ceil((this.fontSizeH + lineExt * 2) * this.fontScaleY);
-            imgdtRect[0] = ((margin - this.fontSizeOffX - lineExt) * this.fontScaleX) | 0;	// 本来要 lineWidth/2 但是这样一些尖角会有问题，所以大一点
-            imgdtRect[1] = ((margin - this.fontSizeOffY - lineExt) * this.fontScaleY) | 0;
-            if (this.renderPerChar || len == 1) {
-                // 单个字符的处理
-                imgdtRect[2] = Math.max(w1, fw);
-                imgdtRect[3] = Math.max(w1, fh);	// 高度也要取大的。 例如emoji
-            } else {
-                // 多个字符的处理
-                //imgdtRect[2] = -1; // -1 表示宽度要测量
-                imgdtRect[2] = -(this.fontSizeOffX * this.fontScaleX);//<0表示要测量宽度，但是提供了原点偏移
-                imgdtRect[3] = fh; 	// TODO 如果被裁剪了，可以考虑把这个加大一点点
-            }
-            this.charRender.fontsz = font._size;
-            let imgdt: ImageData | HTMLCanvasElement;
-            if (TextRenderConfig.useImageData)
-                imgdt = this.charRender.getCharBmp(str, this.fontStr, lineWidth, color, strokeColor, ri,
-                    margin, margin, margin, margin, imgdtRect);
-            else
-                imgdt = this.charRender.getCharCanvas(str, this.fontStr, lineWidth, color, strokeColor, ri,
-                    margin, margin, margin, margin);
-            if (imgdt.width > TextRenderConfig.atlasWidth || imgdt.height > TextRenderConfig.atlasWidth) {
-                var tex = TextTexture.getTextTexture(imgdt.width, imgdt.height);
-                tex.addChar(imgdt, 0, 0, ri.uv);
-                ri.texture = tex;
-                ri.orix = margin; // 这里是原始的，不需要乘scale,因为scale的会创建一个scale之前的rect
-                ri.oriy = margin;
-                tex.ri = ri;
-                this.isoTextures.push(tex);
-            } else {
-                atlas = this.findAtlas(imgdt.width, imgdt.height);
-                atlas.texture.addChar(imgdt, tmpAtlasPos.x, tmpAtlasPos.y, ri.uv);
-                ri.texture = atlas.texture;
-                if (!TextRenderConfig.useImageData) {
-                    // 这时候 imgdtRect 是不好使的，要自己设置
-                    ri.orix = margin;	// 不要乘缩放。要不后面也要除。
-                    ri.oriy = margin;
-                } else {
-                    // 取下来的imagedata的原点在哪
-                    ri.orix = (this.fontSizeOffX + lineExt);	// 由于是相对于imagedata的，上面会根据包边调整左上角，所以原点也要相应反向调整
-                    ri.oriy = (this.fontSizeOffY + lineExt);
-                }
-                atlas.charMaps[key] = ri;
-            }
-        }
         return ri;
     }
 
-    findAtlas(w: number, h: number): TextAtlas {
-        var sz = this.textAtlases.length;
-        var atlas: TextAtlas;
-        var find = false;
-        for (var i = 0; i < sz; i++) {
-            atlas = this.textAtlases[i];
-            find = atlas.getAEmpty(w, h, tmpAtlasPos);
-            if (find) {
-                break;
-            }
-        }
-        if (!find) {
-            // 创建一个新的
-            atlas = new TextAtlas()
-            this.textAtlases.push(atlas);
-            find = atlas.getAEmpty(w, h, tmpAtlasPos);
-            if (!find) {
-                throw 'err1'; //TODO
-            }
-            // 清理旧的
-            this.cleanAtlases();
-        }
-        return atlas;
+    private resizeCanvas(ctx: CanvasRenderingContext2D, newWidth: number, newHeight: number): void {
+        newWidth = 512 * Math.ceil(newWidth / 512); //以512为步长增长
+        newHeight = 512 * Math.ceil(newHeight / 512);
+
+        //改变Canvas大小会导致状态丢失，所以要保存并恢复相关状态
+        let fontStr = ctx.font;
+        let fillStyle = ctx.fillStyle;
+        let strokeStyle = ctx.strokeStyle;
+        let lineWidth = ctx.lineWidth;
+
+        this.canvas.width = newWidth;
+        this.canvas.height = newHeight;
+
+        ctx.setTransform(fontScale, 0, 0, fontScale, 0, 0);
+        ctx.font = fontStr;
+        ctx.textBaseline = "middle";
+        ctx.lineJoin = "round";
+        ctx.fillStyle = fillStyle;
+        ctx.strokeStyle = strokeStyle;
+        ctx.lineWidth = lineWidth;
     }
 
-    /**
-     * 清理利用率低的大图集
-     */
+    private createIsoTexture(w: number, h: number): Texture2D {
+        let i = this.freeIsoTextures.findIndex(t => t != null && t.width >= w && t.width <= w + h && t.height >= h && t.height <= h + h);
+        if (i !== -1) {
+            let tex = this.freeIsoTextures[i];
+            this.freeIsoTextures[i] = null; //不用splice，提高性能
+            if (++freeIsoTextureNullCnt > 50) {
+                this.freeIsoTextures = this.freeIsoTextures.filter(t => t != null);
+                freeIsoTextureNullCnt = 0;
+            }
+            return tex;
+        }
+        else
+            return this.createTextTexture(w, h);
+    }
+
+    private addToAtlas(w: number, h: number): IAtlasRegionWithOwner {
+        let i = this.freeRegions.findIndex(r => r != null && r.w >= w && r.w <= w + h && r.h >= h && r.h <= h + h);
+        if (i !== -1) {
+            let region = this.freeRegions[i];
+            this.freeRegions[i] = null; //不用splice，提高性能
+            if (++freeRegionNullCnt > 50) {
+                this.freeRegions = this.freeRegions.filter(r => r != null);
+                freeRegionNullCnt = 0;
+            }
+            region.owner.ref++;
+            return region;
+        }
+
+        let region: IAtlasRegionWithOwner;
+        for (let ele of this.textAtlases) {
+            if (region = ele.grid.allocate(w, h) as IAtlasRegionWithOwner) {
+                region.owner = ele;
+                ele.ref++;
+                return region;
+            }
+        }
+
+        let size = TextRenderConfig.atlasWidth;
+        let atlas = {
+            tex: this.createTextTexture(size, size),
+            grid: new AtlasGrid(size, size, TextRenderConfig.atlasGridW),
+            ref: 1
+        };
+        this.textAtlases.push(atlas);
+        region = atlas.grid.allocate(w, h) as IAtlasRegionWithOwner;
+        region.owner = atlas;
+        return region;
+    }
+
+    private createTextTexture(width: number, height: number) {
+        let tex = new Texture2D(width, height, TextureFormat.R8G8B8A8, false, false, true, true);
+        tex.name = "TextTexture";
+        tex.setPixelsData(null, true, false);
+        tex.lock = true;//防止被资源管理清除
+        tex.filterMode = FilterMode.Bilinear;
+        tex.wrapModeU = WrapMode.Clamp;
+        tex.wrapModeV = WrapMode.Clamp;
+
+        return tex;
+    }
+
+    private setPixelsToTexture(imgdt: ImageData, tex: Texture2D, x: number, y: number, outUv: number[]) {
+        let data: Uint8Array | Uint8ClampedArray = imgdt.data;
+        if (data instanceof Uint8ClampedArray) //未知原因，是不是WebGL的texSubImage2D不支持Uint8ClampedArray？
+            data = new Uint8Array(data.buffer);
+
+        LayaGL.textureContext.setTextureSubPixelsData(tex._texture, data, 0, false, x, y, imgdt.width, imgdt.height, true, false);
+
+        let u0 = (x + blockGap) / tex.width;
+        let v0 = (y + blockGap) / tex.height;
+        let u1 = (x + imgdt.width - blockGap) / tex.width;
+        let v1 = (y + imgdt.height - blockGap) / tex.height;
+        outUv[0] = u0, outUv[1] = v0;
+        outUv[2] = u1, outUv[3] = v0;
+        outUv[4] = u1, outUv[5] = v1;
+        outUv[6] = u0, outUv[7] = v1;
+    }
+
+    freeRenderInfo(arr: ITextRenderInfo[]): void {
+        for (let ri of arr) {
+            this.free(ri);
+        }
+        arr.length = 0;
+    }
+
+    private free(ri: ITextRenderInfo): void {
+        ri.ref--;
+
+        if (ri.ref > 0)
+            return;
+
+        if (ri.isChar) {
+            if (ri.ref === 0) //ref要到-1才清理，一般是在GC中请求才会
+                return;
+
+            this.charMap.delete(ri.key);
+        }
+        else
+            this.textMap.delete(ri.key);
+
+        if (ri.region != null) {
+            let atlas = ri.region.owner;
+            atlas.ref--;
+            if (atlas.ref === 0) {
+                if (this.freeRegions.length > 0)
+                    this.freeRegions = this.freeRegions.filter(r => r != null && r.owner !== atlas);
+                freeRegionNullCnt = 0;
+
+                //看看是不是已经有空白的了。只保留一个空白的，避免占用过多内存
+                if (this.textAtlases.length > 2 && this.textAtlases.findIndex((a) => a.ref === 0) !== -1) {
+                    atlas.tex.destroy();
+                    let idx = this.textAtlases.indexOf(atlas);
+                    this.textAtlases.splice(idx, 1);
+                }
+                else { //可以保留
+                    atlas.grid.reset();
+                }
+            }
+            else
+                this.freeRegions.push(ri.region);
+        }
+        else {
+            this.freeIsoTextures.push(ri.tex);
+        }
+    }
+
+    getFontHeight(font: string, fontSize: number, bold?: boolean): number {
+        let inst = this.getFont(font);
+        let k = fontSize / TextRenderConfig.standardFontSize;
+        let info = bold ? inst.bold : inst.normal;
+        return Math.ceil(info.bbxh * k);
+    }
+
+    private getFont(font: string): IFontInfo {
+        let inst = this.fontMap.get(font);
+        if (inst == null) {
+            inst = {
+                id: fontIdCounter++,
+                normal: measureFont(this.ctx, font, false),
+                bold: measureFont(this.ctx, font, true)
+            }
+            this.fontMap.set(font, inst);
+            //console.debug("font registered", font, inst.normal, inst.bold);
+        }
+        return inst;
+    }
+
+    /** @internal */
+    onFontScaleChanged(): void {
+        this.textMap.clear();
+
+        toClearChars.length = 0;
+        for (let [_, ri] of this.charMap) {
+            if (ri.ref === 0)
+                toClearChars.push(ri);
+            else
+                ri.ref--; //先减掉一个引用，那么它在free时就不会被跳过
+        }
+        for (let ri of toClearChars) {
+            this.free(ri);
+        }
+        this.charMap.clear(); //没引用的已经清理掉，有引用的可以等free时清理
+    }
+
     GC(): void {
-        var i = 0;
-        var sz = this.textAtlases.length;
-        var dt = 0;
-        var destroyDt = TextRenderConfig.destroyAtlasDt;
-        var totalUsedRateAtlas = 0;
-        var curloop = Stat.loopCount;
-
-        //var minUsedRateID:int = -1;
-        //var minUsedRate:Number = 1;
-        var maxWasteRateID = -1;
-        var maxWasteRate = 0;
-        var tex: TextTexture = null;
-        var curatlas: TextAtlas = null;
-        // 图集的清理
-        for (; i < sz; i++) {
-            curatlas = this.textAtlases[i];
-            tex = curatlas.texture;
-            if (tex) {
-                curatlas.updateTextureUsage();
-                totalUsedRateAtlas += tex.curUsedCovRateAtlas;
-                // 浪费掉的图集
-                // (已经占用的图集和当前使用的图集的差。图集不可局部重用，所以有占用的和使用的的区别)
-                var waste = curatlas.usedRate - tex.curUsedCovRateAtlas;
-                // 记录哪个图集浪费的最多
-                if (maxWasteRate < waste) {
-                    maxWasteRate = waste;
-                    maxWasteRateID = i;
-                }
-                /*
-                if (minUsedRate > tex.curUsedCovRate) {
-                    minUsedRate = tex.curUsedCovRate;
-                    minUsedRateID = i;
-                }
-                */
-            }
-            // 如果当前贴图的touch时间超出了指定的间隔（单位是帧，例如），则设置回收
-            // 可能同时会有多个图集被回收
-            dt = curloop - curatlas.texture.lastTouchTm;
-            if (dt > destroyDt) {
-                TextRenderConfig.showLog && console.log('TextRender GC delete atlas ' + (tex ? curatlas.texture.id : 'unk'));
-                curatlas.destroy();
-                this.textAtlases[i] = this.textAtlases[sz - 1];	// 把最后的拿过来冲掉
-                sz--;
-                i--;
-                maxWasteRateID = -1;
-            }
-        }
-        // 缩减图集数组的长度
-        this.textAtlases.length = sz;
-
-        // 引用计数
-        // 独立贴图的清理 TODO 如果多的话，要不要分开处理
-        // sz = this.isoTextures.length;
-        // for (i = 0; i < sz; i++) {
-        //     tex = this.isoTextures[i];
-        //     dt = curloop - tex.lastTouchTm;
-        //     if (dt > TextRender.destroyUnusedTextureDt) {
-        //         tex.ri.deleted = true;
-        //         tex.ri.texture = null;
-        //         // 直接删除，不回收
-        //         tex.destroy();
-        //         this.isoTextures[i] = this.isoTextures[sz - 1];
-        //         sz--;
-        //         i--;
-        //     }
-        // }
-        // this.isoTextures.length = sz;
-
-        // 如果超出内存需要清理不常用
-        var needGC = this.textAtlases.length > 1 && this.textAtlases.length - totalUsedRateAtlas >= 2;	// 总量浪费了超过2张
-        if (TextRenderConfig.atlasWidth * TextRenderConfig.atlasWidth * 4 * this.textAtlases.length > TextRenderConfig.cleanMem || needGC || TextRenderConfig.simClean) {
-            TextRenderConfig.simClean = false;
-            TextRenderConfig.showLog && console.log('清理使用率低的贴图。总使用率:', totalUsedRateAtlas, ':', this.textAtlases.length, '最差贴图:' + maxWasteRateID);
-            if (maxWasteRateID >= 0) {
-                curatlas = this.textAtlases[maxWasteRateID];
-                curatlas.destroy();
-                this.textAtlases[maxWasteRateID] = this.textAtlases[this.textAtlases.length - 1];
-                this.textAtlases.length = this.textAtlases.length - 1;
-                this.event('GC');
-            }
+        if (this.freeIsoTextures.length > 0) {
+            for (let tex of this.freeIsoTextures)
+                tex?.destroy();
+            this.freeIsoTextures.length = 0;
+            freeIsoTextureNullCnt = 0;
         }
 
-        //TextTexture.clean();
-    }
-
-    /**
-     * 尝试清理大图集
-     */
-    cleanAtlases(): void {
-        // TODO 根据覆盖率决定是否清理
+        toClearChars.length = 0;
+        for (let [_, ri] of this.charMap) {
+            if (ri.ref === 0)
+                toClearChars.push(ri);
+        }
+        for (let ri of toClearChars) {
+            this.free(ri);
+        }
     }
 }
 
-const tmpAtlasPos = new Point();
-const imgdtRect = [0, 0, 0, 0];
+const blockGap = 1;
+const emojiTest = /[\uD800-\uDBFF][\uDC00-\uDFFF]/;
+
+var fontIdCounter = 0;
+var fontScale = 1.0;
+var fontSizeH = 0;
+var fontSizeOffX = 0;
+var fontSizeOffY = 0;
+var italicDeg = 0;
+
+var freeRegionNullCnt: number = 0;
+var freeIsoTextureNullCnt: number = 0;
+
+var toClearChars: ITextRenderInfo[] = [];
+
+interface IFontInfo {
+    id: number;
+    normal: {
+        xoff: number;
+        yoff: number;
+        bbxw: number;
+        bbxh: number;
+    };
+    bold: {
+        xoff: number;
+        yoff: number;
+        bbxw: number;
+        bbxh: number;
+    };
+}
+
+interface ITextRenderInfo {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    advance: number;
+    uv: number[];
+    tex: Texture2D;
+    region: IAtlasRegion & { owner: ITextAtlas };
+    key?: string;
+    ref: number;
+    isChar?: boolean;
+}
+
+interface IAtlasRegionWithOwner extends IAtlasRegion {
+    owner: ITextAtlas;
+}
+
+interface ITextAtlas {
+    tex: Texture2D;
+    grid: AtlasGrid;
+    ref: number;
+}

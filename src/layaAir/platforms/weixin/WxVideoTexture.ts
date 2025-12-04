@@ -34,8 +34,10 @@ export class WxVideoTexture extends VideoTexture {
         this.decoder.on("ended", () => {
             if (this._loop)
                 this.decoder.stop().then(() => this.decoder.start(this._startOption));
-            else
+            else {
                 this._ended = true;
+                this.event("ended");
+            }
         });
     }
 

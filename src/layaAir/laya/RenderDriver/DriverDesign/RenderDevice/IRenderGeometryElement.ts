@@ -14,6 +14,8 @@ export interface IRenderGeometryElement {
     drawType: DrawType;
     instanceCount: number;
     indexFormat: IndexFormat;
+    readonly drawParams: FastSinglelist<number>;
+
     /**
      * 设置顶点的渲染初始开始位置和长度，参数会累加。此参数只在DrawArray为DrawElement和 DrawArrayInstance中有用
      * @param first 

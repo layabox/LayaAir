@@ -268,6 +268,7 @@ export class Sprite extends Node {
 
         this._shaderData = LayaGL.renderDeviceFactory.createShaderData();
         BlendModeHandler.initBlendMode(this._shaderData);
+        BlendModeHandler.setShaderData(this._struct.blendMode, this._shaderData);
         this._struct.spriteShaderData = this._shaderData;
         this._struct.isRenderStruct = true;
     }
@@ -297,7 +298,7 @@ export class Sprite extends Node {
             this._subStructRender.destroy();
             this._subStructRender = null;
         }
-        
+
         if (this._drawOriRT) {
             if (this._drawOriRT !== RenderTexture2D._empty) {
                 RenderTexture2D.recoverToPool(this._drawOriRT);
@@ -1438,6 +1439,7 @@ export class Sprite extends Node {
     }
 
     /**
+     * @deprecated
      * @en Draws the current Sprite to a Canvas and returns an HtmlCanvas object.
      * The drawing result can be used as an image source to be drawn into other Sprites.
      * It can also obtain the original image data, send it to the server, or save it as an image to achieve a screenshot effect.
@@ -1459,6 +1461,7 @@ export class Sprite extends Node {
         return Sprite.drawToCanvas(this, canvasWidth, canvasHeight, offsetX, offsetY);
     }
     /**
+     * @deprecated
      * @ignore
      * @en Draws the specified Sprite to a Canvas and returns an HtmlCanvas object.
      * @param sprite The Sprite to draw.
@@ -1638,7 +1641,7 @@ export class Sprite extends Node {
                         sprite._oriRenderPass.renderTexture = destrt;
                         if (sprite.mask) {
                             sprite._oriRenderPass.mask = sprite.mask._struct;
-                        }else
+                        } else
                             sprite._oriRenderPass.mask = null;
 
                         if (result) {
@@ -2016,7 +2019,7 @@ export class Sprite extends Node {
         if (this._destroyed) return;
 
         if (
-            this._repaint < Stat.loopCount 
+            this._repaint < Stat.loopCount
             || (this._repaint === Stat.loopCount && this._repaintCount < Stat.render2DCount)
             || !this._previousType
         ) {
@@ -2029,18 +2032,19 @@ export class Sprite extends Node {
 
             if (this._renderType & SpriteConst.DRAW2RT) {
                 if (
-                    !this._drawOriRT 
-                    || this._subpassUpdateFlag 
+                    !this._drawOriRT
+                    || this._subpassUpdateFlag
                     || flag & RepaintFlag.UpdateRT
                     || (this.transform && this._maskParent)
                 ) {
                     this.setSubpassFlag(SubPassFlag.RenderTexture);
                 }
-            } 
-            
+            }
+
             if (this._renderType & SpriteConst.GRAPHICS) {
                 if (flag & RepaintFlag.Graphics) {
-                    this._graphics?.onModified();
+                    if (this._graphics)
+                        this._graphics._modified = true;
                 }
                 this._globalTrans._notifyRenderSpriteTransChange();
             }
@@ -2050,6 +2054,11 @@ export class Sprite extends Node {
             this._maskParent.setSubpassFlag(SubPassFlag.Mask);
             this._maskParent.repaint(flag);
         }
+    }
+
+    /** @internal */
+    _needGraphicsUpdate(): boolean {
+        return !this._destroyed && this._struct.enabled && this._graphics && this._graphics._display && !!(this.displayedInStage || this._maskParent);
     }
 
     /**
@@ -2452,7 +2461,7 @@ export class Sprite extends Node {
             if (this._subpassUpdateFlag || (this._renderType & SpriteConst.DRAW2RT && !this._drawOriRT)) {
                 this.setSubpassFlag(SubPassFlag.RenderTexture);
             }
-        }else if (this._subpassUpdateFlag) {
+        } else if (this._subpassUpdateFlag) {
             ILaya.stage._subpassUpdateList.delete(this);
         }
 
@@ -2494,6 +2503,13 @@ export class Sprite extends Node {
     /** @ignore */
     _setDisplay(value: boolean): void {
         super._setDisplay(value);
+        //默认有父节点改变，需要重绘 graphics
+        if (this._needGraphicsUpdate()) {
+            if (this._graphics)
+                this._graphics._modified = true;
+            this.stage._graphicUpdateList.add(this);
+            this._globalTrans._notifyRenderSpriteTransChange();
+        }
         this._checkSubRenderPass();
         this._refreshRenderPass();
     }
