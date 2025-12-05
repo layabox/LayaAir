@@ -145,7 +145,7 @@ export class SpineTemplet extends Resource {
      */
     getMaterial(texture: Texture2D, blendMode: number , premultipliedAlpha: boolean): Material {
         if (!texture) {
-            console.error("SpineError:cant Find Main Texture");
+            console.warn("SpineError:cant Find Main Texture");
             texture = Texture2D.whiteTexture;
         }
 
