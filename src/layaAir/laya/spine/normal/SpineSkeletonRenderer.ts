@@ -340,8 +340,8 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
         let virtualMesh: SpineVirtualMesh;
         let spineTex;
         let staticVetices = SpineSkeletonRenderer.vertices;
-        let offsetX = -skeleton.x + this.templet.offsetX;
-        let offsetY = -skeleton.y + this.templet.offsetY;
+        let offsetX = -skeleton.x;
+        let offsetY = -skeleton.y;
         let premultipliedAlpha = renderNode.premultipliedAlpha;
 
         for (let i = 0, n = drawOrder.length; i < n; i++) {

@@ -23,6 +23,11 @@ import { ISpineRenderDataHandle } from "../../RenderDriver/RenderModuleData/Desi
  */
 export class SpineOptimizeRender implements ISpineOptimizeRender {
     /**
+     * @en Indicates whether caching is enabled.
+     * @zh 指示是否启用缓存。
+     */
+    enableCache: boolean = false;
+    /**
      * @en Map of animation names to AnimationRenderProxy objects.
      * @zh 动画名称到 AnimationRenderProxy 对象的映射。
      */
@@ -231,32 +236,6 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
     }
 
     /**
-     * @en Begin caching the animation.
-     * @zh 开始缓存动画。
-     */
-    beginCache() {
-        //@ts-ignore
-        this._state.apply = this._state.applyCache;
-        //@ts-ignore
-        this._state.getCurrentPlayTime = this._state.getCurrentPlayTimeByCache;
-        //@ts-ignore
-        this._skeleton.updateWorldTransform = this._skeleton.updateWorldTransformCache;
-    }
-
-    /**
-     * @en End caching the animation.
-     * @zh 结束缓存动画。
-     */
-    endCache() {
-        //@ts-ignore
-        this._state.apply = this._state.oldApply;
-        //@ts-ignore
-        this._state.getCurrentPlayTime = this._state.getCurrentPlayTimeOld;
-        //@ts-ignore
-        this._skeleton.updateWorldTransform = this._skeleton.oldUpdateWorldTransform;
-    }
-
-    /**
      * @en Set the skin index for rendering.
      * @param index The index of the skin to set.
      * @zh 设置用于渲染的皮肤索引。
@@ -386,10 +365,10 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
 
         this.renderProxy.change(currentRender, currentAnimation);
         if ((currentAnimation.animator.isCache || this.renderProxytype == ERenderProxyType.RenderBake) && !currentSKin.isNormalRender) {
-            this.beginCache();
+            this.enableCache = true;
         }
         else {
-            this.endCache();
+            this.enableCache = false;
         }
     }
 
@@ -501,8 +480,8 @@ class RenderOptimize implements IRender {
      * @param boneMat 用于渲染的骨骼矩阵。
      */
     render(curTime: number, boneMat: Float32Array) {
-        let offsetX = -this._skeleton.x + this._templet.offsetX;
-        let offsetY = -this._skeleton.y + this._templet.offsetY;
+        let offsetX = -this._skeleton.x ;
+        let offsetY = -this._skeleton.y ;
         // this.currentAnimation.render(this.bones, this.slots, this.skinUpdate, curTime, boneMat, -this._skeleton.x, -this._skeleton.y);//TODO bone
         this.currentAnimation.render(this.bones, this.slots, this.skinUpdate, curTime, boneMat, offsetX, offsetY);//TODO bone
         // this.material.boneMat = boneMat;

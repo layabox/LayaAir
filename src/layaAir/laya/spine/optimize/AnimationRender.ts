@@ -136,6 +136,7 @@ export class AnimationRender {
     cacheBones(preRender: SketonOptimise) {
         let duration = preRender._play(this.name);
         let totalFrame = Math.round(duration / step) || 1;
+
         for (let i = 0; i <= totalFrame; i++) {
             let bones = preRender._updateState(i == 0 ? 0 : step);
             let frame: Float32Array[] = [];
@@ -168,6 +169,7 @@ export class AnimationRender {
         renderFrames.push(0);
         changeMap.set(0, {});
 
+        let isDynamic = false;
         for (let i = 0, n = timeline.length; i < n; i++) {
             let time = timeline[i];
             let frames = time.frames;
@@ -193,6 +195,7 @@ export class AnimationRender {
                     let arr = changeItem.iChanges = changeItem.iChanges || [];
                     arr.push(change);
                 }
+                isDynamic = true;
             }
             else if (time instanceof spine.DrawOrderTimeline) {
                 let orders = time.drawOrders;
@@ -211,6 +214,7 @@ export class AnimationRender {
 
                     let arr = changeItem.iChanges = changeItem.iChanges || [];
                     arr.push(change);
+                    isDynamic = true;
                 }
                 // spine.timline
             }
@@ -263,6 +267,7 @@ export class AnimationRender {
                     //changeRGBA.initChange(slotIndex, this.vb);
                     // this.changeVB.push(changeRGBA);
                 }
+                isDynamic = true;
             }
             else if (time instanceof window.spine.ClippingAttachment) {
                 hasClip = true;
@@ -301,6 +306,7 @@ export class AnimationRender {
 
                 let arr = changeItem.vChanges = changeItem.vChanges || [];
                 arr.push(change);
+                isDynamic = true;
 
             }
             else {
@@ -314,7 +320,7 @@ export class AnimationRender {
             // }
         }
 
-        this.isDynamic = !!changeMap.size;
+        this.isDynamic = isDynamic;
         renderFrames.sort();
 
         if (!hasClip) {
@@ -572,7 +578,6 @@ export class SkinAniRenderData {
 
         if (isDynamic) {
             this.vb = mainVB.clone();
-            this.vb.initBoneMat();
 
             let tAttachMap = attachMap.slice();
 

@@ -7,6 +7,7 @@ import { TSpineBakeData } from "../SketonOptimise";
  * @blueprintIgnore
  */
 export interface ISpineOptimizeRender {
+    enableCache: boolean;
     init(skeleton: spine.Skeleton, templet: SpineTemplet, renderNode: BaseRenderNode2D, state: spine.AnimationState): void;
     play(animationName: string): void;
     render(time: number): void;
