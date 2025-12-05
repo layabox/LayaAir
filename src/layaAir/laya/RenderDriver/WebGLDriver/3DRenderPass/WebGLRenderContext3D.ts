@@ -180,11 +180,12 @@ export class WebGLRenderContext3D implements IRenderContext3D {
 
         if (this.sceneData) {
             this.sceneData._defineDatas.cloneTo(contextDef);
-
-            for (let key of this.preDrawUniformMaps) {
-                let uniformMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(key);
-                if (uniformMap._idata.size > 0) {
-                    this.sceneData.createUniformBuffer(key, uniformMap._idata, true);
+            if (Config._uniformBlock) {
+                for (let key of this.preDrawUniformMaps) {
+                    let uniformMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(key);
+                    if (uniformMap._idata.size > 0) {
+                        this.sceneData.createUniformBuffer(key, uniformMap._idata, true);
+                    }
                 }
             }
         }
@@ -194,8 +195,10 @@ export class WebGLRenderContext3D implements IRenderContext3D {
 
         if (this.cameraData) {
             contextDef.addDefineDatas(this.cameraData._defineDatas);
-            let cameraMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera");
-            this.cameraData.createUniformBuffer("BaseCamera", cameraMap._idata, true);
+            if (Config._uniformBlock) {
+                let cameraMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera");
+                this.cameraData.createUniformBuffer("BaseCamera", cameraMap._idata, true);
+            }
         }
         this._getSceneCameraCacheKey();
     }

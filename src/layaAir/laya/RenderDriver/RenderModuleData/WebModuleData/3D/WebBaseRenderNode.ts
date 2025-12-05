@@ -116,6 +116,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     public get additionShaderData(): Map<string, ShaderData> {
         return this._additionShaderData;
     }
+
     public set additionShaderData(value: Map<string, ShaderData>) {
         if (this._additionShaderData && this._additionShaderData.size > 0) {
             if (!value)
@@ -243,7 +244,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         value.forEach(element => {
             this._commonUniformMap.push(element);
         });
-        this._shaderData && (this._shaderData.getDefineData() as WebDefineDatas).addChangeFlagInfo(this.defineDataChangeFlag);
+        this._shaderData && (this._shaderData.getDefineData() as WebDefineDatas)?.addChangeFlagInfo(this.defineDataChangeFlag);
     }
 
     /**

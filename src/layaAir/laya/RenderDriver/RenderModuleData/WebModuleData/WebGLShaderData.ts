@@ -17,7 +17,8 @@ import { WebGLUniformBufferBase } from "../../WebGLDriver/RenderDevice/WebGLUnif
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Config } from "../../../../Config";
-import { WebGPUShaderData } from "../../WebGPUDriver/RenderDevice/WebGPUShaderData";
+import { WebGLCommandUniformMap } from "../../WebGLDriver/RenderDevice/WebGLCommandUniformMap";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 /**
  * 着色器数据类。
@@ -551,6 +552,16 @@ export class WebGLShaderData extends ShaderData {
         this._data[index] = value;
         // lastValue && lastValue._removeReference();
         // value && value._addReference();
+    }
+
+    update(name: string) {
+        if (Config._uniformBlock) {
+            let unifomrMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(name);
+            let uniformBuffer = this.createSubUniformBuffer(name, name, unifomrMap._idata);
+            if (uniformBuffer) {
+                uniformBuffer.upload();
+            }
+        }
     }
 
     /**

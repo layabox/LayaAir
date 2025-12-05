@@ -1,9 +1,7 @@
-
 import { Config } from "../../../../Config";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Transform3D } from "../../../d3/core/Transform3D";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { Vector2 } from "../../../maths/Vector2";
 import { Stat } from "../../../utils/Stat";
 import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
@@ -11,7 +9,6 @@ import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBa
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { WebShaderPass } from "../../RenderModuleData/WebModuleData/WebShaderPass";
-import { WebGLCommandUniformMap } from "../RenderDevice/WebGLCommandUniformMap";
 import { WebGLEngine } from "../RenderDevice/WebGLEngine";
 import { compareCahceFlag, OneDrawPassCacheInfo } from "../RenderDevice/WebGLRenderDeviceFactory";
 import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryElement";
@@ -129,18 +126,6 @@ export class WebGLRenderElement3D implements IRenderElement3D {
             let matSubBuffer = materialData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
             if (matSubBuffer) {
                 matSubBuffer.upload();
-            }
-        }
-
-        //Sprite ubo Update
-        if (this.owner && Config._uniformBlock) {
-            for (let [key, value] of this.owner.additionShaderData) {
-                let shaderData = <WebGLShaderData>value;
-                let unifomrMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(key);
-                let uniformBuffer = shaderData.createSubUniformBuffer(key, key, unifomrMap._idata);
-                if (uniformBuffer) {
-                    uniformBuffer.upload();
-                }
             }
         }
 

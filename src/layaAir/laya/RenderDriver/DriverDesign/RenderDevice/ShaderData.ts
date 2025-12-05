@@ -472,6 +472,12 @@ export class ShaderData implements IClone {
         throw new NotImplementedError();
     }
 
+    /**
+     * @private
+     */
+    update(name: string) {
+        throw new NotImplementedError();
+    }
 
     /**
      * 克隆。
