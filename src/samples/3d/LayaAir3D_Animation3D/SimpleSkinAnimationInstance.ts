@@ -28,7 +28,7 @@ export class SimpleSkinAnimationInstance {
     ];
     private oriSprite3D: Sprite3D;
     private scene: Scene3D;
-    private widthNums: number = 20;
+    private widthNums: number = 2.5;
     private step: number = 2.5;
     constructor() {
         Laya.init(0, 0).then(() => {
@@ -58,10 +58,14 @@ export class SimpleSkinAnimationInstance {
             ];
             Laya.loader.load(res).then(() => {
                 this.oriSprite3D = Loader.createNodes(res[0]);
-                this.sceneBuild(0);
+                // this.sceneBuild(0);
                 // add other model
-                this.oriSprite3D = Loader.createNodes(res[1]);
-                this.sceneBuild(1);
+                // this.oriSprite3D = Loader.createNodes(res[1]);
+                // this.sceneBuild(1);
+
+                this.cloneSprite(new Vector3(1, 0, 0), new Vector3(0, Math.random() * 180, 0), 0);
+                this.cloneSprite(new Vector3(-1, 0, 0), new Vector3(0, Math.random() * 180, 0), 0);
+
             });
 
             // addPlane
