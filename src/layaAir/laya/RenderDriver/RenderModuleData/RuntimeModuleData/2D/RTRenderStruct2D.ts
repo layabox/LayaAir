@@ -85,18 +85,15 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    get stackingRoot(): boolean {
       return this._stackingRoot;
    }
-
-   private _enableCulling: boolean = false;
    get enableCulling(): boolean {
-      return this._enableCulling;
+      return this._nativeObj.getEnableCulling();
    }
    set enableCulling(value: boolean) {
-      this._enableCulling = value;
       this._nativeObj.setEnableCulling(value);
    }
 
    get inheritedEnableCulling(): boolean {
-      return this._enableCulling || this._parent?.enableCulling;
+      return this._nativeObj.getInheritedEnableCulling();
    }
 
    private _rect: Rectangle = new Rectangle(0, 0, 0, 0);
