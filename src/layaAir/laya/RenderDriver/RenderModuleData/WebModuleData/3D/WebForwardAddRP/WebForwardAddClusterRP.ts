@@ -28,7 +28,7 @@ export class WebForwardAddClusterRP implements IMain3DRP {
 
     protected _opaqueList: RenderListQueue;
     protected _transparent: RenderListQueue;
-    protected _cameraCullInfo: CameraCullInfo;
+    protected _cameraCullInfo: CameraCullInfo & { id?: number };
     protected _zBufferParams: Vector4;
     protected _viewPort: Viewport;
     protected _scissor: Vector4;
@@ -86,6 +86,7 @@ export class WebForwardAddClusterRP implements IMain3DRP {
         this._cameraCullInfo.staticMask = value.staticMask;
         this._cameraCullInfo.boundFrustum = value.boundFrustum;
         this._cameraCullInfo.useOcclusionCulling = value.useOcclusionCulling;
+        this._cameraCullInfo.id = value.id;
     }
 
     protected _clearRenderList() {
