@@ -13,6 +13,7 @@ import { WebGLEngine } from "../RenderDevice/WebGLEngine";
 import { compareCahceFlag, OneDrawPassCacheInfo } from "../RenderDevice/WebGLRenderDeviceFactory";
 import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryElement";
 import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
+import { WebGLUniformBufferBase } from "../RenderDevice/WebGLUniformBufferBase";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 
 
@@ -91,6 +92,8 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
     protected _renderNodeChangeFlag: Vector2 = new Vector2();
 
+    protected materialUBO: WebGLUniformBufferBase;
+
     constructor() {
     }
 
@@ -119,15 +122,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
             this._handleMaterialChange();
         }
 
-        // material ubo
-        if (this._materialShaderData && Config.matUseUBO) {
-            let subShader = this._subShader;
-            let materialData = this._materialShaderData;
-            let matSubBuffer = materialData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
-            if (matSubBuffer) {
-                matSubBuffer.upload();
-            }
-        }
+        this.materialUBO && this.materialUBO.upload();
 
         this._invertFront = this._getInvertFront();
     }
@@ -156,6 +151,13 @@ export class WebGLRenderElement3D implements IRenderElement3D {
             this._materialShaderData._defineDatas.addChangeFlagInfo(changeFlag);
         }
         this._matDefChangeFlag = WebGLRenderElement3D._matChangeFlagMap.get(shadername);
+
+        // material ubo
+        if (this._materialShaderData && Config.matUseUBO) {
+            let subShader = this._subShader;
+            let materialData = this._materialShaderData;
+            this.materialUBO = materialData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
+        }
     }
 
     /**
