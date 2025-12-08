@@ -5,6 +5,7 @@ import { SpineShaderInit } from "./material/SpineShaderInit";
 import { Texture2D } from "../resource/Texture2D";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { SpineTexture } from "./SpineTexture";
+import { Laya } from "../../Laya";
 
 
 /**
@@ -17,6 +18,16 @@ export class SpineTemplet extends Resource {
      * @zh Spine运行时版本
      */
     public static RuntimeVersion: string = "3.8";
+    /**
+     * @en Version first of Spine
+     * @zh Spine版本号
+     */
+    public static VersionFirst: number = 3;
+    /**
+     * @en Version second of Spine
+     * @zh Spine版本号小数位
+     */
+    public static VersionSecond: number = 8;
 
     /**
      * @en Skeleton data for the Spine animation
@@ -134,7 +145,7 @@ export class SpineTemplet extends Resource {
      */
     getMaterial(texture: Texture2D, blendMode: number , premultipliedAlpha: boolean): Material {
         if (!texture) {
-            console.error("SpineError:cant Find Main Texture");
+            console.warn("SpineError:cant Find Main Texture");
             texture = Texture2D.whiteTexture;
         }
 
@@ -396,3 +407,12 @@ export class SpineTemplet extends Resource {
         this.sketonOptimise = null;
     }
 }
+
+Laya.addAfterInitCallback(() => {
+    let versionString = SpineTemplet.RuntimeVersion.split('.');
+    let versionNumber = Math.floor(Number(versionString[0]));
+    let versionNumber2 = Math.floor(Number(versionString[1]));
+
+    SpineTemplet.VersionFirst = versionNumber;
+    SpineTemplet.VersionSecond = versionNumber2;
+});

@@ -13,6 +13,8 @@ import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
  * @zh 普通 Spine 渲染实现类。
  */
 export class SpineNormalRender implements ISpineOptimizeRender {
+    enableCache: boolean = false;
+   
     clearCacheMaterials(): void {
         //throw new NotImplementedError();
     }

@@ -45,12 +45,6 @@ export abstract class VBCreator implements IGetBone {
      */
     slotVBMap: Map<number, Map<string, TAttamentPos>>;
 
-    /**
-     * @en Bone matrix data.
-     * @zh 骨骼矩阵数据。
-     */
-    boneMat: Float32Array;
-
     /** @internal */
     _vertexSize = 0;
 
@@ -160,14 +154,6 @@ export abstract class VBCreator implements IGetBone {
             this.boneMaxId++;
         }
         return id;
-    }
-
-    /**
-     * @en Initialize the bone matrix.
-     * @zh 初始化骨骼矩阵。
-     */
-    initBoneMat() {
-        this.boneMat = new Float32Array(8 * this.mapIndex.size);
     }
 
     /**

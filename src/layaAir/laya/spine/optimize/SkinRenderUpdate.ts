@@ -204,8 +204,15 @@ export class SkinRenderUpdate {
         let indexData = frameData.ib;
         let indexbuffer = mesh._indexBuffer;
         indexbuffer.indexType = frameData.type;
+        
+        //@ts-ignore
+        if(indexbuffer._byteLength < indexData.byteLength){
+            indexbuffer._setIndexDataLength(indexData.byteLength);
+            //@ts-ignore
+            indexbuffer._byteLength = indexData.byteLength;
+        }
+
         indexbuffer.indexCount = indexData.length;
-        indexbuffer._setIndexDataLength(indexData.byteLength);
         indexbuffer._setIndexData(indexData, 0);
     }
 
@@ -220,7 +227,15 @@ export class SkinRenderUpdate {
     uploadVertexBuffer(vbCreator: VBCreator, mesh: Mesh2D) {
         let vertexBuffer = mesh.vertexBuffers[0];
         let vblen = vbCreator.vbLength * 4;
-        vertexBuffer.setDataLength(vbCreator.maxVertexCount * vbCreator.vertexSize * 4);
+
+        let byteLength = vbCreator.maxVertexCount * vbCreator.vertexSize * 4;
+        //@ts-ignore
+        if(vertexBuffer._byteLength < byteLength){
+            vertexBuffer.setDataLength(byteLength);
+            //@ts-ignore
+            vertexBuffer._byteLength= byteLength
+        }
+        
         vertexBuffer.setData(vbCreator.vb.buffer as ArrayBuffer, 0, 0, vblen);
     }
 

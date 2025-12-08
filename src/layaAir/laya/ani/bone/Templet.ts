@@ -671,7 +671,17 @@ export class Templet extends AnimationTemplet {
      */
     getGrahicsDataWithCache(aniIndex: number, frameIndex: number): Graphics {
         if (this._graphicsCache[aniIndex] && this._graphicsCache[aniIndex][frameIndex]) {
-            return this._graphicsCache[aniIndex][frameIndex];
+            // 返回Graphics对象的副本而不是原始引用，避免多个Skeleton实例共享同一对象
+            let originalGraphics = this._graphicsCache[aniIndex][frameIndex];
+            let newGraphics = new Graphics();
+            
+            // 复制原始Graphics的命令流
+            for (let i = 0; i < originalGraphics.cmds.length; i++) {
+                let originalCmd = originalGraphics.cmds[i];
+                newGraphics.addCmd(originalCmd);
+            }
+            
+            return newGraphics;
         }
         //trace("getGrahicsDataWithCache fail:",aniIndex,frameIndex,this._path);
         return null;

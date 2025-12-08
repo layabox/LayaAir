@@ -173,6 +173,7 @@ export class BloomEffect extends PostProcessEffect {
         let subShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
         let shaderPass = subShader.addShaderPass(CompositeVS, CompositePS);
+        shaderPass.statefirst = true;
         let renderState = shaderPass.renderState;
         renderState.depthTest = RenderState.DEPTHTEST_ALWAYS;
         renderState.depthWrite = false;
@@ -197,6 +198,9 @@ export class BloomEffect extends PostProcessEffect {
     private _shader: Shader3D = null;
     /**@internal */
     private _shaderData: ShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
+
+    private _compositeShaderData: ShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
+
     /**@internal */
     private _linearColor: Color = new Color();
     /**@internal */
@@ -424,8 +428,10 @@ export class BloomEffect extends PostProcessEffect {
         var cmd: CommandBuffer = context.command;
         var viewport: Viewport = context.camera.viewport;
 
+        const shaderData = this._shaderData;
+
         //应用自动曝光调整纹理
-        this._shaderData.setTexture(BloomEffect.SHADERVALUE_AUTOEXPOSURETEX, Texture2D.whiteTexture);
+        shaderData.setTexture(BloomEffect.SHADERVALUE_AUTOEXPOSURETEX, Texture2D.whiteTexture);
 
         //获取垂直扭曲和水平扭曲宽高
         var ratio: number = this._anamorphicRatio;
@@ -443,17 +449,17 @@ export class BloomEffect extends PostProcessEffect {
         var logsInt: number = Math.floor(logs);
         var iterations: number = Math.min(Math.max(logsInt, 1), BloomEffect.MAXPYRAMIDSIZE);
         var sampleScale: number = 0.5 + logs - logsInt;
-        this._shaderData.setNumber(BloomEffect.SHADERVALUE_SAMPLESCALE, sampleScale);
+        shaderData.setNumber(BloomEffect.SHADERVALUE_SAMPLESCALE, sampleScale);
 
         //预过滤参数
         var lthresh: number = Color.gammaToLinearSpace(this.threshold);
         var knee: number = lthresh * this._softKnee + 1e-5;
         this._shaderThreshold.setValue(lthresh, lthresh - knee, knee * 2, 0.25 / knee);
-        this._shaderData.setVector(BloomEffect.SHADERVALUE_THRESHOLD, this._shaderThreshold);
+        shaderData.setVector(BloomEffect.SHADERVALUE_THRESHOLD, this._shaderThreshold);
         var lclamp: number = Color.gammaToLinearSpace(this.clamp);
 
         this._shaderParams.setValue(lclamp, 0, 0, 0);
-        this._shaderData.setVector(BloomEffect.SHADERVALUE_PARAMS, this._shaderParams);
+        shaderData.setVector(BloomEffect.SHADERVALUE_PARAMS, this._shaderParams);
 
         var qualityOffset: number = this.fastMode ? 1 : 0;
 
@@ -474,7 +480,7 @@ export class BloomEffect extends PostProcessEffect {
                 this._pyramid[upIndex] = mipUpTexture;
             }
 
-            cmd.blitScreenTriangle(lastDownTexture, mipDownTexture, null, this._shader, this._shaderData, subShader);
+            cmd.blitScreenTriangle(lastDownTexture, mipDownTexture, null, this._shader, shaderData, subShader);
 
             lastDownTexture = mipDownTexture;
             tw = Math.max(Math.floor(tw / 2), 1);
@@ -487,8 +493,8 @@ export class BloomEffect extends PostProcessEffect {
             upIndex = downIndex + 1;
             mipDownTexture = this._pyramid[downIndex];
             mipUpTexture = this._pyramid[upIndex];
-            cmd.setShaderDataTexture(this._shaderData, BloomEffect.SHADERVALUE_BLOOMTEX, mipDownTexture);//通过指令延迟设置
-            cmd.blitScreenTriangle(lastUpTexture, mipUpTexture, null, this._shader, this._shaderData, BloomEffect.SUBSHADER_UPSAMPLETENT + qualityOffset);
+            cmd.setShaderDataTexture(shaderData, BloomEffect.SHADERVALUE_BLOOMTEX, mipDownTexture);//通过指令延迟设置
+            cmd.blitScreenTriangle(lastUpTexture, mipUpTexture, null, this._shader, shaderData, BloomEffect.SUBSHADER_UPSAMPLETENT + qualityOffset);
             lastUpTexture = mipUpTexture;
         }
 
@@ -511,8 +517,8 @@ export class BloomEffect extends PostProcessEffect {
             dirtTileOffset.setValue(1.0, dirtRatio / screenRatio, 0.0, (1.0 - dirtTileOffset.y) * 0.5);
 
         //合成Shader属性
-        //var compositeShaderData: ShaderData = context.compositeShaderData;
-        var compositeShaderData: ShaderData = this._shaderData;
+        var compositeShaderData: ShaderData = this._compositeShaderData;
+
         if (this.fastMode)
             compositeShaderData.addDefine(PostProcess.SHADERDEFINE_BLOOM_LOW);
         else
@@ -524,6 +530,11 @@ export class BloomEffect extends PostProcessEffect {
         compositeShaderData.setVector(PostProcess.SHADERVALUE_BLOOM_SETTINGS, shaderSettings);
         compositeShaderData.setColor(PostProcess.SHADERVALUE_BLOOM_COLOR, linearColor);//TODO:需要Color支持
         compositeShaderData.setTexture(PostProcess.SHADERVALUE_BLOOM_DIRTTEX, usedirtTexture);
+        compositeShaderData.setTexture(BloomEffect.SHADERVALUE_AUTOEXPOSURETEX, Texture2D.whiteTexture);
+
+        // cmd.setShaderDataTexture(compositeShaderData, PostProcess.SHADERVALUE_BLOOMTEX, lastUpTexture);
+        // cmd.setShaderDataVector(compositeShaderData, PostProcess.SHADERVALUE_BLOOMTEX_TEXELSIZE, this._bloomTextureTexelSize);
+
         compositeShaderData.setTexture(PostProcess.SHADERVALUE_BLOOMTEX, lastUpTexture);
         compositeShaderData.setVector(PostProcess.SHADERVALUE_BLOOMTEX_TEXELSIZE, this._bloomTextureTexelSize);
 

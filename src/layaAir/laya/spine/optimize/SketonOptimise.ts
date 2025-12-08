@@ -476,7 +476,6 @@ export class SkinAttach {
                 mainAttachMentOrder.push(attach);
             }
         });
-        this.mainVB.initBoneMat();
         this.mainIB.createIB(mainAttachMentOrder, this.mainVB);
     }
 

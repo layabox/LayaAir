@@ -53,7 +53,7 @@ export class SpineMeshUtils {
         let vbUploadLength = vbCreator.vbLength * Float32Array.BYTES_PER_ELEMENT;
         vertexBuffer.setDataLength(vbByteLength);
         if (uploadBuffer) {
-            vertexBuffer.setData(vbCreator.vb.buffer, 0, 0, vbUploadLength);
+            vertexBuffer.setData(vbCreator.vb.buffer as ArrayBuffer, 0, 0, vbUploadLength);
         }
         vertexBuffers.push(vertexBuffer);
 
@@ -119,11 +119,15 @@ export class SpineMeshUtils {
         let usage = BufferUsage.Dynamic;
         let vertexBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(usage);
         vertexBuffer.vertexDeclaration = vertexDeclaration;
+        //@ts-ignore
+        vertexBuffer._byteLength = 0;
         vertexBuffers.push(vertexBuffer);
+
         mesh._vertexBuffers = vertexBuffers;
         let indexbuffer = LayaGL.renderDeviceFactory.createIndexBuffer(usage);
         mesh._indexBuffer = indexbuffer;
-
+        //@ts-ignore
+        indexbuffer._byteLength = 0;
         let state = mesh._bufferState;
         state.applyState(vertexBuffers, indexbuffer);
         return mesh;

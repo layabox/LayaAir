@@ -9,6 +9,8 @@ import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
  * @zh 空实现的渲染器，用于优化 Spine 动画的渲染。
  */
 export class SpineEmptyRender implements ISpineOptimizeRender {
+    enableCache: boolean = false;
+    
     clearCacheMaterials(): void {
         //throw new NotImplementedError();
     }

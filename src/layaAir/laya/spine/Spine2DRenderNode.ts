@@ -113,6 +113,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     private _externalSkins: ExternalSkin[];
     private _skin: string;
     private _offset: Vector2 = new Vector2();
+    private _renderOffset: Vector2 = new Vector2();
     /** @internal */
     _setPreAlphaFlag = false;
     private _premultipliedAlpha = true;
@@ -123,6 +124,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this._renderElements = [];
         this._materials = [];
         this.spineItem = SpineEmptyRender.instance;
+        this._renderHandle.offset = this._renderOffset;
     }
 
     protected _isMaterialVaild(value: Material): boolean {
@@ -135,7 +137,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     protected _createRenderHandle(): ISpineRenderDataHandle {
         let handle = LayaGL.render2DRenderPassFactory.createSpineRenderDataHandle();
-        handle.offset = this._offset;
         return handle;
     }
 
@@ -380,8 +381,11 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     set offset(value: Vector2) {
         this._offset = value;
-        this._renderHandle.offset = this._offset;
         this.boundsChange = true;
+
+        this._renderOffset.x = value.x + this._templet.offsetX;
+        this._renderOffset.y = value.y - this._templet.offsetY;
+        this._renderHandle.offset = this._renderOffset;
         
         if (this.playState !== Spine2DRenderNode.PLAYING) {
             this.owner.repaint(RepaintFlag.UpdateRT);
@@ -483,6 +487,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
         this.onTransformChanged();
 
+        this._renderOffset.x = this._offset.x + this._templet.offsetX;
+        this._renderOffset.y = this._offset.y - this._templet.offsetY;
         this.boundsChange = true;
 
         if (!this._useFastRender) {
@@ -620,20 +626,36 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         // 在游戏循环中，update被调用，这样AnimationState就可以跟踪时间
         state.update(delta);
 
-        //@ts-ignore
-        let currentPlayTime = this._currentPlayTime = state.getCurrentPlayTime(this.trackIndex);
+        let currentPlayTime = 0;
+        let enableCache = this.spineItem.enableCache;
+        if (enableCache) {
+            //@ts-ignore
+            currentPlayTime = state.getCurrentPlayTimeByCache(this.trackIndex);
+        } else {
+            //@ts-ignore
+            currentPlayTime = state.getCurrentPlayTime(this.trackIndex);
+        }
+
+        this._currentPlayTime = currentPlayTime;
 
         // 使用当前动画和事件设置骨架
-        state.apply(this._skeleton);
+        if (!enableCache) {
+            state.apply(this._skeleton);
+        }
 
         // spine在state.apply中发送事件，开发者可能会在事件中进行destory等操作，导致无法继续执行
         if (!this._state || !this._skeleton || this.destroyed) {
             return;
         }
 
-        this._skeleton.update && this._skeleton.update(delta);
-        // 计算骨骼的世界SRT(world SRT)
-        this._skeleton.updateWorldTransform(this.physicsUpdate);// spine.Physics.update;
+        if (!enableCache) {
+            if (SpineTemplet.VersionFirst >= 4 && SpineTemplet.VersionSecond >= 2) {
+                this._skeleton.update(delta);
+            }
+            // 计算骨骼的世界SRT(world SRT)
+            this._skeleton.updateWorldTransform(this.physicsUpdate);// spine.Physics.update;
+        }
+
         this.spineItem.render(currentPlayTime);
         this.owner.repaint(RepaintFlag.UpdateRT);
     }
@@ -924,8 +946,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             let matrix = this.owner.globalTrans.getMatrix();
             // this._skeleton.x = matrix.tx;
             // this._skeleton.y = matrix.ty;
-            this._skeleton.x = matrix.tx + this._templet.offsetX;
-            this._skeleton.y = matrix.ty + this._templet.offsetY;
+            this._skeleton.x = matrix.tx;
+            this._skeleton.y = matrix.ty;
             // this._offset.setValue(this.owner.pivotX, this.owner.pivotY);
             // this._skeleton.x = matrix.tx
             // this._skeleton.y = matrix.ty
@@ -1083,14 +1105,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     get rect(): Vector4 {
         if (this._boundsChange) {
             if (this._templet) {
-                this._rect.z = this._templet.width + this._offset.x;
-                this._rect.w = this._templet.height + this._offset.y;
+                this._rect.z = this._templet.width + this._renderOffset.x;
+                this._rect.w = this._templet.height + this._renderOffset.y;
             }else{
-                this._rect.z = this.owner.width + this._offset.x;
-                this._rect.w = this.owner.height + this._offset.y;
+                this._rect.z = this.owner.width + this._renderOffset.x;
+                this._rect.w = this.owner.height + this._renderOffset.y;
             }
-            this._rect.x = this._offset.x;
-            this._rect.y = this._offset.y;
+            this._rect.x = this._renderOffset.x;
+            this._rect.y = this._renderOffset.y;
             this._boundsChange = false;
         }
         return this._rect;
