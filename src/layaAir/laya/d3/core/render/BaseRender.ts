@@ -62,6 +62,7 @@ export enum propertyChangeFlag {
     lightmapData,
     RenderCustomData,
     VisibalRange,
+    SimpleSkineParam,
 }
 
 /**

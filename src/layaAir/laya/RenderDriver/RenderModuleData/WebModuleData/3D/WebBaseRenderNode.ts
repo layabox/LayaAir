@@ -8,7 +8,7 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { Material } from "../../../../resource/Material";
 import { IRenderContext3D, IRenderElement3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
-import { ENodeCustomData, IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
+import { BaseRenderType, ENodeCustomData, IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { WebLightmap } from "./WebLightmap";
 import { WebReflectionProbe } from "./WebReflectionProb";
 import { WebVolumetricGI } from "./WebVolumetricGI";
@@ -22,7 +22,7 @@ interface DynamicBaseRenderClass {
 
 export class WebBaseRenderNode implements IBaseRenderNode {
     static BaseRenderNodeClass: DynamicBaseRenderClass;
-    renderNodeType: number;
+    renderNodeType: BaseRenderType;
     boundsChange: boolean;
     distanceForSort: number;
     sortingFudge: number;
