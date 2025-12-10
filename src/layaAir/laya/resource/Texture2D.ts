@@ -242,9 +242,10 @@ export class Texture2D extends BaseTexture {
         let texture = new Texture2D(ddsInfo.width, ddsInfo.height, ddsInfo.format, ddsInfo.mipmapCount > 1 ,  false, sRGB );
 
         texture.setDDSData(ddsInfo);
-        if (propertyParams)
+        if (propertyParams){
             texture.setProperties(propertyParams);
-        texture._premultiplyAlpha = propertyParams.premultiplyAlpha;
+            texture._premultiplyAlpha = propertyParams.premultiplyAlpha;
+        }
 
         return texture;
     }
@@ -258,9 +259,10 @@ export class Texture2D extends BaseTexture {
         let texture = new Texture2D(ktxInfo.width, ktxInfo.height, ktxInfo.format, ktxInfo.mipmapCount > 1, false, ktxInfo.sRGB);
 
         texture.setKTXData(ktxInfo);
-        if (propertyParams)
+        if (propertyParams){
             texture.setProperties(propertyParams);
-        texture._premultiplyAlpha = propertyParams.premultiplyAlpha;
+            texture._premultiplyAlpha = propertyParams.premultiplyAlpha;
+        }
         return texture;
     }
 
