@@ -12,7 +12,19 @@ export interface IGraphicsCmd {
      * @zh 如果为true，则不自动回收
      */
     lock?: boolean;
+    
+    /**
+     * @en If true, the command can be cached.
+     * @zh 如果为true，则命令可以被缓存。
+     */
+    canCache?: boolean;
 
+    /**
+     * @internal
+     * @blueprintIgnore
+     */
+    _eazyCount?: number;
+    
     /**
      * 
      * @param runner 

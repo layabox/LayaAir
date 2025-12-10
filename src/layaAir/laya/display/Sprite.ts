@@ -29,7 +29,7 @@ import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRende
 import { BlendMode, BlendModeHandler } from "../webgl/canvas/BlendMode";
 import { Stat } from "../utils/Stat";
 import { Scene } from "./Scene";
-import { GraphicsRenderData, SubStructRender } from "./Scene2DSpecial/GraphicsUtils";
+import { GraphicsRenderer, SubStructRender } from "./Scene2DSpecial/GraphicsUtils";
 import { PostProcess2D } from "./PostProcess2D";
 import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
@@ -689,8 +689,9 @@ export class Sprite extends Node {
             }
         }
     }
+
     /** @internal */
-    _graphicsData: GraphicsRenderData;
+    _graphicsRenderer: GraphicsRenderer;
 
     /**
      * @en The drawing object, which encapsulates the interfaces for drawing bitmaps and vector graphics. All drawing operations of Sprite are implemented through Graphics.
@@ -723,26 +724,22 @@ export class Sprite extends Node {
             if (this._ownGraphics)
                 g.destroy();
             else {
-                g._data = null;
                 g.owner = null;
-                g._checkDisplay();
             }
         }
         this._ownGraphics = transferOwnership;
         this._graphics = value;
 
         if (value) {
-            if (!this._graphicsData)
-                this._graphicsData = new GraphicsRenderData(this);
-            else this._graphicsData.clear();
-            value._data = this._graphicsData;
+            if (!this._graphicsRenderer)
+                this._graphicsRenderer = new GraphicsRenderer(this);
             value.owner = this;
-            value._checkDisplay();
+            this._graphicsRenderer.setGraphics(value);
         }
         else {
-            if (this._graphicsData) {
-                this._graphicsData.destroy();
-                this._graphicsData = null;
+            if (this._graphicsRenderer) {
+                this._graphicsRenderer.destroy();
+                this._graphicsRenderer = null;
             }
             this._renderType &= ~SpriteConst.GRAPHICS;
         }
@@ -1684,7 +1681,7 @@ export class Sprite extends Node {
             }
 
             if (sprite._graphics) {
-                sprite._graphics._render(runner, 0, 0);
+                sprite._graphicsRenderer._render(runner, 0, 0);
             }
 
             for (let i = 0, len = sprite._children.length; i < len; i++)
@@ -2043,8 +2040,8 @@ export class Sprite extends Node {
 
             if (this._renderType & SpriteConst.GRAPHICS) {
                 if (flag & RepaintFlag.Graphics) {
-                    if (this._graphics)
-                        this._graphics._modified = true;
+                    if (this._graphicsRenderer)
+                        this._graphicsRenderer.onModified();
                 }
                 this._globalTrans._notifyRenderSpriteTransChange();
             }
@@ -2058,7 +2055,7 @@ export class Sprite extends Node {
 
     /** @internal */
     _needGraphicsUpdate(): boolean {
-        return !this._destroyed && this._struct.enabled && this._graphics && this._graphics._display && !!(this.displayedInStage || this._maskParent);
+        return !this._destroyed && this._struct.enabled && this._graphicsRenderer && this._graphicsRenderer._display && !!(this.displayedInStage || this._maskParent);
     }
 
     /**
@@ -2505,8 +2502,8 @@ export class Sprite extends Node {
         super._setDisplay(value);
         //默认有父节点改变，需要重绘 graphics
         if (this._needGraphicsUpdate()) {
-            if (this._graphics)
-                this._graphics._modified = true;
+            if (this._graphicsRenderer)
+                this._graphicsRenderer.onModified();
             this.stage._graphicUpdateList.add(this);
             this._globalTrans._notifyRenderSpriteTransChange();
         }

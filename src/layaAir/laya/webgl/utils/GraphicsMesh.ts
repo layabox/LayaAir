@@ -14,6 +14,11 @@ export type MeshBlockInfo = {
 
 /** @ignore */
 export class GraphicsMesh {
+
+   static IDCounter:number = 0;
+   
+   id:number = GraphicsMesh.IDCounter++;
+
    //顶点结构大小。每个mesh的顶点结构是固定的。
    static stride = 0;
 
@@ -37,9 +42,9 @@ export class GraphicsMesh {
       return this._buffer.bufferState;
    }
 
-   constructor() {
+   constructor(vertexBlockSize: number) {
       //1次4个vb 6个ib
-      this._buffer = new Graphic2DDynamicVIBuffer(4, GraphicsMesh.vertexDeclarition);
+      this._buffer = new Graphic2DDynamicVIBuffer(vertexBlockSize, GraphicsMesh.vertexDeclarition);
    }
 
    /**

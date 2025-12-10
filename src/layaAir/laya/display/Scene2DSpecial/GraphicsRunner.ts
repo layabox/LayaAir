@@ -26,7 +26,7 @@ import { SubmitKey } from "../../webgl/submit/SubmitKey";
 import { TextRender } from "../../webgl/text/TextRender";
 import { GraphicsMesh, MeshBlockInfo } from "../../webgl/utils/GraphicsMesh";
 import { Sprite } from "../Sprite";
-import { GraphicsRenderData } from "./GraphicsUtils";
+import { GraphicsRenderer } from "./GraphicsUtils";
 import { I2DGraphicVertexDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { LayaGL } from "../../layagl/LayaGL";
@@ -34,7 +34,6 @@ import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
-import { Resource } from "../../resource/Resource";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 //const tmpuv1: number[] = [0, 0, 0, 0, 0, 0, 0, 0];
@@ -48,6 +47,7 @@ const _drawTexToQuad_Index = new Uint16Array([0, 2, 1, 0, 3, 2]);
 /** @ignore @blueprintIgnore */
 export class GraphicsRunner {
     private _alpha = 1.0;
+    private _vertexBlockSize: number = 4;
 
     _material: Material = null;
 
@@ -67,7 +67,7 @@ export class GraphicsRunner {
 
     _curSubmit: SubmitBase = null;
     _submitKey = new SubmitKey();	//当前将要使用的设置。用来跟上一次的_curSubmit比较
-    _graphicsData: GraphicsRenderData = null;	//保存当前的渲染数据。用来给shader使用。    
+    _renderer: GraphicsRenderer = null;	//保存当前的渲染数据。用来给shader使用。    
     //public var _vbs:Array = [];	//双buffer管理。TODO 临时删掉，需要mesh中加上
     private _transedPoints: number[] = new Array(8);	//临时的数组，用来计算4个顶点的转换后的位置。
     private _temp4Points: number[] = new Array(8);		//临时数组。用来保存4个顶点的位置。
@@ -714,6 +714,7 @@ export class GraphicsRunner {
     }
 
     private _appendBlockInfo(info: MeshBlockInfo): void {
+        this._renderer.take(info);
         this._curSubmit.appendData(info);
     }
 
@@ -730,7 +731,7 @@ export class GraphicsRunner {
         if (!this._getImageSource(texture)) {
             return;
         }
-        this._graphicsData.addResRef(texture);
+        this._renderer.addResRef(texture);
         this._fillTexture(texture, texture.width, texture.height, texture.uvrect, x, y, width, height, type, offset.x, offset.y, color);
     }
 
@@ -823,7 +824,10 @@ export class GraphicsRunner {
     }
 
     createSubmit(mesh: GraphicsMesh): SubmitBase {
-        return this._graphicsData.createSubmit(this, mesh, this._material);
+        let submit = this._renderer.createSubmit(this);
+        submit.mesh = mesh;
+        submit.material = this._material;
+        return submit
     }
 
     drawTexture(tex: Texture, x: number, y: number, width: number, height: number, color = 0xffffffff): void {
@@ -835,7 +839,7 @@ export class GraphicsRunner {
             return;
         }
 
-        this._graphicsData.addResRef(tex);
+        this._renderer.addResRef(tex);
         //TODO 还没实现
         var n = pos.length / 2;
         var ipos = 0;
@@ -852,7 +856,7 @@ export class GraphicsRunner {
         if (!this._getImageSource(tex)) { //source内调用tex.active();
             return false;
         }
-        this._graphicsData.addResRef(tex);
+        this._renderer.addResRef(tex);
         return this._inner_drawTexture(tex, (tex.bitmap as Texture2D).id, x, y, width, height, m, uv, alpha, color);
     }
 
@@ -1127,7 +1131,7 @@ export class GraphicsRunner {
             if (!this._getImageSource(tex)) { //source内调用tex.active();
                 return;
             }
-            this._graphicsData.addResRef(tex);
+            this._renderer.addResRef(tex);
         }
 
         if (alpha == null) alpha = 1.0;
@@ -2100,7 +2104,54 @@ export class GraphicsRunner {
     * @param vertexCount 需要的顶点数
     * @returns 可用的 Mesh
     */
-    public acquire(vertexCount: number): MeshBlockInfo {
+   public acquire(vertexCount: number): MeshBlockInfo {
+        // let renderer = this._renderer;
+        // if (renderer && renderer._usedBlockBuckets.length > 0) {
+        //     let needBlocks = Math.ceil(vertexCount / this._vertexBlockSize);
+
+        //     for (const bucket of renderer._usedBlockBuckets) {
+        //         const available = bucket.blocks.length - bucket.used;
+        //         if (available <= 0) continue;
+
+        //         let usedBlocks: number[] = [];
+        //         let usedViews: I2DGraphicVertexDataView[] = [];
+        //         let mesh: GraphicsMesh = bucket.mesh;
+
+        //         while (usedBlocks.length < needBlocks && bucket.used < bucket.blocks.length) {
+        //             const record = bucket.blocks[bucket.used];
+        //             if (!record) break;
+        //             usedBlocks.push(record.index);
+        //             usedViews.push(record.view);
+        //             bucket.used++;
+        //         }
+
+        //         if (usedBlocks.length > 0) {
+        //             if (usedBlocks.length >= needBlocks) {
+        //                 return {
+        //                     mesh,
+        //                     vertexBlocks: usedBlocks,
+        //                     vertexViews: usedViews
+        //                 };
+        //             }
+
+        //             let remainingVertexCount = vertexCount - (usedBlocks.length * this._vertexBlockSize);
+        //             let additionalResult = mesh.checkVertex(remainingVertexCount);
+        //             if (additionalResult) {
+        //                 usedBlocks.push(...additionalResult.vertexBlocks);
+        //                 usedViews.push(...additionalResult.vertexViews);
+                      
+        //                 return {
+        //                     mesh,
+        //                     vertexBlocks: usedBlocks,
+        //                     vertexViews: usedViews
+        //                 };
+        //             } else {
+        //                 bucket.used -= usedBlocks.length; // rollback
+        //             }
+        //         }
+        //     }
+        // }
+        
         // 按顺序检查是否有可用的 Mesh
         let meshes = this._meshPool;
 
@@ -2113,7 +2164,7 @@ export class GraphicsRunner {
             }
         }
 
-        let mesh = new GraphicsMesh();
+        let mesh = new GraphicsMesh(this._vertexBlockSize);
         this._meshPool.push(mesh);
         this._currentMeshIndex = this._meshPool.length - 1;
         let result = mesh.checkVertex(vertexCount);
@@ -2150,6 +2201,7 @@ export class GraphicsRunner {
             ty = matrix.ty;
         }
 
+        let globalMatrix = this.sprite._globalTrans.getMatrix();
         let r = (rgba & 0xff) / 255.0;
         let b = ((rgba >>> 16) & 0xff) / 255.0;
         let g = ((rgba >>> 8) & 0xff) / 255.0;
@@ -2180,19 +2232,19 @@ export class GraphicsRunner {
                 offset = dataView.start / dataView.stride;
             }
 
-            let x = vertices[pi], y = vertices[pi + 1];
+            positions[pi] = vertices[pi], positions[pi + 1] = vertices[pi + 1];
             if (matrix) {
                 if (matrix._bTransform) {
-                    vbdata[vi] = positions[pi] = x * m00 + y * m10 + tx;
-                    vbdata[vi + 1] = positions[pi + 1] = x * m01 + y * m11 + ty;
+                    positions[pi] = vertices[pi] * m00 + vertices[pi + 1] * m10 + tx;
+                    positions[pi + 1] = vertices[pi] * m01 + vertices[pi + 1] * m11 + ty;
                 } else {
-                    vbdata[vi] = positions[pi] = x + tx;
-                    vbdata[vi + 1] = positions[pi + 1] = y + ty;
+                    positions[pi] = vertices[pi] + tx;
+                    positions[pi + 1] = vertices[pi + 1] + ty;
                 }
-            } else {
-                vbdata[vi] = positions[pi] = x;
-                vbdata[vi + 1] = positions[pi + 1] = y;
             }
+
+            vbdata[vi] = positions[pi] * globalMatrix.a + positions[pi + 1] * globalMatrix.c + globalMatrix.tx;
+            vbdata[vi + 1] = positions[pi] * globalMatrix.b + positions[pi + 1] * globalMatrix.d +  globalMatrix.ty;
 
             if (uvs) {
                 vbdata[vi + 2] = uvminx + uvs[pi] * uvu;

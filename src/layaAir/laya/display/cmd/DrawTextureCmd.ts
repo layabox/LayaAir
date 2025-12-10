@@ -14,6 +14,7 @@ const className = "DrawTextureCmd";
  * @zh 绘制单个贴图
  */
 export class DrawTextureCmd implements IGraphicsCmd {
+    canCache: boolean = true;
     /**
      * @en Identifier for the DrawTextureCmd
      * @zh 绘制单个贴图命令的标识符
@@ -117,6 +118,7 @@ export class DrawTextureCmd implements IGraphicsCmd {
         cmd.blendMode = blendMode;
         cmd.uv = uv;
         cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
+        cmd.canCache = !percent;
         return cmd;
     }
 
