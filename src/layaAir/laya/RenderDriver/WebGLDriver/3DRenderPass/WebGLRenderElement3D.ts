@@ -31,7 +31,10 @@ export class WebGLRenderElement3D implements IRenderElement3D {
         return this._subShader;
     }
     public set subShader(value: SubShader) {
-        this._subShader = value;
+        if (this._subShader != value) {
+            this._subShader = value;
+            this.modifyedMaterialShaderData();
+        }
     }
 
     materialId: number;
@@ -59,7 +62,20 @@ export class WebGLRenderElement3D implements IRenderElement3D {
     public set materialShaderData(value: WebGLShaderData) {
         if (this._materialShaderData != value) {
             this._materialShaderData = value;
-            this._matChangeFlag.setValue(Stat.loopCount, WebGLEngine.instance._framePassCount)
+            this._matChangeFlag.setValue(Stat.loopCount, WebGLEngine.instance._framePassCount);
+            this.modifyedMaterialShaderData();
+        }
+    }
+
+    private modifyedMaterialShaderData() {
+        if (this.subShader && this.materialShaderData) {
+            let shadername = this._subShader._owner.name;
+            if (!WebGLRenderElement3D._matChangeFlagMap.has(shadername)) {
+                let changeFlag = new Vector2(Stat.loopCount, WebGLEngine.instance._framePassCount);
+                WebGLRenderElement3D._matChangeFlagMap.set(shadername, changeFlag);
+            }
+            let changeFlag = WebGLRenderElement3D._matChangeFlagMap.get(shadername);
+            this._materialShaderData._defineDatas.addChangeFlagInfo(changeFlag);
         }
     }
 
@@ -83,7 +99,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
     protected _curDrawCacheInfo: OneDrawPassCacheInfo;
 
     //material是否改变
-    protected _materialRenderDataChange: boolean = false;
+    protected _materialRenderDataChange: boolean = true;
     //spriteRenderNode是否改变
     protected _spriteRenderDataChange: boolean = false;
 
@@ -120,6 +136,10 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
         if (this._materialRenderDataChange) {
             this._handleMaterialChange();
+        }
+
+        if (this.materialShaderData) {
+            this.materialShaderData.uploadCache();
         }
 
         this.materialUBO && this.materialUBO.upload();
