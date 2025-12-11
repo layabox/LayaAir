@@ -12,7 +12,9 @@ const className = "DrawImageCmd";
  * @zh 绘制图片命令
  */
 export class DrawImageCmd implements IGraphicsCmd {
-    
+    /** @internal */
+    _cacheData: any;
+
     canCache: boolean = true;
     /**
      * @en Identifier for the DrawImageCmd
@@ -90,6 +92,7 @@ export class DrawImageCmd implements IGraphicsCmd {
     recover(): void {
         this.texture && this.texture._removeReference();
         this.texture = null;
+        this._cacheData = null;
         Pool.recover(className, this);
     }
 

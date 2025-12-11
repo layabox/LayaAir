@@ -19,6 +19,10 @@ export interface IGraphicsCmd {
      */
     canCache?: boolean;
 
+    
+    /** @internal */
+    _cacheData ?: any;
+
     /**
      * @internal
      * @blueprintIgnore

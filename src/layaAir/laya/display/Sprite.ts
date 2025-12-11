@@ -298,6 +298,10 @@ export class Sprite extends Node {
             this._subStructRender.destroy();
             this._subStructRender = null;
         }
+        if (this._graphicsRenderer) {
+            this._graphicsRenderer.destroy();
+            this._graphicsRenderer = null;
+        }
 
         if (this._drawOriRT) {
             if (this._drawOriRT !== RenderTexture2D._empty) {
@@ -2055,7 +2059,7 @@ export class Sprite extends Node {
 
     /** @internal */
     _needGraphicsUpdate(): boolean {
-        return !this._destroyed && this._struct.enabled && this._graphicsRenderer && this._graphicsRenderer._display && !!(this.displayedInStage || this._maskParent);
+        return this._struct.enabled && this._graphicsRenderer && this._graphicsRenderer._display && !!(this.displayedInStage || this._maskParent);
     }
 
     /**

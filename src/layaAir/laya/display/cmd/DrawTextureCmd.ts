@@ -14,6 +14,9 @@ const className = "DrawTextureCmd";
  * @zh 绘制单个贴图
  */
 export class DrawTextureCmd implements IGraphicsCmd {
+    /** @internal */
+    _cacheData: any;
+
     canCache: boolean = true;
     /**
      * @en Identifier for the DrawTextureCmd
@@ -130,6 +133,7 @@ export class DrawTextureCmd implements IGraphicsCmd {
         this.texture && this.texture._removeReference();
         this.texture = null;
         this.matrix = null;
+        this._cacheData = null;
         Pool.recover(className, this);
     }
 

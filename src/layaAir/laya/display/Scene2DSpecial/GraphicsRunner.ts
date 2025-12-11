@@ -21,7 +21,7 @@ import { SaveTranslate } from "../../webgl/canvas/save/SaveTranslate";
 import { GraphicsShaderInfo } from "../../webgl/shader/d2/value/GraphicsShaderInfo";
 import { BasePoly } from "../../webgl/shapes/BasePoly";
 import { Earcut } from "../../webgl/shapes/Earcut";
-import { SubmitBase } from "../../webgl/submit/SubmitBase";
+import { GraphicsRunnerCacheChunk, SubmitBase, SubmitCacheInfo } from "../../webgl/submit/SubmitBase";
 import { SubmitKey } from "../../webgl/submit/SubmitKey";
 import { TextRender } from "../../webgl/text/TextRender";
 import { GraphicsMesh, MeshBlockInfo } from "../../webgl/utils/GraphicsMesh";
@@ -34,6 +34,7 @@ import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
+import { IGraphicsCmd } from "../IGraphics";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 //const tmpuv1: number[] = [0, 0, 0, 0, 0, 0, 0, 0];
@@ -68,6 +69,8 @@ export class GraphicsRunner {
     _curSubmit: SubmitBase = null;
     _submitKey = new SubmitKey();	//当前将要使用的设置。用来跟上一次的_curSubmit比较
     _renderer: GraphicsRenderer = null;	//保存当前的渲染数据。用来给shader使用。    
+    _global:Matrix = null;
+    _enableCache: boolean = false;
     //public var _vbs:Array = [];	//双buffer管理。TODO 临时删掉，需要mesh中加上
     private _transedPoints: number[] = new Array(8);	//临时的数组，用来计算4个顶点的转换后的位置。
     private _temp4Points: number[] = new Array(8);		//临时数组。用来保存4个顶点的位置。
@@ -96,6 +99,9 @@ export class GraphicsRunner {
     _save: ISaveData[] & { _length?: number } = null;
     _saveMark: SaveMark | null = null;
     // private _shader2D = new Shader2D();	//
+
+    // 当前 submit 的缓存信息（多个合批的 cmd 共享同一个对象）
+    _currentSubmitCache: SubmitCacheInfo | null = null;
 
     /**
      * 所cacheAs精灵
@@ -511,7 +517,10 @@ export class GraphicsRunner {
         this._lastTex = null;
         this._saveMark = <SaveMark>this._save[0];
         this._save._length = 1;
+        this._currentSubmitCache = null;
+        this._global = null;
     }
+
     /**
      * @zh 获取当前的 X 方向缩放
      * @returns 当前的 X 方向缩放
@@ -827,6 +836,10 @@ export class GraphicsRunner {
         let submit = this._renderer.createSubmit(this);
         submit.mesh = mesh;
         submit.material = this._material;
+
+        if (this._enableCache) {
+            this._currentSubmitCache = submit._getCacheInfo();
+        }
         return submit
     }
 
@@ -1204,7 +1217,7 @@ export class GraphicsRunner {
         }
         //return true;
     }
-    
+
     transform(a: number, b: number, c: number, d: number, tx: number, ty: number): void {
         SaveTransform.save(this);
         Matrix.mul(Matrix.TEMP.setTo(a, b, c, d, tx, ty), this._curMat, this._curMat);	//TODO 这里会有效率问题。一堆的set
@@ -2104,7 +2117,7 @@ export class GraphicsRunner {
     * @param vertexCount 需要的顶点数
     * @returns 可用的 Mesh
     */
-   public acquire(vertexCount: number): MeshBlockInfo {
+    public acquire(vertexCount: number): MeshBlockInfo {
         // let renderer = this._renderer;
         // if (renderer && renderer._usedBlockBuckets.length > 0) {
         //     let needBlocks = Math.ceil(vertexCount / this._vertexBlockSize);
@@ -2139,7 +2152,7 @@ export class GraphicsRunner {
         //             if (additionalResult) {
         //                 usedBlocks.push(...additionalResult.vertexBlocks);
         //                 usedViews.push(...additionalResult.vertexViews);
-                      
+
         //                 return {
         //                     mesh,
         //                     vertexBlocks: usedBlocks,
@@ -2151,7 +2164,7 @@ export class GraphicsRunner {
         //         }
         //     }
         // }
-        
+
         // 按顺序检查是否有可用的 Mesh
         let meshes = this._meshPool;
 
@@ -2192,6 +2205,7 @@ export class GraphicsRunner {
             uvv = uvrect[3];
         }
         let m00, m01, m10, m11, tx, ty;
+        let globalMatrix: Matrix | null = this._global;
         if (matrix) {
             m00 = matrix.a;
             m01 = matrix.b;
@@ -2201,7 +2215,6 @@ export class GraphicsRunner {
             ty = matrix.ty;
         }
 
-        let globalMatrix = this.sprite._globalTrans.getMatrix();
         let r = (rgba & 0xff) / 255.0;
         let b = ((rgba >>> 16) & 0xff) / 255.0;
         let g = ((rgba >>> 8) & 0xff) / 255.0;
@@ -2218,6 +2231,14 @@ export class GraphicsRunner {
         let positions: number[] = [];
         let vbdata: Float32Array = result.mesh._buffer._tempVertexData;
         let vertexLength = GraphicsMesh.stride;
+
+        // 如果需要缓存，先构建本地坐标的 vbdata
+        let cachedVbdata: Float32Array | null = null , localX: number, localY: number;
+        if (this._currentSubmitCache) {
+            cachedVbdata = new Float32Array(vertexCount * vertexLength);
+        }
+
+        let cachedVi = 0;
         for (let i = 0, pi = 0, ci = 0, vi = 0; i < vertexCount; i++) {
 
             if (!dataView || dataView.length <= vi) {
@@ -2230,21 +2251,28 @@ export class GraphicsRunner {
                 dataViewIndex++;
                 vi = 0;
                 offset = dataView.start / dataView.stride;
-            }
 
-            positions[pi] = vertices[pi], positions[pi + 1] = vertices[pi + 1];
-            if (matrix) {
-                if (matrix._bTransform) {
-                    positions[pi] = vertices[pi] * m00 + vertices[pi + 1] * m10 + tx;
-                    positions[pi + 1] = vertices[pi] * m01 + vertices[pi + 1] * m11 + ty;
-                } else {
-                    positions[pi] = vertices[pi] + tx;
-                    positions[pi + 1] = vertices[pi + 1] + ty;
+                if (cachedVbdata) {
+                    cachedVbdata.set(vbdata, cachedVi);
+                    cachedVi = i * vertexLength;
                 }
             }
 
-            vbdata[vi] = positions[pi] * globalMatrix.a + positions[pi + 1] * globalMatrix.c + globalMatrix.tx;
-            vbdata[vi + 1] = positions[pi] * globalMatrix.b + positions[pi + 1] * globalMatrix.d +  globalMatrix.ty;
+            localX = vertices[pi], localY = vertices[pi + 1];
+
+            if (matrix) {
+                if (matrix._bTransform) {
+                    localX = vertices[pi] * m00 + vertices[pi + 1] * m10 + tx;
+                    localY = vertices[pi] * m01 + vertices[pi + 1] * m11 + ty;
+                } else {
+                    localX += tx;
+                    localY += ty;
+                }
+            }
+            positions[pi] = localX;
+            positions[pi + 1] = localY;
+            vbdata[vi] = localX * globalMatrix.a + localY * globalMatrix.c + globalMatrix.tx;
+            vbdata[vi + 1] = localX * globalMatrix.b + localY * globalMatrix.d + globalMatrix.ty;
 
             if (uvs) {
                 vbdata[vi + 2] = uvminx + uvs[pi] * uvu;
@@ -2284,6 +2312,10 @@ export class GraphicsRunner {
             dataView.setData(vbdata);
         }
 
+        if (cachedVbdata) {
+            cachedVbdata.set(vbdata, cachedVi);
+        }
+
         result.positions = positions;
 
         let indexOffset = submit.indexCount;
@@ -2293,6 +2325,96 @@ export class GraphicsRunner {
             ibdata[i + indexOffset] = indexsMap[indices[i]];
         }
         submit.indexCount += indexCount;
+
+        if (this._currentSubmitCache && cachedVbdata) {
+            const chunk: GraphicsRunnerCacheChunk = {
+                vbdata: cachedVbdata,
+                vertexCount: vertexCount,
+                indices: indices as number[],
+                positions: positions,
+            };
+            this._currentSubmitCache.vertexCount += vertexCount;
+            this._currentSubmitCache.chunks.push(chunk);
+        }
+    }
+
+    /**@internal 使用已缓存的 submit 信息应用缓存 */
+    applyCachedSubmitInfo(submitInfo: SubmitCacheInfo): void {
+        let vertexResult = this.acquire(submitInfo.vertexCount);
+        let submit = this.createSubmit(vertexResult.mesh);
+        // 从 submitInfo 的 submit 获取属性并设置
+        submit._internalInfo.textureHost = submitInfo.texture;
+        submit._key.blendShader = submitInfo.blendShader;
+
+        this._curSubmit = submit;
+        let dataViewIndex = 0;
+        for (const chunk of submitInfo.chunks) {
+            dataViewIndex = this._applyCachedChunk(this._global, vertexResult, submit, chunk, dataViewIndex);
+        }
+    }
+
+    /**@internal */
+    _applyCachedChunk(
+        matrix: Matrix, total: MeshBlockInfo,
+        submit: SubmitBase, chunk: GraphicsRunnerCacheChunk,
+        dataViewIndex: number,
+    ): number {
+
+        let block_mesh: MeshBlockInfo = { mesh: total.mesh };
+        let views: I2DGraphicVertexDataView[] = block_mesh.vertexViews = [];
+        let indexs: number[] = block_mesh.vertexBlocks = [];
+
+        block_mesh.positions = chunk.positions;
+
+        let dataView: I2DGraphicVertexDataView;
+        let offset = 0;
+        let vertexLength = GraphicsMesh.stride;
+        let vertexCount = chunk.vertexCount;
+        let cachedVbdata = chunk.vbdata;
+        let vbdata:Float32Array;
+        let indexsMap: number[] = [];
+
+        let _localIndex = 0, localX: number, localY: number;
+        for (let i = 0, vi = 0, pi = 0; i < vertexCount; i++) {
+            if (!dataView || dataView.length <= vi) {
+                if (dataView) dataView.setData(vbdata);
+                dataView = views[_localIndex] = total.vertexViews[dataViewIndex];
+                indexs[_localIndex] = total.vertexBlocks[dataViewIndex];
+                vi = 0;
+                offset = dataView.start / dataView.stride;
+                dataViewIndex++
+
+                if (dataView.length == cachedVbdata.length) {
+                    vbdata = cachedVbdata;
+                }else{
+                    vbdata = new Float32Array(cachedVbdata.buffer , _localIndex * dataView.length * 4, dataView.length);
+                }
+                _localIndex++;
+            }
+
+            localX = chunk.positions[pi];
+            localY = chunk.positions[pi + 1];
+
+            vbdata[vi] = localX * matrix.a + localY * matrix.c + matrix.tx;
+            vbdata[vi + 1] = localX * matrix.b + localY * matrix.d + matrix.ty;
+
+            vi += vertexLength;
+            pi += 2;
+            indexsMap[i] = offset++;
+        }
+
+        if (dataView) dataView.setData(vbdata);
+
+        let indexOffset = submit.indexCount;
+        let ibdata = submit.indices;
+        for (let i = 0; i < chunk.indices.length; i++) {
+            ibdata[i + indexOffset] = indexsMap[chunk.indices[i]];
+        }
+        submit.indexCount += chunk.indices.length;
+
+        this._appendBlockInfo(block_mesh);
+
+        return dataViewIndex;
     }
 
     /**
