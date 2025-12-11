@@ -138,11 +138,15 @@ export class WebGLRenderElement3D implements IRenderElement3D {
             this._handleMaterialChange();
         }
 
-        if (this.materialShaderData) {
+        if (Config.matUseUBO && this.materialShaderData) {
             this.materialShaderData.uploadCache();
+            if (this.materialUBO) {
+                if (this.materialUBO.destroyed) {
+                    this._handleMaterialChange();
+                }
+                this.materialUBO.upload();
+            }
         }
-
-        this.materialUBO && this.materialUBO.upload();
 
         this._invertFront = this._getInvertFront();
     }

@@ -248,7 +248,7 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
 
         canvas.addEventListener("webglcontextlost", this.webglContextLost)
         Config._uniformBlock = Config.enableUniformBufferObject && this.getCapable(RenderCapable.UnifromBufferObject);
-        Config.matUseUBO = Config.matUseUBO && this.getCapable(RenderCapable.UnifromBufferObject);
+        Config.matUseUBO = Config.matUseUBO && this.getCapable(RenderCapable.UnifromBufferObject) && Config.enableUniformBufferObject;
         this._initBufferBlock();
     }
 

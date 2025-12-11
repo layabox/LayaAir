@@ -143,7 +143,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     }
 
     private _getSceneCameraCacheKey() {
-        let key: string = `${this.sceneData._id ? this.sceneData._id : -1} + ${this.cameraData ? this.cameraData._id : -1}+${this._pipelineMode}`;
+        let key: string = `${this.sceneData ? this.sceneData._id : -1} + ${this.cameraData ? this.cameraData._id : -1}+${this._pipelineMode}`;
         this._curRenderGlobalKey = this.globalComkeyToID(key);
 
         if (!this._globalRendercacheInfoMap.has(this._curRenderGlobalKey)) {

@@ -12,6 +12,8 @@ export abstract class WebGLUniformBufferBase {
 
     needUpload: boolean;
 
+    destroyed: boolean = false;
+
     abstract upload(): void;
 
     abstract bind(location: number): void;
