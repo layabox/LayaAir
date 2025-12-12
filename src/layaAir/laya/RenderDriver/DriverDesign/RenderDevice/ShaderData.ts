@@ -14,6 +14,7 @@ import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { InternalTexture } from "./InternalTexture";
 import { IDeviceBuffer } from "./IDeviceBuffer";
 import { InternalRenderTarget } from "./InternalRenderTarget";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 
 export enum ShaderDataType {
     None,
@@ -47,6 +48,49 @@ export function isUboBufferShaderType(type: ShaderDataType): boolean {
         type === ShaderDataType.Texture3D ||
         type === ShaderDataType.TextureCube ||
         type === ShaderDataType.Texture2DArray)
+}
+
+export function isBlendProperty(index: number) {
+    return index == Shader3D.BLEND ||
+        index == Shader3D.BLEND_SRC ||
+        index == Shader3D.BLEND_DST ||
+        index == Shader3D.BLEND_SRC_RGB ||
+        index == Shader3D.BLEND_DST_RGB ||
+        index == Shader3D.BLEND_SRC_ALPHA ||
+        index == Shader3D.BLEND_DST_ALPHA ||
+        index == Shader3D.BLEND_EQUATION ||
+        index == Shader3D.BLEND_EQUATION_RGB ||
+        index == Shader3D.BLEND_EQUATION_ALPHA;
+}
+
+function isDephtProperty(index: number) {
+    return index == Shader3D.DEPTH_TEST ||
+        index == Shader3D.DEPTH_WRITE ||
+        index == Shader3D.DEPTH_BIAS ||
+        index == Shader3D.DEPTH_BIAS_CONSTANT ||
+        index == Shader3D.DEPTH_BIAS_SLOPESCALE ||
+        index == Shader3D.DEPTH_BIAS_CLAMP;
+}
+
+function isStencilProperty(index: number) {
+    return index == Shader3D.STENCIL_TEST ||
+        index == Shader3D.STENCIL_WRITE ||
+        index == Shader3D.STENCIL_WRITE_MASK ||
+        index == Shader3D.STENCIL_READ_MASK ||
+        index == Shader3D.STENCIL_Ref ||
+        index == Shader3D.STENCIL_Op;
+}
+
+export function isDepthStencilProperty(index: number) {
+    return isDephtProperty(index) || isStencilProperty(index);
+}
+
+export function isCullProperty(index: number) {
+    return index == Shader3D.CULL;
+}
+
+export function isRenderStateProperty(index: number) {
+    return isBlendProperty(index) || isDepthStencilProperty(index) || isCullProperty(index);
 }
 
 export function checkShaderDataValueLegal(value: any, shaderType: ShaderDataType) {

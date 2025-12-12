@@ -3,6 +3,7 @@ import { BlendFactor } from "../../../../RenderEngine/RenderEnum/BlendFactor";
 import { CompareFunction } from "../../../../RenderEngine/RenderEnum/CompareFunction";
 import { CullMode } from "../../../../RenderEngine/RenderEnum/CullMode";
 import { StencilOperation } from "../../../../RenderEngine/RenderEnum/StencilOperation";
+import { RenderState } from "../../../RenderModuleData/Design/RenderState";
 import { WebGLEngine } from "../WebGLEngine";
 
 
@@ -291,7 +292,7 @@ export class GLRenderState {
     /**
     * @internal
     */
-    setstencilOp(fail: number, zfail: number, zpass: number) {
+    setStencilOp(fail: number, zfail: number, zpass: number) {
         if (this._stencilOp_fail != fail || this._stencilOp_zfail != zfail || this._stencilOp_zpass != zpass) {
             this._stencilOp_fail = fail;
             this._stencilOp_zfail = zfail;
@@ -404,5 +405,109 @@ export class GLRenderState {
      */
     setFrontFace(value: number): void {
         value !== this._frontFace && (this._frontFace = value, this._gl.frontFace(this._getGLFrontfaceFactor(value)));
+    }
+
+    /**
+     * @internal
+     * @param renderState 
+     */
+    setRenderState(renderState: RenderState, isTarget: boolean, invertFront: boolean) {
+        let depthWrite = renderState.depthWrite;
+        this.setDepthMask(depthWrite);
+        let depthTest = renderState.depthTest;
+        if (depthTest == RenderState.DEPTHTEST_OFF)
+            this.setDepthTest(false);
+        else {
+            this.setDepthTest(true);
+            this.setDepthFunc(depthTest);
+        }
+        //Stencil
+        let stencilWrite = renderState.stencilWrite;
+        this.setStencilWrite(stencilWrite);
+
+        let stencilWriteMask = renderState.stencilWriteMask;
+        this.setStencilWriteMask(stencilWriteMask);
+
+        let stencilOp = renderState.stencilOp;
+        this.setStencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
+
+        let stencilTest = renderState.stencilTest;
+        if (stencilTest == RenderState.STENCILTEST_OFF) {
+            this.setStencilTest(false);
+        }
+        else {
+            this.setStencilTest(true);
+            let stencilRef = renderState.stencilRef;
+            let stencilReadMask = renderState.stencilReadMask;
+            this.setStencilFunc(stencilTest, stencilRef, stencilReadMask);
+        }
+
+        // depth bias
+        let depthBias: boolean = renderState.depthBias;
+        this.setDepthBias(depthBias);
+        if (depthBias) {
+            let depthBiasConstant: number = renderState.depthBiasConstant;
+            let depthBiasSlopeScale: number = renderState.depthBiasSlopeScale;
+            let depthBiasClamp: number = renderState.depthBiasClamp;
+            this.setDepthBiasFactor(depthBiasConstant, depthBiasSlopeScale, depthBiasClamp);
+        }
+
+        //blend
+        let blend = renderState.blend;
+        switch (blend) {
+            case RenderState.BLEND_DISABLE:
+                this.setBlend(false);
+                break;
+            case RenderState.BLEND_ENABLE_ALL:
+                let blendEquation = renderState.blendEquation;
+                let srcBlend = renderState.srcBlend;
+                let dstBlend = renderState.dstBlend;
+                this.setBlend(true);
+                this.setBlendEquation(blendEquation);
+                this.setBlendFunc(srcBlend, dstBlend);
+                break;
+            case RenderState.BLEND_ENABLE_SEPERATE:
+                let blendEquationRGB = renderState.blendEquationRGB;
+                let blendEquationAlpha = renderState.blendEquationAlpha;
+                let srcRGB = renderState.srcBlendRGB;
+                let dstRGB = renderState.dstBlendRGB;
+                let srcAlpha = renderState.srcBlendAlpha;
+                let dstAlpha = renderState.dstBlendAlpha;
+                this.setBlend(true);
+                this.setBlendEquationSeparate(blendEquationRGB, blendEquationAlpha);
+                this.setBlendFuncSeperate(srcRGB, dstRGB, srcAlpha, dstAlpha);
+                break;
+        }
+
+        // cull
+        let cull = renderState.cull;
+        let forntFace: number;
+        switch (cull) {
+            case RenderState.CULL_NONE:
+                this.setCullFace(false);
+                if (isTarget != invertFront)
+                    forntFace = CullMode.Front;//gl.CCW
+                else
+                    forntFace = CullMode.Back;
+                this.setFrontFace(forntFace);
+                break;
+            case RenderState.CULL_FRONT:
+                this.setCullFace(true);
+                if (isTarget == invertFront)
+                    forntFace = CullMode.Front;//gl.CCW
+                else
+                    forntFace = CullMode.Back;
+                this.setFrontFace(forntFace);
+                break;
+            case RenderState.CULL_BACK:
+            default:
+                this.setCullFace(true);
+                if (isTarget != invertFront)
+                    forntFace = CullMode.Front;//gl.CCW
+                else
+                    forntFace = CullMode.Back;
+                this.setFrontFace(forntFace);
+                break;
+        }
     }
 }

@@ -16,8 +16,6 @@ import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
 import { WebGLUniformBufferBase } from "../RenderDevice/WebGLUniformBufferBase";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 
-
-
 export class WebGLRenderElement3D implements IRenderElement3D {
     static _matChangeFlagMap: Map<string, Vector2> = new Map();//根据shaderpass name 来取到Map，根据shaderDataID，拿到三个change变量，1、Bindgroup，2、bindgroupLayout，3defineFlag
 
@@ -138,17 +136,31 @@ export class WebGLRenderElement3D implements IRenderElement3D {
             this._handleMaterialChange();
         }
 
-        if (Config.matUseUBO && this.materialShaderData) {
-            this.materialShaderData.uploadCache();
-            if (this.materialUBO) {
-                if (this.materialUBO.destroyed) {
-                    this._handleMaterialChange();
+        this._invertFront = this._getInvertFront();
+
+        if (this.materialShaderData) {
+            if (Config.matUseUBO) {
+                // update ubo
+                this.materialShaderData.uploadCache();
+                if (this.materialUBO) {
+                    if (this.materialUBO.destroyed) {
+                        this._handleMaterialChange();
+                    }
+                    this.materialUBO.upload();
                 }
-                this.materialUBO.upload();
+            }
+
+            // update render state
+            if (this.materialShaderData.renderStateChanged) {
+                this.materialShaderData.updateRenderState();
+
+                let passes: WebGLShaderInstance[] = this._curDrawCacheInfo.shaderInss;
+                for (let pass of passes) {
+                    pass.updateRenderState(this.materialShaderData.renderState);
+                }
             }
         }
 
-        this._invertFront = this._getInvertFront();
     }
 
     protected _getInvertFront(): boolean {
@@ -251,8 +263,11 @@ export class WebGLRenderElement3D implements IRenderElement3D {
                 }
                 //renderData update
                 //TODO：Renderstate as a Object to less upload
-                shaderIns.uploadRenderStateBlendDepth(this._materialShaderData);
-                shaderIns.uploadRenderStateFrontFace(this._materialShaderData, forceInvertFace, this._invertFront);
+                // shaderIns.uploadRenderStateBlendDepth(this._materialShaderData);
+                // shaderIns.uploadRenderStateFrontFace(this._materialShaderData, forceInvertFace, this._invertFront);
+
+                shaderIns.uploadRenderState(this._materialShaderData.renderState, forceInvertFace, this._invertFront);
+
                 this.drawGeometry(shaderIns);
             }
         }
