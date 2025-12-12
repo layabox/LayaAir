@@ -70,7 +70,7 @@ window.Physics3D = function (initialMemory, interactive) {
       p = Laya.WasmAdapter.instantiateWasm("bullet.wasm", imports);
     }
     else {
-      p = fetch((Laya.WasmAdapter.locateFile || locateFile)("bullet.wasm", scriptDirectory)).then((response) =>
+      p = fetch((Laya.WasmAdapter.locateFile || Laya.WasmAdapter.locateFileDefault)("bullet.wasm", scriptDirectory)).then((response) =>
         response.arrayBuffer().then((buffer) => WebAssembly.instantiate(buffer, imports)));
     }
 
