@@ -580,6 +580,8 @@ export class TileMapLayer extends BaseRenderNode2D {
         //     chuckLocalRect.z + tileSize.x - chuckLocalRect.x + tileSize.x, 
         //     chuckLocalRect.w + tileSize.y - chuckLocalRect.y + tileSize.y, 
         // "#ff0000");
+
+        this._updateLight();
     }
 
     /**
