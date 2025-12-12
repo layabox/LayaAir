@@ -13,6 +13,8 @@ import { Laya } from "../../Laya";
  * @zh Spine动画模板基类
  */
 export class SpineTemplet extends Resource {
+
+    private static emptyBounds: {x:number , y:number , width:number , height:number} = {x:0, y:0, width:0, height:0};
     /**
      * @en Runtime version of Spine
      * @zh Spine运行时版本
@@ -317,7 +319,6 @@ export class SpineTemplet extends Resource {
 
         this.sketonOptimise.checkMainAttach(this.skeletonData);
 
-        let skeleton = this.sketonOptimise.sketon;
         // 有效值
         if (
             this.skeletonData.x == undefined 
@@ -325,21 +326,50 @@ export class SpineTemplet extends Resource {
             || this.skeletonData.width == undefined
             || this.skeletonData.height == undefined
         ) {
-            let offset = new spine.Vector2;
-            let size = new spine.Vector2;
-            skeleton.setToSetupPose();
-            skeleton.updateWorldTransform(0);
-            skeleton.getBounds(offset, size);
-
-            this.width = size.x;
-            this.height = size.y;
-            this.offsetX = offset.x + size.x;
-            this.offsetY = -(offset.y + size.y);
+            let bounds = this._getBounds();
+            this.width = bounds.width;
+            this.height = bounds.height;
+            this.offsetX = bounds.x + bounds.width;
+            this.offsetY = -(bounds.y + bounds.height);
         }else{
             this.width = this.skeletonData.width || 0;
             this.height = this.skeletonData.height || 0;
             this.offsetX = (this.skeletonData.x || 0) + this.width;
             this.offsetY = -((this.skeletonData.y || 0) + this.height);
+        }
+    }
+
+    private _getBounds() : {x:number , y:number , width:number , height:number} {
+        let offset = new spine.Vector2;
+        let size = new spine.Vector2;
+        let skeleton = this.sketonOptimise.sketon;
+        
+        let skins = this.skeletonData.skins;
+        let minX = Number.POSITIVE_INFINITY, minY = Number.POSITIVE_INFINITY, maxX = Number.NEGATIVE_INFINITY, maxY = Number.NEGATIVE_INFINITY;
+        for (let index = 0; index < skins.length; index++) {
+            const skin = skins[index];
+            skeleton.setSkin(skin);
+            skeleton.setToSetupPose();
+            skeleton.getBounds(offset, size);
+            minX = Math.min(minX, offset.x);
+            minY = Math.min(minY, offset.y);
+            maxX = Math.max(maxX, offset.x + size.x);
+            maxY = Math.max(maxY, offset.y + size.y);
+        }
+
+        if (minX == Number.POSITIVE_INFINITY
+            || minY == Number.POSITIVE_INFINITY
+            || maxX == Number.NEGATIVE_INFINITY
+            || maxY == Number.NEGATIVE_INFINITY
+        ) {
+            return SpineTemplet.emptyBounds;
+        }
+        
+        return {
+            x: minX,
+            y: minY,
+            width: maxX - minX,
+            height: maxY - minY
         }
     }
 

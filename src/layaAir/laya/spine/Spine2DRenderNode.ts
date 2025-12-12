@@ -410,12 +410,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     private _doAutoAdjust() {
         if (!this._templet)
             return;
-        let templet = this._templet;
-        let data = templet.skeletonData;
-        let x = Math.ceil(data.x ?? 0);
-        let y = Math.ceil(data.y ?? 0);
-        let width = data.width;
-        let height = data.height;
+        let width = this._templet.width;
+        let height = this._templet.height;
 
         if (width === undefined || height === undefined) {
             console.warn('Spine.SkeletonData: width or height is undefined');
@@ -426,11 +422,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (width < 1) width = 100;
         if (height < 1) height = 100;
 
-        let pivotX = width + x;
-        let pivotY = height + y;
-
         this.owner.size(width, height);
-        this.owner.pivot(pivotX, pivotY);
+        this.owner.pivot(this._templet.offsetX, -this._templet.offsetY);
     }
 
     /** @ignore @blueprintIgnore */
