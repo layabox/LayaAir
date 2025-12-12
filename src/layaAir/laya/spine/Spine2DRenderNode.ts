@@ -979,6 +979,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     clear(): void {
         this.clearRenderElement();
         this.reset();
+        this.owner?.repaint();
     }
 
     /** @internal */
