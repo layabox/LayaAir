@@ -6,6 +6,7 @@ import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
 import { IGraphicsCmd } from "../display/IGraphics";
 import { Sprite } from "../display/Sprite";
 import { Event } from "../events/Event";
+import { SerializeUtil } from "../loaders/SerializeUtil";
 import { Color } from "../maths/Color";
 import { Point } from "../maths/Point";
 import { Loader } from "../net/Loader";
@@ -560,7 +561,8 @@ export class FrameAnimation extends Component {
 
     protected loadAtlas(url: string): this {
         let loadId = ++this._loadId;
-        let atlas: AtlasResource = Loader.getRes(url, Loader.ATLAS);
+        //在反序列化时，禁止立刻设置atlas，因为autoSize值还没反序列化
+        let atlas: AtlasResource = SerializeUtil.isDeserializing ? null : Loader.getRes(url, Loader.ATLAS);
         if (atlas)
             this.onLoaded(atlas, loadId);
         else
