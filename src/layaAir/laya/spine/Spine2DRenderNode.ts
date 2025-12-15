@@ -482,6 +482,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
         this._renderOffset.x = this._offset.x + this._templet.offsetX;
         this._renderOffset.y = this._offset.y - this._templet.offsetY;
+        this._renderHandle.offset = this._renderOffset;
         this.boundsChange = true;
 
         if (!this._useFastRender) {
