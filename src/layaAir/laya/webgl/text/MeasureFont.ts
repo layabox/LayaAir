@@ -23,14 +23,18 @@ export function measureFont(ctx: CanvasRenderingContext2D, font: string, bold: b
 
     drawTestChar(ctx, 'g', size, margin, pixelBBX);
     drawTestChar(ctx, '有', size, margin, pixelBBX);// '有'比'国'大
-    drawTestChar(ctx, '🤡', size, margin, pixelBBX, true);
 
     // 原点在 16,16
     let xoff = Math.max(margin - pixelBBX[0], 0);
     let yoff = Math.max(margin - pixelBBX[1], 0);
     let bbxw = pixelBBX[2] - pixelBBX[0];
     let bbxh = pixelBBX[3] - pixelBBX[1];
-    return { xoff, yoff, bbxw, bbxh };
+
+    drawTestChar(ctx, '🤡', size, margin, pixelBBX, true);
+    let eoff = Math.max(margin - pixelBBX[1], 0) - yoff;
+    let ebbxh = pixelBBX[3] - pixelBBX[1];
+
+    return { xoff, yoff, bbxw, bbxh, eoff, ebbxh };
 }
 
 function drawTestChar(ctx: CanvasRenderingContext2D, char: string, fontSize: number, margin: number, pixelBBX: number[], onlyH?: boolean): void {

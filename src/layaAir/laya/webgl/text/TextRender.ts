@@ -50,17 +50,19 @@ export class TextRender {
         color: string, stroke: number, strokeColor: string,
         charMode: boolean, preMeasuredWidth: number, renderInfo?: ITextRenderInfo[]): ITextRenderInfo[] {
 
+        let hasEmoji = emojiTest.test(text);
         let curFont = this.getFont(font);
         let info = bold ? curFont.bold : curFont.normal;
         let k = fontSize / TextRenderConfig.standardFontSize;
         fontSizeOffX = Math.ceil(info.xoff * k);
-        fontSizeOffY = Math.ceil(info.yoff * k);
-        fontSizeH = Math.ceil(info.bbxh * k);
+        emojiAdjustY = hasEmoji ? Math.ceil(info.eoff * k) : 0;
+        fontSizeOffY = Math.ceil(info.yoff * k) + emojiAdjustY;
+        fontSizeH = Math.ceil((hasEmoji ? info.ebbxh : info.bbxh) * k);
         fontScale = TextRenderConfig.fontScale;
-        italicDeg = italic ? 13 : 0;
+        let italicDeg = italic ? 13 : 0;
         let cacheKey = (curFont.id * 10000) + fontSize + (bold ? "b_" : "_");
         let colorNum = ColorUtils.create(color).numColor;
-        let tint = stroke > 0 || !charMode && emojiTest.test(text) //染色的条件： 有描边 或 非字符模式下且包含emoji
+        let tint = stroke > 0 || !charMode && hasEmoji; //染色的条件： 有描边 或 非字符模式下且包含emoji
         if (tint)
             cacheKey += colorNum + "_";
         if (stroke > 0)
@@ -150,7 +152,8 @@ export class TextRender {
         let margin = height / 3 | 0 + lineWidth;
         let rectX = ((margin - fontSizeOffX - lineWidth) * fontScale | 0) - blockGap;
         let rectY = ((margin - fontSizeOffY - lineWidth) * fontScale | 0) - blockGap;
-        let rectW = Math.ceil((width + lineWidth * 2) * fontScale) + blockGap * 2;
+        let correctionW = height * 0.08; //某些字体（例如华文行楷，华文隶书，自带斜体效果，测算的宽度可能不够，这里补一些，0.08是经验值
+        let rectW = Math.ceil((width + fontSizeOffX + lineWidth * 2 + correctionW) * fontScale) + blockGap * 2;
         let rectH = Math.ceil((fontSizeH + lineWidth * 2) * fontScale) + blockGap * 2;
 
         let needCanvW = Math.min(rectW + Math.ceil(margin * 2 * fontScale), TextRenderConfig.maxCanvasWidth);
@@ -168,7 +171,7 @@ export class TextRender {
             x: - (fontSizeOffX + lineWidth),
             //这里不应该包含fontSizeOffY，否则文字绘制会向上突出
             //y: - (fontSizeOffY + lineWidth),
-            y: - lineWidth,
+            y: - lineWidth - emojiAdjustY,
             w: (imgdt.width - blockGap * 2) / fontScale,
             h: (imgdt.height - blockGap * 2) / fontScale,
             advance: width,
@@ -417,7 +420,7 @@ var fontScale = 1.0;
 var fontSizeH = 0;
 var fontSizeOffX = 0;
 var fontSizeOffY = 0;
-var italicDeg = 0;
+var emojiAdjustY = 0;
 
 var freeRegionNullCnt: number = 0;
 var freeIsoTextureNullCnt: number = 0;
@@ -431,12 +434,16 @@ interface IFontInfo {
         yoff: number;
         bbxw: number;
         bbxh: number;
+        eoff: number;
+        ebbxh: number;
     };
     bold: {
         xoff: number;
         yoff: number;
         bbxw: number;
         bbxh: number;
+        eoff: number;
+        ebbxh: number;
     };
 }
 
