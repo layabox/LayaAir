@@ -973,6 +973,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this.clearRenderElement();
         this.reset();
         this.owner?.repaint();
+        //native 同步数据
+        this._struct.renderElements = this._renderElements;
     }
 
     /** @internal */
