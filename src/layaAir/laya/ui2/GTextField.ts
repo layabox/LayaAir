@@ -443,10 +443,12 @@ export class GTextField extends GWidget {
 
     /**
      * @en Typeset the text, applying any changes made to the text formatting.
+     * @param force Whether to force typesetting.
      * @zh 对文本进行排版，应用对文本格式的任何更改。
+     * @param force 是否强制排版。
      */
-    typeset(): this {
-        this.textIns.typeset();
+    typeset(force?: boolean): this {
+        this.textIns.typeset(force);
         return this;
     }
 

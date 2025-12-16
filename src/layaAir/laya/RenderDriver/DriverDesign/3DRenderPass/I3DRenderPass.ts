@@ -135,7 +135,6 @@ export interface IRenderElement3D {
     isRender: boolean;
     owner: IBaseRenderNode;
     subShader: SubShader;
-
     destroy(): void;
 }
 

@@ -25,6 +25,7 @@ import { Color } from "../maths/Color";
 import { PAL } from "../platform/PlatformAdapters";
 import { TextRenderConfig } from "../webgl/text/TextRenderConfig";
 import { StatElement } from "../layagl/StatisticsContext";
+import { Render } from "../renders/Render";
 
 /**
  * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
@@ -215,15 +216,12 @@ export class Stage extends Sprite {
     readonly _scene3Ds: Scene3D[] = [];
     /** @internal */
     readonly _scene2Ds: Scene[] = [];
-
-    private _frameRate: string = "fast";
+    ;
     private _screenMode: string = "none";
     private _scaleMode: string = "noscale";
     private _alignV: string = "top";
     private _alignH: string = "left";
     private _bgColor: string = "gray";
-    private _renderCount: number = 0;
-    private _frameStartTime: number = 0;
     private _isFocused: boolean;
     private _wgColor = new Color(0, 0, 0, 0);
     private _needUpdateCanvasSize: boolean = false;
@@ -516,10 +514,11 @@ export class Stage extends Sprite {
 
         //执行高清字体策略
         if (TextRenderConfig.scaleFontWithCtx) {
-            let fontScale = Math.max(Math.max(1, Math.min(TextRenderConfig.maxFontScale, ILaya.stage.scaleX)),
-                Math.max(1, Math.min(TextRenderConfig.maxFontScale, ILaya.stage.scaleY)));
+            let fontScale = Math.min(Math.max(1, ILaya.stage.scaleX, ILaya.stage.scaleY), TextRenderConfig.maxFontScale);
+            fontScale = 0.2 * Math.ceil(fontScale / 0.2); //以0.2倍为步进，避免频繁变更
             if (TextRenderConfig.fontScale !== fontScale) {
                 TextRenderConfig.fontScale = fontScale;
+                Render2DProcessor.runner._textRender.onFontScaleChanged();
 
                 const repaintTexts = (p: Sprite) => {
                     for (let child of p._children) {
@@ -701,7 +700,7 @@ export class Stage extends Sprite {
      * 可以用来判断函数内时间消耗，通过合理控制每帧函数处理消耗时长，避免一帧做事情太多，对复杂计算分帧处理，能有效降低帧率波动。
      */
     getTimeFromFrameStart(): number {
-        return performance.now() - this._frameStartTime;
+        return performance.now() - Render.frameStartTime;
     }
 
     /**
@@ -726,31 +725,13 @@ export class Stage extends Sprite {
      * @param timestamp 当前时间戳
      */
     render(timestamp: number): void {
-        if (this._frameRate === Stage.FRAME_SLEEP) {
-            if (timestamp - this._frameStartTime < 1000)
-                return;
-            this._frameStartTime = timestamp;
-        } else {
-            if (!this._visible) {
-                this._renderCount++;
-                if (this._renderCount % 5 === 0) {
-                    Timer.callLaters._update(timestamp);
-                    Stat.loopCount++;
-                    this._runComponents();
-                    this._updateTimers(timestamp);
-                }
-                return;
-            }
-            this._frameStartTime = timestamp;
-        }
-
-        this._renderCount++;
-        let frameMode: string = this._frameRate === Stage.FRAME_MOUSE ? (((timestamp - InputManager.lastMouseTime) < 2000) ? Stage.FRAME_FAST : Stage.FRAME_SLOW) : this._frameRate;
-        let isFastMode: boolean = (frameMode !== Stage.FRAME_SLOW);
-        let isDoubleLoop: boolean = (this._renderCount % 2 === 0);
-
-        if (!isFastMode && !isDoubleLoop)//统一双帧处理渲染
+        if (!this._visible) {
+            Timer.callLaters._update(timestamp);
+            Stat.loopCount++;
+            this._runComponents();
+            this._updateTimers(timestamp);
             return;
+        }
 
         Timer.callLaters._update(timestamp);
         Stat.loopCount++;
@@ -831,7 +812,7 @@ export class Stage extends Sprite {
 
             if (sprite.mask) {
                 sprite._oriRenderPass.mask = sprite.mask._struct;
-            }else{
+            } else {
                 sprite._oriRenderPass.mask = null;
             }
 
@@ -863,7 +844,7 @@ export class Stage extends Sprite {
         this._updateMatrixList(this._tranMatrixUpdateList, Stat.loopCount);
 
         for (let sprite of this._graphicUpdateList) {
-            if (sprite._graphics) {
+            if (sprite._needGraphicsUpdate()) {
                 sprite._graphics._render(Render2DProcessor.runner);
             }
         }
@@ -933,15 +914,16 @@ export class Stage extends Sprite {
     }
 
     /**
+     * @deprecated Use Render.throttleMode instead.
      * @en Frame rate types:fast (default, full frame rate),slow (half of the full frame rate),mouse (full frame rate after mouse activity, switches to half frame rate if the mouse is idle for 2 seconds),sleep (1 frame per second)
      * @zh 当前帧率类型：fast(默认，满帧)，slow（满帧减半），mouse（鼠标活动后满帧，鼠标不动2秒后满帧减半），sleep（每秒1帧）。
      */
     get frameRate(): string {
-        return this._frameRate;
+        return Render.throttleMode === 0 ? "fast" : Render.throttleMode === 1 ? "slow" : Render.throttleMode === 2 ? "mouse" : "sleep";
     }
 
     set frameRate(value: string) {
-        this._frameRate = value;
+        Render.throttleMode = value === "slow" ? 1 : value === "mouse" ? 2 : value === "sleep" ? 3 : 0;
     }
 
     /** @internal @blueprintEvent */

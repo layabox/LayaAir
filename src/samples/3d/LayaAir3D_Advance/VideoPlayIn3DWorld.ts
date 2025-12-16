@@ -49,12 +49,14 @@ export class VideoPlayIn3DWorld {
     private createVideo(url: string): void {
         if (!this.isoneVideo) {
             var videoTexture = VideoTexture.createInstance();
+            videoTexture.on(Event.READY, this, () => {
+                mat.albedoTexture = videoTexture;
+            });
             videoTexture.source = url;
             videoTexture.play();
             videoTexture.loop = true;
 
             let mat = new UnlitMaterial();
-            mat.albedoTexture = videoTexture;
             this.videoPlane.getComponent(MeshRenderer).sharedMaterial = mat;
             this.isoneVideo = true;
         }

@@ -1,8 +1,11 @@
+import { InputManager } from "../events/InputManager";
 import { LayaGL } from "../layagl/LayaGL";
 import { PAL } from "../platform/PlatformAdapters";
 import { Browser } from "../utils/Browser";
 import { Config } from "./../../Config";
 import { ILaya } from "./../../ILaya";
+
+var _renderCount: number = 0;
 
 /**
  * @en The class responsible for driving the engine's main loop.
@@ -20,9 +23,35 @@ export class Render {
      */
     static lastFrame = 0;
 
-    // 全局重画标志。一个get一个set是为了把标志延迟到下一帧的开始，防止部分对象接收不到。
-    private static _globalRepaintSet: boolean = false;
-    private static _globalRepaintGet: boolean = false;
+    /**
+     * @en The start time of the current frame in milliseconds.
+     * @zh 当前帧的开始时间，单位为毫秒。
+     */
+    static frameStartTime: number = 0;
+
+    /**
+     * @en Throttle mode: 0 - none, normal frame rate; 1 - half frame rate; 2 - full frame after mouse activity, half frame rate after 2 seconds of mouse inactivity; 3 - fixed 1 frame per second;
+     * @zh 限能模式：0-无，正常帧率运行; 1-帧率减半; 2-鼠标活动后满帧，鼠标不动2秒后满帧减半; 3-固定每秒1帧;
+     */
+    static throttleMode: 0 | 1 | 2 | 3 = 0;
+
+    /**
+     * @en Custom frame update predicate function. The function signature is: function(timestamp:number):boolean;
+     * @zh 自定义帧更新条件函数，函数签名为：function(timestamp:number):boolean;
+     */
+    static predicate: (timestamp: number) => boolean = null;
+
+    /**
+     * @en Pauses or resumes the rendering loop.
+     * @zh 暂停或恢复渲染循环。
+     */
+    static paused: boolean = false;
+
+    /**
+     * @en Force the next frame to be rendered. This flag is automatically cleared after rendering.
+     * @zh 强制渲染下一帧。渲染后该标记会自动清除。
+     */
+    static forceOnce: boolean = false;
 
     /**
      * @internal
@@ -43,10 +72,9 @@ export class Render {
      * @internal
      */
     static startLoop() {
-        let requestFrame = PAL.browser.requestFrame;
         let lastTime: number = null;
         let first = true;
-        let startTm = 0; //刚启动的时间。由于微信的rAF不标准，传入的stamp参数不对，因此自己计算一个从启动开始的相对时间
+        let startTm = 0;
         let leftTime = 0;
 
         function loop(timestamp: number) {
@@ -71,20 +99,50 @@ export class Render {
                 Render.loop(timestamp);
             }
 
-            requestFrame(loop);
+            window.requestAnimationFrame(loop);
         }
 
-        requestFrame(loop);
+        window.requestAnimationFrame(loop);
     }
 
     /**
      * @internal
      */
     static loop(timestamp: number) {
+        _renderCount++;
+
+        if (!Render.forceOnce) {
+            if (Render.paused)
+                return;
+
+            let shouldUpdate = true;
+            if (Render.predicate != null)
+                shouldUpdate = Render.predicate(timestamp);
+            else {
+                switch (Render.throttleMode) {
+                    case 1://满帧减半
+                        shouldUpdate = (_renderCount % (ILaya.stage._visible ? 2 : 5) === 0);
+                        break;
+                    case 2://鼠标活动后满帧，鼠标不动2秒后满帧减半
+                        shouldUpdate = (timestamp - InputManager.lastMouseTime) < 2000 || (_renderCount % (ILaya.stage._visible ? 2 : 5) === 0);
+                        break;
+                    case 3://每秒1帧
+                        shouldUpdate = timestamp - Render.frameStartTime >= 1000;
+                        break;
+                }
+            }
+            if (!shouldUpdate)
+                return;
+        }
+        else
+            Render.forceOnce = false;
+
+        Render.frameStartTime = timestamp;
+
         LayaGL.statAgent.startFrameLogic(timestamp);
-        this._globalRepaintGet = this._globalRepaintSet;
-        this._globalRepaintSet = false;
+
         ILaya.stage.render(timestamp);
+
         LayaGL.statAgent.endFrameLogic(timestamp);
     }
 
@@ -93,20 +151,6 @@ export class Render {
      */
     static vsyncTime() {
         return Render.lastFrame * Render.frameInterval;
-    }
-
-    /**
-     * @ignore
-     */
-    static isGlobalRepaint(): boolean {
-        return Render._globalRepaintGet;
-    }
-
-    /**
-     * @ignore
-     */
-    static setGlobalRepaint(): void {
-        Render._globalRepaintSet = true;
     }
 
     /** @deprecated */

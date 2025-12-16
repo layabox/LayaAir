@@ -14,7 +14,7 @@ export enum RenderElementType {
     Instance = 2,
 }
 export class GLESRenderElement3D implements IRenderElement3D {
-    
+
     private _geometry: GLESRenderGeometryElement;
 
     private _materialShaderData: GLESShaderData;
@@ -87,8 +87,8 @@ export class GLESRenderElement3D implements IRenderElement3D {
         return this._subShader;
     }
     public set subShader(value: SubShader) {
-        this._subShader = value;       
-        if(value) this._nativeObj.setSubShader((value.moduleData as any as RTSubShader)._nativeObj);
+        this._subShader = value;
+        if (value) this._nativeObj.setSubShader((value.moduleData as any as RTSubShader)._nativeObj);
     }
 
     get canDynamicBatch(): boolean {
@@ -119,7 +119,7 @@ export class GLESRenderElement3D implements IRenderElement3D {
         this._renderShaderData = null;
         this._transform = null;
         this._nativeObj?.destroy();
-        
+
     }
 
     protected init(): void {

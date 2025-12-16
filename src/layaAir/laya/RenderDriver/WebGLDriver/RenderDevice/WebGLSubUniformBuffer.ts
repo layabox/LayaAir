@@ -79,5 +79,6 @@ export class WebGLSubUniformBuffer extends WebGLUniformBufferBase implements IUn
         this.descriptor.destroy();
         this.descriptor = null;
         this.manager.freeBlock(this.bufferBlock);
+        this.destroyed = true;
     }
 }

@@ -73,24 +73,13 @@ export class MgBrowserAdapter extends BrowserAdapter {
         const systemVersionArr = system ? system.split(' ') : [];
         Browser.systemVersion = systemVersionArr.length ? systemVersionArr[systemVersionArr.length - 1] : '';
 
-        /*
-         这个是原来的isWan1Wan标志的逻辑
-         1. 微信下玩一玩平台，不支持imagedata,所以是黑屏的，设置这个标志，采用canvas模式
-         2. 其他平台也遇到这种问题，wan1wan标志就不再专指玩一玩了
-         3. 微信支持imagedata了，关闭这个标记
-         4. 发现虽然支持，但是有的手机会有文字黑边无法解决，再次打开
-        */
-        TextRenderConfig.useImageData = false;
-        //这里还有个对特定ios版本允许使用imageData的判断，已不清楚为什么
-        if (Browser.platform === Browser.PLATFORM_IOS && Utils.compareVersion(Browser.systemVersion, "10.1.1") === 0)
-            TextRenderConfig.useImageData = true;
-
-        if (Browser.onHWMiniGame && !WebGLEngine) {
-            TextRenderConfig.useImageData = true;
-        }
-
         if (Browser.onHWMiniGame) {
             this._pixelRatio = 1;
+        }
+        else {
+            //常见于小游戏在PC真机跑，低dpr会导致画面模糊，强制取2
+            if (this._pixelRatio === 1 && Browser.onPC && !Browser.onDevTools)
+                this._pixelRatio = 2;
         }
 
         PAL.g.onShow(() => {

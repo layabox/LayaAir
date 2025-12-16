@@ -4,9 +4,11 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { StatElement } from "../../../layagl/StatisticsContext";
 import { Color } from "../../../maths/Color";
+import { Vector2 } from "../../../maths/Vector2";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
 import { FastSinglelist } from "../../../utils/SingletonList";
+import { Stat } from "../../../utils/Stat";
 import { IRenderContext3D, PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
@@ -15,6 +17,7 @@ import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDa
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { WebGLCommandUniformMap } from "../RenderDevice/WebGLCommandUniformMap";
 import { WebGLEngine } from "../RenderDevice/WebGLEngine";
+import { WebGLGlobalPipeLineCacheInfo } from "../RenderDevice/WebGLRenderDeviceFactory";
 import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
 
 
@@ -120,6 +123,45 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         this._globalShaderData = value;
     }
 
+    /**@internal */
+    _curRenderGlobalKey: number;
+    /**@internal */
+    _curDefineChangeFlag: Vector2;
+    private _globalComkeyNameMap: any = {};
+    private _globalComkeyCounter: number = 0;
+    private _globalRendercacheInfoMap: Map<number, WebGLGlobalPipeLineCacheInfo> = new Map();
+    _curRenderCacheInfo: WebGLGlobalPipeLineCacheInfo;
+    //全局组合生成的id
+    private globalComkeyToID(name: string): number {
+        if (this._globalComkeyNameMap[name] !== undefined) {
+            return this._globalComkeyNameMap[name];
+        } else {
+            const id = this._globalComkeyCounter++;
+            this._globalComkeyNameMap[name] = id;
+            return id;
+        }
+    }
+
+    private _getSceneCameraCacheKey() {
+        let key: string = `${this.sceneData ? this.sceneData._id : -1} + ${this.cameraData ? this.cameraData._id : -1}+${this._pipelineMode}`;
+        this._curRenderGlobalKey = this.globalComkeyToID(key);
+
+        if (!this._globalRendercacheInfoMap.has(this._curRenderGlobalKey)) {
+            let cacheInfo = new WebGLGlobalPipeLineCacheInfo();
+            this._curRenderCacheInfo = cacheInfo;
+            this._cacheGlobalDefines.cloneTo(cacheInfo.globalDefineData);
+            this._curRenderCacheInfo.globalDefineChangeFlag.setValue(Stat.loopCount, WebGLEngine.instance._framePassCount);
+            this._globalRendercacheInfoMap.set(this._curRenderGlobalKey, cacheInfo);
+        } else {
+            this._curRenderCacheInfo = this._globalRendercacheInfoMap.get(this._curRenderGlobalKey);
+            if (!this._curRenderCacheInfo.globalDefineData.isEual(this._cacheGlobalDefines)) {
+                this._cacheGlobalDefines.cloneTo(this._curRenderCacheInfo.globalDefineData);
+                this._curRenderCacheInfo.globalDefineChangeFlag.setValue(Stat.loopCount, WebGLEngine.instance._framePassCount)
+            }
+        }
+        this._curDefineChangeFlag = this._curRenderCacheInfo.globalDefineChangeFlag
+    }
+
     /**
      * @internal
      * @returns 
@@ -138,11 +180,12 @@ export class WebGLRenderContext3D implements IRenderContext3D {
 
         if (this.sceneData) {
             this.sceneData._defineDatas.cloneTo(contextDef);
-
-            for (let key of this.preDrawUniformMaps) {
-                let uniformMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(key);
-                if (uniformMap._idata.size > 0) {
-                    this.sceneData.createUniformBuffer(key, uniformMap._idata, true);
+            if (Config._uniformBlock) {
+                for (let key of this.preDrawUniformMaps) {
+                    let uniformMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(key);
+                    if (uniformMap._idata.size > 0) {
+                        this.sceneData.createUniformBuffer(key, uniformMap._idata, true);
+                    }
                 }
             }
         }
@@ -152,9 +195,12 @@ export class WebGLRenderContext3D implements IRenderContext3D {
 
         if (this.cameraData) {
             contextDef.addDefineDatas(this.cameraData._defineDatas);
-            let cameraMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera");
-            this.cameraData.createUniformBuffer("BaseCamera", cameraMap._idata, true);
+            if (Config._uniformBlock) {
+                let cameraMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera");
+                this.cameraData.createUniformBuffer("BaseCamera", cameraMap._idata, true);
+            }
         }
+        this._getSceneCameraCacheKey();
     }
 
     setRenderTarget(value: InternalRenderTarget, clearFlag: RenderClearFlag) {
@@ -313,5 +359,4 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         this._bindRenderTarget();
         this._start();
     }
-
 }

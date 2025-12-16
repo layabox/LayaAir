@@ -1,40 +1,49 @@
-
 import { Config } from "../../../../Config";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Transform3D } from "../../../d3/core/Transform3D";
-import { LayaGL } from "../../../layagl/LayaGL";
-import { FastSinglelist } from "../../../utils/SingletonList";
+import { Vector2 } from "../../../maths/Vector2";
+import { Stat } from "../../../utils/Stat";
 import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { WebShaderPass } from "../../RenderModuleData/WebModuleData/WebShaderPass";
-import { WebGLCommandUniformMap } from "../RenderDevice/WebGLCommandUniformMap";
 import { WebGLEngine } from "../RenderDevice/WebGLEngine";
+import { compareCahceFlag, OneDrawPassCacheInfo } from "../RenderDevice/WebGLRenderDeviceFactory";
 import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryElement";
 import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
+import { WebGLUniformBufferBase } from "../RenderDevice/WebGLUniformBufferBase";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 
 export class WebGLRenderElement3D implements IRenderElement3D {
+    static _matChangeFlagMap: Map<string, Vector2> = new Map();//根据shaderpass name 来取到Map，根据shaderDataID，拿到三个change变量，1、Bindgroup，2、bindgroupLayout，3defineFlag
+
     /** @internal */
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
 
-    protected _shaderInstances: FastSinglelist<WebGLShaderInstance>;
-
     geometry: WebGLRenderGeometryElement;
 
-    subShader: SubShader;
+    protected _subShader: SubShader;
+    public get subShader(): SubShader {
+        return this._subShader;
+    }
+    public set subShader(value: SubShader) {
+        if (this._subShader != value) {
+            this._subShader = value;
+            this.modifyedMaterialShaderData();
+        }
+    }
 
     materialId: number;
 
     canDynamicBatch: boolean;
 
-    materialShaderData: WebGLShaderData;
+    _materialShaderData: WebGLShaderData;
 
     materialRenderQueue: number;
 
-    renderShaderData: WebGLShaderData;
+    _renderShaderData: WebGLShaderData;
 
     transform: Transform3D;
 
@@ -44,50 +53,147 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
     customData: any;//每个RenderElement自带的数据
 
+    public get materialShaderData(): WebGLShaderData {
+        return this._materialShaderData;
+    }
+
+    public set materialShaderData(value: WebGLShaderData) {
+        if (this._materialShaderData != value) {
+            this._materialShaderData = value;
+            this._matChangeFlag.setValue(Stat.loopCount, WebGLEngine.instance._framePassCount);
+            this.modifyedMaterialShaderData();
+        }
+    }
+
+    private modifyedMaterialShaderData() {
+        if (this.subShader && this.materialShaderData) {
+            let shadername = this._subShader._owner.name;
+            if (!WebGLRenderElement3D._matChangeFlagMap.has(shadername)) {
+                let changeFlag = new Vector2(Stat.loopCount, WebGLEngine.instance._framePassCount);
+                WebGLRenderElement3D._matChangeFlagMap.set(shadername, changeFlag);
+            }
+            let changeFlag = WebGLRenderElement3D._matChangeFlagMap.get(shadername);
+            this._materialShaderData._defineDatas.addChangeFlagInfo(changeFlag);
+        }
+    }
+
+    public get renderShaderData(): WebGLShaderData {
+        return this._renderShaderData;
+    }
+
+    public set renderShaderData(value: WebGLShaderData) {
+        if (this._renderShaderData != value) {
+            this._renderShaderData = value;
+            this._renderNodeChangeFlag.setValue(Stat.loopCount, WebGLEngine.instance._framePassCount);
+        }
+    }
+
+
     protected _invertFront: boolean;
 
+    //cache shader Info
+    protected _passRenderInfo: Map<number, OneDrawPassCacheInfo> = new Map();
+
+    protected _curDrawCacheInfo: OneDrawPassCacheInfo;
+
+    //material是否改变
+    protected _materialRenderDataChange: boolean = true;
+    //spriteRenderNode是否改变
+    protected _spriteRenderDataChange: boolean = false;
+
+    protected _matChangeFlag: Vector2 = new Vector2();
+    protected _matDefChangeFlag: Vector2;
+
+    protected _renderNodeChangeFlag: Vector2 = new Vector2();
+
+    protected materialUBO: WebGLUniformBufferBase;
+
     constructor() {
-        this._shaderInstances = new FastSinglelist();
-    }
-
-    _addShaderInstance(shader: WebGLShaderInstance) {
-        this._shaderInstances.add(shader);
-    }
-
-    _clearShaderInstance() {
-        this._shaderInstances.length = 0;
     }
 
     _preUpdatePre(context: WebGLRenderContext3D) {
-        this._compileShader(context);
-        // material ubo
-        if (this.materialShaderData && Config.matUseUBO) {
-            let subShader = this.subShader;
-            let materialData = this.materialShaderData;
-            let matSubBuffer = materialData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
-            if (matSubBuffer) {
-                matSubBuffer.upload();
-            }
+        if (!this._passRenderInfo.has(context._curRenderGlobalKey)) {
+            this._curDrawCacheInfo = new OneDrawPassCacheInfo();
+            this._passRenderInfo.set(context._curRenderGlobalKey, this._curDrawCacheInfo);
+        } else {
+            this._curDrawCacheInfo = this._passRenderInfo.get(context._curRenderGlobalKey);
         }
 
-        //Sprite ubo Update
-        if (this.owner && Config._uniformBlock) {
-            for (let [key, value] of this.owner.additionShaderData) {
-                let shaderData = <WebGLShaderData>value;
-                let unifomrMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(key);
-                let uniformBuffer = shaderData.createSubUniformBuffer(key, key, unifomrMap._idata);
-                if (uniformBuffer) {
-                    uniformBuffer.upload();
+        this._updateMatChangeFlag();
+        //shader变了或者宏变了 
+        let passDefineChangeFlag = this._curDrawCacheInfo.passDefineCacheFlag;
+        if (this._materialRenderDataChange || this._spriteRenderDataChange || //材质是否变化
+            !this._matDefChangeFlag ||
+            compareCahceFlag(this._matDefChangeFlag, passDefineChangeFlag) ||//material宏是否变化
+            (this.owner && compareCahceFlag(this.owner.defineDataChangeFlag, passDefineChangeFlag)) ||//sprite是否宏变化
+            compareCahceFlag(context._curDefineChangeFlag, passDefineChangeFlag))//判断场景中的宏是否变化
+        {
+            passDefineChangeFlag.setValue(Stat.loopCount, WebGLEngine.instance._framePassCount);
+            this._compileShader(context);
+        }
+
+        if (this._materialRenderDataChange) {
+            this._handleMaterialChange();
+        }
+
+        this._invertFront = this._getInvertFront();
+
+        if (this.materialShaderData) {
+            if (Config.matUseUBO) {
+                // update ubo
+                this.materialShaderData.uploadCache();
+                if (this.materialUBO) {
+                    if (this.materialUBO.destroyed) {
+                        this._handleMaterialChange();
+                    }
+                    this.materialUBO.upload();
+                }
+            }
+
+            // update render state
+            if (this.materialShaderData.renderStateChanged) {
+                this.materialShaderData.updateRenderState();
+
+                let passes: WebGLShaderInstance[] = this._curDrawCacheInfo.shaderInss;
+                for (let pass of passes) {
+                    pass.updateRenderState(this.materialShaderData.renderState);
                 }
             }
         }
 
-        this._invertFront = this._getInvertFront();
     }
 
     protected _getInvertFront(): boolean {
         let transform = this.owner?.transform;
         return transform ? transform._isFrontFaceInvert : false;
+    }
+
+    protected _updateMatChangeFlag() {
+        this._materialRenderDataChange = compareCahceFlag(this._matChangeFlag, this._curDrawCacheInfo.matCacheFlag)//MaterialShaderData变动或者shader变动
+        if (this._renderShaderData && compareCahceFlag(this._renderNodeChangeFlag, this._curDrawCacheInfo.nodeCacheFlag)) {
+            this._curDrawCacheInfo.nodeCacheFlag.setValue(Stat.loopCount, WebGLEngine.instance._framePassCount);
+            this._spriteRenderDataChange = true;
+        } else {
+            this._spriteRenderDataChange = false;
+        }
+    }
+
+    protected _handleMaterialChange() {
+        this._curDrawCacheInfo.matCacheFlag.setValue(Stat.loopCount, WebGLEngine.instance._framePassCount);
+        let shadername = this._subShader._owner.name;
+        if (!WebGLRenderElement3D._matChangeFlagMap.has(shadername)) {
+            let changeFlag = new Vector2(Stat.loopCount, WebGLEngine.instance._framePassCount);
+            WebGLRenderElement3D._matChangeFlagMap.set(shadername, changeFlag);
+            this._materialShaderData._defineDatas.addChangeFlagInfo(changeFlag);
+        }
+        this._matDefChangeFlag = WebGLRenderElement3D._matChangeFlagMap.get(shadername);
+
+        // material ubo
+        if (this._materialShaderData && Config.matUseUBO) {
+            let subShader = this._subShader;
+            let materialData = this._materialShaderData;
+            this.materialUBO = materialData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
+        }
     }
 
     /**
@@ -101,8 +207,8 @@ export class WebGLRenderElement3D implements IRenderElement3D {
         let sceneShaderData = context.sceneData as WebGLShaderData;
         let cameraShaderData = context.cameraData as WebGLShaderData;
         if (this.isRender) {
-            let passes: WebGLShaderInstance[] = this._shaderInstances.elements;
-            for (let j: number = 0, m: number = this._shaderInstances.length; j < m; j++) {
+            let passes: WebGLShaderInstance[] = this._curDrawCacheInfo.shaderInss;
+            for (let j: number = 0, m: number = passes.length; j < m; j++) {
                 const shaderIns: WebGLShaderInstance = passes[j];
                 if (!shaderIns.complete)
                     continue;
@@ -118,11 +224,11 @@ export class WebGLRenderElement3D implements IRenderElement3D {
                     shaderIns._uploadScene = sceneShaderData;
                 }
                 //render
-                if (this.renderShaderData) {
-                    let uploadSprite3D: boolean = (shaderIns._uploadRender !== this.renderShaderData) || switchUpdateMark;
+                if (this._renderShaderData) {
+                    let uploadSprite3D: boolean = (shaderIns._uploadRender !== this._renderShaderData) || switchUpdateMark;
                     if (uploadSprite3D || switchShader) {
-                        shaderIns.uploadUniforms(shaderIns._spriteUniformParamsMap, this.renderShaderData, uploadSprite3D);
-                        shaderIns._uploadRender = this.renderShaderData;
+                        shaderIns.uploadUniforms(shaderIns._spriteUniformParamsMap, this._renderShaderData, uploadSprite3D);
+                        shaderIns._uploadRender = this._renderShaderData;
                     }
                 }
 
@@ -150,15 +256,18 @@ export class WebGLRenderElement3D implements IRenderElement3D {
                     shaderIns._uploadCameraShaderValue = cameraShaderData;
                 }
                 //material
-                let uploadMaterial: boolean = (shaderIns._uploadMaterial !== this.materialShaderData) || switchUpdateMark;
+                let uploadMaterial: boolean = (shaderIns._uploadMaterial !== this._materialShaderData) || switchUpdateMark;
                 if (uploadMaterial || switchShader) {
-                    shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, this.materialShaderData, uploadMaterial);
-                    shaderIns._uploadMaterial = this.materialShaderData;
+                    shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, this._materialShaderData, uploadMaterial);
+                    shaderIns._uploadMaterial = this._materialShaderData;
                 }
                 //renderData update
                 //TODO：Renderstate as a Object to less upload
-                shaderIns.uploadRenderStateBlendDepth(this.materialShaderData);
-                shaderIns.uploadRenderStateFrontFace(this.materialShaderData, forceInvertFace, this._invertFront);
+                // shaderIns.uploadRenderStateBlendDepth(this._materialShaderData);
+                // shaderIns.uploadRenderStateFrontFace(this._materialShaderData, forceInvertFace, this._invertFront);
+
+                shaderIns.uploadRenderState(this._materialShaderData.renderState, forceInvertFace, this._invertFront);
+
                 this.drawGeometry(shaderIns);
             }
         }
@@ -171,12 +280,12 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
         globalShaderDefines.cloneTo(comDef);
 
-        if (this.renderShaderData) {
-            comDef.addDefineDatas(this.renderShaderData.getDefineData());
+        if (this._renderShaderData) {
+            comDef.addDefineDatas(this._renderShaderData.getDefineData());
         }
 
-        if (this.materialShaderData) {
-            comDef.addDefineDatas(this.materialShaderData._defineDatas);
+        if (this._materialShaderData) {
+            comDef.addDefineDatas(this._materialShaderData._defineDatas);
         }
 
         if (this.owner) {
@@ -193,16 +302,15 @@ export class WebGLRenderElement3D implements IRenderElement3D {
     }
 
     protected _compileShader(context: WebGLRenderContext3D) {
-        this._clearShaderInstance();
-
-        var passes: ShaderPass[] = this.subShader._passes;
+        var passes: ShaderPass[] = this._subShader._passes;
+        let renderCount = 0;
         for (var j: number = 0, m: number = passes.length; j < m; j++) {
             let pass = passes[j];
             let passdata = <WebShaderPass>pass.moduleData;
             if (passdata.pipelineMode !== context.pipelineMode)
                 continue;
 
-            if (this.renderShaderData) {
+            if (this._renderShaderData) {
                 passdata.nodeCommonMap = this.owner._commonUniformMap;
             } else {
                 passdata.nodeCommonMap = null;
@@ -215,9 +323,10 @@ export class WebGLRenderElement3D implements IRenderElement3D {
             // 每次重新获取comDef，确保每个pass都有完整的宏定义
             let comDef = this._getShaderInstanceDefines(context);
             var shaderIns = pass.withCompile(comDef) as WebGLShaderInstance;
-
-            this._addShaderInstance(shaderIns);
+            this._curDrawCacheInfo.shaderInss[renderCount] = shaderIns;
+            renderCount++
         }
+        this._curDrawCacheInfo.shaderInss.length = renderCount;
     }
 
     drawGeometry(shaderIns: WebGLShaderInstance) {
@@ -226,7 +335,6 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
     destroy() {
         this.geometry = null;
-        this._shaderInstances = null;
         this.materialShaderData = null;
         this.renderShaderData = null;
         this.transform = null;

@@ -169,31 +169,17 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
     }
 
     getInnerWidth() {
-        if (LayaEnv.isConch) {
-            return (window as any).getInnerWidth();
-        } else
-            return this._globalWidth;
+        return this._globalWidth;
     }
 
     getInnerHeight() {
-        if (LayaEnv.isConch) {
-            return (window as any).getInnerHeight();
-        } else
-            return this._globalHeight;
+        return this._globalHeight;
     }
 
 
     resizeOffScreen(width: number, height: number): void {
         this._globalWidth = width;
         this._globalHeight = height;
-        if (LayaEnv.isConch) {
-            if (WebGLEngine._lastFrameBuffer) {
-                WebGLEngine._lastFrameBuffer.dispose();
-                WebGLEngine._lastFrameBuffer_WebGLOBJ = null;
-            }
-            WebGLEngine._lastFrameBuffer = this.getTextureContext().createRenderTargetInternal(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false, false, 1, false) as WebGLInternalRT;
-            WebGLEngine._lastFrameBuffer_WebGLOBJ = WebGLEngine._lastFrameBuffer._framebuffer;
-        }
     }
     addTexGammaDefine(key: number, value: ShaderDefine): void {
         WebGLEngine._texGammaDefine[key] = value;
@@ -262,7 +248,7 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
 
         canvas.addEventListener("webglcontextlost", this.webglContextLost)
         Config._uniformBlock = Config.enableUniformBufferObject && this.getCapable(RenderCapable.UnifromBufferObject);
-        Config.matUseUBO = Config.matUseUBO && this.getCapable(RenderCapable.UnifromBufferObject);
+        Config.matUseUBO = Config.matUseUBO && this.getCapable(RenderCapable.UnifromBufferObject) && Config.enableUniformBufferObject;
         this._initBufferBlock();
     }
 
@@ -378,6 +364,7 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
         if (clearFlag & RenderClearFlag.Stencil) {
             this._context.clearStencil(clearStencilValue);
             this._GLRenderState.setStencilWrite(true);
+            this._GLRenderState.setStencilWriteMask(0xFF);
             flag |= this._context.STENCIL_BUFFER_BIT;
         }
         if (flag)

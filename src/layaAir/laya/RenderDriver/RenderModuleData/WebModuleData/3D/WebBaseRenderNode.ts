@@ -8,11 +8,12 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { Material } from "../../../../resource/Material";
 import { IRenderContext3D, IRenderElement3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
-import { ENodeCustomData, IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
+import { BaseRenderType, ENodeCustomData, IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { WebLightmap } from "./WebLightmap";
 import { WebReflectionProbe } from "./WebReflectionProb";
 import { WebVolumetricGI } from "./WebVolumetricGI";
 import { Vector2 } from "../../../../maths/Vector2";
+import { WebDefineDatas } from "../WebDefineDatas";
 
 interface DynamicBaseRenderClass {
     new(): WebBaseRenderNode;
@@ -21,7 +22,7 @@ interface DynamicBaseRenderClass {
 
 export class WebBaseRenderNode implements IBaseRenderNode {
     static BaseRenderNodeClass: DynamicBaseRenderClass;
-    renderNodeType: number;
+    renderNodeType: BaseRenderType;
     boundsChange: boolean;
     distanceForSort: number;
     sortingFudge: number;
@@ -52,6 +53,8 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     _commonUniformMap: string[];
     _additionShaderDataKeys: string[];
     ismoved: Vector2 = new Vector2();
+
+    defineDataChangeFlag: Vector2 = new Vector2();
     private _bounds: Bounds;
     private _caculateBoundingBoxCall: any;
     private _caculateBoundingBoxFun: Function;
@@ -68,7 +71,15 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     }
 
     public set shaderData(value) {
-        this._shaderData = value;
+        if (this._shaderData != value) {
+            let oldCommandMap = this._commonUniformMap.slice();
+            if (this._shaderData) {
+                //移除之前的资源绑定
+                this.setCommonUniformMap([]);
+            }
+            this._shaderData = value;
+            this.setCommonUniformMap(oldCommandMap);
+        }
     }
 
 
@@ -105,10 +116,27 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     public get additionShaderData(): Map<string, ShaderData> {
         return this._additionShaderData;
     }
+
     public set additionShaderData(value: Map<string, ShaderData>) {
+        if (this._additionShaderData && this._additionShaderData.size > 0) {
+            if (!value)
+                for (var [key, date] of this._additionShaderData) {//全删
+                    (date.getDefineData() as WebDefineDatas).removeChangeFlagInfo(this.defineDataChangeFlag);
+                }
+            else {
+                for (var [key, date] of this._additionShaderData) {//删部分
+                    if (!value.has(key)) {
+                        (date.getDefineData() as WebDefineDatas).removeChangeFlagInfo(this.defineDataChangeFlag);
+                    }
+                }
+            }
+        }
         this._additionShaderData = value;
-        if (value) {
+        if (value && value.size > 0) {
             this._additionShaderDataKeys = Array.from(this._additionShaderData.keys());
+            for (var [key, shaderdate] of value) {
+                (shaderdate.getDefineData() as WebDefineDatas).addChangeFlagInfo(this.defineDataChangeFlag);
+            }
         }
         else {
             this._additionShaderDataKeys = [];
@@ -216,6 +244,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         value.forEach(element => {
             this._commonUniformMap.push(element);
         });
+        this._shaderData && (this._shaderData.getDefineData() as WebDefineDatas)?.addChangeFlagInfo(this.defineDataChangeFlag);
     }
 
     /**

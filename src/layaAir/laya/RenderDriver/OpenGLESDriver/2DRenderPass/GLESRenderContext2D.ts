@@ -55,8 +55,6 @@ export class GLESRenderContext2D implements IRenderContext2D {
         this._nativeObj = new (window as any).conchGLESRenderContext2D();
         this._nativeObj.setGlobalConfigShaderData((Shader3D._configDefineValues as any)._nativeObj);
         this._nativeObj.pipelineMode = "Forward";
-        (!GLESRenderContext2D.isCreateBlitScreenELement) && this.setBlitScreenElement();
-
     }
 
     private _passData: GLESShaderData = null;
@@ -70,81 +68,6 @@ export class GLESRenderContext2D implements IRenderContext2D {
         this._nativeObj.passData = value ? value._nativeObj : null;
     }
 
-    private setBlitScreenElement() {
-        let blitScreenElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
-        let shaderData = LayaGL.renderDeviceFactory.createShaderData();
-        let _vertices: Float32Array = new Float32Array([
-            1, 1, 1, 1,
-            1, -1, 1, 0,
-            -1, 1, 0, 1,
-            -1, -1, 0, 0]);
-
-        let _vertexBuffer = new GLESVertexBuffer(BufferTargetType.ARRAY_BUFFER, BufferUsage.Dynamic);
-        _vertexBuffer.setDataLength(64);
-        _vertexBuffer.setData(_vertices.buffer, 0, 0, _vertices.buffer.byteLength);
-        let declaration = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, 0)]);
-        _vertexBuffer.vertexDeclaration = declaration;
-        let geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.TriangleStrip, DrawType.DrawArray);
-        geometry.setDrawArrayParams(0, 4);
-        let bufferState = LayaGL.renderDeviceFactory.createBufferState();
-        bufferState.applyState([_vertexBuffer], null);
-        geometry.bufferState = bufferState;
-
-        //Shader
-        let attributeMap: { [name: string]: [number, ShaderDataType] } = {
-            'a_PositionTexcoord': [0, ShaderDataType.Vector4]
-        }
-        let uniformMap = {
-            "u_MainTex": ShaderDataType.Texture2D,
-        };
-        let shader = Shader3D.add("GLESblitScreen", false, false);
-        shader.shaderType = ShaderFeatureType.Default;
-        let subShader = new SubShader(attributeMap, uniformMap, {});
-        shader.addSubShader(subShader);
-        let vs = `
-            #define SHADER_NAME GLESblitScreenVS
-
-            varying vec2 v_Texcoord0;
-
-            void main()
-            {
-                gl_Position = vec4(- 1.0 + (a_PositionTexcoord.x + 1.0), (1.0 - ((- 1.0 + (-a_PositionTexcoord.y + 1.0)) + 1.0) / 2.0) * 2.0 - 1.0, 0.0, 1.0);
-
-                v_Texcoord0 = a_PositionTexcoord.zw;
-            }
-        `
-        let fs = `
-            #define SHADER_NAME GLESblitScreenFS
-
-            varying vec2 v_Texcoord0;
-
-            void main()
-            {
-                vec4 mainColor = texture2D(u_MainTex, v_Texcoord0);
-               
-                gl_FragColor = mainColor;
-            }
-        `
-        let pass = subShader.addShaderPass(vs, fs);
-        pass.statefirst = true;
-        let blitState = pass.renderState;
-        blitState.depthTest = RenderState.DEPTHTEST_ALWAYS;
-        blitState.depthWrite = false;
-        blitState.cull = RenderState.CULL_NONE;
-        blitState.blend = RenderState.BLEND_DISABLE;
-        blitState.stencilRef = 1;
-        blitState.stencilTest = RenderState.STENCILTEST_OFF;
-        blitState.stencilWrite = false;
-        blitState.stencilOp = new Vector3(RenderState.STENCILOP_KEEP, RenderState.STENCILOP_KEEP, RenderState.STENCILOP_REPLACE);
-        blitScreenElement.geometry = geometry as GLESRenderGeometryElement;
-        blitScreenElement.materialShaderData = shaderData as GLESShaderData;
-        blitScreenElement.subShader = subShader;
-        blitScreenElement.renderStateIsBySprite = false;
-
-        this._nativeObj.setBlitScreenElement((blitScreenElement as GLESRenderElement2D)._nativeObj);
-        GLESRenderContext2D.isCreateBlitScreenELement = true;
-        GLESRenderContext2D.blitScreenElement = blitScreenElement as GLESRenderElement2D;
-    }
 
     drawRenderElementList(list: FastSinglelist<GLESRenderElement2D>): number {
         this._tempList.length = 0;

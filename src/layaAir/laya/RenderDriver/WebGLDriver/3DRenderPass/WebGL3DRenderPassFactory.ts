@@ -24,6 +24,10 @@ export class WebGL3DRenderPassFactory implements I3DRenderPassFactory {
         return new WebGLMeshRenderBatchAgent();
     }
 
+    createSimpleSkinRenderBatchModule(): IBatchModuleAgent {
+        return new WebGLMeshRenderBatchAgent();
+    }
+
     // createComputeCommandAppatchCMD?(): ComputeCommandAppatchCMD {
     //     throw new NotImplementedError();
     // }

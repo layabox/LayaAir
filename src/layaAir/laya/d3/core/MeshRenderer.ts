@@ -222,6 +222,9 @@ export class MeshRenderer extends BaseRender {
             else {
                 // todo
             }
+
+            shaderData.update("MorphTarget");
+
             this._morphWeightChange = false;
             // todo 
             // active count == 0 disable morph ?
@@ -391,7 +394,6 @@ export class MeshRenderer extends BaseRender {
             this.sharedMaterials = materials;
             this.boundsChange = true;
         } else if (!mesh) {
-            this._renderElements.forEach
             this._renderElements.forEach(element => {
                 element._renderElementOBJ.destroy();
                 element.destroy();
@@ -432,7 +434,7 @@ export class MeshRenderer extends BaseRender {
             return;
         }
 
-        if (this._mesh.morphTargetData &&LayaGL.renderEngine.getCapable(RenderCapable.Texture3D) ) {
+        if (this._mesh.morphTargetData && LayaGL.renderEngine.getCapable(RenderCapable.Texture3D)) {
             this._applyMorphdata();
         }
 

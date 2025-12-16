@@ -342,9 +342,12 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
         let staticVetices = SpineSkeletonRenderer.vertices;
         let offsetX = -skeleton.x + this.templet.offsetX;
         let offsetY = -skeleton.y + this.templet.offsetY;
+        let premultipliedAlpha = renderNode.premultipliedAlpha;
+
         for (let i = 0, n = drawOrder.length; i < n; i++) {
             let clippedVertexSize = clipper.isClipping() ? 2 : vertexSize;
             let slot = drawOrder[i];
+            let boneOrSlot = this.templet.needSlot ? slot : slot.bone;
 
             if (!slot.bone.active) {
                 clipper.clipEndWithSlot(slot);
@@ -376,12 +379,11 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
                 if (attachment.sequence != null)
                     attachment.sequence.apply(slot, attachment);
 
-                this.computeWorldVertices_RegionAttachment(region, slot.bone, renderable.vertices, 0, clippedVertexSize, offsetX, offsetY);
+                region.computeWorldVertices(boneOrSlot as any, renderable.vertices, 0, clippedVertexSize);
                 triangles = QUAD_TRIANGLES;
                 uvs = region.uvs;
                 texture = <SpineTexture>(region.region as any).page.texture;
                 attachmentColor = region.color;
-                // graphics.drawTexture(texture.realTexture,0,0,100,100,null,1,"#ffffff","normal",uvs as any)
 
             } else if (attachment instanceof window.spine.MeshAttachment) {
                 //continue;
@@ -394,18 +396,15 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
                     renderable.vertices = staticVetices = window.spine.Utils.newFloatArray(renderable.numFloats);
                 }
 
-                if (attachment.sequence != null)
-                    attachment.sequence.apply(slot, attachment);
+                mesh.computeWorldVertices(slot, 0, mesh.worldVerticesLength, renderable.vertices, 0, clippedVertexSize);
 
-                this.computeWorldVertices_MeshAttachment(mesh, slot, 0, mesh.worldVerticesLength, renderable.vertices, 0, clippedVertexSize, offsetX, offsetY);
                 triangles = mesh.triangles;
                 texture = <SpineTexture>(mesh.region as any).page.texture;
                 uvs = mesh.uvs;
                 attachmentColor = mesh.color;
             } else if (attachment instanceof window.spine.ClippingAttachment) {
                 let clip = <spine.ClippingAttachment>(attachment);
-                // clipper.clipStart(slot, clip);
-                this.clipStart(this.clipper, slot, clip, offsetX, offsetY);
+                clipper.clipStart(slot, clip);
                 continue;
             } else {
                 clipper.clipEndWithSlot(slot);
@@ -452,7 +451,7 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
 
                 if (needNewMat) {
                     virtualMesh && virtualMesh.draw();
-                    let mat = renderNode.templet.getMaterial(texture.realTexture, blendMode);
+                    let mat = renderNode.templet.getMaterial(texture.realTexture, blendMode, premultipliedAlpha);
                     virtualMesh = this.nextBatch(mat, renderNode) as SpineVirtualMesh;
                     virtualMesh.clear();
                 }
@@ -464,7 +463,7 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
                         virtualMesh = this.nextBatch(virtualMesh.material, renderNode) as SpineVirtualMesh;
                         virtualMesh.clear();
                     }
-                    virtualMesh.appendVerticesClip(clipper.clippedVertices, clipper.clippedTriangles);
+                    virtualMesh.appendVerticesClip(clipper.clippedVertices, clipper.clippedTriangles, offsetX, offsetY);
                 } else {
                     if (!virtualMesh.canAppend(renderable.numFloats, triangles.length)) {
                         virtualMesh.draw();
@@ -472,7 +471,7 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
                         virtualMesh.clear();
                     }
                     if (finalColor.a != 0) {
-                        virtualMesh.appendVertices(renderable.vertices, renderable.numFloats, triangles, triangles.length, finalColor, darkColor, uvs);
+                        virtualMesh.appendVertices(renderable.vertices, renderable.numFloats, triangles, triangles.length, finalColor, darkColor, uvs, offsetX, offsetY);
                     }
                 }
             }
@@ -484,155 +483,4 @@ export class SpineSkeletonRenderer extends SpineNormalRenderBase implements ISpi
 
         this.updateRenderElements(renderNode);
     }
-
-    /**
-     * @param clipper 
-     * @param slot 
-     * @param clip 
-     * @param ofx 
-     * @param ofy 
-     * @returns 
-     */
-    clipStart(clipper: spine.SkeletonClipping, slot: spine.Slot, clip: spine.VertexAttachment, ofx: number, ofy: number) {
-        //@ts-ignore
-        if (clipper.clipAttachment)
-            return 0;
-        //@ts-ignore
-        clipper.clipAttachment = clip;
-        let n = clip.worldVerticesLength;
-        //@ts-ignore
-        let vertices: spine.NumberArrayLike = spine.Utils.setArraySize(clipper.clippingPolygon, n);
-        // clip.computeWorldVertices(slot, 0, n, vertices, 0, 2);
-        this.computeWorldVertices_MeshAttachment(clip, slot, 0, n, vertices, 0, 2, ofx, ofy);
-        //@ts-ignore
-        let clippingPolygon = clipper.clippingPolygon;
-        spine.SkeletonClipping.makeClockwise(clippingPolygon);
-        //@ts-ignore
-        let clippingPolygons = clipper.clippingPolygons = clipper.triangulator.decompose(clippingPolygon, clipper.triangulator.triangulate(clippingPolygon));
-        for (let i = 0, n = clippingPolygons.length; i < n; i++) {
-            let polygon = clippingPolygons[i];
-            spine.SkeletonClipping.makeClockwise(polygon);
-            polygon.push(polygon[0]);
-            polygon.push(polygon[1]);
-        }
-        return clippingPolygons.length;
-    }
-
-    /**
-     * @param attachment 
-     * @param bone 
-     * @param worldVertices 
-     * @param offset 
-     * @param stride 
-     * @param ofx 
-     * @param ofy 
-     */
-    private computeWorldVertices_RegionAttachment(attachment: spine.RegionAttachment, bone: spine.Bone, worldVertices: spine.NumberArrayLike, offset: number, stride: number, ofx: number, ofy: number) {
-        // RegionAttachment.OX1 = 0;
-        // RegionAttachment.OY1 = 1;
-        // RegionAttachment.OX2 = 2;
-        // RegionAttachment.OY2 = 3;
-        // RegionAttachment.OX3 = 4;
-        // RegionAttachment.OY3 = 5;
-        // RegionAttachment.OX4 = 6;
-        // RegionAttachment.OY4 = 7;
-        let vertexOffset = attachment.offset;
-        let x = bone.worldX + ofx, y = bone.worldY + ofy;
-        let a = bone.a, b = bone.b, c = bone.c, d = bone.d;
-        let offsetX = 0, offsetY = 0;
-        offsetX = vertexOffset[0];
-        offsetY = vertexOffset[1];
-        worldVertices[offset] = offsetX * a + offsetY * b + x;
-        worldVertices[offset + 1] = offsetX * c + offsetY * d + y;
-        offset += stride;
-        offsetX = vertexOffset[2];
-        offsetY = vertexOffset[3];
-        worldVertices[offset] = offsetX * a + offsetY * b + x;
-        worldVertices[offset + 1] = offsetX * c + offsetY * d + y;
-        offset += stride;
-        offsetX = vertexOffset[4];
-        offsetY = vertexOffset[5];
-        worldVertices[offset] = offsetX * a + offsetY * b + x;
-        worldVertices[offset + 1] = offsetX * c + offsetY * d + y;
-        offset += stride;
-        offsetX = vertexOffset[6];
-        offsetY = vertexOffset[7];
-        worldVertices[offset] = offsetX * a + offsetY * b + x;
-        worldVertices[offset + 1] = offsetX * c + offsetY * d + y;
-    }
-
-    /**
-     * @param attachment 
-     * @param slot 
-     * @param start 
-     * @param count 
-     * @param worldVertices 
-     * @param offset 
-     * @param stride 
-     * @param ofx 
-     * @param ofy 
-     * @returns 
-     */
-    private computeWorldVertices_MeshAttachment(attachment: spine.VertexAttachment, slot: spine.Slot, start: number, count: number, worldVertices: spine.NumberArrayLike, offset: number, stride: number, ofx: number, ofy: number) {
-        count = offset + (count >> 1) * stride;
-        let skeleton = slot.bone.skeleton;
-        //@ts-ignore
-        let deformArray = slot.deform || slot.attachmentVertices;
-        
-        let vertices = attachment.vertices;
-        let bones = attachment.bones;
-        if (bones == null) {
-            if (deformArray.length > 0)
-                vertices = deformArray;
-            let bone = slot.bone;
-            let x = bone.worldX + ofx;
-            let y = bone.worldY + ofy;
-            let a = bone.a, b = bone.b, c = bone.c, d = bone.d;
-            for (let v = start, w = offset; w < count; v += 2, w += stride) {
-                let vx = vertices[v], vy = vertices[v + 1];
-                worldVertices[w] = vx * a + vy * b + x;
-                worldVertices[w + 1] = vx * c + vy * d + y;
-            }
-            return;
-        }
-        let v = 0, skip = 0;
-        for (let i = 0; i < start; i += 2) {
-            let n = bones[v];
-            v += n + 1;
-            skip += n;
-        }
-        let skeletonBones = skeleton.bones;
-        if (deformArray.length == 0) {
-            for (let w = offset, b = skip * 3; w < count; w += stride) {
-                let wx = 0, wy = 0;
-                let n = bones[v++];
-                n += v;
-                for (; v < n; v++, b += 3) {
-                    let bone = skeletonBones[bones[v]];
-                    let vx = vertices[b], vy = vertices[b + 1], weight = vertices[b + 2];
-                    wx += (vx * bone.a + vy * bone.b + bone.worldX + ofx) * weight;
-                    wy += (vx * bone.c + vy * bone.d + bone.worldY + ofy) * weight;
-                }
-                worldVertices[w] = wx;
-                worldVertices[w + 1] = wy;
-            }
-        }
-        else {
-            let deform = deformArray;
-            for (let w = offset, b = skip * 3, f = skip << 1; w < count; w += stride) {
-                let wx = 0, wy = 0;
-                let n = bones[v++];
-                n += v;
-                for (; v < n; v++, b += 3, f += 2) {
-                    let bone = skeletonBones[bones[v]];
-                    let vx = vertices[b] + deform[f], vy = vertices[b + 1] + deform[f + 1], weight = vertices[b + 2];
-                    wx += (vx * bone.a + vy * bone.b + bone.worldX + ofx) * weight;
-                    wy += (vx * bone.c + vy * bone.d + bone.worldY + ofy) * weight;
-                }
-                worldVertices[w] = wx;
-                worldVertices[w + 1] = wy;
-            }
-        }
-    }
-
 }

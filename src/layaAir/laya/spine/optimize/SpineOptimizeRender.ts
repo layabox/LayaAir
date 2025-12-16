@@ -384,6 +384,10 @@ export class SpineOptimizeRender implements ISpineOptimizeRender {
         }
     }
 
+    clearCacheMaterials() {
+        this.skinRenderArray.forEach(item=>item.clearCacheMaterials());
+    }
+
     complete(): void {
         this.currentAnimation.currentFrameIndex = -1;
     }

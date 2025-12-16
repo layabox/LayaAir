@@ -77,8 +77,11 @@ export class GComboBox extends GLabel {
             arr.push(...value);
 
         this._itemsUpdated = true;
-        if (SerializeUtil.isDeserializing)
+        if (SerializeUtil.isDeserializing) {
+            if (arr.length > 0)
+                this._selectedIndex = 0;
             return;
+        }
 
         if (arr.length > 0) {
             if (this._selectedIndex >= arr.length)
@@ -144,7 +147,7 @@ export class GComboBox extends GLabel {
     }
 
     set selectedIndex(val: number) {
-        if (this._selectedIndex == val)
+        if (this._selectedIndex === val && !this._itemsUpdated)
             return;
 
         this._selectedIndex = val;

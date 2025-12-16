@@ -101,6 +101,7 @@ export interface IMesh2DRenderDataHandle extends I2DBaseRenderDataHandle {
     baseTexture: BaseTexture;
     normal2DTexture: BaseTexture;
     normal2DStrength: number;
+    tilingOffset: Vector4;
 }
 
 /**

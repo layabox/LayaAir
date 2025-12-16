@@ -59,6 +59,8 @@ export class WebGLShaderInstance implements IShaderInstance {
     /** @internal 缓存数据 用来优化一些*/
     _additionShaderData: Map<string, ShaderData>;
 
+    renderState: RenderState = new RenderState();
+
     /**
      * 创建一个 <code>ShaderInstance</code> 实例。
      */
@@ -247,6 +249,48 @@ export class WebGLShaderInstance implements IShaderInstance {
         WebGLEngine.instance.uploadUniforms(this._renderShaderInstance, shaderUniform, shaderDatas, uploadUnTexture);
     }
 
+    updateRenderState(renderState: RenderState) {
+        if (this._shaderPass.statefirst) {
+            const passState = this._shaderPass.renderState;
+            this.renderState.cull = passState.cull ?? renderState.cull;
+            this.renderState.blend = passState.blend ?? renderState.blend;
+            this.renderState.srcBlend = passState.srcBlend ?? renderState.srcBlend;
+            this.renderState.dstBlend = passState.dstBlend ?? renderState.dstBlend;
+            this.renderState.depthTest = passState.depthTest ?? renderState.depthTest;
+            this.renderState.depthWrite = passState.depthWrite ?? renderState.depthWrite;
+            this.renderState.stencilTest = passState.stencilTest ?? renderState.stencilTest;
+            this.renderState.stencilWrite = passState.stencilWrite ?? renderState.stencilWrite;
+            const stencilOpX = passState.stencilOp.x ?? renderState.stencilOp.x;
+            const stencilOpY = passState.stencilOp.y ?? renderState.stencilOp.y;
+            const stencilOpZ = passState.stencilOp.z ?? renderState.stencilOp.z;
+            this.renderState.stencilOp.set(stencilOpX, stencilOpY, stencilOpZ);
+            this.renderState.stencilRef = passState.stencilRef ?? renderState.stencilRef;
+            this.renderState.stencilReadMask = passState.stencilReadMask ?? renderState.stencilReadMask;
+            this.renderState.stencilWriteMask = passState.stencilWriteMask ?? renderState.stencilWriteMask;
+            this.renderState.blendEquation = passState.blendEquation ?? renderState.blendEquation;
+            this.renderState.blendEquationRGB = passState.blendEquationRGB ?? renderState.blendEquationRGB;
+            this.renderState.blendEquationAlpha = passState.blendEquationAlpha ?? renderState.blendEquationAlpha;
+            this.renderState.srcBlendRGB = passState.srcBlendRGB ?? renderState.srcBlendRGB;
+            this.renderState.dstBlendRGB = passState.dstBlendRGB ?? renderState.dstBlendRGB;
+            this.renderState.srcBlendAlpha = passState.srcBlendAlpha ?? renderState.srcBlendAlpha;
+            this.renderState.dstBlendAlpha = passState.dstBlendAlpha ?? renderState.dstBlendAlpha;
+            this.renderState.depthBias = passState.depthBias ?? renderState.depthBias;
+            this.renderState.depthBiasConstant = passState.depthBiasConstant ?? renderState.depthBiasConstant;
+            this.renderState.depthBiasSlopeScale = passState.depthBiasSlopeScale ?? renderState.depthBiasSlopeScale;
+            this.renderState.depthBiasClamp = passState.depthBiasClamp ?? renderState.depthBiasClamp;
+        }
+    }
+
+    uploadRenderState(renderState: RenderState, isTarget: boolean, invertFront: boolean) {
+        const engine = WebGLEngine.instance._GLRenderState;
+        if (this._shaderPass.statefirst) {
+            engine.setRenderState(this.renderState, isTarget, invertFront);
+        }
+        else {
+            engine.setRenderState(renderState, isTarget, invertFront);
+        }
+    }
+
     /**
      * set blend depth stencil RenderState
      * @param shaderDatas 
@@ -262,7 +306,7 @@ export class WebGLShaderInstance implements IShaderInstance {
      * set blend depth stencil RenderState frome Shader
      * @param shaderDatas 
      */
-    uploadRenderStateBlendDepthByShader(shaderDatas: WebGLShaderData) {
+    private uploadRenderStateBlendDepthByShader(shaderDatas: WebGLShaderData) {
 
         const engineRenderState = WebGLEngine.instance._GLRenderState;
 
@@ -285,7 +329,7 @@ export class WebGLShaderInstance implements IShaderInstance {
         engineRenderState.setStencilWriteMask(stencilWriteMask);
         if (stencilWrite) {
             var stencilOp: any = (renderState.stencilOp ?? datas[Shader3D.STENCIL_Op]) ?? RenderState.Default.stencilOp;
-            engineRenderState.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
+            engineRenderState.setStencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
         }
 
         var stencilTest: any = (renderState.stencilTest ?? datas[Shader3D.STENCIL_TEST]) ?? RenderState.Default.stencilTest;
@@ -341,7 +385,7 @@ export class WebGLShaderInstance implements IShaderInstance {
      * set blend depth stencil RenderState frome Material
      * @param shaderDatas 
      */
-    uploadRenderStateBlendDepthByMaterial(shaderDatas: ShaderData) {
+    private uploadRenderStateBlendDepthByMaterial(shaderDatas: ShaderData) {
 
         const engineRenderState = WebGLEngine.instance._GLRenderState;
 
@@ -372,7 +416,7 @@ export class WebGLShaderInstance implements IShaderInstance {
         if (stencilWrite) {
             var stencilOp: any = datas[Shader3D.STENCIL_Op];
             stencilOp = stencilOp ?? RenderState.Default.stencilOp;
-            engineRenderState.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
+            engineRenderState.setStencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
         }
 
         var stencilTest: any = datas[Shader3D.STENCIL_TEST];

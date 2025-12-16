@@ -135,5 +135,7 @@ export class WebReflectionProbe implements IReflectionProbeData {
         }
         data.setNumber(ReflectionProbe.AMBIENTINTENSITY, this.ambientIntensity);
         data.setNumber(ReflectionProbe.REFLECTIONINTENSITY, this.reflectionIntensity);
+
+        data.update(ReflectionProbe.BlockName);
     }
 }

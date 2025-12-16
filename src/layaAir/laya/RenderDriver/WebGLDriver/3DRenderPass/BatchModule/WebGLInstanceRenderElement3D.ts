@@ -112,9 +112,9 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
     }
 
     protected _compileShader(context: WebGLRenderContext3D) {
-        this._clearShaderInstance();
+        let passes = this._subShader._passes;
+        let renderCount = 0;
 
-        let passes = this.subShader._passes;
         for (let i = 0; i < passes.length; i++) {
             let pass = passes[i];
             if (pass.pipelineMode != context.pipelineMode)
@@ -136,9 +136,15 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
             comDef.add(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
 
             let shaderIns = <WebGLShaderInstance>pass.withCompile(comDef);
-            this._addShaderInstance(shaderIns);
+            this._curDrawCacheInfo.shaderInss[renderCount] = shaderIns;
+            renderCount++
         }
-        this._shaderInstances.length > 0 && this._updateInstanceData();
+        this._curDrawCacheInfo.shaderInss.length = renderCount;
+    }
+
+    _preUpdatePre(context: WebGLRenderContext3D): void {
+        super._preUpdatePre(context);
+        this._updateInstanceData();
     }
 
     private _updateInstanceData() {

@@ -8,7 +8,7 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { Resource } from "../../../resource/Resource";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { WebGLEngine } from "../../WebGLDriver/RenderDevice/WebGLEngine";
-import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
+import { isRenderStateProperty, ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../Design/ShaderDefine";
 import { WebDefineDatas } from "./WebDefineDatas";
 import { WebGLUniformBuffer } from "../../WebGLDriver/RenderDevice/WebGLUniformBuffer";
@@ -17,11 +17,15 @@ import { WebGLUniformBufferBase } from "../../WebGLDriver/RenderDevice/WebGLUnif
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Config } from "../../../../Config";
+import { WebGLCommandUniformMap } from "../../WebGLDriver/RenderDevice/WebGLCommandUniformMap";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { RenderState } from "../Design/RenderState";
 
 /**
  * 着色器数据类。
  */
 export class WebGLShaderData extends ShaderData {
+    private static pointerCount: number = 0;
     /**@internal */
     protected _gammaColorMap: Map<number, Color>;
     /**@internal */
@@ -29,6 +33,9 @@ export class WebGLShaderData extends ShaderData {
 
     /** @internal */
     _defineDatas: WebDefineDatas = new WebDefineDatas();
+
+
+    _id: number = WebGLShaderData.pointerCount++;
 
     /** @internal */
     private _uniformBuffers: Map<string, WebGLUniformBuffer>;
@@ -41,9 +48,129 @@ export class WebGLShaderData extends ShaderData {
 
     private _needCacheData: boolean = false;
 
-    private _updateCacheArray: { [key: number]: any } = null;
+    private _updateCacheArray: { [key: number]: Function } = null;
 
     private _subUboBufferNumber: number = 0;
+
+    private _renderStateChanged: boolean = true;
+
+    /** @internal */
+    public get renderStateChanged(): boolean {
+        return this._renderStateChanged;
+    }
+
+    /** @internal */
+    renderState: RenderState = new RenderState();
+
+    /** @internal */
+    updateRenderState() {
+        this._renderStateChanged = false;
+
+        const datas: any = this.getData();
+        const renderState = this.renderState;
+
+        // depth
+        let depthWrite: boolean = datas[Shader3D.DEPTH_WRITE];
+        depthWrite = depthWrite ?? RenderState.Default.depthWrite;
+        renderState.depthWrite = depthWrite;
+
+        let depthTest = datas[Shader3D.DEPTH_TEST];
+        depthTest = depthTest ?? RenderState.Default.depthTest;
+        renderState.depthTest = depthTest;
+
+        //Stencil
+        let stencilWrite: boolean = datas[Shader3D.STENCIL_WRITE];
+        stencilWrite = stencilWrite ?? RenderState.Default.stencilWrite;
+        renderState.stencilWrite = stencilWrite;
+
+        let stencilWriteMask: number = (datas[Shader3D.STENCIL_WRITE_MASK] ?? RenderState.Default.stencilWriteMask);
+        renderState.stencilWriteMask = stencilWriteMask;
+
+        let stencilOp = datas[Shader3D.STENCIL_Op];
+        stencilOp = stencilOp ?? RenderState.Default.stencilOp;
+        renderState.stencilOp.set(stencilOp.x, stencilOp.y, stencilOp.z);
+
+        let stencilTest = datas[Shader3D.STENCIL_TEST];
+        stencilTest = stencilTest ?? RenderState.Default.stencilTest;
+        renderState.stencilTest = stencilTest;
+
+        let stencilReadMask = datas[Shader3D.STENCIL_READ_MASK] ?? RenderState.Default.stencilReadMask;
+        renderState.stencilReadMask = stencilReadMask;
+
+        var stencilRef = datas[Shader3D.STENCIL_Ref];
+        stencilRef = stencilRef ?? RenderState.Default.stencilRef;
+        renderState.stencilRef = stencilRef;
+
+        // depth bias
+        let depthBias = datas[Shader3D.DEPTH_BIAS] ?? RenderState.Default.depthBias;
+        renderState.depthBias = depthBias;
+
+        let depthBiasConstant = datas[Shader3D.DEPTH_BIAS_CONSTANT];
+        depthBiasConstant = depthBiasConstant ?? RenderState.Default.depthBiasConstant;
+        renderState.depthBiasConstant = depthBiasConstant;
+
+        let depthBiasSlopeScale = datas[Shader3D.DEPTH_BIAS_SLOPESCALE];
+        depthBiasSlopeScale = depthBiasSlopeScale ?? RenderState.Default.depthBiasSlopeScale;
+        renderState.depthBiasSlopeScale = depthBiasSlopeScale;
+
+        let depthBiasClamp = datas[Shader3D.DEPTH_BIAS_CLAMP];
+        depthBiasClamp = depthBiasClamp ?? RenderState.Default.depthBiasClamp;
+        renderState.depthBiasClamp = depthBiasClamp;
+
+        //blend
+        let blend = datas[Shader3D.BLEND];
+        blend = blend ?? RenderState.Default.blend;
+        renderState.blend = blend;
+
+        let blendEquation = datas[Shader3D.BLEND_EQUATION];
+        blendEquation = blendEquation ?? RenderState.Default.blendEquation;
+        renderState.blendEquation = blendEquation;
+
+        let srcBlend = datas[Shader3D.BLEND_SRC];
+        srcBlend = srcBlend ?? RenderState.Default.srcBlend;
+        renderState.srcBlend = srcBlend;
+
+        let dstBlend = datas[Shader3D.BLEND_DST];
+        dstBlend = dstBlend ?? RenderState.Default.dstBlend;
+        renderState.dstBlend = dstBlend;
+
+        let blendEquationRGB = datas[Shader3D.BLEND_EQUATION_RGB];
+        blendEquationRGB = blendEquationRGB ?? RenderState.Default.blendEquationRGB;
+        renderState.blendEquationRGB = blendEquationRGB;
+
+        let blendEquationAlpha = datas[Shader3D.BLEND_EQUATION_ALPHA];
+        blendEquationAlpha = blendEquationAlpha ?? RenderState.Default.blendEquationAlpha;
+        renderState.blendEquationAlpha = blendEquationAlpha;
+
+        let srcRGB = datas[Shader3D.BLEND_SRC_RGB];
+        srcRGB = srcRGB ?? RenderState.Default.srcBlendRGB;
+        renderState.srcBlendRGB = srcRGB;
+
+        let dstRGB = datas[Shader3D.BLEND_DST_RGB];
+        dstRGB = dstRGB ?? RenderState.Default.dstBlendRGB;
+        renderState.dstBlendRGB = dstRGB;
+
+        let srcAlpha = datas[Shader3D.BLEND_SRC_ALPHA];
+        srcAlpha = srcAlpha ?? RenderState.Default.srcBlendAlpha;
+        renderState.srcBlendAlpha = srcAlpha;
+
+        let dstAlpha = datas[Shader3D.BLEND_DST_ALPHA];
+        dstAlpha = dstAlpha ?? RenderState.Default.dstBlendAlpha;
+        renderState.dstBlendAlpha = dstAlpha;
+
+        // cull
+        let cull = datas[Shader3D.CULL];
+        cull = cull ?? RenderState.Default.cull;
+        renderState.cull = cull;
+
+        this._renderStateChanged = false;
+    }
+
+    private _checkRenderState(index: number) {
+        if (isRenderStateProperty(index)) {
+            this._renderStateChanged = true;
+        }
+    }
 
     /**
      * @internal	
@@ -239,6 +366,8 @@ export class WebGLShaderData extends ShaderData {
         this.clearDefine();
         this._needCacheData = false;
         this._subUboBufferNumber = 0;
+
+        this.renderState.setNull();
     }
 
 
@@ -287,6 +416,8 @@ export class WebGLShaderData extends ShaderData {
         if (this._needCacheData) {
             this._updateCacheArray[index] = WebGLUniformBufferBase.prototype.setInt;
         }
+
+        this._checkRenderState(index);
     }
 
     /**
@@ -308,6 +439,8 @@ export class WebGLShaderData extends ShaderData {
         if (this._needCacheData) {
             this._updateCacheArray[index] = WebGLUniformBufferBase.prototype.setFloat;
         }
+
+        this._checkRenderState(index);
     }
 
     /**
@@ -546,6 +679,31 @@ export class WebGLShaderData extends ShaderData {
         this._data[index] = value;
         // lastValue && lastValue._removeReference();
         // value && value._addReference();
+    }
+
+    uploadCache() {
+        let uploaded = false;
+        for (let i in this._updateCacheArray) {
+            uploaded = true;
+            let index = parseInt(i);
+            let ubo = this._uniformBuffersPropertyMap.get(index);
+            if (ubo) {
+                (this._updateCacheArray[i] as Function).call(ubo, index, this._data[index]);
+            }
+        }
+        if (uploaded) {
+            this._updateCacheArray = {};
+        }
+    }
+
+    update(name: string) {
+        if (Config._uniformBlock) {
+            let unifomrMap = <WebGLCommandUniformMap>LayaGL.renderDeviceFactory.createGlobalUniformMap(name);
+            let uniformBuffer = this.createSubUniformBuffer(name, name, unifomrMap._idata);
+            if (uniformBuffer) {
+                uniformBuffer.upload();
+            }
+        }
     }
 
     /**

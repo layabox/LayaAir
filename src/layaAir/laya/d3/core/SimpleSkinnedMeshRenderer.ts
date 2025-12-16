@@ -12,6 +12,7 @@ import { RenderContext3D } from "./render/RenderContext3D";
 import { SimpleSkinnedMeshSprite3D } from "./SimpleSkinnedMeshSprite3D";
 import { LayaGL } from "../../layagl/LayaGL";
 import { StatElement } from "../../layagl/StatisticsContext";
+import { propertyChangeFlag } from "./render/BaseRender";
 
 export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     private _simpleAnimatorTexture: Texture2D;
@@ -127,6 +128,10 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
             this._simpleAnimatorParams.y = Math.round(this._simpleAnimatorOffset.y) * this._bonesNums * 4;
 
             this._ownerSimpleRenderNode.setSimpleAnimatorParams(this._simpleAnimatorParams);
+
+            if (this._batchRender) {
+                this._batchRender.updateProperty(this, propertyChangeFlag.SimpleSkineParam);
+            }
         }
     }
 

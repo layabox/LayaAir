@@ -9,7 +9,6 @@ import { PAL } from "./PlatformAdapters";
  * @ignore
  */
 export class BrowserAdapter extends EventDispatcher {
-    requestFrame: Function;
     webSocketClass: new () => IWebSocket = _WebSocket;
 
     protected _visibilityStateKey: string;
@@ -190,16 +189,15 @@ export class BrowserAdapter extends EventDispatcher {
     }
 
     protected initRequestFrameFunction(): void {
-        this.requestFrame = window.requestAnimationFrame
-            || (window as any).webkitRequestAnimationFrame
-            || (window as any).mozRequestAnimationFrame
-            || (window as any).oRequestAnimationFrame
-            || (window as any).msRequestAnimationFrame;
-
-        if (!this.requestFrame)
-            this.requestFrame = function (fun: any): any {
-                return setTimeout(fun, 1000 / 60);
-            }
+        if (!window.requestAnimationFrame) {
+            window.requestAnimationFrame = (window as any).webkitRequestAnimationFrame
+                || (window as any).mozRequestAnimationFrame
+                || (window as any).oRequestAnimationFrame
+                || (window as any).msRequestAnimationFrame
+                || function (fun: any): any {
+                    return setTimeout(fun, 1000 / 60);
+                }
+        }
     }
 
     start(): Promise<void> {

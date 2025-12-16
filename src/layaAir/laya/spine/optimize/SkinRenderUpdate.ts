@@ -101,8 +101,8 @@ export class SkinRenderUpdate {
      * @param name 纹理的名称。
      * @param blendMode 混合模式。
      */
-    getMaterialByName(name: string, blendMode: number): Material {
-        return this.templet.getMaterial(this.templet.getTexture(name), blendMode);
+    getMaterialByName(name: string, blendMode: number, premultipliedAlpha: boolean): Material {
+        return this.templet.getMaterial(this.templet.getTexture(name), blendMode, premultipliedAlpha);
     }
 
     /**
@@ -177,7 +177,7 @@ export class SkinRenderUpdate {
         let needUpdate = false;
         let mulitRenderData = frameData.mulitRenderData;
         if (mulitRenderData) {
-            let mats = this.cacheMaterials[mulitRenderData.id] || this.createMaterials(mulitRenderData);
+            let mats = this.cacheMaterials[mulitRenderData.id] || this.createMaterials(mulitRenderData, renderNode);
             if (this.currentMaterials !== mats) {
                 renderNode._updateMaterials(mats);
                 needUpdate = true;
@@ -188,9 +188,13 @@ export class SkinRenderUpdate {
         return !renderNode._onMeshChange(mesh, forceUpdateMesh) || needUpdate;
     }
 
-    private createMaterials(mulitRenderData: MultiRenderData): Material[] {
+    clearCacheMaterials(){
+        this.cacheMaterials.length = 0;
+    }
+
+    private createMaterials(mulitRenderData: MultiRenderData, renderNode: Spine2DRenderNode): Material[] {
         let mats = mulitRenderData.renderData.map(data =>
-            this.getMaterialByName(data.textureName, data.blendMode)
+            this.getMaterialByName(data.textureName, data.blendMode, renderNode.premultipliedAlpha)
         );
         this.cacheMaterials[mulitRenderData.id] = mats;
         return mats;

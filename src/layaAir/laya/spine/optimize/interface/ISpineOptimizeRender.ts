@@ -13,6 +13,7 @@ export interface ISpineOptimizeRender {
     setSkinIndex(index: number): void;
     initBake(obj: TSpineBakeData): void;
     changeSkeleton(skeleton: spine.Skeleton): void;
+    clearCacheMaterials(): void;
     getSpineColor(): Color;
     complete(): void;
     destroy(): void;
