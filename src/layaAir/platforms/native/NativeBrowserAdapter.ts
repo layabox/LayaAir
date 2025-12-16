@@ -49,6 +49,16 @@ export class NativeBrowserAdapter extends BrowserAdapter {
             ele = super.createElement(tagName);
         return ele;
     }
+
+    getElementById(id: string): any {
+        //Native TODO: 实现
+        return null;
+    }
+
+    removeElement(ele: any): void {
+        //Native TODO: 实现
+    }
+
     get supportArrayBufferURL(): boolean {
         return true;
     }

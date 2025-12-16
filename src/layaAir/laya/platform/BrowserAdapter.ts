@@ -274,6 +274,18 @@ export class BrowserAdapter extends EventDispatcher {
         return Browser.document.createElement(tagName);
     }
 
+    getElementById(id: string): any {
+        return Browser.document.getElementById(id);
+    }
+
+    removeElement(ele: HTMLElement): void {
+        if (ele && ele.parentNode) {
+            ele.parentNode.removeChild(ele);
+        } else {
+            ele && ele.remove();
+        }
+    }
+
     createMainCanvas() {
         let canvas = this.createElement("canvas");
         canvas.id = "layaCanvas";

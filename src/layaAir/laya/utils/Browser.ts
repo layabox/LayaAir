@@ -360,14 +360,14 @@ export class Browser {
      * @deprecated
      */
     static getElementById(id: string): any {
-        return Browser.document.getElementById(id);
+        return PAL.browser.getElementById(id);
     }
 
     /**
      * @deprecated
      */
     static removeElement(ele: any): void {
-        if (ele && ele.parentNode) ele.parentNode.removeChild(ele);
+        PAL.browser.removeElement(ele);
     }
 
     /**

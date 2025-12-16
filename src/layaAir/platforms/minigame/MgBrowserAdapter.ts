@@ -187,12 +187,16 @@ export class MgBrowserAdapter extends BrowserAdapter {
     }
 
     createMainCanvas(): HTMLCanvasElement {
+        let canvas: HTMLCanvasElement;
         if (Browser.onTBMiniGame) {
-            return (window as any).screencanvas //taobao mini
+            canvas = (window as any).screencanvas //taobao mini
                 || (window as any).canvas.getRealCanvas(); //taobao app/plugin
         }
-        else
-            return (window as any).canvas || (window as any).__canvas; //vivo/oppo
+        else {
+            canvas = (window as any).canvas || (window as any).__canvas; //vivo/oppo
+        }
+        canvas.id = "layaCanvas";
+        return canvas;
     }
 
     createElement<K extends keyof HTMLElementTagNameMap>(tagName: K): HTMLElementTagNameMap[K] {
@@ -206,6 +210,27 @@ export class MgBrowserAdapter extends BrowserAdapter {
         else if (ele.style === (window as any).canvas?.style) //douyin共享了style对象
             ele.style = {};
         return ele;
+    }
+
+    getElementById(id: string): any {
+        if (window.document.getElementById) {
+            return window.document.getElementById(id);
+        } else {
+            console.warn("currentPlatform don't support this");
+            return null;
+        }
+    }
+
+    removeElement(ele: any): void {
+        if (ele.remove) {
+            ele.remove();
+        } else if (ele.dispose) {
+            // ttMiniGame
+            ele.dispose();
+        } else {
+            ele = null;
+        }
+
     }
 
     setCursor(cursor: string): void {
