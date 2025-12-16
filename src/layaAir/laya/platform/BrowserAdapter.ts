@@ -274,16 +274,12 @@ export class BrowserAdapter extends EventDispatcher {
         return Browser.document.createElement(tagName);
     }
 
-    getElementById(id: string): any {
+    getElementById(id: string): HTMLElement {
         return Browser.document.getElementById(id);
     }
 
     removeElement(ele: HTMLElement): void {
-        if (ele && ele.parentNode) {
-            ele.parentNode.removeChild(ele);
-        } else {
-            ele && ele.remove();
-        }
+        ele && ele.remove();
     }
 
     createMainCanvas() {
