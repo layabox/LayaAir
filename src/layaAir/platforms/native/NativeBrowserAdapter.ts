@@ -7,6 +7,7 @@ import { Browser } from "../../laya/utils/Browser";
 import { WasmAdapter } from "../../laya/utils/WasmAdapter";
 
 export class NativeBrowserAdapter extends BrowserAdapter {
+    protected _canvas: any;
     init() {
         Config.fixedFrames = false;
         Browser.onLayaRuntime = true;
@@ -39,7 +40,9 @@ export class NativeBrowserAdapter extends BrowserAdapter {
     }
 
     createMainCanvas() {
-        return PAL.g.createCanvas() as any;
+        this._canvas = PAL.g.createCanvas() as any;
+        this._canvas.id = "layaCanvas";
+        return this._canvas;
     }
     createElement<K extends keyof HTMLElementTagNameMap>(tagName: K): HTMLElementTagNameMap[K] {
         let ele: any;
@@ -51,12 +54,14 @@ export class NativeBrowserAdapter extends BrowserAdapter {
     }
 
     getElementById(id: string): HTMLElement {
-        //Native TODO: 实现
-        return null;
+        if (id === this._canvas.id) {
+            return this._canvas;
+        }
+        return null
     }
 
     removeElement(ele: HTMLElement): void {
-        //Native TODO: 实现
+        ele = null;
     }
 
     get supportArrayBufferURL(): boolean {
