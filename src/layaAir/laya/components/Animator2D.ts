@@ -340,6 +340,8 @@ export class Animator2D extends Component {
         }
         const isReplay = parentPlayNum != playNum;
         if (isReplay) {
+            // 动画循环时更新defVal，支持additive模式基于最新值叠加
+            this._updateDefVal();
             animatorState._eventLoop();
         }
         //注意，这里的playState._normalizedPlayTime不管是clipStart和clipEnd是多少，都是0~1

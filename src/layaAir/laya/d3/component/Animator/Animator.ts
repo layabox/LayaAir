@@ -315,6 +315,8 @@ export class Animator extends Component {
                 let loopNum = Math.floor(elapsedPlaybackTime / clipDuration);
                 let pLoopNum = Math.floor(lastElapsedTime / clipDuration);
                 if (pLoopNum != loopNum) {
+                    // 动画循环时更新defaultValue，支持additive模式基于最新值叠加
+                    this._updateDefaultValues();
                     animatorState._eventLoop();
                 }
             }
