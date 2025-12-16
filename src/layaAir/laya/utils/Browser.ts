@@ -357,17 +357,25 @@ export class Browser {
     }
 
     /**
-     * @deprecated
+     * @en Get the HTMLElement by its ID.
+     * @param id The element's ID.
+     * @return The element that was obtained.
+     * @zh 通过id获取HTMLElement。
+     * @param id 元素的id。
+     * @return 获取到的元素。
      */
-    static getElementById(id: string): any {
-        return Browser.document.getElementById(id);
+    static getElementById(id: string): HTMLElement {
+        return PAL.browser.getElementById(id);
     }
 
     /**
-     * @deprecated
+     * @en Removes the specified HTMLElement.
+     * @param ele element to remove.
+     * @zh 移除指定HTMLElement元素。
+     * @param ele 要移除的元素。
      */
-    static removeElement(ele: any): void {
-        if (ele && ele.parentNode) ele.parentNode.removeChild(ele);
+    static removeElement(ele: HTMLElement): void {
+        PAL.browser.removeElement(ele);
     }
 
     /**

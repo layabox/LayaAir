@@ -264,7 +264,7 @@ export class Utils {
         imgdata.data.set(new Uint8ClampedArray(pixels));
         ctx2d.putImageData(imgdata, 0, 0);
         const base64String = canvas.toDataURL();
-        canvas.remove();
+        Browser.removeElement(canvas);
         return base64String;
     }
 
@@ -315,7 +315,7 @@ export class Utils {
             imgdata.data.set(new Uint8ClampedArray(pixels));
             ctx2d.putImageData(imgdata, 0, 0);
             const base64String = canvas.toDataURL();
-            canvas.remove();
+            Browser.removeElement(canvas);
             // }
             return Promise.resolve(base64String);
         });
