@@ -1,5 +1,6 @@
 import { Config, PlayerConfig } from "../../Config";
 import { Laya } from "../../Laya";
+import { Event } from "../../laya/events/Event";
 import { BrowserAdapter } from "../../laya/platform/BrowserAdapter";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { Render } from "../../laya/renders/Render";
@@ -7,6 +8,7 @@ import { Browser } from "../../laya/utils/Browser";
 import { WasmAdapter } from "../../laya/utils/WasmAdapter";
 
 export class NativeBrowserAdapter extends BrowserAdapter {
+    protected _visible: boolean = true;
     protected _canvas: any;
     init() {
         Config.fixedFrames = false;
@@ -37,6 +39,25 @@ export class NativeBrowserAdapter extends BrowserAdapter {
         };
 
         super.init();
+
+        PAL.g.onShow(() => {
+            this._visible = true;
+            this.event(Event.VISIBILITY_CHANGE, true);
+            this.event(Event.FOCUS);
+        });
+        PAL.g.onHide(() => {
+            this._visible = false;
+            this.event(Event.VISIBILITY_CHANGE, false);
+            this.event(Event.BLUR);
+        });
+        if (PAL.hasAPI("onWindowResize")) {
+            PAL.g.onWindowResize(result => {
+                this.event(Event.RESIZE);
+            });
+        }
+    }
+    getVisibility(): boolean {
+        return this._visible;
     }
 
     createMainCanvas() {
@@ -69,11 +90,11 @@ export class NativeBrowserAdapter extends BrowserAdapter {
     }
 
     createBufferURL(data: ArrayBuffer): string {
-        return (window as any).wx.createBufferURL(data);
+        return PAL.g.createBufferURL(data);
     }
 
     revokeBufferURL(url: string): void {
-        return (window as any).wx.revokeBufferURL(url);
+        return PAL.g.revokeBufferURL(url);
     }
     protected onCaptureGlobalError(enabled: boolean, func: (e: any) => void): void {
         if (enabled) {
