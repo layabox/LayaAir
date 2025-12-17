@@ -69,11 +69,11 @@ export class NativeBrowserAdapter extends BrowserAdapter {
     }
 
     createBufferURL(data: ArrayBuffer): string {
-        return (window as any).wx.createBufferURL(data);
+        return PAL.g.createBufferURL(data);
     }
 
     revokeBufferURL(url: string): void {
-        return (window as any).wx.revokeBufferURL(url);
+        return PAL.g.revokeBufferURL(url);
     }
     protected onCaptureGlobalError(enabled: boolean, func: (e: any) => void): void {
         if (enabled) {
