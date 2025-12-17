@@ -215,7 +215,9 @@ export class TileSetCellData {
     }
 
     public set z_index(value: number) {
+        if (this._z_index == value) return;
         this._z_index = value;
+        this._refreshCellSort();
     }
 
     public get y_sort_origin(): number {
@@ -223,8 +225,9 @@ export class TileSetCellData {
     }
 
     public set y_sort_origin(value: number) {
+        if (this._y_sort_origin == value) return;
         this._y_sort_origin = value;
-        //TODO Flag dirty
+        this._refreshCellSort();
     }
 
     public get terrainSet(): number {
@@ -311,6 +314,13 @@ export class TileSetCellData {
         if (!this.cellowner) return;
         this._notiveRenderTile.forEach(element => {
             element._modifyData()
+        });
+    }
+
+    _refreshCellSort() {
+        if (!this.cellowner) return;
+        this._notiveRenderTile.forEach(element => {
+            element._refreshCellSort(this);
         });
     }
 
