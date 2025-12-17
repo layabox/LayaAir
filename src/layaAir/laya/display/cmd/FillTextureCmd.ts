@@ -160,6 +160,14 @@ export class FillTextureCmd implements IGraphicsCmd {
     get cmdID(): string {
         return FillTextureCmd.ID;
     }
+
+    /**
+     * @en Returns 1 if percent is true, otherwise returns 0.
+     * @zh 如果percent为true返回1，否则返回0。
+     */
+    needsLayoutRepaint(): number {
+        return this.percent ? 1 : 0;
+    }
 }
 
 ClassUtils.regClass(className, FillTextureCmd);

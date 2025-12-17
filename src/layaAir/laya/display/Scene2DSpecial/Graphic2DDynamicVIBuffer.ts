@@ -154,7 +154,7 @@ export class Graphic2DDynamicVIBuffer {
             remainingBlocks--;
         }
         // 使用第一个block的视图
-        return { buffer: this, vertexViews: usedViews, vertexBlocks: usedBlocks };
+        return { vertexViews: usedViews, vertexBlocks: usedBlocks };
     }
 
     /**

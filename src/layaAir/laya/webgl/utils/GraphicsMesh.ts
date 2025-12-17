@@ -7,7 +7,6 @@ import { VertexElementFormat } from "../../renders/VertexElementFormat";
 
 export type MeshBlockInfo = {
    mesh: GraphicsMesh,
-   positions?: number[],
    vertexViews?: I2DGraphicVertexDataView[],
    vertexBlocks?: number[],
 }
@@ -58,11 +57,8 @@ export class GraphicsMesh {
    checkVertex(vertexCount: number): MeshBlockInfo {
       let vbResult = this._buffer.checkVertexBuffer(vertexCount);
       if (!vbResult) return null;
-      return {
-         mesh: this,
-         vertexBlocks: vbResult.vertexBlocks,
-         vertexViews: vbResult.vertexViews
-      }
+      vbResult.mesh = this;
+      return vbResult;
    }
 
    /**

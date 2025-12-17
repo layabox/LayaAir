@@ -80,6 +80,8 @@ export class Graphics {
     private _material: Material;
     /** @internal */
     _modified: number = -1;
+    /** @internal 需要响应布局变化的cmd计数 */
+    private _layoutRepaintCount: number = 0;
 
     /**
     * @en Whether to use sprite state.
@@ -97,7 +99,6 @@ export class Graphics {
         this.repaint();
     }
 
-    _ezRepaintCount: number = 0;
     /** @internal 是否需要缓存 */
     needCache: boolean = false;
     
@@ -148,9 +149,16 @@ export class Graphics {
         if (exclude) {
             this._cmds[0] = exclude;
             this._cmds.length = 1;
+            // 重新计算布局重绘计数（只计算exclude）
+            this._layoutRepaintCount = 0;
+            if (exclude.needsLayoutRepaint) {
+                this._layoutRepaintCount = exclude.needsLayoutRepaint();
+            }
         }
-        else
+        else {
             this._cmds.length = 0;
+            this._layoutRepaintCount = 0;
+        }
 
         this.repaint();
     }
@@ -174,6 +182,16 @@ export class Graphics {
     }
 
     /**
+     * @internal
+     * @en Get the count of commands that need to respond to layout changes.
+     * @zh 获取需要响应布局变化的命令数量。
+     * @returns The count of commands that need layout repaint.
+     */
+    getLayoutRepaintCount(): number {
+        return this._layoutRepaintCount;
+    }
+
+    /**
      * @en Command flow. All drawing commands are stored.
      * @zh 命令流。存储了所有绘制命令。
      */
@@ -188,6 +206,14 @@ export class Graphics {
                     cmd.recover();
             });
         }
+        
+        this._layoutRepaintCount = 0;
+        for (let cmd of value) {
+            if (cmd.needsLayoutRepaint) {
+                this._layoutRepaintCount += cmd.needsLayoutRepaint();
+            }
+        }
+        
         this._cmds = value;
         this.repaint();
     }
@@ -208,6 +234,11 @@ export class Graphics {
             this._cmds.push(cmd);
         else
             this._cmds.splice(index, 0, cmd);
+        
+        if (cmd.needsLayoutRepaint) {
+            this._layoutRepaintCount += cmd.needsLayoutRepaint();
+        }
+        
         // this.repaint();
         this.repaint();
         return cmd;
@@ -225,6 +256,11 @@ export class Graphics {
         let i = this.cmds.indexOf(cmd);
         if (i != -1) {
             this._cmds.splice(i, 1);
+            
+            if (cmd.needsLayoutRepaint) {
+                this._layoutRepaintCount -= cmd.needsLayoutRepaint();
+            }
+            
             this.repaint();
         }
 
@@ -246,11 +282,21 @@ export class Graphics {
      */
     replaceCmd<T extends IGraphicsCmd>(oldCmd: IGraphicsCmd, newCmd: T, recover?: boolean): T {
         let index = this._cmds.indexOf(oldCmd);
+        
+        if (oldCmd && oldCmd.needsLayoutRepaint) {
+            this._layoutRepaintCount -= oldCmd.needsLayoutRepaint();
+        }
+        
         if (newCmd != null) {
             if (index !== -1)
                 this._cmds[index] = newCmd;
             else
                 this._cmds.push(newCmd);
+            
+            if (newCmd.needsLayoutRepaint) {
+                this._layoutRepaintCount += newCmd.needsLayoutRepaint();
+            }
+            
             this.repaint();
         }
         else if (index != -1) {

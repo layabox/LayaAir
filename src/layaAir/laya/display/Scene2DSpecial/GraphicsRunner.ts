@@ -44,6 +44,8 @@ const _drawTexToDrawTri_Vert = new Float32Array(8);// 从速度考虑，不做�
 const _drawTexToDrawTri_Index = new Uint16Array([0, 1, 2, 0, 2, 3]);
 const _drawTexToQuad_Index = new Uint16Array([0, 2, 1, 0, 3, 2]);
 //const tmpUVRect: number[] = [0, 0, 0, 0];
+const _tempBlockMesh : MeshBlockInfo = { mesh: null, vertexViews: [], vertexBlocks: [] };
+const _tempCache: MeshBlockInfo = { mesh: null, vertexViews: [], vertexBlocks: [] };
 
 /** @ignore @blueprintIgnore */
 export class GraphicsRunner {
@@ -83,6 +85,8 @@ export class GraphicsRunner {
     private _clipID_Gen = 0;			//生成clipid的，原来是  _clipInfoID=++_clipInfoID 这样会有问题，导致兄弟clip的id都相同
 
     private _meshPool: GraphicsMesh[] = [];
+
+    
 
     _matrixChanged = false;	//矩阵是否改变了
     _curMat: Matrix;
@@ -717,13 +721,17 @@ export class GraphicsRunner {
                 submit._key.other = (this._lastTex && this._lastTex.bitmap) ? (this._lastTex.bitmap as Texture2D).id : -1
             }
 
-            this.appendData(this._transedPoints, _drawTexToQuad_Index, vertexResult, submit, null, rgba, null, null, false);
-            this._appendBlockInfo(vertexResult);
+            let positions = this.appendData(this._transedPoints, _drawTexToQuad_Index, vertexResult, submit, null, rgba, null, null, false);
+            this._appendBlockInfo(vertexResult, positions);
         }
     }
 
-    private _appendBlockInfo(info: MeshBlockInfo): void {
+    private _appendBlockInfo(info: MeshBlockInfo, positions: number[]): void {
         this._renderer.take(info);
+
+        let vertexBlock = this._curSubmit.getVertexBlock();
+        vertexBlock.positions = positions;
+        vertexBlock.vertexViews = info.vertexViews;
         this._curSubmit.appendData(info);
     }
 
@@ -824,8 +832,8 @@ export class GraphicsRunner {
             submit._internalInfo.textureHost = texture;
 
             var rgba = this._mixRGBandAlpha(color, this._alpha);
-            this.appendData(this._transedPoints, _drawTexToQuad_Index, vertexResult, submit, uv, rgba, null, null, true);
-            this._appendBlockInfo(vertexResult);
+            let positions = this.appendData(this._transedPoints, _drawTexToQuad_Index, vertexResult, submit, uv, rgba, null, null, true);
+            this._appendBlockInfo(vertexResult, positions);
             // this._curSubmit._numEle += 6;
         }
 
@@ -994,9 +1002,9 @@ export class GraphicsRunner {
             // this._copyClipInfo(submit.shaderValue);
             submit.clipInfoID = this._clipInfoID;
         }
-        this.appendData(ops, _drawTexToQuad_Index, vertexResult, submit, uv, rgba, null, null, true);
+        let positions = this.appendData(ops, _drawTexToQuad_Index, vertexResult, submit, uv, rgba, null, null, true);
         // submit._numEle += 6;
-        this._appendBlockInfo(vertexResult);
+        this._appendBlockInfo(vertexResult, positions);
         return true;
     }
 
@@ -1194,6 +1202,7 @@ export class GraphicsRunner {
         }
 
         var rgba = this._mixRGBandAlpha(colorNum, this._alpha * alpha);
+        let positions: number[];
         if (!this._drawTriUseAbsMatrix) {
             if (!matrix) {
                 tmpMat.a = 1; tmpMat.b = 0; tmpMat.c = 0; tmpMat.d = 1; tmpMat.tx = x; tmpMat.ty = y;
@@ -1202,15 +1211,15 @@ export class GraphicsRunner {
             }
             Matrix.mul(tmpMat, this._curMat, tmpMat);
             //由于2d动画部分的uvs是绝对的（例如图集的话就是相对图集的）所以最后不传uvrect了。
-            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, tmpMat, null, !!tex, colors, uvRange);
+            positions = this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, tmpMat, null, !!tex, colors, uvRange);
         }
         else {
             // 这种情况是drawtexture转成的drawTriangle，直接使用matrix就行，传入的xy都是0
             let m = this._curMat == matrix ? (this._matrixChanged ? this._curMat : null) : matrix;
-            this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, m, null, !!tex, colors, uvRange);
+            positions = this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, m, null, !!tex, colors, uvRange);
         }
         // this._curSubmit._numEle += indices.length;
-        this._appendBlockInfo(vertexResult);
+        this._appendBlockInfo(vertexResult, positions);
 
         if (blendMode != null) {
             this.globalCompositeOperation = oldcomp!;
@@ -1465,9 +1474,9 @@ export class GraphicsRunner {
                 }
             }
             //填充mesh
-            this.appendData(cpath, idx, vertexResult, submit, null, rgba, null, null, false);
+            let positions = this.appendData(cpath, idx, vertexResult, submit, null, rgba, null, null, false);
             curEleNum += idx.length;
-            this._appendBlockInfo(vertexResult);
+            this._appendBlockInfo(vertexResult, positions);
         }
         // this._curSubmit._numEle += curEleNum;
     }
@@ -1574,9 +1583,9 @@ export class GraphicsRunner {
             //this.drawPoly(0, 0, p.path, fillStyle._color.numColor, 0, 0, p.convex);
             //填充mesh
             // mesh.addVertAndIBToMesh(vertex, rgba, idx);
-            this.appendData(vertex, idx, vertexResult, submit, null, rgba, null, null, false);
+            let positions = this.appendData(vertex, idx, vertexResult, submit, null, rgba, null, null, false);
             curEleNum += idx.length;
-            this._appendBlockInfo(vertexResult);
+            this._appendBlockInfo(vertexResult, positions);
         }
         // this._curSubmit._numEle += curEleNum;
     }
@@ -2118,52 +2127,9 @@ export class GraphicsRunner {
     * @returns 可用的 Mesh
     */
     public acquire(vertexCount: number): MeshBlockInfo {
-        // let renderer = this._renderer;
-        // if (renderer && renderer._usedBlockBuckets.length > 0) {
-        //     let needBlocks = Math.ceil(vertexCount / this._vertexBlockSize);
-
-        //     for (const bucket of renderer._usedBlockBuckets) {
-        //         const available = bucket.blocks.length - bucket.used;
-        //         if (available <= 0) continue;
-
-        //         let usedBlocks: number[] = [];
-        //         let usedViews: I2DGraphicVertexDataView[] = [];
-        //         let mesh: GraphicsMesh = bucket.mesh;
-
-        //         while (usedBlocks.length < needBlocks && bucket.used < bucket.blocks.length) {
-        //             const record = bucket.blocks[bucket.used];
-        //             if (!record) break;
-        //             usedBlocks.push(record.index);
-        //             usedViews.push(record.view);
-        //             bucket.used++;
-        //         }
-
-        //         if (usedBlocks.length > 0) {
-        //             if (usedBlocks.length >= needBlocks) {
-        //                 return {
-        //                     mesh,
-        //                     vertexBlocks: usedBlocks,
-        //                     vertexViews: usedViews
-        //                 };
-        //             }
-
-        //             let remainingVertexCount = vertexCount - (usedBlocks.length * this._vertexBlockSize);
-        //             let additionalResult = mesh.checkVertex(remainingVertexCount);
-        //             if (additionalResult) {
-        //                 usedBlocks.push(...additionalResult.vertexBlocks);
-        //                 usedViews.push(...additionalResult.vertexViews);
-
-        //                 return {
-        //                     mesh,
-        //                     vertexBlocks: usedBlocks,
-        //                     vertexViews: usedViews
-        //                 };
-        //             } else {
-        //                 bucket.used -= usedBlocks.length; // rollback
-        //             }
-        //         }
-        //     }
-        // }
+        // 优先尝试复用上一帧未释放的块
+        let reused = this._reuseBlocks(vertexCount);
+        if (reused) return reused;
 
         // 按顺序检查是否有可用的 Mesh
         let meshes = this._meshPool;
@@ -2183,6 +2149,35 @@ export class GraphicsRunner {
         let result = mesh.checkVertex(vertexCount);
 
         return result;
+    }
+
+    /**
+     * 尝试复用上一帧缓存的顶点块
+     * 放在 runner 内部方便直接复用当前的 blockSize 逻辑
+     */
+    private _reuseBlocks(vertexCount: number): MeshBlockInfo {
+        if (!this._renderer) return null;
+
+        let cachedBuckets = this._renderer._cachedBuckets;
+        let needBlocks = Math.ceil(vertexCount / this._vertexBlockSize);
+
+        for (let i = 0; i < cachedBuckets.length; i++) {
+            let bucket = cachedBuckets[i];
+            if (bucket.indexs.length * this._vertexBlockSize < vertexCount) continue;
+
+            let reuseBlocks = bucket.indexs.splice(0, needBlocks);
+            // reuseBlocks.sort();
+            // if (bucket.indexs.length === 0) {
+            //     cachedBuckets.splice(i, 1);
+            // }
+            return {
+                mesh: bucket.mesh,
+                vertexBlocks: reuseBlocks,
+                vertexViews: reuseBlocks.map(b => bucket.blocks[b]),
+            };
+        }
+
+        return null;
     }
 
     appendData(
@@ -2235,7 +2230,8 @@ export class GraphicsRunner {
         // 如果需要缓存，先构建本地坐标的 vbdata
         let cachedVbdata: Float32Array | null = null , localX: number, localY: number;
         if (this._currentSubmitCache) {
-            cachedVbdata = new Float32Array(vertexCount * vertexLength);
+            let count = Math.ceil(vertexCount / this._vertexBlockSize ) * this._vertexBlockSize;
+            cachedVbdata = new Float32Array(count * vertexLength);
         }
 
         let cachedVi = 0;
@@ -2316,8 +2312,6 @@ export class GraphicsRunner {
             cachedVbdata.set(vbdata, cachedVi);
         }
 
-        result.positions = positions;
-
         let indexOffset = submit.indexCount;
         let indexCount = indices.length;
         let ibdata = submit.indices;
@@ -2327,15 +2321,16 @@ export class GraphicsRunner {
         submit.indexCount += indexCount;
 
         if (this._currentSubmitCache && cachedVbdata) {
-            const chunk: GraphicsRunnerCacheChunk = {
+            this._currentSubmitCache.vertexCount += vertexCount;
+            this._currentSubmitCache.chunks.push({
                 vbdata: cachedVbdata,
                 vertexCount: vertexCount,
                 indices: indices as number[],
                 positions: positions,
-            };
-            this._currentSubmitCache.vertexCount += vertexCount;
-            this._currentSubmitCache.chunks.push(chunk);
+            });
         }
+
+        return positions;
     }
 
     /**@internal 使用已缓存的 submit 信息应用缓存 */
@@ -2348,9 +2343,9 @@ export class GraphicsRunner {
 
         this._curSubmit = submit;
         let dataViewIndex = 0;
-        for (const chunk of submitInfo.chunks) {
+        submitInfo.chunks.forEach(chunk => {
             dataViewIndex = this._applyCachedChunk(this._global, vertexResult, submit, chunk, dataViewIndex);
-        }
+        });
     }
 
     /**@internal */
@@ -2360,11 +2355,17 @@ export class GraphicsRunner {
         dataViewIndex: number,
     ): number {
 
-        let block_mesh: MeshBlockInfo = { mesh: total.mesh };
-        let views: I2DGraphicVertexDataView[] = block_mesh.vertexViews = [];
-        let indexs: number[] = block_mesh.vertexBlocks = [];
+        let vertexBlock = this._curSubmit.getVertexBlock();
+        if (!vertexBlock.vertexViews) {
+            vertexBlock.vertexViews = [];
+        }
 
-        block_mesh.positions = chunk.positions;
+        _tempCache.mesh = total.mesh;
+        let views: I2DGraphicVertexDataView[] = _tempCache.vertexViews = vertexBlock.vertexViews;
+        let indexs: number[] = _tempCache.vertexBlocks;
+
+        let positions = chunk.positions;
+        vertexBlock.positions = positions;
 
         let dataView: I2DGraphicVertexDataView;
         let offset = 0;
@@ -2392,8 +2393,8 @@ export class GraphicsRunner {
                 _localIndex++;
             }
 
-            localX = chunk.positions[pi];
-            localY = chunk.positions[pi + 1];
+            localX = positions[pi];
+            localY = positions[pi + 1];
 
             vbdata[vi] = localX * matrix.a + localY * matrix.c + matrix.tx;
             vbdata[vi + 1] = localX * matrix.b + localY * matrix.d + matrix.ty;
@@ -2412,7 +2413,16 @@ export class GraphicsRunner {
         }
         submit.indexCount += chunk.indices.length;
 
-        this._appendBlockInfo(block_mesh);
+        if (views.length > _localIndex) {
+            views.length = _localIndex;
+        }
+
+        if (indexs.length > _localIndex) {
+            indexs.length = _localIndex;
+        }
+
+        this._renderer.take(_tempCache);
+        this._curSubmit.appendData(_tempCache);
 
         return dataViewIndex;
     }

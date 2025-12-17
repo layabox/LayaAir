@@ -8,6 +8,7 @@ import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
 import { Texture } from "../../resource/Texture";
+import { Browser } from "../../utils/Browser";
 import { IPool, Pool } from "../../utils/Pool";
 import { FastSinglelist } from "../../utils/SingletonList";
 import { BlendModeHandler } from "../canvas/BlendMode";
@@ -17,13 +18,9 @@ import { GraphicsMesh, MeshBlockInfo } from "../utils/GraphicsMesh";
 import { SubmitKey } from "./SubmitKey";
 
 export type GraphicsRunnerCacheChunk = {
-    // 缓存
     vbdata: Float32Array;
-    // 顶点数量
     vertexCount: number;
-    // 索引数据
     indices: number[];
-    // 本地坐标位置
     positions: number[];
 };
 
@@ -100,6 +97,7 @@ export class SubmitBase {
         if (value) {
             this.renderElement.geometry.bufferState = value.bufferState;
             this._bufferBlock.vertexBuffer = value._buffer.vertexBuffer;
+            this._bufferBlockDirty = true;
         }
     }
 
@@ -143,6 +141,13 @@ export class SubmitBase {
 
     _bufferBlock: IGraphics2DBufferBlock = null;
 
+    /** @internal 本帧使用的顶点块标识 */
+    private _currentVertexBlocks: FastSinglelist<number> = new FastSinglelist;
+    /** @internal 上一帧使用的顶点块标识 */
+    private _lastVertexBlocks: FastSinglelist<number> = new FastSinglelist;
+    /** @internal 标记 bufferBlock 是否需要重新应用 */
+    _bufferBlockDirty: boolean = true;
+
     /** @internal submit 的缓存信息，可以从这里获取 */
     _cacheInfo: SubmitCacheInfo | null = null;
 
@@ -166,23 +171,35 @@ export class SubmitBase {
         this._internalInfo.clear();
         this.indexCount = 0;
         this.vertexs.length = 0;
-        this.indices.length = 0;
+        // this.indices.length = 0;
+        this._currentVertexBlocks.length = 0;
         this._cacheInfo = null;
     }
 
     /**
      * @param info 添加顶点数据到submit
+     * @param positions 顶点位置数组
      */
     appendData(info: MeshBlockInfo) {
+        let originLength = this._currentVertexBlocks.length;
+        for (let i = 0, n = info.vertexBlocks.length; i < n; i++) {
+            this._currentVertexBlocks.add(info.vertexBlocks[i]);
+            if (info.vertexBlocks[i] !== this._lastVertexBlocks.elements[i + originLength]) {
+                this._bufferBlockDirty = true;
+            }
+        }
+    }
+
+    getVertexBlock(): IGraphics2DVertexBlock {
         let vertexBlock: IGraphics2DVertexBlock;
         if (this.vertexs.elements.length > this.vertexs.length) {
             vertexBlock = this.vertexs.elements[this.vertexs.length];
+            this.vertexs.length ++;
         } else {
             vertexBlock = LayaGL.render2DRenderPassFactory.createGraphic2DVertexBlock();
+            this.vertexs.add(vertexBlock);
         }
-        vertexBlock.positions = info.positions;
-        vertexBlock.vertexViews = info.vertexViews;
-        this.vertexs.add(vertexBlock);
+        return vertexBlock;
     }
 
     prepare() {
@@ -190,6 +207,7 @@ export class SubmitBase {
         this.vertexs.clean();
 
         let indexView: I2DGraphicIndexDataView = this.indexView;
+        let indexViewChanged = false;
         if (!indexView || indexView.length !== this.indexCount) {
             if (indexView) {
                 this.mesh.clearIndexView(indexView);
@@ -199,10 +217,25 @@ export class SubmitBase {
             this.indexView = indexView;
             this._bufferBlock.indexView = indexView;
             indexView.setGeometry(element.geometry);
+            indexViewChanged = true;
         }
 
-        //会慢
-        indexView.setData(this.indices);
+        // 仅在 indexView 替换或顶点块变更时更新索引数据
+        let vertexBlocksChanged = this._currentVertexBlocks.length !== this._lastVertexBlocks.length || this._bufferBlockDirty;
+            
+        let needUpdateIndexData = indexViewChanged || vertexBlocksChanged;
+
+        if (needUpdateIndexData) {
+            if (this.indices.length !== this.indexCount) {
+                this.indices.length = this.indexCount;
+            }
+            indexView.setData(this.indices);
+        }
+
+        if (Browser.onLayaRuntime && this._bufferBlockDirty) {
+            this._bufferBlock.vertexs = this.vertexs.elements;
+        }
+        this._bufferBlockDirty = needUpdateIndexData;
 
         //set flag
         let useCustomMaterial = this.material ? 1 : 0;
@@ -217,12 +250,18 @@ export class SubmitBase {
             | (mc << 5) //32
             | ((texture ? texture.id : 0) << 6); //64
 
-        // 更新缓存信息
         if (this._cacheInfo) {
             this._cacheInfo.texture = texture;
             this._cacheInfo.blendShader = this._key.blendShader;
         }
 
+        this._lastVertexBlocks.length = 0;
+        for (let i = 0, n = this._currentVertexBlocks.length; i < n; i++) {
+            this._lastVertexBlocks.add(this._currentVertexBlocks.elements[i]);
+        }
+        this._currentVertexBlocks.length = 0;
+
+        
         return this._bufferBlock;
     }
 
@@ -235,7 +274,13 @@ export class SubmitBase {
         this._bufferBlock = null;
         this.vertexs.destroy();
         this.vertexs = null;
-        SubmitBase._pool.recover(this.renderElement);
+        this._lastVertexBlocks.destroy();
+        this._lastVertexBlocks = null;
+        this._currentVertexBlocks.destroy();
+        this._currentVertexBlocks = null;
+        if (this.renderElement) {
+            SubmitBase._pool.recover(this.renderElement);
+        }
         this.renderElement = null;
     }
 

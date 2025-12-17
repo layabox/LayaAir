@@ -82,14 +82,18 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     mask: WebRenderStruct2D | null = null;
 
     private _bufferBlocks: IGraphics2DBufferBlock[] = null;
-    private _needUpdateBuffer: boolean = false;
+    private _skipBufferUpdate: boolean = false;
     private _modifiedFrame: number = -1;
     private _clonesViews: Web2DGraphic2DIndexCloneDataView[];
 
     applyVertexBufferBlock(blocks: IGraphics2DBufferBlock[] ): void {
         this._bufferBlocks = blocks;
-        this._needUpdateBuffer = blocks.length > 0;
+        this._skipBufferUpdate = blocks.length > 0;
         this.updateCloneView();
+    }
+
+    skipBufferUpdate() {
+        this._skipBufferUpdate = true;
     }
 
     /** @internal */
@@ -126,9 +130,9 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                 this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
                 this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
             } else {
-                if (this._needUpdateBuffer) {  
+                if (this._skipBufferUpdate) {  
                     this._modifiedFrame = trans.modifiedFrame;
-                    this._needUpdateBuffer = false;
+                    this._skipBufferUpdate = false;
                     return;
                 }
 
@@ -170,7 +174,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                     }
 
                 }
-                this._needUpdateBuffer = false;
+                this._skipBufferUpdate = false;
             }
 
             this._modifiedFrame = trans.modifiedFrame;

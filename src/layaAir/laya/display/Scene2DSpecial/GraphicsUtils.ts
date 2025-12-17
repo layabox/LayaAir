@@ -41,9 +41,8 @@ type GraphicBlockRecord = {
 
 type GraphicBlockBucket = {
    mesh: GraphicsMesh;
-   blocks: GraphicBlockRecord[];
+   blocks: Record<number, I2DGraphicVertexDataView>;
    indexs: number[];
-   used: number;
 };
 
 /** @internal */
@@ -75,10 +74,10 @@ export class GraphicsRenderer {
    graphics:Graphics = null;
    modified = -1;
 
-   /** @internal 上一帧保留的块按 mesh 分组 */
-   // _usedBlockBuckets: GraphicBlockBucket[] = [];
    /** @internal 当前帧记录的块按 mesh 分组 */
    _blockBuckets: GraphicBlockBucket[] = [];
+   /** @internal 上一帧保留用于复用的块 */
+   _cachedBuckets: GraphicBlockBucket[] = [];
 
    constructor(owner: Sprite) {
       this.owner = owner;
@@ -91,7 +90,10 @@ export class GraphicsRenderer {
    private _onOwnerTransformChanged(type : number) {
       //缩放重绘
       if (type & TransformKind.Layout && this._display) {
-         this.graphics?.repaint();
+         // 如果graphics中有需要响应布局变化的cmd，则重绘
+         if (this.graphics && this.graphics.getLayoutRepaintCount() > 0) {
+            this.graphics.repaint();
+         }
       }
    }
 
@@ -123,7 +125,9 @@ export class GraphicsRenderer {
       runner.sprite = this.owner;
       runner._renderer = this;
       runner._global = this.owner._globalTrans.getMatrix();
+      let oldCache = runner._enableCache;
       let enableCache = runner._enableCache = this.graphics.needCache;
+      let needSkipBufferUpdate = false;
       runner._material = this.graphics.material;
       let oldBlendMode = runner.globalCompositeOperation;
       runner.globalCompositeOperation = this.owner._struct.blendMode;
@@ -139,6 +143,7 @@ export class GraphicsRenderer {
                if (prevSubmitInfo !== cmd._cacheData) {
                   runner.applyCachedSubmitInfo(cmd._cacheData);
                   prevSubmitInfo = cmd._cacheData;
+                  needSkipBufferUpdate = true;
                }
             }else{
                cmd.run(runner, x, y);
@@ -168,8 +173,9 @@ export class GraphicsRenderer {
          }
       }
 
-      this.updateRenderElement();
+      this.updateRenderElement(needSkipBufferUpdate);
 
+      runner._enableCache = oldCache;
       runner.globalCompositeOperation = oldBlendMode;
       runner._material = null;
       runner._renderer = null;
@@ -224,24 +230,21 @@ export class GraphicsRenderer {
 
          let bucket = this._blockBuckets[id];
          if (!bucket) {
-            bucket = { mesh: info.mesh, blocks: [], indexs: [], used: 0 };
+            bucket = { mesh: info.mesh, blocks: [], indexs: [] };
             this._blockBuckets[id] = bucket;
          }
          
-         bucket.blocks.push({
-            index: info.vertexBlocks[i],
-            view: info.vertexViews[i]
-         });
-
+         bucket.blocks[info.vertexBlocks[i]] = info.vertexViews[i];
          bucket.indexs.push(info.vertexBlocks[i]);
       }
    }
 
    clear(): void {
-      for (const bucket of this._blockBuckets) {
+      for (const bucket of this._cachedBuckets) {
          bucket.mesh.clearBlocks(bucket.indexs);
       }
-      this._blockBuckets.length = 0;
+      this._cachedBuckets = this._blockBuckets;
+      this._blockBuckets = [];
 
       let len = this._submits.length;
       for (let i = 0; i < len; i++) {
@@ -253,6 +256,12 @@ export class GraphicsRenderer {
    destroy(): void {
       this.clear();
 
+      for (const bucket of this._cachedBuckets) {
+         bucket.mesh.clearBlocks(bucket.indexs);
+      }
+      this._cachedBuckets = null;
+      this._blockBuckets = null;
+      
       this._renderElements.length = 0;
 
       this._submits.elements.forEach(submit => {
@@ -271,13 +280,11 @@ export class GraphicsRenderer {
       this.owner = null;
    }
 
-   updateRenderElement(): void {
-      let struct: IRenderStruct2D = this.owner._struct;
-      let handle = this._renderDataHandle;
+   updateRenderElement(needSkipBufferUpdate: boolean): void {
       let elements = this._renderElements;
       let submits = this._submits;
-
       let needUpdate =  elements.length !== submits.length;
+      let bufferDirty = needUpdate;
       let flength = submits.length;
       let submit:SubmitBase , element:IPrimitiveRenderElement2D;
 
@@ -285,9 +292,8 @@ export class GraphicsRenderer {
          submit = submits.elements[i];
          element = submit.renderElement;
          if (!element.owner) {
-            element.value2DShaderData = struct.spriteShaderData;
-            element.owner = struct;
-            elements[i] = element;
+            element.value2DShaderData = this._struct.spriteShaderData;
+            element.owner = this._struct;
          }
          
          element.renderStateIsBySprite = submit.renderStateIsBySprite && this.graphics._useSpriteState;
@@ -295,25 +301,31 @@ export class GraphicsRenderer {
          submit.prepare();
 
          this._bufferBlocks[i] = submit._bufferBlock;
+         bufferDirty = bufferDirty || submit._bufferBlockDirty;
          elements[i] = element;
       }
 
-      this._bufferBlocks.length = submits.length;
-
+      
       //reset
       if (needUpdate) {
+         this._bufferBlocks.length = submits.length;
          elements.length = submits.length;
-         struct.renderElements = elements;
+         this._struct.renderElements = elements;
       }
 
-      handle.applyVertexBufferBlock(this._bufferBlocks);
-      
+      if (bufferDirty) {
+         this._renderDataHandle.applyVertexBufferBlock(this._bufferBlocks);
+         for (let i = 0; i < flength; i++) {
+            submits.elements[i]._bufferBlockDirty = false;
+         }
+      }else if (needSkipBufferUpdate) {
+         this._renderDataHandle.skipBufferUpdate();
+      }
    }
-
 
    setRenderElement(): void {
       this._struct.renderElements = this._renderElements;
-      this._renderDataHandle.applyVertexBufferBlock(this._bufferBlocks);
+      // this._renderDataHandle.applyVertexBufferBlock(this._bufferBlocks);
    }
 
    createSubmit(runner: GraphicsRunner): SubmitBase {
