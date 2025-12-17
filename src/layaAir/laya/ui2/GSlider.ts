@@ -1,7 +1,9 @@
 
 import { ILaya } from "../../ILaya";
+import { LayaEnv } from "../../LayaEnv";
 import { NodeFlags } from "../Const";
 import { Event } from "../events/Event";
+import { SerializeUtil } from "../loaders/SerializeUtil";
 import { MathUtil } from "../maths/MathUtil";
 import { Point } from "../maths/Point";
 import { ProgressTitleType } from "./Const";
@@ -36,8 +38,6 @@ export class GSlider extends GWidget {
     private _reverse: boolean = false;
     private _wholeNumbers: boolean = false;
 
-    private _barMaxWidth: number = 0;
-    private _barMaxHeight: number = 0;
     private _barMaxWidthDelta: number = 0;
     private _barMaxHeightDelta: number = 0;
     private _clickPos: Point;
@@ -66,7 +66,7 @@ export class GSlider extends GWidget {
     set titleType(value: ProgressTitleType) {
         if (this._titleType != value) {
             this._titleType = value;
-            ILaya.timer.callLater(this, this.update);
+            this.update(true);
         }
     }
 
@@ -81,7 +81,7 @@ export class GSlider extends GWidget {
     set wholeNumbers(value: boolean) {
         if (this._wholeNumbers != value) {
             this._wholeNumbers = value;
-            ILaya.timer.callLater(this, this.update);
+            this.update(true);
         }
     }
 
@@ -96,7 +96,7 @@ export class GSlider extends GWidget {
     set min(value: number) {
         if (this._min != value) {
             this._min = value;
-            ILaya.timer.callLater(this, this.update);
+            this.update(true);
         }
     }
 
@@ -111,7 +111,7 @@ export class GSlider extends GWidget {
     set max(value: number) {
         if (this._max != value) {
             this._max = value;
-            ILaya.timer.callLater(this, this.update);
+            this.update(true);
         }
     }
 
@@ -126,12 +126,65 @@ export class GSlider extends GWidget {
     set value(value: number) {
         if (this._value != value) {
             this._value = value;
-            ILaya.timer.callLater(this, this.update);
+            this.update(true);
         }
     }
 
-    protected update(): void {
-        this.updateWithPercent((this._value - this._min) / (this._max - this._min), false);
+    get hBar(): GWidget {
+        return this._hBar;
+    }
+
+    set hBar(value: GWidget) {
+        this._hBar = value;
+        this._value = this._max;
+        this._barStartX = 0;
+        this.update(false);
+    }
+
+    get vBar(): GWidget {
+        return this._vBar;
+    }
+
+    set vBar(value: GWidget) {
+        this._vBar = value;
+        this._value = this._max;
+        this._barStartY = 0;
+        this.update(false);
+    }
+
+    get gripButton(): GWidget {
+        return this._gripButton;
+    }
+
+    set gripButton(value: GWidget) {
+        this.setupEvents(false);
+        this._gripButton = value;
+        this.setupEvents(true);
+    }
+
+    get titleWidget(): GWidget {
+        return this._titleWidget;
+    }
+
+    set titleWidget(value: GWidget) {
+        this._titleWidget = value;
+        this.update(false);
+    }
+
+    get reverse(): boolean {
+        return this._reverse;
+    }
+
+    set reverse(value: boolean) {
+        this._reverse = value;
+        this.update(false);
+    }
+
+    protected update(delay?: boolean): void {
+        if (delay === true)
+            ILaya.timer.callLater(this, this.update);
+        else
+            this.updateWithPercent((this._value - this._min) / (this._max - this._min), false);
     }
 
     private updateWithPercent(percent: number, manual?: boolean): void {
@@ -205,44 +258,39 @@ export class GSlider extends GWidget {
     /** @internal */
     _onConstruct(inPrefab?: boolean): void {
         if (this._hBar) {
-            this._barMaxWidth = this._hBar.width;
-            this._barMaxWidthDelta = this.width - this._barMaxWidth;
+            this._barMaxWidthDelta = this.width - this._hBar.width;
             this._barStartX = this._hBar.x;
         }
         if (this._vBar) {
-            this._barMaxHeight = this._vBar.height;
-            this._barMaxHeightDelta = this.height - this._barMaxHeight;
+            this._barMaxHeightDelta = this.height - this._vBar.height;
             this._barStartY = this._vBar.y;
         }
-        if (this._gripButton) {
-            this._gripButton.on(Event.MOUSE_DOWN, this, this._gripTouchBegin);
-            this._gripButton.on(Event.MOUSE_DRAG, this, this._gripTouchMove);
-        }
-        this.update();
+        this.setupEvents(true);
+        ILaya.timer.runCallLater(this, this.update, true);
 
         super._onConstruct(inPrefab);
     }
 
-    /** @ignore */
-    _setup(hBar: GWidget, vBar: GWidget, grip: GWidget, title: GWidget, reverse: boolean): void {
-        this._hBar = hBar;
-        this._vBar = vBar;
-        this._gripButton = grip;
-        this._titleWidget = title;
-        this._reverse = reverse;
-        this._value = this._max;
+    private setupEvents(add: boolean) {
+        if (!LayaEnv.isPlaying)
+            return;
 
-        this._onConstruct();
+        if (this._gripButton) {
+            if (add) {
+                this._gripButton.on(Event.MOUSE_DOWN, this, this._gripTouchBegin);
+                this._gripButton.on(Event.MOUSE_DRAG, this, this._gripTouchMove);
+            }
+            else {
+                this._gripButton.off(Event.MOUSE_DOWN, this, this._gripTouchBegin);
+                this._gripButton.off(Event.MOUSE_DRAG, this, this._gripTouchMove);
+            }
+        }
     }
 
     protected _sizeChanged(): void {
         super._sizeChanged();
 
-        if (this._hBar)
-            this._barMaxWidth = this.width - this._barMaxWidthDelta;
-        if (this._vBar)
-            this._barMaxHeight = this.height - this._barMaxHeightDelta;
-        ILaya.timer.callLater(this, this.update);
+        this.update(true);
     }
 
     private _gripTouchBegin(evt: Event): void {
@@ -269,9 +317,9 @@ export class GSlider extends GWidget {
         }
         let percent: number;
         if (this._hBar)
-            percent = this._clickPercent + deltaX / this._barMaxWidth;
+            percent = this._clickPercent + deltaX / (this.width - this._barMaxWidthDelta);
         else
-            percent = this._clickPercent + deltaY / this._barMaxHeight;
+            percent = this._clickPercent + deltaY / (this.height - this._barMaxHeightDelta);
         this.updateWithPercent(percent, true);
     }
 
@@ -283,14 +331,20 @@ export class GSlider extends GWidget {
         let percent = MathUtil.clamp01((this._value - this._min) / (this._max - this._min));
         let delta = 0;
         if (this._hBar)
-            delta = (pt.x - this._gripButton.width / 2) / this._barMaxWidth;
+            delta = (pt.x - this._gripButton.width / 2) / (this.width - this._barMaxWidthDelta);
         if (this._vBar)
-            delta = (pt.y - this._gripButton.height / 2) / this._barMaxHeight;
+            delta = (pt.y - this._gripButton.height / 2) / (this.height - this._barMaxHeightDelta);
         if (this._reverse)
             percent -= delta;
         else
             percent += delta;
         this.updateWithPercent(percent, true);
+    }
+
+    onAfterDeserialize(): void {
+        //历史遗留问题，ide设置的是_gripButton不是gripButton
+        if (SerializeUtil.hasProp("_gripButton"))
+            this.setupEvents(true);
     }
 
     /** @internal @blueprintEvent */
