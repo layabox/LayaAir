@@ -81,6 +81,7 @@ export interface I2DPrimitiveDataHandle extends IRender2DDataHandle {
     mask: IRenderStruct2D | null;
     logicMatrix: Matrix | null;
     applyVertexBufferBlock(views: IGraphics2DBufferBlock[]): void;
+    skipBufferUpdate(): void;
 }
 
 /**

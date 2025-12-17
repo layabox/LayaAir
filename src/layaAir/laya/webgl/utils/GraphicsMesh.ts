@@ -7,13 +7,17 @@ import { VertexElementFormat } from "../../renders/VertexElementFormat";
 
 export type MeshBlockInfo = {
    mesh: GraphicsMesh,
-   positions?: number[],
    vertexViews?: I2DGraphicVertexDataView[],
    vertexBlocks?: number[],
 }
 
 /** @ignore */
 export class GraphicsMesh {
+
+   static IDCounter:number = 0;
+   
+   id:number = GraphicsMesh.IDCounter++;
+
    //顶点结构大小。每个mesh的顶点结构是固定的。
    static stride = 0;
 
@@ -37,9 +41,9 @@ export class GraphicsMesh {
       return this._buffer.bufferState;
    }
 
-   constructor() {
+   constructor(vertexBlockSize: number) {
       //1次4个vb 6个ib
-      this._buffer = new Graphic2DDynamicVIBuffer(4, GraphicsMesh.vertexDeclarition);
+      this._buffer = new Graphic2DDynamicVIBuffer(vertexBlockSize, GraphicsMesh.vertexDeclarition);
    }
 
    /**
@@ -53,11 +57,8 @@ export class GraphicsMesh {
    checkVertex(vertexCount: number): MeshBlockInfo {
       let vbResult = this._buffer.checkVertexBuffer(vertexCount);
       if (!vbResult) return null;
-      return {
-         mesh: this,
-         vertexBlocks: vbResult.vertexBlocks,
-         vertexViews: vbResult.vertexViews
-      }
+      vbResult.mesh = this;
+      return vbResult;
    }
 
    /**

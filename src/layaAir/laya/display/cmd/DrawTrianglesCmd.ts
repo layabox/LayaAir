@@ -17,6 +17,11 @@ const className = "DrawTrianglesCmd";
  * @zh 绘制三角形命令
  */
 export class DrawTrianglesCmd implements IGraphicsCmd {
+    /** @internal */
+    _cacheData: any;
+
+    canCache: boolean = true;
+    
     /**
      * @en Identifier for the DrawTrianglesCmd
      * @zh 绘制三角形命令的标识符
@@ -119,6 +124,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
         cmd.alpha = alpha ?? 1;
         cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
         cmd.blendMode = blendMode;
+        cmd.canCache = true;
         return cmd;
     }
 
@@ -142,6 +148,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
         cmd.y = 0;
         cmd.mesh = mesh;
         cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
+        cmd.canCache = false;
         return cmd;
     }
 
@@ -157,6 +164,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
         this.indices = null;
         this.matrix = null;
         this.mesh = null;
+        this._cacheData = null;
         Pool.recover(className, this);
     }
 

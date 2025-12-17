@@ -843,6 +843,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
 
         //遍历有灯光的层
         let works = 0;
+        let processedLayerMask = 0; //记录实际处理过的层的掩码
         for (let i = this._lightLayer.length - 1; i > -1; i--) {
             let needRender = false;
             const layer = this._lightLayer[i];
@@ -853,6 +854,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             const y = this._screenSchmitt.y;
             if (this._spriteNumInLayer[layer] === 0)
                 continue; //该层没有精灵，跳过
+            processedLayerMask |= layerMask; //标记该层已处理
             if (occluders)
                 for (let j = occluders.length - 1; j > -1; j--)
                     occluders[j]._getRange();
@@ -913,19 +915,27 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             }
         }
 
-        //清除相关标志
         for (let i = this._lightLayer.length - 1; i > -1; i--) {
             const layer = this._lightLayer[i];
-            const lights = this._lightsInLayer[layer];
-            for (let j = 0, len = lights.length; j < len; j++)
-                lights[j]._needUpdateLightAndShadow = false;
-            for (let j = 0, len = this._occluders.length; j < len; j++)
-                this._occluders[j].needUpdate = false;
+            const layerMask = (1 << layer);
+            //只清除实际处理过的层的标记
+            if (processedLayerMask & layerMask) {
+                const lights = this._lightsInLayer[layer];
+                for (let j = 0, len = lights.length; j < len; j++)
+                    lights[j]._needUpdateLightAndShadow = false;
+            }
+        }
+
+        for (let j = 0, len = this._occluders.length; j < len; j++) {
+            const occluder = this._occluders[j];
+            //如果遮光器所在的层被处理过，才清除其更新标记
+            if (occluder.layerMask & processedLayerMask)
+                occluder.needUpdate = false;
         }
         this._screenSchmittChange = false;
-        this._needUpdateLightRes = 0;
-        this._needCollectLightInLayer = 0;
-        this._needCollectOccluderInLight = 0;
+        this._needUpdateLightRes &= ~processedLayerMask;
+        this._needCollectLightInLayer &= ~processedLayerMask;
+        this._needCollectOccluderInLight &= ~processedLayerMask;
 
         //显示工作负载
         if (Light2DManager.DEBUG) {

@@ -93,10 +93,9 @@ export class RT2DGraphicIndexBuffer implements I2DGraphicWholeBuffer {
         this._nativeObj.resetData(byteLength);//重创indexBuf
     }
 
-    _addDataView(dataView: RT2DGraphic2DIndexDataView) {
-        //vertex创建会在内部 addView，这里需要记录一下js引用一方被gc
+    addDataView(dataView: RT2DGraphic2DIndexDataView) {
         this._views.add(dataView);
-        //this._nativeObj.addDataView(dataView ? (dataView as any)._nativeObj : null);
+        this._nativeObj.addDataView(dataView ? (dataView as any)._nativeObj : null);
     }
 
     removeDataView(dataView: RT2DGraphic2DIndexDataView) {
@@ -169,7 +168,7 @@ export class RT2DGraphic2DIndexDataView implements I2DGraphicIndexDataView {
         this._owner = owner;
         this._length = length;
         this._nativeObj = new (window as any).conchRT2DGraphic2DIndexDataView(owner ? owner._nativeObj : null, length);
-        this._owner && this._owner._addDataView(this);
+        // this._owner && this._owner._addDataView(this);
         this._memoryData = new NativeMemory(this.length * 2, false);
         this._nativeObj.setIndexShareMemory(this._memoryData._buffer);
     }

@@ -82,14 +82,18 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     mask: WebRenderStruct2D | null = null;
 
     private _bufferBlocks: IGraphics2DBufferBlock[] = null;
-    private _needUpdateBuffer: boolean = false;
+    private _skipBufferUpdate: boolean = false;
     private _modifiedFrame: number = -1;
     private _clonesViews: Web2DGraphic2DIndexCloneDataView[];
 
-    applyVertexBufferBlock(blocks: IGraphics2DBufferBlock[]): void {
-        this._bufferBlocks = blocks.slice();
-        this._needUpdateBuffer = blocks.length > 0;
+    applyVertexBufferBlock(blocks: IGraphics2DBufferBlock[] ): void {
+        this._bufferBlocks = blocks;
+        this._skipBufferUpdate = blocks.length > 0;
         this.updateCloneView();
+    }
+
+    skipBufferUpdate() {
+        this._skipBufferUpdate = true;
     }
 
     /** @internal */
@@ -105,8 +109,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         let trans = this._owner.trans;
 
         if (
-            this._needUpdateBuffer
-            || this._modifiedFrame < trans.modifiedFrame
+            this._modifiedFrame < trans.modifiedFrame
         ) {
 
             let mat = trans.matrix;
@@ -127,6 +130,12 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                 this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
                 this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
             } else {
+                if (this._skipBufferUpdate) {  
+                    this._modifiedFrame = trans.modifiedFrame;
+                    this._skipBufferUpdate = false;
+                    return;
+                }
+
                 let pos = 0, dataViewIndex = 0, ci = 0;
                 let dataView: Web2DGraphic2DVertexDataView = null;
                 let m00 = mat.a, m01 = mat.b, m10 = mat.c, m11 = mat.d, tx = mat.tx, ty = mat.ty;
@@ -165,7 +174,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                     }
 
                 }
-                this._needUpdateBuffer = false;
+                this._skipBufferUpdate = false;
             }
 
             this._modifiedFrame = trans.modifiedFrame;
@@ -407,7 +416,6 @@ export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implemen
         }
 
     }
-
 
     public get offset(): Vector2 {
         return this._offset;

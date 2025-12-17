@@ -143,6 +143,7 @@ export class RTPrimitiveDataHandle extends RTRender2DDataHandle implements I2DPr
     }
 
     private _blocks: RTGraphics2DBufferBlock[] = null;
+    private _blocksNative: any[] = null;
 
     applyVertexBufferBlock(blocks: RTGraphics2DBufferBlock[]): void {
         this._blocks = blocks;
@@ -150,11 +151,24 @@ export class RTPrimitiveDataHandle extends RTRender2DDataHandle implements I2DPr
         for (var i = 0; i < blocks.length; i++) {
             nativeBlocks.push(blocks[i]._nativeObj);
         }
-        this._nativeObj.applyVertexBufferBlock(nativeBlocks);
+        this._blocksNative = nativeBlocks;
+        this._nativeObj.applyVertexBufferBlock(this._blocksNative);
+    }
+
+    skipBufferUpdate(): void {
+        // if (!this._blocksNative) return;
+        // this._nativeObj.applyVertexBufferBlock(this._blocksNative);
+        this._nativeObj.skipBufferUpdate();
     }
 
     inheriteRenderData(context: GLESRenderContext2D): void {
         this._nativeObj.inheriteRenderData(context._nativeObj);
+    }
+
+    destroy(): void {
+        super.destroy();
+        this._blocks = null;
+        this._blocksNative = null;
     }
 }
 

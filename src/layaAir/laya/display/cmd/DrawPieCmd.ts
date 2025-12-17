@@ -121,6 +121,14 @@ export class DrawPieCmd implements IGraphicsCmd {
     }
 
     /**
+     * @en Returns 1 because pie drawing needs to respond to layout changes.
+     * @zh 返回1，因为画弧线需要响应布局变化。
+     */
+    needsLayoutRepaint(): number {
+        return 1;
+    }
+
+    /**
      * @en The start angle of the pie chart in degrees.
      * @zh 开始角度（以度为单位）。
      */

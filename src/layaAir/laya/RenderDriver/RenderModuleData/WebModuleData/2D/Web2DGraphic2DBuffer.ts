@@ -149,6 +149,7 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
     }
 
     _upload() {
+        if (!this._num) return;
         let view = this._first;
         let start = 0;
         let length = 0;
@@ -156,9 +157,9 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
         let needUpdate = false;
         let uploadStart = this._needResetData ? 0 : this._updateRange.x;
 
-        // let mark = 0 ;
+        let mark = 0 ;
         while (view) {
-            // mark++;
+            mark++;
             if (geometry != view._geometry) {//切换geometry时，检查上一个是否需要提交
                 if (needUpdate) {// 设置上一个的绘制状态
                     geometry.clearRenderParams();
@@ -199,7 +200,6 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
     }
 
     _modifyOneView(view: Web2DGraphic2DIndexDataView): void {
-        this.addDataView(view);
 
         if (view._prev) {
             view.start = view._prev.start + view._prev.length;
@@ -256,6 +256,9 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
     }
 
     _modifyOneView(view: Web2DGraphic2DIndexCloneDataView): void {
+
+        this.addDataView(view);
+
         // let startTimer = Date.now();
         super._modifyOneView(view);
         // let modifyOneViewTime = Date.now();

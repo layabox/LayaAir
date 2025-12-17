@@ -14,6 +14,10 @@ const className = "DrawTextureCmd";
  * @zh 绘制单个贴图
  */
 export class DrawTextureCmd implements IGraphicsCmd {
+    /** @internal */
+    _cacheData: any;
+
+    canCache: boolean = true;
     /**
      * @en Identifier for the DrawTextureCmd
      * @zh 绘制单个贴图命令的标识符
@@ -117,6 +121,7 @@ export class DrawTextureCmd implements IGraphicsCmd {
         cmd.blendMode = blendMode;
         cmd.uv = uv;
         cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
+        cmd.canCache = !percent;
         return cmd;
     }
 
@@ -128,6 +133,7 @@ export class DrawTextureCmd implements IGraphicsCmd {
         this.texture && this.texture._removeReference();
         this.texture = null;
         this.matrix = null;
+        this._cacheData = null;
         Pool.recover(className, this);
     }
 
@@ -183,6 +189,14 @@ export class DrawTextureCmd implements IGraphicsCmd {
      */
     get cmdID(): string {
         return DrawTextureCmd.ID;
+    }
+
+    /**
+     * @en Returns 1 if percent is true, otherwise returns 0.
+     * @zh 如果percent为true返回1，否则返回0。
+     */
+    needsLayoutRepaint(): number {
+        return this.percent ? 1 : 0;
     }
 }
 

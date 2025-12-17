@@ -12,6 +12,10 @@ const className = "DrawImageCmd";
  * @zh 绘制图片命令
  */
 export class DrawImageCmd implements IGraphicsCmd {
+    /** @internal */
+    _cacheData: any;
+
+    canCache: boolean = true;
     /**
      * @en Identifier for the DrawImageCmd
      * @zh 绘制图片命令的标识符
@@ -77,6 +81,7 @@ export class DrawImageCmd implements IGraphicsCmd {
         cmd.width = width ?? texture.sourceWidth;
         cmd.height = height ?? texture.sourceHeight;
         cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
+        cmd.canCache = true;
         return cmd;
     }
 
@@ -87,6 +92,7 @@ export class DrawImageCmd implements IGraphicsCmd {
     recover(): void {
         this.texture && this.texture._removeReference();
         this.texture = null;
+        this._cacheData = null;
         Pool.recover(className, this);
     }
 
