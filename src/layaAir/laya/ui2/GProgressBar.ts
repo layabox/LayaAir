@@ -24,8 +24,6 @@ export class GProgressBar extends GWidget {
     private _titleType: ProgressTitleType = 0;
     private _reverse: boolean = false;
 
-    private _barMaxWidth: number = 0;
-    private _barMaxHeight: number = 0;
     private _barMaxWidthDelta: number = 0;
     private _barMaxHeightDelta: number = 0;
     private _barStartX: number = 0;
@@ -51,7 +49,7 @@ export class GProgressBar extends GWidget {
     set titleType(value: ProgressTitleType) {
         if (this._titleType != value) {
             this._titleType = value;
-            ILaya.timer.callLater(this, this.update);
+            this.update(null, true);
         }
     }
 
@@ -66,7 +64,7 @@ export class GProgressBar extends GWidget {
     set min(value: number) {
         if (this._min != value) {
             this._min = value;
-            ILaya.timer.callLater(this, this.update);
+            this.update(null, true);
         }
     }
 
@@ -81,7 +79,7 @@ export class GProgressBar extends GWidget {
     set max(value: number) {
         if (this._max != value) {
             this._max = value;
-            ILaya.timer.callLater(this, this.update);
+            this.update(null, true);
         }
     }
 
@@ -101,8 +99,48 @@ export class GProgressBar extends GWidget {
             }
 
             this._value = value;
-            ILaya.timer.callLater(this, this.update);
+            this.update(null, true);
         }
+    }
+
+    get hBar(): GWidget {
+        return this._hBar;
+    }
+
+    set hBar(value: GWidget) {
+        this._hBar = value;
+        this._value = this._max;
+        this._barStartX = 0;
+        this.update(null, false);
+    }
+
+    get vBar(): GWidget {
+        return this._vBar;
+    }
+
+    set vBar(value: GWidget) {
+        this._vBar = value;
+        this._value = this._max;
+        this._barStartY = 0;
+        this.update(null, false);
+    }
+
+    get titleWidget(): GWidget {
+        return this._titleWidget;
+    }
+
+    set titleWidget(value: GWidget) {
+        this._titleWidget = value;
+        this.update(null, false);
+    }
+
+    get reverse(): boolean {
+        return this._reverse;
+    }
+
+    set reverse(value: boolean) {
+        this._reverse = value;
+        this.update(null, false);
     }
 
     /**
@@ -134,9 +172,14 @@ export class GProgressBar extends GWidget {
             .onUpdate(tweener => this.update(tweener.value.get(null)));
     }
 
-    protected update(newValue: number): void {
+    protected update(newValue: number, delay?: boolean): void {
         if (this._getBit(NodeFlags.EDITING_ROOT_NODE)) {
             this.updateTitle(this._max, this._max, 1);
+            return;
+        }
+
+        if (newValue == null && delay === true) {
+            ILaya.timer.callLater(this, this.update);
             return;
         }
 
@@ -213,39 +256,21 @@ export class GProgressBar extends GWidget {
     /** @internal */
     _onConstruct(inPrefab?: boolean): void {
         if (this._hBar) {
-            this._barMaxWidth = this._hBar.width;
-            this._barMaxWidthDelta = this.width - this._barMaxWidth;
+            this._barMaxWidthDelta = this.width - this._hBar.width;
             this._barStartX = this._hBar.x;
         }
         if (this._vBar) {
-            this._barMaxHeight = this._vBar.height;
-            this._barMaxHeightDelta = this.height - this._barMaxHeight;
+            this._barMaxHeightDelta = this.height - this._vBar.height;
             this._barStartY = this._vBar.y;
         }
-        ILaya.timer.runCallLater(this, this.update);
+        ILaya.timer.runCallLater(this, this.update, true);
 
         super._onConstruct(inPrefab);
-    }
-
-    /** @ignore */
-    _setup(hBar: GWidget, vBar: GWidget, titleWidget: GWidget, reverse: boolean): void {
-        this._hBar = hBar;
-        this._vBar = vBar;
-        this._titleWidget = titleWidget;
-        this._reverse = reverse;
-        this._value = this._max;
-
-        this._onConstruct();
     }
 
     protected _sizeChanged(): void {
         super._sizeChanged();
 
-        if (this._hBar)
-            this._barMaxWidth = this.width - this._barMaxWidthDelta;
-        if (this._vBar)
-            this._barMaxHeight = this.height - this._barMaxHeightDelta;
-
-        ILaya.timer.callLater(this, this.update);
+        this.update(null, true);
     }
 }

@@ -11,10 +11,14 @@ const MIN_GRIP_SIZE = 20;
  * @blueprintInheritable
  */
 export class GScrollBar extends GWidget {
-    private _gripButton: GWidget;
-    private _arrowButton1: GWidget;
-    private _arrowButton2: GWidget;
-    private _bar: GWidget;
+    /** @ignore @blueprintIgnore */
+    _gripButton: GWidget;
+    /** @ignore @blueprintIgnore */
+    _arrowButton1: GWidget;
+    /** @ignore @blueprintIgnore */
+    _arrowButton2: GWidget;
+    /** @ignore @blueprintIgnore */
+    _bar: GWidget;
 
     private _target: IScroller;
 
@@ -95,16 +99,6 @@ export class GScrollBar extends GWidget {
             this._arrowButton2.on(Event.MOUSE_DOWN, this, this._arrowButton2Click);
 
         super._onConstruct(inPrefab);
-    }
-
-    /** @ignore */
-    _setup(arrowButton1: GWidget, arrowButton2: GWidget, bar: GWidget, grip: GWidget): void {
-        this._arrowButton1 = arrowButton1;
-        this._arrowButton2 = arrowButton2;
-        this._bar = bar;
-        this._gripButton = grip;
-
-        this._onConstruct();
     }
 
     private _gripTouchBegin(evt: Event): void {
