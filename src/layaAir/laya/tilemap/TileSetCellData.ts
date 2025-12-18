@@ -354,6 +354,7 @@ export class TileSetCellData {
 
     set_terrainPeeringBit(index: TileMapCellNeighbor, terrainIndex: number) {
         this._terrain_peering_bits[index] = terrainIndex;
+        this._cellowner.owner._owner._terrainsDirty = true;
     }
 
     get_terrainPeeringBit(index: TileMapCellNeighbor) {
