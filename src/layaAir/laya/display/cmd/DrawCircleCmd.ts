@@ -129,7 +129,7 @@ export class DrawCircleCmd implements IGraphicsCmd {
      * @zh 如果percent为true返回1，否则返回0。
      */
     needsLayoutRepaint(): number {
-        return this.percent ? 1 : 0;
+        return 1;
     }
 
     /**
