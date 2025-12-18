@@ -6,6 +6,7 @@ import { BlendType } from "../../RenderEngine/RenderEnum/BlendType";
 import { CompareFunction } from "../../RenderEngine/RenderEnum/CompareFunction";
 import { CullMode } from "../../RenderEngine/RenderEnum/CullMode";
 import { StencilOperation } from "../../RenderEngine/RenderEnum/StencilOperation";
+import { Vector3 } from "../../maths/Vector3";
 import { URL } from "../../net/URL";
 import { IncludeFile } from "./IncludeFile";
 import { ShaderNode } from "./ShaderNode";
@@ -436,12 +437,14 @@ export class ShaderCompile {
         let stencilFail = stencilOp ? stencilOp[0] : null;
         let stencilZFail = stencilOp ? stencilOp[1] : null;
         let stencilZPass = stencilOp ? stencilOp[2] : null;
-        renderState.stencilOp.x = StencilOperationMap[stencilFail];
-        renderState.stencilOp.y = StencilOperationMap[stencilZFail];
-        renderState.stencilOp.z = StencilOperationMap[stencilZPass];
+        tempVec.x = StencilOperationMap[stencilFail];
+        tempVec.y = StencilOperationMap[stencilZFail];
+        tempVec.z = StencilOperationMap[stencilZPass];
+        renderState.stencilOp = tempVec;
         renderState.depthBias = <boolean>obj.depthBias;
         renderState.depthBiasConstant = <number>obj.depthBiasConstant;
         renderState.depthBiasSlopeScale = <number>obj.depthBiasSlopeScale;
         renderState.depthBiasClamp = <number>obj.depthBiasClamp;
     }
 }
+const tempVec = new Vector3();
