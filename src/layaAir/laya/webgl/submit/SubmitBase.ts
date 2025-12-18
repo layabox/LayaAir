@@ -230,11 +230,12 @@ export class SubmitBase {
                 this.indices.length = this.indexCount;
             }
             indexView.setData(this.indices);
-        }
 
-        if (Browser.onLayaRuntime && this._bufferBlockDirty) {
-            this._bufferBlock.vertexs = this.vertexs.elements;
+            if (Browser.onLayaRuntime) {
+                this._bufferBlock.vertexs = this.vertexs.elements;
+            }
         }
+        
         this._bufferBlockDirty = needUpdateIndexData;
 
         //set flag
