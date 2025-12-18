@@ -486,6 +486,7 @@ export class Layout implements ILayout {
         let stretchX = this._stretchX === StretchMode.Stretch;
         let stretchY = this._stretchY === StretchMode.Stretch;
         let align = stretchX ? 0 : this._align;
+        let valign = stretchY ? 0 : this._valign;
         let data = tempDataPool.take();
         let cnt = this.getLayoutChildren(data);
         let children = data.children;
@@ -524,7 +525,7 @@ export class Layout implements ILayout {
                 cw = cx;
 
             if (align === 1)
-                cx = (vw - cx) * 0.5;
+                cx = Math.floor((vw - cx) / 2);
             else if (align === 2)
                 cx = vw - cx;
             else
@@ -541,7 +542,7 @@ export class Layout implements ILayout {
 
             for (let j = i - ci; j < i; j++) {
                 data.posx[j] += px + cx;
-                data.posy[j] = py + cy;
+                data.posy[j] += py + cy;
             }
 
             cx = 0;
@@ -567,6 +568,13 @@ export class Layout implements ILayout {
                 if (cx !== 0)
                     cx += colGap;
                 data.posx[i] = cx;
+                data.posy[i] = 0;
+                if (singleRow) {
+                    if (valign === 1)
+                        data.posy[i] = Math.floor((vh - child.height) / 2);
+                    else if (valign === 2)
+                        data.posy[i] = vh - child.height;
+                }
                 cx += sw;
 
                 if (child.height > mh)
@@ -603,20 +611,19 @@ export class Layout implements ILayout {
         }
 
         cy = 0;
-        if (ch < vh && this._stretchY !== StretchMode.ResizeToFit) {
-            if (this._valign === 1)
-                cy = (vh - ch) / 2;
-            else if (this._valign === 2)
+        if (ch < vh && this._stretchY !== StretchMode.ResizeToFit && !singleRow) {
+            if (valign === 1)
+                cy = Math.floor((vh - ch) / 2);
+            else if (valign === 2)
                 cy = vh - ch;
         }
 
         cx = 0;
-        if (this._stretchX === StretchMode.ResizeToFit) {
-            if (align === 1 || align === 2) {
+        if (this._stretchX === StretchMode.ResizeToFit && cw < vw) { //要将居中或居右的偏移回退
+            if (align === 1)
                 cx = Math.floor((cw - vw) / 2);
-                if (cx > 0)
-                    cx = 0;
-            }
+            else if (align === 2)
+                cx = cw - vw;
         }
 
         if (!(<GPanel>this._owner).scroller) {
@@ -624,7 +631,7 @@ export class Layout implements ILayout {
             cy += this._padding[0];
         }
 
-        if (singleRow && !stretchY && this._valign === 3) {
+        if (singleRow && !stretchY && valign === 3) {
             for (let i = 0; i < cnt; i++)
                 children[i].left = data.posx[i] + cx;
         }
@@ -654,6 +661,7 @@ export class Layout implements ILayout {
         let colGap = this._columnGap;
         let stretchX = this._stretchX === StretchMode.Stretch;
         let stretchY = this._stretchY === StretchMode.Stretch;
+        let align = stretchX ? 0 : this._align;
         let valign = stretchY ? 0 : this._valign;
         let data = tempDataPool.take();
         let cnt = this.getLayoutChildren(data);
@@ -693,7 +701,7 @@ export class Layout implements ILayout {
                 ch = cy;
 
             if (valign === 1)
-                cy = (vh - cy) * 0.5;
+                cy = Math.floor((vh - cy) / 2);
             else if (valign === 2)
                 cy = vh - cy;
             else
@@ -709,7 +717,7 @@ export class Layout implements ILayout {
             }
 
             for (let j = i - ri; j < i; j++) {
-                data.posx[j] = px + cx;
+                data.posx[j] += px + cx;
                 data.posy[j] += py + cy;
             }
 
@@ -735,7 +743,14 @@ export class Layout implements ILayout {
 
                 if (cy !== 0)
                     cy += rowGap;
+                data.posx[i] = 0;
                 data.posy[i] = cy;
+                if (singleColumn) {
+                    if (align === 1)
+                        data.posx[i] = Math.floor((vw - child.width) / 2);
+                    else if (align === 2)
+                        data.posx[i] = vw - child.width;
+                }
                 cy += sh;
 
                 if (child.width > mw)
@@ -772,22 +787,19 @@ export class Layout implements ILayout {
         }
 
         cx = 0;
-        if (cw < vw && this._stretchX !== StretchMode.ResizeToFit) {
-            if (this._align === 1)
-                cx = (vw - cw) / 2;
-            else if (this._align === 2)
+        if (cw < vw && this._stretchX !== StretchMode.ResizeToFit && !singleColumn) {
+            if (align === 1)
+                cx = Math.floor((vw - cw) / 2);
+            else if (align === 2)
                 cx = vw - cw;
-            else
-                cx = 0;
         }
 
         cy = 0;
-        if (this._stretchY === StretchMode.ResizeToFit) {
-            if (valign === 1 || valign === 2) {
+        if (this._stretchY === StretchMode.ResizeToFit && ch < vh) {
+            if (valign === 1)
                 cy = Math.floor((ch - vh) / 2);
-                if (cy > 0)
-                    cy = 0;
-            }
+            else if (valign === 2)
+                cy = ch - vh;
         }
 
         if (!(<GPanel>this._owner).scroller) {
@@ -795,7 +807,7 @@ export class Layout implements ILayout {
             cy += this._padding[0];
         }
 
-        if (singleColumn && !stretchX && this._align === 3) {
+        if (singleColumn && !stretchX && align === 3) {
             for (let i = 0; i < cnt; i++)
                 children[i].top = data.posy[i] + cy;
         }
