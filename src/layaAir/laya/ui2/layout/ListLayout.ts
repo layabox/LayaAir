@@ -403,7 +403,7 @@ export class ListLayout extends Layout {
 
             if (cw < vw) {
                 if (this._align === 1)
-                    this._offsetX = (vw - cw) / 2;
+                    this._offsetX = Math.floor((vw - cw) / 2);
                 else if (this._align === 2)
                     this._offsetX = vw - cw;
                 if (!this._owner.scroller)
@@ -412,7 +412,7 @@ export class ListLayout extends Layout {
 
             if (ch < vh) {
                 if (this._valign === 1)
-                    this._offsetY = (vh - ch) / 2;
+                    this._offsetY = Math.floor((vh - ch) / 2);
                 else if (this._valign === 2)
                     this._offsetY = vh - ch;
                 if (!this._owner.scroller)
