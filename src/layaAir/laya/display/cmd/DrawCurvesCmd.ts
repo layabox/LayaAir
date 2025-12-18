@@ -103,6 +103,14 @@ export class DrawCurvesCmd implements IGraphicsCmd {
     }
 
     /**
+     * @en Returns 1 if the command needs to respond to layout changes.
+     * @zh 如果命令需要响应布局变化，返回1。
+     */
+    needsLayoutRepaint(): number {
+        return 1;
+    }
+
+    /**
      * @ignore
      */
     getBounds(assembler: IGraphicsBoundsAssembler): void {
