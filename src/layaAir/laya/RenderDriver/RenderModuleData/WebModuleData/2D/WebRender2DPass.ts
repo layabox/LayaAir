@@ -156,7 +156,7 @@ export class WebRender2DPass implements IRender2DPass {
      * @returns 是否需要更新
      */
    needRender(): boolean {
-      this.repaint = true;
+      // this.repaint = true;
       return this.enable
          && !this.isSupport
          && (this.repaint || !this.renderTexture);
