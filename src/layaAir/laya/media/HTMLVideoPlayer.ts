@@ -4,12 +4,12 @@ import { URL } from "../net/URL";
 import { PAL } from "../platform/PlatformAdapters";
 import { Browser } from "../utils/Browser";
 import { Utils } from "../utils/Utils";
-import { VideoPlayer } from "./VideoPlayer";
+import { VideoPlayerBackend } from "./VideoPlayerBackend";
 
 /**
  * @ignore
  */
-export class HTMLVideoPlayer extends VideoPlayer {
+export class HTMLVideoPlayer extends VideoPlayerBackend {
     public readonly element: HTMLVideoElement;
 
     constructor() {

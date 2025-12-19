@@ -1,10 +1,9 @@
 import { Sprite } from "../display/Sprite";
-import { Texture } from "../resource/Texture";
 import { VideoTexture } from "./VideoTexture";
-import { Event } from "../events/Event";
-import { LayaEnv } from "../../LayaEnv";
-import { IVideoPlayerOptions, VideoPlayer } from "./VideoPlayer";
+import { IVideoPlayerOptions, VideoPlayerBackend } from "./VideoPlayerBackend";
 import { PAL } from "../platform/PlatformAdapters";
+import { VideoPlayer } from "./VideoPlayer";
+import { HideFlags } from "../Const";
 
 /**
  * @en VideoNode displays video on Canvas. Video may not be effective in all platforms.
@@ -15,11 +14,23 @@ import { PAL } from "../platform/PlatformAdapters";
  * 但是在移动端，只有在用户第一次触碰屏幕后才可以调用play()，所以移动端不可能在程序开始运行时就自动开始播放Video。
  */
 export class VideoNode extends Sprite {
+    private _comp: VideoPlayer;
+
+    /** @ignore */
+    constructor() {
+        super();
+
+        this._comp = this.addComponent(VideoPlayer);
+        this._comp.hideFlags |= HideFlags.HideAndDontSave;
+    }
+
     /**
      * @en Video player options. These options need to be set before setting the source, and if you change the settings, you need to reset the source.
      * @zh 视频播放器选项。这些选项需要在设置source前设置好，如果更改设置，需要重新设置source。
      */
-    readonly options: IVideoPlayerOptions = { controls: false, objectFit: "contain" };
+    get options(): IVideoPlayerOptions {
+        return this._comp.options;
+    }
 
     /**
      * @zh 视频播放模式。如果设置的模式不支持，会尝试使用另外一种模式。
@@ -29,37 +40,20 @@ export class VideoNode extends Sprite {
      * -- player: Use the player. The player is floating above (or below) the main canvas and cannot be nested in the UI hierarchy.
      * -- decoder: Use the decoder. The video is captured to a Texture and then displayed, so it can be nested in the UI hierarchy.
      */
-    mode: "player" | "decoder" = "decoder";
+    get mode(): "player" | "decoder" {
+        return this._comp.mode;
+    }
 
-    private _tex: Texture;
-
-    private _vtex: VideoTexture;
-    private _player: VideoPlayer;
-    private _api: VideoPlayer | VideoTexture;
-
-    private _source: string;
-    private _autoPlay: boolean = false;
-    private _loop: boolean = false;
-    private _volume: number = 1;
-    private _muted: boolean = false;
-    private _playbackRate: number = 1;
-    private _allowBackground: boolean = false;
-    private _paused: boolean = false;
-
-    /** @ignore */
-    constructor() {
-        super();
-
-        this.on(Event.DISPLAY, this, this.onDisplay);
-        this.on(Event.UNDISPLAY, this, this.onUndisplay);
+    set mode(value: "player" | "decoder") {
+        this._comp.mode = value;
     }
 
     /**
      * @en Video player
      * @zh 视频播放器
      */
-    get player(): VideoPlayer | VideoTexture | null {
-        return this._api;
+    get player(): VideoPlayerBackend | VideoTexture | null {
+        return this._comp.player;
     }
 
     /**
@@ -67,17 +61,11 @@ export class VideoNode extends Sprite {
      * @zh 视频源
      */
     get source() {
-        return this._source;
+        return this._comp.source;
     }
 
     set source(value: string) {
-        this._source = value;
-        if (value) {
-            if (this.activeInHierarchy)
-                this._load();
-        }
-        else
-            this._unload();
+        this._comp.source = value;
     }
 
     /**
@@ -85,13 +73,11 @@ export class VideoNode extends Sprite {
      * @zh 视频加载完成后是否自动播放。默认值为true。
      */
     get autoPlay(): boolean {
-        return this._autoPlay;
+        return this._comp.autoPlay;
     }
 
     set autoPlay(value: boolean) {
-        this._autoPlay = value;
-        if (this._api && LayaEnv.isPlaying)
-            value ? this._api.play() : this._api.pause();
+        this._comp.autoPlay = value;
     }
 
     /**
@@ -99,13 +85,11 @@ export class VideoNode extends Sprite {
      * @zh 是否允许后台播放。默认值为false。
      */
     get allowBackground(): boolean {
-        return this._allowBackground;
+        return this._comp.allowBackground;
     }
 
     set allowBackground(value: boolean) {
-        this._allowBackground = value;
-        if (this._api)
-            this._api.allowBackground = value;
+        this._comp.allowBackground = value;
     }
 
     /**
@@ -113,13 +97,11 @@ export class VideoNode extends Sprite {
      * @zh 当前播放头位置（以秒为单位）。
      */
     get currentTime(): number {
-        return this._api?.currentTime;
+        return this._comp.currentTime;
     }
 
     set currentTime(value: number) {
-        if (!this._api)
-            return;
-        this._api.currentTime = value;
+        this._comp.currentTime = value;
     }
 
     /**
@@ -137,7 +119,7 @@ export class VideoNode extends Sprite {
      * - 4 = HAVE_ENOUGH_DATA - 可用数据足以开始播放
      */
     get readyState(): number {
-        return this._vtex?.readyState ?? 0;
+        return this._comp.readyState;
     }
 
     /**
@@ -145,7 +127,7 @@ export class VideoNode extends Sprite {
      * @zh 视频源宽度。ready 事件触发后可用。
      */
     get videoWidth(): number {
-        return this._vtex?.videoWidth;
+        return this._comp.videoWidth;
     }
 
     /**
@@ -153,7 +135,7 @@ export class VideoNode extends Sprite {
      * @zh 视频源高度。ready 事件触发后可用。
      */
     get videoHeight(): number {
-        return this._vtex?.videoHeight;
+        return this._comp.videoHeight;
     }
 
     /**
@@ -161,7 +143,7 @@ export class VideoNode extends Sprite {
      * @zh 视频长度（秒）。ready 事件触发后可用。
      */
     get duration(): number {
-        return this._api?.duration;
+        return this._comp.duration;
     }
 
     /**
@@ -169,7 +151,7 @@ export class VideoNode extends Sprite {
      * @zh 返回音频/视频的播放是否已结束。
      */
     get ended(): boolean {
-        return this._api?.ended;
+        return this._comp.ended;
     }
 
     /**
@@ -177,13 +159,11 @@ export class VideoNode extends Sprite {
      * @zh 视频是否应在结束时重新播放。
      */
     get loop(): boolean {
-        return this._loop;
+        return this._comp.loop;
     }
 
     set loop(value: boolean) {
-        this._loop = value;
-        if (this._api)
-            this._api.loop = value;
+        this._comp.loop = value;
     }
 
     /**
@@ -203,13 +183,11 @@ export class VideoNode extends Sprite {
      * 注意：只有 Google Chrome 和 Safari 支持 playbackRate 属性。
      */
     get playbackRate(): number {
-        return this._playbackRate;
+        return this._comp.playbackRate;
     }
 
     set playbackRate(value: number) {
-        this._playbackRate = value;
-        if (this._api)
-            this._api.playbackRate = value;
+        this._comp.playbackRate = value;
     }
 
     /**
@@ -217,13 +195,11 @@ export class VideoNode extends Sprite {
      * @zh 当前音量。
      */
     get volume(): number {
-        return this._volume;
+        return this._comp.volume;
     }
 
     set volume(value: number) {
-        this._volume = value;
-        if (this._api)
-            this._api.volume = value;
+        this._comp.volume = value;
     }
 
     /**
@@ -231,13 +207,11 @@ export class VideoNode extends Sprite {
      * @zh 视频的静音状态。
      */
     get muted(): boolean {
-        return this._muted;
+        return this._comp.muted;
     }
 
     set muted(value: boolean) {
-        this._muted = value;
-        if (this._api)
-            this._api.muted = value;
+        this._comp.muted = value;
     }
 
     /**
@@ -245,7 +219,7 @@ export class VideoNode extends Sprite {
      * @zh 视频是否暂停。
      */
     get paused(): boolean {
-        return this._paused;
+        return this._comp.paused;
     }
 
     /**
@@ -255,7 +229,7 @@ export class VideoNode extends Sprite {
      * @param url 播放源路径。
      */
     load(url: string): void {
-        this.source = url;
+        this._comp.source = url;
     }
 
     /**
@@ -263,9 +237,7 @@ export class VideoNode extends Sprite {
      * @zh 开始播放视频
      */
     play(): void {
-        if (!this._api)
-            return;
-        this._api.play();
+        this._comp.play();
     }
 
     /**
@@ -273,9 +245,7 @@ export class VideoNode extends Sprite {
      * @zh 暂停视频播放
      */
     pause(): void {
-        this._paused = true;
-        if (this._api)
-            this._api.pause();
+        this._comp.pause();
     }
 
     /**
@@ -283,7 +253,7 @@ export class VideoNode extends Sprite {
      * @zh 重新加载视频
      */
     reload(): void {
-        this.source = this._source;
+        this._comp.source = this._comp.source;
     }
 
     /**
@@ -304,104 +274,14 @@ export class VideoNode extends Sprite {
         return PAL.media.canPlayType(type);
     }
 
-    private _load() {
-        let player: VideoPlayer;
-        let vt: VideoTexture;
-        let backendType = LayaEnv.isPlaying ? this.mode : "decoder";
-        if (backendType === "player") {
-            player = (this._player || PAL.media.createVideoPlayer());
-            if (!player)
-                vt = PAL.media.createVideoTexture();
-        }
-        else { //if (backendType === "decoder") 
-            vt = (this._vtex || PAL.media.createVideoTexture());
-            if (!vt)
-                player = PAL.media.createVideoPlayer();
-        }
-
-        if (player) {
-            if (this._player !== player) {
-                this._player = player;
-                this._player.attachTo(this);
-                this._player.options = this.options;
-            }
-            if (this._vtex) {
-                this._vtex.destroy();
-                this._vtex = null;
-                this.texture = null;
-            }
-        }
-        else {
-            if (this._vtex !== vt) {
-                this._vtex = vt;
-                this._vtex.on(Event.READY, this, this._vtReady);
-                this._vtex.on("videoUpdate", this, this.reCache);
-                if (!this._tex)
-                    this.texture = this._tex = new Texture();
-            }
-            if (this._player) {
-                this._player.destroy();
-                this._player = null;
-            }
-        }
-
-        this._api = player || vt;
-        this._api.loop = this._loop;
-        this._api.volume = this._volume;
-        this._api.muted = this._muted;
-        this._api.playbackRate = this._playbackRate;
-        this._api.allowBackground = this._allowBackground;
-        if (this._autoPlay && !this._paused && LayaEnv.isPlaying)
-            this._api.play();
-        else
-            this._api.pause();
-        this._api.load(this._source);
-    }
-
-    private _vtReady() {
-        this._tex.setTo(this._vtex);
-        this.graphics.repaint();
-    }
-
-    private _unload() {
-        if (this._vtex) {
-            this._vtex.off(Event.READY, this, this._vtReady);
-            this._vtex.off("videoUpdate", this, this.reCache);
-            this._vtex.destroy();
-            this._vtex = null;
-        }
-
-        this._player?.destroy();
-        this._player = null;
-        this._api = null;
-    }
-
-    private onDisplay(): void {
-        if (!this._api && this._source)
-            this._load();
-    }
-
-    private onUndisplay(): void {
-        this._unload();
-    }
-
-    /**
-     * @ignore
-     */
-    destroy(detroyChildren: boolean = true): void {
-        this._unload();
-
-        super.destroy(detroyChildren);
-    }
-
     /** @deprecated */
     get currentSrc(): string {
-        return this._source;
+        return this._comp.source;
     }
 
     /** @deprecated */
     get videoTexture(): VideoTexture | null {
-        return this._vtex;
+        return this._comp.videoTexture;
     }
 
     /** @deprecated */
