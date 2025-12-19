@@ -50,15 +50,17 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * @param height Height of the RenderTexture.
      * @param colorFormat Color format of the RenderTexture.
      * @param depthFormat Depth format of the RenderTexture.
+     * @param multiSampler Multi sampler times.
      * @returns A RenderTexture instance.
      * @zh 从对象池中创建一个RenderTexture实例。
      * @param width 宽度。
      * @param height 高度。
      * @param colorFormat 颜色格式。
      * @param depthFormat 深度格式。
+     * @param multiSampler 多采样次数。
      * @returns RenderTexture实例。
      */
-    static createFromPool(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat) {
+    static createFromPool(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat , multiSampler = 1) {
 
         // 从后往前遍历，同时清理已销毁的对象
         for (let i = RenderTexture2D._pool.length - 1; i >= 0; i--) {
@@ -73,7 +75,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
                 continue;
             }
 
-            if (rt.width == width && rt.height == height && rt.getColorFormat() == colorFormat && rt.depthStencilFormat == depthFormat) {
+            if (rt.width == width && rt.height == height && rt.getColorFormat() == colorFormat && rt.depthStencilFormat == depthFormat && rt._multiSamples == multiSampler) {
                 rt._inPool = false;
                 // 直接移除当前位置，避免再做尾部交换
                 RenderTexture2D._pool.splice(i, 1);
@@ -84,7 +86,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
             }
         }
 
-        let rt = new RenderTexture2D(width, height, colorFormat, depthFormat);
+        let rt = new RenderTexture2D(width, height, colorFormat, depthFormat , multiSampler);
         rt.lock = true;
         return rt;
     }
@@ -262,7 +264,8 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * @zh 是否是CameraTarget
      */
     _isCameraTarget: boolean;
-
+    
+    protected _multiSamples: number;
 
     /**
      * @en Creates an instance of RenderTexture2D.
@@ -270,17 +273,20 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * @param height The height.
      * @param format The texture format.
      * @param depthStencilFormat The depth format.
+     * @param multiSampler Multi sampler times.
      * @zh 创建 RenderTexture2D 类的实例。
      * @param width  宽度。
      * @param height 高度。
      * @param format 纹理格式。
      * @param depthStencilFormat 深度格式。
+     * @param multiSampler 多采样次数。
      */
-    constructor(width: number, height: number, format: RenderTargetFormat = RenderTargetFormat.R8G8B8, depthStencilFormat: RenderTargetFormat = RenderTargetFormat.None) {//TODO:待老郭清理
+    constructor(width: number, height: number, format: RenderTargetFormat = RenderTargetFormat.R8G8B8, depthStencilFormat: RenderTargetFormat = RenderTargetFormat.None, multiSampler = 1) {//TODO:待老郭清理
 
         super(width, height, format);
         this._colorFormat = format;
         this._depthStencilFormat = depthStencilFormat;
+        this._multiSamples = multiSampler;
         if (width != 0 && height != 0) {
             this._create();
         }
@@ -330,7 +336,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      */
     _create() {
         // todo  mipmap
-        this._renderTarget = LayaGL.textureContext.createRenderTargetInternal(this.width, this.height, this._colorFormat, this.depthStencilFormat, false, false, 1, false);
+        this._renderTarget = LayaGL.textureContext.createRenderTargetInternal(this.width, this.height, this._colorFormat, this.depthStencilFormat, false, false, this._multiSamples, false);
         this._texture = this._renderTarget._textures[0];
         this._texture.gammaCorrection = 2.2;
     }

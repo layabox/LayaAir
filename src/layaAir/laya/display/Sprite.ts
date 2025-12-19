@@ -36,6 +36,8 @@ import { Color } from "../maths/Color";
 import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
 import { Config } from "../../Config";
 import { MathUtil } from "../maths/MathUtil";
+import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
+import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
 
 const hiddenBits = NodeFlags.NOT_IN_PAGE;
 
@@ -2363,7 +2365,8 @@ export class Sprite extends Node {
         if (rect.width === 0 || rect.height === 0) {
             this._drawOriRT = RenderTexture2D._empty;
         } else {
-            let renderTexture = RenderTexture2D.createFromPool(rect.width, rect.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+            let multiSamples = this._maskParent && LayaGL.renderEngine.getCapable(RenderCapable.MSAA) ? 4 : 1;
+            let renderTexture = RenderTexture2D.createFromPool(rect.width, rect.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, multiSamples);
             renderTexture._invertY = LayaGL.renderEngine._screenInvertY;
             this._drawOriRT = renderTexture;
         }

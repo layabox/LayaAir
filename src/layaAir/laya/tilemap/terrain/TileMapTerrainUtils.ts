@@ -546,10 +546,10 @@ export class TileMapTerrainUtil {
 }
 
 export class TileMapTerrainRule {
-   data: number = 0;
+   data: number = -1;
    x: number = 0;
    y: number = 0;
-   terrain: number = 0;
+   terrain: number = -1;
    neighborObject: NeighborObject;
    priority = 1;
 
