@@ -7,7 +7,7 @@ import { VideoTexture } from "../media/VideoTexture";
 import { HTMLVideoTexture } from "../media/HTMLVideoTexture";
 import { ILaya } from "../../ILaya";
 import { Event } from "../events/Event";
-import { VideoPlayer } from "../media/VideoPlayer";
+import { VideoPlayerBackend } from "../media/VideoPlayerBackend";
 import { HTMLVideoPlayer } from "../media/HTMLVideoPlayer";
 import { PAL } from "./PlatformAdapters";
 
@@ -22,9 +22,9 @@ export class MediaAdapter {
     shortAudioClass: new (url: string) => SoundChannel;
     longAudioClass: new (url: string) => SoundChannel;
     videoTextureClass: new () => VideoTexture;
-    videoPlayerClass: new () => VideoPlayer;
+    videoPlayerClass: new () => VideoPlayerBackend;
 
-    protected suspendedMedias: Set<SoundChannel | VideoTexture | VideoPlayer>;
+    protected suspendedMedias: Set<SoundChannel | VideoTexture | VideoPlayerBackend>;
 
     private _testElement: HTMLAudioElement;
     private _firstTouch = true;
@@ -61,10 +61,10 @@ export class MediaAdapter {
             return new this.videoTextureClass();
     }
 
-    createVideoPlayer(): VideoPlayer {
+    createVideoPlayer(): VideoPlayerBackend {
         if (this.videoPlayerClass == null) {
             PAL.warnIncompatibility("VideoPlayer");
-            return new VideoPlayer();
+            return new VideoPlayerBackend();
         }
         else
             return new this.videoPlayerClass();
@@ -77,7 +77,7 @@ export class MediaAdapter {
             return Promise.resolve(null);
     }
 
-    resumeUntilGotFocus(media: SoundChannel | VideoTexture | VideoPlayer) {
+    resumeUntilGotFocus(media: SoundChannel | VideoTexture | VideoPlayerBackend) {
         if (this.suspendedMedias.size === 0) {
             ILaya.stage.on(Event.MOUSE_UP, this, this.onGotFocus);
             if (!this._firstTouch || !this.touchToStart)
@@ -116,7 +116,7 @@ export class MediaAdapter {
         });
     }
 
-    protected beforeResumeMedias(medias: ReadonlyArray<SoundChannel | VideoTexture | VideoPlayer>): Promise<void> {
+    protected beforeResumeMedias(medias: ReadonlyArray<SoundChannel | VideoTexture | VideoPlayerBackend>): Promise<void> {
         let checkCtx = false;
         for (let channel of medias) {
             if (channel instanceof WebAudioChannel && !checkCtx) {

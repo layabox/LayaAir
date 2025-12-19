@@ -1,5 +1,5 @@
 import { Mutable } from "../../ILaya";
-import { VideoPlayer } from "../../laya/media/VideoPlayer";
+import { VideoPlayerBackend } from "../../laya/media/VideoPlayerBackend";
 import { URL } from "../../laya/net/URL";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { getErrorMsg } from "../../laya/utils/Error";
@@ -7,7 +7,7 @@ import { getErrorMsg } from "../../laya/utils/Error";
 /**
  * @ignore
  */
-export class NativeVideoPlayer extends VideoPlayer {
+export class NativeVideoPlayer extends VideoPlayerBackend {
     readonly video: any;
 
     private _loop: boolean = false;

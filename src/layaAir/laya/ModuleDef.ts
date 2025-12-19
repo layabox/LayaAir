@@ -58,6 +58,8 @@ import { Area2D } from "./display/Area2D";
 import { OpenDataContextView } from "./display/OpenDataContextView";
 import { PostProcess2D } from "./display/PostProcess2D";
 import { PostProcess2DEffect } from "./display/PostProcess2DEffect";
+import { SoundPlayer } from "./media/SoundPlayer";
+import { VideoPlayer } from "./media/VideoPlayer";
 
 let c = ClassUtils.regClass;
 c("Record", Object);
@@ -68,7 +70,9 @@ c("Text", Text);
 c("Input", Input);
 c("Animation", Animation);
 c("SoundNode", SoundNode);
+c("SoundPlayer", SoundPlayer);
 c("VideoNode", VideoNode);
+c("VideoPlayer", VideoPlayer);
 c("Area2D", Area2D);
 c("OpenDataContextView", OpenDataContextView);
 
