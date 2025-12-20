@@ -439,7 +439,10 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                     if (this._lightsInLayerAll[layer].length === 0) //如果受影响的层已经没有灯光，将层序号去除
                         this._lightLayerAll.splice(this._lightLayerAll.indexOf(layer), 1);
                     this._collectLightInScreenByLayer(layer); //收集该层屏幕内的灯光
-                }
+                    //如果该层有RT，标记需要清空RT
+                    if (this.lsTarget[layer])
+                        this._updateLayerLight[layer] = true;
+                    }
             }
             this._lightsNeedCheckRange.splice(this._lightsNeedCheckRange.indexOf(light), 1); //将灯光从该数组中去除
             if (Light2DManager.DEBUG)
@@ -915,6 +918,27 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             }
         }
 
+        //清空没有灯光但仍有RT的层（仅在标记需要清空时执行）
+        let clearedLayerMask = 0;
+        for (let layer = 0; layer < Light2DManager.MAX_LAYER; layer++) {
+            if (this._updateLayerLight[layer] && this._lightLayer.indexOf(layer) === -1) {
+                const renderRes = this._lightRenderRes[layer];
+                if (renderRes) {
+                    if (this._needUpdateLightRes & (1 << layer) || renderRes.lights.length > 0) {
+                        renderRes.addLights([], this._needToRecover);
+                        if (Light2DManager.REUSE_CMD) {
+                            renderRes.setRenderTargetCMD(this.lsTarget[layer], this.lsTargetAdd[layer], this.lsTargetSub[layer]);
+                            renderRes.buildRenderMeshCMD();
+                        }
+                    }
+                    renderRes.render(this.lsTarget[layer], this.lsTargetAdd[layer], this.lsTargetSub[layer]);
+                    this._updateMark[layer]++;
+                    clearedLayerMask |= (1 << layer);
+                }
+                this._updateLayerLight[layer] = false;
+            }
+        }
+
         for (let i = this._lightLayer.length - 1; i > -1; i--) {
             const layer = this._lightLayer[i];
             const layerMask = (1 << layer);
@@ -933,9 +957,9 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                 occluder.needUpdate = false;
         }
         this._screenSchmittChange = false;
-        this._needUpdateLightRes &= ~processedLayerMask;
-        this._needCollectLightInLayer &= ~processedLayerMask;
-        this._needCollectOccluderInLight &= ~processedLayerMask;
+        this._needUpdateLightRes &= ~(processedLayerMask | clearedLayerMask);
+        this._needCollectLightInLayer &= ~(processedLayerMask | clearedLayerMask);
+        this._needCollectOccluderInLight &= ~(processedLayerMask | clearedLayerMask);
 
         //显示工作负载
         if (Light2DManager.DEBUG) {
