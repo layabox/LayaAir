@@ -6,12 +6,12 @@ import { GLESCommandUniformMap } from "../GLESCommandUniformMap";
  * OpenGL ES计算着色器实现
  * 管理计算着色器的编译、内核函数和uniform映射
  */
-export class GLESComputeShader implements IComputeShader {
+export class GLESComputeShaderInstance implements IComputeShader {
     /** ID计数器 */
     static idCounter: number = 0;
 
     /** 着色器唯一ID */
-    private _id: number = GLESComputeShader.idCounter++;
+    private _id: number = GLESComputeShaderInstance.idCounter++;
 
     /** 原生着色器对象 */
     private _nativeObj: any;
@@ -23,7 +23,7 @@ export class GLESComputeShader implements IComputeShader {
     compilete: boolean = false;
 
     /** 内核函数集合 */
-    private _kernels: Set<string> = new Set();
+    //private _kernels: Set<string> = new Set();
 
     /** uniform命令映射 */
     uniformCommandMap: GLESCommandUniformMap[] = [];
@@ -34,24 +34,24 @@ export class GLESComputeShader implements IComputeShader {
     constructor(name: string) {
         this.name = name;
         // 创建原生OpenGL ES计算着色器对象
-        this._nativeObj = new (window as any).conchGLESComputeShader(this.name);
+        this._nativeObj = new (window as any).conchGLESComputeShaderInstance();
     }
 
     /**
      * 移除内核函数
      * @param kernel 内核函数名称
      */
-    removeKernel(kernel: string): void {
-        this._kernels.delete(kernel);
-    }
+    //removeKernel(kernel: string): void {
+    //    this._kernels.delete(kernel);
+    //}
 
     /**
      * 获取所有内核函数
      * @returns 内核函数数组
      */
-    getKernels(): string[] {
-        return Array.from(this._kernels);
-    }
+    //getKernels(): string[] {
+    //    return Array.from(this._kernels);
+    //}
 
     /**
      * 编译计算着色器
@@ -92,7 +92,7 @@ export class GLESComputeShader implements IComputeShader {
             }
 
         } catch (error) {
-            console.error(`GLESComputeShader compile error:`, error);
+            console.error(`GLESComputeShaderInstance compile error:`, error);
             this.compilete = false;
             throw error;
         }
@@ -103,64 +103,64 @@ export class GLESComputeShader implements IComputeShader {
      * @param kernel 内核函数名称
      * @returns 着色器程序对象
      */
-    getProgram(kernel: string): any {
-        return this._nativeObj.getProgram(kernel);
-    }
+    //getProgram(kernel: string): any {
+    //    return this._nativeObj.getProgram(kernel);
+    //}
 
     /**
      * 绑定计算着色器到OpenGL上下文
      * @param kernel 使用的内核函数名称
      */
-    bind(kernel: string = 'main'): void {
-        if (!this.compilete) {
-            throw new Error(`Compute shader '${this.name}' is not compiled`);
-        }
-        this._nativeObj.bind(kernel);
-    }
+    //bind(kernel: string = 'main'): void {
+    //    if (!this.compilete) {
+    //        throw new Error(`Compute shader '${this.name}' is not compiled`);
+    //    }
+    //    this._nativeObj.bind(kernel);
+    //}
 
     /**
      * 解绑计算着色器
      */
-    unbind(): void {
-        this._nativeObj.unbind();
-    }
+    //unbind(): void {
+    //    this._nativeObj.unbind();
+    //}
 
     /**
      * 设置uniform值
      * @param location uniform位置
      * @param value 值
      */
-    setUniform(location: number, value: any): void {
-        this._nativeObj.setUniform(location, value);
-    }
+    //setUniform(location: number, value: any): void {
+    //    this._nativeObj.setUniform(location, value);
+    //}
 
     /**
      * 获取uniform位置
      * @param name uniform名称
      * @returns uniform位置
      */
-    getUniformLocation(name: string): number {
-        return this._nativeObj.getUniformLocation(name);
-    }
+    //getUniformLocation(name: string): number {
+    //    return this._nativeObj.getUniformLocation(name);
+    //}
 
     /**
      * 获取着色器ID
      */
-    get id(): number {
-        return this._id;
-    }
+    //get id(): number {
+    //    return this._id;
+    //}
 
     /**
      * 获取原生着色器对象
      */
-    get nativeObj(): any {
-        return this._nativeObj;
-    }
+    //get nativeObj(): any {
+    //    return this._nativeObj;
+    //}
 
     /**
      * 销毁计算着色器
      */
-    destroy(): void {
+    /*destroy(): void {
         if (this._nativeObj) {
             this._nativeObj.release();
             //this._nativeObj = null;
@@ -170,5 +170,5 @@ export class GLESComputeShader implements IComputeShader {
         this.uniformCommandMap = [];
         this.uniformBindingMap.clear();
         this.compilete = false;
-    }
+    }*/
 } 

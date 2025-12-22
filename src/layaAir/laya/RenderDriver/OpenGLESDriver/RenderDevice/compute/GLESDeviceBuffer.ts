@@ -27,7 +27,7 @@ export class GLESDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
      */
     private _convertUsage(usage: EDeviceBufferUsage): number {
         let glUsage = 0;
-        
+
         // 映射到OpenGL ES相应的buffer usage
         if (usage & EDeviceBufferUsage.MAP_READ) {
             glUsage |= 1; // GL_MAP_READ_BIT equivalent
@@ -47,7 +47,7 @@ export class GLESDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
         if (usage & EDeviceBufferUsage.INDIRECT) {
             glUsage |= 32; // GL_DRAW_INDIRECT_BUFFER equivalent
         }
-        
+
         return glUsage;
     }
 
@@ -102,15 +102,7 @@ export class GLESDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
      * @param dataCount 数据长度（字节）
      */
     setData(buffer: ArrayBuffer, bufferOffset: number, dataStartIndex: number, dataCount: number): void {
-        const needSubData: boolean = dataStartIndex !== 0 || dataCount !== Number.MAX_SAFE_INTEGER;
-        
-        if (needSubData) {
-            // 使用子数据更新
-            this._nativeObj.setDataEx(buffer, dataStartIndex, dataCount, bufferOffset);
-        } else {
-            // 完整数据更新
-            this._nativeObj.setData(buffer, bufferOffset);
-        }
+        this._nativeObj.setData(buffer, bufferOffset, dataStartIndex, dataCount);
     }
 
     /**
@@ -133,7 +125,7 @@ export class GLESDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
      */
     copyToBuffer(buffer: IVertexBuffer | IDeviceBuffer, sourceOffset: number, destOffset: number, byteLength: number): void {
         let destBuffer: any;
-        
+
         // 检查buffer是否实现了IGPUBuffer接口
         if ('getNativeBuffer' in buffer && typeof (buffer as any).getNativeBuffer === 'function') {
             destBuffer = (buffer as IGPUBuffer).getNativeBuffer();
@@ -141,7 +133,7 @@ export class GLESDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
             // 如果是IVertexBuffer，需要不同的处理方式
             destBuffer = (buffer as any)._nativeObj || buffer;
         }
-        
+
         this._nativeObj.copyToBuffer(destBuffer, sourceOffset, destOffset, byteLength);
     }
 
@@ -162,15 +154,12 @@ export class GLESDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
      * @returns Promise，异步读取完成
      */
     readData(dest: ArrayBuffer, destOffset: number, srcOffset: number, byteLength: number): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            try {
-                this._nativeObj.readData(dest, destOffset, srcOffset, byteLength, () => {
-                    resolve();
-                }, (error: any) => {
-                    reject(error);
-                });
-            } catch (error) {
-                reject(error);
+        return new Promise((resolve, reject) => {
+            const result: boolean = this._nativeObj.readData(dest, destOffset, srcOffset, byteLength);
+            if (result) {
+                resolve();
+            } else {
+                reject(new Error("GLESDeviceBuffer.readData failed: native readData returned false."));
             }
         });
     }
@@ -184,7 +173,7 @@ export class GLESDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
                 this._nativeObj.release();
                 //this._nativeObj = null;
             }
-            
+
             this._cacheShaderData?.clear();
             this._cacheShaderData = null;
             this._destroyed = true;

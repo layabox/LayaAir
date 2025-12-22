@@ -38,7 +38,12 @@ export class NativeBrowserAdapter extends BrowserAdapter {
             });
         };
 
-        super.init();
+        let windowInfo = PAL.g.getWindowInfo();
+        this._pixelRatio = windowInfo.pixelRatio;
+        let deviceInfo = PAL.g.getDeviceInfo();
+        let platform: string = deviceInfo.platform || "";
+
+        this.setPlatform("", platform);
 
         PAL.g.onShow(() => {
             this._visible = true;

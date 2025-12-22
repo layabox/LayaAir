@@ -8,7 +8,7 @@ import { BaseTexture } from '../../../../resource/BaseTexture';
 import { IComputeCMD_Dispatch, IComputeContext, IGPUBuffer } from '../../../DriverDesign/RenderDevice/ComputeShader/IComputeContext';
 import { ShaderData, ShaderDataType, ShaderDataItem } from '../../../DriverDesign/RenderDevice/ShaderData';
 import { GLESShaderData } from '../GLESShaderData';
-import { GLESComputeShader } from './GLESComputeShader';
+import { GLESComputeShaderInstance } from './GLESComputeShaderInstance';
 import { GLESDeviceBuffer } from './GLESDeviceBuffer';
 
 /**
@@ -103,7 +103,7 @@ interface ITextureToTextureCommand extends ICommand {
 export class GLESComputeContext implements IComputeContext {
     private _nativeObj: any;
     private commands: Array<ICommand> = [];
-    private _currentShader: GLESComputeShader | null = null;
+    private _currentShader: GLESComputeShaderInstance | null = null;
     private _isExecuting: boolean = false;
 
     constructor() {
@@ -241,7 +241,7 @@ export class GLESComputeContext implements IComputeContext {
      * @param shader 计算着色器
      * @param shaderData 着色器数据数组
      */
-    private _bindShaderData(shader: GLESComputeShader, shaderData: GLESShaderData[]): void {
+    private _bindShaderData(shader: GLESComputeShaderInstance, shaderData: GLESShaderData[]): void {
         for (let i = 0, n = shaderData.length; i < n; i++) {
             const data = shaderData[i];
             const uniformCommandMap = shader.uniformCommandMap[i];
@@ -313,7 +313,7 @@ export class GLESComputeContext implements IComputeContext {
      */
     private _executeDispatchCommand(cmd: IDispatchCommand): void {
         const dispatchInfo = cmd.cmd;
-        const shader = dispatchInfo.shader as GLESComputeShader;
+        const shader = dispatchInfo.shader as GLESComputeShaderInstance;
         const shaderData = dispatchInfo.shaderData as GLESShaderData[];
         const dispatchParams = dispatchInfo.dispatchParams;
 
@@ -463,7 +463,7 @@ export class GLESComputeContext implements IComputeContext {
     /**
      * 获取当前绑定的着色器
      */
-    get currentShader(): GLESComputeShader | null {
+    get currentShader(): GLESComputeShaderInstance | null {
         return this._currentShader;
     }
 

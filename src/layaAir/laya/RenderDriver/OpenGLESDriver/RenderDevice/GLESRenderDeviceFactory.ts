@@ -28,6 +28,11 @@ import { HTMLCanvas } from "../../../resource/HTMLCanvas";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderVariantCollection } from "../../../RenderEngine/RenderShader/ShaderVariantCollection";
 import { RTStatisContext } from "../../RenderModuleData/RuntimeModuleData/RTStatisticContext";
+import { ComputeShaderProcessInfo } from "../../DriverDesign/RenderDevice/ComputeShader/IComputeShader";
+import { GLESComputeShaderInstance } from "./compute/GLESComputeShaderInstance";
+import { GLESDeviceBuffer } from "./compute/GLESDeviceBuffer";
+import { EDeviceBufferUsage, IDeviceBuffer } from "../../DriverDesign/RenderDevice/IDeviceBuffer";
+import { GLESComputeContext } from "./compute/GLESComputeContext";
 
 export class GLESRenderDeviceFactory implements IRenderDeviceFactory {
     createShaderData(ownerResource: Resource): ShaderData {
@@ -64,7 +69,18 @@ export class GLESRenderDeviceFactory implements IRenderDeviceFactory {
     createRenderGeometryElement(mode: MeshTopology, drawType: DrawType): IRenderGeometryElement {
         return new GLESRenderGeometryElement(mode, drawType);
     }
+    createComputeContext(): GLESComputeContext {
+        return new GLESComputeContext();
+    }
 
+    createComputeShader(info: ComputeShaderProcessInfo): GLESComputeShaderInstance {
+        let shader = new GLESComputeShaderInstance(info.name);
+        shader.compile(info);
+        return shader;
+    }
+    createDeviceBuffer(type: EDeviceBufferUsage): IDeviceBuffer {
+        return new GLESDeviceBuffer(type);
+    }
     createEngine(config: Config, canvas: HTMLCanvas): Promise<void> {
         let engine: GLESEngine;
         let glConfig: any = { stencil: Config.isStencil, alpha: Config.isAlpha, antialias: Config.isAntialias, premultipliedAlpha: Config.premultipliedAlpha, preserveDrawingBuffer: Config.preserveDrawingBuffer, depth: Config.isDepth, failIfMajorPerformanceCaveat: Config.isfailIfMajorPerformanceCaveat, powerPreference: Config.powerPreference };
