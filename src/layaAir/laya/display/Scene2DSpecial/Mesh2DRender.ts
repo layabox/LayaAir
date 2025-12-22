@@ -9,6 +9,7 @@ import { Shader3D, ShaderFeatureType } from "../../RenderEngine/RenderShader/Sha
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
 import { Mesh2D, VertexMesh2D } from "../../resource/Mesh2D";
+import { Texture } from "../../resource/Texture";
 import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 
 /**
@@ -40,6 +41,9 @@ export class Mesh2DRender extends BaseRenderNode2D {
 
     private _sharedMesh: Mesh2D;
     declare _renderHandle: IMesh2DRenderDataHandle;
+    private _textureTilingOffset: Vector4 = new Vector4(0, 0, 1, 1);
+    private _tilingOffset: Vector4;
+    private _texture: BaseTexture | Texture;
 
     protected _createRenderHandle(): IMesh2DRenderDataHandle {
         return LayaGL.render2DRenderPassFactory.createMesh2DRenderDataHandle();
@@ -111,23 +115,64 @@ export class Mesh2DRender extends BaseRenderNode2D {
      * @zh 平铺偏移
      */
     set tilingOffset(value: Vector4) {
-        this._renderHandle.tilingOffset = value;
+        this._tilingOffset = value;
+        this._updateTilingOffset();
     }
 
     get tilingOffset(): Vector4 {
-        return this._renderHandle.tilingOffset;
+        return this._tilingOffset;
+    }
+
+    private _updateTilingOffset() {
+        let tilingOffset = this._renderHandle.tilingOffset;
+        if (this._tilingOffset == null) {
+            tilingOffset.setValue(
+                this._textureTilingOffset.x, 
+                this._textureTilingOffset.y, 
+                this._textureTilingOffset.z, 
+                this._textureTilingOffset.w
+            );
+        }else{
+            tilingOffset.setValue(
+                this._tilingOffset.x * this._textureTilingOffset.z + this._textureTilingOffset.x, 
+                this._tilingOffset.y * this._textureTilingOffset.w + this._textureTilingOffset.y, 
+                this._tilingOffset.z * this._textureTilingOffset.z, 
+                this._tilingOffset.w * this._textureTilingOffset.w
+            );
+        }
+        this._renderHandle.tilingOffset = tilingOffset;
     }
 
     /**
      * @en Rendering textures will not take effect if there is no UV in 2dmesh
      * @zh 渲染纹理，如果2DMesh中没有uv，则不会生效 
      */
-    set texture(value: BaseTexture) {
+    set texture(value: BaseTexture | Texture) {
+        this._texture = value;
+        if (value instanceof Texture) {
+            if (value.uv !== Texture.DEF_UV) {
+                console.warn("Texture uv is not default, it will affect the tiling offset.");
+                let sx = value.uvrect[2] / value.width;
+                let sy = value.uvrect[3] / value.height;
+                this._textureTilingOffset.setValue(
+                    value.uvrect[0] - value.offsetX * sx, 
+                    value.uvrect[1] - value.offsetY * sy, 
+                    value.sourceWidth * sx, 
+                    value.sourceHeight * sy
+                );
+            }else{
+                this._textureTilingOffset.setValue(0, 0, 1, 1);
+            }
+            value = value.bitmap;
+        }else{
+            this._textureTilingOffset.setValue(0, 0, 1, 1);
+        }
+        this._updateTilingOffset();
         this._renderHandle.baseTexture = value;
     }
 
-    get texture(): BaseTexture {
-        return this._renderHandle.baseTexture;
+    get texture(): BaseTexture | Texture {
+        return this._texture;
     }
 
     /**
