@@ -13,8 +13,9 @@ import { SpineTemplet } from "../../../SpineTemplet";
 import { Material } from "../../../../resource/Material";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { IRenderGeometryElement } from "../../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
-import { IRender } from "../../interface/IWebSpine";
+import { IRender } from "../../IWebSpine";
 import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { Vector2 } from "../../../../maths/Vector2";
 
 enum ERenderProxyType {
     RenderNormal,
@@ -78,13 +79,13 @@ export abstract class BaseOptimizeRender implements ISpineRender {
      */
     bakeData: TSpineBakeData;
  
-    private _transform: Vector4 = new Vector4();
+    private _transform: Vector2 = new Vector2();
 
     /** 
      * @en Current render mode.
      * @zh 当前渲染模式。
      */
-    private _mode: ESpineRenderMode = ESpineRenderMode.Optimize;
+    protected _mode: ESpineRenderMode = ESpineRenderMode.Optimize;
 
     public get mode(): ESpineRenderMode {
         return this._mode;
@@ -97,7 +98,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
 
         if (this._curAnimationName) {
             this._clearRenderElements();
-            this.play(this._curAnimationName , this.trackEntry.loop , this.trackEntry.trackIndex , this.currentTime);
+            this.play(this._curAnimationName , this.trackEntry.loop , this.trackEntry.trackIndex , this.trackEntry.animationStart);
         }
     }
 
@@ -106,6 +107,8 @@ export abstract class BaseOptimizeRender implements ISpineRender {
     currentTime: number = 0;
 
     trackEntry: spine.TrackEntry = null;
+
+    private _listeners: spine.AnimationStateListener;
 
     /** @internal */
     _premultipliedAlpha: boolean = true;
@@ -196,7 +199,11 @@ export abstract class BaseOptimizeRender implements ISpineRender {
     }
 
     showSkinByIndex(skinIndex: number): void {
+
         this.setSkinIndex(skinIndex);
+
+        this._skeleton.setSkin(this._optimize.getSkin(skinIndex));
+        this._skeleton.setSlotsToSetupPose();
     }
     
     setAttachment(slotName: string, attachmentName: string): void {
@@ -207,7 +214,35 @@ export abstract class BaseOptimizeRender implements ISpineRender {
     
     update(delta: number): void {
         this._state.update(delta);
-        this._state.apply(this._skeleton);
+        if (
+            this._mode !== ESpineRenderMode.Normal &&
+            (this._mode == ESpineRenderMode.Bake || this._currentAnimator.isCache)
+        ) {
+            let entry = this.trackEntry;
+            let animationStart = entry.animationStart, animationEnd = entry.animationEnd;
+            let duration = animationEnd - animationStart;
+            entry.trackLast = entry.nextTrackLast;
+            let trackLastWrapped = entry.trackLast % duration;
+            let animationTime = entry.getAnimationTime();
+
+            let complete = false;
+            if (entry.loop)
+                complete = duration == 0 || trackLastWrapped > entry.trackTime % duration;
+            else
+                complete = animationTime >= animationEnd && entry.animationLast < animationEnd;
+
+            if (complete) {
+                this._listeners?.complete(entry);
+                entry.nextAnimationLast = -1;
+                entry.nextTrackLast = -1;
+            } else {
+                entry.nextAnimationLast = animationTime;
+                entry.nextTrackLast = entry.trackTime;
+            }
+
+        } else {
+            this._state.apply(this._skeleton);
+        }
         this.currentTime = this.trackEntry.getAnimationTime();
     }
 
@@ -219,10 +254,13 @@ export abstract class BaseOptimizeRender implements ISpineRender {
      */
     render(time: number, physicsUpdate: number): void {
         this._skeleton.update && this._skeleton.update(time);
-        this._skeleton.updateWorldTransform(physicsUpdate);
 
-        let offsetX = - this._skeleton.x + this._templet.offsetX;
-        let offsetY = - this._skeleton.y + this._templet.offsetY;
+        if ( this._mode == ESpineRenderMode.Normal || (!this._currentAnimator.isCache && this._mode !== ESpineRenderMode.Bake)) {
+            this._skeleton.updateWorldTransform(physicsUpdate);
+        }
+
+        let offsetX = - this._skeleton.x ;
+        let offsetY = - this._skeleton.y ;
 
         if (this.renderProxy) {
             this.renderProxy.render(this.currentTime, offsetX, offsetY);
@@ -328,35 +366,9 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         this.renderProxyMap.forEach(proxy => {
             proxy.bind(this.updater, skeleton);
         });
-        //@ts-ignore
-        skeleton.showSkinByIndex(this._skinIndex);
+        
+        skeleton.setSkin(this._optimize.getSkin(this._skinIndex));
         this._skeleton.setSlotsToSetupPose();
-    }
-
-    /**
-     * @en Begin caching the animation.
-     * @zh 开始缓存动画。
-     */
-    beginCache() {
-        //@ts-ignore
-        this._state.apply = this._state.applyCache;
-        //@ts-ignore
-        this._state.getCurrentPlayTime = this._state.getCurrentPlayTimeByCache;
-        //@ts-ignore
-        this._skeleton.updateWorldTransform = this._skeleton.updateWorldTransformCache;
-    }
-
-    /**
-     * @en End caching the animation.
-     * @zh 结束缓存动画。
-     */
-    endCache() {
-        //@ts-ignore
-        this._state.apply = this._state.oldApply;
-        //@ts-ignore
-        this._state.getCurrentPlayTime = this._state.getCurrentPlayTimeOld;
-        //@ts-ignore
-        this._skeleton.updateWorldTransform = this._skeleton.oldUpdateWorldTransform;
     }
 
     /**
@@ -447,7 +459,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         let trackEntry = this._state.setAnimation(trackIndex, animationName, loop);
         if (!trackEntry) return null;
         this.trackEntry = trackEntry;
-
+        
         trackEntry.animationStart = start;
         if (end > 0 && end < trackEntry.animationEnd) {
             trackEntry.animationEnd = end;
@@ -463,13 +475,16 @@ export abstract class BaseOptimizeRender implements ISpineRender {
 
         let currentAnimator = this._optimize.animators.find(animator => animator.name === animationName);
 
-        if (this.mode === ESpineRenderMode.Optimize || this.mode === ESpineRenderMode.Bake) {
+        if (!skinAttach.isNormalRender && (this.mode === ESpineRenderMode.Optimize || this.mode === ESpineRenderMode.Bake)) {
 
             if (skinAttach.vertexBones > 4) {
                 console.warn(`In FastRender mode - Current skin: ${skinAttach.name} has ${skinAttach.vertexBones} bones influencing each vertex. This exceeds the recommended limit of 4 bones per vertex.`);
             }
 
-            if (this.bakeData && this.bakeData.aniOffsetMap[animationName] != undefined) {
+            if (
+                this.bakeData
+                && this.bakeData.aniOffsetMap[animationName] != undefined
+            ) {
                 this.renderProxy = this.renderProxyMap.get(ERenderProxyType.RenderBake);
             } else {
                 switch (skinAttach.type) {
@@ -484,7 +499,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
                         break;
                 }
             }
-        } else if (this.mode === ESpineRenderMode.Normal) {
+        } else {
             this.renderProxy = this.renderProxyMap.get(ERenderProxyType.RenderNormal);
         }
 
@@ -496,13 +511,6 @@ export abstract class BaseOptimizeRender implements ISpineRender {
             this.renderProxy.change();
             this.updater.animator = currentAnimator;
             this._currentAnimator = currentAnimator;
-            const isBakeMode = this.mode === ESpineRenderMode.Bake;
-            if ((this._optimize.canCache || isBakeMode) && !skinAttach.isNormalRender) {
-                this.beginCache();
-            }
-            else {
-                this.endCache();
-            }
         }
     }
     
@@ -537,7 +545,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
     }
     
     physicsTranslate(x: number, y: number): void {
-        if (this._skeleton && this._templet.hasPhysics) {
+        if (this._skeleton && this._optimize.hasPhysics) {
             this._skeleton.physicsTranslate(x, y);
         }
     }
@@ -547,15 +555,13 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         return this._skeleton.bones;
     }
 
-    getSkeletonTransform(): Vector4{
+    getSkeletonTransform(): Vector2{
         if (!this._skeleton || !this._templet) {
             return this._transform;
         }
 
         this._transform.x = this._skeleton.x;
         this._transform.y = this._skeleton.y;
-        this._transform.z = this._templet.offsetX;
-        this._transform.w = this._templet.offsetY;
         return this._transform;
     }
     
@@ -576,9 +582,18 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         complete?: (entry: any) => void;
         event?: (entry: any, event: any) => void;
     }): void {
+
+        this._listeners = listeners;
+        
         if (this._state) {
             this._state.addListener(listeners);
         }
+    }
+
+
+    dispatchEvent(entry: spine.TrackEntry, type: string, event: any) {
+        //@ts-ignore
+        this._listeners[type](entry, event);
     }
 
     clearCacheMaterials() {

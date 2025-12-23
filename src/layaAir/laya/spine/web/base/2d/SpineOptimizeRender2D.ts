@@ -10,7 +10,7 @@ import { SpineTemplet } from "../../../SpineTemplet";
 import { SpineShaderInit } from "../../../shader/SpineShaderInit";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { BaseOptimizeRender } from "../optimize/BaseOptimizeRender";
-import { ERenderProxyType, IRender } from "../../interface/IWebSpine";
+import { ERenderProxyType, IRender } from "../../IWebSpine";
 import { OptimizedSpineRenderer, StandardSpineRenderer, RigidBodySpineRenderer, BakedSpineRenderer } from "../optimize/SpineRendererTypes";
 import { BakedSpine2DRenderer } from "./SpineRendererTypes2D";
 

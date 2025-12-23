@@ -1,4 +1,4 @@
-import { IChange } from "../../../interface/IWebSpine";
+import { IChange } from "../../../IWebSpine";
 import { VBCreator } from "../../buffer/VBCreator";
 import { AttachmentParse } from "../AttachmentParse";
 

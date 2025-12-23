@@ -3,21 +3,137 @@ import { AttachmentParse } from "../optimize/AttachmentParse";
 import { SpineShaderInit } from "../../../shader/SpineShaderInit";
 
 /**
+ * @en Shared bone mapping registry for a Spine skeleton.
+ * Maintains a unified mapping of bone indices to IDs across all VBCreators of a SpineTemplet.
+ * @zh Spine骨架的共享骨骼映射注册表。
+ * 在一个SpineTemplet的所有VBCreator之间维护统一的骨骼索引到ID的映射。
+ */
+export class SpineBoneRegistry {
+    /**
+     * @en Current maximum bone ID assigned.
+     * @zh 当前分配的最大骨骼ID。
+     */
+    private _nextBoneId: number = 0;
+
+    /**
+     * @en Map of bone index to assigned bone ID.
+     * @zh 骨骼索引到分配的骨骼ID的映射。
+     */
+    private _boneIndexToId: Map<number, number>;
+
+    /**
+     * @en Flattened array storing [boneId, boneIndex, boneId, boneIndex, ...] pairs.
+     * @zh 扁平化数组，存储 [骨骼ID, 骨骼索引, 骨骼ID, 骨骼索引, ...] 对。
+     */
+    private _boneIdIndexPairs: number[];
+
+    constructor() {
+        this._boneIndexToId = new Map();
+        this._boneIdIndexPairs = [];
+    }
+
+    /**
+     * @en Get or register a bone ID for the given bone index.
+     * If the bone index hasn't been registered, assigns a new ID.
+     * @param boneIndex The bone index from spine skeleton.
+     * @returns The assigned bone ID.
+     * @zh 获取或注册给定骨骼索引的骨骼ID。
+     * 如果骨骼索引尚未注册，则分配一个新的ID。
+     * @param boneIndex 来自spine骨架的骨骼索引。
+     * @returns 分配的骨骼ID。
+     */
+    getOrRegisterBoneId(boneIndex: number): number {
+        let boneId = this._boneIndexToId.get(boneIndex);
+        if (boneId === undefined) {
+            boneId = this._nextBoneId;
+            this._boneIndexToId.set(boneIndex, boneId);
+            this._boneIdIndexPairs.push(boneId, boneIndex);
+            this._nextBoneId++;
+        }
+        return boneId;
+    }
+
+    /**
+     * @en Get the bone ID for a registered bone index.
+     * @param boneIndex The bone index to look up.
+     * @returns The bone ID if registered, undefined otherwise.
+     * @zh 获取已注册骨骼索引的骨骼ID。
+     * @param boneIndex 要查找的骨骼索引。
+     * @returns 如果已注册则返回骨骼ID，否则返回undefined。
+     */
+    getBoneId(boneIndex: number): number | undefined {
+        return this._boneIndexToId.get(boneIndex);
+    }
+
+    /**
+     * @en Get total number of registered bones.
+     * @returns The count of unique bones registered.
+     * @zh 获取已注册的骨骼总数。
+     * @returns 已注册的唯一骨骼数量。
+     */
+    get boneCount(): number {
+        return this._nextBoneId;
+    }
+
+    /**
+     * @en Get the flattened array of bone ID and index pairs.
+     * Format: [boneId0, boneIndex0, boneId1, boneIndex1, ...]
+     * @returns Array of bone ID-index pairs.
+     * @zh 获取扁平化的骨骼ID和索引对数组。
+     * 格式：[骨骼ID0, 骨骼索引0, 骨骼ID1, 骨骼索引1, ...]
+     * @returns 骨骼ID-索引对数组。
+     */
+    get boneIdIndexPairs(): number[] {
+        return this._boneIdIndexPairs;
+    }
+
+    /**
+     * @en Get the map of bone index to bone ID.
+     * @returns Map from bone index to bone ID.
+     * @zh 获取骨骼索引到骨骼ID的映射。
+     * @returns 从骨骼索引到骨骼ID的映射。
+     */
+    get boneIndexToIdMap(): Map<number, number> {
+        return this._boneIndexToId;
+    }
+
+    /**
+     * @en Clear all registered bone data.
+     * @zh 清除所有已注册的骨骼数据。
+     */
+    clear(): void {
+        this._nextBoneId = 0;
+        this._boneIndexToId.clear();
+        this._boneIdIndexPairs.length = 0;
+    }
+}
+
+/**
  * @en Abstract class for creating vertex buffers in a spine skeleton animation system.
  * @zh 用于在spine骨骼动画系统中创建顶点缓冲区的抽象类。
  * @blueprintIgnore
  */
 export abstract class VBCreator{
     /**
-     * @en Map of bone index to bone ID.
-     * @zh 骨骼索引到骨骼ID的映射。
+     * @en Shared bone registry for managing bone index to ID mappings across all VBCreators of a SpineTemplet.
+     * @zh 共享骨骼注册表，用于管理一个SpineTemplet的所有VBCreator之间的骨骼索引到ID映射。
      */
-    mapIndex: Map<number, number>;
+    boneRegistry: SpineBoneRegistry;
+
     /**
-     * @en Array of bone IDs and indices.
-     * @zh 骨骼ID和索引的数组。
+     * @en Local map of bone index to bone ID used by this VBCreator. (Subset of boneRegistry)
+     * @zh 此VBCreator使用的骨骼索引到骨骼ID的本地映射。(boneRegistry的子集)
      */
-    boneArray: number[];
+    localBoneIndexToId: Map<number, number>;
+
+    /**
+     * @en Local array of bone ID-index pairs used by this VBCreator.
+     * Format: [boneId, boneIndex, boneId, boneIndex, ...]
+     * @zh 此VBCreator使用的骨骼ID-索引对的本地数组。
+     * 格式：[骨骼ID, 骨骼索引, 骨骼ID, 骨骼索引, ...]
+     */
+    localBoneIdIndexPairs: number[];
+
     /**
      * @en Vertex buffer data.
      * @zh 顶点缓冲区数据。
@@ -39,12 +155,6 @@ export abstract class VBCreator{
      */
     slotVBMap: Map<number, Map<string, TAttamentPos>>;
 
-    /**
-     * @en Bone matrix data.
-     * @zh 骨骼矩阵数据。
-     */
-    boneMat: Float32Array;
-
     /** @internal */
     _vertexSize = 0;
 
@@ -56,23 +166,24 @@ export abstract class VBCreator{
     /** @internal TODO 双顶点色模式 */
     twoColorTint: boolean = false;
 
-    private boneMaxId: number = 0;
 
     private _vertexDeclaration: VertexDeclaration;
 
     /**
-     * @en
-     * @zh
+     * @en Vertex flag string defining the vertex format.
+     * @zh 定义顶点格式的顶点标志字符串。
      */
     vertexFlag: string;
 
-    constructor(vertexFlag: string, maxVertexCount: number = 0, auto: boolean = true) {
+    constructor(vertexFlag: string, maxVertexCount: number = 0, auto: boolean = true, boneRegistry?: SpineBoneRegistry) {
         this.maxVertexCount = maxVertexCount;
         this.vertexFlag = vertexFlag;
 
-        this.mapIndex = new Map();
+        // Use provided bone registry or create a new one
+        this.boneRegistry = boneRegistry || new SpineBoneRegistry();
+        this.localBoneIndexToId = new Map();
+        this.localBoneIdIndexPairs = [];
         this.slotVBMap = new Map();
-        this.boneArray = [];
         this.vbLength = 0;
 
         if (auto) {
@@ -138,30 +249,30 @@ export abstract class VBCreator{
     }
 
     /**
-     * @en Get the bone ID for a given bone index.
-     * @param boneIndex Bone index.
+     * @en Get or register the bone ID for a given bone index.
+     * Registers the bone in both the shared registry and local tracking.
+     * @param boneIndex Bone index from spine skeleton.
      * @returns Bone ID.
-     * @zh 获取给定骨骼索引的骨骼ID。
-     * @param boneIndex 骨骼索引。
+     * @zh 获取或注册给定骨骼索引的骨骼ID。
+     * 在共享注册表和本地跟踪中都注册该骨骼。
+     * @param boneIndex 来自spine骨架的骨骼索引。
      * @returns 骨骼ID。
      */
-    getBoneId(boneIndex: number) {
-        let id = this.mapIndex.get(boneIndex);
-        if (id == undefined) {
-            id = this.boneMaxId;
-            this.mapIndex.set(boneIndex, id);
-            this.boneArray.push(id, boneIndex);
-            this.boneMaxId++;
+    getBoneId(boneIndex: number): number {
+        // Check if already registered locally
+        let id = this.localBoneIndexToId.get(boneIndex);
+        if (id !== undefined) {
+            return id;
         }
-        return id;
-    }
 
-    /**
-     * @en Initialize the bone matrix.
-     * @zh 初始化骨骼矩阵。
-     */
-    initBoneMat() {
-        this.boneMat = new Float32Array(8 * this.mapIndex.size);
+        // Register in shared bone registry (will create new ID if needed)
+        id = this.boneRegistry.getOrRegisterBoneId(boneIndex);
+
+        // Track locally in this VBCreator
+        this.localBoneIndexToId.set(boneIndex, id);
+        this.localBoneIdIndexPairs.push(id, boneIndex);
+
+        return id;
     }
 
     /**
@@ -215,9 +326,14 @@ export abstract class VBCreator{
     _cloneTo(target: VBCreator) {
         target.vb = new Float32Array(this.vb);
         target.vbLength = this.vbLength;
-        target.mapIndex = new Map(this.mapIndex);
-        target.boneMaxId = this.boneMaxId;
-        target.boneArray = this.boneArray.slice();
+
+        // Share the same bone registry
+        target.boneRegistry = this.boneRegistry;
+
+        // Clone local bone tracking
+        target.localBoneIndexToId = new Map(this.localBoneIndexToId);
+        target.localBoneIdIndexPairs = this.localBoneIdIndexPairs.slice();
+
         target._vertexDeclaration = this._vertexDeclaration;
         target._vertexSize = this._vertexSize;
         target.twoColorTint = this.twoColorTint;
@@ -250,7 +366,7 @@ export abstract class VBCreator{
 export class VBBoneCreator extends VBCreator {
 
     _create(): VBCreator {
-        return new VBBoneCreator(this.vertexFlag, this.maxVertexCount, false);
+        return new VBBoneCreator(this.vertexFlag, this.maxVertexCount, false, this.boneRegistry);
     }
 
     /**
@@ -421,7 +537,7 @@ export class VBBoneCreator extends VBCreator {
 export class VBRigBodyCreator extends VBCreator {
     /** @internal */
     _create(): VBCreator {
-        return new VBRigBodyCreator(this.vertexFlag, this.maxVertexCount, false);
+        return new VBRigBodyCreator(this.vertexFlag, this.maxVertexCount, false, this.boneRegistry);
     }
 
     /**

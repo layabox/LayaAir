@@ -5,8 +5,9 @@ import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/S
 import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineShaderInit } from "../../../shader/SpineShaderInit";
 import { SpineConst } from "../../../SpineConst";
-import { INormalRenderUpdater, IRender, IWebSpineFactory } from "../../interface/IWebSpine";
+import { IRender } from "../../IWebSpine";
 import { BaseOptimizeRender } from "./BaseOptimizeRender";
+import { SpineNormalRenderUpdater } from "./SpineNormalRenderUpdater";
 import { SpineRenderUpdater } from "./SpineRenderUpdater";
 
 /**
@@ -118,7 +119,7 @@ export class RigidBodySpineRenderer extends SpineBaseRenderer {
     render(curTime: number, offsetX: number = 0, offsetY: number = 0) {
         if (!this.updater) return;
         
-        this.updater.renderWithOutMat(this.slots, this.updater, curTime);
+        this.updater.renderWithOutMat(this.slots, curTime);
         
         let bone = this.bones[this.updater.skinAttach.rbBoneIndex];
         if (!bone) { 
@@ -204,7 +205,7 @@ export class OptimizedSpineRenderer extends SpineBaseRenderer {
      * @param offsetY Y轴偏移。
      */
     render(curTime: number , offsetX: number = 0, offsetY: number = 0) {
-        this.updater.renderWithMat(this.bones, this.slots, this.updater, curTime, this._boneMat, offsetX, offsetY);
+        this.updater.renderWithMat(this.bones, this.slots, curTime, this._boneMat, offsetX, offsetY);
         this._shaderData.setBuffer(SpineShaderInit.BONEMAT, this._boneMat);
     }
 
@@ -228,11 +229,11 @@ export class OptimizedSpineRenderer extends SpineBaseRenderer {
  */
 export class StandardSpineRenderer extends SpineBaseRenderer {
 
-    normalUpdater: INormalRenderUpdater
+    normalUpdater: SpineNormalRenderUpdater
     /** @ignore @blueprintIgnore */
     constructor(shaderData: ShaderData) {
         super(shaderData);
-        this.normalUpdater = (SpineConst.factory as IWebSpineFactory).createNormalRenderUpdater();
+        this.normalUpdater = new SpineNormalRenderUpdater;
     }
 
     /**
@@ -251,6 +252,7 @@ export class StandardSpineRenderer extends SpineBaseRenderer {
      */
     change() {
         this._shaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
+        this._skeleton.setToSetupPose();
         this.normalUpdater.needUpdate = true;
     }
 
@@ -392,7 +394,7 @@ export class BakedSpineRenderer extends SpineBaseRenderer {
      * @param boneMat 用于渲染的骨骼矩阵。
      */
     render(curTime: number , offsetX: number = 0, offsetY: number = 0) {
-        this.updater.renderWithOutMat(this.slots, this.updater, curTime);
+        this.updater.renderWithOutMat(this.slots, curTime);
         this._simpleAnimatorOffset.y = curTime / this.step;
         this._computeAnimatorParamsData();
         this._shaderData.setVector(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);

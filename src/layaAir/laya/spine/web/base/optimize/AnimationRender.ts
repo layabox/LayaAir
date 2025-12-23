@@ -11,7 +11,7 @@ import { Mesh2D } from "../../../../resource/Mesh2D";
 import { ESpineRenderType } from "../../../SpineSkeleton";
 import { SpineMeshUtils } from "../utils/SpineMeshUtils";
 import { SkeletonOptimise } from "../optimize/SkeletonOptimise";
-import { IChange, IVBChange } from "../../interface/IWebSpine";
+import { IChange, IVBChange } from "../../IWebSpine";
 import { SpineConst } from "../../../SpineConst";
 
 export type FrameRenderData = {
@@ -429,7 +429,6 @@ export class SkinAniRenderData {
 
         if (isDynamic) {
             this.vb = mainVB.clone();
-            this.vb.initBoneMat();
 
             let tAttachMap = attachMap.slice();
 

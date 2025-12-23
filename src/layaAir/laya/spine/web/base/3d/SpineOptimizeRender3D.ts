@@ -8,7 +8,8 @@ import { BaseOptimizeRender } from "../optimize/BaseOptimizeRender";
 import { IBaseRenderNode } from "../../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { Laya3DRender } from "../../../../d3/RenderObjs/Laya3DRender";
 import { OptimizedSpineRenderer, StandardSpineRenderer, RigidBodySpineRenderer, BakedSpineRenderer } from "../optimize/SpineRendererTypes";
-import { ERenderProxyType, IRender } from "../../interface/IWebSpine";
+import { ERenderProxyType, IRender } from "../../IWebSpine";
+import { ESpineRenderMode } from "../../../SpineConst";
 
 /**
  * @en SpineOptimizeRender3D used for optimized rendering of Spine animations in 3D.
@@ -202,25 +203,6 @@ export class SpineOptimizeRender3D extends BaseOptimizeRender {
     /** @internal */
     _getMaterial(texture: Texture2D, blendMode: number): Material {
         return this._templet.getMaterial(texture, blendMode, this._premultipliedAlpha, true);
-    }
-
-    /**
-     * @override
-     * @inheritdoc
-     */
-    render(time: number, physicsUpdate: number): void {
-        this._skeleton.update && this._skeleton.update(time);
-        this._skeleton.updateWorldTransform(physicsUpdate);
-
-        let offsetX = - this._skeleton.x;
-        let offsetY = - this._skeleton.y;
-
-        if (this.renderProxy) {
-            this.renderProxy.render(this.currentTime, offsetX, offsetY);
-            if (this.renderProxy.afterRender) {
-                this.renderProxy.afterRender(this);
-            }
-        }
     }
 }
 
