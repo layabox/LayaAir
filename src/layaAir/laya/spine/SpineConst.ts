@@ -9,7 +9,17 @@ export class SpineConst {
      * @zh Spine 运行时版本。
      */
     static VERSION = "3.8";
-    
+    /**
+     * @en Version first of Spine
+     * @zh Spine版本号
+     */
+    public static VersionFirst: number = 3;
+    /**
+     * @en Version second of Spine
+     * @zh Spine版本号小数位
+     */
+    public static VersionSecond: number = 8;
+
     /**
      * @en Switch for normal rendering mode.
      * @zh 普通渲染模式的开关。
@@ -101,6 +111,16 @@ export type TSpineBakeData = {
 }
 
 Laya.addAfterInitCallback(() => {
-    SpineConst.NEED_SLOT = parseFloat(SpineConst.VERSION) >= 4.1;
+    let versionString = SpineConst.VERSION.split('.');
+    let versionNumber = Math.floor(Number(versionString[0]));
+    let versionNumber2 = Math.floor(Number(versionString[1]));
+ 
+    SpineConst.VersionFirst = versionNumber;
+    SpineConst.VersionSecond = versionNumber2;
+
+    if (versionNumber >= 4 && versionNumber2 >= 1) {
+        SpineConst.NEED_SLOT = true;
+    }
+
     SpineShaderInit.init();
 });

@@ -5,10 +5,10 @@ import { SkinAttach } from "./SkeletonOptimise";
 import { Material } from "../../../../resource/Material";
 import { Mesh2D } from "../../../../resource/Mesh2D";
 import { SpineMeshUtils } from "../utils/SpineMeshUtils";
-import { IVBChange } from "../../interface/IWebSpine";
 import { SkinAniRenderData, FrameRenderData, AnimationRender } from "./AnimationRender";
 import { SpineConst } from "../../../SpineConst";
 import { VertexDeclaration } from "../../../../RenderEngine/VertexDeclaration";
+import { IVBChange } from "../../IWebSpine";
 
 /**
  * @en SpineRenderUpdater used for updating animation render data and skin rendering.
@@ -62,7 +62,7 @@ export class SpineRenderUpdater {
      * @en The current skin animation render data.
      * @zh 当前皮肤动画渲染数据。
      */
-    currentSKin: SkinAniRenderData = null;
+    currentData: SkinAniRenderData = null;
 
     /**
      * @en The animation state.
@@ -72,7 +72,6 @@ export class SpineRenderUpdater {
 
     /** @internal */
     _skinAttach: SkinAttach = null;
-
 
     updateBones: (delta: number, bones: spine.Bone[], boneMat: Float32Array, ofx: number, ofy: number) => void;
     
@@ -122,7 +121,7 @@ export class SpineRenderUpdater {
 
     private _updateData() {
         if (!this._animator || !this._skinAttach) return;
-        this.currentSKin = this._animator.skinDataArray[this._skinAttach.index];
+        this.currentData = this._animator.skinDataArray[this._skinAttach.index];
         this.updateBones = this._animator.isCache ? (this._animator.eventsFrames.length == 0 ? this.updateBoneMatrixCache : this.updateBoneMatCacheEvent) : this.updateBoneMatrix;
     }
 
@@ -149,7 +148,7 @@ export class SpineRenderUpdater {
         this.cacheMaterials.length = 0;
         this.currentTime = -1;
         this.currentFrameIndex = -1;
-        this.currentSKin = null;
+        this.currentData = null;
         this.state = null;
         this._skinAttach = null;
         this._animator = null;
@@ -305,18 +304,16 @@ export class SpineRenderUpdater {
     /**
      * @en Renders the animation without matrix transformation.
      * @param slots The slots to render.
-     * @param updater The VB/IB updater (usually this).
      * @param curTime The current animation time.
      * @zh 不进行矩阵变换的动画渲染。
      * @param slots 要渲染的插槽。
-     * @param updater VB/IB 更新器（通常是 this）。
      * @param curTime 当前动画时间。
      */
-    renderWithOutMat(slots: spine.Slot[], updater: SpineRenderUpdater, curTime: number) {
+    renderWithOutMat(slots: spine.Slot[],  curTime: number) {
         let beforeFrame = this.currentFrameIndex;
         let nowFrame = this.animator.getFrameIndex(curTime, beforeFrame);
         
-        updater.renderUpdate(slots , this.currentSKin, nowFrame, beforeFrame);
+        this.renderUpdate(slots , this.currentData, nowFrame, beforeFrame);
         
         this.currentTime = curTime;
         this.currentFrameIndex = nowFrame;
@@ -326,7 +323,6 @@ export class SpineRenderUpdater {
      * @en Renders the animation with matrix transformation.
      * @param bones The bones to render.
      * @param slots The slots to render.
-     * @param updater The VB/IB updater (usually this).
      * @param curTime The current animation time.
      * @param boneMat The bone matrix.
      * @param ofx 偏移x。
@@ -334,15 +330,14 @@ export class SpineRenderUpdater {
      * @zh 进行矩阵变换的动画渲染。
      * @param bones 要渲染的骨骼。
      * @param slots 要渲染的插槽。
-     * @param updater VB/IB 更新器（通常是 this）。
      * @param curTime 当前动画时间。
      * @param boneMat 骨骼矩阵。
      * @param ofx 偏移x。
      * @param ofy 偏移y。
      */
-    renderWithMat(bones: spine.Bone[], slots: spine.Slot[], updater: SpineRenderUpdater, curTime: number, boneMat: Float32Array, ofx: number, ofy: number) {
-        this.renderWithOutMat(slots, updater, curTime);
-        this.updateBoneMatrix(curTime, bones, boneMat, ofx, ofy);
+    renderWithMat(bones: spine.Bone[], slots: spine.Slot[], curTime: number, boneMat: Float32Array, ofx: number, ofy: number) {
+        this.renderWithOutMat(slots, curTime);
+        this.updateBones(curTime, bones, boneMat, ofx, ofy);
     }
 
     private _resetVertexBuffers(slots: spine.Slot[], skindata: SkinAniRenderData) {
@@ -427,8 +422,7 @@ export class SpineRenderUpdater {
         this.writeBoneBufferCache(animator.boneFrames, f, boneMat);
 
         let currFrame = Math.round(f);
-        //@ts-ignore
-        let curentTrack: spine.TrackEntry = state.currentTrack;
+        let curentTrack: spine.TrackEntry = this.owner.trackEntry;
         //@ts-ignore
         let lastEventFrame = curentTrack.lastEventFrame;
         if (lastEventFrame == currFrame) {
@@ -442,8 +436,7 @@ export class SpineRenderUpdater {
             let events = animator.eventsFrames[currFrame];
             if (events) {
                 for (let i = 0, n = events.length; i < n; i++) {
-                    //@ts-ignore
-                    state.dispatchEvent(null, "event", events[i]);//TODO enty
+                    this.owner.dispatchEvent(null, "event", events[i]);//TODO enty
                 }
             }
         }
@@ -452,8 +445,7 @@ export class SpineRenderUpdater {
                 let events = animator.eventsFrames[i];
                 if (events) {
                     for (let j = 0, m = events.length; j < m; j++) {
-                        //@ts-ignore
-                        state.dispatchEvent(null, "event", events[j]);//TODO enty
+                        this.owner.dispatchEvent(null, "event", events[j]);//TODO enty
                     }
                 }
             }
@@ -475,8 +467,8 @@ export class SpineRenderUpdater {
      * @param ofy 偏移y。
      */
     writeBoneBuffer(bones: spine.Bone[], boneMat: Float32Array, ofx: number = 0, ofy: number = 0) {
-        let creator = this.currentSKin.vb;
-        let boneArray = creator.boneArray;
+        let creator = this.currentData.vb;
+        let boneArray = creator.localBoneIdIndexPairs;
         for (let i = 0, n = boneArray.length; i < n; i += 2) {
             let offset = boneArray[i] * 8;
             let bone = bones[boneArray[i + 1]];
@@ -502,8 +494,8 @@ export class SpineRenderUpdater {
      * @param boneMat 骨骼矩阵数组。
      */
     writeBoneBufferCache(boneFrames: Float32Array[][], frames: number, boneMat: Float32Array, ofx: number = 0, ofy: number = 0) {
-        let creator = this.currentSKin.vb;
-        let boneArray = creator.boneArray;
+        let creator = this.currentData.vb;
+        let boneArray = creator.localBoneIdIndexPairs;
         let floor = Math.floor(frames);
         let detal;
         if (floor == boneFrames.length - 1) { detal = 0; }

@@ -468,11 +468,10 @@ export class Spine3DRenderer extends BaseRender {
     }
 
     private _initBounds(): void {
-        let data = this._templet.optimize.data;
-        let x = data.x;
-        let y = data.y;
-        let width = data.width;
-        let height = data.height;
+        let x = this._templet.x;    
+        let y = this._templet.y;
+        let width = this._templet.width;
+        let height = this._templet.height;
         let min = this._geometryBounds.getMin();
         let max = this._geometryBounds.getMax();
         //直接使用spine数据bounds
@@ -661,8 +660,8 @@ export class Spine3DRenderer extends BaseRender {
     private onTransformChanged() {
         let matrix = this.owner.transform.worldMatrix;
         this._spineRender.setSkeletonPosition(
-            matrix.elements[12] + this._templet.offsetX,
-            matrix.elements[13] + this._templet.offsetY
+            matrix.elements[12],
+            matrix.elements[13]
         );
     }
 
@@ -783,9 +782,7 @@ export class Spine3DRenderer extends BaseRender {
      * @param y Y-axis coordinate
      */
     physicsTranslate(x: number, y: number) {
-        if (this._templet.hasPhysics) {
-            this._spineRender.physicsTranslate(x, y);
-        }
+        this._spineRender.physicsTranslate(x, y);
     }
 }
 

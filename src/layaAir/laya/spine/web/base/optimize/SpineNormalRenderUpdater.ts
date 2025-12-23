@@ -1,16 +1,15 @@
-import { LayaGL } from "../../../layagl/LayaGL";
-import { IBufferState } from "../../../RenderDriver/DriverDesign/RenderDevice/IBufferState";
-import { IRenderGeometryElement } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
-import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
-import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
-import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
-import { Material } from "../../../resource/Material";
-import { Mesh2D } from "../../../resource/Mesh2D";
-import { SpineShaderInit } from "../../shader/SpineShaderInit";
-import { SpineConst } from "../../SpineConst";
-import { SpineRenderUpdater } from "../base/optimize/SpineRenderUpdater";
-import { INormalRenderUpdater } from "../interface/IWebSpine";
-import { SpineTexture } from "../SpineTexture";
+import { LayaGL } from "../../../../layagl/LayaGL";
+import { IBufferState } from "../../../../RenderDriver/DriverDesign/RenderDevice/IBufferState";
+import { IRenderGeometryElement } from "../../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
+import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
+import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
+import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
+import { Material } from "../../../../resource/Material";
+import { Mesh2D } from "../../../../resource/Mesh2D";
+import { SpineShaderInit } from "../../../shader/SpineShaderInit";
+import { SpineConst } from "../../../SpineConst";
+import { SpineRenderUpdater } from "./SpineRenderUpdater";
+import { SpineTexture } from "../../SpineTexture";
 
 const QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
 
@@ -28,7 +27,7 @@ interface SubMeshBufferInfo {
     material: Material;
 }
 
-export class SpineNormalRenderUpdater implements INormalRenderUpdater {
+export class SpineNormalRenderUpdater {
     /** @internal */
     static _TEMP_COLOR: spine.Color;
     /** @internal */

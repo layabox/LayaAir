@@ -19,6 +19,17 @@ export class SpineTemplet extends Resource {
     /** @internal */
     _textures: Record<string, Texture2D>;
     /**
+     * @en X of spine data
+     * @zh spine 数据 x 
+     */
+    x: number = 0;
+    /**
+     * @en Y of spine animation
+     * @zh spine 数据 y 
+     */
+    y: number = 0;
+
+    /**
      * @en Base width of spine animation
      * @zh spine 动画基础宽度
      */
@@ -42,13 +53,6 @@ export class SpineTemplet extends Resource {
     public parse: ISpineTempletParser;
 
     public optimize: ISkeletonOptimise;
-
-    /**
-     * 4.2版本以上支持物理
-     * @en Indicates if physics is needed
-     * @zh 是否需要物理
-     */
-    hasPhysics: boolean = false;
 
     /** @ignore */
     constructor() {
@@ -172,6 +176,8 @@ export class SpineTemplet extends Resource {
     protected _disposeResource(): void {
 
         this.parse.destroy();
+
+        this.optimize.destroy();
 
         for (let k in this._textures) {
             let tex = this._textures[k];

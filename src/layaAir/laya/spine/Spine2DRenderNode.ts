@@ -79,6 +79,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     private _externalSkins: ExternalSkin[];
     private _skin: string;
+    private _renderOffset: Vector2 = new Vector2();
     private _offset: Vector2 = new Vector2();
 
     protected _bones: Sprite[];
@@ -98,6 +99,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         super();
         this._renderElements = [];
         this._materials = [];
+        this._renderHandle.offset = this._renderOffset;
     }
 
     protected _isMaterialVaild(value: Material): boolean {
@@ -110,7 +112,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     protected _createRenderHandle(): ISpineRenderDataHandle {
         let handle = LayaGL.render2DRenderPassFactory.createSpineRenderDataHandle();
-        handle.offset = this._offset;
         return handle;
     }
 
@@ -150,8 +151,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         
         // 计算坐标系偏移，与 Spine 渲染时使用的偏移保持一致
         let transform = this._spineRender.getSkeletonTransform();
-        let offsetX = -transform.x + transform.z;
-        let offsetY = -transform.y + transform.w;
+        let offsetX = -transform.x + this._renderOffset.x;
+        let offsetY = -transform.y + this._renderOffset.y;
         
         for (let i = 0; i < bones.length; i++) {
             let bone = bones[i];
@@ -428,7 +429,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (!this._templet)
             return;
         this._spineRender.mode = !SpineConst.normalRenderSwitch && value ? ESpineRenderMode.Optimize : ESpineRenderMode.Normal;
-        this.play(this._animationName, this._loop, true, this._spineRender.currentTime * 1000);
     }
 
     get offset(): Vector2 {
@@ -437,7 +437,12 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     set offset(value: Vector2) {
         this._offset = value;
-        this._renderHandle.offset = this._offset;
+        // this._renderHandle.offset = this._offset;
+        if (value) {
+            this._renderOffset.x = value.x + this._templet.offsetX;
+            this._renderOffset.y = value.y - this._templet.offsetY;
+            this._renderHandle.offset = this._renderOffset;
+        }
         this.boundsChange = true;
     }
 
@@ -457,16 +462,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     private _doAutoAdjust() {
-        if (!this._templet || !this._templet.optimize)
+        if (!this._templet)
             return;
-        let templet = this._templet;
-        let optimize = templet.optimize;
-        let data = optimize.data;
-        if (!data) return;
-        let x = Math.ceil(data.x ?? 0);
-        let y = Math.ceil(data.y ?? 0);
-        let width = data.width;
-        let height = data.height;
+        let width = this._templet.width;
+        let height = this._templet.height;
 
         if (width === undefined || height === undefined) {
             console.warn('Spine.SkeletonData: width or height is undefined');
@@ -477,11 +476,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (width < 1) width = 100;
         if (height < 1) height = 100;
 
-        let pivotX = width + x;
-        let pivotY = height + y;
-
         this.owner.size(width, height);
-        this.owner.pivot(pivotX, pivotY);
+        this.owner.pivot(this._templet.offsetX, -this._templet.offsetY);
     }
 
     /** @ignore @blueprintIgnore */
@@ -534,7 +530,12 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             this._createBones();
         }
 
+        this.onTransformChanged();
+
         this.boundsChange = true;
+
+        this._renderOffset.x = this._offset.x + this._templet.offsetX;
+        this._renderOffset.y = this._offset.y - this._templet.offsetY;
 
         let skinIndex = this._templet.getSkinIndexByName(this._skinName);
         if (skinIndex != -1)
@@ -684,9 +685,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (!bones || bones.length === 0) return;
         
         let transform = this._spineRender.getSkeletonTransform();
-        let offset = this._offset;
-        let offsetX = -transform.x + transform.z + offset.x;
-        let offsetY = -transform.y + transform.w + offset.y;
+        let offset = this._renderOffset;
+        let offsetX = -transform.x + offset.x;
+        let offsetY = -transform.y + offset.y;
 
         for (let i = 0; i < bones.length && i < this._bones.length; i++) {
             let bone = bones[i];
@@ -948,9 +949,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @param y Y-axis coordinate
      */
     physicsTranslate(x: number, y: number) {
-        if (this._templet.hasPhysics) {
-            this._spineRender.physicsTranslate(x, y);
-        }
+        this._spineRender.physicsTranslate(x, y);
     }
 
     /**
@@ -960,8 +959,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     private onTransformChanged() {
         let matrix = this.owner.globalTrans.getMatrix();
         this._spineRender.setSkeletonPosition(
-            matrix.tx + this._templet.offsetX,
-            matrix.ty + this._templet.offsetY
+            matrix.tx,
+            matrix.ty
         );
     }
     
@@ -1008,14 +1007,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     get rect(): Vector4 {
         if (this._boundsChange ) {
             if (this._templet) {
-                this._rect.z = this._templet.width + this._offset.x;
-                this._rect.w = this._templet.height + this._offset.y;
+                this._rect.z = this._templet.width + this._renderOffset.x;
+                this._rect.w = this._templet.height + this._renderOffset.y;
             } else {
-                this._rect.z = this._offset.x + this.owner.width;
-                this._rect.w = this._offset.y + this.owner.height;
+                this._rect.z = this._renderOffset.x + this.owner.width;
+                this._rect.w = this._renderOffset.y + this.owner.height;
             }
-            this._rect.x = this._offset.x;
-            this._rect.y = this._offset.y;
+            this._rect.x = this._renderOffset.x;
+            this._rect.y = this._renderOffset.y;
             this._boundsChange = false;
         }
         return this._rect;

@@ -1,4 +1,4 @@
-import { IVBChange } from "../../../interface/IWebSpine";
+import { IVBChange } from "../../../IWebSpine";
 import { TAttamentPos, VBCreator } from "../../buffer/VBCreator";
 
 

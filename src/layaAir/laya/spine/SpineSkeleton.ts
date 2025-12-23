@@ -238,12 +238,13 @@ export class SpineSkeleton extends Sprite {
     }
 
     /**
-     * 获取Skeleton(spine.Skeleton)
-     * @deprecated 不再直接暴露原生spine对象
+     * @zh 获取Skeleton(spine.Skeleton)
+     * @deprecated 不再直接暴露原生spine对象，只有 Web 运行时有准确对象
+     * @en Get Skeleton(spine.Skeleton)
+     * @deprecated Do not directly expose the native spine object, only accurate objects in Web
      */
-    getSkeleton() {
-        // 返回null，不再暴露原生对象
-        return null;
+    getSkeleton(): null | spine.Skeleton {
+        return this._spineComponent.getSkeleton();
     }
 
     /**

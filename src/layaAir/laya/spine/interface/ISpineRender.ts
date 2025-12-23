@@ -1,4 +1,5 @@
 import { Color } from "../../maths/Color";
+import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { ESpineRenderMode, ESpineRenderState, TSpineBakeData } from "../SpineConst";
@@ -162,10 +163,10 @@ export interface ISpineRender {
     getBones(): IBoneInfo[];
     
     /**
-     * @zh 获取骨骼位置和偏移
-     * @returns 包含x, y, offsetX, offsetY的对象
+     * @zh 获取骨骼位置
+     * @returns 包含x, y的向量
      */
-    getSkeletonTransform(): Vector4;
+    getSkeletonTransform(): Vector2;
     
     /**
      * @zh 重置外部皮肤

@@ -1,6 +1,6 @@
 import { AttachmentParse } from "./AttachmentParse";
 import { IBCreator } from "../buffer/IBCreator";
-import { VBBoneCreator, VBCreator, VBRigBodyCreator } from "../buffer/VBCreator";
+import { SpineBoneRegistry, VBBoneCreator, VBCreator, VBRigBodyCreator } from "../buffer/VBCreator";
 import { ISkeletonOptimise } from "../../../interface/ISpineParse";
 import { ESpineRenderType } from "../../../SpineSkeleton";
 import { ESpineRenderMode, SpineConst, TSpineBakeData } from "../../../SpineConst";
@@ -12,6 +12,13 @@ import { AnimationRender, SkinAniRenderData } from "./AnimationRender";
  */
 export class SkeletonOptimise implements ISkeletonOptimise {
 
+    /**
+     * 4.2版本以上支持物理
+     * @en Indicates if physics is needed
+     * @zh 是否需要物理
+     */
+    hasPhysics: boolean = false;
+    
     /**
      * @en Indicates whether caching is possible.
      * @zh 表示是否可以缓存。
@@ -69,6 +76,8 @@ export class SkeletonOptimise implements ISkeletonOptimise {
      */
     bakeData: TSpineBakeData;
 
+    private _bones: SpineBoneRegistry;
+
     /** @ignore */
     constructor() {
     }
@@ -78,8 +87,7 @@ export class SkeletonOptimise implements ISkeletonOptimise {
     }
 
     getAniNameByIndex(index: number): string | null {
-        //@ts-ignore
-        let tAni = this.data.getAnimationByIndex(index);
+        let tAni = this.data.animations[index];
         if (tAni) return tAni.name;
         return null;
     }
@@ -89,8 +97,17 @@ export class SkeletonOptimise implements ISkeletonOptimise {
     }
     
     getSkinIndexByName(skinName: string): number {
-        //@ts-ignore
-        return this.data.getSkinIndexByName(skinName);
+        let skins = this.data.skins;
+        for (let i = 0, n = skins.length; i < n; i++) {
+            if (skins[i].name == skinName) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    getSkin(index: number) {
+        return this.data.skins[index];
     }
 
     /** @internal */
@@ -131,6 +148,8 @@ export class SkeletonOptimise implements ISkeletonOptimise {
         // 动画状态类
         this._state = new spine.AnimationState(this._stateData);
 
+        this._bones = new SpineBoneRegistry;
+        
         this.attachMentParse(data);
         this.initAnimation(data.animations);
     }
@@ -157,7 +176,7 @@ export class SkeletonOptimise implements ISkeletonOptimise {
             if (i != 0) {
                 skinAttach.copyFrom(defaultSkinAttach);
             }
-            skinAttach.attachMentParse(skin, slots);
+            skinAttach.attachMentParse(skin, slots, this._bones);
             this.skinAttachArray.push(skinAttach);
             skinAttach.init(slots);
 
@@ -174,7 +193,6 @@ export class SkeletonOptimise implements ISkeletonOptimise {
      * @param animations 要初始化的动画数组。
      */
     initAnimation(animations: spine.Animation[]) {
-        let maxBoneNumber = 0;
         //不同skin vbib长度可能不一致
         for (let i = 0, n = animations.length; i < n; i++) {
             let animation = animations[i];
@@ -184,24 +202,20 @@ export class SkeletonOptimise implements ISkeletonOptimise {
 
             this.skinAttachArray.forEach((value: SkinAttach) => {
                 let skinData = value.initAnimator(animator);
-                if (!skinData.isNormalRender) {
-                    let boneNumber = skinData.vb.boneArray.length / 2;
-                    if (boneNumber > maxBoneNumber) {
-                        maxBoneNumber = boneNumber;
-                    }
-                }
             });
 
             if (this.canCache) {
                 this._initBoneFrame(animator);
             }
         }
-        this.maxBoneNumber = maxBoneNumber;
+        this.maxBoneNumber = this._bones.boneCount;
     }
 
     private _initBoneFrame(animator: AnimationRender) {
         let duration = this._play(animator.name);
         let totalFrame = Math.round(duration / SpineConst.SPINE_STEP) || 1;
+        let offsetX = 0;
+        let offsetY = 0;
         for (let i = 0; i <= totalFrame; i++) {
             let bones = this._updateState(i == 0 ? 0 : SpineConst.SPINE_STEP);
             let frame: Float32Array[] = [];
@@ -211,11 +225,11 @@ export class SkeletonOptimise implements ISkeletonOptimise {
                 let rs = new Float32Array(8);
                 rs[0] = bone.a;
                 rs[1] = bone.b;
-                rs[2] = bone.worldX;
+                rs[2] = bone.worldX + offsetX;
                 rs[3] = 0;
                 rs[4] = bone.c;
                 rs[5] = bone.d;
-                rs[6] = bone.worldY;
+                rs[6] = bone.worldY + offsetY;
                 rs[7] = 0;
                 frame.push(rs);
             }
@@ -229,12 +243,40 @@ export class SkeletonOptimise implements ISkeletonOptimise {
      */
     cacheBone() {
         if (!SpineConst.cacheSwitch) {
+            let boneS = this._bones.boneIdIndexPairs;
+
+            // 保存并设置所有使用骨骼的 skinRequired = true
+            let boneIndexSet = new Set<number>();
+            let originalSkinRequiredMap = new Map<number, boolean>();
+
+            for (let i = 1, n = boneS.length; i < n; i += 2) {
+                let boneIndex = boneS[i];
+                boneIndexSet.add(boneIndex);
+                let bone = this.skeleton.bones[boneIndex];
+                if (bone && bone.data) {
+                    originalSkinRequiredMap.set(boneIndex, bone.data.skinRequired);
+                    bone.data.skinRequired = false;
+                }
+            }
+            
+            this.skeleton.updateCache();
+
+            // 执行 cache 操作
             for (let i = 0, n = this.animators.length; i < n; i++) {
                 let animator = this.animators[i];
-                if (animator.boneFrames.length == 0) {
+                if (animator.boneFrames.length == 0 && !animator.hasClip) {
                     this._initBoneFrame(animator);
                 }
             }
+            
+            // 还原原始设置
+            originalSkinRequiredMap.forEach((originalValue, boneIndex) => {
+                let bone = this.skeleton.bones[boneIndex];
+                if (bone && bone.data) {
+                    bone.data.skinRequired = originalValue;
+                }
+            });
+           
         }
     }
 
@@ -291,11 +333,6 @@ export class SkinAttach {
      */
     _tempIbCreate: IBCreator;
     /**
-     * @en Indicates if there's any normal rendering.
-     * @zh 表示是否存在任何普通渲染。
-     */
-    hasNormalRender: boolean;
-    /**
      * @en Type of spine rendering.
      * @zh spine渲染的类型。
      */
@@ -342,7 +379,7 @@ export class SkinAttach {
      * @param skinData spine皮肤数据。
      * @param slots spine插槽数据数组。
      */
-    attachMentParse(skinData: spine.Skin, slots: spine.SlotData[]) {
+    attachMentParse(skinData: spine.Skin, slots: spine.SlotData[] , boneRegistry : SpineBoneRegistry) {
         let vertexBones = 0;
         let attachments = skinData.attachments;
         let vertexCount = 0;
@@ -421,17 +458,17 @@ export class SkinAttach {
             case ESpineRenderType.normal:
                 flag = "UV,COLOR,POSITION,BONE";
                 if (twoColorTint) flag += ",COLOR2";
-                this.mainVB = new VBBoneCreator(flag, vertexCount);
+                this.mainVB = new VBBoneCreator(flag, vertexCount, true , boneRegistry);
                 break;
             case ESpineRenderType.boneGPU:
                 flag = "UV,COLOR,POSITION,BONE";
                 if (twoColorTint) flag += ",COLOR2";
-                this.mainVB = new VBBoneCreator(flag, vertexCount);
+                this.mainVB = new VBBoneCreator(flag, vertexCount , true, boneRegistry);
                 break;
             case ESpineRenderType.rigidBody:
                 flag = "UV,COLOR,POSITION";
                 if (twoColorTint) flag += ",COLOR2";
-                this.mainVB = new VBRigBodyCreator(flag, vertexCount);
+                this.mainVB = new VBRigBodyCreator(flag, vertexCount , true , boneRegistry);
                 break;
         }
 
@@ -452,22 +489,21 @@ export class SkinAttach {
         slots.forEach((slot: spine.SlotData, index: number) => {
             let attchment = slot.attachmentName;
             if (attchment) {
-                let attach = this.slotAttachMap.get(index).get(attchment);
-                if (attach) {
-                    this.mainVB.appendVB(attach);
+                let parse = this.slotAttachMap.get(index).get(attchment);
+                if (parse) {
+                    this.mainVB.appendVB(parse);
                 }
                 else {
-                    attach = this.slotAttachMap.get(index).get(null);
+                    parse = this.slotAttachMap.get(index).get(null);
                 }
-                if (attach.isClip) this.isNormalRender = true;
-                mainAttachMentOrder.push(attach);
+                if (parse.isClip) this.isNormalRender = true;
+                mainAttachMentOrder.push(parse);
             }
             else {
                 let attach = this.slotAttachMap.get(index).get(null);
                 mainAttachMentOrder.push(attach);
             }
         });
-        this.mainVB.initBoneMat();
         this.mainIB.createIB(mainAttachMentOrder, this.mainVB);
     }
 
@@ -481,26 +517,7 @@ export class SkinAttach {
         let skinData = animator.createSkinData(
             this.mainVB, this.mainIB, this._tempIbCreate, this.slotAttachMap, this.mainAttachMentOrder, this.type
         );
-
-        skinData.name = this.name;
-
-        if (this.isNormalRender) {
-            skinData.isNormalRender = true;
-        }
-        // skinData.mainibRender = this.mainIB;
-        
-        if (skinData.isNormalRender) {
-            this.hasNormalRender = true;
-        }
-
+        skinData.name = this.name + "_" + animator.name;
         return skinData;
     }
-}
-
-
-export type SketonDynamicInfo = {
-    /** 所有皮肤动画的最大顶点数 */
-    maxVertexCount: number;
-    /** 所有皮肤动画的最大索引数 */
-    maxIndexCount: number;
 }

@@ -23,7 +23,7 @@ export class BakedSpine2DRenderer extends BakedSpineRenderer {
     change() {
         super.change();
 
-        if (this.updater.currentSKin && this.updater.currentSKin.canInstance) {
+        if (this.updater.currentData && this.updater.currentData.canInstance) {
             this._struct.renderType = BaseRender2DType.spineSimple;
             // this._shaderData.addDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
         }else
