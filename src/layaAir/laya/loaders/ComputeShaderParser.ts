@@ -8,7 +8,6 @@ import { ShaderParser } from "./ShaderParser";
 
 declare module "../RenderEngine/RenderShader/Shader3D" {
     interface IShaderObjStructor {
-        kernels?: Array<string>;
         uniformMaps: Array<any>;
         code?: string;
     }
