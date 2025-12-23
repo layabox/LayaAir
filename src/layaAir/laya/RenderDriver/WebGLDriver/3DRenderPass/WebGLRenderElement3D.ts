@@ -24,6 +24,8 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
     geometry: WebGLRenderGeometryElement;
 
+    private subShaderChange: boolean = false;
+
     protected _subShader: SubShader;
     public get subShader(): SubShader {
         return this._subShader;
@@ -66,6 +68,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
     }
 
     private modifyedMaterialShaderData() {
+        this.subShaderChange = true;
         if (this.subShader && this.materialShaderData) {
             let shadername = this._subShader._owner.name;
             if (!WebGLRenderElement3D._matChangeFlagMap.has(shadername)) {
@@ -122,12 +125,16 @@ export class WebGLRenderElement3D implements IRenderElement3D {
         this._updateMatChangeFlag();
         //shader变了或者宏变了 
         let passDefineChangeFlag = this._curDrawCacheInfo.passDefineCacheFlag;
-        if (this._materialRenderDataChange || this._spriteRenderDataChange || //材质是否变化
-            !this._matDefChangeFlag ||
-            compareCahceFlag(this._matDefChangeFlag, passDefineChangeFlag) ||//material宏是否变化
-            (this.owner && compareCahceFlag(this.owner.defineDataChangeFlag, passDefineChangeFlag)) ||//sprite是否宏变化
-            compareCahceFlag(context._curDefineChangeFlag, passDefineChangeFlag))//判断场景中的宏是否变化
-        {
+
+        let compileShader = this._materialRenderDataChange || this._spriteRenderDataChange || !this._matDefChangeFlag;
+
+        compileShader = compileShader || compareCahceFlag(this._matDefChangeFlag, passDefineChangeFlag)//material宏是否变化;
+
+        compileShader = compileShader || (this.owner ? compareCahceFlag(this.owner.defineDataChangeFlag, passDefineChangeFlag) : this.subShaderChange)//sprite是否宏变化;
+
+        compileShader = compileShader || compareCahceFlag(context._curDefineChangeFlag, passDefineChangeFlag);//判断场景中的宏是否变化
+
+        if (compileShader) {
             passDefineChangeFlag.setValue(Stat.loopCount, WebGLEngine.instance._framePassCount);
             this._compileShader(context);
         }
@@ -160,7 +167,6 @@ export class WebGLRenderElement3D implements IRenderElement3D {
                 }
             }
         }
-
     }
 
     protected _getInvertFront(): boolean {
@@ -302,6 +308,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
     }
 
     protected _compileShader(context: WebGLRenderContext3D) {
+        this.subShaderChange = false;
         var passes: ShaderPass[] = this._subShader._passes;
         let renderCount = 0;
         for (var j: number = 0, m: number = passes.length; j < m; j++) {
@@ -339,5 +346,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
         this.renderShaderData = null;
         this.transform = null;
         this.isRender = null;
+        this._passRenderInfo = null;
+        this.materialUBO = null;
     }
 }
