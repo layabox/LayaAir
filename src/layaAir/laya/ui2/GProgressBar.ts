@@ -103,6 +103,10 @@ export class GProgressBar extends GWidget {
         }
     }
 
+    /**
+     * @en The horizontal bar component of the progress bar.
+     * @zh 进度条的水平条组件。
+     */
     get hBar(): GWidget {
         return this._hBar;
     }
@@ -114,6 +118,10 @@ export class GProgressBar extends GWidget {
         this.update(null, false);
     }
 
+    /**
+     * @en The vertical bar component of the progress bar.
+     * @zh 进度条的垂直条组件。
+     */
     get vBar(): GWidget {
         return this._vBar;
     }
@@ -125,6 +133,10 @@ export class GProgressBar extends GWidget {
         this.update(null, false);
     }
 
+    /**
+     * @en The title component of the progress bar.
+     * @zh 进度条的标题组件。
+     */
     get titleWidget(): GWidget {
         return this._titleWidget;
     }
@@ -134,6 +146,10 @@ export class GProgressBar extends GWidget {
         this.update(null, false);
     }
 
+    /**
+     * @en Indicates whether the progress bar is reversed.
+     * @zh 指示进度条是否为反向。
+     */
     get reverse(): boolean {
         return this._reverse;
     }

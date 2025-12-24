@@ -130,6 +130,10 @@ export class GSlider extends GWidget {
         }
     }
 
+    /**
+     * @en The horizontal bar component of the slider.
+     * @zh 滑动条的水平条组件。
+     */
     get hBar(): GWidget {
         return this._hBar;
     }
@@ -141,6 +145,10 @@ export class GSlider extends GWidget {
         this.update(false);
     }
 
+    /**
+     * @en The vertical bar component of the slider.
+     * @zh 滑动条的垂直条组件。
+     */
     get vBar(): GWidget {
         return this._vBar;
     }
@@ -152,6 +160,10 @@ export class GSlider extends GWidget {
         this.update(false);
     }
 
+    /**
+     * @en The grip button component of the slider.
+     * @zh 滑动条的握把按钮组件。
+     */
     get gripButton(): GWidget {
         return this._gripButton;
     }
@@ -162,6 +174,10 @@ export class GSlider extends GWidget {
         this.setupEvents(true);
     }
 
+    /**
+     * @en The title component of the slider.
+     * @zh 滑动条的标题组件。
+     */
     get titleWidget(): GWidget {
         return this._titleWidget;
     }
@@ -171,6 +187,10 @@ export class GSlider extends GWidget {
         this.update(false);
     }
 
+    /**
+     * @en Indicates whether the slider is reversed.
+     * @zh 指示滑动条是否为反向。
+     */
     get reverse(): boolean {
         return this._reverse;
     }
@@ -341,6 +361,7 @@ export class GSlider extends GWidget {
         this.updateWithPercent(percent, true);
     }
 
+    /** @ignore */
     onAfterDeserialize(): void {
         //历史遗留问题，ide设置的是_gripButton不是gripButton
         if (SerializeUtil.hasProp("_gripButton"))

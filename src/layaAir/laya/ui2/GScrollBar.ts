@@ -43,6 +43,7 @@ export class GScrollBar extends GWidget {
         this._vertical = vertical;
     }
 
+    /** @ignore */
     setDisplayPerc(value: number) {
         if (this._vertical) {
             if (!this._fixedGripSize)
@@ -58,6 +59,7 @@ export class GScrollBar extends GWidget {
         this._gripButton.visible = value != 0 && value != 1;
     }
 
+    /** @ignore */
     setScrollPerc(val: number) {
         this._scrollPerc = val;
         if (this._vertical)
@@ -66,6 +68,7 @@ export class GScrollBar extends GWidget {
             this._gripButton.x = this._bar.x + (this._bar.width - this._gripButton.width) * this._scrollPerc;
     }
 
+    /** @ignore */
     get minSize(): number {
         if (this._vertical)
             return (this._arrowButton1 ? this._arrowButton1.height : 0) + (this._arrowButton2 ? this._arrowButton2.height : 0);
@@ -73,10 +76,15 @@ export class GScrollBar extends GWidget {
             return (this._arrowButton1 ? this._arrowButton1.width : 0) + (this._arrowButton2 ? this._arrowButton2.width : 0);
     }
 
+    /** @ignore */
     get gripDragging(): boolean {
         return this._gripDragging;
     }
 
+    /**
+     * @en Indicates whether the grip size is fixed.
+     * @zh 指示握把大小是否固定。
+     */
     get fixedGripSize(): boolean {
         return this._fixedGripSize;
     }

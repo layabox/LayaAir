@@ -33,6 +33,16 @@ export class PopupManager {
         ILaya.stage.on(Event.BLUR, this, this.checkPopups);
     }
 
+    /**
+     * @zh Shows a widget that automatically hides when clicking outside the widget on the stage.
+     * @param popup The widget to be displayed as a popup.
+     * @param target The target widget relative to which the popup will be positioned.
+     * @param dir The direction in which the popup should appear relative to the target. 
+     * @en 显示一个界面，并且点击舞台其他区域时自动隐藏该组件。
+     * @param popup 要显示的弹出界面。
+     * @param target 弹出界面相对于此目标组件定位。
+     * @param dir 弹出界面相对于目标组件出现的方向。
+     */
     showPopup(popup: GWidget, target?: GWidget, dir?: PopupDirection): void {
         if (this._popupStack.length > 0) {
             let k = this._popupStack.indexOf(popup);
@@ -63,6 +73,22 @@ export class PopupManager {
         this.validatePopupPosition(popup, target, dir);
     }
 
+    /**
+     * @en Validates and adjusts the position of the popup widget.
+     * The popup will be positioned relative to the target widget, considering the specified direction and offsets. The popup won’t overflow the stage boundaries.
+     * @param popup The popup widget to be positioned.
+     * @param target The target widget relative to which the popup will be positioned. 
+     * @param dir The direction in which the popup should appear relative to the target. 
+     * @param offsetX Additional horizontal offset for the popup position.
+     * @param offsetY Additional vertical offset for the popup position.
+     * @zh 验证并调整弹出组件的位置。
+     * 弹出组件将相对于目标组件定位，考虑指定的方向和偏移量。弹出组件不会超出舞台边界。
+     * @param popup 要定位的弹出组件。
+     * @param target 弹出组件相对于此目标组件定位。
+     * @param dir 弹出组件相对于目标组件出现的方向。
+     * @param offsetX 额外的水平偏移量，用于调整弹出组件的位置。 
+     * @param offsetY 额外的垂直偏移量，用于调整弹出组件的位置。
+     */
     validatePopupPosition(popup: GWidget, target: GWidget, dir: PopupDirection, offsetX?: number, offsetY?: number) {
         let px: number, py: number;
         let sizeW: number = 0, sizeH: number = 0;
@@ -100,6 +126,20 @@ export class PopupManager {
         popup.pos(xx, yy);
     }
 
+    /**
+     * @en Toggles the visibility of a popup widget.
+     * If the popup is already open, it will be closed. If it is closed, it will be shown.
+     * @param popup The popup widget to be toggled.
+     * @param target The target widget relative to which the popup will be positioned.
+     * @param dir The direction in which the popup should appear relative to the target. 
+     * @return Returns true if the popup was shown, false if it was closed.
+     * @zh 切换弹出组件的可见性。
+     * 如果弹出组件已经打开，则将其关闭；如果它是关闭的，则将其显示。
+     * @param popup 要切换的弹出组件。
+     * @param target 弹出组件相对于此目标组件定位。 
+     * @param dir 弹出组件相对于目标组件出现的方向。 
+     * @returns 如果弹出组件被显示则返回 true，如果被关闭则返回 false。
+     */
     togglePopup(popup: GWidget, target?: GWidget, dir?: PopupDirection): boolean {
         if (this._justClosedPopups.indexOf(popup) != -1)
             return false;
@@ -108,6 +148,12 @@ export class PopupManager {
         return true;
     }
 
+    /**
+     * @en Hides a specific popup widget or all popups if no widget is specified.
+     * @param popup The popup widget to be hidden. If not provided, all popups will be hidden.
+     * @zh 隐藏特定的弹出组件，或者如果未指定组件则隐藏所有弹出组件。
+     * @param popup 要隐藏的弹出组件。如果未提供，则隐藏所有弹出组件。 
+     */
     hidePopup(popup?: GWidget): void {
         if (popup) {
             let k = this._popupStack.indexOf(popup);
@@ -124,10 +170,22 @@ export class PopupManager {
         }
     }
 
+    /**
+     * @en Indicates whether there are any popups currently displayed.
+     * @zh 指示当前是否有任何弹出组件被显示。
+     */
     get hasAnyPopup(): boolean {
         return this._popupStack.length != 0;
     }
 
+    /**
+     * @en Checks if a specific popup widget was just closed.
+     * @param popup The popup widget to check.
+     * @return Returns true if the popup was just closed, false otherwise.
+     * @zh 检查特定的弹出组件是否刚刚被关闭。
+     * @param popup 要检查的弹出组件。
+     * @returns 如果弹出组件刚刚被关闭则返回 true，否则返回 false。
+     */
     isPopupJustClosed(popup: GWidget) {
         return this._justClosedPopups.indexOf(popup) != -1;
     }
@@ -145,6 +203,16 @@ export class PopupManager {
         //     this._owner.inputMgr.setFocus(focus, true);
     }
 
+    /**
+     * @en Shows a tooltip with the specified message after an optional delay.
+     * @param msg The message to be displayed in the tooltip. 
+     * @param delay The delay in milliseconds before showing the tooltip. 
+     * @returns Returns the default tooltip widget used for displaying the message.
+     * @zh 显示一个工具提示，显示指定的消息，并可选择延迟显示。
+     * @param msg 要在工具提示中显示的消息。 
+     * @param delay 显示工具提示前的延迟时间（毫秒）。 
+     * @returns 返回用于显示消息的默认工具提示组件。 
+     */
     showTooltips(msg: string, delay?: number) {
         if (this._defaultTooltipWin == null) {
             if (!UIConfig2.tooltipsWidget) {
@@ -160,6 +228,14 @@ export class PopupManager {
         this.showTooltipsWin(this._defaultTooltipWin, delay);
     }
 
+    /**
+     * @en Shows a specified tooltip widget after an optional delay.
+     * @param tooltipWin The tooltip widget to be displayed.
+     * @param delay The delay in milliseconds before showing the tooltip.
+     * @zh 显示一个指定的工具提示组件，并可选择延迟显示。
+     * @param tooltipWin 要显示的工具提示组件。 
+     * @param delay 显示工具提示前的延迟时间（毫秒）。 
+     */
     showTooltipsWin(tooltipWin: GWidget, delay?: number): void {
         this.hideTooltips();
 
@@ -178,6 +254,10 @@ export class PopupManager {
         this._owner.addChild(this._tooltipWin);
     }
 
+    /**
+     * @en Hides the currently displayed tooltip, if any.
+     * @zh 隐藏当前显示的工具提示（如果有的话）。
+     */
     hideTooltips(): void {
         if (this._tooltipWin) {
             if (this._tooltipWin.parent)
@@ -186,6 +266,7 @@ export class PopupManager {
         }
     }
 
+    /** @ignore @blueprintIgnore */
     checkPopups(): void {
         this._justClosedPopups.length = 0;
 
