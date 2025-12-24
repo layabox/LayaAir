@@ -237,7 +237,11 @@ export class Trail2DRender extends BaseRenderNode2D {
         this._renderElements = [];
         this._materials = [];
 
-        if (!Trail2DRender.defaultTrail2DMaterial)
-            Trail2DShaderInit.init();
+
     }
 }
+
+Laya.addAfterInitCallback(() => {
+    if (!Trail2DRender.defaultTrail2DMaterial)
+        Trail2DShaderInit.init();
+})
