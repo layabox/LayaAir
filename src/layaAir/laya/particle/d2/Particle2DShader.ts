@@ -3,6 +3,16 @@ import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/Sha
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 
+import Particle2DCommon from "./shader/Particle2DCommon.glsl";
+import Particle2DFrag from "./shader/Particle2DFrag.glsl";
+import Particle2DLifetimeColor from "./shader/Particle2DLifetimeColor.glsl";
+import Particle2DLifetimeRotation from "./shader/Particle2DLifetimeRotation.glsl";
+import Particle2DLifetimeSize from "./shader/Particle2DLifetimeSize.glsl";
+import Particle2DLifetimeVelocity from "./shader/Particle2DLifetimeVelocity.glsl";
+import Particle2DTextureSheetAnimation from "./shader/Particle2DTextureSheetAnimation.glsl";
+import Particle2DVertex from "./shader/Particle2DVertex.glsl";
+import Curve from "./Shader/Curve.glsl";
+
 export class Particle2DShader {
 
     static ColorOverLifetimeDef: ShaderDefine;
@@ -47,6 +57,16 @@ export class Particle2DShader {
     static SpriteRotAndScale: number;
 
     static init() {
+
+        Shader3D.addInclude("Particle2DCommon.glsl", Particle2DCommon);
+        Shader3D.addInclude("Particle2DFrag.glsl", Particle2DFrag);
+        Shader3D.addInclude("Particle2DLifetimeColor.glsl", Particle2DLifetimeColor);
+        Shader3D.addInclude("Particle2DLifetimeRotation.glsl", Particle2DLifetimeRotation);
+        Shader3D.addInclude("Particle2DLifetimeSize.glsl", Particle2DLifetimeSize);
+        Shader3D.addInclude("Particle2DLifetimeVelocity.glsl", Particle2DLifetimeVelocity);
+        Shader3D.addInclude("Particle2DTextureSheetAnimation.glsl", Particle2DTextureSheetAnimation);
+        Shader3D.addInclude("Particle2DVertex.glsl", Particle2DVertex);
+        Shader3D.addInclude("Curve.glsl", Curve);
 
         const uniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("_Particle2D");
         const addUniform = (name: string, type: ShaderDataType) => {
