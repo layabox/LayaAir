@@ -12,12 +12,6 @@ export interface IGraphicsCmd {
      * @zh 如果为true，则不自动回收
      */
     lock?: boolean;
-    
-    /**
-     * @en If true, the command can be cached.
-     * @zh 如果为true，则命令可以被缓存。
-     */
-    canCache?: boolean;
 
     
     /** @internal */
@@ -48,6 +42,7 @@ export interface IGraphicsCmd {
      * @en Returns 1 if this command needs to respond to layout changes (e.g., percentage-based or arc drawing), otherwise returns 0.
      * @zh 如果此命令需要响应布局变化（例如百分比显示或画弧线），返回1，否则返回0。
      * @returns 0 or 1
+     * @blueprintIgnore
      */
     needsLayoutRepaint?(): number;
 }

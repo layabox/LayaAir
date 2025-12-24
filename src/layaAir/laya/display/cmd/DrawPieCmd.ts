@@ -121,8 +121,7 @@ export class DrawPieCmd implements IGraphicsCmd {
     }
 
     /**
-     * @en Returns 1 because pie drawing needs to respond to layout changes.
-     * @zh 返回1，因为画弧线需要响应布局变化。
+     * @ignore @blueprintIgnore
      */
     needsLayoutRepaint(): number {
         return 1;

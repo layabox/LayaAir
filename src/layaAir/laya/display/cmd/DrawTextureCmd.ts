@@ -17,7 +17,6 @@ export class DrawTextureCmd implements IGraphicsCmd {
     /** @internal */
     _cacheData: any;
 
-    canCache: boolean = true;
     /**
      * @en Identifier for the DrawTextureCmd
      * @zh 绘制单个贴图命令的标识符
@@ -121,7 +120,6 @@ export class DrawTextureCmd implements IGraphicsCmd {
         cmd.blendMode = blendMode;
         cmd.uv = uv;
         cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
-        cmd.canCache = !percent;
         return cmd;
     }
 
@@ -192,8 +190,7 @@ export class DrawTextureCmd implements IGraphicsCmd {
     }
 
     /**
-     * @en Returns 1 if percent is true, otherwise returns 0.
-     * @zh 如果percent为true返回1，否则返回0。
+     * @ignore @blueprintIgnore
      */
     needsLayoutRepaint(): number {
         return this.percent ? 1 : 0;

@@ -178,7 +178,6 @@ export class SubmitBase {
 
     /**
      * @param info 添加顶点数据到submit
-     * @param positions 顶点位置数组
      */
     appendData(info: MeshBlockInfo) {
         let originLength = this._currentVertexBlocks.length;

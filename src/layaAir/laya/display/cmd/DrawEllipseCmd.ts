@@ -135,8 +135,7 @@ export class DrawEllipseCmd implements IGraphicsCmd {
     }
 
     /**
-     * @en Returns 1 if the command needs to respond to layout changes.
-     * @zh 如果命令需要响应布局变化，返回1。
+     * @ignore @blueprintIgnore
      */
     needsLayoutRepaint(): number {
         return 1;

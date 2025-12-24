@@ -167,8 +167,7 @@ export class DrawRoundRectCmd implements IGraphicsCmd {
     }
 
     /**
-     * @en Returns 1 if percent is true, otherwise returns 0.
-     * @zh 如果percent为true返回1，否则返回0。
+     * @ignore @blueprintIgnore
      */
     needsLayoutRepaint(): number {
         return 1;

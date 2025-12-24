@@ -19,8 +19,6 @@ const className = "DrawTrianglesCmd";
 export class DrawTrianglesCmd implements IGraphicsCmd {
     /** @internal */
     _cacheData: any;
-
-    canCache: boolean = true;
     
     /**
      * @en Identifier for the DrawTrianglesCmd
@@ -124,7 +122,6 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
         cmd.alpha = alpha ?? 1;
         cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
         cmd.blendMode = blendMode;
-        cmd.canCache = true;
         return cmd;
     }
 
@@ -148,7 +145,6 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
         cmd.y = 0;
         cmd.mesh = mesh;
         cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
-        cmd.canCache = false;
         return cmd;
     }
 
