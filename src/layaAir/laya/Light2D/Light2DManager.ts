@@ -82,6 +82,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     private _works: number = 0; //每帧工作负载（渲染光影图次数，每渲染一个灯光算一次）
     private _updateMark: number[] = new Array(Light2DManager.MAX_LAYER).fill(1); //各层的更新标识
     private _updateLayerLight: boolean[] = new Array(Light2DManager.MAX_LAYER).fill(false); //各层是否需要更新光影图
+    private _configChangeCount: number = 0; //记录上次的配置变更次数
     private _spriteLayer: number[] = []; //具有精灵的层序号
     private _spriteNumInLayer: number[] = new Array(Light2DManager.MAX_LAYER).fill(0); //精灵在各层中的数量
     private _lightLayer: number[] = []; //屏幕内具有灯光的层序号
@@ -145,6 +146,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         this._screenSchmitt = new Rectangle();
         this._screenSchmittChange = false;
         this.occluderAgent = new Occluder2DAgent(this);
+        this._configChangeCount = this.config.changeCount; //初始化配置变更次数
         ILaya.stage.on(Event.RESIZE, this, this._onScreenResize);
 
         this._PCF = [
@@ -794,6 +796,14 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @zh 渲染光影图
      */
     preRenderUpdate() {
+        //检查配置是否变更，如果变更则更新所有层的更新标记以触发uniform更新
+        const currentChangeCount = this.config.changeCount;
+        if (this._configChangeCount !== currentChangeCount) {
+            this._configChangeCount = currentChangeCount;
+            for (let i = this._updateMark.length - 1; i > -1; i--)
+                this._updateMark[i]++;
+        }
+
         //处理场景矩阵变化
         this._sceneTransformChange();
 
