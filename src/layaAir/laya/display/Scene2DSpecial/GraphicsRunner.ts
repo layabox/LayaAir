@@ -2321,7 +2321,7 @@ export class GraphicsRunner {
         submit.indexCount += indexCount;
 
         if (this._currentSubmitCache && cachedVbdata) {
-            this._currentSubmitCache.vertexCount += vertexCount;
+            this._currentSubmitCache.vertexCount += vertexViews.length * 4;
             this._currentSubmitCache.chunks.push({
                 vbdata: cachedVbdata,
                 vertexCount: vertexCount,
