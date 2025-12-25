@@ -4,6 +4,7 @@ import { SpineTemplet } from "../SpineTemplet";
 import { ESpineRenderMode, ESpineRenderState, TSpineBakeData } from "../SpineConst";
 import { Vector2 } from "../../maths/Vector2";
 import { Color } from "../../maths/Color";
+import { ISpineRenderDataHandle } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 
 /**
  * @en Native Spine Optimize Render 2D wrapper class.
@@ -15,15 +16,23 @@ export class NativeSpineOptimizeRender2D implements ISpineRender {
     private _templet: SpineTemplet;
     private _listeners: any; // Event listeners wrapper
 
+    // Shared buffers for automatic data sync with C++ layer
+    private _sharedBoneBuffer: Float32Array | null = null; // Shared bone data buffer
+    private _sharedTrackEntryBuffer: Float32Array = new Float32Array(6); // Shared track entry buffer
+    private _boneNames: string[] = []; // Bone names in order
+    private _skeletonVec2:Vector2 = new Vector2
+
     private _premultipliedAlpha: boolean = true;
     private _mode: ESpineRenderMode = ESpineRenderMode.Optimize;
     state: ESpineRenderState = ESpineRenderState.Stopped;
     currentTime: number = 0;
     trackEntry: ITrackEntry = null;
+    private _handle: ISpineRenderDataHandle = null;
 
     constructor(owner: Spine2DRenderNode, nativeRender: any) {
         this._owner = owner;
         this._nativeRender = nativeRender;
+        this._handle = owner._getRenderHandle() as ISpineRenderDataHandle;
     }
 
     getSkeleton(): spine.Skeleton {
@@ -34,7 +43,7 @@ export class NativeSpineOptimizeRender2D implements ISpineRender {
 
     init(templet: SpineTemplet): void {
         this._templet = templet;
-        
+
         // Get optimize data from templet
         const optimize = templet.optimize as any;
         if (!optimize) {
@@ -45,23 +54,37 @@ export class NativeSpineOptimizeRender2D implements ISpineRender {
         const nativeOptimize = optimize._getNativeOptimise ? optimize._getNativeOptimise() : optimize;
 
         // Initialize native render - native layer will create skeleton and animation state internally
-        // Material will be created from template in _getMaterial method
         this._nativeRender.init(nativeOptimize);
 
-        // Set skeleton to handle (native layer should provide a method to get skeleton reference)
-        if (handle && handle.setSkeleton && this._nativeRender.getSkeleton) {
-            const skeletonRef = this._nativeRender.getSkeleton();
-            if (skeletonRef && handle.setSkeleton) {
-                handle.setSkeleton(skeletonRef);
+        // Bind shared buffers for automatic data sync
+        // Get bone names first (only for getting count and names)
+        if (this._nativeRender.getBoneNames) {
+            this._boneNames = this._nativeRender.getBoneNames();
+            if (this._boneNames.length > 0) {
+                // Create shared bone buffer (2 floats for skeleton position + 8 floats per bone)
+                this._sharedBoneBuffer = new Float32Array(2 + this._boneNames.length * 8);
+                // Bind buffer to C++ layer - C++ will auto-update it in render()
+                this._nativeRender.bindBoneDataBuffer(this._sharedBoneBuffer);
             }
         }
 
-        // Set base color
-        if (handle && handle.setBaseColor) {
-            const color = new Color();
-            color.setValue(1, 1, 1, 1);
-            handle.setBaseColor(color);
+        // Bind shared track entry buffer - C++ will auto-update it in play()/update()
+        if (this._nativeRender.bindTrackEntryBuffer) {
+            this._nativeRender.bindTrackEntryBuffer(this._sharedTrackEntryBuffer);
         }
+
+        // Sync premultipliedAlpha priority logic (from templet)
+        if (templet.premultipliedAlpha !== undefined) {
+            this.premultipliedAlpha = templet.premultipliedAlpha;
+        }
+
+        // Set skeleton to handle (native layer should provide a method to get skeleton reference)
+        // if (handle && handle.setSkeleton && this._nativeRender.getSkeleton) {
+        //     const skeletonRef = this._nativeRender.getSkeleton();
+        //     if (skeletonRef && handle.setSkeleton) {
+        //         handle.setSkeleton(skeletonRef);
+        //     }
+        // }
     }
 
     play(animationName: string, loop: boolean = true, trackIndex: number = 0, start: number = 0, end: number = 0): void {
@@ -70,15 +93,8 @@ export class NativeSpineOptimizeRender2D implements ISpineRender {
         }
 
         // start and end are in seconds in web version, pass directly to native
+        // C++ will automatically update shared track entry buffer
         this._nativeRender.play(animationName, loop, trackIndex, start, end);
-
-        // Update track entry from native layer
-        if (this._nativeRender.getTrackEntry) {
-            const entry = this._nativeRender.getTrackEntry(trackIndex);
-            if (entry) {
-                this.trackEntry = entry;
-            }
-        }
 
         this.state = ESpineRenderState.Playing;
     }
@@ -144,16 +160,32 @@ export class NativeSpineOptimizeRender2D implements ISpineRender {
     }
 
     findBone(boneName: string): IBoneInfo | null {
-        if (!this._nativeRender) {
+        if (!this._sharedBoneBuffer || !this._boneNames.length) {
             return null;
         }
 
-        // Get bone info from native layer
-        if (this._nativeRender.findBone) {
-            return this._nativeRender.findBone(boneName);
+        // Find bone index by name
+        const boneIndex = this._boneNames.indexOf(boneName);
+        if (boneIndex === -1) {
+            return null;
         }
 
-        return null;
+        // Read from shared buffer (C++ has already updated it)
+        // Format: [skeletonX, skeletonY, bone0Data..., bone1Data..., ...]
+        // Each bone data: [worldX, worldY, a, b, c, d, 0, length]
+        const offset = 2 + boneIndex * 8; // offset by 2 for skeleton position
+        return {
+            worldX: this._sharedBoneBuffer[offset + 0],
+            worldY: this._sharedBoneBuffer[offset + 1],
+            a: this._sharedBoneBuffer[offset + 2],
+            b: this._sharedBoneBuffer[offset + 3],
+            c: this._sharedBoneBuffer[offset + 4],
+            d: this._sharedBoneBuffer[offset + 5],
+            data: {
+                name: boneName,
+                length: this._sharedBoneBuffer[offset + 7]
+            }
+        };
     }
 
     findSlot(slotName: string): ISlotInfo | null {
@@ -161,12 +193,11 @@ export class NativeSpineOptimizeRender2D implements ISpineRender {
             return null;
         }
 
-        // Get slot info from native layer
-        if (this._nativeRender.findSlot) {
-            return this._nativeRender.findSlot(slotName);
-        }
-
-        return null;
+        // Slot query is simple, just return name
+        // Native layer doesn't need to provide findSlot since we only need name
+        return {
+            name: slotName
+        };
     }
 
     setSkeletonPosition(x: number, y: number): void {
@@ -188,29 +219,39 @@ export class NativeSpineOptimizeRender2D implements ISpineRender {
     }
 
     getBones(): IBoneInfo[] {
-        if (!this._nativeRender) {
+        if (!this._sharedBoneBuffer || !this._boneNames.length) {
             return [];
         }
 
-        // Get bones from native layer
-        if (this._nativeRender.getBones) {
-            return this._nativeRender.getBones();
+        // Read from shared buffer (C++ has already updated it)
+        // Format: [skeletonX, skeletonY, bone0Data..., bone1Data..., ...]
+        const bones: IBoneInfo[] = [];
+        for (let i = 0; i < this._boneNames.length; i++) {
+            const offset = 2 + i * 8; // offset by 2 for skeleton position
+            bones.push({
+                worldX: this._sharedBoneBuffer[offset + 0],
+                worldY: this._sharedBoneBuffer[offset + 1],
+                a: this._sharedBoneBuffer[offset + 2],
+                b: this._sharedBoneBuffer[offset + 3],
+                c: this._sharedBoneBuffer[offset + 4],
+                d: this._sharedBoneBuffer[offset + 5],
+                data: {
+                    name: this._boneNames[i],
+                    length: this._sharedBoneBuffer[offset + 7]
+                }
+            });
         }
 
-        return [];
+        return bones;
     }
 
     getSkeletonTransform(): Vector2 {
-        if (!this._nativeRender) {
-            return new Vector2(0, 0);
+        // Read directly from shared buffer (first 2 floats are skeleton x, y)
+        if (this._sharedBoneBuffer && this._sharedBoneBuffer.length >= 2) {
+            return this._skeletonVec2.setValue(this._sharedBoneBuffer[0], this._sharedBoneBuffer[1]);
         }
 
-        // Get transform from native layer
-        if (this._nativeRender.getSkeletonTransform) {
-            return this._nativeRender.getSkeletonTransform();
-        }
-
-        return new Vector2(0, 0);
+        return this._skeletonVec2;
     }
 
     resetExternalSkin(): void {
@@ -318,9 +359,24 @@ export class NativeSpineOptimizeRender2D implements ISpineRender {
         // Store listeners for cleanup
         this._listeners = listeners;
 
-        // Native layer handles event listener setup
-        if (this._nativeRender.setEventListener) {
-            this._nativeRender.setEventListener(listeners);
+        // C++ layer uses individual event setters, so we need to split them
+        if (listeners.start && this._nativeRender.setOnStart) {
+            this._nativeRender.setOnStart(listeners.start);
+        }
+        if (listeners.interrupt && this._nativeRender.setOnInterrupt) {
+            this._nativeRender.setOnInterrupt(listeners.interrupt);
+        }
+        if (listeners.end && this._nativeRender.setOnEnd) {
+            this._nativeRender.setOnEnd(listeners.end);
+        }
+        if (listeners.dispose && this._nativeRender.setOnDispose) {
+            this._nativeRender.setOnDispose(listeners.dispose);
+        }
+        if (listeners.complete && this._nativeRender.setOnComplete) {
+            this._nativeRender.setOnComplete(listeners.complete);
+        }
+        if (listeners.event && this._nativeRender.setOnEvent) {
+            this._nativeRender.setOnEvent(listeners.event);
         }
     }
 
@@ -338,6 +394,53 @@ export class NativeSpineOptimizeRender2D implements ISpineRender {
         this._listeners = null;
         this._templet = null;
         this._owner = null;
+    }
+
+    stop(): void {
+        if (this._nativeRender && this._nativeRender.stop) {
+            this._nativeRender.stop();
+            this.state = ESpineRenderState.Stopped;
+        }
+    }
+
+    pause(): void {
+        if (this._nativeRender && this._nativeRender.pause) {
+            this._nativeRender.pause();
+            this.state = ESpineRenderState.Paused;
+        }
+    }
+
+    resume(): void {
+        if (this._nativeRender && this._nativeRender.resume) {
+            this._nativeRender.resume();
+            this.state = ESpineRenderState.Playing;
+        }
+    }
+
+    setPlaybackRate(rate: number): void {
+        if (this._nativeRender && this._nativeRender.setPlaybackRate) {
+            this._nativeRender.setPlaybackRate(rate);
+        }
+    }
+
+    getPlaybackRate(): number {
+        if (this._nativeRender && this._nativeRender.getPlaybackRate) {
+            return this._nativeRender.getPlaybackRate();
+        }
+        return 1.0;
+    }
+
+    setOffset(offset: Vector2): void {
+        if (this._nativeRender && this._nativeRender.setOffset) {
+            this._nativeRender.setOffset(offset);
+        }
+    }
+
+    getOffset(): Vector2 {
+        if (this._nativeRender && this._nativeRender.getOffset) {
+            return this._nativeRender.getOffset();
+        }
+        return new Vector2(0, 0);
     }
 }
 
