@@ -17,8 +17,6 @@ import { WebGLUniformBufferBase } from "../RenderDevice/WebGLUniformBufferBase";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 
 export class WebGLRenderElement3D implements IRenderElement3D {
-    static _matChangeFlagMap: Map<string, Vector2> = new Map();//根据shaderpass name 来取到Map，根据shaderDataID，拿到三个change变量，1、Bindgroup，2、bindgroupLayout，3defineFlag
-
     /** @internal */
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
 
@@ -36,6 +34,8 @@ export class WebGLRenderElement3D implements IRenderElement3D {
             this.modifyedMaterialShaderData();
         }
     }
+
+    private _matChangeFlagMap: Vector2 = new Vector2(-1, -1);
 
     materialId: number;
 
@@ -70,12 +70,8 @@ export class WebGLRenderElement3D implements IRenderElement3D {
     private modifyedMaterialShaderData() {
         this.subShaderChange = true;
         if (this.subShader && this.materialShaderData) {
-            let shadername = this._subShader._owner.name;
-            if (!WebGLRenderElement3D._matChangeFlagMap.has(shadername)) {
-                let changeFlag = new Vector2(Stat.loopCount, WebGLEngine.instance._framePassCount);
-                WebGLRenderElement3D._matChangeFlagMap.set(shadername, changeFlag);
-            }
-            let changeFlag = WebGLRenderElement3D._matChangeFlagMap.get(shadername);
+            this._matChangeFlagMap.setValue(Stat.loopCount, WebGLEngine.instance._framePassCount);
+            let changeFlag = this._matChangeFlagMap;
             this._materialShaderData._defineDatas.addChangeFlagInfo(changeFlag);
         }
     }
@@ -186,13 +182,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
     protected _handleMaterialChange() {
         this._curDrawCacheInfo.matCacheFlag.setValue(Stat.loopCount, WebGLEngine.instance._framePassCount);
-        let shadername = this._subShader._owner.name;
-        if (!WebGLRenderElement3D._matChangeFlagMap.has(shadername)) {
-            let changeFlag = new Vector2(Stat.loopCount, WebGLEngine.instance._framePassCount);
-            WebGLRenderElement3D._matChangeFlagMap.set(shadername, changeFlag);
-            this._materialShaderData._defineDatas.addChangeFlagInfo(changeFlag);
-        }
-        this._matDefChangeFlag = WebGLRenderElement3D._matChangeFlagMap.get(shadername);
+        this._matDefChangeFlag = this._matChangeFlagMap;
 
         // material ubo
         if (this._materialShaderData && Config.matUseUBO) {
