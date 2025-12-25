@@ -6,6 +6,7 @@ import { Physics2D } from "./Physics2D";
 import { IV2, Vector2 } from "../maths/Vector2";
 import { RigidBody2DType } from "./factory/IPhysics2DFactory";
 import { Physics2DShapeBase } from "./Shape/Physics2DShapeBase";
+import { ILaya } from "../../ILaya";
 
 const _tempV0: Vector2 = new Vector2();
 const _tempP0: Point = new Point();
@@ -299,6 +300,9 @@ export class RigidBody extends ColliderBase {
         _tempP0.x = pos.x;
         _tempP0.y = pos.y;
         let globalPos = this.owner.parent.localToGlobal(_tempP0);
+        // 处理缩放，其余设置transform时候使用的是globalTrans是正确的
+        globalPos.x = globalPos.x * ILaya.stage.clientScaleX;
+        globalPos.y = globalPos.y * ILaya.stage.clientScaleY;
         factory.set_RigibBody_Transform(this._box2DBody, globalPos.x, globalPos.y, rotateValue);//重新给个setPos的接口
         factory.set_rigidBody_Awake(this._box2DBody, true);
         Physics2D.I._addRigidBody(this);
