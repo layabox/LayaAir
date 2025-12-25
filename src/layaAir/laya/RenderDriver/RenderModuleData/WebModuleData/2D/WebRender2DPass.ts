@@ -311,7 +311,7 @@ export class WebRender2DPass implements IRender2DPass {
                for (let i = 0; i < n; i++) {
                   let element = struct.renderElements[i];
                   element._index = i;
-                  renderElements.add(element);
+                  element.geometry && renderElements.add(element);
                }
             }
 
