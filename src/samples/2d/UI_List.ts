@@ -11,8 +11,6 @@ import { List } from "laya/ui/List";
 import { Handler } from "laya/utils/Handler";
 import { Main } from "./../Main";
 import { ScrollType } from "laya/ui/Styles";
-import { Sprite } from "laya/display/Sprite";
-import { Texture } from "laya/resource/Texture";
 
 export class UI_List {
 	Main: typeof Main = null;
@@ -34,10 +32,10 @@ export class UI_List {
 	private setup(): void {
 		var list: List = new List();
 
-		list.itemRender = ListItem;
+		list.itemRender = Item;
 		list.repeatX = 1;
 		list.repeatY = 4;
-		// list.spaceY = 10;
+
 		list.x = (Laya.stage.width - Item.WID) / 2;
 		list.y = (Laya.stage.height - Item.HEI * list.repeatY) / 2;
 
@@ -53,8 +51,7 @@ export class UI_List {
 		this.Main.box2D.addChild(list);
 
 		//			list.mouseHandler = new Handler(this,onMuseHandler);
-		//@ts-ignore
-		window.list = list;
+
 		// 设置数据项为对应图片的路径
 		var data: any[] = [];
 		for (var i: number = 0; i < 10; ++i) {
@@ -66,38 +63,6 @@ export class UI_List {
 		}
 		list.array = data;
 		this._list = list;
-
-		
-		let sprite = new Sprite();
-		sprite.name = "ttt";
-		sprite.x = 100;
-		sprite.y = 100;
-		let texture:Texture;// = new Texture();
-		// sprite.texture = texture;
-		let child;
-		this.Main.box2D.addChild(sprite);
-
-		Laya.timer.once(1000, this, () => {
-			child = list.getCell(1);
-			child.cacheAs = "bitmap";
-		});
-
-		Laya.timer.frameLoop(1, this, () => {
-
-			if (!texture && child) {
-				texture = new Texture();
-				sprite.texture = texture;
-				(child as ListItem)._list.scrollBar.value = 50;
-
-				let firstChild = list.getCell(0);
-				(firstChild as ListItem)._list.scrollBar.value = 50;
-			}
-
-			if (child && child._drawOriRT) { 
-				texture.setTo(child._drawOriRT);
-				sprite.graphics.repaint();
-			}
-		});
 	}
 
 	private _itemHeight: number;
@@ -129,8 +94,8 @@ export class UI_List {
 		}
 	}
 
-	private updateItem(cell: ListItem, index: number): void {
-		cell.setData(cell.dataSource);
+	private updateItem(cell: Item, index: number): void {
+		cell.setImg(cell.dataSource);
 	}
 
 	private onSelect(index: number): void {
@@ -138,43 +103,10 @@ export class UI_List {
 	}
 }
 
-class ListItem extends Box {
-	_list: List;
-	constructor() {
-		super();
 
-		this.size(Item.WID, Item.HEI);
-		let list = this._list = new List();
-		this.addChild(this._list);
-		list.itemRender = Item;
-
-		list.hScrollBarSkin = "";
-		list.scrollType = ScrollType.Horizontal;
-		list.scrollBar.elasticBackTime = 0;
-		list.scrollBar.elasticDistance = 0;
-		list.selectEnable = true;
-		list.spaceX = 10;
-		// list.spaceY = 10;
-		list.repeatX = 1;
-		list.repeatY = 1;
-		// list.height = Item.HEI * 2;
-
-		list.renderHandler = new Handler(this, this.updateItem);
-
-	}
-
-	private updateItem(cell: Item, index: number): void {
-		cell.setImg(cell.dataSource);
-	}
-
-	setData(src: string): void {
-		this._list.array = [src, src, src];
-	}
-
-}
 
 class Item extends Box {
-	static WID: number = 428;
+	static WID: number = 373;
 	static HEI: number = 85;
 
 	private img: Image;

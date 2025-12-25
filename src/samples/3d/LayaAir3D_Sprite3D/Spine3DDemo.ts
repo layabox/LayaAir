@@ -6,7 +6,6 @@ import { Browser } from "laya/utils/Browser";
 import { Stat } from "laya/utils/Stat";
 import { Spine3DRenderer } from "laya/spine/Spine3DRenderer";
 import { SpineConst } from "laya/spine/SpineConst";
-import { SpineAdapter } from "laya/spine/web/js/SpineAdapter";
 import { Button } from "laya/ui/Button";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -18,6 +17,11 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
+import { NativeSpineFactory } from "laya/spine/native/NativeSpineFactory";
+import { SpineNormalRenderUpdater } from "laya/spine/web/base/optimize/SpineNormalRenderUpdater";
+import { JSSpineFactory } from "laya/spine/web/JSSpineFactory";
+import { SpineAdapter } from "laya/spine/web/SpineAdapter";
+import { LayaEnv } from "LayaEnv";
 
 export class Spine3DDemo {
 
@@ -26,8 +30,6 @@ export class Spine3DDemo {
 
     private skeletonInfos: Array<{ name: string; url: string }> = [
         { name: "spineboy-pma", url: "res/spine/38/spineboy-pma.skel" },
-        { name: "hero_cwj_normal", url: "res/spine/38/hero_cwj_normal.skel" },
-        { name: "zhugeliang_skill_1_loop", url: "res/spine/38/zhugeliang_skill_1_loop.skel" }
     ];
 
     private skeletonTemplets: Map<string, SpineTemplet> = new Map();
@@ -66,7 +68,13 @@ export class Spine3DDemo {
 
     constructor() {
         SpineConst.VERSION = "3.8";
-        SpineAdapter;
+        if (!LayaEnv.isConch) {
+            SpineConst.factory = new JSSpineFactory();
+            SpineNormalRenderUpdater.__init__();
+            SpineAdapter.adaptJS();
+        } else {
+            SpineConst.factory = new NativeSpineFactory();
+        }
 
         Laya.init(1024, 768).then(async () => {
             Laya.stage.scaleMode = Stage.SCALE_FULL;
@@ -76,7 +84,7 @@ export class Spine3DDemo {
 
             let enableCache = Browser.getQueryString("cache") || "false";
             let enableCacheBool = enableCache == "true";
-            SpineConst.cacheSwitch = false;
+            SpineConst.cacheSwitch = true;
 
             Laya.stage.bgColor = "#000000";
             Stat.show();
@@ -94,9 +102,10 @@ export class Spine3DDemo {
             this.sprite3D = new Sprite3D();
             this.scene.addChild(this.sprite3D);
             this.sprite3D.on(Event.STOPPED, this, this.play);
-            this.sprite3D.transform.localScale = new Vector3(this.scale,this.scale,this.scale);
-
+            this.sprite3D.transform.localScale = new Vector3(this.scale, this.scale, this.scale);
+            
             this.skeleton = this.sprite3D.addComponent(Spine3DRenderer);
+            this.sprite3D.transform.localPosition = new Vector3(1, 1, 0);
 
             this.initUI();
             this.applyTemplet(this.currentTempletIndex);

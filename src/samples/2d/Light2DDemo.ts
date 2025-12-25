@@ -29,7 +29,6 @@ import { SpriteLight2D } from "laya/Light2D/SpriteLight2D";
 import { FreeformLight2D } from "laya/Light2D/FreeformLight2D";
 import { LightOccluder2D } from "laya/Light2D/LightOccluder2D";
 import { SpotLight2D } from "laya/Light2D/SpotLight2D";
-import { Config } from "Config";
 
 export class Light2DDemo {
     useWebGPU: boolean = false;
@@ -42,11 +41,10 @@ export class Light2DDemo {
 
     constructor(mainClass: typeof Main) {
         this.Main = mainClass;
-        Config.useRetinalCanvas = true;
         Laya.init(Browser.clientWidth, Browser.clientHeight).then(() => {
             Laya.stage.alignV = Stage.ALIGN_MIDDLE;
             Laya.stage.alignH = Stage.ALIGN_CENTER;
-            Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
+            Laya.stage.scaleMode = Stage.SCALE_FULL;
             Laya.stage.bgColor = "#232628";
             Stat.show();
             this._createScene(); //创建场景

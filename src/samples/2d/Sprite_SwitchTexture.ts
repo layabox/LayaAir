@@ -35,11 +35,8 @@ export class Sprite_SwitchTexture {
 
 	private onAssetsLoaded(e: any = null): void {
 		this.ape = new Sprite();
-		this.ape.name = "ape";
 		this.Main.box2D.addChild(this.ape);
-
-		this.ape.anchor(0.5, 0.5);
-
+		this.ape.pivot(55, 72);
 		this.ape.pos(Laya.stage.width / 2, Laya.stage.height / 2);
 
 		// 显示默认纹理

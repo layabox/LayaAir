@@ -46,7 +46,7 @@ export class Text_Scroll {
 		this.txt.size(200, 100);
 		this.txt.x = Laya.stage.width - this.txt.width >> 1;
 		this.txt.y = Laya.stage.height - this.txt.height >> 1;
-		this.txt.cacheAs = "bitmap";
+
 		this.txt.borderColor = "#FFFF00";
 
 		this.txt.fontSize = 20;
