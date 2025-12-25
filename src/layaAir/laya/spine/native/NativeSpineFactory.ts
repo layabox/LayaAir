@@ -39,13 +39,7 @@ export class NativeSpineFactory implements ISpineFactory {
         // Get native objects from owner
         const handle = owner._getRenderHandle();
         const struct = owner._struct;
-        
-        // Get native objects from handle and struct
-        const nativeHandle = handle._getNativeHandle ? handle._getNativeHandle() : handle;
-        const nativeStruct = struct._getNativeStruct ? struct._getNativeStruct() : struct;
-        
-        // Create native render from C++ factory
-        const nativeRender = this._nativeFactory.createSpineRender2D(nativeHandle, nativeStruct);
+        const nativeRender = this._nativeFactory.createSpineRender2D((handle as any)._nativeObj, (struct as any)._nativeObj);
         
         // Wrap in TypeScript class
         return new NativeSpineOptimizeRender2D(owner, nativeRender);
@@ -53,21 +47,15 @@ export class NativeSpineFactory implements ISpineFactory {
 
     /**
      * @en Create Spine 3D renderer.
-     * @param owner Render node.
+     * @param owner Render node (provides shader data internally).
      * @returns Renderer instance.
      * @zh 创建 Spine 3D 渲染器。
+     * @param owner 渲染节点（内部提供 shader data）。
      */
     createSpineRender3D(owner: IBaseRenderNode): ISpineRender {
-        // Get shader data from owner
-        const shaderData = owner.shaderData;
-        
-        // Get native objects
-        const nativeShaderData = shaderData._getNativeShaderData ? shaderData._getNativeShaderData() : shaderData;
-        const nativeRenderNode = owner._getNativeRenderNode ? owner._getNativeRenderNode() : owner;
-        
-        // Create native render from C++ factory
-        const nativeRender = this._nativeFactory.createSpineRender3D(nativeShaderData, nativeRenderNode);
-        
+        // renderNode already contains shaderData, no need to pass it separately
+        const nativeRender = this._nativeFactory.createSpineRender3D((owner as any)._nativeObj);
+
         // Wrap in TypeScript class
         return new NativeSpineOptimizeRender3D(owner, nativeRender);
     }

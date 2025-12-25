@@ -6,6 +6,7 @@ import { SpineTemplet } from "../SpineTemplet";
 import { Material } from "../../resource/Material";
 import { SpineShaderInit } from "../shader/SpineShaderInit";
 import { NativeSkeletonOptimise } from "./NativeSkeletonOptimise";
+import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 
 const PREMULTIPLIED_ALPHA = true;
 const SPLIT_REGEX = /\r?\n/;
@@ -99,47 +100,60 @@ export class NativeSpineTempletParser implements ISpineTempletParser {
      */
     create(desc: string | ArrayBuffer, textures: Texture2D[]): SpineTemplet {
         const isBinary = desc instanceof ArrayBuffer;
-        
-        // Clear previous texture size infos
-        this._nativeParser.clearTextureSizeInfos();
-        
+
         let textureUrls: string[] = this._cachedTextureUrls;
-        
-        // Add texture size infos to native parser using cached URLs
+
+        // Add texture size info to native parser before parsing
         if (textureUrls.length > 0 && textures.length > 0) {
-            // Match textures with cached URLs
             const minLength = Math.min(textureUrls.length, textures.length);
             for (let i = 0; i < minLength; i++) {
                 const texture = textures[i];
                 if (texture) {
-                    // Call native method with url, width, height - native will create the structure
                     this._nativeParser.addTextureSizeInfo(
-                        textureUrls[i], // url
-                        texture.width,  // width
-                        texture.height  // height
+                        textureUrls[i],
+                        texture.width,
+                        texture.height
                     );
                 }
             }
         }
-        
-        // 在上层创建 rtSkeletonOptimize
+
+        // Create rtSkeletonOptimize on the native side
         // @ts-ignore
         const rtSkeletonOptimize = new conchSkeletonOptimise();
 
-        let parseResult: any;
+        // Create shared buffer for parse result [x, y, width, height, offsetX, offsetY]
+        const parseResultBuffer = new Float32Array(6);
+
+        // Call parse with shared buffer output
+        let parseSuccess: number;
         if (isBinary) {
-            parseResult = this._nativeParser.parseBinary(
+            parseSuccess = this._nativeParser.parseBinary(
                 rtSkeletonOptimize,
                 desc as ArrayBuffer,
-                this._atlasTextContent
+                this._atlasTextContent,
+                parseResultBuffer // Output buffer
             );
         } else {
-            parseResult = this._nativeParser.parse(
+            parseSuccess = this._nativeParser.parse(
                 rtSkeletonOptimize,
                 desc as string,
-                this._atlasTextContent
+                this._atlasTextContent,
+                parseResultBuffer // Output buffer
             );
         }
+
+        if (!parseSuccess) {
+            throw new Error("Failed to parse Spine skeleton data");
+        }
+
+        // Read parse results from shared buffer
+        const x = parseResultBuffer[0];
+        const y = parseResultBuffer[1];
+        const width = parseResultBuffer[2];
+        const height = parseResultBuffer[3];
+        const offsetX = parseResultBuffer[4];
+        const offsetY = parseResultBuffer[5];
 
         // Wrap native optimize in TypeScript class for lightweight property access
         const wrappedOptimise = new NativeSkeletonOptimise(rtSkeletonOptimize);
@@ -148,43 +162,66 @@ export class NativeSpineTempletParser implements ISpineTempletParser {
         const templet = new SpineTemplet();
         templet.optimize = wrappedOptimise;
         templet._textures = {}; // textureMap is now managed on JS side
-        templet.x = parseResult.x;
-        templet.y = parseResult.y;
-        templet.width = parseResult.width;
-        templet.height = parseResult.height;
-        templet.offsetX = parseResult.offsetX;
-        templet.offsetY = parseResult.offsetY;
+        templet.x = x;
+        templet.y = y;
+        templet.width = width;
+        templet.height = height;
+        templet.offsetX = offsetX;
+        templet.offsetY = offsetY;
 
         templet._premultipliedAlpha = this._premultipliedAlpha;
 
-        // 创建 2D / 3D 样板材质，并传递给 Native 端
-        // 2D 模板：SpineStandard
-        const template2D = new Material();
-        template2D.setShaderName("SpineStandard");
-        SpineShaderInit.initSpineMaterial(template2D);
+        // Create material templates for each texture (2D + 3D per texture)
+        if (textureUrls.length > 0 && textures.length > 0) {
+            const minLength = Math.min(textureUrls.length, textures.length);
+            for (let i = 0; i < minLength; i++) {
+                const textureUrl = textureUrls[i];
+                const texture = textures[i];
+                if (texture) {
+                    // Create 2D material template
+                    const template2D = new Material();
+                    template2D.setShaderName("SpineStandard");
+                    SpineShaderInit.initSpineMaterial(template2D);
+                    const shaderData2D = template2D.shaderData;
+                    shaderData2D.setTexture(SpineShaderInit.SpineTexture, texture);
 
-        // 3D 模板：Spine3D
-        const template3D = new Material();
-        template3D.setShaderName("Spine3D");
-        SpineShaderInit.initSpineMaterial(template3D);
+                    // Set texture-related defines based on gammaCorrection
+                    if (texture.gammaCorrection != 1) {
+                        shaderData2D.addDefine(ShaderDefines2D.GAMMATEXTURE);
+                    }
 
-        // 将样板材质传递到 SkeletonOptimise
-        // is3D, shaderData, subShader
-        // Note: 需要根据实际 Material/ShaderData/SubShader 的 native 对象获取方法调整
-        rtSkeletonOptimize.setMaterialTemplate(
-            false, // is3D = false for 2D
-            (template2D.shaderData as any)._nativeObj ,
-            (template2D.shader.getSubShaderAt(0) as any).moduleData._nativeObj
-        );
-        rtSkeletonOptimize.setMaterialTemplate(
-            true, // is3D = true for 3D
-            (template3D.shaderData as any)._nativeObj ,
-            (template3D.shader.getSubShaderAt(0) as any).moduleData._nativeObj
-        );
+                    // Create 3D material template
+                    const template3D = new Material();
+                    template3D.setShaderName("Spine3D");
+                    SpineShaderInit.initSpineMaterial(template3D);
+                    const shaderData3D = template3D.shaderData;
+                    shaderData3D.setTexture(SpineShaderInit.SpineTexture, texture);
 
-        // 初始化所有 VertexDeclaration 并设置到 nativeOptimize
-        // vertexFlag 和 id (VertexDeclaration.id) 的组合是唯一的，对应一个 VertexStateContext 数组
-        // 获取所有需要的 vertexFlag 对应的 VertexDeclaration
+                    // Set texture-related defines based on gammaCorrection
+                    if (texture.gammaCorrection != 1) {
+                        shaderData3D.addDefine(ShaderDefines2D.GAMMATEXTURE);
+                    }
+
+                    // Set material templates to native side with texture URL and ID
+                    rtSkeletonOptimize.setMaterialTemplate(
+                        false, // is3D = false for 2D
+                        textureUrl,
+                        texture._id,
+                        (shaderData2D as any)._nativeObj,
+                        (template2D.shader.getSubShaderAt(0) as any).moduleData._nativeObj
+                    );
+                    rtSkeletonOptimize.setMaterialTemplate(
+                        true, // is3D = true for 3D
+                        textureUrl,
+                        texture._id,
+                        (shaderData3D as any)._nativeObj,
+                        (template3D.shader.getSubShaderAt(0) as any).moduleData._nativeObj
+                    );
+                }
+            }
+        }
+
+        // Initialize all VertexDeclaration and set to nativeOptimize
         const vertexFlags = [
             "UV,COLOR,POSITION",
             "UV,COLOR,POSITION,COLOR2",

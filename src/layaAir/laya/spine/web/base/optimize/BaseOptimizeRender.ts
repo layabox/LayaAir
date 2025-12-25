@@ -596,10 +596,6 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         this._listeners[type](entry, event);
     }
 
-    clearCacheMaterials() {
-        this.skinRenderArray.forEach(item=>item.clearCacheMaterials());
-    }
-
     complete(): void {
         this.updater.currentFrameIndex = -1;
     }

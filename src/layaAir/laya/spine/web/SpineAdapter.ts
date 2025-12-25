@@ -41,9 +41,3 @@ export class SpineAdapter {
     }
 
 }
-
-Laya.addInitCallback(() => {
-    SpineConst.factory = new JSSpineFactory();
-    SpineNormalRenderUpdater.__init__();
-    SpineAdapter.adaptJS();
-});

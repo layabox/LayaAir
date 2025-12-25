@@ -55,44 +55,44 @@ export class SlotUtils {
         return offset;
     }
 
-    static setSlotTexture( slot:spine.Slot, texture:Texture , templet:SpineTemplet , createAttachment: boolean = false){
-        let attachment = slot.getAttachment();
-        if (!attachment) return;
+    // static setSlotTexture( slot:spine.Slot, texture:Texture , templet:SpineTemplet , createAttachment: boolean = false){
+    //     let attachment = slot.getAttachment();
+    //     if (!attachment) return;
 
-        if (createAttachment) {
-            attachment = attachment.copy();
-            slot.setAttachment(attachment);
-        }
+    //     if (createAttachment) {
+    //         attachment = attachment.copy();
+    //         slot.setAttachment(attachment);
+    //     }
 
-        let newRegion = templet.registerTexture(texture);
+    //     let newRegion = templet.registerTexture(texture);
         
-        if (attachment instanceof spine.RegionAttachment) {
-            attachment.region = newRegion;
-            attachment.width = newRegion.width;
-            attachment.height = newRegion.height;
+    //     if (attachment instanceof spine.RegionAttachment) {
+    //         attachment.region = newRegion;
+    //         attachment.width = newRegion.width;
+    //         attachment.height = newRegion.height;
 
-            if (attachment.updateRegion) {
-                attachment.updateRegion();
-            }
-            //@ts-ignore
-            else if(attachment.updateOffset){
-                //@ts-ignore
-                attachment.updateOffset();
-            }
+    //         if (attachment.updateRegion) {
+    //             attachment.updateRegion();
+    //         }
+    //         //@ts-ignore
+    //         else if(attachment.updateOffset){
+    //             //@ts-ignore
+    //             attachment.updateOffset();
+    //         }
 
-        } else if (attachment instanceof spine.MeshAttachment) {
-            attachment.region = newRegion;
-            attachment.width = newRegion.width;
-            attachment.height = newRegion.height;
+    //     } else if (attachment instanceof spine.MeshAttachment) {
+    //         attachment.region = newRegion;
+    //         attachment.width = newRegion.width;
+    //         attachment.height = newRegion.height;
 
-            if (attachment.updateRegion) {
-                attachment.updateRegion();
-            }
-            //@ts-ignore
-            else if(attachment.updateUVs){
-                //@ts-ignore
-                attachment.updateUVs();
-            }
-        }
-    }
+    //         if (attachment.updateRegion) {
+    //             attachment.updateRegion();
+    //         }
+    //         //@ts-ignore
+    //         else if(attachment.updateUVs){
+    //             //@ts-ignore
+    //             attachment.updateUVs();
+    //         }
+    //     }
+    // }
 }
