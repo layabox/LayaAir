@@ -345,13 +345,11 @@ export class Browser {
     static document: Document = typeof document !== undefined ? document : null;
 
     /**
-     * @internal
      * @en Internal storage for client width.
      * @zh 内部存储的客户端宽度。
      */
     private static _clientWidth: number;
     /**
-     * @internal
      * @en Internal storage for client height.
      * @zh 内部存储的客户端高度。
      */
@@ -539,13 +537,11 @@ win.__setBundle_ = function (bundleId: string, bun: any, globalName?: string) {
 
 /**
  * @zh 将属性从一个对象复制到另一个对象，排除指定的属性。
- * @internal
  * @param to 要复制属性的目标对象。
  * @param from 要复制属性的源对象。
  * @param except 要从复制中排除的属性名称。
  * @return 包含复制属性的目标对象。
  * @en Copies properties from one object to another, excluding specified properties.
- * @internal
  * @param to The target object to copy properties to.
  * @param from The source object to copy properties from.
  * @param except The property name to exclude from copying.
