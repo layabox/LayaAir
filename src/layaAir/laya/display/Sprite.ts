@@ -246,6 +246,8 @@ export class Sprite extends Node {
     _ownerArea: Sprite;
     /** @internal */
     _subStructRender: SubStructRender;
+    /** @internal */
+    _ownPostProcess: boolean = false;
     /** @internal 渲染真实spritet的pass，在启用后处理，cacheAsBitmap和mask的时候生效 */
     _oriRenderPass: IRender2DPass;
     /** @internal 渲染真实sprite所需的rt大小 */
@@ -783,6 +785,7 @@ export class Sprite extends Node {
         if (!this._oriRenderPass || !this._oriRenderPass.postProcess) {
             if (create) {
                 this.postProcess = new PostProcess2D();
+                this._ownPostProcess = true;
             } else {
                 return null;
             }
@@ -799,7 +802,12 @@ export class Sprite extends Node {
             if (this._oriRenderPass.postProcess === value)
                 return;
 
-            this._oriRenderPass.postProcess.owner = null;
+            if (this._ownPostProcess) {
+                this._oriRenderPass.postProcess.destroy();
+                this._ownPostProcess = false;
+            }else{
+                this._oriRenderPass.postProcess.owner = null;
+            }
             this._oriRenderPass.postProcess = null;
             this.setSubpassFlag(SubPassFlag.PostProcess);
         }

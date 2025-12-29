@@ -197,6 +197,9 @@ export class PostProcess2D extends EventDispatcher {
     * @zh 清除所有后期处理效果。
     */
    clear() {
+      for (let i = 0; i < this._effects.length; i++) {
+         this._effects[i].destroy();
+      }
       this._effects.length = 0;
       this._onChangeRender();
    }
