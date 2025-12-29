@@ -40,6 +40,12 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * @default 360
      */
     static cleanupFrameInterval: number = 360;
+    /**
+     * @en The maximum memory limit for the pool (in MB).
+     * @zh 对象池的最大内存限制（单位：MB）。
+     * @default 128
+     */
+    static maxPoolMemory: number = 128;
 
     // 上次清理的帧数
     private static _lastCleanupFrame: number = 0;
@@ -105,6 +111,9 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         rt._inPool = true;
         // 记录回收到池子的时间
         RenderTexture2D._poolTimeouts.set(rt.id, performance.now());
+        
+        // 检查是否超过限制，如果超过则清理
+        RenderTexture2D._cleanupExcess();
     }
 
     /**
@@ -159,6 +168,47 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         }
         
         return cleanedCount;
+    }
+
+    /**
+     * @internal
+     * @en Cleans up excess objects from the pool when memory limit is exceeded.
+     * @zh 当对象池超过内存限制时清理多余的对象。
+     */
+    private static _cleanupExcess(): void {
+        if (RenderTexture2D._poolMemory <= RenderTexture2D.maxPoolMemory) {
+            return; 
+        }
+
+        let objectsWithTime: Array<{ rt: RenderTexture2D, time: number }> = [];
+        for (let i = 0; i < RenderTexture2D._pool.length; i++) {
+            let rt = RenderTexture2D._pool[i];
+            let poolTime = RenderTexture2D._poolTimeouts.get(rt.id);
+            if (poolTime !== undefined) {
+                objectsWithTime.push({ rt: rt, time: poolTime });
+            }
+        }
+
+        objectsWithTime.sort((a, b) => a.time - b.time);
+
+        // 清理最老的对象直到满足内存限制
+        for (let i = 0; i < objectsWithTime.length; i++) {
+            let item = objectsWithTime[i];
+            let rt = item.rt;
+            
+            if (RenderTexture2D._poolMemory <= RenderTexture2D.maxPoolMemory) {
+                break;
+            }
+
+            let index = RenderTexture2D._pool.indexOf(rt);
+            if (index >= 0) {
+                RenderTexture2D._pool.splice(index, 1);
+                let gpuMem = rt._renderTarget ? (rt._renderTarget.gpuMemory / 1024 / 1024) : 0;
+                RenderTexture2D._poolMemory -= gpuMem;
+                RenderTexture2D._poolTimeouts.delete(rt.id);
+                rt.destroy();
+            }
+        }
     }
 
     /** @internal */
