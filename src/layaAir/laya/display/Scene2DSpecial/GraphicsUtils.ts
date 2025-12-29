@@ -241,7 +241,9 @@ export class GraphicsRenderer {
 
    clear(): void {
       for (const bucket of this._cachedBuckets) {
-         bucket.mesh.clearBlocks(bucket.indexs);
+         if (bucket) {
+            bucket.mesh.clearBlocks(bucket.indexs);
+         }
       }
       this._cachedBuckets = this._blockBuckets;
       this._blockBuckets = [];
@@ -257,7 +259,9 @@ export class GraphicsRenderer {
       this.clear();
 
       for (const bucket of this._cachedBuckets) {
-         bucket.mesh.clearBlocks(bucket.indexs);
+         if (bucket) {
+            bucket.mesh.clearBlocks(bucket.indexs);
+         }
       }
       this._cachedBuckets = null;
       this._blockBuckets = null;

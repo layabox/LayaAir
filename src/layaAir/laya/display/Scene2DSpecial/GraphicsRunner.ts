@@ -2163,7 +2163,7 @@ export class GraphicsRunner {
 
         for (let i = 0; i < cachedBuckets.length; i++) {
             let bucket = cachedBuckets[i];
-            if (bucket.indexs.length * this._vertexBlockSize < vertexCount) continue;
+            if (!bucket || bucket.indexs.length * this._vertexBlockSize < vertexCount) continue;
 
             let reuseBlocks = bucket.indexs.splice(0, needBlocks);
             // reuseBlocks.sort();
