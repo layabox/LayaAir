@@ -6,7 +6,9 @@ import { Vector3 } from '../../../../maths/Vector3';
 import { Vector4 } from '../../../../maths/Vector4';
 import { BaseTexture } from '../../../../resource/BaseTexture';
 import { IComputeCMD_Dispatch, IComputeContext, IGPUBuffer } from '../../../DriverDesign/RenderDevice/ComputeShader/IComputeContext';
+import { IComputeShader } from '../../../DriverDesign/RenderDevice/ComputeShader/IComputeShader';
 import { ShaderData, ShaderDataType, ShaderDataItem } from '../../../DriverDesign/RenderDevice/ShaderData';
+import { GLESIndexBuffer } from '../GLESIndexBuffer';
 import { GLESShaderData } from '../GLESShaderData';
 import { GLESComputeShaderInstance } from './GLESComputeShaderInstance';
 import { GLESDeviceBuffer } from './GLESDeviceBuffer';
@@ -28,73 +30,183 @@ enum CommandType {
  * 命令基础接口
  */
 interface ICommand {
-    type: CommandType;
+    //type: CommandType;
 }
 
 /**
  * 调度计算命令
  */
-interface IDispatchCommand extends ICommand {
-    cmd: IComputeCMD_Dispatch;
+class IDispatchCommand implements ICommand {
+    //cmd: IComputeCMD_Dispatch;
+    private _shader: GLESComputeShaderInstance;
+    private _shaderData: GLESShaderData[];
+    set shader(value: GLESComputeShaderInstance) {
+        this._shader = value;
+        this._nativeObj.setShader(value._nativeObj);
+    }
+    set shaderData(value: GLESShaderData[]) {
+        this._shaderData = value;
+        let shaderData: any[] = this._shaderData.map(item => item._nativeObj);
+        this._nativeObj.setShaderData(shaderData);
+    }
+    set dispatchParams(value: Vector3) {
+        this._nativeObj.setDispatchParams(value);
+    }
+    _nativeObj: any;
+    constructor() {
+        this._nativeObj = new (window as any).conchGLESComputeDispatchCommand();
+    }
+
 }
 
 /**
  * 设置着色器数据命令
  */
-interface ISetShaderDataCommand extends ICommand {
-    shaderData: ShaderData;
-    propertyID: number;
-    shaderDataType: ShaderDataType;
-    value: ShaderDataItem;
+class ISetShaderDataCommand implements ICommand {
+    private _shaderData: GLESShaderData;
+    private _shaderDataItem: ShaderDataItem;
+    set shaderData(value: GLESShaderData) {
+        this._shaderData = value;
+        this._nativeObj.setShaderData(value._nativeObj)
+    }
+    set propertyID(value: number) {
+        this._nativeObj.setPropertyID(value);
+    }
+    set shaderDataType(value: ShaderDataType) {
+        this._nativeObj.setShaderDataType(value);
+    }
+    set value(value: ShaderDataItem) {
+        this._shaderDataItem = value;
+        this._nativeObj.setShaderDataItem(value);
+    }
+    _nativeObj: any;
+    constructor() {
+        this._nativeObj = new (window as any).conchGLESComputeSetShaderDataCommand();
+    }
 }
 
 /**
  * 缓冲区到缓冲区复制命令
  */
-interface IBufferToBufferCommand extends ICommand {
-    src: IGPUBuffer;
-    dest: IGPUBuffer;
-    sourceOffset: number;
-    destinationOffset: number;
-    size: number;
+class IBufferToBufferCommand implements ICommand {
+    private _src: IGPUBuffer;
+    set src(value: IGPUBuffer) {
+        this._src = value;
+        this._nativeObj.setSrc((value as any)._nativeObj);
+    }
+
+    private _dest: IGPUBuffer;
+    set dest(value: IGPUBuffer) {
+        this._dest = value;
+        this._nativeObj.setDest((value as any)._nativeObj);
+    }
+
+    set sourceOffset(value: number) {
+        this._nativeObj.setSourceOffset(value);
+    }
+
+    set destinationOffset(value: number) {
+        this._nativeObj.setDestinationOffset(value);
+    }
+
+    set size(value: number) {
+        this._nativeObj.setSize(value);
+    }
+
+    _nativeObj: any;
+    constructor() {
+        this._nativeObj = new (window as any).conchGLESComputeBufferToBufferCommand();
+    }
 }
 
 /**
  * 缓冲区到纹理复制命令
  */
-interface IBufferToTextureCommand extends ICommand {
-    src: IGPUBuffer;
-    srcTextureInfo: any;
-    destTextureInfo: any;
-    copySize: any;
-}
+/*class IBufferToTextureCommand implements ICommand {
+    private _src: GLESDeviceBuffer;
+    set src(value: GLESDeviceBuffer) {
+        this._src = value;
+        this._nativeObj.setSrc(value._nativeObj);
+    }
+    set srcTextureInfo(value: any) {
+        this._nativeObj.setSrcTextureInfo(value);
+    }
+    set destTextureInfo(value: any) {
+        this._nativeObj.setDestTextureInfo(value);
+    }
+
+    _nativeObj: any;
+    constructor() {
+        this._nativeObj = new (window as any).conchGLESComputeBufferToTextureCommand();
+    }
+}*/
 
 /**
  * 缓冲区清理命令
  */
-interface IBufferClearCommand extends ICommand {
-    dest: IGPUBuffer;
-    destinationOffset: number;
-    size: number;
+class IBufferClearCommand implements ICommand {
+    private _dest: IGPUBuffer;
+    set dest(value: GLESDeviceBuffer) {
+        this._dest = value;
+        this._nativeObj.setDest(value._nativeObj);
+    }
+    set destinationOffset(value: number) {
+        this._nativeObj.setDestinationOffset(value);
+    }
+    set size(value: number) {
+        this._nativeObj.setSize(value);
+    }
+
+    _nativeObj: any;
+    constructor() {
+        this._nativeObj = new (window as any).conchGLESComputeClearBufferCommand();
+    }
 }
 
 /**
  * 纹理到缓冲区复制命令
  */
-interface ITextureToBufferCommand extends ICommand {
-    srcTextureInfo: any;
-    dest: IGPUBuffer;
-    destTextureInfo: any;
-    copySize: any;
-}
+/*class ITextureToBufferCommand implements ICommand {
+    set srcTextureInfo(value: any) {
+        if (this._nativeObj.setSrcTextureInfo) this._nativeObj.setSrcTextureInfo(value);
+        else this._nativeObj.srcTextureInfo = value;
+    }
+    private _dest: GLESDeviceBuffer;
+    set dest(value: GLESDeviceBuffer) {
+        this._dest = value;
+        this._nativeObj.setDest(value._nativeObj);
+    }
+    set destTextureInfo(value: any) {
+        this._nativeObj.setDestTextureInfo(value);
+    }
+    set copySize(value: any) {
+        this._nativeObj.setCopySize(value);
+    }
+
+    _nativeObj: any;
+    constructor() {
+        this._nativeObj = new (window as any).conchGLESComputeTextureToBufferCommand();
+    }
+}*/
 
 /**
  * 纹理到纹理复制命令
  */
-interface ITextureToTextureCommand extends ICommand {
-    srcTextureInfo: any;
-    destTextureInfo: any;
-    copySize: any;
+class ITextureToTextureCommand implements ICommand {
+    set srcTextureInfo(value: any) {
+        this._nativeObj.setSrcTextureInfo(value);
+    }
+    set destTextureInfo(value: any) {
+        this._nativeObj.setDestTextureInfo(value);
+    }
+    set copySize(value: any) {
+        this._nativeObj.setCopySize(value);
+    }
+
+    _nativeObj: any;
+    constructor() {
+        this._nativeObj = new (window as any).conchGLESComputeTextureToTextureCommand();
+    }
 }
 
 /**
@@ -103,8 +215,6 @@ interface ITextureToTextureCommand extends ICommand {
 export class GLESComputeContext implements IComputeContext {
     private _nativeObj: any;
     private commands: Array<ICommand> = [];
-    private _currentShader: GLESComputeShaderInstance | null = null;
-    private _isExecuting: boolean = false;
 
     constructor() {
         // 创建原生OpenGL ES计算上下文对象
@@ -116,6 +226,7 @@ export class GLESComputeContext implements IComputeContext {
      */
     clearCMDs(): void {
         this.commands = [];
+        this._nativeObj.clearCMDs();
     }
 
     /**
@@ -123,11 +234,12 @@ export class GLESComputeContext implements IComputeContext {
      * @param cmd 计算调度命令信息
      */
     addDispatchCommand(cmd: IComputeCMD_Dispatch): void {
-        const cmdInfo: IDispatchCommand = {
-            type: CommandType.Dispatch,
-            cmd
-        };
+        let cmdInfo: IDispatchCommand = new IDispatchCommand();
+        cmdInfo.shader = cmd.shader as GLESComputeShaderInstance;
+        cmdInfo.shaderData = cmd.shaderData as GLESShaderData[];
+        cmdInfo.dispatchParams = cmd.dispatchParams as Vector3;
         this.commands.push(cmdInfo);
+        this._nativeObj.addCMD(cmdInfo._nativeObj as any);
     }
 
     /**
@@ -137,15 +249,14 @@ export class GLESComputeContext implements IComputeContext {
      * @param shaderDataType 着色器数据类型
      * @param value 数据值
      */
-    addSetShaderDataCommand(shaderData: ShaderData, propertyID: number, shaderDataType: ShaderDataType, value: ShaderDataItem): void {
-        const cmdInfo: ISetShaderDataCommand = {
-            type: CommandType.SetShaderData,
-            shaderData,
-            propertyID,
-            shaderDataType,
-            value
-        };
+    addSetShaderDataCommand(shaderData: GLESShaderData, propertyID: number, shaderDataType: ShaderDataType, value: ShaderDataItem): void {
+        let cmdInfo: ISetShaderDataCommand = new ISetShaderDataCommand();
+        cmdInfo.shaderData = shaderData;
+        cmdInfo.propertyID = propertyID;
+        cmdInfo.shaderDataType = shaderDataType;
+        cmdInfo.value = value;
         this.commands.push(cmdInfo);
+        this._nativeObj.addCMD(cmdInfo._nativeObj as any);
     }
 
     /**
@@ -157,15 +268,14 @@ export class GLESComputeContext implements IComputeContext {
      * @param size 复制大小
      */
     addBufferToBufferCommand(src: IGPUBuffer, dest: IGPUBuffer, sourceOffset: number = 0, destinationOffset: number = 0, size?: number): void {
-        const cmdInfo: IBufferToBufferCommand = {
-            type: CommandType.BufferToBuffer,
-            src,
-            dest,
-            sourceOffset,
-            destinationOffset,
-            size: size || 0
-        };
+        let cmdInfo: IBufferToBufferCommand = new IBufferToBufferCommand();
+        cmdInfo.src = src;
+        cmdInfo.dest = dest;
+        cmdInfo.sourceOffset = sourceOffset;
+        cmdInfo.destinationOffset = destinationOffset;
+        cmdInfo.size = size || 0;
         this.commands.push(cmdInfo);
+        this._nativeObj.addCMD(cmdInfo._nativeObj as any);
     }
 
     /**
@@ -176,14 +286,13 @@ export class GLESComputeContext implements IComputeContext {
      * @param copySize 复制大小
      */
     addBufferToTextureCommand(src: IGPUBuffer, srcTextureInfo: any, destTextureInfo: any, copySize: any): void {
-        const cmdInfo: IBufferToTextureCommand = {
-            type: CommandType.BufferToTexture,
-            src,
-            srcTextureInfo,
-            destTextureInfo,
-            copySize
-        };
+        /*let cmdInfo: IBufferToTextureCommand = new IBufferToTextureCommand();
+        cmdInfo.src = src as GLESDeviceBuffer;
+        cmdInfo.srcTextureInfo = srcTextureInfo;
+        cmdInfo.destTextureInfo = destTextureInfo;
+        cmdInfo.copySize = copySize;
         this.commands.push(cmdInfo);
+        this._nativeObj.addCMD(cmdInfo._nativeObj as any);*/
     }
 
     /**
@@ -194,14 +303,13 @@ export class GLESComputeContext implements IComputeContext {
      * @param copySize 复制大小
      */
     addTextureToBufferCommand(srcTextureInfo: any, dest: IGPUBuffer, destTextureInfo: any, copySize: any): void {
-        const cmdInfo: ITextureToBufferCommand = {
-            type: CommandType.TextureToBuffer,
-            srcTextureInfo,
-            dest,
-            destTextureInfo,
-            copySize
-        };
+        /*let cmdInfo: ITextureToBufferCommand = new ITextureToBufferCommand();
+        cmdInfo.srcTextureInfo = srcTextureInfo;
+        cmdInfo.dest = dest;
+        cmdInfo.destTextureInfo = destTextureInfo;
+        cmdInfo.copySize = copySize;
         this.commands.push(cmdInfo);
+        this._nativeObj.addCMD(cmdInfo._nativeObj as any);*/
     }
 
     /**
@@ -211,13 +319,12 @@ export class GLESComputeContext implements IComputeContext {
      * @param copySize 复制大小
      */
     addTextureToTextureCommand(srcTextureInfo: any, destTextureInfo: any, copySize: any): void {
-        const cmdInfo: ITextureToTextureCommand = {
-            type: CommandType.TextureToTexture,
-            srcTextureInfo,
-            destTextureInfo,
-            copySize
-        };
+        let cmdInfo: ITextureToTextureCommand = new ITextureToTextureCommand();
+        cmdInfo.srcTextureInfo = srcTextureInfo;
+        cmdInfo.destTextureInfo = destTextureInfo;
+        cmdInfo.copySize = copySize;
         this.commands.push(cmdInfo);
+        this._nativeObj.addCMD(cmdInfo._nativeObj as any);
     }
 
     /**
@@ -227,260 +334,26 @@ export class GLESComputeContext implements IComputeContext {
      * @param destCount 长度
      */
     addClearBufferCommand(dest: GLESDeviceBuffer, destOffset: number, destCount: number): void {
-        const cmdInfo: IBufferClearCommand = {
-            type: CommandType.ClearBuffer,
-            dest: dest,
-            destinationOffset: destOffset,
-            size: destCount
-        };
+        let cmdInfo: IBufferClearCommand = new IBufferClearCommand();
+        cmdInfo.dest = dest;
+        cmdInfo.destinationOffset = destOffset;
+        cmdInfo.size = destCount;
         this.commands.push(cmdInfo);
+        this._nativeObj.addCMD(cmdInfo._nativeObj as any);
     }
-
-    /**
-     * 绑定着色器数据到计算着色器
-     * @param shader 计算着色器
-     * @param shaderData 着色器数据数组
-     */
-    private _bindShaderData(shader: GLESComputeShaderInstance, shaderData: GLESShaderData[]): void {
-        for (let i = 0, n = shaderData.length; i < n; i++) {
-            const data = shaderData[i];
-            const uniformCommandMap = shader.uniformCommandMap[i];
-
-            if (uniformCommandMap) {
-                // 绑定uniform数据到着色器
-                this._nativeObj.bindShaderData(i, data._nativeObj);
-            }
-        }
-    }
-
     /**
      * 执行所有缓存的命令
      */
     executeCMDs(): void {
-        if (this.commands.length === 0) {
-            return;
-        }
-
-        if (this._isExecuting) {
-            console.warn("GLESComputeContext is already executing commands");
-            return;
-        }
-
-        this._isExecuting = true;
-
-        try {
-            // 开始命令执行
-            this._nativeObj.beginCommands();
-
-            // 处理所有命令
-            for (const cmd of this.commands) {
-                switch (cmd.type) {
-                    case CommandType.Dispatch:
-                        this._executeDispatchCommand(cmd as IDispatchCommand);
-                        break;
-                    case CommandType.SetShaderData:
-                        this._executeSetShaderDataCommand(cmd as ISetShaderDataCommand);
-                        break;
-                    case CommandType.BufferToBuffer:
-                        this._executeBufferToBufferCommand(cmd as IBufferToBufferCommand);
-                        break;
-                    case CommandType.ClearBuffer:
-                        this._executeClearBufferCommand(cmd as IBufferClearCommand);
-                        break;
-                    case CommandType.BufferToTexture:
-                        this._executeBufferToTextureCommand(cmd as IBufferToTextureCommand);
-                        break;
-                    case CommandType.TextureToBuffer:
-                        this._executeTextureToBufferCommand(cmd as ITextureToBufferCommand);
-                        break;
-                    case CommandType.TextureToTexture:
-                        this._executeTextureToTextureCommand(cmd as ITextureToTextureCommand);
-                        break;
-                }
-            }
-
-            // 结束命令执行
-            this._nativeObj.endCommands();
-        } catch (error) {
-            console.error("Error executing compute commands:", error);
-        } finally {
-            this._isExecuting = false;
-        }
+        this._nativeObj.executeCMDs();
     }
-
-    /**
-     * 执行调度命令
-     */
-    private _executeDispatchCommand(cmd: IDispatchCommand): void {
-        const dispatchInfo = cmd.cmd;
-        const shader = dispatchInfo.shader as GLESComputeShaderInstance;
-        const shaderData = dispatchInfo.shaderData as GLESShaderData[];
-        const dispatchParams = dispatchInfo.dispatchParams;
-
-        // 绑定计算着色器
-        //shader.bind();
-        this._currentShader = shader;
-
-        // 绑定着色器数据
-        this._bindShaderData(shader, shaderData);
-
-        // 执行计算调度
-        this._nativeObj.dispatchCompute(
-            dispatchParams.x,
-            dispatchParams.y || 1,
-            dispatchParams.z || 1
-        );
-    }
-
-    /**
-     * 执行设置着色器数据命令
-     */
-    private _executeSetShaderDataCommand(cmd: ISetShaderDataCommand): void {
-        const { shaderData, propertyID, shaderDataType, value } = cmd;
-
-        switch (shaderDataType) {
-            case ShaderDataType.Int:
-                shaderData.setInt(propertyID, value as number);
-                break;
-            case ShaderDataType.Float:
-                shaderData.setNumber(propertyID, value as number);
-                break;
-            case ShaderDataType.Bool:
-                shaderData.setBool(propertyID, value as boolean);
-                break;
-            case ShaderDataType.Matrix3x3:
-                shaderData.setMatrix3x3(propertyID, value as Matrix3x3);
-                break;
-            case ShaderDataType.Matrix4x4:
-                shaderData.setMatrix4x4(propertyID, value as Matrix4x4);
-                break;
-            case ShaderDataType.Color:
-                shaderData.setColor(propertyID, value as Color);
-                break;
-            case ShaderDataType.Texture2D:
-                shaderData.setTexture(propertyID, value as BaseTexture);
-                break;
-            case ShaderDataType.Vector2:
-                shaderData.setVector2(propertyID, value as Vector2);
-                break;
-            case ShaderDataType.Vector3:
-                shaderData.setVector3(propertyID, value as Vector3);
-                break;
-            case ShaderDataType.Vector4:
-                shaderData.setVector(propertyID, value as Vector4);
-                break;
-            case ShaderDataType.Buffer:
-                shaderData.setBuffer(propertyID, value as Float32Array);
-                break;
-            case ShaderDataType.DeviceBuffer:
-            case ShaderDataType.ReadOnlyDeviceBuffer:
-                // GLES实现中，设备缓冲区需要特殊处理
-                const deviceBuffer = value as GLESDeviceBuffer;
-                (shaderData as any).setDeviceBuffer(propertyID, deviceBuffer);
-                break;
-            default:
-                console.warn(`Unsupported shader data type: ${shaderDataType}`);
-                break;
-        }
-    }
-
-    /**
-     * 执行缓冲区到缓冲区复制命令
-     */
-    private _executeBufferToBufferCommand(cmd: IBufferToBufferCommand): void {
-        const { src, dest, sourceOffset, destinationOffset, size } = cmd;
-        this._nativeObj.copyBufferToBuffer(
-            src.getNativeBuffer(),
-            dest.getNativeBuffer(),
-            sourceOffset,
-            destinationOffset,
-            size
-        );
-    }
-
-    /**
-     * 执行清理缓冲区命令
-     */
-    private _executeClearBufferCommand(cmd: IBufferClearCommand): void {
-        const { dest, destinationOffset, size } = cmd;
-        this._nativeObj.clearBuffer(
-            dest.getNativeBuffer(),
-            destinationOffset,
-            size
-        );
-    }
-
-    /**
-     * 执行缓冲区到纹理复制命令
-     */
-    private _executeBufferToTextureCommand(cmd: IBufferToTextureCommand): void {
-        // TODO: 实现缓冲区到纹理的复制逻辑
-        console.warn("BufferToTexture command is not implemented yet");
-    }
-
-    /**
-     * 执行纹理到缓冲区复制命令
-     */
-    private _executeTextureToBufferCommand(cmd: ITextureToBufferCommand): void {
-        // TODO: 实现纹理到缓冲区的复制逻辑
-        console.warn("TextureToBuffer command is not implemented yet");
-    }
-
-    /**
-     * 执行纹理到纹理复制命令
-     */
-    private _executeTextureToTextureCommand(cmd: ITextureToTextureCommand): void {
-        // TODO: 实现纹理到纹理的复制逻辑
-        console.warn("TextureToTexture command is not implemented yet");
-    }
-
-    /**
-     * 同步执行命令并等待完成
-     */
-    executeAndWait(): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            try {
-                this.executeCMDs();
-                // 等待GPU完成
-                this._nativeObj.finish(() => {
-                    resolve();
-                }, (error: any) => {
-                    reject(error);
-                });
-            } catch (error) {
-                reject(error);
-            }
-        });
-    }
-
-    /**
-     * 检查是否正在执行命令
-     */
-    get isExecuting(): boolean {
-        return this._isExecuting;
-    }
-
-    /**
-     * 获取当前绑定的着色器
-     */
-    get currentShader(): GLESComputeShaderInstance | null {
-        return this._currentShader;
-    }
-
     /**
      * 销毁计算上下文，清空所有命令
      */
     destroy(): void {
         this.clearCMDs();
-
-        if (this._currentShader) {
-            //this._currentShader.unbind();
-            this._currentShader = null;
-        }
-
         if (this._nativeObj) {
-            this._nativeObj.release();
-            //this._nativeObj = null;
+            this._nativeObj.destroy();
         }
     }
 } 

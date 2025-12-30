@@ -2,13 +2,14 @@ import { EDeviceBufferUsage, IDeviceBuffer } from "../../../DriverDesign/RenderD
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
 import { IGPUBuffer } from "../../../DriverDesign/RenderDevice/ComputeShader/IComputeContext";
 import { GLESShaderData } from "../GLESShaderData";
+import { GLESVertexBuffer } from "../GLESVertexBuffer";
 
 /**
  * OpenGL ES设备缓冲区实现
  * 用于在GPU中创建各种各样的Buffer，支持计算着色器和间接渲染
  */
 export class GLESDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
-    private _nativeObj: any;
+    _nativeObj: any;
     private _usage: EDeviceBufferUsage;
     private _size: number = 0;
     private _cacheShaderData: Map<GLESShaderData, number> = new Map();
@@ -50,28 +51,6 @@ export class GLESDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
 
         return glUsage;
     }
-
-    /**
-     * 添加缓存的着色器数据
-     * @param shaderData 着色器数据
-     * @param propertyID 属性ID
-     */
-    _addCacheShaderData(shaderData: GLESShaderData, propertyID: number): void {
-        if (!this._cacheShaderData.has(shaderData)) {
-            this._cacheShaderData.set(shaderData, propertyID);
-        }
-    }
-
-    /**
-     * 移除缓存的着色器数据
-     * @param shaderData 着色器数据
-     */
-    _removeCacheShaderData(shaderData: GLESShaderData): void {
-        if (this._cacheShaderData.has(shaderData)) {
-            this._cacheShaderData.delete(shaderData);
-        }
-    }
-
     /**
      * 获取原生缓冲区对象
      * @returns 原生缓冲区对象
@@ -79,21 +58,6 @@ export class GLESDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
     getNativeBuffer(): any {
         return this._nativeObj;
     }
-
-    /**
-     * 获取缓冲区绑定信息
-     * @param binding 绑定点
-     * @returns 绑定信息
-     */
-    getBindInfo(binding: number): any {
-        return {
-            binding: binding,
-            buffer: this._nativeObj,
-            offset: 0,
-            size: this._size
-        };
-    }
-
     /**
      * 设置缓冲区数据
      * @param buffer 源数据缓冲区
@@ -123,18 +87,16 @@ export class GLESDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
      * @param destOffset 目标偏移量（字节）
      * @param byteLength 复制长度（字节）
      */
-    copyToBuffer(buffer: IVertexBuffer | IDeviceBuffer, sourceOffset: number, destOffset: number, byteLength: number): void {
-        let destBuffer: any;
-
-        // 检查buffer是否实现了IGPUBuffer接口
-        if ('getNativeBuffer' in buffer && typeof (buffer as any).getNativeBuffer === 'function') {
-            destBuffer = (buffer as IGPUBuffer).getNativeBuffer();
+    copyToBuffer(buffer: GLESVertexBuffer | GLESDeviceBuffer, sourceOffset: number, destOffset: number, byteLength: number): void {
+        if (buffer instanceof GLESVertexBuffer) {
+            buffer = buffer as GLESVertexBuffer;
+            this._nativeObj.copyToVertexBuffer(buffer._nativeObj, sourceOffset, destOffset, byteLength);
+        }else if (buffer instanceof GLESDeviceBuffer) {
+            buffer = buffer as GLESDeviceBuffer;
+            this._nativeObj.copyToDeviceBuffer(buffer._nativeObj, sourceOffset, destOffset, byteLength);
         } else {
-            // 如果是IVertexBuffer，需要不同的处理方式
-            destBuffer = (buffer as any)._nativeObj || buffer;
-        }
-
-        this._nativeObj.copyToBuffer(destBuffer, sourceOffset, destOffset, byteLength);
+            throw new Error("GLESDeviceBuffer.copyToBuffer() invalid buffer type");
+        } 
     }
 
     /**
@@ -170,8 +132,7 @@ export class GLESDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
     destroy(): void {
         if (!this._destroyed) {
             if (this._nativeObj) {
-                this._nativeObj.release();
-                //this._nativeObj = null;
+                this._nativeObj.destroy();
             }
 
             this._cacheShaderData?.clear();

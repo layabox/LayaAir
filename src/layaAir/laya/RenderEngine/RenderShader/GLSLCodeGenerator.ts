@@ -263,6 +263,27 @@ ${materialUniformGlsl}`;
                 else {
                     return "";
                 }
+            case ShaderDataType.StorageTexture2D:
+                if (LayaGL.renderEngine.getCapable(RenderCapable.ComputeShader)) {
+                    return "image2D";
+                }
+                else {
+                    return "";
+                }
+            case ShaderDataType.DeviceBuffer:
+                if (LayaGL.renderEngine.getCapable(RenderCapable.StorageBuffer)) {
+                    return "buffer";
+                }
+                else {
+                    return "";
+                }
+            case ShaderDataType.ReadOnlyDeviceBuffer:
+                if (LayaGL.renderEngine.getCapable(RenderCapable.StorageBuffer)) {
+                    return "buffer";
+                }
+                else {
+                    return "";
+                }
             default:
                 return "";
         }
