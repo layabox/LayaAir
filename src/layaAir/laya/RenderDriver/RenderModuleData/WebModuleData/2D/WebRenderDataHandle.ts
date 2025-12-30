@@ -411,6 +411,8 @@ export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implemen
 
     skeleton: spine.Skeleton;
 
+    normalUpdater: any = null;
+
     private _offset: Vector2;
 
     public get owner(): WebRenderStruct2D {
@@ -451,11 +453,11 @@ export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implemen
         if (this._offset) {
             let ofx = this._offset.x;
             let ofy = this._offset.y;
-            this._nMatrix_0.setValue(mat.a, mat.b, mat.tx + mat.a * ofx + mat.c * ofy);
-            this._nMatrix_1.setValue(mat.c, mat.d, mat.ty + mat.b * ofx + mat.d * ofy);
+            this._nMatrix_0.setValue(mat.a, mat.c, mat.tx + mat.a * ofx + mat.c * ofy);
+            this._nMatrix_1.setValue(mat.b, mat.d, mat.ty + mat.b * ofx + mat.d * ofy);
         } else {
-            this._nMatrix_0.setValue(mat.a, mat.b, mat.tx);
-            this._nMatrix_1.setValue(mat.c, mat.d, mat.ty);
+            this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
+            this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
         }
 
         shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
