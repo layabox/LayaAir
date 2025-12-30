@@ -10,6 +10,7 @@ import { SpineShaderInit } from "../../../shader/SpineShaderInit";
 import { SpineConst } from "../../../SpineConst";
 import { SpineRenderUpdater } from "./SpineRenderUpdater";
 import { SpineTexture } from "../../SpineTexture";
+import { ISpineNormalUpdater } from "../../IWebSpine";
 
 const QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
 
@@ -27,7 +28,7 @@ interface SubMeshBufferInfo {
     material: Material;
 }
 
-export class SpineNormalRenderUpdater {
+export class SpineNormalRenderUpdater implements ISpineNormalUpdater{
     /** @internal */
     static _TEMP_COLOR: spine.Color;
     /** @internal */

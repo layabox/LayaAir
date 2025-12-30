@@ -32,6 +32,16 @@ export interface IRender {
     destroy():void;
 }
 
+export interface ISpineNormalUpdater { 
+    renderUpdate(skeleton: spine.Skeleton, updater: SpineRenderUpdater
+        , slotRangeStart?: number, slotRangeEnd?: number
+        , offsetX?: number, offsetY?: number): void;
+    
+    needUpdate: boolean;
+    subMeshes: IRenderGeometryElement[];
+    materials: Material[];
+}
+
 export enum ERenderProxyType {
     RenderNormal,
     RenderRigidBody,

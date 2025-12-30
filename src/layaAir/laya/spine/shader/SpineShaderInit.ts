@@ -163,6 +163,8 @@ export class SpineShaderInit {
      */
     static SPINE_RB: ShaderDefine;
 
+    static SPINE_NORMAL_2D: ShaderDefine;
+
     static SPINE_UV: ShaderDefine;
 
     static SPINE_COLOR: ShaderDefine;
@@ -241,6 +243,7 @@ export class SpineShaderInit {
         SpineShaderInit.SPINE_RB = Shader3D.getDefineByName("SPINE_RB");
         SpineShaderInit.SPINE_UV = Shader3D.getDefineByName("UV");
         SpineShaderInit.SPINE_COLOR = Shader3D.getDefineByName("COLOR");
+        SpineShaderInit.SPINE_NORMAL_2D = Shader3D.getDefineByName("SPINE_NORMAL_2D");
         SpineShaderInit.SPINE_PREMULTIPLYALPHA = Shader3D.getDefineByName("PREMULTIPLYALPHA");
 
         SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS = Shader3D.propertyNameToID("u_SimpleAnimatorParams");

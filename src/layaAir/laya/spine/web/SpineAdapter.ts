@@ -1,7 +1,4 @@
-import { Laya } from "../../../Laya";
 import { SpineConst } from "../SpineConst";
-import { JSSpineFactory } from "./JSSpineFactory";
-import { SpineNormalRenderUpdater } from "./base/optimize/SpineNormalRenderUpdater";
 
 /**
  * @en SpineAdapter is an adapter class for integrating the Spine animation system.

@@ -12,7 +12,8 @@ import { LayaGL } from "../../../../layagl/LayaGL";
 import { BaseOptimizeRender } from "../optimize/BaseOptimizeRender";
 import { ERenderProxyType, IRender } from "../../IWebSpine";
 import { OptimizedSpineRenderer, StandardSpineRenderer, RigidBodySpineRenderer, BakedSpineRenderer } from "../optimize/SpineRendererTypes";
-import { BakedSpine2DRenderer } from "./SpineRendererTypes2D";
+import { BakedSpine2DRenderer, StandardSpine2DRenderer } from "./SpineRendererTypes2D";
+import { Spine2DNormalRenderUpdater } from "./Spine2DNormalRenderUpdater";
 
 /**
  * @en SpineOptimizeRender2D used for optimized rendering of Spine animations in 2D.
@@ -75,7 +76,9 @@ export class SpineOptimizeRender2D extends BaseOptimizeRender {
     protected _createRenderProxies(): void {
         let shaderData = this._owner._struct.spriteShaderData;
         let renderOptimize = new OptimizedSpineRenderer(shaderData);
-        let renderNormal = new StandardSpineRenderer(shaderData);
+        let renderNormal = new StandardSpine2DRenderer(this._owner._struct);
+        renderNormal.normalUpdater = new Spine2DNormalRenderUpdater;
+        
         let renderRigidBody = new RigidBodySpineRenderer(shaderData);
         this.renderProxyMap.set(ERenderProxyType.RenderNormal, renderNormal);
         this.renderProxyMap.set(ERenderProxyType.RenderOptimize, renderOptimize);
@@ -184,6 +187,7 @@ export class SpineOptimizeRender2D extends BaseOptimizeRender {
                     element.subShader = material._shader.getSubShaderAt(0);
                     element.value2DShaderData = shaderData;
                     element.owner = struct;
+                    element._index = i;
                     need = true;
                 }
             } else {

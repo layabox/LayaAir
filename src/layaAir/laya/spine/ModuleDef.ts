@@ -3,6 +3,7 @@ import { Laya } from "../../Laya";
 import { ClassUtils } from "../utils/ClassUtils";
 import { ExternalSkin } from "./ExternalSkin";
 import { ExternalSkinItem } from "./ExternalSkinItem";
+import { SpineConst } from "./SpineConst";
 import { SpineSkeleton } from "./SpineSkeleton";
 import { SpineTemplet } from "./SpineTemplet";
 import "./SpineTempletLoader";
@@ -15,5 +16,5 @@ c("ExternalSkinItem", ExternalSkinItem);
 
 Laya.addBeforeInitCallback(() => {
     if (PlayerConfig.spineVersion)
-        SpineTemplet.RuntimeVersion = PlayerConfig.spineVersion;
+        SpineConst.VERSION = PlayerConfig.spineVersion;
 });

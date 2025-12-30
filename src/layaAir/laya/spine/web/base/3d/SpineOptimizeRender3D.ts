@@ -10,6 +10,7 @@ import { Laya3DRender } from "../../../../d3/RenderObjs/Laya3DRender";
 import { OptimizedSpineRenderer, StandardSpineRenderer, RigidBodySpineRenderer, BakedSpineRenderer } from "../optimize/SpineRendererTypes";
 import { ERenderProxyType, IRender } from "../../IWebSpine";
 import { ESpineRenderMode } from "../../../SpineConst";
+import { SpineNormalRenderUpdater } from "../optimize/SpineNormalRenderUpdater";
 
 /**
  * @en SpineOptimizeRender3D used for optimized rendering of Spine animations in 3D.
@@ -62,6 +63,8 @@ export class SpineOptimizeRender3D extends BaseOptimizeRender {
         let shaderData = this._owner.shaderData;
         let renderOptimize = new OptimizedSpineRenderer(shaderData);
         let renderNormal = new StandardSpineRenderer(shaderData);
+        renderNormal.normalUpdater = new SpineNormalRenderUpdater;
+        
         let renderRigidBody = new RigidBodySpineRenderer(shaderData);
         this.renderProxyMap.set(ERenderProxyType.RenderNormal, renderNormal);
         this.renderProxyMap.set(ERenderProxyType.RenderOptimize, renderOptimize);

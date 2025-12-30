@@ -5,9 +5,8 @@ import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/S
 import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineShaderInit } from "../../../shader/SpineShaderInit";
 import { SpineConst } from "../../../SpineConst";
-import { IRender } from "../../IWebSpine";
+import { IRender, ISpineNormalUpdater } from "../../IWebSpine";
 import { BaseOptimizeRender } from "./BaseOptimizeRender";
-import { SpineNormalRenderUpdater } from "./SpineNormalRenderUpdater";
 import { SpineRenderUpdater } from "./SpineRenderUpdater";
 
 /**
@@ -229,11 +228,11 @@ export class OptimizedSpineRenderer extends SpineBaseRenderer {
  */
 export class StandardSpineRenderer extends SpineBaseRenderer {
 
-    normalUpdater: SpineNormalRenderUpdater
+    normalUpdater: ISpineNormalUpdater;
+
     /** @ignore @blueprintIgnore */
     constructor(shaderData: ShaderData) {
         super(shaderData);
-        this.normalUpdater = new SpineNormalRenderUpdater;
     }
 
     /**

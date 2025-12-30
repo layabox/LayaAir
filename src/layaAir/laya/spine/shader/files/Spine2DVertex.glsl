@@ -4,8 +4,8 @@
 void transfrom_spine(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
     // outPos.x = xDir.x*pos.x+xDir.y*pos.y + xDir.z;
     // outPos.y = - (yDir.x*pos.x+yDir.y*pos.y -yDir.z);
-    outPos.x =  xDir.x * pos.x - yDir.x * pos.y + xDir.z ;
-    outPos.y =  xDir.y * pos.x - yDir.y * pos.y + yDir.z;
+    outPos.x =  xDir.x * pos.x + xDir.y * pos.y + xDir.z;
+    outPos.y = - yDir.x * pos.x - yDir.y * pos.y + yDir.z;
 }
 
 void getGlobalPos(vec4 pos, out vec2 globalPos){
@@ -17,7 +17,11 @@ void getGlobalPos(vec4 pos, out vec2 globalPos){
         vec3 up =u_NMatrix_0;
     #endif
 
-    transfrom_spine(pos.xy,up,down,globalPos);
+    #ifdef SPINE_NORMAL_2D
+        globalPos.xy = pos.xy;
+    #else
+        transfrom_spine(pos.xy,up,down,globalPos);
+    #endif
     // float x=up.x*pos.x+up.y*pos.y+up.z;
     // float y=down.x*pos.x+down.y*pos.y-down.z;
     // globalPos = vec2(x,-y);
@@ -34,7 +38,11 @@ vec4 getScreenPos(vec4 pos){
         vec3 up =u_NMatrix_0;
     #endif
 
-    transfrom_spine(pos.xy,up,down,globalPos);
+    #ifdef SPINE_NORMAL_2D
+        globalPos.xy = pos.xy;
+    #else
+        transfrom_spine(pos.xy,up,down,globalPos);
+    #endif
     // float x=up.x*pos.x+up.y*pos.y+up.z;
     // float y= -1.0 * (down.x*pos.x+down.y*pos.y-down.z);
     

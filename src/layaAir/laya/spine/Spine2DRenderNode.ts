@@ -520,7 +520,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
         this._spineRender = SpineConst.factory.createSpineRender2D(this);
         this._spineRender.init(templet);
-        this._spineRender.mode = !SpineConst.normalRenderSwitch ? ESpineRenderMode.Optimize : ESpineRenderMode.Normal;
+        this._spineRender.mode = !SpineConst.normalRenderSwitch && this._useFastRender ? ESpineRenderMode.Optimize : ESpineRenderMode.Normal;
         
         if (this._autoAdjust) {
             this._doAutoAdjust();

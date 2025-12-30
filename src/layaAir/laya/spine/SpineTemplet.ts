@@ -88,7 +88,7 @@ export class SpineTemplet extends Resource {
             texture = Texture2D.whiteTexture;
         }
 
-        let key = texture.id + "_" + blendMode + "_" + (is3D ? "3D" : "2D");
+        let key = texture.id + "_" + blendMode + "_" + premultipliedAlpha + "_"+ (is3D ? "3D" : "2D");
         let mat = this.materialMap.get(key);
         if (!mat) {
             mat = new Material();
@@ -113,9 +113,7 @@ export class SpineTemplet extends Resource {
             mat._addReference();
             this.materialMap.set(key, mat);
         }
-        else if (blendMode == 0) {// Normal
-            SpineShaderInit.SetSpineBlendMode(blendMode, mat, premultipliedAlpha);
-        }
+        
         return mat;
     }
 
