@@ -131,7 +131,12 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             Light2DManager._config = new Light2DConfig();
             Light2DManager._config.ambientColor = new Color(light2DConfig.ambientColor.r, light2DConfig.ambientColor.g, light2DConfig.ambientColor.b, light2DConfig.ambientColor.a);
             Light2DManager._config.ambientLayerMask = light2DConfig.ambientLayerMask;
-            Light2DManager._config.lightDirection = new Vector3(light2DConfig.lightDirection.x, light2DConfig.lightDirection.y, light2DConfig.lightDirection.z);
+            if (light2DConfig.lightDirection) {
+                Light2DManager._config.lightDirection = new Vector3(light2DConfig.lightDirection.x, light2DConfig.lightDirection.y, light2DConfig.lightDirection.z);
+            } else {
+                Light2DManager._config.lightDirection = new Vector3(-1, 0, 1);
+            }
+            // Light2DManager._config.lightDirection = new Vector3(light2DConfig.lightDirection.x, light2DConfig.lightDirection.y, light2DConfig.lightDirection.z);
             Light2DManager._config.multiSamples = light2DConfig.multiSamples;
         }
         this._scene = scene;
