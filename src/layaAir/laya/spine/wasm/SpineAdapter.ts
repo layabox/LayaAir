@@ -1,0 +1,679 @@
+import { SpineConst } from "../../SpineConst";
+
+/**
+ * @en SpineAdapter is an adapter class for integrating the Spine animation system.
+ * @zh SpineAdapter 是一个适配器类，用于集成 Spine 动画系统。
+ */
+export class SpineAdapter {
+    static _vbArray: Float32Array;
+    static _ibArray: Uint16Array;
+    static _spine: any;
+
+    /**
+     * @en Indicates whether the Spine system is using WebAssembly.
+     * @zh 指示 Spine 系统是否使用 WebAssembly。
+     */
+    static isWasm: boolean;
+
+    /**
+     * @en Map of state values to their corresponding string representations.
+     * @zh 状态值到其对应字符串表示的映射。
+     */
+    static stateMap: any = { 0: "start", 1: "interrupt", 2: "end", 3: "complete", 4: "dispose", 5: "event" };
+
+    /**
+     * @internal
+     * @en Initialize the system, called internally by the system.
+     * @zh 初始化系统，由系统内部调用。
+    */
+    static initialize() {
+        //@ts-ignore
+        if (window.Spine) {
+            SpineAdapter.isWasm = true;
+            //@ts-ignore
+            return window.Spine().then((spine: any) => {
+                SpineAdapter._spine = spine;
+                window.spine = spine;
+                SpineAdapter.initClass();
+                SpineAdapter.bindBuffer(10922 * 12, 10922 * 3);
+                return Promise.resolve();
+            });
+        }
+        else if (window.spine) {
+            SpineAdapter.isWasm = false;
+            SpineAdapter.adaptJS();
+        }
+    }
+
+
+    /**
+     * @en Adapt the JavaScript version of Spine.
+     * @zh 适配 JavaScript 版本的 Spine。
+     */
+    static adaptJS() {
+        let ns = window.spine;
+        if (ns) {
+            if (SpineConst.VERSION == "3.7") {
+                let bone_proto = ns.Bone.prototype
+                bone_proto.active = true;
+            }
+        }
+    }
+
+    /**
+     * @en Initialize and extend the Spine animation library's AnimationState prototype.
+     * @zh 初始化并扩展Spine动画库的AnimationState原型。
+     */
+    static initClass() {
+        let ns = window.spine;
+        let stateProto = ns.AnimationState.prototype;
+        stateProto.addListener = function (data: any) {
+            //@ts-ignore 
+            this.eventsObject = data;
+            //@ts-ignore   
+            this.setListener(SpineAdapter._spine.AnimationStateListenerObject.implement({
+                callback: (state: any, type: any, entry: any, event: any) => {
+                    data[SpineAdapter.stateMap[type.value]](entry, event);
+                }
+            }));
+        }
+        //@ts-ignore
+        stateProto.getCurrentOld = stateProto.getCurrent;
+        //@ts-ignore
+        stateProto.setAnimationOld = stateProto.setAnimation;
+
+        stateProto.setAnimation = function (trackIndex: number, animationName: string, loop: boolean) {
+            //@ts-ignore
+            if (this.__tracks) {
+                //@ts-ignore
+                this.__tracks.length = 0;
+            }
+            //@ts-ignore
+            return this.setAnimationOld(trackIndex, animationName, loop);
+        }
+
+        stateProto.getCurrent = function (trackIndex: number) {
+            let result;
+            //@ts-ignore
+            let __tracks = this.__tracks;
+            if (!__tracks) {
+                //@ts-ignore
+                __tracks = this.__tracks = [];
+                //@ts-ignore
+                result = this.getCurrentOld(trackIndex);
+                __tracks[trackIndex] = result;
+            }
+            else {
+                result = __tracks[trackIndex];
+            }
+            if (!result) {
+                //@ts-ignore
+                result = this.getCurrentOld(trackIndex);
+                __tracks[trackIndex] = result;
+            }
+            //@ts-ignore
+            this.currentTrack = result;
+            return result;
+        }
+
+        ns.TextureAtlas = TextureAtlas as any;
+        Object.defineProperty(ns.Skin.prototype, "attachments", {
+            get: function () {
+                return this.getAttachments();
+            }
+        });
+
+        let skeletonProto = ns.Skeleton.prototype;
+
+        Object.defineProperty(skeletonProto, "slots", {
+            get: function () {
+                return this.getSlots();
+            }
+        });
+
+        Object.defineProperty(skeletonProto, "data", {
+            get: function () {
+                return this.getData();
+            }
+        });
+
+        Object.defineProperty(skeletonProto, "bones", {
+            get: function () {
+                return this.getBones();
+            }
+        });
+
+        Object.defineProperty(skeletonProto, "color", {
+            get: function () {
+                return this.getColor();
+            }
+        });
+
+        let skeletonDataProto = ns.SkeletonData.prototype;
+
+        Object.defineProperty(skeletonDataProto, "name", {
+            get: function () {
+                return this.getName();
+            }
+        });
+
+        Object.defineProperty(skeletonDataProto, "skins", {
+            get: function () {
+                return this.getSkins();
+            }
+        });
+
+        Object.defineProperty(skeletonDataProto, "slots", {
+            get: function () {
+                return this.getSlots();
+            }
+        });
+
+        let animationProto = ns.Animation.prototype;
+        Object.defineProperty(animationProto, "name", {
+            get: function () {
+                return this.getName();
+            }
+        });
+
+        Object.defineProperty(animationProto, "duration", {
+            get: function () {
+                return this.getDuration();
+            }
+        });
+
+
+        Object.defineProperty(animationProto, "timelines", {
+            get: function () {
+                return this.getTimelines();
+            }
+        });
+
+        Object.defineProperty(skeletonDataProto, "animations", {
+            get: function () {
+                return this.getAnimations();
+            }
+        });
+
+
+
+        Object.defineProperty(ns.Skin.prototype, "name", {
+            get: function () {
+                return this.getName();
+            }
+        });
+
+        let slotDataProto = ns.SlotData.prototype;
+
+        Object.defineProperty(slotDataProto, "boneData", {
+            get: function () {
+                return this.getBoneData();
+            }
+        });
+
+        Object.defineProperty(slotDataProto, "color", {
+            get: function () {
+                return this.getColor();
+            }
+        });
+
+        Object.defineProperty(slotDataProto, "index", {
+            get: function () {
+                return this.getIndex();
+            }
+        });
+        Object.defineProperty(slotDataProto, "attachmentName", {
+            get: function () {
+                return this.getAttachmentName();
+            }
+        });
+
+
+        Object.defineProperty(slotDataProto, "blendMode", {
+            get: function () {
+                return this.getBlendMode().value;
+            }
+        });
+
+        // Object.defineProperty( ns.SlotData.prototype, "blendMode", {
+        //     get: function () {
+        //         return this.getBlendMode();
+        //     }
+        // });
+
+
+        Object.defineProperty(ns.BoneData.prototype, "index", {
+            get: function () {
+                return this.getIndex();
+            }
+        });
+
+        let regionAttachMentProto = ns.RegionAttachment.prototype;
+        Object.defineProperty(regionAttachMentProto, "color", {
+            get: function () {
+                return this.getColor();
+            }
+        });
+
+        Object.defineProperty(regionAttachMentProto, "name", {
+            get: function () {
+                return this.getName();
+            }
+        });
+
+        Object.defineProperty(regionAttachMentProto, "offset", {
+            get: function () {
+                let from = this.getOffset();
+                return from;
+            }
+        });
+
+
+        Object.defineProperty(regionAttachMentProto, "uvs", {
+            get: function () {
+                return this.getRotateUVs();
+            }
+        });
+
+        Object.defineProperty(regionAttachMentProto, "region", {
+            get: function () {
+                return this;
+            }
+        });
+        Object.defineProperty(regionAttachMentProto, "page", {
+            get: function () {
+                return this.getPage();
+            }
+        });
+        
+        //@ts-ignore
+        Object.defineProperty(ns.AtlasPage.prototype, "name", {
+            get: function () {
+                return this.getName();
+            }
+        });
+
+
+        let meshAttachmentProto = ns.MeshAttachment.prototype;
+
+        Object.defineProperty(meshAttachmentProto, "bones", {
+            get: function () {
+                return this.getBones();
+            }
+        });
+
+        Object.defineProperty(meshAttachmentProto, "uvs", {
+            get: function () {
+                return this.getUVs();
+            }
+        });
+        Object.defineProperty(meshAttachmentProto, "triangles", {
+            get: function () {
+                return this.getTriangles();
+            }
+        });
+        Object.defineProperty(meshAttachmentProto, "vertices", {
+            get: function () {
+                let from = this.getVertices();
+                return from;
+            }
+        });
+
+
+        Object.defineProperty(meshAttachmentProto, "color", {
+            get: function () {
+                return this.getColor();
+            }
+        });
+        Object.defineProperty(meshAttachmentProto, "region", {
+            get: function () {
+                return this;
+            }
+        });
+        Object.defineProperty(meshAttachmentProto, "page", {
+            get: function () {
+                return this.getPage();
+            }
+        });
+
+        Object.defineProperty(meshAttachmentProto, "name", {
+            get: function () {
+                return this.getName();
+            }
+        });
+        let eventTimelineProto = ns.EventTimeline.prototype;
+        Object.defineProperty(eventTimelineProto, "frames", {
+            get: function () {
+                return this.getFrames();
+            }
+        });
+
+        Object.defineProperty(eventTimelineProto, "events", {
+            get: function () {
+                return this.getEvents();
+            }
+        });
+
+        let attachmentTimelineProto = ns.AttachmentTimeline.prototype;
+        Object.defineProperty(attachmentTimelineProto, "frames", {
+            get: function () {
+                return this.getFrames();
+            }
+        });
+
+        Object.defineProperty(attachmentTimelineProto, "slotIndex", {
+            get: function () {
+                return this.getSlotIndex();
+            }
+        });
+
+        Object.defineProperty(attachmentTimelineProto, "attachmentNames", {
+            get: function () {
+                return this.getAttachmentNames();
+            }
+        });
+
+        let drawOrderTimelineProto = ns.DrawOrderTimeline.prototype;
+        Object.defineProperty(drawOrderTimelineProto, "frames", {
+            get: function () {
+                return this.getFrames();
+            }
+        });
+
+        Object.defineProperty(drawOrderTimelineProto, "drawOrders", {
+            get: function () {
+                return this.getDrawOrders();
+            }
+        });
+        //@ts-ignore
+        let colorTimelineProto = ns.ColorTimeline.prototype;
+        Object.defineProperty(colorTimelineProto, "frames", {
+            get: function () {
+                return this.getFrames();
+            }
+        });
+
+        Object.defineProperty(colorTimelineProto, "slotIndex", {
+            get: function () {
+                return this.getSlotIndex();
+            }
+        });
+
+        let trackEntryProto = ns.TrackEntry.prototype;
+
+        Object.defineProperty(trackEntryProto, "loop", {
+            get: function () {
+                return this.getLoop();
+            }
+        });
+
+        Object.defineProperty(trackEntryProto, "animationStart", {
+            get: function () {
+                return this.getAnimationStart();
+            },
+            set: function (value) {
+            }
+        });
+
+        Object.defineProperty(trackEntryProto, "animationEnd", {
+            get: function () {
+                return this.getAnimationEnd();
+            }
+        });
+
+        Object.defineProperty(trackEntryProto, "animationLast", {
+            get: function () {
+                return this.getAnimationLast();
+            }
+        });
+
+        Object.defineProperty(trackEntryProto, "nextAnimationLast", {
+            get: function () {
+                return this.getAnimationLast();
+            },
+            set: function (value) {
+                this.setNextAnimationLast(value);
+            }
+        });
+
+        // Object.defineProperty(trackEntryProto, "nextTrackLast", {
+        //     get: function () {
+        //         return ;
+        //     },
+        //     set: function (value) {
+        //         //this.setNextTrackLast(value);
+        //     }
+        // });
+
+
+        Object.defineProperty(trackEntryProto, "trackTime", {
+            get: function () {
+                return this.getTrackTime();
+            }
+        });
+
+        Object.defineProperty(trackEntryProto, "animation", {
+            get: function () {
+                return this.getAnimation();
+            }
+        });
+
+        let boneProto = ns.Bone.prototype;
+
+        Object.defineProperty(boneProto, "a", {
+            get: function () {
+                return this.getA();
+            }
+        });
+
+        Object.defineProperty(boneProto, "b", {
+            get: function () {
+                return this.getB();
+            }
+        });
+
+        Object.defineProperty(boneProto, "c", {
+            get: function () {
+                return this.getC();
+            }
+        });
+
+        Object.defineProperty(boneProto, "d", {
+            get: function () {
+                return this.getD();
+            }
+        });
+
+        Object.defineProperty(boneProto, "worldX", {
+            get: function () {
+                return this.getWorldX();
+            }
+        });
+
+        Object.defineProperty(boneProto, "worldY", {
+            get: function () {
+                return this.getWorldY();
+            }
+        });
+
+        let eventProto = ns.Event.prototype;
+
+        Object.defineProperty(eventProto, "volume", {
+            get: function () {
+                return this.getVolume();
+            }
+        });
+
+        Object.defineProperty(eventProto, "balance", {
+            get: function () {
+                return this.getBalance();
+            }
+        });
+
+        Object.defineProperty(eventProto, "time", {
+            get: function () {
+                return this.getTime();
+            }
+        });
+        Object.defineProperty(eventProto, "data", {
+            get: function () {
+                return this.getData();
+            }
+        });
+
+        Object.defineProperty(eventProto, "floatValue", {
+            get: function () {
+                return this.getFloatValue();
+            }
+        });
+
+        Object.defineProperty(eventProto, "intValue", {
+            get: function () {
+                return this.getIntValue();
+            }
+        });
+
+        Object.defineProperty(eventProto, "stringValue", {
+            get: function () {
+                return this.getStringValue();
+            }
+        });
+
+
+        let eventDataProto = ns.EventData.prototype;
+        Object.defineProperty(eventDataProto, "name", {
+            get: function () {
+                return this.getName();
+            }
+        });
+
+        // Object.defineProperty(eventDataProto, "intValue", {
+        //     get: function () {
+        //         return this.getIntValue();
+        //     }
+        // });
+
+        // Object.defineProperty(eventDataProto, "floatValue", {
+        //     get: function () {
+        //         return this.getFloatValue();
+        //     }
+        // });
+
+        // Object.defineProperty(eventDataProto, "stringValue", {
+        //     get: function () {
+        //         return this.getStringValue();
+        //     }
+        // });
+
+        Object.defineProperty(eventDataProto, "audioPath", {
+            get: function () {
+                return this.getAudioPath();
+            }
+        });
+
+    }
+
+    /**
+     * @en Bind vertex and index buffers for Spine rendering.
+     * @param maxNumVertices Maximum number of vertices.
+     * @param maxNumIndices Maximum number of indices.
+     * @zh 为 Spine 渲染绑定顶点和索引缓冲区。
+     * @param maxNumVertices 最大顶点数量。
+     * @param maxNumIndices 最大索引数量。
+     */
+    static bindBuffer(maxNumVertices: number, maxNumIndices: number) {
+        SpineAdapter._spine.createBuffer(maxNumVertices, maxNumIndices);
+        SpineAdapter._vbArray = SpineAdapter._spine.getVertexsBuffer();
+        SpineAdapter._ibArray = SpineAdapter._spine.getIndexsBuffer();
+    }
+
+    // static parseAtlas(text, path, atlasPages, atlasUrls) {
+
+    //     return new SpineManager._spine.Atlas(text, path, SpineManager._spine.TextureLoader.implement({
+    //         load: function (page, path) {
+    //             atlasUrls.push({ url: path });
+    //             atlasPages.push(page);
+    //         },
+    //         unload: function (s) {
+
+    //         }
+    //     }), true);
+    // }
+
+    // static createAtlasAttachmentLoader(loader) {
+    //     return new SpineManager._spine.AtlasAttachmentLoader(loader);
+    // }
+
+    // static readSkeletonData(desc, loader) {
+    //     let atlasLoader = new SpineManager._spine.AtlasAttachmentLoader(loader);
+    //     if (desc instanceof ArrayBuffer) {
+    //         let skeleton = new SpineManager._spine.SkeletonBinary(atlasLoader, false);
+    //         return skeleton.readSkeletonData(new Uint8Array(desc));
+    //     }
+    //     else {
+    //         let skeleton = new SpineManager._spine.SkeletonJson(atlasLoader, false);
+    //         return skeleton.readSkeletonData(JSON.stringify(desc));
+    //     }
+    // }
+
+    // static createAnimationStateListenerObject(fun: Function) {
+    //     return SpineManager._spine.AnimationStateListenerObject.implement({
+    //         callback: fun
+    //     })
+    // }
+
+    /**
+     * @en Draw a Spine skeleton.
+     * @param fun The drawing function.
+     * @param skeleton The Spine skeleton to draw.
+     * @param twoColorTint Whether to use two-color tinting.
+     * @param slotRangeStart The starting slot index.
+     * @param slotRangeEnd The ending slot index.
+     * @zh 绘制 Spine 骨骼。
+     * @param fun 绘制函数。
+     * @param skeleton 要绘制的 Spine 骨骼。
+     * @param twoColorTint 是否使用两色混色。
+     * @param slotRangeStart 起始插槽索引。
+     * @param slotRangeEnd 结束插槽索引。
+     */
+    static drawSkeleton(fun: Function, skeleton: any, twoColorTint: boolean, slotRangeStart: number, slotRangeEnd: number) {
+        SpineAdapter._spine.drawSkeleton(fun, skeleton, twoColorTint, slotRangeStart, slotRangeEnd);
+    }
+
+    // static createSkinnerRender(render: SpineWasmRender) {
+    //     return SpineManager._spine.LayaSkinnerRender.implement({
+    //         graphicsRender: function (vbLen: number, iblen: number, texturePath: string, blendMode: any) {
+    //             render.graphicsRender(vbLen, iblen, texturePath, blendMode);
+    //         }
+    //     })
+    // }
+
+}
+
+/**
+ * @en TextureAtlas class for handling Spine texture atlases.
+ * @zh TextureAtlas 类用于处理 Spine 纹理图集。
+ */
+class TextureAtlas {
+    /**
+     * @en Creates a new TextureAtlas instance.
+     * @param atlasText The atlas data in text format.
+     * @param textureLoader A function to load textures.
+     * @zh 创建一个新的 TextureAtlas 实例。
+     * @param atlasText 纹理图集数据（文本格式）。
+     * @param textureLoader 用于加载纹理的函数。
+     */
+    constructor(atlasText: string, textureLoader: any) {
+        return new SpineAdapter._spine.Atlas(atlasText, "", SpineAdapter._spine.TextureLoader.implement({
+            load: (page: any, url: string) => {
+                let texture = textureLoader(url);
+                page.texture = texture;
+            },
+            unload: function (s: any) {
+
+            }
+        }), true);
+
+
+    }
+}

@@ -53,9 +53,9 @@ export class Main {
      * @param singleDemo  单个Demo入口
      */
     constructor(is3D: boolean = true, isReadNetWorkRes: boolean = false, singleDemo?: any) {
-        this.startTest(is3D,isReadNetWorkRes,singleDemo);
+        this.startTest(is3D, isReadNetWorkRes, singleDemo);
     }
-    async startTest(is3D: boolean = true, isReadNetWorkRes: boolean = false, singleDemo?: any){
+    async startTest(is3D: boolean = true, isReadNetWorkRes: boolean = false, singleDemo?: any) {
         this._singleDemo = singleDemo;
         if (!LayaEnv.isConch || (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() == 2)) {
             LayaGL.unitRenderModuleDataFactory = new WebUnitRenderModuleDataFactory();
@@ -89,7 +89,7 @@ export class Main {
             Laya.stage.screenMode = Stage.SCREEN_NONE;
         }
         Laya.stage.bgColor = "#ffffff";
-        //Stat.show();
+        // Stat.show();
 
         //初始化socket连接
         if (Main.isOpenSocket)
@@ -105,7 +105,7 @@ export class Main {
         // 加载fileConfig.json配置内容
         await Laya.loader.loadPackage("", null, null)
         //加载引擎需要的资源
-        await Laya.loader.load([{ url: "res/atlas/comp.json", type: Loader.ATLAS }]);
+        await Laya.loader.load([{ url: "atlas/comp.atlas", type: Loader.ATLAS }]);
         this.onLoaded();
     }
 
@@ -113,8 +113,8 @@ export class Main {
         if (Main.isOpenSocket)
             Client.instance.send({ type: "login" });
 
-        let texture: Texture = Laya.loader.getRes("comp/button.png");
-        texture.bitmap.lock = true;
+        // let texture: Texture = Laya.loader.getRes("comp/button.png");
+        // texture.bitmap.lock = true;
         if (!this._is3D) {
             //Layaair1.0-2d
             Main.box2D = new Sprite();

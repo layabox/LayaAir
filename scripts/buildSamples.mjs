@@ -6,6 +6,9 @@ import glsl from "rollup-plugin-glsl";
 import typescript2 from 'rollup-plugin-typescript2';
 import { onRollupWarn } from "./utils.mjs";
 
+const platform = process.argv[2] || "webgl";
+
+const sourceMap = false;
 const samplesBathURL = './src/samples';
 let baseurl = process.cwd();
 let layaFiles = [
@@ -28,6 +31,8 @@ var mentry = 'multientry.ts';
 main();
 
 async function main() {
+    console.log(`Building samples for ${platform}...`);
+
     let bundleobj = {
         tsconfig: samplesBathURL + '/tsconfig.json',
         check: false, //Set to false to avoid doing any diagnostic checks on the code
@@ -40,7 +45,7 @@ async function main() {
     };
 
     let bundle = await rollup({
-        input: samplesBathURL + '/index_webgl.ts',
+        input: samplesBathURL + `/index_${platform}.ts`,
         treeshake: false, //建议忽略
         onwarn: onRollupWarn(true),
         external: ['Laya'],
@@ -55,20 +60,20 @@ async function main() {
             typescript2(bundleobj),
             glsl({
                 include: /.*(.glsl|.vs|.fs)$/,
-                sourceMap: true,
+                sourceMap: sourceMap,
                 compress: false
             }),
         ]
     });
     await bundle.write({
-        file: './bin/rollUp/bundle.js',
+        file: `./bin/${platform}/bundle.js`,
         format: 'iife',
         name: 'Laya',
         extend: true,
         globals: {
             'Laya': 'Laya'
         },
-        sourcemap: true,
+        sourcemap: sourceMap,
         banner: 'window.Laya=window.Laya||{};\n',
     });
 
@@ -95,22 +100,22 @@ async function main() {
             typescript2(layaobj),
             glsl({
                 include: /.*(.glsl|.vs|.fs)$/,
-                sourceMap: true,
+                sourceMap: sourceMap,
                 compress: false
             }),
         ]
     });
     await bundle.write({
-        file: './bin/rollUp/laya.js',
+        file: `./bin/${platform}/laya.js`,
         format: 'iife',
         name: 'Laya',
-        sourcemap: true,
+        sourcemap: sourceMap,
         //banner: 'window.Laya=window.Laya||{};\n',
     });
     console.timeEnd("compile laya");
 
     // 发布时调用编译功能，判断是否点击了编译选项
-    let layajsPath = path.join("./", "bin/rollUp", "laya.js");
+    let layajsPath = path.join("./", `bin/${platform}`, "laya.js");
     let layajsCon = fs.readFileSync(layajsPath, "utf8");
     layajsCon = layajsCon.replace(/^var Laya = /mg, "");
     layajsCon = layajsCon.replace(/\({}\);\s*\n*$/mg, "(window.Laya = window.Laya || {});");

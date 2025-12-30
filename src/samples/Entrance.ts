@@ -27,16 +27,15 @@ import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";
 import { WebGLRender2DProcess } from "laya/RenderDriver/WebGLDriver/2DRenderPass/WebGLRender2DProcess";
 import { SketonOptimise } from "laya/spine/optimize/SketonOptimise";
 import { Spine2DRenderNode } from "laya/spine/Spine2DRenderNode";
-import { SpineBakeScript } from "laya/spine/optimize/SpineBakeScript";
 
 
 export class Entrance {
 
-    private skeleton: any;
+    private skeleton: Spine2DRenderNode;
     private index: number = -1;
 
     //Main: typeof Main = null;
-    
+
     private play(): void {
         if (++this.index >= this.skeleton.getAnimNum()) {
             this.index = 0
@@ -52,6 +51,7 @@ export class Entrance {
         Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
         LayaGL.render2DRenderPassFactory = new WebGLRender2DProcess()
         SpineTemplet.RuntimeVersion = "3.8";
+        // SpineTemplet.RuntimeVersion = "4.0";
         // new Sprite3DLoad();
         // return;
         // new Sprite3DLoad();
@@ -59,27 +59,27 @@ export class Entrance {
 
         // new Sprite3DLoad();
         // return;
-        Laya.init(0, 0).then(async () => {
+        Laya.init(1024, 768).then(async () => {
             Laya.stage.scaleMode = "full";
-            let sizeString=Browser.getQueryString("size")||"1";
-            let size:number=parseInt(sizeString);
+            let sizeString = Browser.getQueryString("size") || "1";
+            let size: number = parseInt(sizeString);
 
-            let enableCache=Browser.getQueryString("cache")||"false";
-            let enableCacheBool=enableCache=="true";
-            SketonOptimise.cacheSwitch=true;
+            let enableCache = Browser.getQueryString("cache") || "false";
+            let enableCacheBool = enableCache == "true";
+            SketonOptimise.cacheSwitch = false;
 
-            let closeRender2D=Browser.getQueryString("closeRender2D")||"false";
-            let closeRender2DBool=closeRender2D=="true";
+            let closeRender2D = Browser.getQueryString("closeRender2D") || "false";
+            let closeRender2DBool = closeRender2D == "true";
             //@ts-ignore
-            window.closeRender2D=closeRender2DBool;
+            window.closeRender2D = closeRender2DBool;
 
-            let renderNormal=Browser.getQueryString("renderNormal")||"false";
-            let renderNormalBool=renderNormal=="true";
-            SketonOptimise.normalRenderSwitch=renderNormalBool;
+            let renderNormal = Browser.getQueryString("renderNormal") || "false";
+            let renderNormalBool = renderNormal == "true";
+            SketonOptimise.normalRenderSwitch = renderNormalBool;
 
-        //     let abc=await Laya.loader.load("https://static.xingzheai.cn/aigg/avgres/web/1714036708961/1714036708961.mp4", Loader.VIDEO);
-        //    debugger;
-        //     return;
+            //     let abc=await Laya.loader.load("https://static.xingzheai.cn/aigg/avgres/web/1714036708961/1714036708961.mp4", Loader.VIDEO);
+            //    debugger;
+            //     return;
             Laya.stage.bgColor = "#000000";
             // let a = new Image();
             Stat.show();
@@ -92,64 +92,69 @@ export class Entrance {
 
             //a.graphics.drawSpineTriangles(texture, 100, 200, new Float32Array([0, 0,0,0,0,0,0,0, 50, 0,0,0,0,0,0.5,0, 100, 100,0,0,0,0,1,1, 0, 100,0,0,0,0,0,1]),new Float32Array([0, 0, 1, 0, 1, 1, 0, 1]),new Uint16Array([0, 1, 2, 0, 2, 3]));
             //Laya.stage.addChild(a);
-      // Laya.loader.load("res/spine/Sp_staff.json", Loader.SPINE).then((templet: SpineTemplet) => {
-        Laya.loader.load("sample-resource/res/spine/spineboy-pma.skel", Loader.SPINE).then(async (templet: SpineTemplet) => {
-         //  let a= Laya.loader.getRes("res/spine/spineboy-pma.skel");
-           //debugger;
-        // Laya.loader.load("res/spine/mesh.json", Loader.SPINE).then((templet: SpineTemplet) => {
-        //Laya.loader.load("res/spine/Customer/Sp_customer.skel", Loader.SPINE).then((templet: SpineTemplet) => {
-               //templet.renderType=ERenderType.boneGPU;
+            // Laya.loader.load("res/spine/Sp_staff.json", Loader.SPINE).then((templet: SpineTemplet) => {
+            // Laya.loader.load("sample-resource/res/spine/38/seffect_600005.skel", Loader.SPINE).then(async (templet: SpineTemplet) => {
+            // Laya.loader.load("sample-resource/res/spine/38/UI_settlement2.json", Loader.SPINE).then(async (templet: SpineTemplet) => {
+            // Laya.loader.load("sample-resource/res/spine/38/seffect_600005.skel", Loader.SPINE).then(async (templet: SpineTemplet) => {
+            Laya.loader.load("sample-resource/res/spine/38/spineboy-pma.skel", Loader.SPINE).then(async (templet: SpineTemplet) => {
+                //  let a= Laya.loader.getRes("res/spine/spineboy-pma.skel");
+                //debugger;
+                // Laya.loader.load("res/spine/mesh.json", Loader.SPINE).then((templet: SpineTemplet) => {
+                //Laya.loader.load("res/spine/Customer/Sp_customer.skel", Loader.SPINE).then((templet: SpineTemplet) => {
+                //templet.renderType=ERenderType.boneGPU;
+
+                
                 for (let i = 0; i < size; i++) {
                     let s = new Sprite()
-                    let renderNode=  s.addComponent(Spine2DRenderNode)
-        
+                    Laya.stage.addChild(s);
+                    s.pos(400, 400);
+                    s.scale(1, 1);
+                    s.on(Event.STOPPED, this, this.play);
+
+                    
+                    let renderNode = s.addComponent(Spine2DRenderNode);
+
                     this.skeleton = renderNode;
-                        //@ts-ignore
-                    window.jj=s;
+
+                    renderNode.createBone = true;
+                    //@ts-ignore
+                    window.jj = s;
                     // s.skinName="playerskin_1";
                     renderNode.templet = templet;
 
-                    let a = new Sprite();
-                    let renderNode2 =  a.addComponent(Spine2DRenderNode);
-                    renderNode2.templet = templet;
+                    // s.pos(100 + i * 3, 700);
                     
-                    // let sb= s.addComponent(SpineBakeScript)
-                    // sb.url="res/spine/test.ktx";
-                    // await sb.attach(renderNode.spineItem);
-
-                    Laya.stage.addChild(s);
-                    Laya.stage.addChild(a);
-                    s.pos(100+i*3, 700);
-                    a.pos(400+i*300, 700);
-                    s.scale(1, 1);
-                    s.on(Event.STOPPED, this, this.play);
-                  //  let n = s.getAnimNum();
+                    //  let n = s.getAnimNum();
                     //s.play(i%n, true, true);
                     //this.play();
-                    renderNode.play(0, true, true);
-                    renderNode2.play(i, true, true);
-                
-                
-                
-                
-                
-                
+                    renderNode.play("walk", true, true);
+
                     //     let s = new SpineSkeleton();
-        
-                //     //let dd=s.addComponent(SpineSkeletonScipt);
-                //     this.skeleton = s;
-                //     //@ts-ignore
-                //    window.jj=s;
-                //   // s.skinName="playerskin_1";
-                //    s.templet = templet;
-                //    Laya.stage.addChild(s);
-                //     s.pos(100+i*3, 700);
-                //     s.scale(1, 1);
-                //     s.on(Event.STOPPED, this, this.play);
-                //   //  let n = s.getAnimNum();
-                //     //s.play(i%n, true, true);
-                //     //this.play();
-                //     s.play("portal", true, true);
+
+                    //     //let dd=s.addComponent(SpineSkeletonScipt);
+                    //     this.skeleton = s;
+                    //     //@ts-ignore
+                    //    window.jj=s;
+                    //   // s.skinName="playerskin_1";
+                    //    s.templet = templet;
+                    //    Laya.stage.addChild(s);
+                    //     s.pos(100+i*3, 700);
+                    //     s.scale(1, 1);
+                    //     s.on(Event.STOPPED, this, this.play);
+                    //   //  let n = s.getAnimNum();
+                    //     //s.play(i%n, true, true);
+                    //     //this.play();
+                    //     s.play("portal", true, true);
+
+                    if (!i) {
+                        let bone = renderNode.getBone("gun");
+                        if (bone) {
+                            let sprite = new Sprite();
+                            sprite.graphics.drawRect(0, 0, 100, 100, "#ff0000");
+
+                            bone.addChild(sprite)
+                        }
+                    }
                 }
 
             });
