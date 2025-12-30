@@ -318,7 +318,7 @@ export class GLESComputeContext implements IComputeContext {
         const dispatchParams = dispatchInfo.dispatchParams;
 
         // 绑定计算着色器
-        shader.bind();
+        //shader.bind();
         this._currentShader = shader;
 
         // 绑定着色器数据
@@ -474,7 +474,7 @@ export class GLESComputeContext implements IComputeContext {
         this.clearCMDs();
 
         if (this._currentShader) {
-            this._currentShader.unbind();
+            //this._currentShader.unbind();
             this._currentShader = null;
         }
 

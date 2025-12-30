@@ -22,7 +22,7 @@ import { CommandBuffer } from "../../../../../d3/core/render/command/CommandBuff
 
 const viewport = new Viewport(0, 0, 0, 0);
 const offsetScale = new Vector4();
-export class Web3DRenderPass implements IRender3DProcess {
+export class WebRender3DProcess implements IRender3DProcess {
     render3DManager: WebSceneRenderManager;
 
     _renderPass: IForwardAddRP;
@@ -147,13 +147,14 @@ export class Web3DRenderPass implements IRender3DProcess {
             if (needDirectionShadow || needSpotShadow) {
                 context.preDrawUniformMaps.add("Shadow");
             }
+
         } else {
             context.preDrawUniformMaps.delete("Shadow");
         }
 
 
         if (Stat.enablePostprocess && camera.postProcess && camera.postProcess.enable && camera.postProcess.effects.length > 0) {
-            this._renderPass.enablePostProcess = Stat.enablePostprocess;
+            this._renderPass.enablePostProcess = camera.postProcess.enable;
             this._renderPass.postProcess = camera.postProcess._context.command;
             camera.postProcess._render(camera);
             this._renderPass.postProcess._apply(false);

@@ -262,6 +262,8 @@ export class WebGLRenderElement3D implements IRenderElement3D {
                 // shaderIns.uploadRenderStateBlendDepth(this._materialShaderData);
                 // shaderIns.uploadRenderStateFrontFace(this._materialShaderData, forceInvertFace, this._invertFront);
 
+        
+
                 shaderIns.uploadRenderState(this._materialShaderData.renderState, forceInvertFace, this._invertFront);
 
                 this.drawGeometry(shaderIns);

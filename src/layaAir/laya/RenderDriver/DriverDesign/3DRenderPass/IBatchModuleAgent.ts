@@ -45,19 +45,19 @@ export interface IBatchModuleAgent {
     /**
      * 设置相机裁剪信息
      */
-    setCullCamera(cameraCullInfo: CameraCullInfo[]): void;
+    setCullCamera?(cameraCullInfo: CameraCullInfo[]): void;
     /**
      * 设置方向光裁剪信息
      */
-    setDirLightCullInfo(directLightCullInfo: ShadowCullInfo[]): void;
+    setDirLightCullInfo?(directLightCullInfo: ShadowCullInfo[]): void;
     /**
      * 设置点光源裁剪信息
      */
-    setSpotCullingDir(directLightCullInfo: CameraCullInfo[]): void;
+    setSpotCullingDir?(directLightCullInfo: CameraCullInfo[]): void;
     /**
      * 添加渲染元素
      */
-    appendRenderElement(cullMode: BatchCullMode, cullInfoIndex: number, context: IRenderContext3D): IModuleAgentResource;
+    appendRenderElement?(cullMode: BatchCullMode, cullInfoIndex: number, context: IRenderContext3D): IModuleAgentResource;
     /**
      * 释放
      */

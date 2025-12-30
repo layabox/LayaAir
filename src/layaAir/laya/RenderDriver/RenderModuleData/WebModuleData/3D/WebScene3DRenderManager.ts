@@ -33,6 +33,7 @@ export class WebSceneRenderManager implements ISceneRenderManager {
             for (let i = 0; i < this.baseRenderList.length; i++) {
                 if (this.baseRenderList.elements[i].renderNodeType == renderNodeType) {
                     agent.addRenderNode(this._list.elements[i]);
+                    this._list.elements[i]._batchRender = agent;
                 }
             }
         }

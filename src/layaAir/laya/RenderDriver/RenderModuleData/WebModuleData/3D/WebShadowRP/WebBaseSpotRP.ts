@@ -209,6 +209,7 @@ export class WebBaseSpotRP implements ISpotShadowRP {
         context.sceneData.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
         context.sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
     }
+    
     render(context: IRenderContext3D, manager: ISceneRenderManager): void {
         const originCameraData = context.cameraData;
         const shadowSpotData = this._shadowSpotData;

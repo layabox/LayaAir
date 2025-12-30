@@ -2,6 +2,7 @@ import { Config } from "../../../../Config";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { NotImplementedError } from "../../../utils/Error";
+import { Stat } from "../../../utils/Stat";
 import { IRenderEngine } from "../../DriverDesign/RenderDevice/IRenderEngine";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
@@ -41,11 +42,12 @@ export class GLESEngine implements IRenderEngine {
   }
 
   endFrame(): void {
-    this._nativeObj.startFrame();
+    this._nativeObj.endFrame();
   }
 
   startFrame(): void {
-    this._nativeObj.endFrame();
+    this._nativeObj.loopCount = Stat.loopCount;
+    this._nativeObj.startFrame();
   }
 
   _remapZ: boolean = true;

@@ -585,9 +585,9 @@ export class BaseRender extends Component {
     constructor() {
         super();
         this._baseRenderNode = this._createBaseRenderNode();
-        this._baseRenderNode.visibalRangeBit = 0;
-        this._baseRenderNode.setCommonUniformMap(this._getcommonUniformMap());
+        this._baseRenderNode.visibalRangeBit = 0; 
         this._baseRenderNode.shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
+        this._baseRenderNode.setCommonUniformMap(this._getcommonUniformMap());
         this._baseRenderNode.bounds = this._bounds = new Bounds(Vector3.ZERO, Vector3.ZERO);
         this._enabled = true;
         this._baseRenderNode.enable = true;

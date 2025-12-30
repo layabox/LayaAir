@@ -1,3 +1,4 @@
+import { BaseTexture } from "../../../resource/BaseTexture";
 import { CommandUniformMap, UniformOptions, UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 
@@ -24,5 +25,12 @@ export class GLESCommandUniformMap extends CommandUniformMap {
         //if (uniformtype !== ShaderDataType.Matrix4x4 && uniformtype !== ShaderDataType.Vector4)
         //    throw ('because of align rule, the engine does not support other types as arrays.');
         this._nativeObj.addShaderUniformArray(propertyID, propertyName, uniformtype, arrayLength);
+    }
+
+    /**
+     * 设置默认值
+     */
+    setDefaultTextureData(key: number, defaultTex: BaseTexture) {
+       
     }
 }
