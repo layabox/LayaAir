@@ -118,11 +118,15 @@ export class SpineMeshUtils {
         let usage = BufferUsage.Dynamic;
         let vertexBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(usage);
         vertexBuffer.vertexDeclaration = vertexDeclaration;
+        //@ts-ignore
+        vertexBuffer._byteLength = 0;
         vertexBuffers.push(vertexBuffer);
+
         mesh._vertexBuffers = vertexBuffers;
         let indexbuffer = LayaGL.renderDeviceFactory.createIndexBuffer(usage);
         mesh._indexBuffer = indexbuffer;
-
+        //@ts-ignore
+        indexbuffer._byteLength = 0;
         let state = mesh._bufferState;
         state.applyState(vertexBuffers, indexbuffer);
         return mesh;

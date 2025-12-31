@@ -90,7 +90,7 @@ export interface ISelection {
     handleClick(item: GWidget, evt: Event): void;
 
     /** @ignore @blueprintIgnore */
-    handleArrowKey(dir: number): number;
+    handleArrowKey(dir: number, evt?: Event): number;
 
     /** @internal */
     destroy(): void;

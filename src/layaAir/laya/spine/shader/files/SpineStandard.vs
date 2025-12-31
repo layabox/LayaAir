@@ -1,10 +1,10 @@
 #define SHADER_NAME SpineStandardVS
+varying vec4 v_color2;
 
 #include "Sprite2DVertex.glsl";
 #include "SpineVertexCommon.glsl";
 #include "Spine2DVertex.glsl";
 
-varying vec4 v_color2;
 
 void main()
 {

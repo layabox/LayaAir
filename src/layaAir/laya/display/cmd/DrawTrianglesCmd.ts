@@ -17,6 +17,9 @@ const className = "DrawTrianglesCmd";
  * @zh 绘制三角形命令
  */
 export class DrawTrianglesCmd implements IGraphicsCmd {
+    /** @internal */
+    _cacheData: any;
+    
     /**
      * @en Identifier for the DrawTrianglesCmd
      * @zh 绘制三角形命令的标识符
@@ -164,6 +167,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
         this.indices = null;
         this.matrix = null;
         this.mesh = null;
+        this._cacheData = null;
         this._dynamic = null;
         this._tempUVs = null;
         Pool.recover(className, this);

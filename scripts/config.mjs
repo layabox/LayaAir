@@ -255,7 +255,10 @@ export const allBundles = [{
 {
     name: 'spine',
     input: [
-        'laya/spine/**/*.*'
+        'laya/spine/interface/*.*',
+        'laya/spine/shader/*.*',
+        'laya/spine/web/**/*.*',
+        'laya/spine/*.ts',
     ],
     copy: ['jsLibs/spine-core-*.js']
 },

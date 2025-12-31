@@ -533,6 +533,7 @@ export class Skeleton extends Sprite {
         //要用的graphics
         if (this._aniMode == 0 || this._aniMode == 1) {	// 有缓存的情况
             this.graphics = GraphicsAni.create();// new GraphicsAni();
+            this.graphics.needCache = true;
         } else { // 实时计算的情况。 每次都是新的数据，因此要把上一帧的清理一下
             if (this.graphics instanceof GraphicsAni) {
                 this.graphics.clear();
@@ -975,6 +976,7 @@ export class Skeleton extends Sprite {
                 for (let j = 0, len = this._graphicsCache[i].length; j < len; j++) {
                     var gp: GraphicsAni = this._graphicsCache[i][j];
                     if (gp && gp != this.graphics) {
+                        gp.needCache = false;
                         GraphicsAni.recycle(gp);
                     }
                 }

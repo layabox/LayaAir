@@ -156,7 +156,7 @@ export class WebRender2DPass implements IRender2DPass {
      * @returns 是否需要更新
      */
    needRender(): boolean {
-      //this.repaint = true;
+      // this.repaint = true;
       return this.enable
          && !this.isSupport
          && (this.repaint || !this.renderTexture);
@@ -311,7 +311,7 @@ export class WebRender2DPass implements IRender2DPass {
                for (let i = 0; i < n; i++) {
                   let element = struct.renderElements[i];
                   element._index = i;
-                  renderElements.add(element);
+                  element.geometry && renderElements.add(element);
                }
             }
 

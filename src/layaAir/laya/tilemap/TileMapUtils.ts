@@ -4,6 +4,7 @@ import { Vector4 } from "../maths/Vector4";
 import { TileAlternativesData } from "./TileAlternativesData";
 import { TileShape } from "./TileMapEnum";
 import { TileSetCellData } from "./TileSetCellData";
+import { ChunkCellInfo } from "./TileMapChunkData";
 
 const BYTE_POS_CELL = 24;
 const BYTE_POS_GROUP = 16;
@@ -187,6 +188,45 @@ export class TileMapUtils {
         out.x = tiledX;
         out.y = tiledY;
         return out;
+    }
+
+    /**
+     * Y优先排序比较：先 sortY，再 zOrderValue，再 cellx
+     */
+    public static compareYSort(a: ChunkCellInfo, b: ChunkCellInfo): number {
+        if (a.sortY !== b.sortY)
+            return a.sortY - b.sortY;
+        if (a.zOrderValue !== b.zOrderValue)
+            return a.zOrderValue - b.zOrderValue;
+        if (a.cellx !== b.cellx)
+            return a.cellx - b.cellx;
+        return a.chuckLocalindex - b.chuckLocalindex;
+    }
+
+    /**
+     * Z优先排序比较：先 zOrderValue，再 sortY，再 cellx
+     */
+    public static compareZSort(a: ChunkCellInfo, b: ChunkCellInfo): number {
+        if (a.zOrderValue !== b.zOrderValue)
+            return a.zOrderValue - b.zOrderValue;
+        if (a.sortY !== b.sortY)
+            return a.sortY - b.sortY;
+        if (a.cellx !== b.cellx)
+            return a.cellx - b.cellx;
+        return a.chuckLocalindex - b.chuckLocalindex;
+    }
+
+    /**
+     * X优先排序比较：先 cellx，再 sortY，再 zOrderValue
+     */
+    public static compareXSort(a: ChunkCellInfo, b: ChunkCellInfo): number {
+        if (a.cellx !== b.cellx)
+            return a.cellx - b.cellx;
+        if (a.sortY !== b.sortY)
+            return a.sortY - b.sortY;
+        if (a.zOrderValue !== b.zOrderValue)
+            return a.zOrderValue - b.zOrderValue;
+        return a.chuckLocalindex - b.chuckLocalindex;
     }
 
 }

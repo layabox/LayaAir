@@ -149,6 +149,7 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
     }
 
     _upload() {
+        if (!this._num) return;
         let view = this._first;
         let start = 0;
         let length = 0;
@@ -199,7 +200,6 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
     }
 
     _modifyOneView(view: Web2DGraphic2DIndexDataView): void {
-        this.addDataView(view);
 
         if (view._prev) {
             view.start = view._prev.start + view._prev.length;
@@ -256,6 +256,9 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
     }
 
     _modifyOneView(view: Web2DGraphic2DIndexCloneDataView): void {
+
+        this.addDataView(view);
+
         // let startTimer = Date.now();
         super._modifyOneView(view);
         // let modifyOneViewTime = Date.now();

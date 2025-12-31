@@ -83,15 +83,19 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     mask: WebRenderStruct2D | null = null;
 
     private _bufferBlocks: IGraphics2DBufferBlock[] = null;
-    private _needUpdateBuffer: boolean = false;
+    private _skipBufferUpdate: boolean = false;
     private _modifiedFrame: number = -1;
     private _clonesViews: Web2DGraphic2DIndexCloneDataView[];
     private _globalAlpha: number = 1;
 
-    applyVertexBufferBlock(blocks: IGraphics2DBufferBlock[]): void {
-        this._bufferBlocks = blocks.slice();
-        this._needUpdateBuffer = blocks.length > 0;
+    applyVertexBufferBlock(blocks: IGraphics2DBufferBlock[] ): void {
+        this._bufferBlocks = blocks;
+        this._skipBufferUpdate = blocks.length > 0;
         this.updateCloneView();
+    }
+
+    skipBufferUpdate() {
+        this._skipBufferUpdate = true;
     }
 
     /** @internal */
@@ -108,8 +112,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         let mat = trans.matrix;
 
         if (
-            this._needUpdateBuffer
-            || this._modifiedFrame < trans.modifiedFrame
+            this._modifiedFrame < trans.modifiedFrame
         ) {
             if (!this._bufferBlocks || !this._bufferBlocks.length) {
 
@@ -128,9 +131,13 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                 this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
                 this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
             } else {
+                if (this._skipBufferUpdate) {  
+                    this._modifiedFrame = trans.modifiedFrame;
+                    this._skipBufferUpdate = false;
+                    return;
+                }
                 this._updateVertexData(mat, this._owner.globalAlpha, true, true , false);
                 this._globalAlpha = this._owner.globalAlpha;
-                this._needUpdateBuffer = false;
             }
             this._modifiedFrame = trans.modifiedFrame;
         }
@@ -194,6 +201,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                     pos += stride;
                     ci += 2;
                 }
+                this._skipBufferUpdate = false;
             }
 
         }
@@ -435,7 +443,6 @@ export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implemen
         }
 
     }
-
 
     public get offset(): Vector2 {
         return this._offset;

@@ -406,29 +406,33 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
                      let cmaxx = tx + cm.a;
                      let cmaxy = ty + cm.d;
-
                      if (cmaxx <= parentMinX || cmaxy <= parentMinY || tx >= parentMaxX || ty >= parentMaxY) {
                         //超出范围了
                         cm.a = -0.1; cm.d = -0.1;
                      } else {
                         if (tx < parentMinX) {
                            cm.a -= (parentMinX - tx);
-                           tx = cm.tx = parentMinX;
-                           // offsetx += parentMinX - cm.tx;
+                           tx = parentMinX;
                         }
                         if (cmaxx > parentMaxX) {
                            cm.a -= (cmaxx - parentMaxX);
                         }
                         if (ty < parentMinY) {
                            cm.d -= (parentMinY - ty);
-                           ty = cm.ty = parentMinY;
-                           // offsety += parentMinY - cm.ty;
+                           ty = parentMinY;
                         }
                         if (cmaxy > parentMaxY) {
                            cm.d -= (cmaxy - parentMaxY);
                         }
                         if (cm.a <= 0) cm.a = -0.1;
                         if (cm.d <= 0) cm.d = -0.1;
+                        
+                        if (cm.tx < parentMinX) {
+                           cm.tx = parentMinX;
+                        }
+                        if (cm.ty < parentMinY) {
+                           cm.ty = parentMinY;
+                        }
                      }
                   }
 

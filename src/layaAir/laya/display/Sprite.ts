@@ -29,13 +29,15 @@ import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRende
 import { BlendMode, BlendModeHandler } from "../webgl/canvas/BlendMode";
 import { Stat } from "../utils/Stat";
 import { Scene } from "./Scene";
-import { GraphicsRenderData, SubStructRender } from "./Scene2DSpecial/GraphicsUtils";
+import { GraphicsRenderer, SubStructRender } from "./Scene2DSpecial/GraphicsUtils";
 import { PostProcess2D } from "./PostProcess2D";
 import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
 import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
 import { Config } from "../../Config";
 import { MathUtil } from "../maths/MathUtil";
+import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
+import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
 
 const hiddenBits = NodeFlags.NOT_IN_PAGE;
 
@@ -244,6 +246,8 @@ export class Sprite extends Node {
     _ownerArea: Sprite;
     /** @internal */
     _subStructRender: SubStructRender;
+    /** @internal */
+    _ownPostProcess: boolean = false;
     /** @internal 渲染真实spritet的pass，在启用后处理，cacheAsBitmap和mask的时候生效 */
     _oriRenderPass: IRender2DPass;
     /** @internal 渲染真实sprite所需的rt大小 */
@@ -297,6 +301,10 @@ export class Sprite extends Node {
         if (this._subStructRender) {
             this._subStructRender.destroy();
             this._subStructRender = null;
+        }
+        if (this._graphicsRenderer) {
+            this._graphicsRenderer.destroy();
+            this._graphicsRenderer = null;
         }
 
         if (this._drawOriRT) {
@@ -689,8 +697,9 @@ export class Sprite extends Node {
             }
         }
     }
+
     /** @internal */
-    _graphicsData: GraphicsRenderData;
+    _graphicsRenderer: GraphicsRenderer;
 
     /**
      * @en The drawing object, which encapsulates the interfaces for drawing bitmaps and vector graphics. All drawing operations of Sprite are implemented through Graphics.
@@ -723,26 +732,22 @@ export class Sprite extends Node {
             if (this._ownGraphics)
                 g.destroy();
             else {
-                g._data = null;
                 g.owner = null;
-                g._checkDisplay();
             }
         }
         this._ownGraphics = transferOwnership;
         this._graphics = value;
 
         if (value) {
-            if (!this._graphicsData)
-                this._graphicsData = new GraphicsRenderData(this);
-            else this._graphicsData.clear();
-            value._data = this._graphicsData;
+            if (!this._graphicsRenderer)
+                this._graphicsRenderer = new GraphicsRenderer(this);
             value.owner = this;
-            value._checkDisplay();
+            this._graphicsRenderer.setGraphics(value);
         }
         else {
-            if (this._graphicsData) {
-                this._graphicsData.destroy();
-                this._graphicsData = null;
+            if (this._graphicsRenderer) {
+                this._graphicsRenderer.destroy();
+                this._graphicsRenderer = null;
             }
             this._renderType &= ~SpriteConst.GRAPHICS;
         }
@@ -761,6 +766,7 @@ export class Sprite extends Node {
 
     /** @deprecated */
     set filters(value: Filter[]) {
+        if (value === this._filterArr) return;
         value && value.length === 0 && (value = null);
 
         this._filterArr = value;
@@ -780,6 +786,7 @@ export class Sprite extends Node {
         if (!this._oriRenderPass || !this._oriRenderPass.postProcess) {
             if (create) {
                 this.postProcess = new PostProcess2D();
+                this._ownPostProcess = true;
             } else {
                 return null;
             }
@@ -796,7 +803,12 @@ export class Sprite extends Node {
             if (this._oriRenderPass.postProcess === value)
                 return;
 
-            this._oriRenderPass.postProcess.owner = null;
+            if (this._ownPostProcess) {
+                this._oriRenderPass.postProcess.destroy();
+                this._ownPostProcess = false;
+            }else{
+                this._oriRenderPass.postProcess.owner = null;
+            }
             this._oriRenderPass.postProcess = null;
             this.setSubpassFlag(SubPassFlag.PostProcess);
         }
@@ -1684,7 +1696,7 @@ export class Sprite extends Node {
             }
 
             if (sprite._graphics) {
-                sprite._graphics._render(runner, 0, 0);
+                sprite._graphicsRenderer._render(runner, 0, 0);
             }
 
             for (let i = 0, len = sprite._children.length; i < len; i++)
@@ -2041,12 +2053,10 @@ export class Sprite extends Node {
                 }
             }
 
-            if (
-                this._renderType & SpriteConst.GRAPHICS
-            ) {
+            if (this._renderType & SpriteConst.GRAPHICS) {
                 if (flag & RepaintFlag.Graphics) {
-                    if (this._graphics)
-                        this._graphics._modified = true;
+                    if (this._graphicsRenderer)
+                        this._graphicsRenderer.onModified();
                 }
                 this._globalTrans._notifyRenderSpriteTransChange();
             }
@@ -2060,7 +2070,10 @@ export class Sprite extends Node {
 
     /** @internal */
     _needGraphicsUpdate(): boolean {
-        return !this._destroyed && this._struct.enabled && this._graphics && this._graphics._display && !!(this.displayedInStage || this._maskParent);
+        return !this._destroyed 
+        && this._struct.enabled 
+        && this._renderType & SpriteConst.GRAPHICS 
+        && !!(this.displayedInStage || this._maskParent);
     }
 
     /**
@@ -2361,7 +2374,8 @@ export class Sprite extends Node {
         if (rect.width === 0 || rect.height === 0) {
             this._drawOriRT = RenderTexture2D._empty;
         } else {
-            let renderTexture = RenderTexture2D.createFromPool(rect.width, rect.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+            let multiSamples = this._maskParent && LayaGL.renderEngine.getCapable(RenderCapable.MSAA) ? 4 : 1;
+            let renderTexture = RenderTexture2D.createFromPool(rect.width, rect.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, multiSamples);
             renderTexture._invertY = LayaGL.renderEngine._screenInvertY;
             this._drawOriRT = renderTexture;
         }
@@ -2507,8 +2521,8 @@ export class Sprite extends Node {
         super._setDisplay(value);
         //默认有父节点改变，需要重绘 graphics
         if (this._needGraphicsUpdate()) {
-            if (this._graphics)
-                this._graphics._modified = true;
+            if (this._graphicsRenderer)
+                this._graphicsRenderer.onModified();
             this.stage._graphicUpdateList.add(this);
             this._globalTrans._notifyRenderSpriteTransChange();
         }

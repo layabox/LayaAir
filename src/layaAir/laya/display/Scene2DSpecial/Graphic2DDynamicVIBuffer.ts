@@ -122,14 +122,7 @@ export class Graphic2DDynamicVIBuffer {
         let requiredBlocks = Math.ceil(vertexCount / this._vertexBlockSize);
         let requiredExtendBlockCount = requiredBlocks - (this._vertexFreeBlocks.length + (this._canVBlockCount - this._vertexViews.length));
         if (requiredExtendBlockCount > 0) {//判断是否需要扩Buffer
-            // let needBlocks = this._canVBlockCount + requiredExtendBlockCount;
-            // let newVertexCount = needBlocks * this._vertexBlockSize;/** Float32Array.BYTES_PER_ELEMENT */;
-            // if (newVertexCount > Graphic2DDynamicVIBuffer.MAX_VERTEX) {    //扩Buffer是否超过了最大范围
             return null;
-            // } else {
-            //扩Buffer
-            // this.vertexExtendBlock(requiredExtendBlockCount);
-            // }
         }
 
         let usedBlocks: number[] = [];
@@ -161,7 +154,7 @@ export class Graphic2DDynamicVIBuffer {
             remainingBlocks--;
         }
         // 使用第一个block的视图
-        return { buffer: this, vertexViews: usedViews, vertexBlocks: usedBlocks };
+        return { vertexViews: usedViews, vertexBlocks: usedBlocks };
     }
 
     /**
@@ -187,6 +180,8 @@ export class Graphic2DDynamicVIBuffer {
             this._wholeIndex,
             length
         );
+
+        this._wholeIndex.addDataView(view);
         // this._wholeIndex.addDataView(view);
         this._indexBufferLength += length;
         // }

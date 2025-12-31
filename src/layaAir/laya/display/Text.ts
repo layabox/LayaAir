@@ -206,7 +206,7 @@ export class Text extends Sprite {
     /**
      * An callback to translate the text.
      */
-    _onTranslate: (text: string, options: any) => string;
+    _onTranslate: (text: string, options: any, role?: number) => string;
 
     /**
      * @en Constructor method of Text.
@@ -1044,6 +1044,8 @@ export class Text extends Sprite {
         let isPrompt: boolean;
         if (!text && this._prompt) {
             text = this._prompt;
+            if (this._onTranslate)
+                text = this._onTranslate(text, null, 1);
             isPrompt = true;
         }
 

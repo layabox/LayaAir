@@ -144,6 +144,9 @@ export class NoRenderRenderContext3D implements IRenderContext3D {
     runCMDList(cmds: IRenderCMD[]): void {
 
     }
+    clearRenderTarget(): void {
+        
+    }
 
     clearRenderTarget(): void {
 

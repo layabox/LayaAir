@@ -14,6 +14,9 @@ const className = "DrawTextureCmd";
  * @zh 绘制单个贴图
  */
 export class DrawTextureCmd implements IGraphicsCmd {
+    /** @internal */
+    _cacheData: any;
+
     /**
      * @en Identifier for the DrawTextureCmd
      * @zh 绘制单个贴图命令的标识符
@@ -128,6 +131,7 @@ export class DrawTextureCmd implements IGraphicsCmd {
         this.texture && this.texture._removeReference();
         this.texture = null;
         this.matrix = null;
+        this._cacheData = null;
         Pool.recover(className, this);
     }
 
@@ -183,6 +187,13 @@ export class DrawTextureCmd implements IGraphicsCmd {
      */
     get cmdID(): string {
         return DrawTextureCmd.ID;
+    }
+
+    /**
+     * @ignore @blueprintIgnore
+     */
+    needsLayoutRepaint(): number {
+        return this.percent ? 1 : 0;
     }
 }
 

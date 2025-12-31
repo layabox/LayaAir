@@ -62,6 +62,8 @@ export class DrawMesh2DCMD extends Command2D {
 
     private _texture: BaseTexture;
 
+    private _tilingOffset: Vector4 = new Vector4(0, 0, 1, 1);
+
     constructor() {
         super();
         this._drawElementData = LayaGL.render2DRenderPassFactory.createDraw2DElementCMDData();
@@ -141,6 +143,8 @@ export class DrawMesh2DCMD extends Command2D {
             this._shaderData.removeDefine(ShaderDefines2D.GAMMATEXTURE);
         }
         this._texture = value;
+        
+        this._shaderData.setVector(BaseRenderNode2D.TILINGOFFSET, this._tilingOffset);
         this._shaderData.setTexture(BaseRenderNode2D.BASERENDER2DTEXTURE, value);
     }
     get texture(): BaseTexture {

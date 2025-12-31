@@ -56,7 +56,7 @@ export class StatUI {
 
     private updateSize() {
         let fontSize = Browser.onMobile ? 10 : 12; //手机dpi一般比较高，字体可以相对小一些
-        fontSize = Math.max(fontSize, fontSize / (Laya.stage._canvasTransform.a * Laya.stage.clientScaleX));
+        fontSize = Math.max(fontSize, fontSize / (Laya.stage._canvasTransform.getScaleX() * Laya.stage.clientScaleX));
 
         this._txt.fontSize = fontSize;
         this._title.fontSize = fontSize;

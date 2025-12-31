@@ -11,6 +11,9 @@ const className = "DrawTexturesCmd";
  * @zh 根据坐标集合绘制多个贴图
  */
 export class DrawTexturesCmd implements IGraphicsCmd {
+    /** @internal */
+    _cacheData: any;
+
     /**
      * @en Identifier for the DrawTexturesCmd
      * @zh 根据坐标集合绘制多个贴图命令的标识符
@@ -63,6 +66,7 @@ export class DrawTexturesCmd implements IGraphicsCmd {
         this.texture._removeReference();
         this.texture = null;
         this.pos = null;
+        this._cacheData = null;
         Pool.recover(className, this);
     }
 

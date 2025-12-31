@@ -8,7 +8,7 @@ import { WebglRenderContext2D } from "./WebGLRenderContext2D";
 import { WebGLRenderElement2D } from "./WebGLRenderElement2D";
 
 export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implements IPrimitiveRenderElement2D {
-    private static _additionShaderData: string[] = ["Sprite2DGraphics"];
+    private static _additionShaderData:string[] = ["Sprite2DGraphics"];
     primitiveShaderData: WebGLShaderData;
 
     protected _compileShader(context: WebglRenderContext2D) {

@@ -47,6 +47,8 @@ export class ChunkCellInfo {
 
     celly: number;
 
+    sortY: number;
+
     _physicsDatas: any[];
 
     _occluderDatas: TileMapOccluder[];
@@ -152,6 +154,7 @@ export class TileMapChunkData {
         this._tileSize = new Vector2();
         this._oriCellIndex = new Vector2(0, 0);
         this._renderElementArray = [];
+        this._sortMode = TileLayerSortMode.ZINDEXSORT; // 默认 Z 优先
         for (let i = 0; i < DIRTY_TYPES; i++)
             this._dirtyFlags[i] = new Map;
     }
@@ -252,6 +255,7 @@ export class TileMapChunkData {
                         chuckCellInfo.celly = localPos.y;
                         chuckCellInfo.cell = cellData;
                         chuckCellInfo._transFlag = this._transFlags[index] || 0;
+                        chuckCellInfo.sortY = localPos.y + cellData.y_sort_origin;
 
                         this._cellDataMap[index] = chuckCellInfo;
                         this._chuckCellList.push(chuckCellInfo);
@@ -378,29 +382,25 @@ export class TileMapChunkData {
 
             if (this._chuckCellList.length == 0)
                 return;
-            switch (this._tileLayer.sortMode) {
+
+            // 根据 sortMode 选择对应的排序比较方法
+            let compareFunc: (a: ChunkCellInfo, b: ChunkCellInfo) => number;
+            switch (this._sortMode) {
                 case TileLayerSortMode.YSort:
-                    this._chuckCellList.sort((a, b) => {
-                        if (a.celly == b.celly)
-                            return a.cellx - b.cellx;
-                        return a.celly - b.celly;
-                    });
-                    break;
-                case TileLayerSortMode.XSort:
-                    this._chuckCellList.sort((a, b) => {
-                        if (a.cellx - b.cellx) {
-                            return a.celly - b.celly;
-                        }
-                        return a.cellx - b.cellx
-                    });
+                    compareFunc = TileMapUtils.compareYSort;
                     break;
                 case TileLayerSortMode.ZINDEXSORT:
-                    this._chuckCellList.sort((a, b) => {
-                        if (a.zOrderValue == b.zOrderValue) { return a.chuckLocalindex - b.chuckLocalindex }
-                        else { return a.zOrderValue - b.zOrderValue }
-                    });
+                    compareFunc = TileMapUtils.compareZSort;
+                    break;
+                case TileLayerSortMode.XSort:
+                    compareFunc = TileMapUtils.compareXSort;
+                    break;
+                default:
+                    // 默认：Z优先
+                    compareFunc = TileMapUtils.compareZSort;
                     break;
             }
+            this._chuckCellList.sort(compareFunc);
             let lastCell;
             let tempCellIndexArray: ChunkCellInfo[] = [];
 
@@ -504,7 +504,7 @@ export class TileMapChunkData {
                         if (element.updateFlag[updateindex]) {
                             let data = element.cacheData[updateindex];
                             let verBuffer = element.renderElement.geometry.bufferState._vertexBuffers[updateindex + 1];//第一个Buffer是BaseBuffer
-                            verBuffer.setData(data.buffer, 0, 0, data.byteLength);
+                            verBuffer.setData(data.buffer as ArrayBuffer, 0, 0, data.byteLength);
                             element.updateFlag[updateindex] = false;
                         }
                     }
@@ -888,6 +888,7 @@ export class TileMapChunkData {
             chuckCellInfo.celly = localPos.y;
             chuckCellInfo.cell = cellData;
             chuckCellInfo._transFlag = transFlag;
+            chuckCellInfo.sortY = localPos.y + cellData.y_sort_origin;
 
             this._cellDataRefMap[gid].push(index);
             this._cellDataMap[index] = chuckCellInfo;
@@ -905,6 +906,7 @@ export class TileMapChunkData {
             }
             chunkCellInfo.cell = cellData;
             chunkCellInfo.zOrderValue = cellData.z_index;
+            chunkCellInfo.sortY = chunkCellInfo.celly + cellData.y_sort_origin;
             localIndexArray = this._cellDataRefMap[gid];
             localIndexArray.push(chunkCellInfo.chuckLocalindex);
 
@@ -1070,6 +1072,28 @@ export class TileMapChunkData {
     }
 
     /**
+     * @internal
+     * 当某个 TileSetCellData 的 y_sort_origin 发生变化时，
+     * 刷新当前 Chunk 中所有引用该 cell 的 sortY。
+     */
+    _refreshCellSort(cellData: TileSetCellData) {
+        if (!cellData) return;
+        let gid = cellData.gid;
+        if (gid < 0) return;
+        let indexList = this._cellDataRefMap[gid];
+        if (!indexList || !indexList.length) return;
+
+        for (let i = 0, len = indexList.length; i < len; i++) {
+            const cellIndex = indexList[i];
+            const info = this._cellDataMap[cellIndex];
+            if (!info) continue;
+            info.sortY = info.celly + cellData.y_sort_origin;
+            info.zOrderValue = cellData.z_index;
+        }
+        this._modifyData();
+    }
+
+    /**
      * tileSetCellData 删除或者无效
      * @internal
      */
@@ -1169,7 +1193,7 @@ class TileChunkPool {
             buffer.instanceBuffer = true;
         }
         buffer.setDataLength(vertices.byteLength);
-        buffer.setData(vertices.buffer, 0, 0, vertices.byteLength);
+        buffer.setData(vertices.buffer as ArrayBuffer, 0, 0, vertices.byteLength);
         buffer.vertexDeclaration = dec;
         return buffer;
     }

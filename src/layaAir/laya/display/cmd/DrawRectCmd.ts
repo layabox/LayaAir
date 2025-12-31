@@ -135,6 +135,13 @@ export class DrawRectCmd implements IGraphicsCmd {
     }
 
     /**
+     * @ignore @blueprintIgnore
+     */
+    needsLayoutRepaint(): number {
+        return this.percent ? 1 : 0;
+    }
+
+    /**
      * @ignore
      */
     getBounds(assembler: IGraphicsBoundsAssembler): void {

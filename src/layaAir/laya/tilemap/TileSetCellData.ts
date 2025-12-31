@@ -215,7 +215,9 @@ export class TileSetCellData {
     }
 
     public set z_index(value: number) {
+        if (this._z_index == value) return;
         this._z_index = value;
+        this._refreshCellSort();
     }
 
     public get y_sort_origin(): number {
@@ -223,8 +225,9 @@ export class TileSetCellData {
     }
 
     public set y_sort_origin(value: number) {
+        if (this._y_sort_origin == value) return;
         this._y_sort_origin = value;
-        //TODO Flag dirty
+        this._refreshCellSort();
     }
 
     public get terrainSet(): number {
@@ -314,6 +317,13 @@ export class TileSetCellData {
         });
     }
 
+    _refreshCellSort() {
+        if (!this.cellowner) return;
+        this._notiveRenderTile.forEach(element => {
+            element._refreshCellSort(this);
+        });
+    }
+
     // private _updateTransData() {
     //     this._updateTrans = false;
     //     let tileshape = this.cellowner.owner._owner.tileShape;
@@ -344,6 +354,7 @@ export class TileSetCellData {
 
     set_terrainPeeringBit(index: TileMapCellNeighbor, terrainIndex: number) {
         this._terrain_peering_bits[index] = terrainIndex;
+        this._cellowner.owner._owner._terrainsDirty = true;
     }
 
     get_terrainPeeringBit(index: TileMapCellNeighbor) {

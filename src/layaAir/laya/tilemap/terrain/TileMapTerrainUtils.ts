@@ -430,7 +430,7 @@ export class TileMapTerrainUtil {
       if (data == 1) {
          outs.set(vec2Map.get(x, y, true), TileMapCellNeighbor.RIGHT_SIDE);
 
-         TileMapTerrainUtil.getNeighborGird_Square(x, y, TileMapCellNeighbor.LEFT_SIDE, temp_vec2);
+         TileMapTerrainUtil.getNeighborGird_Square(x, y, TileMapCellNeighbor.RIGHT_SIDE, temp_vec2);
          outs.set(vec2Map.get(temp_vec2.x, temp_vec2.y, true), TileMapCellNeighbor.LEFT_SIDE);
       } else if (data == 2) {
          outs.set(vec2Map.get(x, y, true), TileMapCellNeighbor.BOTTOM_RIGHT_CORNER);
@@ -546,10 +546,10 @@ export class TileMapTerrainUtil {
 }
 
 export class TileMapTerrainRule {
-   data: number = 0;
+   data: number = -1;
    x: number = 0;
    y: number = 0;
-   terrain: number = 0;
+   terrain: number = -1;
    neighborObject: NeighborObject;
    priority = 1;
 
