@@ -766,6 +766,7 @@ export class Sprite extends Node {
 
     /** @deprecated */
     set filters(value: Filter[]) {
+        if (value === this._filterArr) return;
         value && value.length === 0 && (value = null);
 
         this._filterArr = value;
