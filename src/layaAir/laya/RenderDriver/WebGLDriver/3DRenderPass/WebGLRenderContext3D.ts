@@ -308,6 +308,10 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         }
         LayaGL.statAgent.recordTimeData(StatElement.T_3DContextPre, performance.now() - time);
         time = performance.now();
+
+        // 清理渲染状态缓存
+        WebGLEngine.instance._GLRenderState.clearRenderStateCache();
+
         for (var i: number = 0, n: number = list.length; i < n; i++) {
             elements[i]._render(this);//render
         }
@@ -332,6 +336,10 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         if (bufferMgr) {
             bufferMgr.upload();
         }
+
+        // 清理渲染状态缓存
+        WebGLEngine.instance._GLRenderState.clearRenderStateCache();
+
         node._render(this);
         LayaGL.statAgent.recordCTData(StatElement.CT_3DDrawCall, 1);
         LayaGL.renderEngine._framePassCount++;

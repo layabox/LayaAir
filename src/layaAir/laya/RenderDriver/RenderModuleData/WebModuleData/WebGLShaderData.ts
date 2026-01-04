@@ -163,6 +163,12 @@ export class WebGLShaderData extends ShaderData {
         cull = cull ?? RenderState.Default.cull;
         renderState.cull = cull;
 
+        // hash render state
+        const engine = WebGLEngine.instance;
+
+        const hash = engine.hashRenderState(renderState);
+        renderState.hash = hash;
+
         this._renderStateChanged = false;
     }
 
