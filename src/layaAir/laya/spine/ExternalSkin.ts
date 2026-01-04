@@ -88,7 +88,7 @@ export class ExternalSkin {
      */
     flush() {
         let targetTemplet = this.target?.templet;
-        let skeletonData = this._templet?.skeletonData;
+        let skeletonData = (this._templet as any).skeletonData;
         if (
             this._items && skeletonData 
             && targetTemplet

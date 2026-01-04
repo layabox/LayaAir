@@ -1,9 +1,12 @@
-import { Texture } from "../../resource/Texture";
-import { Texture2D } from "../../resource/Texture2D";
-import { ESpineRenderType } from "../SpineSkeleton";
-import { SpineTemplet } from "../SpineTemplet";
-import { SpineTexture } from "../SpineTexture";
-import { AttachmentParse } from "./AttachmentParse";
+// import { Texture } from "../../resource/Texture";
+// import { Texture2D } from "../../resource/Texture2D";
+// import { ESpineRenderType } from "../SpineSkeleton";
+// import { SpineTemplet } from "../SpineTemplet";
+// import { SpineTexture } from "../SpineTexture";
+// import { AttachmentParse } from "./AttachmentParse";
+// import { ESpineRenderType } from "../../../SpineSkeleton";
+// import { AttachmentParse } from "../optimize/AttachmentParse";
+
 import { ESpineRenderType } from "../../../SpineSkeleton";
 import { AttachmentParse } from "../optimize/AttachmentParse";
 
