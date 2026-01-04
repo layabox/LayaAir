@@ -146,6 +146,18 @@ export class Label extends UIComponent {
     }
 
     /**
+     * @en Letter spacing
+     * @zh 字间距
+     */
+    get letterSpacing(): number {
+        return this._tf.letterSpacing;
+    }
+
+    set letterSpacing(value: number) {
+        this._tf.letterSpacing = value;
+    }
+
+    /**
      * @en Font size of the text.
      * @zh 文本的字号大小。
      */

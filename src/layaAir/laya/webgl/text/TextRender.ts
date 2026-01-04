@@ -47,7 +47,7 @@ export class TextRender {
 
     draw(text: string, x: number, y: number,
         font: string, fontSize: number, bold: boolean, italic: boolean,
-        color: string, stroke: number, strokeColor: string,
+        color: string, stroke: number, strokeColor: string, letterSpacing: number,
         charMode: boolean, preMeasuredWidth: number, renderInfo?: ITextRenderInfo[]): ITextRenderInfo[] {
 
         let hasEmoji = emojiTest.test(text);
@@ -62,6 +62,8 @@ export class TextRender {
         let italicDeg = italic ? 13 : 0;
         let cacheKey = (curFont.id * 10000) + fontSize + (bold ? "b_" : "_");
         let colorNum = ColorUtils.create(color).numColor;
+        if (letterSpacing > 0) //有字间距时，强制字符模式
+            charMode = true;
         let tint = stroke > 0 || !charMode && hasEmoji; //染色的条件： 有描边 或 非字符模式下且包含emoji
         if (tint)
             cacheKey += colorNum + "_";
@@ -116,7 +118,7 @@ export class TextRender {
                     cc.length > 1 ? 0xffffffff : drawColor, //emoji总是用白色绘制
                     italicDeg, true);
 
-                x += ri.advance;
+                x += ri.advance + letterSpacing;
             }
         }
         else {

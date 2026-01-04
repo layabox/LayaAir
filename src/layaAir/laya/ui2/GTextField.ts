@@ -235,6 +235,18 @@ export class GTextField extends GWidget {
     }
 
     /**
+     * @en Letter spacing
+     * @zh 字间距
+     */
+    get letterSpacing(): number {
+        return this.textIns.letterSpacing;
+    }
+
+    set letterSpacing(value: number) {
+        this.textIns.letterSpacing = value;
+    }
+
+    /**
      * @en Margin information.
      * Data format: [top margin, right margin, bottom margin, left margin] (margins in pixels).
      * @zh 边距信息。
