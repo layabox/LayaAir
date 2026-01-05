@@ -118,6 +118,7 @@ export const allBundles = [{
     input: [
         'laya/RenderDriver/OpenGLESDriver/3DRenderPass/**/*.*',
         'laya/RenderDriver/RenderModuleData/RuntimeModuleData/3D/*.*',
+        'laya/RenderDriver/RenderModuleData/RuntimeModuleData/3D/3DRenderProcess/*.*',
     ],
 },
 {

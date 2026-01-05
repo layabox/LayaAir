@@ -21,14 +21,16 @@ export class RTScene3DRenderManager implements ISceneRenderManager {
     }
 
     set list(value) {
-        //this._list = value;
-        let elemnt = this._list.elements
-        for (let i = 0; i < this._list.length; i++) {
-            this.removeRenderObject(elemnt[i]);
-        }
-        elemnt = value.elements;
-        for (let i = 0; i < value.length; i++) {
-            this.addRenderObject(elemnt[i]);
+        this._list = value;
+        if (value) {
+            let elemnt = this._list.elements
+            for (let i = 0; i < this._list.length; i++) {
+                this.removeRenderObject(elemnt[i]);
+            }
+            elemnt = value.elements;
+            for (let i = 0; i < value.length; i++) {
+                this.addRenderObject(elemnt[i]);
+            }
         }
     }
 
@@ -78,7 +80,7 @@ export class RTScene3DRenderManager implements ISceneRenderManager {
     }
 
     destroy(): void {
-        this._list.destroy();
+        this._list?.destroy();
         this._clearBaseRenderNode();
         this._list = null;
     }
