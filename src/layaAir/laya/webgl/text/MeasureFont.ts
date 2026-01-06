@@ -27,12 +27,12 @@ export function measureFont(ctx: CanvasRenderingContext2D, font: string, bold: b
     // 原点在 16,16
     let xoff = Math.max(margin - pixelBBX[0], 0);
     let yoff = Math.max(margin - pixelBBX[1], 0);
-    let bbxw = pixelBBX[2] - pixelBBX[0];
-    let bbxh = pixelBBX[3] - pixelBBX[1];
+    let bbxw = pixelBBX[2] - pixelBBX[0] + 1;
+    let bbxh = pixelBBX[3] - pixelBBX[1] + 1;
 
     drawTestChar(ctx, '🤡', size, margin, pixelBBX, true);
     let eoff = Math.max(margin - pixelBBX[1], 0) - yoff;
-    let ebbxh = pixelBBX[3] - pixelBBX[1];
+    let ebbxh = pixelBBX[3] - pixelBBX[1] + 1;
 
     return { xoff, yoff, bbxw, bbxh, eoff, ebbxh };
 }
