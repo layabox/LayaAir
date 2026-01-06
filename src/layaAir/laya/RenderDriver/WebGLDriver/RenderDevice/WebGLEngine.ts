@@ -33,6 +33,8 @@ import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTarge
 import { Config3D } from "../../../../Config3D";
 import { WebGLUniformBufferManager } from "./WebGLUniformBufferManager";
 import { Config } from "../../../../Config";
+import { RenderState } from "../../RenderModuleData/Design/RenderState";
+import { BlendType } from "../../../RenderEngine/RenderEnum/BlendType";
 
 /**
  * 封装Webgl
@@ -502,6 +504,103 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
         this._GLBindVertexArray = null;
     }
 
+
+
+    /**
+     * 
+     * @param renderState 
+     */
+    hashRenderState(renderState: RenderState) {
+
+        let rasterMask = 0;
+        {
+            let bitOffset = 0;
+
+            rasterMask |= (renderState.cull & 0x3) << bitOffset;
+            bitOffset += 2;
+
+            rasterMask |= (renderState.blend & 0x3) << bitOffset;
+            bitOffset += 2;
+
+            switch (renderState.blend) {
+                case BlendType.BLEND_DISABLE:
+                    // padding for rgb and alpha
+                    bitOffset += (4 + 4 + 3) * 2;
+                    break;
+                case BlendType.BLEND_ENABLE_ALL:
+                    rasterMask |= (renderState.srcBlend & 0xF) << bitOffset;
+                    bitOffset += 4;
+                    rasterMask |= (renderState.dstBlend & 0xF) << bitOffset;
+                    bitOffset += 4;
+                    rasterMask |= (renderState.blendEquation & 0x7) << bitOffset;
+                    bitOffset += 3;
+
+                    // padding for alpha
+                    bitOffset += 4 + 4 + 3;
+                    break;
+                case BlendType.BLEND_ENABLE_SEPERATE:
+                    rasterMask |= (renderState.srcBlendRGB & 0xF) << bitOffset;
+                    bitOffset += 4;
+                    rasterMask |= (renderState.dstBlendRGB & 0xF) << bitOffset;
+                    bitOffset += 4;
+                    rasterMask |= (renderState.blendEquationRGB & 0x7) << bitOffset;
+                    bitOffset += 3;
+
+                    rasterMask |= (renderState.srcBlendAlpha & 0xF) << bitOffset;
+                    bitOffset += 4;
+                    rasterMask |= (renderState.dstBlendAlpha & 0xF) << bitOffset;
+                    bitOffset += 4;
+                    rasterMask |= (renderState.blendEquationAlpha & 0x7) << bitOffset;
+                    bitOffset += 3;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        let depthStencilMask = 0;
+        {
+            let bitOffset = 0;
+            depthStencilMask |= (renderState.depthTest & 0xF) << bitOffset;
+            bitOffset += 4;
+            depthStencilMask |= (renderState.depthWrite ? 1 : 0) << bitOffset;
+            bitOffset += 1;
+            depthStencilMask |= (renderState.depthBias ? 1 : 0) << bitOffset;
+            bitOffset += 1;
+
+            depthStencilMask |= (renderState.stencilTest & 0xF) << bitOffset;
+            bitOffset += 4;
+            depthStencilMask |= (renderState.stencilOp.x & 0x7) << bitOffset;
+            bitOffset += 3;
+            depthStencilMask |= (renderState.stencilOp.y & 0x7) << bitOffset;
+            bitOffset += 3;
+            depthStencilMask |= (renderState.stencilOp.z & 0x7) << bitOffset;
+            bitOffset += 3;
+            depthStencilMask |= (renderState.stencilWrite ? 1 : 0) << bitOffset;
+            bitOffset += 1;
+        }
+
+        let stencilMask = 0;
+        {
+            let bitOffset = 0;
+            stencilMask |= (renderState.stencilReadMask & 0xFF) << bitOffset;
+            bitOffset += 8;
+            stencilMask |= (renderState.stencilWriteMask & 0xFF) << bitOffset;
+            bitOffset += 8;
+            stencilMask |= (renderState.stencilRef & 0xFF) << bitOffset;
+            bitOffset += 8;
+        }
+
+        renderStateHashF32[0] = renderState.depthBiasConstant;
+        renderStateHashF32[1] = renderState.depthBiasSlopeScale;
+        renderStateHashF32[2] = renderState.depthBiasClamp;
+
+        return `${rasterMask}_${depthStencilMask}_${stencilMask}_${renderStateHashU32.join()}`;
+    }
+
 }
+
+const renderStateHashF32 = new Float32Array(3);
+const renderStateHashU32 = new Uint32Array(renderStateHashF32.buffer);
 
 

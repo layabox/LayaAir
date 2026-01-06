@@ -53,6 +53,7 @@ export const allBundles = [{
         'laya/tween/**/*.*',
         'laya/tools/**/*.*',
         'laya/html/**/*.*',
+        'laya/large/**/*.*',
         'Config3D.ts',
         "laya/bt/**/*.*",
         'laya/physics/IPhysiscs2DFactory.ts',
@@ -117,6 +118,7 @@ export const allBundles = [{
     input: [
         'laya/RenderDriver/OpenGLESDriver/3DRenderPass/**/*.*',
         'laya/RenderDriver/RenderModuleData/RuntimeModuleData/3D/*.*',
+        'laya/RenderDriver/RenderModuleData/RuntimeModuleData/3D/3DRenderProcess/*.*',
     ],
 },
 {
@@ -254,7 +256,10 @@ export const allBundles = [{
 {
     name: 'spine',
     input: [
-        'laya/spine/**/*.*'
+        'laya/spine/interface/*.*',
+        'laya/spine/shader/**/*.*',
+        'laya/spine/web/**/*.*',
+        'laya/spine/*.ts',
     ],
     copy: ['jsLibs/spine-core-*.js']
 },

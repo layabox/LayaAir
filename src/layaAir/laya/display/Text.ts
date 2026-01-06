@@ -206,7 +206,7 @@ export class Text extends Sprite {
     /**
      * An callback to translate the text.
      */
-    _onTranslate: (text: string, options: any) => string;
+    _onTranslate: (text: string, options: any, role?: number) => string;
 
     /**
      * @en Constructor method of Text.
@@ -598,6 +598,21 @@ export class Text extends Sprite {
     set leading(value: number) {
         if (this._textStyle.leading != value) {
             this._textStyle.leading = value;
+            this.markChanged();
+        }
+    }
+
+    /**
+     * @en Letter spacing (in pixels).
+     * @zh 字间距（以像素为单位）。
+     */
+    get letterSpacing(): number {
+        return this._textStyle.letterSpacing;
+    }
+
+    set letterSpacing(value: number) {
+        if (this._textStyle.letterSpacing != value) {
+            this._textStyle.letterSpacing = value;
             this.markChanged();
         }
     }
@@ -1044,6 +1059,8 @@ export class Text extends Sprite {
         let isPrompt: boolean;
         if (!text && this._prompt) {
             text = this._prompt;
+            if (this._onTranslate)
+                text = this._onTranslate(text, null, 1);
             isPrompt = true;
         }
 
@@ -1107,6 +1124,7 @@ export class Text extends Sprite {
         let wordWrap = this._wordWrap || this._overflow == Text.ELLIPSIS;
         let noBreakWord = this._wordWrap;
         let padding = this._padding;
+        let spacing = this._textStyle.letterSpacing;
         let rectWidth: number;
         if (this._isWidthSet)
             rectWidth = this._width - padding[3] - padding[1];
@@ -1132,23 +1150,21 @@ export class Text extends Sprite {
 
         let getTextWidth = (text: string) => {
             if (bfont)
-                return bfont.getTextWidth(text, fontSize);
-            else {
-                let ret = Browser.context.measureText(text);
-                return ret ? ret.width : 100;
-            }
+                return bfont.getTextWidth(text, fontSize) + spacing * text.length;
+            else
+                return Browser.context.measureText(text).width + spacing * text.length;
         };
 
         let getTextWidth2 = (text: string, font: string, fontSize: number) => {
             if (bfont) {
-                return bfont.getTextWidth(text, fontSize);
+                return bfont.getTextWidth(text, fontSize) + spacing * text.length;
             }
             else {
                 let t = Browser.context.font;
                 Browser.context.font = font;
-                let ret = Browser.context.measureText(text);
+                let ret = Browser.context.measureText(text).width + spacing * text.length;
                 Browser.context.font = t;
-                return ret ? ret.width : 100;
+                return ret;
             }
         };
 
@@ -1742,6 +1758,7 @@ export class Text extends Sprite {
         let rectHeight = this._isHeightSet ? this._height : this._textHeight;
         let bottom = rectHeight - padding[2];
         let clipped = this._overflow == Text.HIDDEN || this._overflow == Text.SCROLL;
+        let letterSpacing = this._textStyle.letterSpacing;
 
         rectWidth -= (padding[3] + padding[1]);
         rectHeight -= (padding[0] + padding[2]);
@@ -1791,7 +1808,7 @@ export class Text extends Sprite {
                             if (g) {
                                 if (g.texture)
                                     graphics.drawImage(g.texture, x + cmd.x + tx + g.x * scale, y + cmd.y + g.y * scale, g.width * scale, g.height * scale, color);
-                                tx += Math.round(g.advance * scale);
+                                tx += Math.round(g.advance * scale) + letterSpacing;
                             }
                         }
                     } else {
@@ -1800,6 +1817,7 @@ export class Text extends Sprite {
                         gcmd.fontSize = cmd.fontSize;
                         gcmd.bold = cmd.style.bold;
                         gcmd.italic = cmd.style.italic;
+                        gcmd.letterSpacing = letterSpacing;
                         gcmd.singleCharRender = this._singleCharRender;
                         gcmd._preMeasuredWidth = cmd.width;
                         graphics.addCmd(gcmd);

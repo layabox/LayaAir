@@ -89,7 +89,7 @@ export class TreeSelection extends Selection implements ITreeSelection {
         super.handleClick(item, evt);
     }
 
-    handleArrowKey(dir: number): number {
+    handleArrowKey(dir: number, evt?: Event): number {
         if (dir == 3 || dir == 7) {
             let i = this.index;
             if (i != -1) {
@@ -100,7 +100,7 @@ export class TreeSelection extends Selection implements ITreeSelection {
                 }
             }
         }
-        return super.handleArrowKey(dir);
+        return super.handleArrowKey(dir, evt);
     }
 }
 

@@ -346,6 +346,7 @@ class WebGPUBatchContext extends BaseBatchContext {
             return false;
         }
 
+        
         let primitiveShaderData = (element as any)._primitiveShaderData;
         let fillTexture = primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
         if (fillTexture) {

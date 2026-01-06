@@ -140,8 +140,8 @@ export class TileMapTerrain {
          let outs: Map<TTerrainVector2 , TileMapCellNeighbor> = new Map;
          neighborObject.getOverlap(rule.x, rule.y, rule.data, vec2Map, outs);
 
-         let nCell: TileSetCellData;
          outs.forEach((neighbor , vec2)=>{
+            let nCell: TileSetCellData = null;
             let chunkCellInfo = TileMapTerrainUtil.getChunkCellInfo(tileMapLayer, vec2);
             if (chunkCellInfo) {
                let cellData = chunkCellInfo.cell;
@@ -197,8 +197,14 @@ export class TileMapTerrain {
 
       let out = new Map<TTerrainVector2, TerrainsParams>();
 
+      // 先计算所有点的最佳参数，不修改规则集
       allSet.list.forEach(vec2 => {
          let params = this._getBestTerrainParams(tileMapLayer, vec2, terrainSetId ,neighborObject , ruleSet);
+         out.set(vec2 , params);
+      });
+
+      // 然后更新规则集，使用计算出的参数生成新规则（优先级5，覆盖旧规则）
+      out.forEach((params, vec2) => {
          let nRuleSet = this._getRulesByParams(tileMapLayer, params, vec2, terrainSetId, neighborObject);
          for (let i = 0 , len = nRuleSet.list.length; i < len; i++) {
             let nRule = nRuleSet.list[i];
@@ -206,8 +212,6 @@ export class TileMapTerrain {
             nRule.priority = 5;
             ruleSet.add(nRule);
          }
-
-   		out.set(vec2 , params);
       });
 
       return out;
@@ -255,7 +259,7 @@ export class TileMapTerrain {
                   score += rule.priority;
                }
             } else if (params.terrain != currentParams.terrain) {
-               continue
+               continue;
             }
 
             let check = false;
@@ -271,7 +275,7 @@ export class TileMapTerrain {
                   }
                } else if (neighborTerrain != currentParams.terrain_peering_bits[neighbor]) {
                   check = true;
-                  break
+                  break;
                }
             }
 

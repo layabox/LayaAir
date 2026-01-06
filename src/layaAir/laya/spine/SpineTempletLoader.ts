@@ -1,14 +1,9 @@
 import { Laya } from "../../Laya";
 import { IResourceLoader, ILoadTask, Loader, ILoadURL } from "../net/Loader";
-import { URL } from "../net/URL";
-import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { Texture2D } from "../resource/Texture2D";
 import { Utils } from "../utils/Utils";
-import { SpineTemplet } from "./SpineTemplet";
-import { SpineTexture } from "./SpineTexture";
+import { SpineConst } from "./SpineConst";
 
-const _premultipliedAlpha = false;
-const _srgb = true;
 /**
  * @en SpineTempletLoader class used for loading Spine skeleton data and atlas.
  * @zh SpineTempletLoader 类用于加载 Spine 骨骼数据和图集。
@@ -31,110 +26,12 @@ class SpineTempletLoader implements IResourceLoader {
             if (!res[0] || !res[1])
                 return null;
 
-            let templet = new SpineTemplet();
-            let version = SpineTemplet.RuntimeVersion;
-            if (version == "4.1") {
-                templet.needSlot = true;
-            }
-
-            // debugger
-            if (version.startsWith('4.'))
-                return this.parseAtlas4(res[0], res[1], task, templet);
-            else
-                return this.parseAtlas3(res[0], res[1], task, templet);
-        });
-    }
-
-    private parseAtlas3(desc: string | ArrayBuffer, atlasText: string, task: ILoadTask, templet: SpineTemplet): Promise<SpineTemplet> {
-        let atlasPages: Array<ILoadURL> = [];
-        let basePath = URL.getPath(task.url);
-        //@ts-ignore
-        let atlas = new spine.TextureAtlas(atlasText, (path: string) => {
-            let url = basePath + path;
-            atlasPages.push({
-                url, type: Loader.TEXTURE2D,
-                propertyParams: {
-                    premultiplyAlpha: _premultipliedAlpha
-                },
-                constructParams: [0, 0, TextureFormat.R8G8B8A8, false, false, _srgb, _premultipliedAlpha]
+            let parser = SpineConst.factory.createSpineTempletParser();
+            let urls = parser.collectTextures( res[1], task);
+            return Laya.loader.load(urls, null, task.progress.createCallback()).then((textures: Array<Texture2D>) => {
+                return parser.create(res[0], textures);
             });
-            return new SpineTexture(null);
         });
-
-        return Laya.loader.load(atlasPages, null, task.progress?.createCallback()).then((res: Array<Texture2D>) => {
-            let textures: Record<string, Texture2D> = {}
-            let premultipliedAlpha = true;
-
-            for (var i = 0; i < res.length; i++) {
-                let tex = res[i];
-                if (tex) tex._addReference();
-                let pages = atlas.pages;
-                // 默认长度 = 1
-                let page = pages[i];
-                premultipliedAlpha = page.pma || (tex && tex._premultiplyAlpha && premultipliedAlpha);
-
-                //@ts-ignore
-                page.texture.realTexture = tex;
-                page.texture.setFilters(page.minFilter, page.magFilter);
-                page.texture.setWraps(page.uWrap, page.vWrap);
-                page.width = page.texture.getImage().width;
-                page.height = page.texture.getImage().height;
-                textures[page.name] = tex;
-            }
-
-
-            let regions = atlas.regions;
-            for (const region of regions) {
-                let page = region.page;
-                region.u = region.x / page.width;
-                region.v = region.y / page.height;
-                //@ts-ignore
-                if (region.rotate) {
-                    region.u2 = (region.x + region.height) / page.width;
-                    region.v2 = (region.y + region.width) / page.height;
-                }
-                else {
-                    region.u2 = (region.x + region.width) / page.width;
-                    region.v2 = (region.y + region.height) / page.height;
-                }
-            }
-
-            templet._parse(desc, atlas, textures, premultipliedAlpha);
-            return templet;
-        });
-    }
-
-    private parseAtlas4(desc: string | ArrayBuffer, atlasText: string, task: ILoadTask, templet: SpineTemplet): Promise<SpineTemplet> {
-        let atlas = new spine.TextureAtlas(atlasText);
-        let basePath = URL.getPath(task.url);
-        return Laya.loader.load(atlas.pages.map((page: spine.TextureAtlasPage) => {
-            return {
-                url: basePath + page.name,
-                type: Loader.TEXTURE2D,
-                propertyParams: {
-                    premultiplyAlpha: _premultipliedAlpha
-                },
-                constructParams: [0, 0, TextureFormat.R8G8B8A8, false, false, _srgb, _premultipliedAlpha]
-            }
-        }),
-            null, task.progress?.createCallback()).then((res: Array<Texture2D>) => {
-                let textures: Record<string, Texture2D> = {}
-                let pages = atlas.pages;
-                let premultipliedAlpha = true;
-                for (let i = 0, len = res.length; i < len; i++) {
-                    let tex = res[i];
-                    if (tex) tex._addReference();
-                    let page = pages[i];
-
-                    premultipliedAlpha = page.pma || (tex._premultiplyAlpha && premultipliedAlpha);
-                    textures[page.name] = tex;
-                    //@ts-ignore
-                    page.setTexture(new SpineTexture(tex));
-                }
-
-                templet._parse(desc, atlas, textures, premultipliedAlpha);
-                return templet;
-            });
     }
 }
 

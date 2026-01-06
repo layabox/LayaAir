@@ -121,6 +121,13 @@ export class DrawPieCmd implements IGraphicsCmd {
     }
 
     /**
+     * @ignore @blueprintIgnore
+     */
+    needsLayoutRepaint(): number {
+        return 1;
+    }
+
+    /**
      * @en The start angle of the pie chart in degrees.
      * @zh 开始角度（以度为单位）。
      */

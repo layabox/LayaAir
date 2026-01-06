@@ -160,6 +160,13 @@ export class FillTextureCmd implements IGraphicsCmd {
     get cmdID(): string {
         return FillTextureCmd.ID;
     }
+
+    /**
+     * @ignore @blueprintIgnore
+     */
+    needsLayoutRepaint(): number {
+        return this.percent ? 1 : 0;
+    }
 }
 
 ClassUtils.regClass(className, FillTextureCmd);

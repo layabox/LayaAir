@@ -15,12 +15,14 @@ export class WebForwardAddRP implements IForwardAddRP {
     enableDirectLightShadow: boolean;
     enableSpotLightShadowPass: boolean;
     enablePostProcess: boolean;
-    postProcess: CommandBuffer;
 
+    postProcess: CommandBuffer;
+    finalize: CommandBuffer;
+    
     mainRenderpass: IMain3DRP;
     dirShadowRenderPass: IDirShadowRP;
     spotShadowRenderPass: ISpotShadowRP;
-    finalize: CommandBuffer;
+
 
     constructor() {
         this.finalize = new CommandBuffer();

@@ -100,6 +100,11 @@ export class GLESRenderContext3D implements IRenderContext3D {
     setClearData(clearFlag: number, color: Color, depth: number, stencil: number): number {
         return this._nativeObj.setClearData(clearFlag, color, depth, stencil);
     }
+
+    clearRenderTarget(): void {
+        this._nativeObj.clearRenderTarget();
+    }
+
     private _tempList: any = [];
     drawRenderElementList(list: FastSinglelist<GLESRenderElement3D>): number {
         this._tempList.length = 0;
@@ -123,9 +128,4 @@ export class GLESRenderContext3D implements IRenderContext3D {
 
         this._nativeObj.runCMDList(nativeobCMDs);
     }
-
-    clearRenderTarget(): void {
-        throw new Error("Method not implemented.");
-    }
-
 }

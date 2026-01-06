@@ -316,6 +316,12 @@ export class RenderState {
 	}
 
 	/**
+	 * @internal
+	 * 表示渲染状态 hash 值，
+	 */
+	hash: string;
+
+	/**
 	 * 创建一个 <code>RenderState</code> 实例。
 	 */
 	constructor() {

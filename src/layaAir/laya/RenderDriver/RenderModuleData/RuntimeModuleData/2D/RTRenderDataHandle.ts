@@ -2,7 +2,7 @@ import { Color } from "../../../../maths/Color";
 import { BaseRenderNode2D } from "../../../../NodeRender2D/BaseRenderNode2D";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Texture2D } from "../../../../resource/Texture2D";
-import { SpineShaderInit } from "../../../../spine/material/SpineShaderInit";
+import { SpineShaderInit } from "../../../../spine/shader/SpineShaderInit";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IGraphics2DBufferBlock, I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, I2DGraphicIndexDataView, IGraphics2DVertexBlock, I2DGraphicVertexDataView } from "../../Design/2D/IRender2DDataHandle";
 import { GLESRenderContext2D } from "../../../OpenGLESDriver/2DRenderPass/GLESRenderContext2D";
@@ -144,6 +144,7 @@ export class RTPrimitiveDataHandle extends RTRender2DDataHandle implements I2DPr
     }
 
     private _blocks: RTGraphics2DBufferBlock[] = null;
+    private _blocksNative: any[] = null;
 
     applyVertexBufferBlock(blocks: RTGraphics2DBufferBlock[]): void {
         this._blocks = blocks;
@@ -151,11 +152,24 @@ export class RTPrimitiveDataHandle extends RTRender2DDataHandle implements I2DPr
         for (var i = 0; i < blocks.length; i++) {
             nativeBlocks.push(blocks[i]._nativeObj);
         }
-        this._nativeObj.applyVertexBufferBlock(nativeBlocks);
+        this._blocksNative = nativeBlocks;
+        this._nativeObj.applyVertexBufferBlock(this._blocksNative);
+    }
+
+    skipBufferUpdate(): void {
+        // if (!this._blocksNative) return;
+        // this._nativeObj.applyVertexBufferBlock(this._blocksNative);
+        this._nativeObj.skipBufferUpdate();
     }
 
     inheriteRenderData(context: GLESRenderContext2D): void {
         this._nativeObj.inheriteRenderData(context._nativeObj);
+    }
+
+    destroy(): void {
+        super.destroy();
+        this._blocks = null;
+        this._blocksNative = null;
     }
 }
 

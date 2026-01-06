@@ -78,6 +78,12 @@ export class TextStyle {
     leading = 2;
 
     /**
+     * @en Letter spacing
+     * @zh 字间距
+     */
+    letterSpacing = 0;
+
+    /**
      * @en Stroke width (in pixels). Default is 0, meaning no stroke
      * @zh 描边宽度（以像素为单位）。默认值0，表示不描边
      */

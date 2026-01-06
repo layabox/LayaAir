@@ -66,6 +66,10 @@ export class GLRenderState {
     /**@internal */
     private _frontFace: number;
 
+    private renderStateCache: string;
+    private isTargetCache: boolean;
+    private invertFrontCache: boolean;
+
     /**@internal */
     _engine: WebGLEngine;
     /**@internal */
@@ -407,11 +411,25 @@ export class GLRenderState {
         value !== this._frontFace && (this._frontFace = value, this._gl.frontFace(this._getGLFrontfaceFactor(value)));
     }
 
+    /** 
+     * @internal
+     * 清理渲染状态缓存
+     */
+    clearRenderStateCache() {
+        this.renderStateCache = null;
+        this.isTargetCache = null;
+        this.invertFrontCache = null;
+    }
+
     /**
      * @internal
      * @param renderState 
      */
     setRenderState(renderState: RenderState, isTarget: boolean, invertFront: boolean) {
+        if (this.isTargetCache == isTarget && this.invertFrontCache == invertFront && this.renderStateCache == renderState.hash) {
+            return;
+        }
+
         let depthWrite = renderState.depthWrite;
         this.setDepthMask(depthWrite);
         let depthTest = renderState.depthTest;
@@ -509,5 +527,9 @@ export class GLRenderState {
                 this.setFrontFace(forntFace);
                 break;
         }
+
+        this.renderStateCache = renderState.hash;
+        this.isTargetCache = isTarget;
+        this.invertFrontCache = invertFront;
     }
 }

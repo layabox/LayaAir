@@ -75,6 +75,12 @@ export class Texture2DLoader implements IResourceLoader {
                     });
                     fileInfo = fallback || RGBA;
                 }
+
+                //fallback到RGBA
+                if (fileInfo.file == null) {
+                    const fallback = (meta.files as (typeof fileInfo)[]).find(f => f.ext === ext);
+                    fileInfo = fallback || RGBA;
+                }
             }
 
             if (fileInfo.file) {

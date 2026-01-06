@@ -8,7 +8,7 @@ import { Vector4 } from "../../maths/Vector4";
 import { IPrimitiveRenderElement2D, IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { I2DPrimitiveDataHandle, IGraphics2DBufferBlock } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DGraphicIndexDataView, I2DGraphicVertexDataView, I2DPrimitiveDataHandle, IGraphics2DBufferBlock, IGraphics2DVertexBlock } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
@@ -19,54 +19,39 @@ import { Material } from "../../resource/Material";
 import { RenderTexture2D } from "../../resource/RenderTexture2D";
 import { Resource } from "../../resource/Resource";
 import { Texture } from "../../resource/Texture";
+import { Browser } from "../../utils/Browser";
 import { Texture2D } from "../../resource/Texture2D";
 import { IPool, Pool } from "../../utils/Pool";
 import { FastSinglelist } from "../../utils/SingletonList";
+import { Stat } from "../../utils/Stat";
 import { BlendModeHandler } from "../../webgl/canvas/BlendMode";
 import { Shader2D } from "../../webgl/shader/d2/Shader2D";
 import { GraphicsShaderInfo } from "../../webgl/shader/d2/value/GraphicsShaderInfo";
-import { SubmitBase } from "../../webgl/submit/SubmitBase";
-import { GraphicsMesh } from "../../webgl/utils/GraphicsMesh";
+import { SubmitBase, SubmitCacheInfo } from "../../webgl/submit/SubmitBase";
+import { GraphicsMesh, MeshBlockInfo } from "../../webgl/utils/GraphicsMesh";
 import { Graphics } from "../Graphics";
 import { Render2DProcessor } from "../Render2DProcessor";
 import { Sprite } from "../Sprite";
-import { BaseRender2DType } from "../SpriteConst";
+import { BaseRender2DType, SpriteConst, TransformKind } from "../SpriteConst";
+import { SpriteGlobalTransform } from "../SpriteGlobaTransform";
 import { GraphicsRunner } from "./GraphicsRunner";
+import type { IGraphicsCmd } from "../IGraphics";
+
+type GraphicBlockRecord = {
+   index: number;
+   view: I2DGraphicVertexDataView;
+};
+
+type GraphicBlockBucket = {
+   mesh: GraphicsMesh;
+   blocks: Record<number, I2DGraphicVertexDataView>;
+   indexs: number[];
+};
 
 /** @internal */
-export class GraphicsRenderData {
+export class GraphicsRenderer {
 
-   static readonly _pool: IPool<IPrimitiveRenderElement2D> = Pool.createPool2<IPrimitiveRenderElement2D>(() => { //create
-      let element = LayaGL.render2DRenderPassFactory.createPrimitiveRenderElement2D();
-      element.renderStateIsBySprite = false;
-      element.nodeCommonMap = ["Sprite2D"];
-      return element;
-
-   }, (element: IPrimitiveRenderElement2D, needGeometry?: boolean) => { //init
-      if (needGeometry || needGeometry == null) {
-         element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
-         element.geometry.indexFormat = IndexFormat.UInt16;
-      } else {
-         if (element.geometry) {
-            element.geometry.destroy();
-            element.geometry = null;
-         }
-      }
-
-   }, (element: IPrimitiveRenderElement2D) => { //reset
-      if (element.geometry) {
-         element.geometry.clearRenderParams();
-         element.geometry.bufferState = null;
-      }
-      element.materialShaderData = null;
-      element.value2DShaderData = null;
-      element.primitiveShaderData = null;
-      element.globalShaderData = null;
-      element.owner = null;
-      element.subShader = null;
-      element.renderStateIsBySprite = false;
-      element.type = 0;
-   });
+   static _emptyList: IPrimitiveRenderElement2D[] = [];
 
    /** @internal */
    _renderElements: IPrimitiveRenderElement2D[] = [];
@@ -78,210 +63,329 @@ export class GraphicsRenderData {
 
    owner: Sprite;
 
-   texturesMap: Map<number, Texture> = new Map();
+   _struct: IRenderStruct2D;
+
+   texturesMap: Map<number, {
+      texture: Texture;
+      time:number;
+   }> = new Map();
+
+   _display: boolean = false;
+
+   private _renderDataHandle: I2DPrimitiveDataHandle;
+
+   graphics:Graphics = null;
+   modified = -1;
+
+   /** @internal 当前帧记录的块按 mesh 分组 */
+   _blockBuckets: GraphicBlockBucket[] = [];
+   /** @internal 上一帧保留用于复用的块 */
+   _cachedBuckets: GraphicBlockBucket[] = [];
 
    constructor(owner: Sprite) {
       this.owner = owner;
+      this._struct = owner._struct;
+      this._renderDataHandle = LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle();
+      this.owner.on(SpriteGlobalTransform.CHANGED, this, this._onOwnerTransformChanged);
+   }
+
+   /** @internal */
+   private _onOwnerTransformChanged(type : number) {
+      //缩放重绘
+      if (type & TransformKind.Layout && this._display) {
+         // 如果graphics中有需要响应布局变化的cmd，则重绘
+         if (this.graphics && this.graphics.getLayoutRepaintCount() > 0) {
+            this.graphics.repaint();
+         }
+      }
+   }
+
+   /**
+    * 设置Graphics对象
+    * @param graphics Graphics对象
+    */
+   setGraphics(graphics: Graphics): void {
+      this.graphics = graphics;
+      this._checkDisplay();
+   }
+
+   /**
+     * @internal
+     */
+   _render(runner: GraphicsRunner, x: number = 0, y: number = 0): void {
+      if (!this.owner || !this.graphics || this.owner.destroyed || this.owner._struct.renderType !== BaseRender2DType.graphics)
+         return;  
+
+      if (this.modified >= this.graphics._modified) {
+         this.setRenderElement();
+         return;
+      }
+
+      this.modified = this.graphics._modified;
+      
+      this.clear();
+      runner.clear();
+      runner.sprite = this.owner;
+      runner._renderer = this;
+      runner._global = this.owner._globalTrans.getMatrix();
+      let oldCache = runner._enableCache;
+      let enableCache = runner._enableCache = this.graphics.needCache;
+      let needSkipBufferUpdate = false;
+      runner._material = this.graphics.material;
+      let oldBlendMode = runner.globalCompositeOperation;
+      runner.globalCompositeOperation = this.owner._struct.blendMode;
+
+      let cmdsLength = this.graphics.cmds.length;
+      let prevSubmitInfo: SubmitCacheInfo | null = null;
+      let cmd:IGraphicsCmd
+
+      for (let i = 0; i < cmdsLength; i++) {
+         cmd = this.graphics.cmds[i];
+         if (enableCache) {
+            if (cmd._cacheData) {
+               if (prevSubmitInfo !== cmd._cacheData) {
+                  runner.applyCachedSubmitInfo(cmd._cacheData);
+                  prevSubmitInfo = cmd._cacheData;
+                  needSkipBufferUpdate = true;
+               }
+            }else{
+               cmd.run(runner, x, y);
+               cmd._cacheData = runner._currentSubmitCache;
+            }
+         }else{
+            cmd.run(runner, x, y);
+         }
+      }
+
+      let tex = this.owner._texture;
+      if (tex) {  
+         if (tex._getSource(() => {
+            this.owner._graphics.repaint();
+         })) {
+            var width = this.owner._isWidthSet ? this.owner._width : tex.sourceWidth;
+            var height = this.owner._isHeightSet ? this.owner._height : tex.sourceHeight;
+            var wRate = width / tex.sourceWidth;
+            var hRate = height / tex.sourceHeight;
+            width = tex.width * wRate;
+            height = tex.height * hRate;
+            if (width > 0 && height > 0) {
+               let px = x + tex.offsetX * wRate;
+               let py = y + tex.offsetY * hRate;
+               runner.drawTexture(tex, px, py, width, height, 0xffffffff);
+            }
+         }
+      }
+
+      this.updateRenderElement(needSkipBufferUpdate);
+
+      runner._enableCache = oldCache;
+      runner.globalCompositeOperation = oldBlendMode;
+      runner._material = null;
+      runner._renderer = null;
+      runner.sprite = null;
+   }
+
+
+   /**
+    * @internal
+    */
+   onModified(){
+      //todo
+      this.modified = -1;
+   }
+
+   /** @internal */
+   _checkDisplay() {
+      if (!this.owner || this.owner.destroyed) {
+         this._display = false;
+         return;
+      }
+
+      let cmd = this.graphics && this.graphics.cmds && this.graphics.cmds.length > 0;
+      let value = !this.owner._renderNode && (cmd || this.owner._texture != null);
+      if (this._display === value)
+         return;
+
+      this._display = value;
+
+      let struct = this.owner._struct;
+      if (value) {
+         this.owner._initShaderData();
+         this.owner._renderType |= SpriteConst.GRAPHICS;
+         struct.renderType = BaseRender2DType.graphics;
+         struct.renderDataHandler = this._renderDataHandle;
+         struct.renderElements = this._renderElements;
+         this.owner._updateStruct();
+      } else {
+         this.owner._renderType &= ~SpriteConst.GRAPHICS;
+         if (struct.renderElements === this._renderElements) {
+            struct.renderElements = GraphicsRenderer._emptyList;
+         }
+         this.modified = -1;
+         struct.renderType = -1;
+         struct.renderDataHandler = null;
+      }
+   }
+
+   take(info: MeshBlockInfo) {
+      for (let i = 0; i < info.vertexBlocks.length; i++) {
+         let id = info.mesh.id;
+
+         let bucket = this._blockBuckets[id];
+         if (!bucket) {
+            bucket = { mesh: info.mesh, blocks: [], indexs: [] };
+            this._blockBuckets[id] = bucket;
+         }
+         
+         bucket.blocks[info.vertexBlocks[i]] = info.vertexViews[i];
+         bucket.indexs.push(info.vertexBlocks[i]);
+      }
    }
 
    clear(): void {
+      for (const bucket of this._cachedBuckets) {
+         if (bucket) {
+            bucket.mesh.clearBlocks(bucket.indexs);
+         }
+      }
+      this._cachedBuckets = this._blockBuckets;
+      this._blockBuckets = [];
 
       let len = this._submits.length;
-      let i = 0;
-      for (i = 0; i < len; i++) {
+      for (let i = 0; i < len; i++) {
          this._submits.elements[i].clear();
       }
-
-      this.texturesMap.forEach(res => {
-         res.off(Event.CHANGE, this, this._resourceRepaint);
-         if (res._dynamic) {
-            res._dynamic.referenceCount--;
-         }
-      });
-      this.texturesMap.clear();
-
-      this._bufferBlocks.length = 0;
       this._submits.length = 0;
    }
 
    destroy(): void {
       this.clear();
 
-      let material = this.owner.material;
-      let elements = this._renderElements;
-      for (let i = 0; i < elements.length; i++) {
-         if (material) {
-            material._removeOwnerElement(elements[i]);
+      for (const bucket of this._cachedBuckets) {
+         if (bucket) {
+            bucket.mesh.clearBlocks(bucket.indexs);
          }
-         GraphicsRenderData._pool.recover(elements[i]);
       }
-      elements.length = 0;
+      this._cachedBuckets = null;
+      this._blockBuckets = null;
+      
+      this._renderElements.length = 0;
 
-      this.texturesMap.forEach(res => {
-         res.off(Event.CHANGE, this, this._resourceRepaint);
+      this._submits.elements.forEach(submit => {
+         submit.destroy();
+      });
+      this._submits.destroy();
+
+      this.texturesMap.forEach(inf => {
+         inf.texture.off("dispose" , this, this._resourceRepaint);
       });
       this.texturesMap.clear();
 
-      let submits = this._submits.elements;
-      for (let i = 0; i < this._submits.length; i++) {
-         submits[i].destroy();
-      }
-      this._submits.destroy();
-      this._submits = null;
-
+      this.graphics = null;
+      this._renderDataHandle.destroy();
+      this._renderDataHandle = null;
       this.owner = null;
-
    }
 
-   /** @internal */
-   _check() {
-      let result = true;
-      this.texturesMap.forEach(texture => {
-         result = texture._getSource() && result;
-      })
-      return result;
-   }
-
-   /**
-    * 提交所有mesh的数据
-    * @param graphics 图形
-    * @param struct 渲染结构
-    * @param handle 渲染句柄
-    */
-   updateRenderElement(graphics: Graphics, struct: IRenderStruct2D, handle: I2DPrimitiveDataHandle): void {
-      let originLen = this._renderElements.length;
-
+   updateRenderElement(needSkipBufferUpdate: boolean): void {
+      let elements = this._renderElements;
       let submits = this._submits;
-      let submitLength = submits.length;
-      let needUpdate = originLen !== submitLength;
-
-      let flength = Math.max(originLen, submitLength);
-
-      let blocks: IGraphics2DBufferBlock[] = this._bufferBlocks;
+      let needUpdate =  elements.length !== submits.length;
+      let bufferDirty = needUpdate;
+      let flength = submits.length;
+      let submit:SubmitBase , element:IPrimitiveRenderElement2D;
 
       for (let i = 0; i < flength; i++) {
-         let submit = submits.elements[i];
-         let element = this._renderElements[i];
-         if (i < submitLength) {
-            if (!element) {
-               element = GraphicsRenderData._pool.take();
-               element.value2DShaderData = struct.spriteShaderData;
-               element.owner = struct;
-               this._renderElements[i] = element;
-            }
-
-            element.primitiveShaderData = submit._internalInfo.shaderData;
-            element.renderStateIsBySprite = submit.renderStateIsBySprite && graphics._useSpriteState;
-
-            if (submit.material) {
-               element.subShader = submit.material.shader.getSubShaderAt(0);
-               element.materialShaderData = submit.material.shaderData;
-               submit.material._setOwner2DElement(element);
-            } else {
-               element.subShader = Shader2D.graphicsShader.getSubShaderAt(0);
-            }
-
-
-            let geometry = element.geometry;
-            geometry.bufferState = submit.mesh.bufferState;
-            geometry.clearRenderParams();
-
-            let indexView = this._updateIndexViews(submit, geometry);
-            let vertexBuffer = submit.mesh._buffer.vertexBuffer;
-            {
-               let vertexBlock = LayaGL.render2DRenderPassFactory.createGraphic2DBufferBlock();
-               vertexBlock.vertexs = submit.vertexs;
-               vertexBlock.indexView = indexView;
-               vertexBlock.vertexBuffer = vertexBuffer;
-               blocks.push(vertexBlock);
-            }
-
-            this._updateGraphicsKeys(element, submit);
-         } else {
-            graphics.material && (graphics.material._removeOwnerElement(element));
-            GraphicsRenderData._pool.recover(element);
+         submit = submits.elements[i];
+         element = submit.renderElement;
+         if (!element.owner) {
+            element.value2DShaderData = this._struct.spriteShaderData;
+            element.owner = this._struct;
          }
+         
+         element.renderStateIsBySprite = submit.renderStateIsBySprite && this.graphics._useSpriteState;
+
+         submit.prepare();
+
+         this._bufferBlocks[i] = submit._bufferBlock;
+         bufferDirty = bufferDirty || submit._bufferBlockDirty;
+         elements[i] = element;
       }
 
-      this._renderElements.length = submitLength;
+      
       //reset
       if (needUpdate) {
-         struct.renderElements = this._renderElements;
+         this._bufferBlocks.length = submits.length;
+         elements.length = submits.length;
+         this._struct.renderElements = elements;
       }
 
-      handle.applyVertexBufferBlock(blocks);
+      if (bufferDirty) {
+         this._renderDataHandle.applyVertexBufferBlock(this._bufferBlocks);
+         for (let i = 0; i < flength; i++) {
+            submits.elements[i]._bufferBlockDirty = false;
+         }
+      }else if (needSkipBufferUpdate) {
+         this._renderDataHandle.skipBufferUpdate();
+      }
    }
 
-   private _updateIndexViews(submit: SubmitBase, geometry: IRenderGeometryElement) {
-      let indexView = submit.mesh.checkIndex(submit.indexCount);
-      indexView.setGeometry(geometry);
-      submit.indexView = indexView;
-
-      indexView.setData(submit.indices);
-      // clear
-      submit.indexCount = 0;
-      submit.indices.length = 0;
-      return indexView
+   setRenderElement(): void {
+      this._struct.renderElements = this._renderElements;
+      // this._renderDataHandle.applyVertexBufferBlock(this._bufferBlocks);
    }
 
-   // TODO
-   private _updateGraphicsKeys(element: IRenderElement2D, submit: SubmitBase) {
-      let useCustomMaterial = submit.material ? 1 : 0;
-      let mc = (useCustomMaterial === 0 && submit._internalInfo.materialClip) ? 1 : 0;
-      let texture: BaseTexture;
-      let textureHost = submit._internalInfo.textureHost;
-      if (textureHost)
-         texture = (textureHost as Texture).bitmap || textureHost as BaseTexture;
-
-      element.type = submit._key.blendShader
-         | (useCustomMaterial << 4) //16
-         | (mc << 5) //32
-         | ((texture ? texture.id : 0) << 6); //64
-   }
-
-   setRenderElement(struct: IRenderStruct2D, handle: I2DPrimitiveDataHandle): void {
-      struct.renderElements = this._renderElements;
-      handle.applyVertexBufferBlock(this._bufferBlocks);
-   }
-
-   createSubmit(runner: GraphicsRunner, mesh: GraphicsMesh, material: Material): SubmitBase {
+   createSubmit(runner: GraphicsRunner): SubmitBase {
       let elements = this._submits.elements;
       let submit: SubmitBase = null;
       if (elements.length > this._submits.length) {
          submit = elements[this._submits.length];
-         submit.update(runner, mesh, material);
+         submit.update(runner);
          this._submits.length++;
       } else {
-         submit = SubmitBase.create(runner, mesh, material);
+         submit = SubmitBase.create(runner);
          this._submits.add(submit);
       }
 
       return submit;
    }
 
-   addResRef(runner: GraphicsRunner, res: Resource) {
+   addResRef(res: Resource) {
       if (res instanceof Texture) {
-         let old = this.texturesMap.get(res.id);
-         if (!old) {
-            res.on("dispose", this, this._resourceRepaint);
-            this.texturesMap.set(res.id, res);
-            if (runner._textureProcessor.shouldAddToDynamicAtlas(res)) {
-               runner._textureProcessor.addTexture(res);
-            }
-            if (res._dynamic) {
-               res._dynamic.referenceCount++;
-            }
-         }
+         let inf = this.texturesMap.get(res.id);
+         if (!inf) {
+            res.on("dispose", this, this._resourceRepaint , [res.id]);
+            this.texturesMap.set(res.id, {
+               texture: res,
+               time: this.modified
+            });
+         } else 
+            inf.time = this.modified;
       }
    }
 
-   private _resourceRepaint() {
+   private _resourceRepaint(id: number) {
+      let inf = this.texturesMap.get(id);
+      if (inf.time !== this.modified) {
+         this.texturesMap.delete(id);
+         inf.texture.off("dispose", this, this._resourceRepaint);
+         return;
+      }
+
+      let graphics = this.graphics;
       if (this.owner._needGraphicsUpdate()) {
-         this.owner._graphics.repaint();
-      } else {
-         this.owner._graphics._modified = true;
+         graphics.repaint();
+      }else {
+         graphics._modified = Stat.loopCount;
       }
    }
+   /**
+    * @internal
+    */
+   protected _saveCache(): void {
+      
+   }
+
 }
 
 /** @internal */
@@ -303,6 +407,7 @@ export class SubStructRender {
 
    private _needUpdateVertexSize: boolean = true;
 
+   private _renderElements: IPrimitiveRenderElement2D[] = [];
    private _scaleX: number = 1;
    private _scaleY: number = 1;
    constructor() {
@@ -311,7 +416,7 @@ export class SubStructRender {
       this._submit = new SubmitBase;
       this._internalInfo = new GraphicsShaderInfo();
       this._submit._internalInfo = this._internalInfo;
-      this._renderElement = GraphicsRenderData._pool.take();
+      this._renderElement = SubmitBase._pool.take();
       this._renderElement.value2DShaderData = this._shaderData;
       this._renderElement.subShader = Shader2D.graphicsShader.getSubShaderAt(0);
       this._renderElement.primitiveShaderData = this._submit._internalInfo.shaderData;
@@ -319,6 +424,7 @@ export class SubStructRender {
       this._renderElement.geometry = Render2DProcessor.runner.inv_geometry;
       BlendModeHandler.initBlendMode(this._shaderData);
       this._internalInfo.enableVertexSize = true;
+      this._renderElements = [this._renderElement];
    }
 
    bind(sprite: Sprite, subRenderPass: IRender2DPass, subStruct: IRenderStruct2D): void {
@@ -331,7 +437,7 @@ export class SubStructRender {
 
       subStruct.renderDataHandler = this._handle;
       subStruct.renderMatrix = sprite.globalTrans.getMatrix();
-      subStruct.renderElements = [this._renderElement];
+      subStruct.renderElements = this._renderElements;
 
       this._renderElement.owner = this._subStruct;
       this._renderElement.type = this._subStruct.blendMode;
@@ -452,7 +558,7 @@ export class SubStructRender {
 
    destroy(): void {
       this._renderElement.geometry = null;
-      GraphicsRenderData._pool.recover(this._renderElement);
+      SubmitBase._pool.recover(this._renderElement);
       this._submit.destroy();
       this._submit = null;
       this._internalInfo = null;

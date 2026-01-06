@@ -6,10 +6,12 @@ import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Resource } from "../../../resource/Resource";
+import { IDeviceBuffer } from "../../DriverDesign/RenderDevice/IDeviceBuffer";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { RTDefineDatas } from "../../RenderModuleData/RuntimeModuleData/RTDefineDatas";
 import { RTShaderDefine } from "../../RenderModuleData/RuntimeModuleData/RTShaderDefine";
+import { GLESDeviceBuffer } from "./compute/GLESDeviceBuffer";
 import { GLESCommandUniformMap } from "./GLESCommandUniformMap";
 import { GLESInternalTex } from "./GLESInternalTex";
 
@@ -19,6 +21,7 @@ export class GLESShaderData extends ShaderData {
     _defineDatas: RTDefineDatas = new RTDefineDatas();
     _textureData: { [key: number]: BaseTexture };
     _bufferData: { [key: number]: Float32Array };
+    _deviceBufferData: { [key: number]: IDeviceBuffer };
     /**
      * @internal	
      */
@@ -31,6 +34,7 @@ export class GLESShaderData extends ShaderData {
         }
         this._textureData = {};
         this._bufferData = {};
+        this._deviceBufferData = {};
     }
 
     getDefineData(): RTDefineDatas {
@@ -318,7 +322,11 @@ export class GLESShaderData extends ShaderData {
         this._bufferData[index] = value;
         this._nativeObj.setBuffer(index, value);
     }
-
+    
+    setDeviceBuffer(index: number, value: GLESDeviceBuffer): void {
+        this._deviceBufferData[index] = value;
+        this._nativeObj.setDeviceBuffer(index, value._nativeObj);
+    }
     /**
      * 设置纹理。
      * @param index shader索引。

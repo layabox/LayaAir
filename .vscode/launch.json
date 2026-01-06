@@ -5,6 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch Program",
+            "program": "${workspaceFolder}/scripts/depdm.js",
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "cwd": "${workspaceFolder}/scripts",
+            "type": "node"
+        },
+        {
             "request": "launch",
             "name": "Gulp task",
             //"program": "${workspaceFolder}/node_modules/gulp/bin/gulp.js",

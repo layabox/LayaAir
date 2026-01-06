@@ -1,6 +1,8 @@
 
 import { SkinnedMeshRenderer } from "../../../d3/core/SkinnedMeshRenderer";
 import { SkinnedMeshSprite3D } from "../../../d3/core/SkinnedMeshSprite3D";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { StatElement } from "../../../layagl/StatisticsContext";
 import { ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { WebGLEngine } from "../RenderDevice/WebGLEngine";
 import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryElement";
@@ -40,6 +42,7 @@ export class WebGLSkinRenderElement3D extends WebGLRenderElement3D implements IS
             WebGLEngine.instance.uploadOneUniforms(shaderIns._renderShaderInstance, shaderVariable, subSkinnedDatas);
             var offset = j * 2;
             WebGLEngine.instance.getDrawContext().drawElements((this.geometry as WebGLRenderGeometryElement)._glmode, element[offset + 1], (this.geometry as WebGLRenderGeometryElement)._glindexFormat, element[offset]);
+            LayaGL.statAgent.recordCTData(StatElement.CT_DrawCall, 1);
         }
     }
 }

@@ -17,7 +17,7 @@ export class GLSLCodeGenerator {
 
         let res = "";
         for (const key in attributeMap) {
-            let type = getAttributeType(attributeMap[key][1]);
+            let type = GLSLCodeGenerator.getAttributeType(attributeMap[key][1]);
             if (type != "") {
                 res = `${res}attribute ${type} ${key};\n`;
             }
@@ -43,7 +43,7 @@ export class GLSLCodeGenerator {
                 if (uniform.arrayLength > 0) {
                     uniformName = `${uniformName}[${uniform.arrayLength}]`;
                 }
-                let typeStr = getAttributeType(dataType);
+                let typeStr = GLSLCodeGenerator.getAttributeType(dataType);
                 if (typeStr != "") {
                     if (supportUniformBlock(dataType)) {
                         blockStr += `${typeStr} ${uniformName};\n`;
@@ -71,7 +71,7 @@ export class GLSLCodeGenerator {
                 if (uniform.arrayLength > 0) {
                     // uniformName = `${uniformName}[${uniform.arrayLength}]`;
                 }
-                let typeStr = getAttributeType(dataType);
+                let typeStr = GLSLCodeGenerator.getAttributeType(dataType);
                 if (typeStr != "") {
                     uniformsStr += `uniform ${typeStr} ${uniformName};\n`;
                 }
@@ -226,47 +226,67 @@ ${materialUniformGlsl}`;
         let detFS = psVersion + fragmentHead + defineStr + ps.join('\n');
         return { vs: dstVS, fs: detFS };
     }
-}
-
-function getAttributeType(type: ShaderDataType) {
-    switch (type) {
-        case ShaderDataType.Int:
-            return "int";
-        case ShaderDataType.Bool:
-            return "bool";
-        case ShaderDataType.Float:
-            return "float";
-        case ShaderDataType.Vector2:
-            return "vec2";
-        case ShaderDataType.Vector3:
-            return "vec3";
-        case ShaderDataType.Vector4:
-        case ShaderDataType.Color:
-            return "vec4";
-        case ShaderDataType.Matrix4x4:
-            return "mat4";
-        case ShaderDataType.Matrix3x3:
-            return "mat3";
-        case ShaderDataType.Texture2D:
-            return "sampler2D";
-        case ShaderDataType.TextureCube:
-            return "samplerCube";
-        case ShaderDataType.Texture2DArray:
-            if (LayaGL.renderEngine.getCapable(RenderCapable.Texture3D)) {
-                return "sampler2DArray";
-            }
-            else {
+    static getAttributeType(type: ShaderDataType) {
+        switch (type) {
+            case ShaderDataType.Int:
+                return "int";
+            case ShaderDataType.Bool:
+                return "bool";
+            case ShaderDataType.Float:
+                return "float";
+            case ShaderDataType.Vector2:
+                return "vec2";
+            case ShaderDataType.Vector3:
+                return "vec3";
+            case ShaderDataType.Vector4:
+            case ShaderDataType.Color:
+                return "vec4";
+            case ShaderDataType.Matrix4x4:
+                return "mat4";
+            case ShaderDataType.Matrix3x3:
+                return "mat3";
+            case ShaderDataType.Texture2D:
+                return "sampler2D";
+            case ShaderDataType.TextureCube:
+                return "samplerCube";
+            case ShaderDataType.Texture2DArray:
+                if (LayaGL.renderEngine.getCapable(RenderCapable.Texture3D)) {
+                    return "sampler2DArray";
+                }
+                else {
+                    return "";
+                }
+            case ShaderDataType.Texture3D:
+                if (LayaGL.renderEngine.getCapable(RenderCapable.Texture3D)) {
+                    return "sampler3D";
+                }
+                else {
+                    return "";
+                }
+            case ShaderDataType.StorageTexture2D:
+                if (LayaGL.renderEngine.getCapable(RenderCapable.ComputeShader)) {
+                    return "image2D";
+                }
+                else {
+                    return "";
+                }
+            case ShaderDataType.DeviceBuffer:
+                if (LayaGL.renderEngine.getCapable(RenderCapable.StorageBuffer)) {
+                    return "buffer";
+                }
+                else {
+                    return "";
+                }
+            case ShaderDataType.ReadOnlyDeviceBuffer:
+                if (LayaGL.renderEngine.getCapable(RenderCapable.StorageBuffer)) {
+                    return "buffer";
+                }
+                else {
+                    return "";
+                }
+            default:
                 return "";
-            }
-        case ShaderDataType.Texture3D:
-            if (LayaGL.renderEngine.getCapable(RenderCapable.Texture3D)) {
-                return "sampler3D";
-            }
-            else {
-                return "";
-            }
-        default:
-            return "";
+        }
     }
 }
 

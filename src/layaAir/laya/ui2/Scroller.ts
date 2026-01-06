@@ -1471,7 +1471,7 @@ export class Scroller implements IScroller {
     }
 
     private _mouseWheel(evt: Event): void {
-        if (this._mouseWheelDisabled || this._barDisplay === ScrollBarDisplay.Hidden)
+        if (this._mouseWheelDisabled)
             return;
 
         let delta: number = evt.delta;

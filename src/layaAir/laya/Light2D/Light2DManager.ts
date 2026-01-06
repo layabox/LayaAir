@@ -82,6 +82,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     private _works: number = 0; //每帧工作负载（渲染光影图次数，每渲染一个灯光算一次）
     private _updateMark: number[] = new Array(Light2DManager.MAX_LAYER).fill(1); //各层的更新标识
     private _updateLayerLight: boolean[] = new Array(Light2DManager.MAX_LAYER).fill(false); //各层是否需要更新光影图
+    private _configChangeCount: number = 0; //记录上次的配置变更次数
     private _spriteLayer: number[] = []; //具有精灵的层序号
     private _spriteNumInLayer: number[] = new Array(Light2DManager.MAX_LAYER).fill(0); //精灵在各层中的数量
     private _lightLayer: number[] = []; //屏幕内具有灯光的层序号
@@ -131,7 +132,11 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             Light2DManager._config = new Light2DConfig();
             Light2DManager._config.ambientColor = new Color(light2DConfig.ambientColor.r, light2DConfig.ambientColor.g, light2DConfig.ambientColor.b, light2DConfig.ambientColor.a);
             Light2DManager._config.ambientLayerMask = light2DConfig.ambientLayerMask;
-            Light2DManager._config.lightDirection = new Vector3(light2DConfig.lightDirection.x, light2DConfig.lightDirection.y, light2DConfig.lightDirection.z);
+            if (light2DConfig.lightDirection) {
+                Light2DManager._config.lightDirection = new Vector3(light2DConfig.lightDirection.x, light2DConfig.lightDirection.y, light2DConfig.lightDirection.z);
+            } else {
+                Light2DManager._config.lightDirection = new Vector3(-1, 0, 1);
+            }
             Light2DManager._config.multiSamples = light2DConfig.multiSamples;
         }
         this._scene = scene;
@@ -141,6 +146,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         this._screenSchmitt = new Rectangle();
         this._screenSchmittChange = false;
         this.occluderAgent = new Occluder2DAgent(this);
+        this._configChangeCount = this.config.changeCount; //初始化配置变更次数
         ILaya.stage.on(Event.RESIZE, this, this._onScreenResize);
 
         this._PCF = [
@@ -439,7 +445,10 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
                     if (this._lightsInLayerAll[layer].length === 0) //如果受影响的层已经没有灯光，将层序号去除
                         this._lightLayerAll.splice(this._lightLayerAll.indexOf(layer), 1);
                     this._collectLightInScreenByLayer(layer); //收集该层屏幕内的灯光
-                }
+                    //如果该层有RT，标记需要清空RT
+                    if (this.lsTarget[layer])
+                        this._updateLayerLight[layer] = true;
+                    }
             }
             this._lightsNeedCheckRange.splice(this._lightsNeedCheckRange.indexOf(light), 1); //将灯光从该数组中去除
             if (Light2DManager.DEBUG)
@@ -787,6 +796,14 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @zh 渲染光影图
      */
     preRenderUpdate() {
+        //检查配置是否变更，如果变更则更新所有层的更新标记以触发uniform更新
+        const currentChangeCount = this.config.changeCount;
+        if (this._configChangeCount !== currentChangeCount) {
+            this._configChangeCount = currentChangeCount;
+            for (let i = this._updateMark.length - 1; i > -1; i--)
+                this._updateMark[i]++;
+        }
+
         //处理场景矩阵变化
         this._sceneTransformChange();
 
@@ -843,6 +860,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
 
         //遍历有灯光的层
         let works = 0;
+        let processedLayerMask = 0; //记录实际处理过的层的掩码
         for (let i = this._lightLayer.length - 1; i > -1; i--) {
             let needRender = false;
             const layer = this._lightLayer[i];
@@ -853,6 +871,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             const y = this._screenSchmitt.y;
             if (this._spriteNumInLayer[layer] === 0)
                 continue; //该层没有精灵，跳过
+            processedLayerMask |= layerMask; //标记该层已处理
             if (occluders)
                 for (let j = occluders.length - 1; j > -1; j--)
                     occluders[j]._getRange();
@@ -913,19 +932,48 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             }
         }
 
-        //清除相关标志
+        //清空没有灯光但仍有RT的层（仅在标记需要清空时执行）
+        let clearedLayerMask = 0;
+        for (let layer = 0; layer < Light2DManager.MAX_LAYER; layer++) {
+            if (this._updateLayerLight[layer] && this._lightLayer.indexOf(layer) === -1) {
+                const renderRes = this._lightRenderRes[layer];
+                if (renderRes) {
+                    if (this._needUpdateLightRes & (1 << layer) || renderRes.lights.length > 0) {
+                        renderRes.addLights([], this._needToRecover);
+                        if (Light2DManager.REUSE_CMD) {
+                            renderRes.setRenderTargetCMD(this.lsTarget[layer], this.lsTargetAdd[layer], this.lsTargetSub[layer]);
+                            renderRes.buildRenderMeshCMD();
+                        }
+                    }
+                    renderRes.render(this.lsTarget[layer], this.lsTargetAdd[layer], this.lsTargetSub[layer]);
+                    this._updateMark[layer]++;
+                    clearedLayerMask |= (1 << layer);
+                }
+                this._updateLayerLight[layer] = false;
+            }
+        }
+
         for (let i = this._lightLayer.length - 1; i > -1; i--) {
             const layer = this._lightLayer[i];
-            const lights = this._lightsInLayer[layer];
-            for (let j = 0, len = lights.length; j < len; j++)
-                lights[j]._needUpdateLightAndShadow = false;
-            for (let j = 0, len = this._occluders.length; j < len; j++)
-                this._occluders[j].needUpdate = false;
+            const layerMask = (1 << layer);
+            //只清除实际处理过的层的标记
+            if (processedLayerMask & layerMask) {
+                const lights = this._lightsInLayer[layer];
+                for (let j = 0, len = lights.length; j < len; j++)
+                    lights[j]._needUpdateLightAndShadow = false;
+            }
+        }
+
+        for (let j = 0, len = this._occluders.length; j < len; j++) {
+            const occluder = this._occluders[j];
+            //如果遮光器所在的层被处理过，才清除其更新标记
+            if (occluder.layerMask & processedLayerMask)
+                occluder.needUpdate = false;
         }
         this._screenSchmittChange = false;
-        this._needUpdateLightRes = 0;
-        this._needCollectLightInLayer = 0;
-        this._needCollectOccluderInLight = 0;
+        this._needUpdateLightRes &= ~(processedLayerMask | clearedLayerMask);
+        this._needCollectLightInLayer &= ~(processedLayerMask | clearedLayerMask);
+        this._needCollectOccluderInLight &= ~(processedLayerMask | clearedLayerMask);
 
         //显示工作负载
         if (Light2DManager.DEBUG) {

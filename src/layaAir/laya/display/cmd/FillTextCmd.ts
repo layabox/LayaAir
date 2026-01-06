@@ -80,6 +80,11 @@ export class FillTextCmd implements IGraphicsCmd {
      * @zh 是否单字分开渲染
      */
     singleCharRender: boolean;
+    /** 
+     * @en Letter spacing
+     * @zh 字间距
+     */
+    letterSpacing: number = 0;
 
     /** 
      * @internal 
@@ -126,6 +131,7 @@ export class FillTextCmd implements IGraphicsCmd {
         cmd.align = align ?? 'left';
         cmd.singleCharRender = false;
         cmd._preMeasuredWidth = null;
+        cmd.letterSpacing = 0;
 
         return cmd;
     }
@@ -235,8 +241,9 @@ export class FillTextCmd implements IGraphicsCmd {
         this._renderInfo = runner._textRender.draw(this.text, this.x + gx, this.y + gy,
             this.fontFamily ? this.fontFamily : Config.defaultFont,
             this.fontSize, this.bold, this.italic,
-            this.color, this.stroke, this.strokeColor, this.singleCharRender,
-            tw, this._renderInfo
+            this.color, this.stroke, this.strokeColor,
+            this.letterSpacing,
+            this.singleCharRender, tw, this._renderInfo
         );
     }
 

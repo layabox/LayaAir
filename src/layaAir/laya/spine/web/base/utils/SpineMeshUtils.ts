@@ -1,0 +1,177 @@
+import { IRenderGeometryElement } from "../../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
+import { IVertexBuffer } from "../../../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
+import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
+import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
+import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
+import { RenderCapable } from "../../../../RenderEngine/RenderEnum/RenderCapable";
+import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
+import { VertexDeclaration } from "../../../../RenderEngine/VertexDeclaration";
+import { LayaGL } from "../../../../layagl/LayaGL";
+import { VertexElement } from "../../../../renders/VertexElement";
+import { VertexElementFormat } from "../../../../renders/VertexElementFormat";
+import { Mesh2D } from "../../../../resource/Mesh2D";
+import { ESpineRenderType } from "../../../SpineSkeleton";
+import { IBCreator } from "../buffer/IBCreator";
+import { VBCreator } from "../buffer/VBCreator";
+import { FrameRenderData } from "../optimize/AnimationRender";
+
+export class SpineMeshUtils {
+
+    /**
+     * @en Creates a Mesh2D object for Spine rendering
+     * @param type The Spine render type
+     * @param vbCreator Vertex buffer creator
+     * @param ibCreator Index buffer creator  
+     * @param isDynamic Whether the mesh is dynamic
+     * @param uploadBuffer Whether to upload buffer data
+     * @returns The created Mesh2D object
+     * @zh 创建用于 Spine 渲染的 Mesh2D 对象
+     * @param type Spine 渲染类型
+     * @param vbCreator 顶点缓冲区创建器
+     * @param ibCreator 索引缓冲区创建器
+     * @param isDynamic 是否为动态网格
+     * @param uploadBuffer 是否上传缓冲区数据
+     * @returns 创建的 Mesh2D 对象
+     */
+    static createMesh(type: ESpineRenderType,
+        vbCreator: VBCreator, ibCreator: IBCreator,
+        isDynamic: boolean = false, uploadBuffer: boolean = true
+    ): Mesh2D {
+
+        let mesh = new Mesh2D;
+
+        let vertexBuffers: IVertexBuffer[] = [];
+
+        let usage = isDynamic ? BufferUsage.Dynamic : BufferUsage.Static
+
+        let vertexBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(usage);
+        let vertexDeclaration = vbCreator.vertexDeclaration;
+        let vertexStride = vertexDeclaration.vertexStride;
+        vertexBuffer.vertexDeclaration = vertexDeclaration;
+
+        let vbByteLength = vbCreator.maxVertexCount * vertexStride;
+        let vbUploadLength = vbCreator.vbLength * Float32Array.BYTES_PER_ELEMENT;
+        vertexBuffer.setDataLength(vbByteLength);
+        if (uploadBuffer) {
+            vertexBuffer.setData(vbCreator.vb.buffer as ArrayBuffer, 0, 0, vbUploadLength);
+        }
+        vertexBuffers.push(vertexBuffer);
+
+        mesh._vertexCount = vbByteLength / vertexStride;
+        mesh._vertexBuffers = vertexBuffers;
+
+        let ibByteLength = ibCreator.maxIndexCount * ibCreator.size;
+        let ibUploadLength = ibCreator.ibLength;
+        let indexbuffer = LayaGL.renderDeviceFactory.createIndexBuffer(usage);
+        indexbuffer.indexType = ibCreator.type;
+        indexbuffer.indexCount = ibCreator.maxIndexCount;
+        indexbuffer._setIndexDataLength(ibByteLength);
+
+        if (uploadBuffer) {
+            indexbuffer._setIndexData(ibCreator.ib, 0);
+        }
+
+        mesh._indexBuffer = indexbuffer;
+
+        let state = mesh._bufferState;
+        state.applyState(vertexBuffers, indexbuffer);
+
+        // //@ts-ignore
+        // mesh._customData = {
+        //     vb:vbCreator.vb.slice(0,vbCreator.vbLength),
+        //     ib:ibCreator.ib.slice(0,ibCreator.ibLength)
+        // }
+        let subMeshes: IRenderGeometryElement[] = [];
+
+        let multi = ibCreator.outRenderData;
+        for (let i = 0, len = multi.renderData.length; i < len; i++) {
+            let data = multi.renderData[i];
+            let geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
+            geometry.bufferState = state;
+            geometry.setDrawElemenParams(data.length, data.offset * ibCreator.size);
+            geometry.indexFormat = ibCreator.type;
+            subMeshes.push(geometry);
+        }
+
+        mesh._setSubMeshes(subMeshes);
+
+        var memorySize: number = vbByteLength + ibByteLength;
+        mesh._setCPUMemory(memorySize);
+        mesh._setGPUMemory(memorySize);
+
+        return mesh;
+    }
+
+    /**
+     * @en Creates a dynamic mesh based on the given vertex declaration.
+     * This method is used to generate a Mesh2D object with dynamic vertex data.
+     * @param vertexDeclaration The vertex declaration that defines the structure of vertex data.
+     * @returns A new Mesh2D object configured for dynamic rendering.
+     * @zh 根据给定的顶点声明创建一个动态网格。
+     * 此方法用于生成一个具有动态顶点数据的 Mesh2D 对象。
+     * @param vertexDeclaration 定义顶点数据结构的顶点声明。
+     * @returns 一个配置为动态渲染的新 Mesh2D 对象。
+     */
+    static createMeshDynamic(vertexDeclaration: VertexDeclaration): Mesh2D {
+        let mesh = new Mesh2D;
+        let vertexBuffers: IVertexBuffer[] = [];
+        let usage = BufferUsage.Dynamic;
+        let vertexBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(usage);
+        vertexBuffer.vertexDeclaration = vertexDeclaration;
+        //@ts-ignore
+        vertexBuffer._byteLength = 0;
+        vertexBuffers.push(vertexBuffer);
+
+        mesh._vertexBuffers = vertexBuffers;
+        let indexbuffer = LayaGL.renderDeviceFactory.createIndexBuffer(usage);
+        mesh._indexBuffer = indexbuffer;
+        //@ts-ignore
+        indexbuffer._byteLength = 0;
+        let state = mesh._bufferState;
+        state.applyState(vertexBuffers, indexbuffer);
+        return mesh;
+    }
+
+    static _updateSpineSubMesh(mesh: Mesh2D, frameData: FrameRenderData): boolean {
+        let subMeshCount = mesh.subMeshCount;
+        let mulitRenderData = frameData.mulitRenderData;
+        //没有渲染变化
+        if (!mulitRenderData) return false;
+        let renderdata = mulitRenderData.renderData;
+        let rdLength = renderdata.length;
+        let needUpdate = subMeshCount != rdLength;
+        let subMeshes = mesh._subMeshes;
+
+        if (needUpdate) {
+            let flen = Math.max(rdLength, subMeshCount);
+            let state = mesh._bufferState;
+
+            for (let i = 0; i < flen; i++) {
+                let submesh = subMeshes[i];
+                let data = renderdata[i];
+                if (data) {
+                    if (!submesh) {
+                        submesh = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
+                        submesh.bufferState = state;
+                        subMeshes[i] = submesh;
+                    }
+                    submesh.indexFormat = frameData.type;
+                    submesh.clearRenderParams();
+                    submesh.setDrawElemenParams(data.length, data.offset * frameData.size);
+                } else {
+                    submesh.destroy();
+                }
+            }
+            subMeshes.length = rdLength;
+        } else {
+            for (let i = 0; i < subMeshCount; i++) {
+                let submesh = subMeshes[i];
+                let data = renderdata[i];
+                submesh.indexFormat = frameData.type;
+                submesh.clearRenderParams();
+                submesh.setDrawElemenParams(data.length, data.offset * frameData.size);
+            }
+        }
+        return needUpdate;
+    }
+}

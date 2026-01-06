@@ -175,7 +175,7 @@ export class Selection implements ISelection {
             return;
 
         if (item.mode == ButtonMode.Common) {
-            this._owner.event(UIEvent.ClickItem, item);
+            this._owner.event(UIEvent.ClickItem, [item, evt]);
             return;
         }
 
@@ -244,7 +244,7 @@ export class Selection implements ISelection {
         if (evt.isDblClick && (evt.target instanceof Input))
             return;
 
-        this._owner.event(UIEvent.ClickItem, item);
+        this._owner.event(UIEvent.ClickItem, [item, evt]);
     }
 
     enableArrowKeyNavigation(enabled: boolean, keySelectEvent?: string) {
@@ -266,19 +266,19 @@ export class Selection implements ISelection {
         let index = -1;
         switch (evt.key) {
             case "ArrowLeft":
-                index = this.handleArrowKey(7);
+                index = this.handleArrowKey(7, evt);
                 break;
 
             case "ArrowRight":
-                index = this.handleArrowKey(3);
+                index = this.handleArrowKey(3, evt);
                 break;
 
             case "ArrowUp":
-                index = this.handleArrowKey(1);
+                index = this.handleArrowKey(1, evt);
                 break;
 
             case "ArrowDown":
-                index = this.handleArrowKey(5);
+                index = this.handleArrowKey(5, evt);
                 break;
         }
 
@@ -286,14 +286,14 @@ export class Selection implements ISelection {
             evt.stopPropagation();
     }
 
-    handleArrowKey(dir: number): number {
+    handleArrowKey(dir: number, evt?: Event): number {
         let curIndex = this.index;
         if (curIndex == -1) {
             if (this._owner.numChildren > 0) {
                 this.clear();
                 this.add(0, true);
                 if (this._keyEvent)
-                    this._owner.event(this._keyEvent, this._owner.getChildAt(0));
+                    this._owner.event(this._keyEvent, [this._owner.getChildAt(0), evt]);
                 return 0;
             }
             else
@@ -419,7 +419,7 @@ export class Selection implements ISelection {
             this.clear();
             this.add(index, true);
             if (this._keyEvent) {
-                this._owner.event(this._keyEvent, this._owner.getChildAt(index));
+                this._owner.event(this._keyEvent, [this._owner.getChildAt(index), evt]);
             }
             return index;
         }

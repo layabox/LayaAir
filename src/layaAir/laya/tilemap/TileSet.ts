@@ -41,8 +41,8 @@ export class TileSet extends Resource {
     private _defalutMaterials: Record<string, Material> = {};
 
     private _ownerList: TileMapLayer[] = [];
-
-    private _terrainsDirty = true;
+    /** @internal */
+    _terrainsDirty = true;
 
     private _paramsLists: TerrainsParams[][][] = [];
 

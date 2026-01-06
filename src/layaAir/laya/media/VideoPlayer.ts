@@ -1,147 +1,196 @@
-import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
+import { Component } from "../components/Component";
+import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
+import { IGraphicsCmd } from "../display/IGraphics";
 import { Sprite } from "../display/Sprite";
 import { Event } from "../events/Event";
 import { PAL } from "../platform/PlatformAdapters";
-import { AssetDb } from "../resource/AssetDb";
-import { Browser } from "../utils/Browser";
-import { SpriteUtils } from "../utils/SpriteUtils";
+import { Texture } from "../resource/Texture";
+import { IVideoPlayerOptions, VideoPlayerBackend } from "./VideoPlayerBackend";
+import { VideoTexture } from "./VideoTexture";
 
-export interface IVideoPlayerOptions {
+export class VideoPlayer extends Component {
     /**
-     * @en Whether to show the video controls. Default is false.
-     * @zh 是否显示视频控制。默认否。
+     * @en Video player options. These options need to be set before setting the source, and if you change the settings, you need to reset the source.
+     * @zh 视频播放器选项。这些选项需要在设置source前设置好，如果更改设置，需要重新设置source。
      */
-    controls?: boolean;
-    /**
-     * @en Whether the video is displayed under the game canvas (the canvas needs to be set to transparent). Default is false.
-     * @zh 视频是否显示在游戏画布之下（画布需设置为透明)。默认否。
-     */
-    underGameView?: boolean;
-    /**
-     * @en Video scaling mode. Default is contain.
-     * @zh 视频的缩放模式。默认contain。
-     */
-    objectFit?: "fill" | "contain" | "cover";
-    /**
-     * @en Whether to show the video progress bar.
-     * @zh 是否显示视频进度条。
-     */
-    showProgress?: boolean;
-    /**
-     * @en Whether to show the progress bar in the control bar.
-     * @zh 是否显示控制栏的进度条。
-     */
-    showProgressInControlMode?: boolean;
-    /**
-     * @en Whether it is live broadcast。
-     * @zh 是否是直播。
-     */
-    live?: boolean;
-    /**
-     * @en Whether to show the play button in the center of the video。
-     * @zh 是否在视频中间显示播放按钮。
-     */
-    showCenterPlayBtn?: boolean;
-    /**
-     * @en Whether the video follows the system mute switch setting (iOS only)。
-     * @zh 视频是否遵循系统静音开关设置（仅iOS）。
-     */
-    obeyMuteSwitch?: boolean;
-}
-
-/**
- * @en Video player class
- * @zh 视频播放器类
- */
-export class VideoPlayer {
-    /**
-     * @en Video player options
-     * @zh 视频播放器选项
-     */
-    options: IVideoPlayerOptions = {};
-    /**
-     * @en Whether to allow the video to continue playing in the background。
-     * @zh 视频是否允许在后台继续播放。
-     */
-    allowBackground: boolean = false;
-
-    protected _owner: Sprite;
-    protected _playing: boolean = false;
-    protected _loaded: boolean = false;
-
-    /** @internal */
-    _autoResume: boolean = false;
+    readonly options: IVideoPlayerOptions = { controls: false, objectFit: "contain" };
 
     /**
-     * @en The current playback position in seconds
-     * @zh 当前播放头位置（以秒为单位）
+     * @zh 视频播放模式。如果设置的模式不支持，会尝试使用另外一种模式。
+     * -- player: 使用播放器。这时播放器是浮动在主画布上面（或下面）的，不能与嵌套在UI层级中。
+     * -- decoder: 使用解码器。视频会被捕获到Texture再显示，因此可以嵌套在UI层级中。
+     * @en Video playback mode. If the set mode is not supported, it will try to use another mode.
+     * -- player: Use the player. The player is floating above (or below) the main canvas and cannot be nested in the UI hierarchy.
+     * -- decoder: Use the decoder. The video is captured to a Texture and then displayed, so it can be nested in the UI hierarchy.
+     */
+    mode: "player" | "decoder" = "decoder";
+
+    private _vtex: VideoTexture;
+    private _player: VideoPlayerBackend;
+    private _api: VideoPlayerBackend | VideoTexture;
+
+    private _source: string;
+    private _autoPlay: boolean = false;
+    private _loop: boolean = false;
+    private _volume: number = 1;
+    private _muted: boolean = false;
+    private _playbackRate: number = 1;
+    private _allowBackground: boolean = false;
+    private _paused: boolean = false;
+    private _textureCmd: DrawTextureCmd;
+
+    /** @ignore */
+    declare owner: Sprite;
+
+    /** @ignore */
+    constructor() {
+        super();
+
+        this.runInEditor = true;
+    }
+
+    /**
+     * @en Video player
+     * @zh 视频播放器
+     */
+    get player(): VideoPlayerBackend | VideoTexture | null {
+        return this._api;
+    }
+
+    /**
+     * @en Video source
+     * @zh 视频源
+     */
+    get source() {
+        return this._source;
+    }
+
+    set source(value: string) {
+        this._source = value;
+        if (value) {
+            if (this.owner?.activeInHierarchy)
+                this._load();
+        }
+        else
+            this._unload();
+    }
+
+    /**
+     * @en Whether to automatically play the video after loading. Default is true.
+     * @zh 视频加载完成后是否自动播放。默认值为true。
+     */
+    get autoPlay(): boolean {
+        return this._autoPlay;
+    }
+
+    set autoPlay(value: boolean) {
+        this._autoPlay = value;
+        if (this._api && LayaEnv.isPlaying)
+            value ? this._api.play() : this._api.pause();
+    }
+
+    /**
+     * @en Whether to allow background playback. Default is false.
+     * @zh 是否允许后台播放。默认值为false。
+     */
+    get allowBackground(): boolean {
+        return this._allowBackground;
+    }
+
+    set allowBackground(value: boolean) {
+        this._allowBackground = value;
+        if (this._api)
+            this._api.allowBackground = value;
+    }
+
+    /**
+     * @en The current playback position in seconds.
+     * @zh 当前播放头位置（以秒为单位）。
      */
     get currentTime(): number {
-        return 0;
+        return this._api?.currentTime;
     }
 
     set currentTime(value: number) {
+        if (!this._api)
+            return;
+        this._api.currentTime = value;
     }
 
     /**
-    * @en The current volume level
-    * @zh 当前音量
-    */
-    get volume(): number {
-        return 0;
-    }
-
-    set volume(value: number) {
-    }
-
-    /**
-     * @en The muted state of the video
-     * @zh 视频的静音状态
+     * @en The ready state of the video element:
+     * - 0 = HAVE_NOTHING - No information is available about the audio/video readiness
+     * - 1 = HAVE_METADATA - Metadata about the audio/video is ready
+     * - 2 = HAVE_CURRENT_DATA - Data for the current playback position is available, but not enough to play the next frame/millisecond
+     * - 3 = HAVE_FUTURE_DATA - Data for the current and at least the next frame is available
+     * - 4 = HAVE_ENOUGH_DATA - Enough data is available to begin playback
+     * @zh 视频元素的就绪状态：
+     * - 0 = HAVE_NOTHING - 没有关于音频/视频是否就绪的信息
+     * - 1 = HAVE_METADATA - 关于音频/视频就绪的元数据
+     * - 2 = HAVE_CURRENT_DATA - 关于当前播放位置的数据是可用的，但没有足够的数据来播放下一帧/毫秒
+     * - 3 = HAVE_FUTURE_DATA - 当前及至少下一帧的数据是可用的
+     * - 4 = HAVE_ENOUGH_DATA - 可用数据足以开始播放
      */
-    get muted(): boolean {
-        return false;
-    }
-
-    set muted(value: boolean) {
+    get readyState(): number {
+        return this._vtex?.readyState ?? 0;
     }
 
     /**
-    * @en The duration of the video in seconds. Available after the ready event is triggered.
-    * @zh 视频长度（秒）。ready 事件触发后可用。
-    */
+     * @en The video source width. Available after the ready event is triggered.
+     * @zh 视频源宽度。ready 事件触发后可用。
+     */
+    get videoWidth(): number {
+        return this._vtex?.videoWidth;
+    }
+
+    /**
+     * @en The video source height. Available after the ready event is triggered.
+     * @zh 视频源高度。ready 事件触发后可用。
+     */
+    get videoHeight(): number {
+        return this._vtex?.videoHeight;
+    }
+
+    /**
+     * @en The video duration in seconds. Available after the ready event is triggered.
+     * @zh 视频长度（秒）。ready 事件触发后可用。
+     */
     get duration(): number {
-        return 0;
+        return this._api?.duration;
     }
 
     /**
-     * @en If the playback of the audio/video has ended
-     * @zh 音频/视频的播放是否已结束
+     * @en Returns whether the playback of the audio/video has ended.
+     * @zh 返回音频/视频的播放是否已结束。
      */
     get ended(): boolean {
-        return false;
+        return this._api?.ended;
     }
 
     /**
-     * @en Whether the audio/video should loop when it reaches the end
-     * @zh 音频/视频是否应在结束时重新播放
+     * @en Whether the video should loop when it ends.
+     * @zh 视频是否应在结束时重新播放。
      */
     get loop(): boolean {
-        return false;
+        return this._loop;
     }
 
     set loop(value: boolean) {
+        this._loop = value;
+        if (this._api)
+            this._api.loop = value;
     }
 
     /**
-     * @en The current playback speed of the audio/video. For example:
+     * @en The current playback speed of the video. For example:
      * - 1.0: Normal speed
      * - 0.5: Half speed (slower)
      * - 2.0: Double speed (faster)
      * - -1.0: Backwards, normal speed
      * - -0.5: Backwards, half speed
      * Note: Only Google Chrome and Safari support the playbackRate property.
-     * @zh 音频/视频的当前播放速度。例如：
+     * @zh 视频的当前播放速度。例如：
      * - 1.0：正常速度
      * - 0.5：半速（更慢）
      * - 2.0：倍速（更快）
@@ -150,132 +199,182 @@ export class VideoPlayer {
      * 注意：只有 Google Chrome 和 Safari 支持 playbackRate 属性。
      */
     get playbackRate(): number {
-        return 1;
+        return this._playbackRate;
     }
 
     set playbackRate(value: number) {
+        this._playbackRate = value;
+        if (this._api)
+            this._api.playbackRate = value;
     }
 
     /**
-    * @en If the video is paused
-    * @zh 视频是否暂停
-    */
-    get paused(): boolean {
-        return false;
-    }
-
-    attachTo(owner: Sprite) {
-        if (this._owner) {
-            this._owner.off(Event.TRANSFORM_CHANGED, this, this.onTransformChanged);
-            ILaya.stage.off(Event.RESIZE, this, this.onTransformChanged);
-        }
-        this._owner = owner;
-        if (this._owner) {
-            this._owner.on(Event.TRANSFORM_CHANGED, this, this.onTransformChanged);
-            ILaya.stage.on(Event.RESIZE, this, this.onTransformChanged);
-        }
-    }
-
-    /**
-     * @en Load the video
-     * @zh 加载视频
+     * @en The current volume level.
+     * @zh 当前音量。
      */
-    load(url: string) {
-        if (!url)
-            return;
+    get volume(): number {
+        return this._volume;
+    }
 
-        AssetDb.inst.resolveURL(url, url2 => this.onLoad(url2));
+    set volume(value: number) {
+        this._volume = value;
+        if (this._api)
+            this._api.volume = value;
+    }
+
+    /**
+     * @en The muted state of the video.
+     * @zh 视频的静音状态。
+     */
+    get muted(): boolean {
+        return this._muted;
+    }
+
+    set muted(value: boolean) {
+        this._muted = value;
+        if (this._api)
+            this._api.muted = value;
+    }
+
+    /**
+     * @en If the video is paused.
+     * @zh 视频是否暂停。
+     */
+    get paused(): boolean {
+        return this._paused;
+    }
+
+    /**
+     * @en Get the video texture
+     * @zh 获取视频纹理
+     */
+    get videoTexture(): VideoTexture | null {
+        return this._vtex;
     }
 
     /**
      * @en Start playing the video
      * @zh 开始播放视频
      */
-    play() {
-        if (this._playing || !LayaEnv.isPlaying)
+    play(): void {
+        if (!this._api)
             return;
-
-        this._playing = true;
-        ILaya.stage.on(Event.BLUR, this, this.onBlur);
-
-        if (this._loaded)
-            this.onPlay();
+        this._api.play();
     }
 
     /**
-     * @en Pause the video playback
-     * @zh 暂停播放视频
+     * @en Pause video playback
+     * @zh 暂停视频播放
      */
-    pause() {
-        this._autoResume = false;
-
-        if (!this._playing)
-            return;
-
-        this._playing = false;
-        ILaya.stage.off(Event.BLUR, this, this.onBlur);
-
-        if (this._loaded)
-            this.onPause();
+    pause(): void {
+        this._paused = true;
+        if (this._api)
+            this._api.pause();
     }
 
-    /**
-     * @en Resume the video playback
-     * @zh 继续播放视频
-     */
-    resume() {
-        this.play();
-    }
-
-    protected setLoaded() {
-        this._loaded = true;
-        this.onTransformChanged();
-
-        if (this._playing)
-            this.onPlay();
-    }
-
-    protected getNodeTransform() {
-        let trans: ReturnType<typeof SpriteUtils.getGlobalPosAndScale>;
-        if (Browser.onTTMiniGame) { //抖音上视频的坐标是相对画布的坐标，不是相对窗口的坐标
-            trans = SpriteUtils.getGlobalPosAndScale(this._owner);
-            trans.x *= ILaya.stage.clientScaleX;
-            trans.y *= ILaya.stage.clientScaleY;
-            trans.scaleX *= ILaya.stage.clientScaleX;
-            trans.scaleY *= ILaya.stage.clientScaleY;
+    private _load() {
+        let player: VideoPlayerBackend;
+        let vt: VideoTexture;
+        let backendType = LayaEnv.isPlaying ? this.mode : "decoder";
+        if (backendType === "player") {
+            player = (this._player || PAL.media.createVideoPlayer());
+            if (!player)
+                vt = PAL.media.createVideoTexture();
         }
+        else { //if (backendType === "decoder") 
+            vt = (this._vtex || PAL.media.createVideoTexture());
+            if (!vt)
+                player = PAL.media.createVideoPlayer();
+        }
+
+        if (player) {
+            if (this._player !== player) {
+                this._player = player;
+                this._player.attachTo(this.owner);
+                this._player.options = this.options;
+            }
+            if (this._vtex) {
+                this._vtex.destroy();
+                this._vtex = null;
+                this.owner.graphics.removeCmd(this._textureCmd, true);
+                this._textureCmd = null;
+            }
+        }
+        else {
+            if (this._vtex !== vt) {
+                this._vtex = vt;
+                this._vtex.on(Event.READY, this, this._vtReady);
+                this._vtex.on("videoUpdate", this.owner, this.owner.reCache);
+                if (!this._textureCmd) {
+                    this._textureCmd = DrawTextureCmd.create(new Texture(), 0, 0, 1, 1, null, null, null, null, null, true);
+                    (this._textureCmd as IGraphicsCmd).lock = true;
+                    this.owner.graphics.addCmd(this._textureCmd);
+                }
+            }
+            if (this._player) {
+                this._player.destroy();
+                this._player = null;
+            }
+        }
+
+        this._api = player || vt;
+        this._api.loop = this._loop;
+        this._api.volume = this._volume;
+        this._api.muted = this._muted;
+        this._api.playbackRate = this._playbackRate;
+        this._api.allowBackground = this._allowBackground;
+        if (this._autoPlay && !this._paused && LayaEnv.isPlaying)
+            this._api.play();
         else
-            trans = SpriteUtils.getTransformRelativeToWindow(this._owner, 0, 0);
-        return { x: trans.x, y: trans.y, width: Math.round(this._owner.width * trans.scaleX), height: Math.round(this._owner.height * trans.scaleY) };
+            this._api.pause();
+        this._api.load(this._source);
     }
 
-    protected onTransformChanged() {
+    private _vtReady() {
+        this._textureCmd.texture.setTo(this._vtex);
+        this.owner?.graphics.repaint();
+    }
+
+    private _unload() {
+        if (this._vtex) {
+            this._vtex.off(Event.READY, this, this._vtReady);
+            this._vtex.off("videoUpdate", this.owner, this.owner.reCache);
+            this._vtex.destroy();
+            this._vtex = null;
+            this.owner.graphics.removeCmd(this._textureCmd, true);
+            this._textureCmd = null;
+        }
+
+        this._player?.destroy();
+        this._player = null;
+        this._api = null;
     }
 
     /**
-     * @en Destroy the video player
-     * @zh 销毁视频播放器
+     * @ignore
      */
-    destroy() {
-        this.onDestroy();
-        this.attachTo(null);
-        ILaya.stage.off(Event.BLUR, this, this.onBlur);
+    protected _onEnable(): void {
+        if (!this._api && this._source)
+            this._load();
+
+        super._onEnable();
     }
 
-    protected onBlur() {
-        if (!this.allowBackground)
-            PAL.media.resumeUntilGotFocus(this);
+    /**
+     * @ignore
+     */
+    protected _onDisable(): void {
+        this._unload();
+
+        super._onDisable();
     }
 
-    protected onLoad(url: string): void {
-    }
+    /**
+     * @ignore
+     */
+    protected _onDestroy(): void {
+        this._unload();
 
-    protected onPlay(): void {
-    }
-
-    protected onPause(): void {
-    }
-
-    protected onDestroy(): void {
+        super._onDestroy();
     }
 }

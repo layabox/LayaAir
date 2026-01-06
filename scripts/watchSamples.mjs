@@ -11,7 +11,7 @@ const sourcemap = true;
 //引用插件模块
 const samplesBathURL = './src/samples';
 
-const ignoreCircularDependencyWarnings = process.argv.indexOf("-cd") == -1;
+const ignoreCircularDependencyWarnings = true;//process.argv.indexOf("-cd") == -1;
 
 /**
  * 主要用来给laya库加上所有的Laya.xx=xx
@@ -269,7 +269,7 @@ function startLaya() {
     layaWatcher = watch({
         input: mentry,
         onwarn: onRollupWarn(ignoreCircularDependencyWarnings),
-        treeshake: false, //建议忽略
+        treeshake: true, //建议忽略
         plugins: [
             mySamplesMultiInput({
                 path: './src/layaAir'
@@ -277,6 +277,7 @@ function startLaya() {
             // typescript(layaobj),
             esbuild({
                 // Option
+                logLevel: 'verbose',
                 include: /\.[jt]sx?$/,
                 sourceMap: sourcemap,
                 minify: process.env.NODE_ENV === 'production',
@@ -295,8 +296,18 @@ function startLaya() {
             name: 'Laya',
             sourcemap: sourcemap,
         }
-    }).on('event', event => {
+    });
+
+    layaWatcher.on('event', event => {
         messge(event , "Laya");
+    });
+
+    layaWatcher.on('change', change => {
+        console.log("Laya build change:", change);
+    });
+
+    layaWatcher.on('error', error => {
+        console.error("Laya build error:", error);
     });
 }
 
@@ -307,6 +318,8 @@ function messge(event , name){
         console.log(`Build ${name} completed. use time:`,event.duration / 1000 + "s");
     } else if (event.code === 'ERROR') {
         console.error(`Build ${name} error:\n`, event.error.message);
+    } else {
+        console.log(`Build ${name} event:`, event.code);
     }
 }
 

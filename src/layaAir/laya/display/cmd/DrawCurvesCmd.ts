@@ -103,6 +103,13 @@ export class DrawCurvesCmd implements IGraphicsCmd {
     }
 
     /**
+     * @ignore @blueprintIgnore
+     */
+    needsLayoutRepaint(): number {
+        return 1;
+    }
+
+    /**
      * @ignore
      */
     getBounds(assembler: IGraphicsBoundsAssembler): void {

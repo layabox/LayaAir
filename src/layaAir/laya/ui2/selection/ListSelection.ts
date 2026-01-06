@@ -191,7 +191,7 @@ export class ListSelection extends Selection {
                 return;
 
             if (item.mode == ButtonMode.Common) {
-                this._owner.event(UIEvent.ClickItem, item);
+                this._owner.event(UIEvent.ClickItem, [item, evt]);
                 return;
             }
 
@@ -255,13 +255,13 @@ export class ListSelection extends Selection {
             if (evt.isDblClick && (evt.target instanceof Input))
                 return;
 
-            this._owner.event(UIEvent.ClickItem, item);
+            this._owner.event(UIEvent.ClickItem, [item, evt]);
         }
         else
             super.handleClick(item, evt);
     }
 
-    handleArrowKey(dir: number): number {
+    handleArrowKey(dir: number, evt?: Event): number {
         if (this._layout._virtual) {
             let curIndex = this.index;
             if (curIndex == -1) {
@@ -269,7 +269,7 @@ export class ListSelection extends Selection {
                     this.clear();
                     this.add(0, true);
                     if (this._keyEvent)
-                        this._owner.event(this._keyEvent, this._owner.getChildAt(0));
+                        this._owner.event(this._keyEvent, [this._owner.getChildAt(0), evt]);
                     return 0;
                 }
                 else
@@ -322,7 +322,7 @@ export class ListSelection extends Selection {
                 if (this._keyEvent) {
                     let childIndex = this._layout.itemIndexToChildIndex(index);
                     if (childIndex != -1)
-                        this._owner.event(this._keyEvent, this._owner.getChildAt(childIndex));
+                        this._owner.event(this._keyEvent, [this._owner.getChildAt(childIndex), evt]);
                 }
                 return index;
             }
@@ -330,6 +330,6 @@ export class ListSelection extends Selection {
                 return -1;
         }
         else
-            return super.handleArrowKey(dir);
+            return super.handleArrowKey(dir, evt);
     }
 }

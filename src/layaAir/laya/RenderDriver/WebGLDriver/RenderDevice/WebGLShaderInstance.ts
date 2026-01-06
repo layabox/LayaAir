@@ -62,6 +62,13 @@ export class WebGLShaderInstance implements IShaderInstance {
     renderState: RenderState = new RenderState();
 
     /**
+  * shader pass statefirst 为 true 时
+  * 优先使用 shader pass 中的状态， 并与 material 中的状态进行合并
+  * 此属性记录当前被合并的 material 状态
+  */
+    private matRenderStateCache: string;
+
+    /**
      * 创建一个 <code>ShaderInstance</code> 实例。
      */
     constructor() {
@@ -229,6 +236,8 @@ export class WebGLShaderInstance implements IShaderInstance {
         this._uploadCameraShaderValue = null;
         this._uploadScene = null;
         this._additionShaderData = null;
+
+        this.matRenderStateCache = null;
     }
 
     /**
@@ -251,6 +260,10 @@ export class WebGLShaderInstance implements IShaderInstance {
 
     updateRenderState(renderState: RenderState) {
         if (this._shaderPass.statefirst) {
+            if (this.matRenderStateCache == renderState.hash) {
+                return;
+            }
+
             const passState = this._shaderPass.renderState;
             this.renderState.cull = passState.cull ?? renderState.cull;
             this.renderState.blend = passState.blend ?? renderState.blend;
@@ -278,6 +291,10 @@ export class WebGLShaderInstance implements IShaderInstance {
             this.renderState.depthBiasConstant = passState.depthBiasConstant ?? renderState.depthBiasConstant;
             this.renderState.depthBiasSlopeScale = passState.depthBiasSlopeScale ?? renderState.depthBiasSlopeScale;
             this.renderState.depthBiasClamp = passState.depthBiasClamp ?? renderState.depthBiasClamp;
+
+            // 更新 hash
+            this.renderState.hash = WebGLEngine.instance.hashRenderState(this.renderState);
+            this.matRenderStateCache = renderState.hash;
         }
     }
 

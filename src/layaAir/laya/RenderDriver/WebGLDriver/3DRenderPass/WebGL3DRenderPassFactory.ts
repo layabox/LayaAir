@@ -6,7 +6,7 @@ import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderP
 import { IBatchModuleAgent } from "../../DriverDesign/3DRenderPass/IBatchModuleAgent";
 import { ComputeCommandAppatchCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
-import { Web3DRenderPass } from "../../RenderModuleData/WebModuleData/3D/WebForwardAddRP/Web3DRenderPass";
+import { WebRender3DProcess } from "../../RenderModuleData/WebModuleData/3D/WebForwardAddRP/WebRender3DProcess";
 import { WebForwardAddClusterRP } from "../../RenderModuleData/WebModuleData/3D/WebForwardAddRP/WebForwardAddClusterRP";
 import { WebForwardAddRP } from "../../RenderModuleData/WebModuleData/3D/WebForwardAddRP/WebForwardAddRP";
 import { WebSceneRenderManager } from "../../RenderModuleData/WebModuleData/3D/WebScene3DRenderManager";
@@ -79,7 +79,7 @@ export class WebGL3DRenderPassFactory implements I3DRenderPassFactory {
 
 
     createRender3DProcess(): IRender3DProcess {
-        let renderPass = new Web3DRenderPass();
+        let renderPass = new WebRender3DProcess();
         let forwardRP = renderPass._renderPass = new WebForwardAddRP();
         forwardRP.mainRenderpass = new WebForwardAddClusterRP();
         forwardRP.dirShadowRenderPass = new WebDirCascadeShadowRP();
