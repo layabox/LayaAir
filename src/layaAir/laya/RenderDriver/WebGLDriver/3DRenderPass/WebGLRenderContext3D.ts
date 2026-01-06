@@ -49,7 +49,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     /**@internal */
     private _scissor: Vector4;
     /**@internal */
-    private _sceneUpdataMask: number = 0;
+    private _sceneUpdateMask: number = 0;
     /**@internal */
     private _cameraUpdateMask: number = 0;
     /**@internal */
@@ -222,12 +222,12 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     }
 
 
-    get sceneUpdataMask(): number {
-        return this._sceneUpdataMask;
+    get sceneUpdateMask(): number {
+        return this._sceneUpdateMask;
     }
 
-    set sceneUpdataMask(value: number) {
-        this._sceneUpdataMask = value;
+    set sceneUpdateMask(value: number) {
+        this._sceneUpdateMask = value;
     }
 
 

@@ -139,11 +139,11 @@ export class Scene3D extends Sprite {
      * @zh 场景更新标记。
      */
     static get _updateMark(): number {
-        return RenderContext3D._instance._contextOBJ.sceneUpdataMask;
+        return RenderContext3D._instance._contextOBJ.sceneUpdateMask;
     }
     /** @internal 场景更新标记 */
     static set _updateMark(value: number) {
-        RenderContext3D._instance._contextOBJ.sceneUpdataMask = value;
+        RenderContext3D._instance._contextOBJ.sceneUpdateMask = value;
     }
 
     /**
