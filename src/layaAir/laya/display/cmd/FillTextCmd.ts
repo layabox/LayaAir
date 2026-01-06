@@ -85,6 +85,26 @@ export class FillTextCmd implements IGraphicsCmd {
      * @zh 字间距
      */
     letterSpacing: number = 0;
+    /** 
+     * @en Shadow offset in the x direction
+     * @zh 阴影在x方向的偏移量
+     */
+    shadowOffsetX: number = 0;
+    /** 
+     * @en Shadow offset in the y direction
+     * @zh 阴影在y方向的偏移量
+     */
+    shadowOffsetY: number = 0;
+    /** 
+     * @en Shadow blur radius
+     * @zh 阴影模糊半径
+     */
+    shadowBlur: number = 0;
+    /** 
+     * @en Shadow color
+     * @zh 阴影颜色
+     */
+    shadowColor: string = '#000000';
 
     /** 
      * @internal 
@@ -132,6 +152,10 @@ export class FillTextCmd implements IGraphicsCmd {
         cmd.singleCharRender = false;
         cmd._preMeasuredWidth = null;
         cmd.letterSpacing = 0;
+        cmd.shadowOffsetX = 0;
+        cmd.shadowOffsetY = 0;
+        cmd.shadowBlur = 0;
+        cmd.shadowColor = '#000000';
 
         return cmd;
     }
@@ -242,7 +266,7 @@ export class FillTextCmd implements IGraphicsCmd {
             this.fontFamily ? this.fontFamily : Config.defaultFont,
             this.fontSize, this.bold, this.italic,
             this.color, this.stroke, this.strokeColor,
-            this.letterSpacing,
+            this.letterSpacing, this.shadowOffsetX, this.shadowOffsetY, this.shadowBlur, this.shadowColor,
             this.singleCharRender, tw, this._renderInfo
         );
     }

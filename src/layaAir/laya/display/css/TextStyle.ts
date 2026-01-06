@@ -93,4 +93,26 @@ export class TextStyle {
      * @zh 描边颜色，以字符串表示
      */
     strokeColor = '#000000';
+
+    /** 
+     * @en Shadow offset in the x direction
+     * @zh 阴影在x方向的偏移量
+     */
+    shadowOffsetX: number = 0;
+    /** 
+     * @en Shadow offset in the y direction
+     * @zh 阴影在y方向的偏移量
+     */
+    shadowOffsetY: number = 0;
+    /** 
+     * @en Shadow blur radius
+     * @zh 阴影模糊半径
+     */
+    shadowBlur: number = 0;
+    /** 
+     * @en Shadow color
+     * @zh 阴影颜色
+     */
+    shadowColor: string = '#000000';
 }
+

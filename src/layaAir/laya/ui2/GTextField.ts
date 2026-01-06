@@ -289,6 +289,54 @@ export class GTextField extends GWidget {
     }
 
     /**
+     * @en Shadow offset X (in pixels).
+     * @zh 阴影偏移X（以像素为单位）。
+     */
+    get shadowOffsetX(): number {
+        return this.textIns.shadowOffsetX;
+    }
+
+    set shadowOffsetX(value: number) {
+        this.textIns.shadowOffsetX = value;
+    }
+
+    /**
+     * @en Shadow offset Y (in pixels).
+     * @zh 阴影偏移Y（以像素为单位）。
+     */
+    get shadowOffsetY(): number {
+        return this.textIns.shadowOffsetY;
+    }
+
+    set shadowOffsetY(value: number) {
+        this.textIns.shadowOffsetY = value;
+    }
+
+    /**
+     * @en Shadow blur (in pixels).
+     * @zh 阴影模糊度（以像素为单位）。
+     */
+    get shadowBlur(): number {
+        return this.textIns.shadowBlur;
+    }
+
+    set shadowBlur(value: number) {
+        this.textIns.shadowBlur = value;
+    }
+
+    /**
+     * @en Shadow color, represented as a string.
+     * @zh 阴影颜色，以字符串表示。
+     */
+    get shadowColor(): string {
+        return this.textIns.shadowColor;
+    }
+
+    set shadowColor(value: string) {
+        this.textIns.shadowColor = value;
+    }
+
+    /**
      * @en Specifies the behavior when text exceeds the text area.
      * Values: visible, hidden, scroll, shrink, ellipsis.
      * Effects:
