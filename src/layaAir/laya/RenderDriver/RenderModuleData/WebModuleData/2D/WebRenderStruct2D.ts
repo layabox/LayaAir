@@ -312,6 +312,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
             this._blendMode = BlendMode.invalid;
             this._currentData = _DefaultParentData;
+            value.needUploadAlpha = true;
 
          } else if (this._subStruct) {
 
