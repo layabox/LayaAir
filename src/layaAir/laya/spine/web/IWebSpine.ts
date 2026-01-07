@@ -2,6 +2,7 @@ import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDe
 import { Material } from "../../resource/Material";
 import { ISpineFactory } from "../interface/ISpineFactory";
 import { VBCreator } from "./base/buffer/VBCreator";
+import { FrameRenderCache } from "./base/optimize/AnimationRender";
 import { AttachmentParse } from "./base/optimize/AttachmentParse";
 import { BaseOptimizeRender } from "./base/optimize/BaseOptimizeRender";
 import { SpineRenderUpdater } from "./base/optimize/SpineRenderUpdater";
@@ -32,14 +33,25 @@ export interface IRender {
     destroy():void;
 }
 
-export interface ISpineNormalUpdater { 
-    renderUpdate(skeleton: spine.Skeleton, updater: SpineRenderUpdater
+export interface IRenderBatch {
+    geometry: IRenderGeometryElement;
+    material: Material;
+    materialIndex: number;
+}
+
+export interface ISpineNormalUpdater {
+    batches: IRenderBatch[];
+    renderUpdate(time: number, skeleton: spine.Skeleton, updater: SpineRenderUpdater
         , slotRangeStart?: number, slotRangeEnd?: number
         , offsetX?: number, offsetY?: number): void;
-    
+
+    autoCacheEnabled: boolean;
     needUpdate: boolean;
     subMeshes: IRenderGeometryElement[];
     materials: Material[];
+
+    restoreFromCache(cache: FrameRenderCache, offsetX?: number, offsetY?: number): void;
+    destroy():void;
 }
 
 export enum ERenderProxyType {

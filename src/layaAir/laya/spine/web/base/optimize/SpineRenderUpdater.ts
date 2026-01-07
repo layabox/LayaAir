@@ -46,15 +46,12 @@ export class SpineRenderUpdater {
 
     private _animator: AnimationRender = null;
 
+    /** @internal */
+    cacheFrameIndex: number = 0;
+    
     /**
-     * @en The current animation time.
-     * @zh 当前动画时间。
-     */
-    currentTime: number = -1;
-
-    /**
-     * @en The current frame index.
-     * @zh 当前帧索引。
+     * @en The current key frame index.
+     * @zh 当前关键帧索引。
      */
     currentFrameIndex: number = -1;
 
@@ -122,7 +119,7 @@ export class SpineRenderUpdater {
     private _updateData() {
         if (!this._animator || !this._skinAttach) return;
         this.currentData = this._animator.skinDataArray[this._skinAttach.index];
-        this.updateBones = this._animator.isCache ? (this._animator.eventsFrames.length == 0 ? this.updateBoneMatrixCache : this.updateBoneMatCacheEvent) : this.updateBoneMatrix;
+        this.updateBones = this._animator.isCache ? this.updateBoneMatrixCache : this.updateBoneMatrix;
     }
 
     /**
@@ -140,13 +137,11 @@ export class SpineRenderUpdater {
      * @zh 重置动画状态。
      */
     reset() {
-        this.currentTime = -1;
         this.currentFrameIndex = -1;
     }
 
     clear() {
         this.cacheMaterials.length = 0;
-        this.currentTime = -1;
         this.currentFrameIndex = -1;
         this.currentData = null;
         this.state = null;
@@ -315,7 +310,6 @@ export class SpineRenderUpdater {
         
         this.renderUpdate(slots , this.currentData, nowFrame, beforeFrame);
         
-        this.currentTime = curTime;
         this.currentFrameIndex = nowFrame;
     }
 
@@ -398,60 +392,6 @@ export class SpineRenderUpdater {
      */
     updateBoneMatrixCache(delta: number, bones: spine.Bone[], boneMat: Float32Array, ofx: number = 0, ofy: number = 0): void {
         this.writeBoneBufferCache(this._animator.boneFrames, delta / SpineConst.SPINE_STEP, boneMat, ofx, ofy);
-    }
-
-    /**
-     * @en Updates bone matrices using cached data and handles events.
-     * @param delta Time delta.
-     * @param animation Animation render data.
-     * @param bones Spine bones.
-     * @param state Spine animation state.
-     * @param boneMat Bone matrix array.
-     * @zh 使用缓存数据更新骨骼矩阵并处理事件。
-     * @param delta 时间增量。
-     * @param animation 动画渲染数据。
-     * @param bones 骨骼数组。
-     * @param state 骨骼动画状态。
-     * @param boneMat 骨骼矩阵数组。
-     */
-    updateBoneMatCacheEvent(delta: number,  bones: spine.Bone[],  boneMat: Float32Array): void {
-        let f = delta / SpineConst.SPINE_STEP;
-
-        let animator = this._animator;
-        let state = this.state;
-        this.writeBoneBufferCache(animator.boneFrames, f, boneMat);
-
-        let currFrame = Math.round(f);
-        let curentTrack: spine.TrackEntry = this.owner.trackEntry;
-        //@ts-ignore
-        let lastEventFrame = curentTrack.lastEventFrame;
-        if (lastEventFrame == currFrame) {
-            return;
-        }
-        if (lastEventFrame > currFrame || lastEventFrame == undefined) {
-            lastEventFrame = -1;
-        }
-
-        if (currFrame - lastEventFrame <= 1) {
-            let events = animator.eventsFrames[currFrame];
-            if (events) {
-                for (let i = 0, n = events.length; i < n; i++) {
-                    this.owner.dispatchEvent(null, "event", events[i]);//TODO enty
-                }
-            }
-        }
-        else {
-            for (let i = lastEventFrame + 1; i <= currFrame; i++) {
-                let events = animator.eventsFrames[i];
-                if (events) {
-                    for (let j = 0, m = events.length; j < m; j++) {
-                        this.owner.dispatchEvent(null, "event", events[j]);//TODO enty
-                    }
-                }
-            }
-        }
-        //@ts-ignore
-        curentTrack.lastEventFrame = currFrame;
     }
 
     /**

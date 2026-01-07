@@ -3,9 +3,10 @@ import { IRenderStruct2D } from "../../../../RenderDriver/RenderModuleData/Desig
 import { BakedSpineRenderer, StandardSpineRenderer } from "../optimize/SpineRendererTypes";
 import { BaseRender2DType } from "../../../../display/SpriteConst";
 import { SpineShaderInit } from "../../../shader/SpineShaderInit";
-import { SpineNormalRenderUpdater } from "../optimize/SpineNormalRenderUpdater";
 import { Spine2DNormalRenderUpdater } from "./Spine2DNormalRenderUpdater";
 import { WebSpineRenderDataHandle } from "../../../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
+import { SpineOptimizeRender2D } from "./SpineOptimizeRender2D";
+import { WebRenderStruct2D } from "../../../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 
 
 export class BakedSpine2DRenderer extends BakedSpineRenderer {
@@ -44,6 +45,7 @@ export class StandardSpine2DRenderer extends StandardSpineRenderer{
      /** @internal */
     protected _struct: IRenderStruct2D;
 
+    private _updateFrame = -1;
     normalUpdater: Spine2DNormalRenderUpdater;
 
     /**
@@ -61,6 +63,7 @@ export class StandardSpine2DRenderer extends StandardSpineRenderer{
         super.change();
         this._struct.renderType = BaseRender2DType.spinenormal;
         this._shaderData.addDefine(SpineShaderInit.SPINE_NORMAL_2D);
+        this._updateFrame = -1;
     }
 
     leave() {
@@ -82,15 +85,31 @@ export class StandardSpine2DRenderer extends StandardSpineRenderer{
      * @param offsetY Y轴偏移。
      */
     render(curTime: number, offsetX: number = 0, offsetY: number = 0): void {
-        let renderMatrix = this._struct.renderMatrix;
-        let offset = (this._struct.renderDataHandler as WebSpineRenderDataHandle).offset;
-        let mat = this.normalUpdater.matrix
-        renderMatrix.copyTo(mat);
-        if (offset) {
-            mat.tx = mat.tx + mat.a * offset.x + mat.c * offset.y
-            mat.ty = mat.ty + mat.b * offset.x + mat.d * offset.y
+        let skinData = this.updater?.currentData;
+
+        let trans = (this._struct as WebRenderStruct2D).trans;
+        if (this._updateFrame < trans.modifiedFrame) {
+            let renderMatrix = trans.matrix;
+            let offset = (this._struct.renderDataHandler as WebSpineRenderDataHandle).offset;
+            let mat = this.normalUpdater.matrix
+            renderMatrix.copyTo(mat);
+            if (offset) {
+                mat.tx = mat.tx + mat.a * offset.x + mat.c * offset.y;
+                mat.ty = mat.ty + mat.b * offset.x + mat.d * offset.y;
+            }
+            this._updateFrame = trans.modifiedFrame;
         }
-        this.normalUpdater.renderUpdate(this._skeleton, this.updater, -1, -1, offsetX, offsetY);
+
+        if (skinData && (skinData.hasRenderCache || this.normalUpdater.autoCacheEnabled)) {
+            let cache = skinData.renderCache[this.updater.cacheFrameIndex];
+            // console.log(this.updater.cacheFrameIndex, "@@@Frame")
+            if (cache) {
+                this.normalUpdater.restoreFromCache(cache);
+                return;
+            }
+        }
+       
+        this.normalUpdater.renderUpdate(curTime, this._skeleton, this.updater, -1, -1, offsetX, offsetY);
     }
 
     /**
@@ -99,15 +118,11 @@ export class StandardSpine2DRenderer extends StandardSpineRenderer{
      * @zh 渲染后调用，更新渲染元素。
      * @param optimizeRender BaseOptimizeRender 实例。
      */
-    afterRender(optimizeRender: any): void {
-        // 把 normalUpdater 给到 handle，以便合批时访问原始顶点数据
-        let handle = optimizeRender._getRenderHandle();
-        if (handle) {
-            handle.normalUpdater = this.normalUpdater;
+    afterRender(optimizeRender: SpineOptimizeRender2D): void {
+        if (this.normalUpdater.needUpdate) {
+            optimizeRender._updateRenderElements(this.normalUpdater.subMeshes, this.normalUpdater.materials);
+            this.normalUpdater.needUpdate = false;
         }
-
-        // 调用父类方法
-        super.afterRender(optimizeRender);
     }
 
     destroy(): void {

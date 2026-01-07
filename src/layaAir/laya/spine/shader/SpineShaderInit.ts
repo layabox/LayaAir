@@ -403,6 +403,28 @@ export class SpineShaderInit {
         return verDec;
     }
 
+    private static _declarations: Record<string , VertexDeclaration>;
+
+    static getAllVertexDeclarations() {
+        if (this._declarations) {
+            return this._declarations;
+        }
+        this._declarations = {};
+
+        let vertexFlags = [
+            "UV,COLOR,POSITION",
+            "UV,COLOR,POSITION,COLOR2",
+            "UV,COLOR,POSITION,BONE",
+            "UV,COLOR,POSITION,BONE,COLOR2"
+        ];
+        for (const vertexFlag of vertexFlags) {
+            this._declarations[vertexFlag] = SpineShaderInit.getVertexDeclaration(vertexFlag);
+        }
+        this._declarations["instanceMatrix"] = SpineShaderInit.instanceNMatrixDeclaration;
+        this._declarations["simpleAnimation"] = SpineShaderInit.instanceSimpleAnimatorDeclaration;
+        return this._declarations;
+    }
+
     static getIndexFormat(vertexCount: number) {
         let type = IndexFormat.UInt32;
         if (vertexCount < 256 && LayaGL.renderEngine.getCapable(RenderCapable.Element_Index_Uint8)) {

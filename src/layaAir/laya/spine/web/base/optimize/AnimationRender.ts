@@ -13,6 +13,7 @@ import { SpineMeshUtils } from "../utils/SpineMeshUtils";
 import { SkeletonOptimise } from "../optimize/SkeletonOptimise";
 import { IChange, IVBChange } from "../../IWebSpine";
 import { SpineConst } from "../../../SpineConst";
+import { Material } from "../../../../resource/Material";
 
 export type FrameRenderData = {
     ib?: Uint16Array | Uint32Array | Uint8Array;
@@ -25,6 +26,30 @@ export type FrameRenderData = {
 export type FrameChanges = {
     iChanges?: IChange[],
     vChanges?: IVBChange[]
+}
+
+export interface RenderDataBlock {
+    // 顶点数据
+    vertexData: Float32Array;
+    vertexLength: number;
+
+    // 索引数据(可选,Spine2D模式每个block有自己的索引)
+    indexData?: Uint16Array;
+    indexLength?: number;
+
+    // 额外元数据(用于Spine2D)
+    vertexCount?: number;
+    indexCount?: number;
+    vertexBufferLength?: number;
+    indexBufferLength?: number;
+}
+
+// 新增:统一的帧渲染缓存类型
+export type FrameRenderCache = {
+    // 统一的渲染数据块数组(替代vertices和views)
+    renderBlocks: RenderDataBlock[];
+    // 共享数据
+    materials: Material[];
 }
 
 /**
@@ -72,6 +97,9 @@ export class AnimationRender {
      * @zh 每帧的事件数组。
      */
     eventsFrames: spine.Event[][];
+   
+
+    hasEvent: boolean = false;
     /**
      * @en Indicates if the animation is cached.
      * @zh 指示动画是否已缓存。
@@ -83,6 +111,12 @@ export class AnimationRender {
      * @zh 指示动画是否包含剪辑附件。
      */
     hasClip: boolean = false;
+
+    /**
+     * @en Indicates if the animation has render cache (vertices, indices, submeshes).
+     * @zh 指示动画是否有渲染缓存（顶点、索引、submesh）。
+     */
+    hasRenderCache: boolean = false;
 
     /** @ignore */
     constructor() {
@@ -126,7 +160,7 @@ export class AnimationRender {
         let renderFrames = this.frames;
         //this.mainIb = mainib;
         let hasClip: boolean = false;
-
+        let hasEvent = false;
         renderFrames.push(0);
         changeMap.set(0, {});
 
@@ -234,16 +268,15 @@ export class AnimationRender {
                 hasClip = true;
             }
             else if (time instanceof window.spine.EventTimeline) {
-                if (optimise.canCache) {
-                    let eventTime = time as spine.EventTimeline;
-                    let events = eventTime.events;
-                    for (let j = 0, m = frames.length; j < m; j++) {
-                        let frame = frames[j];
-                        let event = events[j];
-                        let arr = this.eventsFrames[Math.round(frame / SpineConst.SPINE_STEP)] = this.eventsFrames[frame] || [];
-                        arr.push(event);
-                    }
+                let eventTime = time as spine.EventTimeline;
+                let events = eventTime.events;
+                for (let j = 0, m = frames.length; j < m; j++) {
+                    let frame = frames[j];
+                    let event = events[j];
+                    let arr = this.eventsFrames[Math.round(frame / SpineConst.SPINE_STEP)] = this.eventsFrames[frame] || [];
+                    arr.push(event);
                 }
+                hasEvent = true;
             }
             else if (time instanceof spine.DeformTimeline) {
                 let slotIndex = time.slotIndex;
@@ -284,7 +317,7 @@ export class AnimationRender {
         this.isDynamic = isDynamic;
         renderFrames.sort();
         this.hasClip = hasClip;
-       
+        this.hasEvent = hasEvent;
         this.frameNumber = renderFrames.length;
     }
 
@@ -390,6 +423,18 @@ export class SkinAniRenderData {
      * @zh 指示是否需要正常渲染。
      */
     isNormalRender: boolean;
+
+    /**
+     * @en Render cache for each frame (vertices, indices, submeshes, materials).
+     * @zh 每帧的渲染缓存（顶点、索引、submesh、材质）。
+     */
+    renderCache: FrameRenderCache[] = [];
+
+    /**
+     * @en Indicates if the skin animation has render cache.
+     * @zh 指示皮肤动画是否有渲染缓存。
+     */
+    hasRenderCache: boolean = false;
 
     /** @ignore */
     constructor() {
@@ -534,6 +579,8 @@ export class SkinAniRenderData {
         this._defaultMesh = null;
         this._defaultFrameData = null;
         this.renderDatas = null;
+        this.renderCache = null;
+        this.hasRenderCache = false;
     }
 
 }

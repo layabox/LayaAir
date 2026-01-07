@@ -2,12 +2,27 @@ import { IRenderGeometryElement } from "../../../../../RenderDriver/DriverDesign
 import { I2DGraphicBufferDataView } from "../../../../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { SpineWholeBuffer } from "./SpineWholeBuffer";
 import { WebRender2DPass } from "../../../../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRender2DPass";
+import { SpineConst } from "../../../../SpineConst";
+import { Matrix } from "../../../../../maths/Matrix";
 
 /**
  * @en Unified Spine buffer view that holds its own vertex and index data
  * @zh 统一的 Spine 缓冲区视图，持有自己的顶点和索引数据
  */
 export class SpineBufferView implements I2DGraphicBufferDataView {
+
+    /**
+     * @en Step size for growing vertex array (in floats)
+     * @zh 顶点数组增长的步长（float 数量）
+     */
+    private static readonly ARRAY_GROWTH_STEP_VERTEX = SpineConst.NORMAL_VERTEX_LENGTH * SpineConst.VERTEX_TWOCOLOR; // floats
+
+    /**
+     * @en Step size for growing index array (in indices)
+     * @zh 索引数组增长的步长（索引数量）
+     */
+    private static readonly ARRAY_GROWTH_STEP_INDEX = SpineConst.NORMAL_VERTEX_LENGTH * 3; // indices
+    
     /**
      * @en Own vertex data buffer (no offset, direct write)
      * @zh 自己的顶点数据缓冲区（无偏移，直接写入）
@@ -69,10 +84,34 @@ export class SpineBufferView implements I2DGraphicBufferDataView {
     geometry: IRenderGeometryElement;
 
     /**
-     * @en Mark this view as modified, needs upload
-     * @zh 标记此视图已修改，需要上传
+     * @en Cached raw vertex data (before matrix transformation)
+     * @zh 缓存的原始顶点数据（矩阵变换前）
      */
-    private _modified: boolean = false;
+    cacheVertex: Float32Array = null;
+
+    /**
+     * @en Cached raw index data
+     * @zh 缓存的原始索引数据
+     */
+    cacheIndex: Uint16Array = null;
+
+    /**
+     * @en Transformation matrix for this view
+     * @zh 此视图的变换矩阵
+     */
+    matrix: Matrix = null;
+
+    /**
+     * @en X offset for transformation
+     * @zh X 轴偏移
+     */
+    offsetX: number = 0;
+
+    /**
+     * @en Y offset for transformation
+     * @zh Y 轴偏移
+     */
+    offsetY: number = 0;
 
     /** @internal */
     _next: SpineBufferView;
@@ -107,7 +146,7 @@ export class SpineBufferView implements I2DGraphicBufferDataView {
      * @zh 标记此视图为已修改并注册到渲染通道
      */
     markModified(): void {
-        this._modified = true;
+        // this._modified = true;
         if (this.owner) {
             this.owner._modifyOneView(this);
             //@ts-ignore
@@ -116,36 +155,25 @@ export class SpineBufferView implements I2DGraphicBufferDataView {
     }
 
     /**
-     * @en Check if this view has been modified
-     * @zh 检查此视图是否已被修改
-     */
-    isModified(): boolean {
-        return this._modified;
-    }
-
-    /**
-     * @en Clear the modified flag after upload
-     * @zh 上传后清除修改标志
-     */
-    clearModified(): void {
-        this._modified = false;
-    }
-
-    /**
      * @en Reset usage counters and remove from owner buffer for reuse
      * @zh 重置使用计数器并从所有者缓冲区移除以供重用
      */
     reset(): void {
+        if (this.owner) {
+            this.owner.removeDataView(this);
+        }
+
         this.vertexCount = 0;
         this.vertexBufferLength = 0;
         this.indexCount = 0;
         this.indexBufferLength = 0;
-        this._modified = false;
 
-        // Remove from current owner buffer
-        if (this.owner) {
-            this.owner.removeDataView(this);
-        }
+        // 清理缓存数据
+        this.cacheVertex = null;
+        this.cacheIndex = null;
+        this.matrix = null;
+        this.offsetX = 0;
+        this.offsetY = 0;
     }
 
     /**
@@ -154,40 +182,38 @@ export class SpineBufferView implements I2DGraphicBufferDataView {
      * @param targetBuffer The target buffer to transfer to
      */
     transferToBuffer(targetBuffer: SpineWholeBuffer): void {
-        // Remove from current owner
         if (this.owner) {
             this.owner.removeDataView(this);
         }
 
-        // Add to target buffer
         targetBuffer.addDataView(this);
     }
 
     /**
-     * @en Ensure vertex capacity, expand if needed
-     * @zh 确保顶点容量，必要时扩展
+     * @en Ensure vertex capacity, expand if needed with fixed step size
+     * @zh 确保顶点容量，必要时按固定步长扩展
      */
     ensureVertexCapacity(requiredFloats: number): void {
         if (requiredFloats > this.vertexCapacity) {
-            let newCapacity = Math.max(requiredFloats, this.vertexCapacity * 2);
-            let newData = new Float32Array(newCapacity);
+            const newSize = Math.ceil(requiredFloats / SpineBufferView.ARRAY_GROWTH_STEP_VERTEX) * SpineBufferView.ARRAY_GROWTH_STEP_VERTEX;
+            let newData = new Float32Array(newSize);
             newData.set(this.vertexData);
             this.vertexData = newData;
-            this.vertexCapacity = newCapacity;
+            this.vertexCapacity = newSize;
         }
     }
 
     /**
-     * @en Ensure index capacity, expand if needed
-     * @zh 确保索引容量，必要时扩展
+     * @en Ensure index capacity, expand if needed with fixed step size
+     * @zh 确保索引容量，必要时按固定步长扩展
      */
     ensureIndexCapacity(requiredIndices: number): void {
         if (requiredIndices > this.indexCapacity) {
-            let newCapacity = Math.max(requiredIndices, this.indexCapacity * 2);
-            let newData = new Uint16Array(newCapacity);
+            const newSize = Math.ceil(requiredIndices / SpineBufferView.ARRAY_GROWTH_STEP_INDEX) * SpineBufferView.ARRAY_GROWTH_STEP_INDEX;
+            let newData = new Uint16Array(newSize);
             newData.set(this.indexData);
             this.indexData = newData;
-            this.indexCapacity = newCapacity;
+            this.indexCapacity = newSize;
         }
     }
 
@@ -198,14 +224,15 @@ export class SpineBufferView implements I2DGraphicBufferDataView {
     destroy(): void {
         this.vertexData = null;
         this.indexData = null;
+        this.cacheVertex = null;
+        this.cacheIndex = null;
+        this.matrix = null;
         this.geometry = null;
         this.owner = null;
         this._next = null;
         this._prev = null;
     }
 
-    // Legacy compatibility methods
     setData(_data: ArrayLike<number>): void {
-        // Not used in new design
     }
 }

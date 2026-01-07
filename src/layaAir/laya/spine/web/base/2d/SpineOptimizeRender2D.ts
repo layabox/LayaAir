@@ -10,10 +10,11 @@ import { SpineTemplet } from "../../../SpineTemplet";
 import { SpineShaderInit } from "../../../shader/SpineShaderInit";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { BaseOptimizeRender } from "../optimize/BaseOptimizeRender";
-import { ERenderProxyType, IRender } from "../../IWebSpine";
+import { ERenderProxyType, IRender, IRenderBatch } from "../../IWebSpine";
 import { OptimizedSpineRenderer, StandardSpineRenderer, RigidBodySpineRenderer, BakedSpineRenderer } from "../optimize/SpineRendererTypes";
 import { BakedSpine2DRenderer, StandardSpine2DRenderer } from "./SpineRendererTypes2D";
 import { Spine2DNormalRenderUpdater } from "./Spine2DNormalRenderUpdater";
+import { WebSpineRenderDataHandle } from "../../../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
 
 /**
  * @en SpineOptimizeRender2D used for optimized rendering of Spine animations in 2D.
@@ -21,6 +22,7 @@ import { Spine2DNormalRenderUpdater } from "./Spine2DNormalRenderUpdater";
  */
 export class SpineOptimizeRender2D extends BaseOptimizeRender {
 
+    static _NODE_COMMONMAP_ = ["BaseRender2D", "Spine2D"];
     /** @ignore @blueprintIgnore */
     static _pool: IRenderElement2D[] = [];
 
@@ -33,7 +35,7 @@ export class SpineOptimizeRender2D extends BaseOptimizeRender {
             element = LayaGL.render2DRenderPassFactory.createRenderElement2D();
         }
         element.renderStateIsBySprite = false;
-        element.nodeCommonMap = ["BaseRender2D", "Spine2D"];
+        element.nodeCommonMap = SpineOptimizeRender2D._NODE_COMMONMAP_;
         return element;
     }
 
@@ -78,7 +80,8 @@ export class SpineOptimizeRender2D extends BaseOptimizeRender {
         let renderOptimize = new OptimizedSpineRenderer(shaderData);
         let renderNormal = new StandardSpine2DRenderer(this._owner._struct);
         renderNormal.normalUpdater = new Spine2DNormalRenderUpdater;
-        
+        renderNormal.normalUpdater.autoCacheEnabled = this._enableCache;
+        (this._handle as WebSpineRenderDataHandle).normalUpdater = renderNormal.normalUpdater;
         let renderRigidBody = new RigidBodySpineRenderer(shaderData);
         this.renderProxyMap.set(ERenderProxyType.RenderNormal, renderNormal);
         this.renderProxyMap.set(ERenderProxyType.RenderOptimize, renderOptimize);

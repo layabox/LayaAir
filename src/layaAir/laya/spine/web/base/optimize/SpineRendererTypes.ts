@@ -262,7 +262,17 @@ export class StandardSpineRenderer extends SpineBaseRenderer {
      * @param curTime 渲染的当前时间。
      */
     render(curTime: number , offsetX: number = 0, offsetY: number = 0) {
-        this.normalUpdater.renderUpdate(this._skeleton, this.updater, -1, -1 , offsetX , offsetY);
+        let skinData = this.updater?.currentData;
+
+        if (skinData && skinData.hasRenderCache && this.normalUpdater.autoCacheEnabled) {
+            let cache = skinData.renderCache[this.updater.cacheFrameIndex];
+            if (cache) {
+                this.normalUpdater.restoreFromCache(cache);
+                return;
+            }
+        }
+
+        this.normalUpdater.renderUpdate(curTime, this._skeleton, this.updater, -1, -1 , offsetX , offsetY);
     }
 
     /**

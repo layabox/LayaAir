@@ -43,40 +43,31 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
     }
 
     getSkeleton(): spine.Skeleton {
-        // Return null or a wrapper object, skeleton is managed by native layer
-        // If TS layer needs skeleton access, it should go through native methods
         return null as any;
     }
 
     init(templet: SpineTemplet): void {
         this._templet = templet;
 
-        // Get optimize data from templet
         const optimize = templet.optimize as any;
         if (!optimize) {
             throw new Error("SpineTemplet.optimize is required for native rendering");
         }
 
-        // Get native optimize object
         const nativeOptimize = optimize._getNativeOptimise ? optimize._getNativeOptimise() : optimize;
 
-        // Initialize native render - native layer will create skeleton and animation state internally
         this._nativeRender.init(nativeOptimize);
 
-        // Bind shared buffers for automatic data sync
         this._initializeBoneData();
 
-        // Bind shared track entry buffer - C++ will auto-update it in play()/update()
         if (this._nativeRender.bindTrackEntryBuffer) {
             this._nativeRender.bindTrackEntryBuffer(this._sharedTrackEntryBuffer);
         }
 
-        // Sync premultipliedAlpha priority logic (from templet)
         if (templet.premultipliedAlpha !== undefined) {
             this.premultipliedAlpha = templet.premultipliedAlpha;
         }
 
-        // Call subclass-specific initialization
         this._onInit();
     }
 
@@ -85,17 +76,14 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
      * @zh 初始化骨骼数据和共享缓冲区
      */
     protected _initializeBoneData(): void {
-        // Get bone names first (only for getting count and names)
         if (this._nativeRender.getBoneNames) {
             this._boneNames = this._nativeRender.getBoneNames();
             const length = this._boneNames.length;
             if (length > 0) {
-                // Create shared bone buffer (2 floats for skeleton position + 8 floats per bone)
+                //(2 floats for skeleton position + 8 floats per bone)
                 this._sharedBoneBuffer = new Float32Array(2 + length * 8);
-                // Bind buffer to C++ layer - C++ will auto-update it in render()
                 this._nativeRender.bindBoneDataBuffer(this._sharedBoneBuffer);
 
-                // Initialize bones array with proper structure
                 this.bones = [];
                 for (let i = 0; i < length; i++) {
                     this.bones.push({
@@ -398,24 +386,36 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
         // Store listeners for cleanup
         this._listeners = listeners;
 
-        // Call subclass-specific event listener setup
+        // Wrap listeners to convert native data to JS layer format
         if (listeners.start && this._nativeRender.setOnStart) {
-            this._nativeRender.setOnStart(listeners.start);
+            this._nativeRender.setOnStart((nativeEntry: any) => {
+                listeners.start!(this.trackEntry);
+            });
         }
         if (listeners.interrupt && this._nativeRender.setOnInterrupt) {
-            this._nativeRender.setOnInterrupt(listeners.interrupt);
+            this._nativeRender.setOnInterrupt((nativeEntry: any) => {
+                listeners.interrupt!(this.trackEntry);
+            });
         }
         if (listeners.end && this._nativeRender.setOnEnd) {
-            this._nativeRender.setOnEnd(listeners.end);
+            this._nativeRender.setOnEnd((nativeEntry: any) => {
+                listeners.end!(this.trackEntry);
+            });
         }
         if (listeners.dispose && this._nativeRender.setOnDispose) {
-            this._nativeRender.setOnDispose(listeners.dispose);
+            this._nativeRender.setOnDispose((nativeEntry: any) => {
+                listeners.dispose!(this.trackEntry);
+            });
         }
         if (listeners.complete && this._nativeRender.setOnComplete) {
-            this._nativeRender.setOnComplete(listeners.complete);
+            this._nativeRender.setOnComplete((nativeEntry: any) => {
+                listeners.complete!(this.trackEntry);
+            });
         }
         if (listeners.event && this._nativeRender.setOnEvent) {
-            this._nativeRender.setOnEvent(listeners.event);
+            this._nativeRender.setOnEvent((nativeEntry: any, nativeEvent: any) => {
+                listeners.event!(this.trackEntry, nativeEvent);
+            });
         }
     }
  
@@ -471,16 +471,23 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
         return 1.0;
     }
 
-    setOffset(offset: Vector2): void {
-        if (this._nativeRender && this._nativeRender.setOffset) {
-            this._nativeRender.setOffset(offset);
+    /**
+     * @zh 启用缓存。启用后，Spine动画的渲染数据会自动缓存，提高重复播放的性能。
+     * @en Enable cache. When enabled, the Spine animation's render data will be automatically cached, improving performance for repeated playback.
+     */
+    enableCache(): void {
+        if (this._nativeRender && this._nativeRender.enableCache) {
+            this._nativeRender.enableCache();
         }
     }
 
-    getOffset(): Vector2 {
-        if (this._nativeRender && this._nativeRender.getOffset) {
-            return this._nativeRender.getOffset();
+    /**
+     * @zh 禁用缓存。
+     * @en Disable cache.
+     */
+    disableCache(): void {
+        if (this._nativeRender && this._nativeRender.disableCache) {
+            this._nativeRender.disableCache();
         }
-        return new Vector2(0, 0);
     }
 }

@@ -185,6 +185,11 @@ export class WebSpineTempletParser implements ISpineTempletParser {
             // 默认长度 = 1
             let page = pages[i];
             textureMap[page.name] = tex;
+
+            if (page.setTexture) {
+                //@ts-ignore
+                page.setTexture(new SpineTexture(tex));
+            }
         }
         
         return this.parse(desc , textureMap)

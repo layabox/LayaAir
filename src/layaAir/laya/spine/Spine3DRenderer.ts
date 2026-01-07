@@ -62,6 +62,8 @@ export class Spine3DRenderer extends BaseRender {
      */
     private _billboard: boolean = false;
 
+    private _enableCache: boolean = false;
+
     /** 
      * @zh 渲染尺寸 (宽度, 高度)
      * @en Render size (width, height)
@@ -71,6 +73,7 @@ export class Spine3DRenderer extends BaseRender {
     
     private _cacheMoved: Vector2 = new Vector2(-1, -1);
     private _worldParams: Vector4 = new Vector4();
+    private _playAudio: boolean = false;
 
     get renderSize(): Vector2 {
         return this._renderSize;
@@ -360,6 +363,32 @@ export class Spine3DRenderer extends BaseRender {
         this.play(this._animationName, this._loop, true, this._spineRender.currentTime * 1000);
     }
 
+    /**
+     * @zh 是否启用缓存。启用后，Spine动画的渲染数据会自动缓存，提高重复播放的性能。
+     * @en Whether to enable cache. When enabled, the Spine animation's render data will be automatically cached, improving performance for repeated playback.
+     */
+    get enableCache(): boolean {
+        return this._enableCache;
+    }
+
+    set enableCache(value: boolean) {
+        if (this._enableCache === value)
+            return;
+        this._enableCache = value;
+        
+        if (this._spineRender) {
+            if (value) {
+                this._spineRender.enableCache();
+            } else {
+                this._spineRender.disableCache();
+            }
+        }
+
+        if (this._animationName) {
+            this.play(this._animationName, this._loop, true , this._playStart , this._playEnd, this._playAudio);
+        }
+    }
+
     /** @ignore @blueprintIgnore */
     onEnable(): void {
         super.onEnable();
@@ -400,6 +429,11 @@ export class Spine3DRenderer extends BaseRender {
         this._spineRender = SpineConst.factory.createSpineRender3D(this._baseRenderNode);
         this._spineRender.init(templet);
         this._spineRender.mode = this._useFastRender ? ESpineRenderMode.Optimize : ESpineRenderMode.Normal;
+        
+        // 设置缓存状态
+        if (this._enableCache) {
+            this._spineRender.enableCache();
+        }
         
         if(this._renderSize.x !== 0 && this._renderSize.y !== 0) {
             this._baseRenderNode.shaderData.setVector2(SpineShaderInit.SPINE_RENDER_SIZE, this._renderSize);
@@ -494,14 +528,17 @@ export class Spine3DRenderer extends BaseRender {
      * @param force		    false,如果要播的动画跟上一个相同就不生效,true,强制生效
      * @param start		    起始时间
      * @param end			结束时间
+     * @param playAudio		Whether to play audio.
      * @en Play Spine animation.
      * @param nameOrIndex	Spine animation name or index.
      * @param loop			Whether to loop play.
      * @param force			false, if the animation to play is the same as the last one then it won't be played again. true, force playing even if the animation is the same.
      * @param start			Start time.
      * @param end			End time.
+     * @param playAudio		Whether to play audio.
      */
-    play(nameOrIndex: string | number, loop: boolean, force: boolean = true, start: number = 0, end: number = 0) {
+    play(nameOrIndex: string | number, loop: boolean, force: boolean = true, start: number = 0, end: number = 0, playAudio: boolean = false) {
+        this._playAudio = playAudio;
         start /= 1000;
         end /= 1000;
         this._loop = loop;
@@ -535,7 +572,7 @@ export class Spine3DRenderer extends BaseRender {
     }
 
     private _update(): void {
-        let timerDelta = Laya.timer.delta / 1000 * this._playbackRate;
+        let timerDelta = this._enableCache ? SpineConst.SPINE_STEP : Laya.timer.delta / 1000 * this._playbackRate;
         
         if (timerDelta > this._maxDeltaTime)
             timerDelta = this._maxDeltaTime;

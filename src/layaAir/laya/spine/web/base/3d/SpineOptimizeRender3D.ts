@@ -8,7 +8,7 @@ import { BaseOptimizeRender } from "../optimize/BaseOptimizeRender";
 import { IBaseRenderNode } from "../../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { Laya3DRender } from "../../../../d3/RenderObjs/Laya3DRender";
 import { OptimizedSpineRenderer, StandardSpineRenderer, RigidBodySpineRenderer, BakedSpineRenderer } from "../optimize/SpineRendererTypes";
-import { ERenderProxyType, IRender } from "../../IWebSpine";
+import { ERenderProxyType, IRender, IRenderBatch } from "../../IWebSpine";
 import { ESpineRenderMode } from "../../../SpineConst";
 import { SpineNormalRenderUpdater } from "../optimize/SpineNormalRenderUpdater";
 
@@ -64,6 +64,7 @@ export class SpineOptimizeRender3D extends BaseOptimizeRender {
         let renderOptimize = new OptimizedSpineRenderer(shaderData);
         let renderNormal = new StandardSpineRenderer(shaderData);
         renderNormal.normalUpdater = new SpineNormalRenderUpdater;
+        renderNormal.normalUpdater.autoCacheEnabled = this._enableCache;
         
         let renderRigidBody = new RigidBodySpineRenderer(shaderData);
         this.renderProxyMap.set(ERenderProxyType.RenderNormal, renderNormal);
@@ -84,10 +85,10 @@ export class SpineOptimizeRender3D extends BaseOptimizeRender {
     }
 
     /**
-     * @en Update render elements from subMeshes and materials.
+     * @en Update render elements from subMeshes and materials .
      * @param subMeshes Array of sub meshes.
      * @param materials Array of materials.
-     * @zh 根据子网格和材质数组更新渲染元素。
+     * @zh 根据子网格和材质数组更新渲染元素（兼容性方法）。
      * @param subMeshes 子网格数组。
      * @param materials 材质数组。
      */
@@ -106,11 +107,11 @@ export class SpineOptimizeRender3D extends BaseOptimizeRender {
     }
 
     /**
-     * @en Update render elements from subMeshes and materials arrays.
+     * @en Update render elements from subMeshes and materials arrays 
      * @param shaderData The shader data for render elements.
      * @param subMeshes Array of sub meshes.
      * @param materials Array of materials.
-     * @zh 根据子网格和材质数组更新渲染元素。
+     * @zh 根据子网格和材质数组更新渲染元素（兼容性方法）。
      * @param shaderData 渲染元素的着色器数据。
      * @param subMeshes 子网格数组。
      * @param materials 材质数组。
