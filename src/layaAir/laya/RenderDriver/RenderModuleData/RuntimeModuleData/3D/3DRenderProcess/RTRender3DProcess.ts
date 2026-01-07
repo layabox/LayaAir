@@ -32,9 +32,10 @@ export class RTRender3DProcess implements IRender3DProcess {
     protected _defaultShadowMap: RenderTexture;
 
     constructor() {
-        this._nativeObj = new (window as any).conchRT3DRenderPass();
+        this._nativeObj = new (window as any).conchRT3DRenderProcess();
         this._defaultDepthTex = RenderTexture.createFromPool(1, 1, RenderTargetFormat.DEPTH_32, RenderTargetFormat.None, false, 1);
         this._defaultShadowMap = ShadowUtils.getTemporaryShadowTexture(1, 1, ShadowMapFormat.bit16);
+        this._nativeObj.setDefaultShadowMap((this._defaultShadowMap._renderTarget as any)._nativeObj);
         let shadowMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Shadow");
         shadowMap.setDefaultTextureData(ShadowCasterPass.SHADOW_MAP, this._defaultShadowMap);
         shadowMap.setDefaultTextureData(ShadowCasterPass.SHADOW_SPOTMAP, this._defaultShadowMap);
@@ -132,8 +133,8 @@ export class RTRender3DProcess implements IRender3DProcess {
 
         let enableShadow = Scene3D._updateMark % camera.scene._ShadowMapupdateFrequency == 0 && Stat.enableShadow;
         this.renderpass.shadowCastPass = enableShadow;
-        (window as any).conchRT3DRenderPass._addPreDrawUniformMap("Scene3D", (context as any)._nativeObj);
-        (window as any).conchRT3DRenderPass._addPreDrawUniformMap("Global", (context as any)._nativeObj);
+        (window as any).conchRT3DRenderProcess._addPreDrawUniformMap("Scene3D", (context as any)._nativeObj);
+        (window as any).conchRT3DRenderProcess._addPreDrawUniformMap("Global", (context as any)._nativeObj);
         context.preDrawUniformMaps = context.preDrawUniformMaps;
         if (enableShadow) {
             // direction light shadow
@@ -156,10 +157,10 @@ export class RTRender3DProcess implements IRender3DProcess {
                 this.renderpass.spotLightShadowPass.setCameraCullInfo(this.render3DManager);
             }
             if (needDirectionShadow || needSpotShadow) {
-                (window as any).conchRT3DRenderPass._addPreDrawUniformMap("Shadow", (context as any)._nativeObj);
+                (window as any).conchRT3DRenderProcess._addPreDrawUniformMap("Shadow", (context as any)._nativeObj);
             }
         } else {
-            (window as any).conchRT3DRenderPass._removePreDrawUniformMap("Shadow", (context as any)._nativeObj);
+            (window as any).conchRT3DRenderProcess._removePreDrawUniformMap("Shadow", (context as any)._nativeObj);
         }
         context.preDrawUniformMaps = context.preDrawUniformMaps;
         //let needBlitOpaque = camera.opaquePass;
