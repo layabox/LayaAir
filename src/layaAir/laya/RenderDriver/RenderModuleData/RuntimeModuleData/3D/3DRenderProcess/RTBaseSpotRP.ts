@@ -12,6 +12,7 @@ import { RTSpotLight } from "../RTSpotLight";
 export class RTBaseSpotRP {
 
     _nativeObj: any;
+    private _destShadowRT: RenderTexture;
     constructor() {
         this._nativeObj = new (window as any).conchRPBaseSpotRP();
     }
@@ -26,8 +27,8 @@ export class RTBaseSpotRP {
         this._nativeObj.setCameraCullInfo((sceneManager as any)._nativeObj);
     }
     setRPData(spotLight: RTSpotLight, context: IRenderContext3D): void {
-        let rt = Scene3D._shadowCasterPass.getSpotLightShadowPassData(spotLight);
-        this._nativeObj.setRPData(spotLight._nativeObj, (context as any)._nativeObj, (rt._texture as any)._nativeObj);
+        this._destShadowRT = Scene3D._shadowCasterPass.getSpotLightShadowPassData(spotLight);
+        this._nativeObj.setRPData(spotLight._nativeObj, (context as any)._nativeObj, (this._destShadowRT._renderTarget as any)._nativeObj);
     }
 
     destroy() {
