@@ -391,7 +391,10 @@ export class WebRender2DPass implements IRender2DPass {
          context.setRenderTarget(rt._renderTarget, this.doClearColor, this._clearColor);
          sizeX = rt.width;
          sizeY = rt.height;
-         this._updateInvertMatrix();
+         let result = this._updateInvertMatrix();
+         if (!result) {
+            return false;
+         }
          this.shaderData.addDefine(ShaderDefines2D.RENDERTEXTURE);//??
 
       } else {
@@ -438,7 +441,20 @@ export class WebRender2DPass implements IRender2DPass {
 
    private _updateInvertMatrix() {
       let rootTrans = this.root.trans;
-      if (!rootTrans) return this._setInvertMatrix(1, 0, 0, 1, 0, 0);
+      if (!rootTrans) {
+         this._setInvertMatrix(1, 0, 0, 1, 0, 0);
+         return true;
+      }
+      //无效值不更新
+      if (
+         rootTrans.matrix.a == 0
+         && rootTrans.matrix.b == 0
+         && rootTrans.matrix.c == 0
+         && rootTrans.matrix.d == 0
+      ) {
+         return false;
+      }
+
       let temp = _TEMP_InvertMatrix;
       let mask = this.mask;
       let offset = this.offsetMatrix;
@@ -452,6 +468,7 @@ export class WebRender2DPass implements IRender2DPass {
       Matrix.mul(offset, temp, temp);
       temp.invert();
       this._setInvertMatrix(temp.a, temp.b, temp.c, temp.d, temp.tx, temp.ty);
+      return true;
    }
 
 
