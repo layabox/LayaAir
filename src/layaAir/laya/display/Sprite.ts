@@ -2272,7 +2272,7 @@ export class Sprite extends Node {
         }
     }
 
-    protected _setStructParent(value: Sprite) {
+    protected _setStructParent(value: Sprite , index: number) {
         let struct = this._struct;
 
         if (struct && struct.parent) {
@@ -2281,7 +2281,6 @@ export class Sprite extends Node {
         }
 
         if (value && value._struct) {
-            let index = value._children.indexOf(this);
             value._struct.addChild(struct, index);
         }
     }
@@ -2456,12 +2455,12 @@ export class Sprite extends Node {
     /**
      * @ignore
      */
-    protected _setParent(value: Node): void {
+    protected _setParent(value: Node, index: number = -1): void {
         this._globalTrans._spTransChanged(TransformKind.TRS);
 
-        super._setParent(value);
+        super._setParent(value, index);
 
-        this._setStructParent(value as Sprite);
+        this._setStructParent(value as Sprite, index);
 
         if (value && (this._mouseState === 2 || this._mouseState === 0 && this._getBit(NodeFlags.CHECK_INPUT))
             && !value._getBit(NodeFlags.CHECK_INPUT)) {

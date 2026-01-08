@@ -426,7 +426,7 @@ export class Node extends EventDispatcher {
                 node._parent && node._parent.removeChild(node);
                 this._$children.splice(index, 0, node);
                 node._$parent = this;
-                node._setParent(this._$container);
+                node._setParent(this._$container, index);
             }
             return node;
         } else {
@@ -754,7 +754,7 @@ export class Node extends EventDispatcher {
                 node._parent && node._parent.removeChild(node);
                 children.splice(index, 0, node);
                 node._$parent = this;
-                node._setParent(this);
+                node._setParent(this, index);
             }
             return node;
         } else {
@@ -819,7 +819,7 @@ export class Node extends EventDispatcher {
      * @zh 设置当前节点的父节点。
      * @param value 新的父节点。
      */
-    protected _setParent(value: Node): void {
+    protected _setParent(value: Node, index: number = -1): void {
         if (value) {
             this._parent = value;
             this._onAdded();
