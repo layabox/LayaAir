@@ -1819,6 +1819,7 @@ export class Text extends Sprite {
         let bottom = rectHeight - padding[2];
         let clipped = this._overflow == Text.HIDDEN || this._overflow == Text.SCROLL;
         let letterSpacing = this._textStyle.letterSpacing;
+        let shadow = this._textStyle.shadowOffsetX !== 0 || this._textStyle.shadowOffsetY !== 0;
 
         rectWidth -= (padding[3] + padding[1]);
         rectHeight -= (padding[0] + padding[2]);
@@ -1878,10 +1879,12 @@ export class Text extends Sprite {
                         gcmd.bold = cmd.style.bold;
                         gcmd.italic = cmd.style.italic;
                         gcmd.letterSpacing = letterSpacing;
-                        gcmd.shadowOffsetX = this.shadowOffsetX;
-                        gcmd.shadowOffsetY = this.shadowOffsetY;
-                        gcmd.shadowColor = this.shadowColor;
-                        gcmd.shadowBlur = this.shadowBlur;
+                        if (shadow) {
+                            gcmd.shadowOffsetX = this._textStyle.shadowOffsetX;
+                            gcmd.shadowOffsetY = this._textStyle.shadowOffsetY;
+                            gcmd.shadowColor = this._textStyle.shadowColor;
+                            gcmd.shadowBlur = this._textStyle.shadowBlur;
+                        }
                         gcmd.singleCharRender = this._singleCharRender;
                         gcmd._preMeasuredWidth = cmd.width;
                         graphics.addCmd(gcmd);
