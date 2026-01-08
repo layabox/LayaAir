@@ -6,6 +6,7 @@ import { Loader } from "../../laya/net/Loader";
 import { BrowserAdapter } from "../../laya/platform/BrowserAdapter";
 import { PAL } from "../../laya/platform/PlatformAdapters";
 import { WebGLEngine } from "../../laya/RenderDriver/WebGLDriver/RenderDevice/WebGLEngine";
+import { RenderCapable } from "../../laya/RenderEngine/RenderEnum/RenderCapable";
 import { Browser } from "../../laya/utils/Browser";
 import { Utils } from "../../laya/utils/Utils";
 import { WasmAdapter } from "../../laya/utils/WasmAdapter";
@@ -114,9 +115,16 @@ export class MgBrowserAdapter extends BrowserAdapter {
     }
 
     onInitRender(): void {
-        if (Browser.onAlipayMiniGame || Browser.onTBMiniGame) {
+        if (Browser.onTBMiniGame) {
             // srgb问题
             (LayaGL.renderEngine as WebGLEngine)._supportCapatable.turnOffSRGB();
+        }
+
+        if (Browser.onAlipayMiniGame) {
+            // webgl1 + srgb + teximage2d接口，alipay安卓端绘制黑屏，关闭srgb
+            (LayaGL.renderEngine as WebGLEngine)._supportCapatable.turnOffSRGB();
+            // webgl2下默认有srgb，但是srgb配合msaa超采样有问题，这里关闭msaa
+            (LayaGL.renderEngine as WebGLEngine)._supportCapatable.turnOffCapableAndExtension(RenderCapable.MSAA, null);
         }
 
         if (Browser.onTBMiniGame) {
