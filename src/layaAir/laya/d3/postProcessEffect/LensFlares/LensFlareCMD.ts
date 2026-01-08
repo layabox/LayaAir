@@ -96,6 +96,15 @@ export class LensFlareCMD {
 
     /**
      * @internal
+     * @en The edge fade factor for smooth fade out at screen edges.
+     * @zh 边缘渐变系数，用于在屏幕边缘平滑淡出。
+     */
+    set edgeFade(value: number) {
+        this._materials.setFloat("u_EdgeFade", value);
+    }
+
+    /**
+     * @internal
      * @en The lens flare element data.
      * @zh 镜头光晕元素数据
      */

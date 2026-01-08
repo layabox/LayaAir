@@ -224,7 +224,9 @@ export class LensFlareEffect extends PostProcessEffect {
 
     private _center: Vector2;
 
-    private _rotate: number
+    private _rotate: number;
+
+    private _edgeFade: number = 0;
 
     private _light: Light;
 
@@ -310,12 +312,15 @@ export class LensFlareEffect extends PostProcessEffect {
     /**
      * @internal
      * 更新后处理数据
+     * @param cmd 命令缓冲
+     * @param edgeFade 边缘渐变系数 [0, 1]
      */
-    _updateEffectData(cmd: CommandBuffer) {
+    _updateEffectData(cmd: CommandBuffer, edgeFade: number = 1.0) {
         if (this._flareCMDS.length == 0) return;
         for (let i = 0; i < this._flareCMDS.length; i++) {
             this._flareCMDS[i].center = this._center;//set center
             this._flareCMDS[i].rotate = this._rotate;//set rotate
+            this._flareCMDS[i].edgeFade = edgeFade;//set edge fade
             if (this._needUpdate) {
                 let cmdEle = this._flareCMDS[i].lensFlareElement;
                 if (!cmdEle) continue;
@@ -337,7 +342,6 @@ export class LensFlareEffect extends PostProcessEffect {
      * @param camera 摄像机
      */
     caculateDirCenter(camera: Camera) {
-        //center caculate start
         // lightDirection
         (this._light as DirectionLightCom).direction.cloneTo(_tempV3);
         // lightDir revert
@@ -346,14 +350,33 @@ export class LensFlareEffect extends PostProcessEffect {
         Vector3.add(camera.transform.position, _tempV3, _tempV3);
         // to screen space
         Vector3.transformV3ToV4(_tempV3, camera.projectionViewMatrix, _tempV4);
+        
+        // 当 w <= 0 时，光源在相机后方，不应该显示光晕，直接跳过后续计算
+        if (_tempV4.w <= 0) {
+            this._edgeFade = 0;
+            return;
+        }
+        
         // normalize x\y coordinate
-        this._center.setValue(_tempV4.x / _tempV4.w, _tempV4.y / _tempV4.w);
-        // angle caculatge
-        var angle: number = Utils.toAngle(Math.atan2(this._center.x, this._center.y));
-        // angle round
+        let centerX = _tempV4.x / _tempV4.w;
+        let centerY = _tempV4.y / _tempV4.w;
+        this._center.setValue(centerX, centerY);
+        
+        // 计算边缘渐变（内联计算，避免函数调用开销）
+        let maxDist = Math.abs(centerX) > Math.abs(centerY) ? Math.abs(centerX) : Math.abs(centerY);
+        if (maxDist <= 0.8) {
+            this._edgeFade = 1.0;
+        } else if (maxDist >= 1.5) {
+            this._edgeFade = 0;
+            return; // 完全在屏幕外，跳过角度计算
+        } else {
+            this._edgeFade = 1.0 - (maxDist - 0.8) / 0.7; // 0.7 = 1.5 - 0.8
+        }
+        
+        // angle calculate
+        var angle: number = Utils.toAngle(Math.atan2(centerX, centerY));
         angle = (angle < 0) ? angle + 360 : angle;
-        angle = Math.round(angle);
-        this._rotate = Math.PI * 2.0 - Math.PI / 180 * angle;
+        this._rotate = Math.PI * 2.0 - Math.PI / 180 * Math.round(angle);
     }
 
     /**
@@ -385,11 +408,12 @@ export class LensFlareEffect extends PostProcessEffect {
      * @param context 后期处理渲染上下文
      */
     render(context: PostProcessRenderContext) {
+        if (!this._light) {
+            return;
+        }
         var cmd: CommandBuffer = context.command;
         let source: RenderTexture = context.indirectTarget;
         cmd.setRenderTarget(source, false, false);
-        if (!this._light)
-            return;
         switch (this._light.lightType) {
             case LightType.Directional:
                 this.caculateDirCenter(context.camera);
@@ -401,8 +425,10 @@ export class LensFlareEffect extends PostProcessEffect {
                 //TODO
                 break;
         }
-        if (Math.abs(this._center.x) > 1.0 || Math.abs(this._center.y) > 1.0) return;
-        this._updateEffectData(cmd);
+        // 使用预计算的边缘渐变值
+        if (this._edgeFade > 0) {
+            this._updateEffectData(cmd, this._edgeFade);
+        }
         cmd.blitScreenQuad(source, context.destination);
     }
 
