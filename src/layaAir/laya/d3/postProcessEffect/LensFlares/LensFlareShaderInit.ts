@@ -31,10 +31,12 @@ export class LensFlareShaderInit {
             "u_rotate": ShaderDataType.Float,
             "u_Postionoffset": ShaderDataType.Vector2,
             "u_Angularoffset": ShaderDataType.Float,
+            "u_EdgeFade": ShaderDataType.Float,
         }
         let defaultValue = {
             "u_Tint": Color.WHITE,
-            "u_aspectRatio": 1
+            "u_aspectRatio": 1,
+            "u_EdgeFade": 1.0
         }
         let shader = Shader3D.add("LensFlare", true, false);
         shader.shaderType = ShaderFeatureType.PostProcess;
