@@ -168,8 +168,8 @@ export class SketonOptimise {
         for (let index = 0; index < animations.length; index++) {
             const animation = animations[index];
             let duration = animation.duration;
-            for (let index = 0; index < skins.length; index++) {
-                const skin = skins[index];
+            for (let skinIndex = 0; skinIndex < skins.length; skinIndex++) {
+                const skin = skins[skinIndex];
                 skeleton.setSkin(skin);
                 skeleton.setToSetupPose();
                 
