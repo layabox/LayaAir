@@ -16,6 +16,9 @@ import { ISpineOptimizeRender } from "./interface/ISpineOptimizeRender";
  * @zh SketonOptimise 类用于骨骼优化。
  */
 export class SketonOptimise {
+
+    private static emptyBounds: {x:number , y:number , width:number , height:number} = {x:0, y:0, width:0, height:0};
+
     /**
      * @en Switch for normal rendering mode.
      * @zh 普通渲染模式的开关。
@@ -83,6 +86,8 @@ export class SketonOptimise {
      */
     bakeData: TSpineBakeData;
 
+    data: spine.SkeletonData;
+
     /** @ignore */
     constructor() {
         this.blendModeMap = new Map();
@@ -140,6 +145,8 @@ export class SketonOptimise {
         // return;
         this.sketon = new spine.Skeleton(skeletonData);
 
+        this.data = skeletonData;
+
         //@ts-ignore
         this._stateData = new spine.AnimationStateData(this.sketon.data);
         // 动画状态类
@@ -147,6 +154,52 @@ export class SketonOptimise {
 
         this.attachMentParse(skeletonData);
         this.initAnimation(skeletonData.animations);
+    }
+
+    _getBounds() : {x:number , y:number , width:number , height:number} {
+        let offset = new spine.Vector2;
+        let size = new spine.Vector2;
+        let skeleton = this.sketon;
+        let skins = this.data.skins;
+        let minX = Number.POSITIVE_INFINITY, minY = Number.POSITIVE_INFINITY, maxX = Number.NEGATIVE_INFINITY, maxY = Number.NEGATIVE_INFINITY;
+        let animations = this.data.animations;
+
+        let step = 1 / 30;
+        for (let index = 0; index < animations.length; index++) {
+            const animation = animations[index];
+            let duration = animation.duration;
+            for (let index = 0; index < skins.length; index++) {
+                const skin = skins[index];
+                skeleton.setSkin(skin);
+                skeleton.setToSetupPose();
+                
+                this._play(animation.name);
+                let totalFrame = Math.round(duration / step) || 1;
+                for (let i = 0; i <= totalFrame; i++) {
+                    this._updateState(i == 0 ? 0 : step);
+                    skeleton.getBounds(offset, size);   
+                    minX = Math.min(minX, offset.x);
+                    minY = Math.min(minY, offset.y);
+                    maxX = Math.max(maxX, offset.x + size.x);
+                    maxY = Math.max(maxY, offset.y + size.y);
+                }
+            }
+        }
+        
+        if (minX == Number.POSITIVE_INFINITY
+            || minY == Number.POSITIVE_INFINITY
+            || maxX == Number.NEGATIVE_INFINITY
+            || maxY == Number.NEGATIVE_INFINITY
+        ) {
+            return SketonOptimise.emptyBounds;
+        }
+        
+        return {
+            x: minX,
+            y: minY,
+            width: maxX - minX,
+            height: maxY - minY
+        }
     }
 
     /**
