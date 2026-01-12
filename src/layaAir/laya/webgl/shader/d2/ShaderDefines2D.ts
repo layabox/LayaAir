@@ -25,6 +25,10 @@ export class ShaderDefines2D {
     static RENDERTEXTURE: ShaderDefine;
     /**@internal */
     static MATERIALCLIP: ShaderDefine;
+    /** @internal */
+    static UNIFORMCLIP:ShaderDefine;
+    /** @internal */
+    static UV_CLIP_GPU: ShaderDefine;
 
     /**@internal */
     static UNIFORM_CLIPMATDIR: number;// uniform vec4 u_clipMatDir;
@@ -54,6 +58,7 @@ export class ShaderDefines2D {
     static UNIFORM_INVERTMAT_0: number;
     /** uniform vec3 u_InvertMat_1; // 反转矩阵的第二行 */
     static UNIFORM_INVERTMAT_1: number;
+
     //TODO?
     //static NOOPTMASK: number = ShaderDefines2D.FILTERGLOW | ShaderDefines2D.FILTERBLUR | ShaderDefines2D.FILTERCOLOR | ShaderDefines2D.FILLTEXTURE;	//有这些定义的不要优化。见submittexture
 
@@ -64,6 +69,9 @@ export class ShaderDefines2D {
         ShaderDefines2D.RENDERTEXTURE = Shader3D.getDefineByName('RENDERTEXTURE');
         ShaderDefines2D.MATERIALCLIP = Shader3D.getDefineByName('MATERIALCLIP');
 
+        ShaderDefines2D.UNIFORMCLIP = Shader3D.getDefineByName('UNIFORMCLIP');
+        ShaderDefines2D.UV_CLIP_GPU = Shader3D.getDefineByName('UV_CLIP_GPU');
+        
         ShaderDefines2D.GAMMASPACE = Shader3D.getDefineByName('GAMMASPACE');
 
         ShaderDefines2D.INVERTY = Shader3D.getDefineByName('INVERTY');

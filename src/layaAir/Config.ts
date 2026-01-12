@@ -47,7 +47,7 @@ export class Config {
      * @en Whether to use the retina mode. In retina mode, a larger canvas is created for finer display effects.
      * @zh 是否使用视网膜模式。在视网膜模式下，会创建更大的Canvas，来达到更精细的显示效果
      */
-    static useRetinalCanvas: boolean = false;
+    static useRetinalCanvas: boolean = true;
 
     //-------------2D settings---------------------
 
@@ -157,6 +157,17 @@ export class Config {
      * @zh 声音缓冲区缓存的最大大小（字节）。超出后将清除缓存中最久未使用的音频数据。
      */
     static audioBufferCacheMaxSize: number = 5 * 1024 * 1024;
+
+     
+    /**
+     * @en UV clipping mode for 2D rendering.
+     * - "gpu": Use GPU fragment shader to clip triangles (default, lower CPU overhead)
+     * - "cpu": Use CPU Sutherland-Hodgman algorithm to clip triangles (higher CPU overhead, precise clipping)
+     * @zh 2D渲染的UV裁剪模式。
+     * - "gpu": 使用GPU片元着色器裁剪三角形（默认，CPU开销低）
+     * - "cpu": 使用CPU Sutherland-Hodgman算法裁剪三角形（CPU开销高，精确裁剪）
+     */
+    static uvClipMode: "gpu" | "cpu" = "gpu";
 }
 
 export const PlayerConfig: {

@@ -65,25 +65,21 @@ varying vec2 v_cliped;
     }
 
     void setglColor(in vec4 color){
-        float useTex = step( 1.0 , v_useTex);
-        color = mix(vec4(1., 1., 1., 1.), color, useTex);
-        
-        vec4 clampedRange = v_customs;
-        clampedRange.xy = max(v_customs.xy, vec2(0.0, 0.0));
-        clampedRange.zw = min(v_customs.xy + v_customs.zw, vec2(1.0, 1.0));
-        
-        // 计算是否在裁剪范围内
-        vec2 inRange = step(clampedRange.xy, v_texcoordAlpha.xy) * step(v_texcoordAlpha.xy, clampedRange.zw);
-        float useTexture = inRange.x * inRange.y;
-        
-        float useClip = step( 1.0 , v_useClip);
-        
-        float clipAlpha = mix(1.0, useTexture, useClip);
-        
-        color *= clipAlpha;
+        // if(v_useTex <= 0.)
+        //     color = vec4(1., 1., 1., 1.);
+        float useTex = step(1.0, v_useTex);
+        color = color * useTex + (1.0 - useTex);
+
+        #ifdef UV_CLIP_GPU
+            if (v_useClip >= 1.0) {
+                vec2 uv = v_texcoordAlpha.xy;
+                vec4 c = v_customs;
+                if (uv.x < c.x || uv.x > c.x + c.z || uv.y < c.y || uv.y > c.y + c.w)
+                    discard;
+            }
+        #endif
 
         color.a *= v_color.w;
-        
         vec4 transColor = v_color;
         #ifndef GAMMASPACE
             transColor = gammaToLinear(v_color);
@@ -163,10 +159,12 @@ varying vec2 v_cliped;
 #endif
 
 void clip(){
-    if(v_cliped.x<0.) discard;
-    if(v_cliped.x>1.) discard;
-    if(v_cliped.y<0.) discard;
-    if(v_cliped.y>1.) discard;
+    #ifdef UNIFORMCLIP
+        if(v_cliped.x<0.) discard;
+        if(v_cliped.x>1.) discard;
+        if(v_cliped.y<0.) discard;
+        if(v_cliped.y>1.) discard;
+    #endif
     // if(v_cliped.x<0.) gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
     // if(v_cliped.x>1.) gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
     // if(v_cliped.y<0.) gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);

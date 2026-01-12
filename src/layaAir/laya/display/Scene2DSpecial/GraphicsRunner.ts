@@ -2180,6 +2180,260 @@ export class GraphicsRunner {
         return null;
     }
 
+    /**
+     * @en CPU-side UV vertex clipping. Clips triangles based on UV range and outputs clipped vertices, indices, UVs, and color data.
+     * @param vertices Vertex position array (x, y pairs)
+     * @param indices Index array (groups of 3 for each triangle)
+     * @param uvs UV coordinate array (u, v pairs)
+     * @param uvRange Clipping range [minU, minV, width, height]
+     * @param colors Vertex color array (r, g, b, a groups of 4)
+     * @returns Clipped data {vertices, indices, uvs, colors}
+     * @zh CPU端UV顶点裁剪。根据UV范围裁剪三角形，输出裁剪后的顶点、索引、UV和颜色数据。
+     * @param vertices 顶点位置数组 (x, y 成对)
+     * @param indices 索引数组 (每3个一组表示一个三角形)
+     * @param uvs UV坐标数组 (u, v 成对)
+     * @param uvRange 裁剪范围 [minU, minV, width, height]
+     * @param colors 顶点颜色数组 (r, g, b, a 四个一组)
+     * @returns 裁剪后的数据 {vertices, indices, uvs, colors}
+     */
+    static clipTrianglesByUVRange(
+        vertices: ArrayLike<number>,
+        indices: ArrayLike<number>,
+        uvs: ArrayLike<number>,
+        uvRange: ArrayLike<number>,
+        colors: ArrayLike<number>
+    ): { vertices: Float32Array, indices: Uint16Array, uvs: Float32Array, colors: Float32Array } {
+        // 裁剪边界
+        const EPSILON = 1e-7;
+        const minU = uvRange[0];
+        const minV = uvRange[1];
+        const maxU = uvRange[0] + uvRange[2];
+        const maxV = uvRange[1] + uvRange[3];
+        const min_u_epsilon = minU - EPSILON;
+        const min_v_epsilon = minV - EPSILON;
+        const max_u_epsilon = maxU + EPSILON;
+        const max_v_epsilon = maxV + EPSILON;
+        // 输出数组
+        const outVertices: number[] = [];
+        const outIndices: number[] = [];
+        const outUVs: number[] = [];
+        const outColors: number[] = [];
+        let nextVertexIndex = 0;
+
+        // 顶点数据结构
+        interface Vertex {
+            x: number;
+            y: number;
+            u: number;
+            v: number;
+            r: number;
+            g: number;
+            b: number;
+            a: number;
+        }
+
+        const addVertex = (vert: Vertex): number => {
+            const index = nextVertexIndex++;
+            outVertices.push(vert.x, vert.y);
+            outUVs.push(vert.u, vert.v);
+            outColors.push(vert.r, vert.g, vert.b, vert.a);
+            return index;
+        };
+
+        // 判断顶点是否在裁剪边内侧
+        const isInside = (vert: Vertex, edge: number): boolean => {
+            switch (edge) {
+                case 0: return vert.u >= min_u_epsilon; // left
+                case 1: return vert.u <= max_u_epsilon; // right
+                case 2: return vert.v >= min_v_epsilon; // bottom
+                case 3: return vert.v <= max_v_epsilon; // top
+            }
+            return false;
+        };
+
+        // 计算线段与裁剪边的交点（线性插值）
+        const computeIntersection = (v1: Vertex, v2: Vertex, edge: number): Vertex | null => {
+            let t: number;
+
+            // 根据裁剪边计算插值参数 t
+            switch (edge) {
+                case 0: // left: u = minU
+                    if (Math.abs(v2.u - v1.u) < EPSILON) return null;
+                    t = (minU - v1.u) / (v2.u - v1.u);
+                    break;
+                case 1: // right: u = maxU
+                    if (Math.abs(v2.u - v1.u) < EPSILON) return null;
+                    t = (maxU - v1.u) / (v2.u - v1.u);
+                    break;
+                case 2: // bottom: v = minV
+                    if (Math.abs(v2.v - v1.v) < EPSILON) return null;
+                    t = (minV - v1.v) / (v2.v - v1.v);
+                    break;
+                case 3: // top: v = maxV
+                    if (Math.abs(v2.v - v1.v) < EPSILON) return null;
+                    t = (maxV - v1.v) / (v2.v - v1.v);
+                    break;
+                default:
+                    return null;
+            }
+
+            if (t < -EPSILON || t > 1 + EPSILON) return null;
+
+            return {
+                x: v1.x + t * (v2.x - v1.x),
+                y: v1.y + t * (v2.y - v1.y),
+                u: v1.u + t * (v2.u - v1.u),
+                v: v1.v + t * (v2.v - v1.v),
+                r: v1.r + t * (v2.r - v1.r),
+                g: v1.g + t * (v2.g - v1.g),
+                b: v1.b + t * (v2.b - v1.b),
+                a: v1.a + t * (v2.a - v1.a)
+            };
+        };
+
+        // Sutherland-Hodgman算法：用一条边裁剪多边形
+        const clipPolygonByEdge = (inputVertices: Vertex[], edge: number): Vertex[] => {
+            if (inputVertices.length === 0) return [];
+
+            const output: Vertex[] = [];
+
+            for (let i = 0; i < inputVertices.length; i++) {
+                const current = inputVertices[i];
+                const next = inputVertices[(i + 1) % inputVertices.length];
+
+                const currentInside = isInside(current, edge);
+                const nextInside = isInside(next, edge);
+
+                if (currentInside) {
+                    // 当前点在内侧，输出当前点
+                    output.push(current);
+
+                    if (!nextInside) {
+                        // 下一个点在外侧，计算并输出交点
+                        const intersection = computeIntersection(current, next, edge);
+                        if (intersection) {
+                            output.push(intersection);
+                        }
+                    }
+                } else if (nextInside) {
+                    // 当前点在外侧，下一个点在内侧，计算并输出交点
+                    const intersection = computeIntersection(current, next, edge);
+                    if (intersection) {
+                        output.push(intersection);
+                    }
+                }
+                // 两点都在外侧，不输出任何点
+            }
+
+            return output;
+        };
+
+        // Sutherland-Hodgman算法：用矩形裁剪多边形
+        const clipPolygon = (inputVertices: Vertex[]): Vertex[] => {
+            let result = inputVertices;
+
+            for (let edge = 0; edge < 4; edge++) {
+                result = clipPolygonByEdge(result, edge);
+                if (result.length === 0) break;
+            }
+
+            return result;
+        };
+
+        const buildVertex = (index: number): Vertex => {
+            return {
+                x: vertices[index * 2],
+                y: vertices[index * 2 + 1],
+                u: uvs[index * 2],
+                v: uvs[index * 2 + 1],
+                r: colors[index * 4],
+                g: colors[index * 4 + 1],
+                b: colors[index * 4 + 2],
+                a: colors[index * 4 + 3]
+            };
+        };
+
+        const triangleCount = indices.length / 3;
+        for (let t = 0; t < triangleCount; t++) {
+            const i0 = indices[t * 3];
+            const i1 = indices[t * 3 + 1];
+            const i2 = indices[t * 3 + 2];
+
+            const triangle: Vertex[] = [
+                buildVertex(i0),
+                buildVertex(i1),
+                buildVertex(i2)
+            ];
+
+            const allInside = triangle.every(v =>
+                v.u >= min_u_epsilon && v.u <= max_u_epsilon &&
+                v.v >= min_v_epsilon && v.v <= max_v_epsilon
+            );
+
+            if (allInside) {// 完全在内部，直接输出
+                const idx0 = addVertex(triangle[0]);
+                const idx1 = addVertex(triangle[1]);
+                const idx2 = addVertex(triangle[2]);
+                outIndices.push(idx0, idx1, idx2);
+                continue;
+            }
+
+            const allOutsideLeft = triangle.every(v => v.u < min_u_epsilon);
+            const allOutsideRight = triangle.every(v => v.u > max_u_epsilon);
+            const allOutsideBottom = triangle.every(v => v.v < min_v_epsilon);
+            const allOutsideTop = triangle.every(v => v.v > max_v_epsilon);
+
+            if (allOutsideLeft || allOutsideRight || allOutsideBottom || allOutsideTop) {// 完全在外部，跳过
+                continue;
+            }
+
+            const clippedPolygon = clipPolygon(triangle);
+
+            if (clippedPolygon.length < 3) {// 裁剪后顶点不足3个，跳过
+                continue;
+            }
+
+            
+            if (clippedPolygon.length === 3) {// 已经是三角形，直接输出
+                const idx0 = addVertex(clippedPolygon[0]);
+                const idx1 = addVertex(clippedPolygon[1]);
+                const idx2 = addVertex(clippedPolygon[2]);
+                outIndices.push(idx0, idx1, idx2);
+            } else {
+                // 多边形需要三角化，使用Earcut
+                const earcutData: number[] = [];
+                for (let i = 0; i < clippedPolygon.length; i++) {
+                    // 使用顶点位置进行三角化（更稳定）
+                    earcutData.push(clippedPolygon[i].x, clippedPolygon[i].y);
+                }
+
+                const triangulated = Earcut.earcut(earcutData, null, 2);
+
+                if (triangulated.length > 0) {
+                    const vertexIndices: number[] = [];
+                    for (let i = 0; i < clippedPolygon.length; i++) {
+                        vertexIndices.push(addVertex(clippedPolygon[i]));
+                    }
+
+                    for (let i = 0; i < triangulated.length; i += 3) {
+                        outIndices.push(
+                            vertexIndices[triangulated[i]],
+                            vertexIndices[triangulated[i + 1]],
+                            vertexIndices[triangulated[i + 2]]
+                        );
+                    }
+                }
+            }
+        }
+
+        return {
+            vertices: new Float32Array(outVertices),
+            indices: new Uint16Array(outIndices),
+            uvs: new Float32Array(outUVs),
+            colors: new Float32Array(outColors)
+        };
+    }
+
     appendData(
         vertices: ArrayLike<number>, indices: ArrayLike<number>,
         result: MeshBlockInfo, submit: SubmitBase,

@@ -19,23 +19,23 @@ uniform vec3 u_NMatrix_1;
 
 uniform vec2 u_size;
 
+varying vec4 v_color;
+
 #ifdef MATERIALCLIP
     uniform vec4 u_mClipMatDir;
     uniform vec4 u_mClipMatPos;
 #endif
 
-uniform vec4 u_clipMatDir;
-uniform vec4 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
-
 varying vec2 v_cliped;
-varying vec4 v_color;
 
-void transfrom(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
-    outPos.x=xDir.x*pos.x+xDir.y*pos.y +xDir.z;
-    outPos.y=yDir.x*pos.x+yDir.y*pos.y +yDir.z;
-}
+#ifdef UNIFORMCLIP
+    uniform vec4 u_clipMatDir;
+    uniform vec4 u_clipMatPos;// 这个是全局的，不用再应用矩阵了。
+#endif
 
 void clip(inout vec2 globalPos){
+    
+#ifdef UNIFORMCLIP
     // 根据视口调整位置
     vec4 clipMatDir;
     vec4 clipMatPos;
@@ -93,6 +93,12 @@ void clip(inout vec2 globalPos){
     
     globalPos = clippos + clipMatPos.zw;
     v_cliped = cliped;
+#endif
+}
+
+void transfrom(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
+    outPos.x=xDir.x*pos.x+xDir.y*pos.y +xDir.z;
+    outPos.y=yDir.x*pos.x+yDir.y*pos.y +yDir.z;
 }
 
 void getGlobalPos(in vec2 localPos,out vec2 globalPos){
@@ -272,6 +278,7 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
     vec4 getPosition(in vec2 positionOS){
         vec2 globalPos;
         getGlobalPos(positionOS,globalPos);
+
         clip(globalPos);
 
         vec2 viewPos;

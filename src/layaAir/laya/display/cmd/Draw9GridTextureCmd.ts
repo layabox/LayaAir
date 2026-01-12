@@ -7,6 +7,7 @@ import { Pool } from "../../utils/Pool"
 import { VertexStream } from "../../utils/VertexStream";
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+import { Config } from "../../../Config";
 
 const className = "Draw9GridTextureCmd";
 
@@ -157,8 +158,22 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
 
             genSliceMesh(vb, vb.contentRect, vb.uvRect, gridRect, sizeGrid[4] === 1 ? 0xff : 0);
 
-            runner.drawTriangles(this.texture, x + gx, y + gy, vb.getVertices(), vb.getUVs(), vb.getIndices(),
-                null, 1, null, null, vb.getColors(), this.texture.uvrect);
+            if (this.texture.uvrect) {
+                if (Config.uvClipMode === "cpu") {
+                    const clippedData = GraphicsRunner.clipTrianglesByUVRange(
+                        vb.getVertices(), vb.getIndices(), vb.getUVs(), this.texture.uvrect, vb.getColors()
+                    );
+                    runner.drawTriangles(this.texture, x + gx, y + gy,
+                        clippedData.vertices, clippedData.uvs, clippedData.indices,
+                        null, 1, null, null, clippedData.colors, null);
+                } else {
+                    runner.drawTriangles(this.texture, x + gx, y + gy, vb.getVertices(), vb.getUVs(), vb.getIndices(),
+                        null, 1, null, null, vb.getColors(), this.texture.uvrect);
+                }
+            } else {
+                runner.drawTriangles(this.texture, x + gx, y + gy, vb.getVertices(), vb.getUVs(), vb.getIndices(),
+                    null, 1, null, null, vb.getColors(), null);
+            }
 
             VertexStream.pool.recover(vb);
         }
