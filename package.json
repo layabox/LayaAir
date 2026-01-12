@@ -1,7 +1,7 @@
 {
   "name": "layaair",
-  "version": "3.3.6",
-  "description": "LayaAir3.3 Engine",
+  "version": "3.4.0-beta.1",
+  "description": "LayaAir3.4 Engine",
   "main": "layaAir.config.js",
   "scripts": {
     "start": "npm-run-all clean copyShaders copyJsLibs --parallel watchShaders watchSamples",
