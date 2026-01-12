@@ -350,18 +350,18 @@ export class LensFlareEffect extends PostProcessEffect {
         Vector3.add(camera.transform.position, _tempV3, _tempV3);
         // to screen space
         Vector3.transformV3ToV4(_tempV3, camera.projectionViewMatrix, _tempV4);
-        
+
         // 当 w <= 0 时，光源在相机后方，不应该显示光晕，直接跳过后续计算
         if (_tempV4.w <= 0) {
             this._edgeFade = 0;
             return;
         }
-        
+
         // normalize x\y coordinate
         let centerX = _tempV4.x / _tempV4.w;
         let centerY = _tempV4.y / _tempV4.w;
         this._center.setValue(centerX, centerY);
-        
+
         // 计算边缘渐变（内联计算，避免函数调用开销）
         let maxDist = Math.abs(centerX) > Math.abs(centerY) ? Math.abs(centerX) : Math.abs(centerY);
         if (maxDist <= 0.8) {
@@ -372,7 +372,7 @@ export class LensFlareEffect extends PostProcessEffect {
         } else {
             this._edgeFade = 1.0 - (maxDist - 0.8) / 0.7; // 0.7 = 1.5 - 0.8
         }
-        
+
         // angle calculate
         var angle: number = Utils.toAngle(Math.atan2(centerX, centerY));
         angle = (angle < 0) ? angle + 360 : angle;
