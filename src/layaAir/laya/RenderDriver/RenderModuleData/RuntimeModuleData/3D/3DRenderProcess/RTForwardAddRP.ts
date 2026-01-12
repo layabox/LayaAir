@@ -58,21 +58,21 @@ export class RTForwardAddRP {
     }
 
 
-    private _directLightShadowPass: RTDirCascadeShadowRP;
-    public get directLightShadowPass(): RTDirCascadeShadowRP {
-        return this._directLightShadowPass;
+    private _dirLightShadowPass: RTDirCascadeShadowRP;
+    public get dirShadowRenderPass(): RTDirCascadeShadowRP {
+        return this._dirLightShadowPass;
     }
-    public set directLightShadowPass(value: RTDirCascadeShadowRP) {
-        this._directLightShadowPass = value;
+    public set dirShadowRenderPass(value: RTDirCascadeShadowRP) {
+        this._dirLightShadowPass = value;
         this._nativeObj.setDirectLightShadowPass(value._nativeObj);
     }
 
-    private _spotLightShadowPass: RTBaseSpotRP;
-    public get spotLightShadowPass(): RTBaseSpotRP {
-        return this._spotLightShadowPass;
+    private _spotShadowRenderPass: RTBaseSpotRP;
+    public get spotShadowRenderPass(): RTBaseSpotRP {
+        return this._spotShadowRenderPass;
     }
-    public set spotLightShadowPass(value: RTBaseSpotRP) {
-        this._spotLightShadowPass = value;
+    public set spotShadowRenderPass(value: RTBaseSpotRP) {
+        this._spotShadowRenderPass = value;
         this._nativeObj.setSpotLightShadowPass(value._nativeObj);
     }
 
@@ -92,8 +92,8 @@ export class RTForwardAddRP {
         this.shadowCastPass = false;
         this.enableDirectLightShadow = false;
         this.enableSpotLightShadowPass = false;
-        this.directLightShadowPass = new RTDirCascadeShadowRP();
-        this.spotLightShadowPass = new RTBaseSpotRP();
+        this.dirShadowRenderPass = new RTDirCascadeShadowRP();
+        this.spotShadowRenderPass = new RTBaseSpotRP();
         this.mainRenderpass = new RTForwardAddClusterRP();
     }
 
