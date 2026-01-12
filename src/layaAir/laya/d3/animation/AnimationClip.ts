@@ -21,6 +21,7 @@ import { Vector2Keyframe } from "../../maths/Vector2Keyframe";
 import { Vector3Keyframe } from "../../maths/Vector3Keyframe";
 import { Vector4Keyframe } from "../../maths/Vector4Keyframe";
 import { BooleanKeyframe } from "../../maths/BooleanKeyframe";
+import { PathPointKeyframe } from "../../maths/PathPointKeyframe";
 
 /**
  * @en The AnimationClip class is used for animation clip resources.
@@ -430,7 +431,7 @@ export class AnimationClip extends Resource {
 	 * @param frontPlay 是否是前向播放。
 	 * @param outDatas 计算好的动画数据。
 	 */
-	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<boolean | number | Vector3 | Quaternion | Vector4 | Vector2>, avatarMask: AvatarMask): void {
+	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<boolean | number | Vector3 | Quaternion | Vector4 | Vector2 | { pos: Vector3, rotation: Vector3 }>, avatarMask: AvatarMask): void {
 		for (var i = 0, n = nodes.count; i < n; i++) {
 			var node = nodes.getNodeByIndex(i);
 			var type = node.type;
@@ -474,6 +475,26 @@ export class AnimationClip extends Resource {
 
 			var isEnd = nextFrameIndex === keyFramesCount;
 			switch (type) {
+				case KeyFrameValueType.PathPoint:
+					var frame = (<FloatKeyframe>keyFrames[frameIndex]);
+					let frameVal = (<PathPointKeyframe>keyFrames[0]).value;
+					if (frameIndex !== -1) {
+						frameVal = (<PathPointKeyframe>keyFrames[frameIndex]).value;
+					}
+					if (isEnd) {
+						outDatas[i] = {pos:frameVal.getPointAt(1), rotation:frameVal.getRotationAt(1)};
+					} else {
+						var nextFarme = (<FloatKeyframe>keyFrames[nextFrameIndex]);
+						var d = nextFarme.time - frame.time;
+						var t;
+						if (d !== 0)
+							t = (playCurTime - frame.time) / d;
+						else
+							t = 0;
+						outDatas[i] = {pos:frameVal.getPointAt(t), rotation:frameVal.getRotationAt(t)};
+					}
+
+					break;
 				case KeyFrameValueType.Boolean:
 					if (frameIndex !== -1) {
 						outDatas[i] = (<BooleanKeyframe>keyFrames[frameIndex]).value;

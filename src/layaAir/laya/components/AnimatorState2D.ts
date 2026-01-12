@@ -117,7 +117,7 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
     _scripts: AnimatorState2DScript[] | null = null;
 
     /**@internal */
-    _realtimeDatas: Array<number | string | boolean | Vector3> = [];
+    _realtimeDatas: Array<number | string | boolean | { pos: Vector3, rotation: Vector3 }> = [];
 
     /**
      * @en Animation Clip

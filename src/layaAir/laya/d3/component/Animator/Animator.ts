@@ -26,9 +26,6 @@ import { Vector4 } from "../../../maths/Vector4";
 import { AnimatorUpdateMode } from "../../../components/AnimatorUpdateMode";
 import { AnimatorStateCondition } from "../../../components/AnimatorStateCondition";
 import { Delegate } from "../../../utils/Delegate";
-import { Browser } from "../../../utils/Browser";
-import { LayaGL } from "../../../layagl/LayaGL";
-import { StatElement } from "../../../layagl/StatisticsContext";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 
 export type AnimatorParams = { [key: number]: number | boolean };
@@ -252,7 +249,7 @@ export class Animator extends Component {
             keyframeNodeOwner.type = node.type;
 
             if (property) {//查询成功后赋默认值
-                if (node.type === KeyFrameValueType.Float || node.type === KeyFrameValueType.Boolean) {
+                if (node.type === KeyFrameValueType.Float || node.type === KeyFrameValueType.Boolean || node.type === KeyFrameValueType.PathPoint) {
                     keyframeNodeOwner.defaultValue = property;
                 } else {
                     var defaultValue = new property.constructor();
@@ -343,6 +340,8 @@ export class Animator extends Component {
                 let loopNum = Math.floor(elapsedPlaybackTime / clipDuration);
                 let pLoopNum = Math.floor(lastElapsedTime / clipDuration);
                 if (pLoopNum != loopNum) {
+                    // 动画循环时更新defaultValue，支持additive模式基于最新值叠加
+                    this._updateDefaultValues();
                     animatorState._eventLoop();
                 }
             }
@@ -752,6 +751,9 @@ export class Animator extends Component {
         let lastpro;
         if (pro) {
             switch (nodeOwner.type) {
+                case KeyFrameValueType.PathPoint:
+                    console.log("Animator:PathPoint not support3");
+                    break;
                 case KeyFrameValueType.Boolean:
                     console.log("Animator:Boolean not support3");
                     break;
@@ -918,7 +920,7 @@ export class Animator extends Component {
      * @param isFirstLayer 是否是第一层
      */
     private _setClipDatasToNode(stateInfo: AnimatorState, additive: boolean, weight: number, isFirstLayer: boolean, controllerLayer: AnimatorControllerLayer = null): void {
-        var realtimeDatas: Array<number | Vector3 | Quaternion | Vector2 | Vector4 | Color> = stateInfo._realtimeDatas;
+        var realtimeDatas: Array<number | Vector3 | Quaternion | Vector2 | Vector4 | Color | { pos: Vector3, rotation: Quaternion }> = stateInfo._realtimeDatas;
         var nodes: KeyframeNodeList = stateInfo._clip!._nodes!;
         var nodeOwners: KeyframeNodeOwner[] = stateInfo._nodeOwners;
         for (var i: number = 0, n: number = nodes.count; i < n; i++) {
@@ -932,6 +934,23 @@ export class Animator extends Component {
                 let value: string;
                 if (pro) {
                     switch (nodeOwner.type) {
+                        case KeyFrameValueType.PathPoint:
+                            const realData = realtimeDatas[i] as { pos: Vector3, rotation: Quaternion };
+                            const pos = realData.pos;
+                            const rotation = realData.rotation;
+                            if (rotation) {
+                                const ro = pro.transform.localRotationEuler;
+                                ro.x = rotation.x;
+                                ro.y = rotation.y;
+                                ro.z = rotation.z;
+                                pro.transform.localRotationEuler = ro;
+                            }
+                            const position = pro.transform.position;
+                            position.x = pos.x;
+                            position.y = pos.y;
+                            position.z = pos.z;
+                            pro.transform.position = position;
+                            break;
                         case KeyFrameValueType.Boolean:
                             var proPat: string[] = nodeOwner.property!;
                             var m: number = proPat.length - 1;
@@ -1137,6 +1156,9 @@ export class Animator extends Component {
                 let value: string;
                 if (pro) {
                     switch (nodeOwner.type) {
+                        case KeyFrameValueType.PathPoint:
+                            console.log("Animator:PathPoint not support2");
+                            break;
                         case KeyFrameValueType.Boolean:
                             console.log("Animator:Boolean not support2");
                             break;
@@ -1465,7 +1487,6 @@ export class Animator extends Component {
         }
         this._LateUpdateEvents.invoke();
         this._LateUpdateEvents.clear();
-        LayaGL.statAgent.recordTimeData(StatElement.T_AnimatorUpdate, performance.now() - t);
     }
 
     /**
@@ -1486,6 +1507,85 @@ export class Animator extends Component {
             }
         }
         dest.controller = this._controller;
+    }
+
+    /**
+     * @internal
+     * 更新所有已缓存的keyframe owner的defaultValue为当前属性值
+     */
+    private _updateDefaultValues(): void {
+        for (let i = 0, n = this._keyframeNodeOwners.length; i < n; i++) {
+            let nodeOwner = this._keyframeNodeOwners[i];
+            if (!nodeOwner || !nodeOwner.propertyOwner || !nodeOwner.property) continue;
+            
+            let pro = nodeOwner.propertyOwner;
+            
+            // 根据类型获取并更新defaultValue
+            switch (nodeOwner.type) {
+                case KeyFrameValueType.Float:
+                case KeyFrameValueType.Boolean:
+                    var proPat = nodeOwner.property;
+                    var m = proPat.length - 1;
+                    for (var j = 0; j < m; j++) {
+                        pro = pro[proPat[j]];
+                        if (!pro) break;
+                    }
+                    if (pro && !nodeOwner.isMaterial) {
+                        nodeOwner.defaultValue = pro[proPat[m]];
+                    }
+                    break;
+                    
+                case KeyFrameValueType.Position:
+                    if (pro.localPosition && nodeOwner.defaultValue) {
+                        pro.localPosition.cloneTo(nodeOwner.defaultValue);
+                    }
+                    break;
+                    
+                case KeyFrameValueType.Rotation:
+                    if (pro.localRotation && nodeOwner.defaultValue) {
+                        pro.localRotation.cloneTo(nodeOwner.defaultValue);
+                    }
+                    break;
+                    
+                case KeyFrameValueType.Scale:
+                    if (pro.localScale && nodeOwner.defaultValue) {
+                        pro.localScale.cloneTo(nodeOwner.defaultValue);
+                    }
+                    break;
+                    
+                case KeyFrameValueType.RotationEuler:
+                    if (pro.localRotationEuler && nodeOwner.defaultValue) {
+                        pro.localRotationEuler.cloneTo(nodeOwner.defaultValue);
+                    }
+                    break;
+                    
+                case KeyFrameValueType.Vector2:
+                case KeyFrameValueType.Vector3:
+                case KeyFrameValueType.Vector4:
+                case KeyFrameValueType.Color:
+                    proPat = nodeOwner.property;
+                    m = proPat.length - 1;
+                    for (j = 0; j < m; j++) {
+                        pro = pro[proPat[j]];
+                        if (!pro) break;
+                    }
+                    if (pro && !nodeOwner.isMaterial && nodeOwner.defaultValue) {
+                        let value = pro[proPat[m]];
+                        if (value && value.cloneTo) {
+                            value.cloneTo(nodeOwner.defaultValue);
+                        }
+                    }
+                    break;
+            }
+        }
+    }
+
+    /**
+     * @en Reset the base values for additive animations. Call this when you manually modify animated properties and want the additive animation to use the new values as base.
+     * @zh 重置additive动画的基础值。当手动修改了被动画控制的属性，并希望additive动画基于新值叠加时调用此方法。
+     */
+    resetAdditiveBaseValues(): void {
+        this._updateDefaultValues();
     }
 
     /**
@@ -1582,6 +1682,9 @@ export class Animator extends Component {
                 return;
             }
 
+            // 更新keyframe owner的defaultValue以支持additive模式基于最新值叠加
+            this._updateDefaultValues();
+
             var clipDuration: number = animatorState._clip!._duration;
             var calclipduration = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
             if (curPlayState !== animatorState) {
@@ -1636,6 +1739,9 @@ export class Animator extends Component {
                     this.play(name, layerIndex, normalizedTime);
                     return;
                 }
+
+                // 在状态转换开始时更新defaultValue，支持additive模式基于最新值叠加
+                this._updateDefaultValues();
 
                 var crossPlayStateInfo = controllerLayer._crossPlayStateInfo;
                 var crossNodeOwners = controllerLayer._crossNodesOwners;

@@ -14,8 +14,6 @@ import { Animation2DEvent } from "./Animation2DEvent";
 import { AnimatorUpdateMode } from "./AnimatorUpdateMode";
 import { Loader } from "../net/Loader";
 import { ILaya } from "../../ILaya";
-import { Sprite } from "../display/Sprite";
-import { SpriteConst } from "../display/SpriteConst";
 import { Vector3 } from "../maths/Vector3";
 
 /**
@@ -112,9 +110,6 @@ export class Animator2D extends Component {
      */
     private _updateStateFinish(animatorState: AnimatorState2D, playState: AnimatorPlayState2D): void {
         if (playState._finish) {
-            if ((this.owner as Sprite)._renderType & SpriteConst.GRAPHICS) {
-                (this.owner as Sprite).graphics.repaint();
-            }
             animatorState._eventExit();//派发播放完成的事件
         }
     }
@@ -150,7 +145,7 @@ export class Animator2D extends Component {
             if (null == realtimeDatas[i]) continue;
             var node = nodes.getNodeByIndex(i);
             var o = this.getOwner(node);
-            o && this._applyFloat(o, additive, weight, realtimeDatas[i]);
+            o && this._applyAniData(o, additive, weight, realtimeDatas[i]);
         }
     }
 
@@ -162,13 +157,21 @@ export class Animator2D extends Component {
      * @param isFirstLayer 
      * @param data 
      */
-    private _applyFloat(o: { ower: Node, pro?: { ower: any, key: string, defVal: any } }, additive: boolean, weight: number, data: string | number | boolean | Vector3): void {
+    private _applyAniData(o: { ower: Node, pro?: { ower: any, key: string, defVal: any } }, additive: boolean, weight: number, data: string | number | boolean | { pos: Vector3, rotation: Vector3 }): void {
         var pro = o.pro;
         if (pro && pro.ower) {
             if (additive && "number" === typeof data) {
                 pro.ower[pro.key] = pro.defVal + weight * data;
             } else if ("number" === typeof data) {
                 pro.ower[pro.key] = weight * data;
+            } else if ("object" === typeof data) {
+                if (data.pos) {
+                    pro.ower.x = data.pos.x;
+                    pro.ower.y = data.pos.y;
+                }
+                if (null != data.rotation) {
+                    pro.ower.rotation = data.rotation.z;
+                }
             } else {
                 if ("string" === typeof data) {
                     if (data.startsWith("tres://")) {
@@ -190,6 +193,20 @@ export class Animator2D extends Component {
                 pro.ower[pro.key] = data;
             }
         }
+    }
+
+    /**
+     * @internal
+     * 更新所有已缓存的owner的defVal为当前属性值
+     */
+    private _updateDefVal(): void {
+        if (!this._ownerMap) return;
+        
+        this._ownerMap.forEach((ownerData) => {
+            if (ownerData.pro && ownerData.pro.ower) {
+                ownerData.pro.defVal = ownerData.pro.ower[ownerData.pro.key];
+            }
+        });
     }
 
     /**
@@ -323,6 +340,8 @@ export class Animator2D extends Component {
         }
         const isReplay = parentPlayNum != playNum;
         if (isReplay) {
+            // 动画循环时更新defVal，支持additive模式基于最新值叠加
+            this._updateDefVal();
             animatorState._eventLoop();
         }
         //注意，这里的playState._normalizedPlayTime不管是clipStart和clipEnd是多少，都是0~1
@@ -549,6 +568,9 @@ export class Animator2D extends Component {
             var clipDuration = animatorState._clip!._duration;
             var calclipduration = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
 
+            // 更新owner映射中的defVal，以支持additive模式基于最新值叠加
+            this._updateDefVal();
+
             playStateInfo._resetPlayState(clipDuration * normalizedTime, calclipduration);
             playStateInfo._normalizedPlayTime = normalizedTime;
             controllerLayer._playType = 0;
@@ -598,6 +620,9 @@ export class Animator2D extends Component {
             var clipDuration = animatorState._clip!._duration;
             var calclipduration = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
 
+            // 更新owner映射中的defVal，以支持additive模式基于最新值叠加
+            this._updateDefVal();
+
             // this.resetDefOwerVal();
             // playStateInfo._resetPlayState(0.0, calclipduration);
             // if (curPlayState != animatorState) {
@@ -637,6 +662,16 @@ export class Animator2D extends Component {
      */
     stop() {
         this._isPlaying = false;
+    }
+
+    /**
+     * @en Reset the base values for additive animations. Call this when you manually modify animated properties and want the additive animation to use the new values as base.
+     * @zh 重置additive动画的基础值。当手动修改了被动画控制的属性，并希望additive动画基于新值叠加时调用此方法。
+     */
+    resetAdditiveBaseValues() {
+        if (this._ownerMap) {
+            this._ownerMap.clear();
+        }
     }
 
     /**

@@ -15,6 +15,7 @@ export enum KeyFrameValueType {
 	Vector4 = 7,
 	Color = 8,
 	Boolean = 9,
+	PathPoint = 10,
 }
 /**
  * @internal

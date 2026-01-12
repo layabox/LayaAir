@@ -101,7 +101,7 @@ export class AnimationClip2D extends Resource {
      * @param frontPlay 
      * @param outDatas 
      */
-    _evaluateClipDatasRealTime(playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<number | string | boolean | Vector3>) {
+    _evaluateClipDatasRealTime(playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<number | string | boolean | { pos: Vector3, rotation: Vector3 }>) {
         var nodes = this._nodes;
         for (var i = 0, n = nodes.count; i < n; i++) {
             var node = nodes.getNodeByIndex(i);
@@ -147,7 +147,7 @@ export class AnimationClip2D extends Resource {
                 var frame = keyFrames[frameIndex];
                 if (isEnd) {//如果nextFarme为空，不修改数据，保持上一帧
                     if (frame.data.val instanceof CurvePath) {
-                        outDatas[i] = frame.data.val.getPointAt(0);
+                        outDatas[i] = { pos: frame.data.val.getPointAt(0), rotation: frame.data.val.getRotationAt(0) }
                     } else {
                         outDatas[i] = frame.data.val;
                     }
@@ -164,7 +164,7 @@ export class AnimationClip2D extends Resource {
                 }
             } else {
                 if (keyFrames[0].data.val instanceof CurvePath) {
-                    outDatas[i] = keyFrames[0].data.val.getPointAt(0);
+                    outDatas[i] = { pos: keyFrames[0].data.val.getPointAt(0), rotation: keyFrames[0].data.val.getRotationAt(0) }
                 } else {
                     outDatas[i] = keyFrames[0].data.val;
                 }
@@ -185,11 +185,13 @@ export class AnimationClip2D extends Resource {
      * @param dur 
      * @returns 
      */
-    private _getTweenVal(frame: Keyframe2D, nextFrame: Keyframe2D, t: number, dur: number): number | string | boolean | Vector3 {
+    private _getTweenVal(frame: Keyframe2D, nextFrame: Keyframe2D, t: number, dur: number): number | string | boolean | { pos: Vector3, rotation: Vector3 } {
         var start = frame.data;
         var end = nextFrame.data;
         if (start.val instanceof CurvePath) {
-            return start.val.getPointAt(t);
+            return {
+                pos: start.val.getPointAt(t), rotation: start.val.getRotationAt(t)
+            }
         }
 
         if ("number" != typeof start.val || "number" != typeof end.val) {
