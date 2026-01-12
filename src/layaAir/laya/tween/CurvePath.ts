@@ -70,12 +70,14 @@ export class CurvePath {
                     seg.ptCount = 2;
                     pts.push(prev.pos.cloneTo(pool.take()));
                     pts.push(current.pos.cloneTo(pool.take()));
+                    seg.length = Vector3.distance(prev.pos, current.pos);
                 }
                 else if (prev.curve == CurveType.Bezier) {
                     seg.ptCount = 3;
                     pts.push(prev.pos.cloneTo(pool.take()));
                     pts.push(current.pos.cloneTo(pool.take()));
                     pts.push(prev.c1.cloneTo(pool.take()));
+                    seg.length = this.estimateBezierLength(seg.ptStart, seg.ptCount);
                 }
                 else if (prev.curve == CurveType.CubicBezier) {
                     seg.ptCount = 4;
@@ -83,8 +85,8 @@ export class CurvePath {
                     pts.push(current.pos.cloneTo(pool.take()));
                     pts.push(prev.c1.cloneTo(pool.take()));
                     pts.push(prev.c2.cloneTo(pool.take()));
+                    seg.length = this.estimateBezierLength(seg.ptStart, seg.ptCount);
                 }
-                seg.length = Vector3.distance(prev.pos, current.pos);
                 this._fullLength += seg.length;
                 this._segments.push(seg);
             }
@@ -103,6 +105,36 @@ export class CurvePath {
 
         if (splinePoints.length > 1)
             this.createSplineSegment(splinePoints);
+
+        // 自动检测是否为2D曲线（所有点的z分量都接近0）
+        this.is2D = this._points.every(pt => Math.abs(pt.z) < 0.0001);
+    }
+
+    /**
+     * @en Estimate the arc length of a Bezier curve by sampling.
+     * @param ptStart Starting point index in the points array.
+     * @param ptCount Number of control points.
+     * @param samples Number of samples for estimation.
+     * @returns Estimated arc length.
+     * @zh 通过采样估算贝塞尔曲线的弧长。
+     * @param ptStart 点数组中的起始点索引。
+     * @param ptCount 控制点数量。
+     * @param samples 估算的采样数量。
+     * @returns 估算的弧长。
+     */
+    private estimateBezierLength(ptStart: number, ptCount: number, samples: number = 10): number {
+        let length = 0;
+        let prevPt = new Vector3();
+        let curPt = new Vector3();
+
+        this.onBezierCurve(ptStart, ptCount, 0, prevPt);
+        for (let i = 1; i <= samples; i++) {
+            let t = i / samples;
+            this.onBezierCurve(ptStart, ptCount, t, curPt);
+            length += Vector3.distance(prevPt, curPt);
+            curPt.cloneTo(prevPt);
+        }
+        return length;
     }
 
     private createSplineSegment(splinePoints: Array<Vector3>): void {
@@ -153,7 +185,7 @@ export class CurvePath {
      * @returns 表示指定点切线方向的旋转角度（度）。
      */
     getRotationAt(t: number, out?: Vector3): Vector3 {
-        if (!this.rotationType || 1 === t) return null;
+        if (!this.rotationType) return null;
         if (RotationType.RotateAlongMotionPath === this.rotationType) {
             const ret = CurvePath.getRotation(this._parPos, this._curPt);
             if (!this._parPos) {
@@ -175,8 +207,6 @@ export class CurvePath {
             return out;
         }
 
-        let pts = this._points;
-
         // 处理边界情况
         if (t == 0) {
             // 在起点，使用第一个段的起始切线
@@ -184,9 +214,9 @@ export class CurvePath {
             this.getTangentAtSegment(seg, 0, tangent);
         }
         else if (t == 1) {
-            // 回绕到起点切线，和 getPointAt 的 t==1 行为一致
-            let seg = this._segments[0];
-            this.getTangentAtSegment(seg, 0, tangent);
+            // 在终点，使用最后一个段的结束切线
+            let seg = this._segments[cnt - 1];
+            this.getTangentAtSegment(seg, 1, tangent);
         }
         else {
             // 找到对应的段和段内的t值
@@ -222,11 +252,7 @@ export class CurvePath {
      * @param out 输出Vector3存储欧拉角（x, y, z），单位为度。
      */
     private tangentToEulerAngles(tangent: Vector3, out: Vector3): void {
-        // 检查是否为2D数据（z分量接近0）
-        const epsilon = 0.0001;
-        const is2D = this.is2D
-
-        if (is2D) {
+        if (this.is2D) {
             // 2D情况：返回Vector3(0, 0, 旋转角度)
             // 计算XY平面的旋转角度
             let rotationAngle = Math.atan2(tangent.y, tangent.x) * 180 / Math.PI;
@@ -395,31 +421,22 @@ export class CurvePath {
         }
 
         let pts = this._points;
+
+        // 处理边界情况 t == 1，直接获取最后一段的终点
         if (t == 1) {
-            let firstSeg = this._segments[0];
-            if (firstSeg.type == CurveType.Straight || firstSeg.type == CurveType.Bezier || firstSeg.type == CurveType.CubicBezier)
-                out.setValue(pts[firstSeg.ptStart].x, pts[firstSeg.ptStart].y, pts[firstSeg.ptStart].z);
-            else {
-                const startIndex = firstSeg.ptStart + 1;
-                out.setValue(pts[startIndex].x, pts[startIndex].y, pts[startIndex].z);
-            }
+            let seg = this._segments[cnt - 1];
+            this.getPointOnSegment(seg, 1, pts, out);
             return out;
         }
 
+        // 根据长度找到对应的段和段内的t值
         for (let i = 0, len = t * this._fullLength; i < cnt; i++) {
             let seg = this._segments[i];
 
             len -= seg.length;
             if (len < 0) {
-                t = 1 + len / seg.length;
-
-                if (seg.type == CurveType.Straight)
-                    Vector3.lerp(pts[seg.ptStart], pts[seg.ptStart + 1], t, out);
-                else if (seg.type == CurveType.Bezier || seg.type == CurveType.CubicBezier)
-                    this.onBezierCurve(seg.ptStart, seg.ptCount, t, out);
-                else
-                    this.onCRSplineCurve(seg.ptStart, seg.ptCount, t, out);
-
+                let segmentT = 1 + len / seg.length;
+                this.getPointOnSegment(seg, segmentT, pts, out);
                 break;
             }
         }
@@ -541,6 +558,27 @@ export class CurvePath {
             this.getPointsInSegment(i, 0, 1, out, outTs, pointDensity);
 
         return out;
+    }
+
+    /**
+     * @en Get the point on a specific segment at parameter t.
+     * @param seg The curve segment.
+     * @param t The parameter value within the segment (0-1).
+     * @param pts The points array.
+     * @param out The output Vector3.
+     * @zh 获取指定段在参数t处的点。
+     * @param seg 曲线段。
+     * @param t 段内的参数值（0-1）。
+     * @param pts 点数组。
+     * @param out 输出的Vector3。
+     */
+    private getPointOnSegment(seg: Segment, t: number, pts: Array<Vector3>, out: Vector3): void {
+        if (seg.type == CurveType.Straight)
+            Vector3.lerp(pts[seg.ptStart], pts[seg.ptStart + 1], t, out);
+        else if (seg.type == CurveType.Bezier || seg.type == CurveType.CubicBezier)
+            this.onBezierCurve(seg.ptStart, seg.ptCount, t, out);
+        else
+            this.onCRSplineCurve(seg.ptStart, seg.ptCount, t, out);
     }
 
     private onCRSplineCurve(ptStart: number, ptCount: number, t: number, out: Vector3): Vector3 {
