@@ -162,28 +162,17 @@ export class SketonOptimise {
         let skeleton = this.sketon;
         let skins = this.data.skins;
         let minX = Number.POSITIVE_INFINITY, minY = Number.POSITIVE_INFINITY, maxX = Number.NEGATIVE_INFINITY, maxY = Number.NEGATIVE_INFINITY;
-        let animations = this.data.animations;
-
-        let step = 1 / 30;
-        for (let index = 0; index < animations.length; index++) {
-            const animation = animations[index];
-            let duration = animation.duration;
-            for (let skinIndex = 0; skinIndex < skins.length; skinIndex++) {
-                const skin = skins[skinIndex];
-                skeleton.setSkin(skin);
-                skeleton.setToSetupPose();
-                
-                this._play(animation.name);
-                let totalFrame = Math.round(duration / step) || 1;
-                for (let i = 0; i <= totalFrame; i++) {
-                    this._updateState(i == 0 ? 0 : step);
-                    skeleton.getBounds(offset, size);   
-                    minX = Math.min(minX, offset.x);
-                    minY = Math.min(minY, offset.y);
-                    maxX = Math.max(maxX, offset.x + size.x);
-                    maxY = Math.max(maxY, offset.y + size.y);
-                }
-            }
+      
+        for (let skinIndex = 0; skinIndex < skins.length; skinIndex++) {
+            const skin = skins[skinIndex];
+            skeleton.setSkin(skin);
+            skeleton.setToSetupPose();
+            skeleton.updateWorldTransform(0);
+            skeleton.getBounds(offset, size);   
+            minX = Math.min(minX, offset.x);
+            minY = Math.min(minY, offset.y);
+            maxX = Math.max(maxX, offset.x + size.x);
+            maxY = Math.max(maxY, offset.y + size.y);
         }
         
         if (minX == Number.POSITIVE_INFINITY
