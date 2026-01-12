@@ -190,7 +190,8 @@ export class Sprite3D extends Node {
         this._transform = Laya3DRender.Render3DModuleDataFactory.createTransform(this);
         this._isStatic = isStatic ? StaticFlag.StaticBatch : StaticFlag.Normal;
         this.layer = 0;
-        this.name = name ? name : "New Sprite3D";
+        if (name != null)
+            this.name = name;
     }
 
     protected _onActive(): void {

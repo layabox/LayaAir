@@ -618,6 +618,66 @@ export class Text extends Sprite {
     }
 
     /**
+     * @en Shadow offset X (in pixels).
+     * @zh 阴影偏移X（以像素为单位）。
+     */
+    get shadowOffsetX(): number {
+        return this._textStyle.shadowOffsetX;
+    }
+
+    set shadowOffsetX(value: number) {
+        if (this._textStyle.shadowOffsetX !== value) {
+            this._textStyle.shadowOffsetX = value;
+            this.markChanged();
+        }
+    }
+
+    /**
+     * @en Shadow offset Y (in pixels).
+     * @zh 阴影偏移Y（以像素为单位）。
+     */
+    get shadowOffsetY(): number {
+        return this._textStyle.shadowOffsetY;
+    }
+
+    set shadowOffsetY(value: number) {
+        if (this._textStyle.shadowOffsetY !== value) {
+            this._textStyle.shadowOffsetY = value;
+            this.markChanged();
+        }
+    }
+
+    /**
+     * @en Shadow blur (in pixels).
+     * @zh 阴影模糊度（以像素为单位）。
+     */
+    get shadowBlur(): number {
+        return this._textStyle.shadowBlur;
+    }
+
+    set shadowBlur(value: number) {
+        if (this._textStyle.shadowBlur !== value) {
+            this._textStyle.shadowBlur = value;
+            this.markChanged();
+        }
+    }
+
+    /**
+     * @en Shadow color, represented as a string.
+     * @zh 阴影颜色，以字符串表示。
+     */
+    get shadowColor(): string {
+        return this._textStyle.shadowColor;
+    }
+
+    set shadowColor(value: string) {
+        if (this._textStyle.shadowColor != value) {
+            this._textStyle.shadowColor = value;
+            this.markChanged();
+        }
+    }
+
+    /**
      * @en Margin information.
      * Data format: [top margin, right margin, bottom margin, left margin] (margins in pixels).
      * @zh 边距信息。
@@ -1759,6 +1819,7 @@ export class Text extends Sprite {
         let bottom = rectHeight - padding[2];
         let clipped = this._overflow == Text.HIDDEN || this._overflow == Text.SCROLL;
         let letterSpacing = this._textStyle.letterSpacing;
+        let shadow = this._textStyle.shadowOffsetX !== 0 || this._textStyle.shadowOffsetY !== 0;
 
         rectWidth -= (padding[3] + padding[1]);
         rectHeight -= (padding[0] + padding[2]);
@@ -1818,6 +1879,12 @@ export class Text extends Sprite {
                         gcmd.bold = cmd.style.bold;
                         gcmd.italic = cmd.style.italic;
                         gcmd.letterSpacing = letterSpacing;
+                        if (shadow) {
+                            gcmd.shadowOffsetX = this._textStyle.shadowOffsetX;
+                            gcmd.shadowOffsetY = this._textStyle.shadowOffsetY;
+                            gcmd.shadowColor = this._textStyle.shadowColor;
+                            gcmd.shadowBlur = this._textStyle.shadowBlur;
+                        }
                         gcmd.singleCharRender = this._singleCharRender;
                         gcmd._preMeasuredWidth = cmd.width;
                         graphics.addCmd(gcmd);

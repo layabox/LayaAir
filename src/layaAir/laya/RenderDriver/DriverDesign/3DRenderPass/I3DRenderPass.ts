@@ -105,7 +105,7 @@ export interface IRenderContext3D {
     sceneModuleData: ISceneNodeData;
     cameraModuleData: ICameraNodeData;
     cameraData: ShaderData;
-    sceneUpdataMask: number;
+    sceneUpdateMask: number;
     cameraUpdateMask: number;
     pipelineMode: PipelineMode;
     invertY: boolean;

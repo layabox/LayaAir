@@ -16,6 +16,7 @@ import { IRenderGeometryElement } from "../../../../RenderDriver/DriverDesign/Re
 import { IRender } from "../../IWebSpine";
 import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Vector2 } from "../../../../maths/Vector2";
+import { StandardSpineRenderer } from "./SpineRendererTypes";
 
 enum ERenderProxyType {
     RenderNormal,
@@ -80,6 +81,9 @@ export abstract class BaseOptimizeRender implements ISpineRender {
     bakeData: TSpineBakeData;
  
     private _transform: Vector2 = new Vector2();
+
+    /** @internal */
+    _enableCache: boolean = false;
 
     /** 
      * @en Current render mode.
@@ -151,8 +155,8 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         let scolor = this._skeleton.color;
         this.spineColor.setValue(scolor.r, scolor.g, scolor.b, scolor.a);
         
-        this._skinAttach = this._optimize.skinAttachArray[this._skinIndex];
-        this.updater.skinAttach = this._skinAttach;
+        // this._skinAttach = this._optimize.skinAttachArray[this._skinIndex];
+        // this.updater.skinAttach = this._skinAttach;
 
         this.initRenderProxies();
         this._updateSkinShaderDefines();
@@ -214,10 +218,18 @@ export abstract class BaseOptimizeRender implements ISpineRender {
     
     update(delta: number): void {
         this._state.update(delta);
+        this.currentTime = this.trackEntry.getAnimationTime();
+        let cacheFrameIndex = Math.floor(this.currentTime / SpineConst.SPINE_STEP);
+        
         if (
-            this._mode !== ESpineRenderMode.Normal &&
-            (this._mode == ESpineRenderMode.Bake || this._currentAnimator.isCache)
+            (
+                !this._enableCache
+                || !this.updater.currentData.renderCache[cacheFrameIndex]
+            )
+            && this._mode !== ESpineRenderMode.Bake
         ) {
+            this._state.apply(this._skeleton);
+        } else {
             let entry = this.trackEntry;
             let animationStart = entry.animationStart, animationEnd = entry.animationEnd;
             let duration = animationEnd - animationStart;
@@ -240,10 +252,49 @@ export abstract class BaseOptimizeRender implements ISpineRender {
                 entry.nextTrackLast = entry.trackTime;
             }
 
-        } else {
-            this._state.apply(this._skeleton);
+            if (this._currentAnimator.hasEvent) {
+                this._updateCacheEvent(delta);
+            }
         }
-        this.currentTime = this.trackEntry.getAnimationTime();
+
+        this.updater.cacheFrameIndex = cacheFrameIndex;
+    }
+
+    _updateCacheEvent(delta: number) {
+        let animator = this._currentAnimator
+        let f = delta / SpineConst.SPINE_STEP;
+        let currFrame = Math.round(f);
+        let curentTrack: spine.TrackEntry = this.trackEntry;
+        //@ts-ignore
+        let lastEventFrame = curentTrack.lastEventFrame;
+        if (lastEventFrame == currFrame) {
+            return;
+        }
+        if (lastEventFrame > currFrame || lastEventFrame == undefined) {
+            lastEventFrame = -1;
+        }
+
+        if (currFrame - lastEventFrame <= 1) {
+            let events = animator.eventsFrames[currFrame];
+            if (events) {
+                for (let i = 0, n = events.length; i < n; i++) {
+                    this.dispatchEvent(null, "event", events[i]);//TODO enty
+                }
+            }
+        }
+        else {
+            for (let i = lastEventFrame + 1; i <= currFrame; i++) {
+                let events = animator.eventsFrames[i];
+                if (events) {
+                    for (let j = 0, m = events.length; j < m; j++) {
+                        this.dispatchEvent(null, "event", events[j]);//TODO enty
+                    }
+                }
+            }
+        }
+
+        //@ts-ignore
+        curentTrack.lastEventFrame = currFrame;
     }
 
     /**
@@ -254,8 +305,10 @@ export abstract class BaseOptimizeRender implements ISpineRender {
      */
     render(time: number, physicsUpdate: number): void {
         this._skeleton.update && this._skeleton.update(time);
-
-        if ( this._mode == ESpineRenderMode.Normal || (!this._currentAnimator.isCache && this._mode !== ESpineRenderMode.Bake)) {
+        if ((!this._enableCache
+            || !this.updater.currentData.renderCache[this.updater.cacheFrameIndex])
+            && this._mode !== ESpineRenderMode.Bake
+        ) {
             this._skeleton.updateWorldTransform(physicsUpdate);
         }
 
@@ -498,6 +551,12 @@ export abstract class BaseOptimizeRender implements ISpineRender {
                         this.renderProxy = this.renderProxyMap.get(ERenderProxyType.RenderNormal);
                         break;
                 }
+
+                if (this._enableCache) {
+                    if (!currentAnimator.isCache) {
+                        this._optimize.cacheBone();
+                    }
+                }
             }
         } else {
             this.renderProxy = this.renderProxyMap.get(ERenderProxyType.RenderNormal);
@@ -598,6 +657,30 @@ export abstract class BaseOptimizeRender implements ISpineRender {
 
     complete(): void {
         this.updater.currentFrameIndex = -1;
+    }
+
+    enableCache(): void {
+        if (this.renderProxyMap) {
+            const renderNormal = this.renderProxyMap.get(ERenderProxyType.RenderNormal) as StandardSpineRenderer;
+            
+            if (renderNormal) {
+                renderNormal.normalUpdater.autoCacheEnabled = true;
+            }
+        }
+        this._enableCache = true;
+        // this.play(this._curAnimationName);
+    }
+
+    disableCache(): void {
+        if (this.renderProxyMap) {
+            const renderNormal = this.renderProxyMap.get(ERenderProxyType.RenderNormal) as StandardSpineRenderer;
+            
+            if (renderNormal) {
+                renderNormal.normalUpdater.autoCacheEnabled = false;
+            }
+        }
+        this._enableCache = false;
+        // this.play(this._curAnimationName);
     }
     
 }

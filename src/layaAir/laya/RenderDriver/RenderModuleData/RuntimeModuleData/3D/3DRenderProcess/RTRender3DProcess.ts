@@ -26,15 +26,16 @@ const shadowParams = new Vector4();
 export class RTRender3DProcess implements IRender3DProcess {
     private _nativeObj: any;
 
-    private renderpass: RTForwardAddRP = new RTForwardAddRP();
+    private _renderPass: RTForwardAddRP = new RTForwardAddRP();
 
     protected _defaultDepthTex: RenderTexture;
     protected _defaultShadowMap: RenderTexture;
 
     constructor() {
-        this._nativeObj = new (window as any).conchRT3DRenderPass();
+        this._nativeObj = new (window as any).conchRT3DRenderProcess();
         this._defaultDepthTex = RenderTexture.createFromPool(1, 1, RenderTargetFormat.DEPTH_32, RenderTargetFormat.None, false, 1);
         this._defaultShadowMap = ShadowUtils.getTemporaryShadowTexture(1, 1, ShadowMapFormat.bit16);
+        this._nativeObj.setDefaultShadowMap((this._defaultShadowMap._renderTarget as any)._nativeObj);
         let shadowMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Shadow");
         shadowMap.setDefaultTextureData(ShadowCasterPass.SHADOW_MAP, this._defaultShadowMap);
         shadowMap.setDefaultTextureData(ShadowCasterPass.SHADOW_SPOTMAP, this._defaultShadowMap);
@@ -49,11 +50,11 @@ export class RTRender3DProcess implements IRender3DProcess {
         this._nativeObj.renderManager = value._nativeObj;
     }
     destroy(): void {
-        this.renderpass = null;
+        this._renderPass = null;
     }
 
     initRenderpass(camera: Camera, context: IRenderContext3D) {
-        let renderpass = this.renderpass.mainRenderpass;
+        let renderpass = this._renderPass.mainRenderpass;
         let renderRT = camera._getRenderTexture();
         // clear
         let clearConst = 0;
@@ -115,8 +116,8 @@ export class RTRender3DProcess implements IRender3DProcess {
         renderpass.setBeforeSkyboxCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeSkyBox]);
         renderpass.setBeforeForwardCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeForwardOpaque]);
         renderpass.setBeforeTransparentCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeTransparent]);
-        this.renderpass.setBeforeImageEffect(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeImageEffect]);
-        this.renderpass.setAfterEventCmd(camera._cameraEventCommandBuffer[CameraEventFlags.AfterEveryThing]);
+        this._renderPass.setBeforeImageEffect(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeImageEffect]);
+        this._renderPass.setAfterEventCmd(camera._cameraEventCommandBuffer[CameraEventFlags.AfterEveryThing]);
 
 
 
@@ -131,9 +132,9 @@ export class RTRender3DProcess implements IRender3DProcess {
         renderpass.pipelineMode = RenderContext3D._instance.configPipeLineMode;
 
         let enableShadow = Scene3D._updateMark % camera.scene._ShadowMapupdateFrequency == 0 && Stat.enableShadow;
-        this.renderpass.shadowCastPass = enableShadow;
-        (window as any).conchRT3DRenderPass._addPreDrawUniformMap("Scene3D", (context as any)._nativeObj);
-        (window as any).conchRT3DRenderPass._addPreDrawUniformMap("Global", (context as any)._nativeObj);
+        this._renderPass.shadowCastPass = enableShadow;
+        (window as any).conchRT3DRenderProcess._addPreDrawUniformMap("Scene3D", (context as any)._nativeObj);
+        (window as any).conchRT3DRenderProcess._addPreDrawUniformMap("Global", (context as any)._nativeObj);
         context.preDrawUniformMaps = context.preDrawUniformMaps;
         if (enableShadow) {
             // direction light shadow
@@ -141,25 +142,25 @@ export class RTRender3DProcess implements IRender3DProcess {
             let needDirectionShadow = mainDirectionLight && mainDirectionLight.shadowMode != ShadowMode.None;
 
 
-            this.renderpass.enableDirectLightShadow = needDirectionShadow;
+            this._renderPass.enableDirectLightShadow = needDirectionShadow;
             if (needDirectionShadow) {
-                this.renderpass.directLightShadowPass.setRPData(<RTDirectLight>mainDirectionLight._dataModule, <RTCameraNodeData>camera._renderDataModule, context);
-                this.renderpass.directLightShadowPass.setCameraCullInfo(this._render3DManager);
+                this._renderPass.dirShadowRenderPass.setRPData(<RTDirectLight>mainDirectionLight._dataModule, <RTCameraNodeData>camera._renderDataModule, context);
+                this._renderPass.dirShadowRenderPass.setCameraCullInfo(this._render3DManager);
             }
 
             // spot light shadow
             let mainSpotLight = camera.scene._mainSpotLight;
             let needSpotShadow = mainSpotLight && mainSpotLight.shadowMode != ShadowMode.None;
-            this.renderpass.enableSpotLightShadowPass = needSpotShadow;
+            this._renderPass.enableSpotLightShadowPass = needSpotShadow;
             if (needSpotShadow) {
-                this.renderpass.spotLightShadowPass.setRPData(<RTSpotLight>mainSpotLight._dataModule, context);
-                this.renderpass.spotLightShadowPass.setCameraCullInfo(this.render3DManager);
+                this._renderPass.spotShadowRenderPass.setRPData(<RTSpotLight>mainSpotLight._dataModule, context);
+                this._renderPass.spotShadowRenderPass.setCameraCullInfo(this.render3DManager);
             }
             if (needDirectionShadow || needSpotShadow) {
-                (window as any).conchRT3DRenderPass._addPreDrawUniformMap("Shadow", (context as any)._nativeObj);
+                (window as any).conchRT3DRenderProcess._addPreDrawUniformMap("Shadow", (context as any)._nativeObj);
             }
         } else {
-            (window as any).conchRT3DRenderPass._removePreDrawUniformMap("Shadow", (context as any)._nativeObj);
+            (window as any).conchRT3DRenderProcess._removePreDrawUniformMap("Shadow", (context as any)._nativeObj);
         }
         context.preDrawUniformMaps = context.preDrawUniformMaps;
         //let needBlitOpaque = camera.opaquePass;
@@ -173,21 +174,21 @@ export class RTRender3DProcess implements IRender3DProcess {
 
 
         if (Stat.enablePostprocess && camera.postProcess && camera.postProcess.enable && camera.postProcess.effects.length > 0) {
-            this.renderpass.enablePostProcess = camera.postProcess.enable;
+            this._renderPass.enablePostProcess = camera.postProcess.enable;
             camera.postProcess._render(camera);
-            this.renderpass.postProcess = camera.postProcess._context.command;
+            this._renderPass.postProcess = camera.postProcess._context.command;
         } else {
-            this.renderpass.enablePostProcess = false;
+            this._renderPass.enablePostProcess = false;
         }
 
-        this.renderpass.finalize.clear();
-        if (!this.renderpass.enablePostProcess && needInternalRT && camera._offScreenRenderTexture) {
+        this._renderPass.finalize.clear();
+        if (!this._renderPass.enablePostProcess && needInternalRT && camera._offScreenRenderTexture) {
             let dst = camera._offScreenRenderTexture;
 
             offsetScale.setValue(camera.normalizedViewport.x, 1.0 - camera.normalizedViewport.y, renderRT.width / dst.width, -renderRT.height / dst.height);
-            this.renderpass.finalize.blitScreenQuad(renderRT, camera._offScreenRenderTexture, offsetScale);
+            this._renderPass.finalize.blitScreenQuad(renderRT, camera._offScreenRenderTexture, offsetScale);
         }
-        this.renderpass.finalize = this.renderpass.finalize;//update
+        this._renderPass.finalize = this._renderPass.finalize;//update
 
     }
 
@@ -199,23 +200,23 @@ export class RTRender3DProcess implements IRender3DProcess {
         }
         if ((depthMode & DepthTextureMode.Depth) != 0) {
             Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat);
-            this.renderpass.mainRenderpass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget;
+            this._renderPass.mainRenderpass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget;
             Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, camera);
         }
         if ((depthMode & DepthTextureMode.DepthNormals) != 0) {
             Camera.depthPass.getTarget(camera, DepthTextureMode.DepthNormals, camera.depthTextureFormat);
-            this.renderpass.mainRenderpass.depthNormalTarget = (<RenderTexture>camera.depthNormalTexture)._renderTarget;
+            this._renderPass.mainRenderpass.depthNormalTarget = (<RenderTexture>camera.depthNormalTexture)._renderTarget;
             camera._shaderValues.setTexture(DepthPass.DEPTHNORMALSTEXTURE, camera.depthNormalTexture);
             Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.DepthNormals, camera);
         }
-        this.renderpass.mainRenderpass.depthTextureMode = depthMode;
+        this._renderPass.mainRenderpass.depthTextureMode = depthMode;
     }
 
     fowardRender(context: IRenderContext3D, camera: Camera): void {
         Camera.depthPass.cleanUp(camera);
         this.renderDepth(camera);
         this.initRenderpass(camera, context);
-        this.renderFowarAddCameraPass(context, this.renderpass);
+        this.renderFowarAddCameraPass(context, this._renderPass);
     }
 
     renderFowarAddCameraPass(context: IRenderContext3D, renderpass: RTForwardAddRP): void {

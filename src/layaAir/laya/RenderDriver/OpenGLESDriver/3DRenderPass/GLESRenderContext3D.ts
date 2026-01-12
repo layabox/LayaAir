@@ -53,11 +53,11 @@ export class GLESRenderContext3D implements IRenderContext3D {
         this._cameraData = value;
         this._nativeObj.setCameraData(value ? value._nativeObj : null);
     }
-    public get sceneUpdataMask(): number {
-        return this._nativeObj._sceneUpdataMask;
+    public get sceneUpdateMask(): number {
+        return this._nativeObj._sceneUpdateMask;
     }
-    public set sceneUpdataMask(value: number) {
-        this._nativeObj._sceneUpdataMask = value;
+    public set sceneUpdateMask(value: number) {
+        this._nativeObj._sceneUpdateMask = value;
     }
     public get cameraUpdateMask(): number {
         return this._nativeObj._cameraUpdateMask;

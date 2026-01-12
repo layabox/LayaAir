@@ -5,6 +5,7 @@ import { ISkeletonOptimise } from "../../../interface/ISpineParse";
 import { ESpineRenderType } from "../../../SpineSkeleton";
 import { ESpineRenderMode, SpineConst, TSpineBakeData } from "../../../SpineConst";
 import { AnimationRender, SkinAniRenderData } from "./AnimationRender";
+import { SpineNormalRenderUpdater } from "./SpineNormalRenderUpdater";
 
 /**
  * @en SketonOptimise class used for skeleton optimization.
@@ -125,7 +126,6 @@ export class SkeletonOptimise implements ISkeletonOptimise {
         let trackEntry = this._state.setAnimation(0, animationName, true);
         // 设置起始和结束时间
         trackEntry.animationStart = 0;
-        //trackEntry.animationEnd = end;
         //@ts-ignore
         let animationDuration = trackEntry.animation.duration;
         //this._duration = animationDuration;
@@ -242,42 +242,85 @@ export class SkeletonOptimise implements ISkeletonOptimise {
      * @zh 缓存骨骼数据以进行优化。
      */
     cacheBone() {
-        if (!SpineConst.cacheSwitch) {
-            let boneS = this._bones.boneIdIndexPairs;
+        let boneS = this._bones.boneIdIndexPairs;
 
-            // 保存并设置所有使用骨骼的 skinRequired = true
-            let boneIndexSet = new Set<number>();
-            let originalSkinRequiredMap = new Map<number, boolean>();
+        // 保存并设置所有使用骨骼的 skinRequired = true
+        let boneIndexSet = new Set<number>();
+        let originalSkinRequiredMap = new Map<number, boolean>();
 
-            for (let i = 1, n = boneS.length; i < n; i += 2) {
-                let boneIndex = boneS[i];
-                boneIndexSet.add(boneIndex);
-                let bone = this.skeleton.bones[boneIndex];
-                if (bone && bone.data) {
-                    originalSkinRequiredMap.set(boneIndex, bone.data.skinRequired);
-                    bone.data.skinRequired = false;
-                }
+        for (let i = 1, n = boneS.length; i < n; i += 2) {
+            let boneIndex = boneS[i];
+            boneIndexSet.add(boneIndex);
+            let bone = this.skeleton.bones[boneIndex];
+            if (bone && bone.data) {
+                originalSkinRequiredMap.set(boneIndex, bone.data.skinRequired);
+                bone.data.skinRequired = false;
             }
-            
-            this.skeleton.updateCache();
+        }
+        
+        this.skeleton.updateCache();
 
-            // 执行 cache 操作
+        // 执行 cache 操作
+        for (let i = 0, n = this.animators.length; i < n; i++) {
+            let animator = this.animators[i];
+            if (animator.boneFrames.length == 0 && !animator.hasClip) {
+                this._initBoneFrame(animator);
+            }
+        }
+        
+        // 还原原始设置
+        originalSkinRequiredMap.forEach((originalValue, boneIndex) => {
+            let bone = this.skeleton.bones[boneIndex];
+            if (bone && bone.data) {
+                bone.data.skinRequired = originalValue;
+            }
+        });
+    }
+
+    /**
+     * @en Cache normal mode render data (vertices, indices, submesh, materials).
+     * @zh 缓存 Normal 模式的渲染数据（顶点、索引、submesh、材质）。
+     */
+    cacheRender(): void {
+        if (!SpineConst.cacheSwitch) {
             for (let i = 0, n = this.animators.length; i < n; i++) {
                 let animator = this.animators[i];
-                if (animator.boneFrames.length == 0 && !animator.hasClip) {
-                    this._initBoneFrame(animator);
+
+                if (animator.hasRenderCache) continue;
+
+                for (let skinData of animator.skinDataArray) {
+                    this._cacheRenderForSkin(animator, skinData);
                 }
+
+                animator.hasRenderCache = true;
             }
-            
-            // 还原原始设置
-            originalSkinRequiredMap.forEach((originalValue, boneIndex) => {
-                let bone = this.skeleton.bones[boneIndex];
-                if (bone && bone.data) {
-                    bone.data.skinRequired = originalValue;
-                }
-            });
-           
         }
+    }
+
+    private _cacheRenderForSkin(animator: AnimationRender, skinData: SkinAniRenderData): void {
+        // 播放动画并计算总帧数
+        let duration = this._play(animator.name);
+        let totalFrame = Math.round(duration / SpineConst.SPINE_STEP) || 1;
+
+        let tempUpdater = new SpineNormalRenderUpdater();
+
+        // 初始化缓存数组
+        skinData.renderCache = [];
+
+        // 逐帧生成并缓存渲染数据
+        for (let frameIndex = 0; frameIndex <= totalFrame; frameIndex++) {
+            this._updateState(frameIndex == 0 ? 0 : SpineConst.SPINE_STEP);
+            this.skeleton.updateWorldTransform(2);  // spine.Physics.update
+
+            tempUpdater.renderUpdate(frameIndex * SpineConst.SPINE_STEP, this.skeleton, null, -1, -1, 0, 0);
+
+            // 导出缓存数据
+            let frameCache = tempUpdater.exportToCache();
+
+            skinData.renderCache[frameIndex] = frameCache;
+        }
+
+        skinData.hasRenderCache = true;
     }
 
     destroy() {

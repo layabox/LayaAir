@@ -259,16 +259,13 @@ export abstract class VBCreator{
      * @returns 骨骼ID。
      */
     getBoneId(boneIndex: number): number {
-        // Check if already registered locally
         let id = this.localBoneIndexToId.get(boneIndex);
         if (id !== undefined) {
             return id;
         }
 
-        // Register in shared bone registry (will create new ID if needed)
         id = this.boneRegistry.getOrRegisterBoneId(boneIndex);
 
-        // Track locally in this VBCreator
         this.localBoneIndexToId.set(boneIndex, id);
         this.localBoneIdIndexPairs.push(id, boneIndex);
 
@@ -327,10 +324,8 @@ export abstract class VBCreator{
         target.vb = new Float32Array(this.vb);
         target.vbLength = this.vbLength;
 
-        // Share the same bone registry
         target.boneRegistry = this.boneRegistry;
 
-        // Clone local bone tracking
         target.localBoneIndexToId = new Map(this.localBoneIndexToId);
         target.localBoneIdIndexPairs = this.localBoneIdIndexPairs.slice();
 

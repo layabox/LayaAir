@@ -53,6 +53,12 @@ export class SpineConst {
     static VERTEX_TWOCOLOR: number = 12;
 
     /**
+     * @en Initial capacity of the vertex array.
+     * @zh 顶点数组的初始容量。
+     */
+    static VERTEX_INITIAL_CAPACITY: number = 128;
+
+    /**
      * @en The number of vertices for normal rendering.
      * @zh 普通渲染中顶点的数量。
      */

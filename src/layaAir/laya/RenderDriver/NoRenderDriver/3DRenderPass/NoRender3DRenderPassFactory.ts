@@ -116,7 +116,7 @@ export class NoRenderRenderContext3D implements IRenderContext3D {
     sceneModuleData: ISceneNodeData;
     cameraModuleData: ICameraNodeData;
     cameraData: ShaderData;
-    sceneUpdataMask: number;
+    sceneUpdateMask: number;
     cameraUpdateMask: number;
     pipelineMode: string;
     invertY: boolean;

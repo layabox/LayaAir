@@ -362,7 +362,9 @@ export class GLESShaderData extends ShaderData {
         return this._textureData[index];
     }
 
-
+    update(name: string) {
+        this._nativeObj.update(name);
+    }
     cloneTo(destObject: GLESShaderData): void {
         this._nativeObj.cloneTo(destObject._nativeObj);
         var dest: GLESShaderData = <GLESShaderData>destObject;

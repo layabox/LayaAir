@@ -232,6 +232,54 @@ export class Label extends UIComponent {
     }
 
     /**
+     * @en Shadow offset X (in pixels).
+     * @zh 阴影偏移X（以像素为单位）。
+     */
+    get shadowOffsetX(): number {
+        return this._tf.shadowOffsetX;
+    }
+
+    set shadowOffsetX(value: number) {
+        this._tf.shadowOffsetX = value;
+    }
+
+    /**
+     * @en Shadow offset Y (in pixels).
+     * @zh 阴影偏移Y（以像素为单位）。
+     */
+    get shadowOffsetY(): number {
+        return this._tf.shadowOffsetY;
+    }
+
+    set shadowOffsetY(value: number) {
+        this._tf.shadowOffsetY = value;
+    }
+
+    /**
+     * @en Shadow blur (in pixels).
+     * @zh 阴影模糊度（以像素为单位）。
+     */
+    get shadowBlur(): number {
+        return this._tf.shadowBlur;
+    }
+
+    set shadowBlur(value: number) {
+        this._tf.shadowBlur = value;
+    }
+
+    /**
+     * @en Shadow color, represented as a string.
+     * @zh 阴影颜色，以字符串表示。
+     */
+    get shadowColor(): string {
+        return this._tf.shadowColor;
+    }
+
+    set shadowColor(value: string) {
+        this._tf.shadowColor = value;
+    }
+
+    /**
      * @en Supporting html syntax.
      * @zh 是否富文本，支持html语法
      */

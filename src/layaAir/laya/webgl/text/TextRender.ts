@@ -48,6 +48,7 @@ export class TextRender {
     draw(text: string, x: number, y: number,
         font: string, fontSize: number, bold: boolean, italic: boolean,
         color: string, stroke: number, strokeColor: string, letterSpacing: number,
+        shadowOffsetX: number, shadowOffsetY: number, shadowBlur: number, shadowColor: string,
         charMode: boolean, preMeasuredWidth: number, renderInfo?: ITextRenderInfo[]): ITextRenderInfo[] {
 
         let hasEmoji = emojiTest.test(text);
@@ -64,11 +65,14 @@ export class TextRender {
         let colorNum = ColorUtils.create(color).numColor;
         if (letterSpacing > 0) //有字间距时，强制字符模式
             charMode = true;
-        let tint = stroke > 0 || !charMode && hasEmoji; //染色的条件： 有描边 或 非字符模式下且包含emoji
+        let shadow = shadowOffsetX !== 0 || shadowOffsetY !== 0;
+        let tint = stroke > 0 || !charMode && hasEmoji || shadow; //染色的条件： 有描边 或 非字符模式下且包含emoji
         if (tint)
             cacheKey += colorNum + "_";
         if (stroke > 0)
             cacheKey += ColorUtils.create(strokeColor).numColor + "_" + stroke + "_";
+        if (shadow)
+            cacheKey += "shd_" + shadowOffsetX + "_" + shadowOffsetY + "_" + shadowBlur + "_" + ColorUtils.create(shadowColor).numColor + "_";
 
         let ctx = this.ctx;
         ctx.font = (bold ? "bold " : "") + fontSize + "px " + font;
@@ -81,8 +85,16 @@ export class TextRender {
             ctx.strokeStyle = strokeColor;
             ctx.lineWidth = stroke;
         }
-        else {
-            ctx.lineWidth = 0;
+
+        if (shadow) {
+            ctx.shadowOffsetX = shadowOffsetX;
+            ctx.shadowOffsetY = shadowOffsetY;
+            ctx.shadowBlur = shadowBlur;
+            ctx.shadowColor = shadowColor;
+        } else {
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            ctx.shadowBlur = 0;
         }
 
         if (!renderInfo)
@@ -151,12 +163,21 @@ export class TextRender {
     }
 
     private drawOffscreen(ctx: CanvasRenderingContext2D, text: string, width: number, height: number, lineWidth: number, charMode: boolean): ITextRenderInfo {
-        let margin = height / 3 | 0 + lineWidth;
-        let rectX = ((margin - fontSizeOffX - lineWidth) * fontScale | 0) - blockGap;
-        let rectY = ((margin - fontSizeOffY - lineWidth) * fontScale | 0) - blockGap;
+        let offsetLeft = 0, offsetTop = 0, offsetRight = 0, offsetBottom = 0;
+        if (ctx.shadowOffsetX > 0)
+            offsetRight = ctx.shadowOffsetX;
+        else if (ctx.shadowOffsetX < 0)
+            offsetLeft = -ctx.shadowOffsetX;
+        if (ctx.shadowOffsetY > 0)
+            offsetBottom = ctx.shadowOffsetY;
+        else if (ctx.shadowOffsetY < 0)
+            offsetTop = -ctx.shadowOffsetY;
+        let margin = height / 3 | 0 + lineWidth + Math.max(offsetLeft, offsetTop);
+        let rectX = ((margin - fontSizeOffX - lineWidth - offsetLeft) * fontScale | 0) - blockGap;
+        let rectY = ((margin - fontSizeOffY - lineWidth - offsetTop) * fontScale | 0) - blockGap;
         let correctionW = height * 0.08; //某些字体（例如华文行楷，华文隶书，自带斜体效果，测算的宽度可能不够，这里补一些，0.08是经验值
-        let rectW = Math.ceil((width + fontSizeOffX + lineWidth * 2 + correctionW) * fontScale) + blockGap * 2;
-        let rectH = Math.ceil((fontSizeH + lineWidth * 2) * fontScale) + blockGap * 2;
+        let rectW = Math.ceil((width + fontSizeOffX + lineWidth * 2 + offsetLeft + offsetRight + correctionW) * fontScale) + blockGap * 2;
+        let rectH = Math.ceil((fontSizeH + lineWidth * 2 + offsetTop + offsetBottom) * fontScale) + blockGap * 2;
 
         let needCanvW = Math.min(rectW + Math.ceil(margin * 2 * fontScale), TextRenderConfig.maxCanvasWidth);
         let needCanvH = Math.min(rectH + Math.ceil(margin * 2 * fontScale), TextRenderConfig.maxCanvasWidth);
@@ -170,10 +191,9 @@ export class TextRender {
         let imgdt = ctx.getImageData(rectX, rectY, rectW, rectH);
 
         let ri: ITextRenderInfo = {
-            x: - (fontSizeOffX + lineWidth),
+            x: - fontSizeOffX - lineWidth - offsetLeft,
             //这里不应该包含fontSizeOffY，否则文字绘制会向上突出
-            //y: - (fontSizeOffY + lineWidth),
-            y: - lineWidth - emojiAdjustY,
+            y: - emojiAdjustY - lineWidth - offsetTop,
             w: (imgdt.width - blockGap * 2) / fontScale,
             h: (imgdt.height - blockGap * 2) / fontScale,
             advance: width,
@@ -205,6 +225,10 @@ export class TextRender {
         let fillStyle = ctx.fillStyle;
         let strokeStyle = ctx.strokeStyle;
         let lineWidth = ctx.lineWidth;
+        let shadowOffsetX = ctx.shadowOffsetX;
+        let shadowOffsetY = ctx.shadowOffsetY;
+        let shadowBlur = ctx.shadowBlur;
+        let shadowColor = ctx.shadowColor;
 
         this.canvas.width = newWidth;
         this.canvas.height = newHeight;
@@ -216,6 +240,10 @@ export class TextRender {
         ctx.fillStyle = fillStyle;
         ctx.strokeStyle = strokeStyle;
         ctx.lineWidth = lineWidth;
+        ctx.shadowOffsetX = shadowOffsetX;
+        ctx.shadowOffsetY = shadowOffsetY;
+        ctx.shadowBlur = shadowBlur;
+        ctx.shadowColor = shadowColor;
     }
 
     private createIsoTexture(w: number, h: number): Texture2D {

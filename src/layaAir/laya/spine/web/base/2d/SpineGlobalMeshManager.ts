@@ -14,23 +14,18 @@ import { IBufferState } from "../../../../RenderDriver/DriverDesign/RenderDevice
  */
 export class SpineGlobalMeshManager {
     private static _instance: SpineGlobalMeshManager;
-
-    private _buffers: SpineWholeBuffer[] = [];
-    private static readonly MAX_VERTICES_PER_BUFFER = 65535;
     private static readonly INITIAL_VERTEX_CAPACITY = 1024 * SpineConst.VERTEX_TWOCOLOR; // In floats
     private static readonly INITIAL_INDEX_CAPACITY = 1024 * 3;
-
+    
     static get instance(): SpineGlobalMeshManager {
         if (!this._instance) {
             this._instance = new SpineGlobalMeshManager();
         }
         return this._instance;
     }
+    
+    private _buffers: SpineWholeBuffer[] = [];
 
-    /**
-     * @en Output fields to avoid GC
-     * @zh 输出字段以避免 GC
-     */
     outBufferIndex: number;
     outView: SpineBufferView;
     outBufferState: IBufferState;
@@ -47,11 +42,7 @@ export class SpineGlobalMeshManager {
      */
     assignViewToBuffer(view: SpineBufferView, vertexCount: number): void {
         let targetBuffer = this._findOrCreateBuffer(vertexCount);
-
-        // Add view to buffer (automatically updates currentVertexCount)
         targetBuffer.addDataView(view);
-
-        // Set output fields
         this.outBufferState = targetBuffer.bufferState;
         this.outBufferIndex = this._buffers.indexOf(targetBuffer);
     }
@@ -64,14 +55,12 @@ export class SpineGlobalMeshManager {
      * @param vertexCount 需要的顶点数
      */
     private _findOrCreateBuffer(vertexCount: number): SpineWholeBuffer {
-        // Find existing buffer with space
         for (let buffer of this._buffers) {
             if (buffer.canFit(vertexCount)) {
                 return buffer;
             }
         }
 
-        // Create new buffer
         let newBuffer = this._createBuffer();
         this._buffers.push(newBuffer);
         return newBuffer;
@@ -88,7 +77,6 @@ export class SpineGlobalMeshManager {
      * @param indexCount 需要的索引数
      */
     allocateView(vertexCount: number, indexCount: number): void {
-        // Find a buffer with available space
         let targetBuffer: SpineWholeBuffer = null;
         let bufferIndex = -1;
 
@@ -101,19 +89,16 @@ export class SpineGlobalMeshManager {
             }
         }
 
-        // No suitable buffer found, create a new one
         if (!targetBuffer) {
             targetBuffer = this._createBuffer();
             bufferIndex = this._buffers.length;
             this._buffers.push(targetBuffer);
         }
 
-        // Calculate capacities
         let vertexFloats = vertexCount * SpineConst.VERTEX_TWOCOLOR;
         let allocVertexFloats = Math.max(SpineGlobalMeshManager.INITIAL_VERTEX_CAPACITY, vertexFloats);
         let allocIndexCount = Math.max(SpineGlobalMeshManager.INITIAL_INDEX_CAPACITY, indexCount);
 
-        // Create view
         this.outView = new SpineBufferView(allocVertexFloats, allocIndexCount);
         targetBuffer.addDataView(this.outView);
 

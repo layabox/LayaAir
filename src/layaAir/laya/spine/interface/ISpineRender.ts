@@ -206,4 +206,16 @@ export interface ISpineRender {
      * @zh 销毁渲染器
      */
     destroy(): void;
+
+    /**
+     * @zh 启用缓存。启用后，Spine动画的渲染数据会自动缓存，提高重复播放的性能。
+     * @en Enable cache. When enabled, the Spine animation's render data will be automatically cached, improving performance for repeated playback.
+     */
+    enableCache(): void;
+
+    /**
+     * @zh 禁用缓存。
+     * @en Disable cache.
+     */
+    disableCache(): void;
 }

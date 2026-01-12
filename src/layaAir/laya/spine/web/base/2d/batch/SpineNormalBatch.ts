@@ -163,7 +163,6 @@ export class SpineNormalBatch implements IBatch2DProvider {
         let elementArray = list.elements;
         let ctx = this._context;
 
-        // Initialize with first element
         let firstElement = elementArray[start];
         if (!ctx.setHead(firstElement)) {
             list.add(firstElement);
@@ -179,7 +178,6 @@ export class SpineNormalBatch implements IBatch2DProvider {
         let batchStart = start;
         let batchEnd = start;
 
-        // Get single view from first element (1:1 relationship)
         let view = ctx.getViewFromGeometry(firstElement);
         if (!view) {
             list.add(firstElement);
@@ -268,7 +266,6 @@ export class SpineNormalBatch implements IBatch2DProvider {
         let totalVertexFloats = 0;
         let totalIndices = 0;
 
-        // Calculate total size by collecting single view from each element (1:1 relationship)
         for (let i = batchStart; i <= batchEnd; i++) {
             let element = elementArray[i];
             let handle = (element.owner as WebRenderStruct2D).renderDataHandler as WebSpineRenderDataHandle;
@@ -283,7 +280,6 @@ export class SpineNormalBatch implements IBatch2DProvider {
 
         batchBuffer.wholeBuffer.resetCapacity(totalVertexFloats, totalIndices);
 
-        // Transfer single view from each element to the batch buffer
         for (let i = batchStart; i <= batchEnd; i++) {
             let element = elementArray[i];
             let handle = (element.owner as WebRenderStruct2D).renderDataHandler as WebSpineRenderDataHandle;
@@ -323,7 +319,6 @@ export class SpineNormalBatch implements IBatch2DProvider {
         let batchBuffer = this._batchBufferPool.pop();
 
         if (!batchBuffer) {
-            // Create new batch buffer with bufferState only (lower-level concept)
             let vertexBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
             vertexBuffer.vertexDeclaration = SpineShaderInit.SpineNormalVertexDeclaration;
 
@@ -332,7 +327,6 @@ export class SpineNormalBatch implements IBatch2DProvider {
             let wholeBuffer = new SpineWholeBuffer(vertexBuffer, indexBuffer);
             wholeBuffer.resetCapacity(4096 * SpineConst.VERTEX_TWOCOLOR, 4096 * 3);
 
-            // Create bufferState directly without Mesh2D
             let bufferState = LayaGL.renderDeviceFactory.createBufferState();
             bufferState.applyState([vertexBuffer], indexBuffer);
 
@@ -381,7 +375,6 @@ export class SpineNormalBatch implements IBatch2DProvider {
         this._batchBufferPool = [];
         this._activeBatchBuffers = [];
 
-        // Recycle merged elements before clearing
         SpineNormalBatch._pool.recover(this._merged);
     }
 }

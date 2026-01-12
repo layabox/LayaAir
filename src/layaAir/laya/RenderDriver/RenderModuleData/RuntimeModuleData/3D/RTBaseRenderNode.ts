@@ -220,10 +220,44 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this.baseGeometryBounds = this._defaultBaseGeometryBounds;
         this.renderelements = [];
     }
-    visibalRangeBit: number;
-    visibalMin: number;
-    visibalMax: number;
-    ismoved: Vector2 = new Vector2();//TODO Native
+
+    public get visibalRangeBit(): number {
+        return this._nativeObj.visibalRangeBit;
+    }
+
+    public set visibalRangeBit(value: number) {
+        this._nativeObj.visibalRangeBit = value;
+    }
+
+    public get visibalMin(): number {
+        return this._nativeObj.visibalMin;
+    }
+
+    public set visibalMin(value: number) {
+        this._nativeObj.visibalMin = value;
+    }
+
+    public get visibalMax(): number {
+        return this._nativeObj.visibalMax;
+    }
+
+    public set visibalMax(value: number) {
+        this._nativeObj.visibalMax = value;
+    }
+
+    public get ismoved(): Vector2 {
+        let value: any = this._nativeObj.ismoved;
+        this._ismoved.x = value.x;
+        this._ismoved.y = value.y;
+        return this._ismoved;
+    }
+
+    public set ismoved(value: Vector2) {
+        this._ismoved = value;
+        this._nativeObj.ismoved = value;
+    }
+
+    private _ismoved: Vector2 = new Vector2();
 
     private _worldParams: Vector4 = new Vector4();
     setNodeCustomData(dataSlot: ENodeCustomData, data: number): void {

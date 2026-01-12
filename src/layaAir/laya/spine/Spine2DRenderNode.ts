@@ -103,8 +103,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         super();
         this._renderElements = [];
         this._materials = [];
-        this._renderHandle.offset = this._renderOffset;
-        this._renderHandle.offset = this._renderOffset;
     }
 
     protected _isMaterialVaild(value: Material): boolean {
@@ -467,6 +465,35 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         }
     }
 
+    private _enableCache: boolean = false;
+
+    /**
+     * @zh 是否启用缓存。启用后，Spine动画的渲染数据会自动缓存，提高重复播放的性能。
+     * @en Whether to enable cache. When enabled, the Spine animation's render data will be automatically cached, improving performance for repeated playback.
+     */
+    public get enableCache(): boolean {
+        return this._enableCache;
+    }
+
+    public set enableCache(value: boolean) {
+        if (this._enableCache === value)
+            return;
+        this._enableCache = value;
+        
+        // 通过接口方法设置缓存
+        if (this._spineRender) {
+            if (value) {
+                this._spineRender.enableCache();
+            } else {
+                this._spineRender.disableCache();
+            }
+        }
+        
+        if (this._animationName) {
+            this.play(this._animationName, this._loop, true , this._playStart , this._playEnd, false, this._playAudio);
+        }
+    }
+
     private _doAutoAdjust() {
         if (!this._templet)
             return;
@@ -528,6 +555,11 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this._spineRender.init(templet);
         this._spineRender.mode = !SpineConst.normalRenderSwitch && this._useFastRender ? ESpineRenderMode.Optimize : ESpineRenderMode.Normal;
         
+        // 设置缓存状态
+        if (this._enableCache) {
+            this._spineRender.enableCache();
+        }
+        
         if (this._autoAdjust) {
             this._doAutoAdjust();
         }
@@ -542,6 +574,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
         this._renderOffset.x = this._offset.x + this._templet.offsetX;
         this._renderOffset.y = this._offset.y - this._templet.offsetY;
+        this._renderHandle.offset = this._renderOffset;
 
         let skinIndex = this._templet.getSkinIndexByName(this._skinName);
         if (skinIndex != -1)

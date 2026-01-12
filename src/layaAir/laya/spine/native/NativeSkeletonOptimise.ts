@@ -1,51 +1,38 @@
+import { Material } from "../../resource/Material";
+import { Texture2D } from "../../resource/Texture2D";
+import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 import { ISkeletonOptimise } from "../interface/ISpineParse";
+import { SpineShaderInit } from "../shader/SpineShaderInit";
+import { SpineTemplet } from "../SpineTemplet";
 
 /**
  * @en Native SkeletonOptimise wrapper class for accessing lightweight properties.
  * @zh Native SkeletonOptimise 封装类，用于访问轻量级属性。
  */
 export class NativeSkeletonOptimise implements ISkeletonOptimise {
-    private _nativeOptimise: any; // conchSkeletonOptimise from C++
+    private _nativeOptimise: any;
 
-    /**
-     * @en Skeleton data (lightweight reference, actual data managed by native).
-     * @zh 骨骼数据（轻量级引用，实际数据由 native 管理）。
-     */
-    data: any = null; // Native side manages the actual data
+    data: any = null;
 
-    /**
-     * @en Cached animation names retrieved once during initialization.
-     * @zh 初始化时一次性获取并缓存的动画名称数组。
-     */
     private _animationNames: string[] = [];
-
-    /**
-     * @en Cached skin names retrieved once during initialization.
-     * @zh 初始化时一次性获取并缓存的皮肤名称数组。
-     */
+ 
     private _skinNames: string[] = [];
 
-    /**
-     * @en Create a NativeSkeletonOptimise wrapper.
-     * @param nativeOptimise The native conchSkeletonOptimise instance.
-     * @zh 创建 NativeSkeletonOptimise 封装。
-     * @param nativeOptimise native conchSkeletonOptimise 实例。
-     */
-    constructor(nativeOptimise: any) {
-        if (!nativeOptimise) {
-            throw new Error("NativeSkeletonOptimise: nativeOptimise is required");
-        }
-        this._nativeOptimise = nativeOptimise;
+    private _materials: Material[] = [];
 
-        // Cache all animation and skin names once during initialization
-        if (this._nativeOptimise.getAllAnimationNames) {
-            this._animationNames = this._nativeOptimise.getAllAnimationNames() || [];
-        }
-        if (this._nativeOptimise.getAllSkinNames) {
-            this._skinNames = this._nativeOptimise.getAllSkinNames() || [];
-        }
+    _templet: SpineTemplet;
+
+    
+    constructor() {
+        //@ts-ignore
+        this._nativeOptimise = new conchSkeletonOptimise();
+        this._nativeOptimise.setMaterialTemplateInitializer(this.nativeCreateMaterialTemplet.bind(this));
     }
 
+    init() {
+        this._animationNames = this._nativeOptimise.getAllAnimationNames() || [];
+        this._skinNames = this._nativeOptimise.getAllSkinNames() || [];
+    }
     /**
      * @en Get animation count.
      * @returns Animation count.
@@ -176,14 +163,80 @@ export class NativeSkeletonOptimise implements ISkeletonOptimise {
     }
 
     /**
-     * @en Destroy the optimize instance.
-     * @zh 销毁优化实例。
+     * @en Initialize materials for textures and cache them for cleanup.
+     * @param textureUrls Array of texture URLs.
+     * @param textures Array of Texture2D objects.
+     * @zh 为纹理初始化材质并缓存以便清理。
+     * @param textureUrls 纹理 URL 数组。
+     * @param textures Texture2D 对象数组。
+     */
+    initMaterials(textureUrls: string[], textures: Texture2D[]): void {
+        if (textureUrls.length === 0 || textures.length === 0) {
+            return;
+        }
+
+        this._createMaterial(false, "", null);
+        this._createMaterial(true, "", null);
+
+        for (let i = 0 , n = textureUrls.length; i < n; i++) {
+            const textureUrl = textureUrls[i];
+            const texture = textures[i];
+            this._createMaterial(false, textureUrl, texture);
+            this._createMaterial(true, textureUrl, texture);
+        }
+    }
+
+    private nativeCreateMaterialTemplet(textureUrl: string, is3D: boolean) {
+        let texture = this._templet.getTexture(textureUrl);
+        this._createMaterial(is3D, textureUrl, texture);
+    }
+
+    private _createMaterial(is3D: boolean, textureUrl: string, texture: Texture2D | null): Material {
+        const material = new Material();
+        material.setShaderName(is3D ? "Spine3D" : "SpineStandard");
+        SpineShaderInit.initSpineMaterial(material);
+
+        if (texture) {
+            const shaderData = material.shaderData;
+            shaderData.setTexture(SpineShaderInit.SpineTexture, texture);
+
+            if (texture.gammaCorrection !== 1) {
+                shaderData.addDefine(ShaderDefines2D.GAMMATEXTURE);
+            }
+        }
+
+        material.lock = true;
+        this._materials.push(material);
+
+        this._nativeOptimise.setMaterialTemplate(
+            is3D,
+            textureUrl,
+            texture? texture._id : -1,
+            (material.shaderData as any)._nativeObj,
+            (material.shader.getSubShaderAt(0) as any).moduleData._nativeObj
+        );
+
+        return material;
+    }
+
+    /**
+     * @en Destroy the optimize instance and clean up all cached materials.
+     * @zh 销毁优化实例并清理所有缓存的材质。
      */
     destroy(): void {
+        for (let i = 0; i < this._materials.length; i++) {
+            const material = this._materials[i];
+            if (material) {
+                material.destroy();
+            }
+        }
+        this._materials.length = 0;
+
         if (this._nativeOptimise) {
             this._nativeOptimise.destroy();
             this._nativeOptimise = null;
         }
+
         this.data = null;
         this._animationNames = [];
         this._skinNames = [];
