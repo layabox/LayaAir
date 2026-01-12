@@ -16,6 +16,9 @@ import { Vector2Keyframe } from "../../maths/Vector2Keyframe";
 import { Vector3Keyframe } from "../../maths/Vector3Keyframe";
 import { Vector4Keyframe } from "../../maths/Vector4Keyframe";
 import { BooleanKeyframe } from "../../maths/BooleanKeyframe";
+import { PathPointKeyframe } from "../../maths/PathPointKeyframe";
+import { CurvePath } from "../../tween/CurvePath";
+import { PathPoint } from "../../tween/PathPoint";
 
 /**
  * @internal
@@ -87,7 +90,26 @@ export class AnimationClipParser04 {
 		AnimationClipParser04._reader = null;
 		AnimationClipParser04._animationClip = null;
 	}
-
+	static createPathPoints(arr: any[]): PathPoint[] {
+		const result: PathPoint[] = [];
+		for (var i = 0, len = arr.length; i < len; i++) {
+			const data = arr[i];
+			const point = new PathPoint();
+			point.pos.x = data.pos.x;
+			point.pos.y = data.pos.y;
+			point.pos.z = data.pos.z;
+			point.c1.x = data.c1.x;
+			point.c1.y = data.c1.y;
+			point.c1.z = data.c1.z;
+			point.c2.x = data.c2.x;
+			point.c2.y = data.c2.y;
+			point.c2.z = data.c2.z;
+			point.curve = data.curve;
+			point.rotationType = data.rotationType;
+			result.push(point);
+		}
+		return result;
+	}
 	/**
 	 * @internal
 	 * @en Parse the various components of the AnimationClip from binary data and assemble them into a complete AnimationClip object for subsequent animation playback and processing.
@@ -261,6 +283,16 @@ export class AnimationClipParser04 {
 					for (j = 0; j < keyframeCount; j++) {
 						let isWeight = 1;
 						switch (type) {
+							case KeyFrameValueType.PathPoint:
+								const pathPointKeyframe = new PathPointKeyframe();
+								node._setKeyframeByIndex(j, pathPointKeyframe);
+								pathPointKeyframe.time = startTimeTypes[reader.readUint16()];
+								const jsonData = JSON.parse(reader.readUTFString());
+								const curvePath = new CurvePath();
+								pathPointKeyframe.value = curvePath;
+								(curvePath as any)._$data = jsonData;
+								curvePath.create(...AnimationClipParser04.createPathPoints(jsonData));
+								break;
 							case KeyFrameValueType.Boolean:
 								let booleanKeyframe = new BooleanKeyframe();
 								node._setKeyframeByIndex(j, booleanKeyframe);

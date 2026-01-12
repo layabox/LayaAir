@@ -120,6 +120,7 @@ export class AnimationClip2DParse01 {
             point.c2.y = data.c2.y;
             point.c2.z = data.c2.z;
             point.curve = data.curve;
+            point.rotationType = data.rotationType;
             result.push(point);
         }
         return result;
@@ -226,12 +227,13 @@ export class AnimationClip2DParse01 {
                     k.data.val = !!reader.readByte();
                 } else if (3 == num) {
                     const jsonData = JSON.parse(reader.readUTFString());
-                    if(Array.isArray(jsonData)){
+                    if (Array.isArray(jsonData)) {
                         const curvePath = new CurvePath();
+                        curvePath.is2D = true;
                         k.data.val = curvePath;
                         (curvePath as any)._$data = jsonData;
                         curvePath.create(...this.createPathPoints(jsonData));
-                    }else{
+                    } else {
                         k.data.val = jsonData;
                     }
                 }

@@ -41,13 +41,13 @@ export class AnimatorState extends EventDispatcher implements IClone {
      * @blueprintIgnore
      */
     static readonly EVENT_OnStateExit = "OnStateExit";
-
     /**
      * @en Event triggered when switching to a new state
      * @zh 切换到新状态时触发的事件
      * @blueprintIgnore
      */
     static readonly EVENT_OnStateSwitch = "OnStateSwitch";
+
 
     /** @internal */
     private _referenceCount: number = 0;
@@ -170,6 +170,8 @@ export class AnimatorState extends EventDispatcher implements IClone {
                         case KeyFrameValueType.Color:
                             realtimeDatas[i] = new Vector4();
                             break;
+                        case KeyFrameValueType.PathPoint:
+                            break;
                         default:
                             throw new Error("AnimationClipParser04:unknown type.");
                     }
@@ -248,6 +250,7 @@ export class AnimatorState extends EventDispatcher implements IClone {
             }
         }
     }
+
 
     /**
      * @internal
