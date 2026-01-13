@@ -47,7 +47,7 @@ export class Config {
      * @en Whether to use the retina mode. In retina mode, a larger canvas is created for finer display effects.
      * @zh 是否使用视网膜模式。在视网膜模式下，会创建更大的Canvas，来达到更精细的显示效果
      */
-    static useRetinalCanvas: boolean = true;
+    static useRetinalCanvas: boolean = false;
 
     //-------------2D settings---------------------
 
@@ -158,7 +158,7 @@ export class Config {
      */
     static audioBufferCacheMaxSize: number = 5 * 1024 * 1024;
 
-     
+
     /**
      * @en UV clipping mode for 2D rendering.
      * - "gpu": Use GPU fragment shader to clip triangles (default, lower CPU overhead)
