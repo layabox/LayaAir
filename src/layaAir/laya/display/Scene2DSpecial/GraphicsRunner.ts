@@ -1507,7 +1507,7 @@ export class GraphicsRunner {
             && !this.isSameClipInfo(submit)
         // && this._curSubmit.material == this._material
 
-        let mesh = this._meshPool[this._currentMeshIndex];
+        let mesh = this._curSubmit.mesh || this._meshPool[this._currentMeshIndex];
 
         var curEleNum = 0;
         let m: Matrix = this._curMat;
