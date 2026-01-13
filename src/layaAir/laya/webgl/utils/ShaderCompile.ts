@@ -393,6 +393,8 @@ export class ShaderCompile {
         let stencilFail = stencilOp ? stencilOp[0] : null;
         let stencilZFail = stencilOp ? stencilOp[1] : null;
         let stencilZPass = stencilOp ? stencilOp[2] : null;
+
+        let tempVec = renderState.stencilOp;
         tempVec.x = StencilOperationMap[stencilFail];
         tempVec.y = StencilOperationMap[stencilZFail];
         tempVec.z = StencilOperationMap[stencilZPass];
@@ -403,4 +405,3 @@ export class ShaderCompile {
         renderState.depthBiasClamp = <number>obj.depthBiasClamp;
     }
 }
-const tempVec = new Vector3();
