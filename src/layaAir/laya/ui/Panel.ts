@@ -144,7 +144,7 @@ export class Panel extends Box {
         content.width = width;
         content.height = height;
         content._scrollRect || (content.scrollRect = new Rectangle());
-        content._scrollRect.setTo(0, 0, width, height);
+        content._scrollRect.setTo(content._scrollRect.x, content._scrollRect.y, width, height);
         content.scrollRect = content.scrollRect;
     }
 
