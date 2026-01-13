@@ -31,8 +31,8 @@ export class Light2DConfig {
 
     private _ambientColor: Color = new Color(0.2, 0.2, 0.2, 0);
     /**
-     * @en ambient light color
-     * @zh 环境光颜色
+     * @en ambient light color，provide basic lighting without direction and shadow, when there is no light, set the color can ensure the lowest visibility, when there is light, it can be superimposed to enhance the brightness and darkness, and at the same time, through the adjustment of color and intensity to unify the scene tone and create different atmosphere effects.
+     * @zh 环境光颜色，提供无方向、无阴影的基础照明，没有灯光时设置颜色可保证最低可见度，存在灯光时与其叠加以增强明暗层次，同时通过调整颜色和强度来统一场景色调并营造不同的氛围效果。
      */
     get ambientColor(): Color {
         return this._ambientColor;

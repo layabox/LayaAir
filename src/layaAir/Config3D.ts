@@ -62,7 +62,7 @@ export class Config3D {
 
     /**
      * @en Maximum number of morph targets
-     * @zh 最大形变数量
+     * @zh 最大变形目标数量 
      */
     static maxMorphTargetCount: number = 32;
 

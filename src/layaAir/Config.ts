@@ -38,8 +38,8 @@ export class Config {
     static enableUniformBufferObject = true;
 
     /**
-     * @en FPS limit
-     * @zh 限制FPS 
+     * @en FPS limit, the maximum frame rate of the engine, the default is 60. If the developer does not want to fix the logic frame rate limit, set `Config.fixedFrames` to `false` to close the fixed frame mode, so that the logic update follows the frequency of the platform's `requestAnimationFrame` call as much as possible.
+     * @zh 定义了引擎全局的目标帧率上限（默认为 60）。如果开发者不希望固定逻辑帧率上限，可以将 `Config.fixedFrames` 设置为 `false`，关闭固定帧模式，使逻辑更新尽可能跟随平台的 `requestAnimationFrame` 调用频率执行。
      */
     static FPS = 60;
 
