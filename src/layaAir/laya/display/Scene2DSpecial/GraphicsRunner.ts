@@ -38,6 +38,7 @@ import { IGraphicsCmd } from "../IGraphics";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 //const tmpuv1: number[] = [0, 0, 0, 0, 0, 0, 0, 0];
+const tempVec4 = new Vector4();
 const tmpMat = new Matrix();
 //var _clipResult = new Vector2();
 const _drawTexToDrawTri_Vert = new Float32Array(8);// 从速度考虑，不做成static了
@@ -46,6 +47,25 @@ const _drawTexToQuad_Index = new Uint16Array([0, 2, 1, 0, 3, 2]);
 //const tmpUVRect: number[] = [0, 0, 0, 0];
 const _tempBlockMesh : MeshBlockInfo = { mesh: null, vertexViews: [], vertexBlocks: [] };
 const _tempCache: MeshBlockInfo = { mesh: null, vertexViews: [], vertexBlocks: [] };
+
+// 顶点数据结构
+interface _ClipVertex {
+    x: number;
+    y: number;
+    u: number;
+    v: number;
+    r: number;
+    g: number;
+    b: number;
+    a: number;
+    index: number; // 原始顶点索引，用于快速查找预计算的边界状态
+}
+
+const _ClipTriangle: _ClipVertex[] = [
+    {x: 0, y: 0, u: 0, v: 0, r: 0, g: 0, b: 0, a: 0, index: 0}, 
+    {x: 0, y: 0, u: 0, v: 0, r: 0, g: 0, b: 0, a: 0, index: 0}, 
+    {x: 0, y: 0, u: 0, v: 0, r: 0, g: 0, b: 0, a: 0, index: 0}
+];
 
 /** @ignore @blueprintIgnore */
 export class GraphicsRunner {
@@ -2197,22 +2217,56 @@ export class GraphicsRunner {
      * @returns 裁剪后的数据 {vertices, indices, uvs, colors}
      */
     static clipTrianglesByUVRange(
-        vertices: ArrayLike<number>,
-        indices: ArrayLike<number>,
-        uvs: ArrayLike<number>,
+        vertices: Float32Array,
+        indices: Uint16Array,
+        uvs: Float32Array,
         uvRange: ArrayLike<number>,
-        colors: ArrayLike<number>
+        colors: Float32Array
     ): { vertices: Float32Array, indices: Uint16Array, uvs: Float32Array, colors: Float32Array } {
-        // 裁剪边界
         const EPSILON = 1e-7;
         const minU = uvRange[0];
         const minV = uvRange[1];
         const maxU = uvRange[0] + uvRange[2];
         const maxV = uvRange[1] + uvRange[3];
-        const min_u_epsilon = minU - EPSILON;
-        const min_v_epsilon = minV - EPSILON;
-        const max_u_epsilon = maxU + EPSILON;
-        const max_v_epsilon = maxV + EPSILON;
+        let epsilon_edge = tempVec4
+        epsilon_edge.x = minU - EPSILON;
+        epsilon_edge.y = minV - EPSILON;
+        epsilon_edge.z = maxU + EPSILON;
+        epsilon_edge.w = maxV + EPSILON;
+        
+        // bit0=left, bit1=right, bit2=bottom, bit3=top (1表示inside，0表示outside)
+        const vertexCount = uvs.length / 2;
+        const vertexInsideFlags = new Uint8Array(vertexCount);
+        let allUVsInside = true;
+        
+        for (let i = 0; i < vertexCount; i++) {
+            const u = uvs[i * 2];
+            const v = uvs[i * 2 + 1];
+            let flags = 0;
+            
+            // 计算四个边界的状态
+            if (u >= epsilon_edge.x) flags |= 0x01; // left inside
+            if (u <= epsilon_edge.z) flags |= 0x02; // right inside
+            if (v >= epsilon_edge.y) flags |= 0x04; // bottom inside
+            if (v <= epsilon_edge.w) flags |= 0x08; // top inside
+            
+            vertexInsideFlags[i] = flags;
+            
+            // 如果顶点不在完全内部（所有位都是1），标记为不全在内部
+            if (flags !== 0x0F) {
+                allUVsInside = false;
+            }
+        }
+        
+        if (allUVsInside) {
+            return {
+                vertices,
+                indices,
+                uvs,
+                colors,
+            };
+        }
+        
         // 输出数组
         const outVertices: number[] = [];
         const outIndices: number[] = [];
@@ -2220,19 +2274,7 @@ export class GraphicsRunner {
         const outColors: number[] = [];
         let nextVertexIndex = 0;
 
-        // 顶点数据结构
-        interface Vertex {
-            x: number;
-            y: number;
-            u: number;
-            v: number;
-            r: number;
-            g: number;
-            b: number;
-            a: number;
-        }
-
-        const addVertex = (vert: Vertex): number => {
+        const addVertex = (vert: _ClipVertex): number => {
             const index = nextVertexIndex++;
             outVertices.push(vert.x, vert.y);
             outUVs.push(vert.u, vert.v);
@@ -2241,18 +2283,18 @@ export class GraphicsRunner {
         };
 
         // 判断顶点是否在裁剪边内侧
-        const isInside = (vert: Vertex, edge: number): boolean => {
+        const isInside = (vert: _ClipVertex, edge: number): boolean => {
             switch (edge) {
-                case 0: return vert.u >= min_u_epsilon; // left
-                case 1: return vert.u <= max_u_epsilon; // right
-                case 2: return vert.v >= min_v_epsilon; // bottom
-                case 3: return vert.v <= max_v_epsilon; // top
+                case 0: return vert.u >= epsilon_edge.x; // left
+                case 1: return vert.u <= epsilon_edge.z; // right
+                case 2: return vert.v >= epsilon_edge.y; // bottom
+                case 3: return vert.v <= epsilon_edge.w; // top
             }
             return false;
         };
 
         // 计算线段与裁剪边的交点（线性插值）
-        const computeIntersection = (v1: Vertex, v2: Vertex, edge: number): Vertex | null => {
+        const computeIntersection = (v1: _ClipVertex, v2: _ClipVertex, edge: number): _ClipVertex | null => {
             let t: number;
 
             // 根据裁剪边计算插值参数 t
@@ -2287,25 +2329,30 @@ export class GraphicsRunner {
                 r: v1.r + t * (v2.r - v1.r),
                 g: v1.g + t * (v2.g - v1.g),
                 b: v1.b + t * (v2.b - v1.b),
-                a: v1.a + t * (v2.a - v1.a)
+                a: v1.a + t * (v2.a - v1.a),
+                index: -1 // 交点顶点，没有原始索引
             };
         };
 
         // Sutherland-Hodgman算法：用一条边裁剪多边形
-        const clipPolygonByEdge = (inputVertices: Vertex[], edge: number): Vertex[] => {
+        const clipPolygonByEdge = (inputVertices: _ClipVertex[], edge: number): _ClipVertex[] => {
             if (inputVertices.length === 0) return [];
 
-            const output: Vertex[] = [];
+            const output: _ClipVertex[] = [];
+            const edgeMask = 1 << edge;
 
             for (let i = 0; i < inputVertices.length; i++) {
                 const current = inputVertices[i];
                 const next = inputVertices[(i + 1) % inputVertices.length];
 
-                const currentInside = isInside(current, edge);
-                const nextInside = isInside(next, edge);
+                const currentInside = current.index >= 0 
+                    ? (vertexInsideFlags[current.index] & edgeMask) !== 0
+                    : isInside(current, edge);
+                const nextInside = next.index >= 0
+                    ? (vertexInsideFlags[next.index] & edgeMask) !== 0
+                    : isInside(next, edge);
 
                 if (currentInside) {
-                    // 当前点在内侧，输出当前点
                     output.push(current);
 
                     if (!nextInside) {
@@ -2329,7 +2376,7 @@ export class GraphicsRunner {
         };
 
         // Sutherland-Hodgman算法：用矩形裁剪多边形
-        const clipPolygon = (inputVertices: Vertex[]): Vertex[] => {
+        const clipPolygon = (inputVertices: _ClipVertex[]): _ClipVertex[] => {
             let result = inputVertices;
 
             for (let edge = 0; edge < 4; edge++) {
@@ -2340,37 +2387,33 @@ export class GraphicsRunner {
             return result;
         };
 
-        const buildVertex = (index: number): Vertex => {
-            return {
-                x: vertices[index * 2],
-                y: vertices[index * 2 + 1],
-                u: uvs[index * 2],
-                v: uvs[index * 2 + 1],
-                r: colors[index * 4],
-                g: colors[index * 4 + 1],
-                b: colors[index * 4 + 2],
-                a: colors[index * 4 + 3]
-            };
+        const buildVertex = (index: number , vertexIndex: number): _ClipVertex => {
+            let vertex = _ClipTriangle[index];
+            vertex.x = vertices[vertexIndex * 2];
+            vertex.y = vertices[vertexIndex * 2 + 1];
+            vertex.u = uvs[vertexIndex * 2];
+            vertex.v = uvs[vertexIndex * 2 + 1];
+            vertex.r = colors[vertexIndex * 4];
+            vertex.g = colors[vertexIndex * 4 + 1];
+            vertex.b = colors[vertexIndex * 4 + 2];
+            vertex.a = colors[vertexIndex * 4 + 3];
+            vertex.index = vertexIndex; // 保存原始顶点索引，用于快速查找预计算的边界状态
+            return vertex;
         };
 
         const triangleCount = indices.length / 3;
+        let triangle = _ClipTriangle;
         for (let t = 0; t < triangleCount; t++) {
-            const i0 = indices[t * 3];
-            const i1 = indices[t * 3 + 1];
-            const i2 = indices[t * 3 + 2];
+            buildVertex(0,indices[t * 3]);
+            buildVertex(1,indices[t * 3 + 1]);
+            buildVertex(2,indices[t * 3 + 2]);
 
-            const triangle: Vertex[] = [
-                buildVertex(i0),
-                buildVertex(i1),
-                buildVertex(i2)
-            ];
-
-            const allInside = triangle.every(v =>
-                v.u >= min_u_epsilon && v.u <= max_u_epsilon &&
-                v.v >= min_v_epsilon && v.v <= max_v_epsilon
-            );
-
-            if (allInside) {// 完全在内部，直接输出
+            const flags0 = vertexInsideFlags[triangle[0].index];
+            const flags1 = vertexInsideFlags[triangle[1].index];
+            const flags2 = vertexInsideFlags[triangle[2].index];
+            
+            // 完全在内部：所有顶点的flags都是0x0F（所有边界都在内侧）
+            if (flags0 === 0x0F && flags1 === 0x0F && flags2 === 0x0F) {
                 const idx0 = addVertex(triangle[0]);
                 const idx1 = addVertex(triangle[1]);
                 const idx2 = addVertex(triangle[2]);
@@ -2378,12 +2421,11 @@ export class GraphicsRunner {
                 continue;
             }
 
-            const allOutsideLeft = triangle.every(v => v.u < min_u_epsilon);
-            const allOutsideRight = triangle.every(v => v.u > max_u_epsilon);
-            const allOutsideBottom = triangle.every(v => v.v < min_v_epsilon);
-            const allOutsideTop = triangle.every(v => v.v > max_v_epsilon);
-
-            if (allOutsideLeft || allOutsideRight || allOutsideBottom || allOutsideTop) {// 完全在外部，跳过
+            const combinedFlags = flags0 | flags1 | flags2;
+            if (!(combinedFlags & 0x01) || // 所有顶点都在left外侧
+                !(combinedFlags & 0x02) || // 所有顶点都在right外侧
+                !(combinedFlags & 0x04) || // 所有顶点都在bottom外侧
+                !(combinedFlags & 0x08)) { // 所有顶点都在top外侧
                 continue;
             }
 
@@ -2392,7 +2434,6 @@ export class GraphicsRunner {
             if (clippedPolygon.length < 3) {// 裁剪后顶点不足3个，跳过
                 continue;
             }
-
             
             if (clippedPolygon.length === 3) {// 已经是三角形，直接输出
                 const idx0 = addVertex(clippedPolygon[0]);
