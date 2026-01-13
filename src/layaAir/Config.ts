@@ -167,7 +167,7 @@ export class Config {
      * - "gpu": 使用GPU片元着色器裁剪三角形（默认，CPU开销低）
      * - "cpu": 使用CPU Sutherland-Hodgman算法裁剪三角形（CPU开销高，精确裁剪）
      */
-    static uvClipMode: "gpu" | "cpu" = "gpu";
+    static uvClipMode: "gpu" | "cpu" = "cpu";
 }
 
 export const PlayerConfig: {

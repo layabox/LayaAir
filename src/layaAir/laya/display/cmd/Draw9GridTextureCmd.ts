@@ -8,6 +8,7 @@ import { VertexStream } from "../../utils/VertexStream";
 import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 import { Config } from "../../../Config";
+import { UVClippingUtils } from "../../webgl/utils/UVClippingUtils";
 
 const className = "Draw9GridTextureCmd";
 
@@ -160,7 +161,7 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
 
             if (this.texture.uvrect) {
                 if (Config.uvClipMode === "cpu") {
-                    const clippedData = GraphicsRunner.clipTrianglesByUVRange(
+                    const clippedData = UVClippingUtils.clipTrianglesByUVRange(
                         vb.getVertices(), vb.getIndices(), vb.getUVs(), this.texture.uvrect, vb.getColors()
                     );
                     runner.drawTriangles(this.texture, x + gx, y + gy,
