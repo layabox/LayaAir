@@ -27,7 +27,12 @@ export class LensFlareSettingsLoader implements IResourceLoader {
                 return ret;
 
             let basePath = URL.getPath(task.url);
-            let textures: Array<string> = elements.map((e: any) => URL.join(basePath, URL.getResURLByUUID(e.texture?._$uuid))).filter((url: string) => url != "");
+            let textures: Array<string> = elements.map((e: any) => {
+                let url = URL.join(basePath, URL.getResURLByUUID(e.texture?._$uuid));
+                if (url)
+                    e.texture._$uuid = url;
+                return url;
+            }).filter((url: string) => url != "");
 
             return Promise.all(textures.map(url => task.loader.load(url, task.options))).then(() => {
                 ret.elements = new ObjDecoder().decodeObj(elements);
