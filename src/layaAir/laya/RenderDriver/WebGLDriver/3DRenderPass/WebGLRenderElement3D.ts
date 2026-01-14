@@ -190,6 +190,11 @@ export class WebGLRenderElement3D implements IRenderElement3D {
             let materialData = this._materialShaderData;
             this.materialUBO = materialData.createSubUniformBuffer("Material", subShader._owner.name, subShader._uniformMap);
         }
+
+        let passes: WebGLShaderInstance[] = this._curDrawCacheInfo.shaderInss;
+        for (let pass of passes) {
+            pass.updateRenderState(this.materialShaderData.renderState);
+        }
     }
 
     /**
@@ -262,8 +267,6 @@ export class WebGLRenderElement3D implements IRenderElement3D {
                 // shaderIns.uploadRenderStateBlendDepth(this._materialShaderData);
                 // shaderIns.uploadRenderStateFrontFace(this._materialShaderData, forceInvertFace, this._invertFront);
 
-        
-
                 shaderIns.uploadRenderState(this._materialShaderData.renderState, forceInvertFace, this._invertFront);
 
                 this.drawGeometry(shaderIns);
@@ -324,6 +327,11 @@ export class WebGLRenderElement3D implements IRenderElement3D {
             var shaderIns = pass.withCompile(comDef) as WebGLShaderInstance;
             this._curDrawCacheInfo.shaderInss[renderCount] = shaderIns;
             renderCount++
+
+            if (this.materialShaderData) {
+                shaderIns.updateRenderState(this.materialShaderData.renderState);
+            }
+
         }
         this._curDrawCacheInfo.shaderInss.length = renderCount;
     }

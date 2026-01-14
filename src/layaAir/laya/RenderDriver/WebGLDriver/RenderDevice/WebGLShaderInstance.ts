@@ -260,7 +260,7 @@ export class WebGLShaderInstance implements IShaderInstance {
 
     updateRenderState(renderState: RenderState) {
         if (this._shaderPass.statefirst) {
-            if (this.matRenderStateCache == renderState.hash) {
+            if (this.matRenderStateCache === renderState.hash) {
                 return;
             }
 

@@ -400,6 +400,8 @@ export class WebGLShaderData extends ShaderData {
             // todo
             // ubo set bool
         }
+
+        this._checkRenderState(index);
     }
 
     /**

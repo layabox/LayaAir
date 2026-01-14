@@ -426,7 +426,7 @@ export class GLRenderState {
      * @param renderState 
      */
     setRenderState(renderState: RenderState, isTarget: boolean, invertFront: boolean) {
-        if (this.isTargetCache == isTarget && this.invertFrontCache == invertFront && this.renderStateCache == renderState.hash) {
+        if (this.isTargetCache == isTarget && this.invertFrontCache == invertFront && this.renderStateCache === renderState.hash) {
             return;
         }
 
