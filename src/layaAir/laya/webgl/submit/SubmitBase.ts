@@ -224,15 +224,13 @@ export class SubmitBase {
             
         let needUpdateIndexData = indexViewChanged || vertexBlocksChanged;
 
-        if (needUpdateIndexData) {
-            if (this.indices.length !== this.indexCount) {
-                this.indices.length = this.indexCount;
-            }
-            indexView.setData(this.indices);
+        if (this.indices.length !== this.indexCount) {
+            this.indices.length = this.indexCount;
+        }
+        indexView.setData(this.indices);
 
-            if (Browser.onLayaRuntime) {
-                this._bufferBlock.vertexs = this.vertexs.elements;
-            }
+        if (vertexBlocksChanged && Browser.onLayaRuntime) {
+            this._bufferBlock.vertexs = this.vertexs.elements;
         }
         
         this._bufferBlockDirty = needUpdateIndexData;
