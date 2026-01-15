@@ -495,7 +495,7 @@ export class WebGraphicsBatch implements IBatch2DProvider {
                         elementIndice[indiceLen++] = start + j;
                         elementFlags[j] = -2;
                     }
-                    else
+                    else if (ctx.textureId !== 0)
                         elementFlags[j] = headGroup;
                 }
 
