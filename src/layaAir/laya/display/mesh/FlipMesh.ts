@@ -4,7 +4,16 @@ import { VertexStream } from "../../utils/VertexStream";
 import { genSliceMesh, IMeshFactory } from "./MeshFactory";
 
 export class FlipMesh implements IMeshFactory {
+    /**
+     * @en Whether to flip horizontally.
+     * @zh 是否水平翻转。
+     */
     flipX: boolean = true;
+
+    /**
+     * @en Whether to flip vertically.
+     * @zh 是否垂直翻转。
+     */
     flipY: boolean = false;
 
     onPopulateMesh(vb: VertexStream) {

@@ -18,6 +18,10 @@ export class Gear {
     /** @internal */
     _propPathArr: string[];
 
+    /**
+     * @en The values associated with different pages.
+     * @zh 与不同页面关联的值。
+     */
     values: Record<number, any>;
 
     static disableAllTweenEffect = false;
@@ -26,6 +30,10 @@ export class Gear {
         this.values = {};
     }
 
+    /**
+     * @en The owner widget of this gear.
+     * @zh 此齿轮的拥有者小部件。
+     */
     get owner() {
         return this._owner;
     }
@@ -42,6 +50,10 @@ export class Gear {
         }
     }
 
+    /**
+     * @en The controller associated with this gear.
+     * @zh 与此齿轮关联的控制器。
+     */
     get controller() {
         return this._controller;
     }
@@ -57,6 +69,10 @@ export class Gear {
         }
     }
 
+    /**
+     * @en The property path controlled by this gear. Each dot in the path represents a level of hierarchy.
+     * @zh 此齿轮控制的属性路径。路径中的每个点表示一个层级关系。
+     */
     get propPath(): string {
         return this._propPath;
     }
@@ -67,6 +83,10 @@ export class Gear {
         this.onChanged(null);
     }
 
+    /**
+     * @en The tween configuration for this gear.
+     * @zh 此齿轮的缓动配置。
+     */
     get tween(): GearTweenConfig {
         return this._tweenCfg;
     }

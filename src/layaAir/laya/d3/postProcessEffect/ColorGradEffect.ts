@@ -470,7 +470,7 @@ export class ColorGradEffect extends PostProcessEffect {
     }
 
     /**
-     * @zh Wheather to enable white balance.
+     * @en Wheather to enable white balance.
      * @zh 白平衡是否开启
      */
     public get enableBalance() {

@@ -5,7 +5,16 @@ import { VertexStream } from "../../utils/VertexStream";
 import { genTileMesh, IMeshFactory } from "./MeshFactory";
 
 export class TileMesh implements IMeshFactory {
+    /**
+     * @en Whether to repeat in the X direction.
+     * @zh 是否在X方向重复。
+     */
     repeatX: boolean = true;
+
+    /**
+     * @en Whether to repeat in the Y direction.
+     * @zh 是否在Y方向重复。
+     */
     repeatY: boolean = true;
 
     onPopulateMesh(vb: VertexStream) {

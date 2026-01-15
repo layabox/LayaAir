@@ -130,15 +130,13 @@ export class MeshRenderer extends BaseRender {
     private _morphTargetValues: Record<string, number> = {}
 
     /**
-     * @internal
+     * @en The morph target values.
+     * @zh 变形目标值。
      */
     public get morphTargetValues(): Record<string, number> {
         return this._morphTargetValues;
     }
 
-    /**
-     * @internal
-     */
     public set morphTargetValues(value: Record<string, number>) {
         this._morphTargetValues = value;
     }

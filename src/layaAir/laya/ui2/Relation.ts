@@ -29,6 +29,10 @@ export class Relation {
         this._data = [];
     }
 
+    /**
+     * @en The owner widget of this relation.
+     * @zh 此关联的拥有者小部件。
+     */
     get owner(): GWidget {
         return this._owner;
     }
@@ -43,6 +47,10 @@ export class Relation {
         }
     }
 
+    /**
+     * @en The target widget of the relation.
+     * @zh 关联的目标小部件。
+     */
     set target(value: GWidget | Scene) {
         if (this._target != value) {
             if (this._target)
@@ -57,6 +65,10 @@ export class Relation {
         return this._target;
     }
 
+    /**
+     * @zh 数据数组。数组中每两个元素表示一组关联关系，第一个元素表示关联类型，第二个元素表示是否以百分比形式关联，1表示是，0表示否。
+     * @en The data array. Every two elements in the array represent a set of relation types, the first element represents the relation type, and the second element represents whether to associate in percentage form, 1 means yes, 0 means no.
+     */
     get data(): Array<number> {
         return this._data;
     }

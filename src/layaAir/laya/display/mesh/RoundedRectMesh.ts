@@ -3,9 +3,28 @@ import { VertexStream } from "../../utils/VertexStream";
 import { IMeshFactory } from "./MeshFactory";
 
 export class RoundedRectMesh implements IMeshFactory {
+    /**
+     * @en The radius of the top-left corner.
+     * @zh 左上角的半径。
+     */
     lt: number = 6;
+
+    /**
+     * @en The radius of the top-right corner.
+     * @zh 右上角的半径。
+     */
     rt: number = 6;
+
+    /**
+     * @en The radius of the bottom-left corner.
+     * @zh 左下角的半径。
+     */
     lb: number = 6;
+
+    /**
+     * @en The radius of the bottom-right corner.
+     * @zh 右下角的半径。
+     */
     rb: number = 6;
 
     onPopulateMesh(vb: VertexStream) {
