@@ -5,6 +5,8 @@ import baseRender2D_ps from './files/baseRender2D.fs';
 import ColorGLSL from "../d2/files/Color.glsl";
 import MathGLSL from "../d2/files/Math.glsl";
 import Sprite2DFrag from './NewShader/Sprite2DFrag.glsl';
+import ClipFrag from './NewShader/ClipFrag.glsl';
+import ClipVertex from './NewShader/ClipVertex.glsl';
 // import Sprite2DShaderInfo from './NewShader/Sprite2DShaderInfo.glsl';
 import Sprite2DVertex from './NewShader/Sprite2DVertex.glsl';
 import OutputTransformGLSL from "./files/OutputTransform.glsl";
@@ -54,6 +56,8 @@ export class Shader2D {
      * init 2D internal Shader
      */
     static __init__(): void {
+        Shader3D.addInclude("ClipFrag.glsl", ClipFrag);
+        Shader3D.addInclude("ClipVertex.glsl", ClipVertex);
         Shader3D.addInclude("Sprite2DFrag.glsl", Sprite2DFrag);
         Shader3D.addInclude("Sprite2DVertex.glsl", Sprite2DVertex);
         // Shader3D.addInclude("Sprite2DShaderInfo.glsl", Sprite2DShaderInfo);

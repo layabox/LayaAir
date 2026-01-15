@@ -1,3 +1,5 @@
+#include "ClipFrag.glsl";
+
 vec3 gammaToLinear(in vec3 value)
 {
     return pow((value + 0.055) / 1.055, vec3(2.4));
@@ -38,8 +40,6 @@ vec4 transspaceColor(vec4 color)
      return color;
  }
 
-
-varying vec2 v_cliped;
 
 #ifdef TEXTUREVS
     varying vec4 v_texcoordAlpha;
@@ -158,15 +158,3 @@ varying vec2 v_cliped;
 
 #endif
 
-void clip(){
-    #ifdef UNIFORMCLIP
-        if(v_cliped.x<0.) discard;
-        if(v_cliped.x>1.) discard;
-        if(v_cliped.y<0.) discard;
-        if(v_cliped.y>1.) discard;
-    #endif
-    // if(v_cliped.x<0.) gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-    // if(v_cliped.x>1.) gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-    // if(v_cliped.y<0.) gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
-    // if(v_cliped.y>1.) gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
-}
