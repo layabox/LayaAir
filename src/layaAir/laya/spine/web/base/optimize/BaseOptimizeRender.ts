@@ -305,6 +305,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
      */
     render(time: number, physicsUpdate: number): void {
         this._skeleton.update && this._skeleton.update(time);
+
         if ((!this._enableCache
             || !this.updater.currentData.renderCache[this.updater.cacheFrameIndex])
             && this._mode !== ESpineRenderMode.Bake
@@ -668,7 +669,6 @@ export abstract class BaseOptimizeRender implements ISpineRender {
             }
         }
         this._enableCache = true;
-        // this.play(this._curAnimationName);
     }
 
     disableCache(): void {
@@ -680,7 +680,6 @@ export abstract class BaseOptimizeRender implements ISpineRender {
             }
         }
         this._enableCache = false;
-        // this.play(this._curAnimationName);
     }
     
 }

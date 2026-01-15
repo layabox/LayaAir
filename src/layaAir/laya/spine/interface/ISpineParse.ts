@@ -8,8 +8,10 @@ export interface ISkeletonOptimise {
     data: any;
     getAniNameByIndex(index: number): string | null;
     findAnimation(name: string): any | null;
+    hasAnimation(name: string): boolean;
     getSkinIndexByName(skinName: string): number;
     getAnimationCount(): number;
+    getAllSkinNames(): string[];
     checkMainAttach(skeleton: spine.Skeleton, data: spine.SkeletonData): void;
     destroy(): void;
 }

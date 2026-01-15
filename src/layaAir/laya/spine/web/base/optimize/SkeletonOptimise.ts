@@ -12,6 +12,7 @@ import { SpineNormalRenderUpdater } from "./SpineNormalRenderUpdater";
  * @zh SketonOptimise 类用于骨骼优化。
  */
 export class SkeletonOptimise implements ISkeletonOptimise {
+    private static emptyBounds: {x:number , y:number , width:number , height:number} = {x:0, y:0, width:0, height:0};
 
     /**
      * 4.2版本以上支持物理
@@ -79,8 +80,14 @@ export class SkeletonOptimise implements ISkeletonOptimise {
 
     private _bones: SpineBoneRegistry;
 
+    private _skinNames: string[] = [];
+
     /** @ignore */
     constructor() {
+    }
+
+    getAllSkinNames(): string[] {
+        return this._skinNames;
     }
     
     getAnimationCount(): number {
@@ -96,6 +103,10 @@ export class SkeletonOptimise implements ISkeletonOptimise {
     findAnimation(name: string): any | null {
         return this.data.findAnimation(name);
     }
+
+    hasAnimation(name: string): boolean {
+        return !!this.data.findAnimation(name);
+    }
     
     getSkinIndexByName(skinName: string): number {
         let skins = this.data.skins;
@@ -105,6 +116,43 @@ export class SkeletonOptimise implements ISkeletonOptimise {
             }
         }
         return -1;
+    }
+
+    _getBounds(): { x: number, y: number, width: number, height: number } {
+        let skeleton: spine.Skeleton = this.skeleton;
+        let skeletonData: spine.SkeletonData = this.data;
+        
+        let offset = new spine.Vector2;
+        let size = new spine.Vector2;
+        
+        let skins = skeletonData.skins;
+        let minX = Number.POSITIVE_INFINITY, minY = Number.POSITIVE_INFINITY, maxX = Number.NEGATIVE_INFINITY, maxY = Number.NEGATIVE_INFINITY;
+        for (let index = 0; index < skins.length; index++) {
+            const skin = skins[index];
+            skeleton.setSkin(skin);
+            skeleton.setToSetupPose();
+            skeleton.updateWorldTransform(0);
+            skeleton.getBounds(offset, size);
+            minX = Math.min(minX, offset.x);
+            minY = Math.min(minY, offset.y);
+            maxX = Math.max(maxX, offset.x + size.x);
+            maxY = Math.max(maxY, offset.y + size.y);
+        }
+
+        if (minX == Number.POSITIVE_INFINITY
+            || minY == Number.POSITIVE_INFINITY
+            || maxX == Number.NEGATIVE_INFINITY
+            || maxY == Number.NEGATIVE_INFINITY
+        ) {
+            return SkeletonOptimise.emptyBounds;
+        }
+        
+        return {
+            x: minX,
+            y: minY,
+            width: maxX - minX,
+            height: maxY - minY
+        }
     }
 
     getSkin(index: number) {
@@ -166,7 +214,7 @@ export class SkeletonOptimise implements ISkeletonOptimise {
         let defaultSkinAttach;
 
         this._tempIbCreate = new IBCreator();
-
+        this._skinNames.length = 0;
         for (let i = 0, n = skins.length; i < n; i++) {
             let skin = skins[i];
             let skinAttach = new SkinAttach();
@@ -183,6 +231,8 @@ export class SkeletonOptimise implements ISkeletonOptimise {
             if (i == 0) {
                 defaultSkinAttach = skinAttach;
             }
+
+            this._skinNames.push(skin.name);
         }
     }
 

@@ -3,15 +3,9 @@ import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { Texture2D } from "../../resource/Texture2D";
 import { ISpineTempletParser } from "../interface/ISpineParse";
 import { SpineTemplet } from "../SpineTemplet";
-import { Material } from "../../resource/Material";
 import { SpineShaderInit } from "../shader/SpineShaderInit";
 import { NativeSkeletonOptimise } from "./NativeSkeletonOptimise";
-import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
-import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
-
-const PREMULTIPLIED_ALPHA = true;
-const SPLIT_REGEX = /\r?\n/;
-const PMA_REGEX = /^pma:\s*(true|false)$/i;
+import { SpineConst } from "../SpineConst";
 
 /**
  * @en Native Spine Templet Parser for parsing Spine skeleton and atlas data.
@@ -20,7 +14,7 @@ const PMA_REGEX = /^pma:\s*(true|false)$/i;
 export class NativeSpineTempletParser implements ISpineTempletParser {
     private _nativeParser: any; // conchNativeSpineTempletParser from C++
     private _cachedTextureUrls: string[] | null = null; // Cache parsed texture URLs to avoid re-parsing
-    private _premultipliedAlpha: boolean = PREMULTIPLIED_ALPHA;
+    private _premultipliedAlpha: boolean = SpineConst.PREMULTIPLIED_ALPHA_DEFAULT;
     private _atlasTextContent: string | null = null;
 
     constructor() {
@@ -37,7 +31,7 @@ export class NativeSpineTempletParser implements ISpineTempletParser {
      */
     collectTextures(atlasText: string, task: ILoadTask): ILoadURL[] {
         this._atlasTextContent = atlasText;
-        const lines = atlasText.split(SPLIT_REGEX);
+        const lines = atlasText.split(SpineConst.SPLIT_REGEX);
         const textureInfos: Array<{ path: string; pma: boolean }> = [];
         const urls: string[] = [];
         let currentPma: boolean = true;
@@ -47,7 +41,7 @@ export class NativeSpineTempletParser implements ISpineTempletParser {
             if (!trimmed)
                 continue;
             
-            const pmaMatch = trimmed.match(PMA_REGEX);
+            const pmaMatch = trimmed.match(SpineConst.PMA_REGEX);
             if (pmaMatch) {
                 currentPma = pmaMatch[1].toLowerCase() === "true";
                 continue;
@@ -82,7 +76,7 @@ export class NativeSpineTempletParser implements ISpineTempletParser {
             propertyParams: {
                 premultiplyAlpha: info.pma
             },
-            constructParams: [0, 0, TextureFormat.R8G8B8A8, false, false, true, true]
+            constructParams: [0, 0, TextureFormat.R8G8B8A8, false, false, true, info.pma]
         }));
     }
 
@@ -122,20 +116,6 @@ export class NativeSpineTempletParser implements ISpineTempletParser {
         templet._textures = {};
         for (let i = 0; i < textureUrls.length; i++) {
             templet.setTexture(textureUrls[i], textures[i]);
-        }
-
-        let dec = SpineShaderInit.getAllVertexDeclarations();
-        for (const vertexFlag in dec) {
-            const vertexDeclaration = dec[vertexFlag];
-            if (vertexDeclaration && vertexDeclaration._shaderValues) {
-                for (const shaderLocation of Object.keys(vertexDeclaration._shaderValues)) {
-                    let location = parseInt(shaderLocation);
-                    const vertexStateContext = vertexDeclaration._shaderValues[location];
-                    if (vertexStateContext) {
-                        rtSkeletonOptimize.setVertexDeclaration(vertexFlag, location, vertexStateContext);
-                    }
-                }
-            }
         }
 
         const parseResultBuffer = new Float32Array(6);

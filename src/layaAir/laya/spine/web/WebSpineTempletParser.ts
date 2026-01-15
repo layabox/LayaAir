@@ -9,17 +9,9 @@ import { SpineTemplet } from "../SpineTemplet";
 import { SkeletonOptimise } from "./base/optimize/SkeletonOptimise";
 import { SpineTexture } from "./SpineTexture";
 
-
-const _srgb = true;
-const SPLIT_REGEX = /\r?\n/;
-const PMA_REGEX = /^pma:\s*(true|false)$/i;
-const PREMULTIPLIED_ALPHA_DEFAULT = false;
-
 export class WebSpineTempletParser implements ISpineTempletParser {
-    private static emptyBounds: {x:number , y:number , width:number , height:number} = {x:0, y:0, width:0, height:0};
-
     private _atlas: spine.TextureAtlas;
-    private _premultipliedAlpha: boolean = PREMULTIPLIED_ALPHA_DEFAULT;
+    private _premultipliedAlpha: boolean = SpineConst.PREMULTIPLIED_ALPHA_DEFAULT;
     private _cachedAtlasText: string | null = null; // Cache atlas text for creating TextureAtlas in parse step
     private _basePath: string = "";
 
@@ -50,7 +42,7 @@ export class WebSpineTempletParser implements ISpineTempletParser {
             || skeletonData.width == undefined
             || skeletonData.height == undefined
         ) {
-            let bounds = this._getBounds(skeleton, skeletonData);
+            let bounds = skeletonOptimise._getBounds();
             templet.x = bounds.x;
             templet.y = bounds.y;
             templet.width = bounds.width;
@@ -75,45 +67,11 @@ export class WebSpineTempletParser implements ISpineTempletParser {
         return templet;
     }
 
-    private _getBounds(skeleton: spine.Skeleton , skeletonData: spine.SkeletonData) : {x:number , y:number , width:number , height:number} {
-        let offset = new spine.Vector2;
-        let size = new spine.Vector2;
-        
-        let skins = skeletonData.skins;
-        let minX = Number.POSITIVE_INFINITY, minY = Number.POSITIVE_INFINITY, maxX = Number.NEGATIVE_INFINITY, maxY = Number.NEGATIVE_INFINITY;
-        for (let index = 0; index < skins.length; index++) {
-            const skin = skins[index];
-            skeleton.setSkin(skin);
-            skeleton.setToSetupPose();
-            skeleton.getBounds(offset, size);
-            minX = Math.min(minX, offset.x);
-            minY = Math.min(minY, offset.y);
-            maxX = Math.max(maxX, offset.x + size.x);
-            maxY = Math.max(maxY, offset.y + size.y);
-        }
-
-        if (minX == Number.POSITIVE_INFINITY
-            || minY == Number.POSITIVE_INFINITY
-            || maxX == Number.NEGATIVE_INFINITY
-            || maxY == Number.NEGATIVE_INFINITY
-        ) {
-            return WebSpineTempletParser.emptyBounds;
-        }
-        
-        return {
-            x: minX,
-            y: minY,
-            width: maxX - minX,
-            height: maxY - minY
-        }
-    }
-
     collectTextures( atlasText: string, task: ILoadTask) : ILoadURL[] {
-        
-        const lines = atlasText.split(SPLIT_REGEX);
+        const lines = atlasText.split(SpineConst.SPLIT_REGEX);
         const textureInfos: Array<{ path: string; pma: boolean }> = [];
         const urls: string[] = [];
-        let currentPma: boolean = PREMULTIPLIED_ALPHA_DEFAULT;
+        let currentPma: boolean = true;
         
         for (let i = 0; i < lines.length; i++) {
             const trimmed = lines[i].trim();
@@ -121,7 +79,7 @@ export class WebSpineTempletParser implements ISpineTempletParser {
                 continue;
             
             // 检查 pma 信息（可能在 texture 文件名之前）
-            const pmaMatch = trimmed.match(PMA_REGEX);
+            const pmaMatch = trimmed.match(SpineConst.PMA_REGEX);
             if (pmaMatch) {
                 currentPma = pmaMatch[1].toLowerCase() === "true";
                 continue;
@@ -144,7 +102,7 @@ export class WebSpineTempletParser implements ISpineTempletParser {
                 this._premultipliedAlpha = currentPma && this._premultipliedAlpha;
                 urls.push(texturePath);
                 // 重置 pma 为默认值，为下一个 texture 做准备
-                currentPma = PREMULTIPLIED_ALPHA_DEFAULT;
+                currentPma = true;
             }
         }
 
@@ -157,7 +115,7 @@ export class WebSpineTempletParser implements ISpineTempletParser {
             propertyParams: {
                 premultiplyAlpha: info.pma
             },
-            constructParams: [0, 0, TextureFormat.R8G8B8A8, false, false, _srgb, info.pma]
+            constructParams: [0, 0, TextureFormat.R8G8B8A8, false, false, true, info.pma]
         }));
     }
 

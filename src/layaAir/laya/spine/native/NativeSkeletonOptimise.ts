@@ -12,17 +12,48 @@ import { SpineTemplet } from "../SpineTemplet";
 export class NativeSkeletonOptimise implements ISkeletonOptimise {
     private _nativeOptimise: any;
 
+    static __init__() {
+        let dec = SpineShaderInit.getAllVertexDeclarations();
+        for (const vertexFlag in dec) {
+            const vertexDeclaration = dec[vertexFlag];
+            if (vertexDeclaration && vertexDeclaration._shaderValues) {
+                for (const shaderLocation of Object.keys(vertexDeclaration._shaderValues)) {
+                    let location = parseInt(shaderLocation);
+                    const vertexStateContext = vertexDeclaration._shaderValues[location];
+                    if (vertexStateContext) {
+                        // Use static method instead of instance method
+                        NativeSkeletonOptimise.SetVertexDeclaration(vertexFlag, location, vertexStateContext);
+                    }
+                }
+            }
+        }
+    }
+
     data: any = null;
 
     private _animationNames: string[] = [];
- 
+
     private _skinNames: string[] = [];
 
     private _materials: Material[] = [];
 
     _templet: SpineTemplet;
 
-    
+    /**
+     * @en Set vertex declaration for a vertex flag (static method).
+     * @param vertexFlag Vertex flag string (e.g., "UV,COLOR,POSITION,BONE").
+     * @param shaderLocation Shader location for the vertex attribute.
+     * @param context Vertex state context to add.
+     * @zh 为顶点标志设置顶点声明（静态方法）。
+     * @param vertexFlag 顶点标志字符串（例如 "UV,COLOR,POSITION,BONE"）。
+     * @param shaderLocation 顶点属性的着色器位置。
+     * @param context 要添加的顶点状态上下文。
+     */
+    static SetVertexDeclaration(vertexFlag: string, shaderLocation: number, context: any): void {
+        //@ts-ignore
+        conchSkeletonOptimise.SetVertexDeclaration(vertexFlag, shaderLocation, context);
+    }
+
     constructor() {
         //@ts-ignore
         this._nativeOptimise = new conchSkeletonOptimise();
@@ -68,19 +99,15 @@ export class NativeSkeletonOptimise implements ISkeletonOptimise {
         return this._animationNames;
     }
 
-    /**
-     * @en Find animation by name.
-     * @param name Animation name.
-     * @returns Animation object or null.
-     * @zh 根据名称查找动画。
-     * @param name 动画名称。
-     * @returns 动画对象或 null。
+    /** 
+     * @deprecated
      */
     findAnimation(name: string): any | null {
-        if (!this._nativeOptimise || !name) {
-            return null;
-        }
-        return this._nativeOptimise.findAnimation(name) || null;
+        return null;
+    }
+
+    hasAnimation(name: string): boolean {
+        return this._animationNames.indexOf(name) !== -1;
     }
 
     /**
@@ -131,21 +158,6 @@ export class NativeSkeletonOptimise implements ISkeletonOptimise {
      */
     getAllSkinNames(): string[] {
         return this._skinNames;
-    }
-
-    /**
-     * @en Get skin by index.
-     * @param index Skin index.
-     * @returns Skin object or null.
-     * @zh 根据索引获取皮肤。
-     * @param index 皮肤索引。
-     * @returns 皮肤对象或 null。
-     */
-    getSkin(index: number): any | null {
-        if (!this._nativeOptimise || index < 0) {
-            return null;
-        }
-        return this._nativeOptimise.getSkin(index) || null;
     }
 
     /**

@@ -4,6 +4,16 @@ import { ISpineFactory } from "./interface/ISpineFactory";
 import { SpineShaderInit } from "./shader/SpineShaderInit";
 
 export class SpineConst {
+
+    /** @internal */
+    static SPLIT_REGEX = /\r?\n/;
+    /** @internal */
+    static PMA_REGEX = /^pma:\s*(true|false)$/i;
+    /**
+     * @en Image defalut premultiplied alpha
+     * @zh 图片默认预乘
+     */
+    static PREMULTIPLIED_ALPHA_DEFAULT = false;
     /**
      * @en Spine runtime version.
      * @zh Spine 运行时版本。

@@ -554,6 +554,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this._spineRender = SpineConst.factory.createSpineRender2D(this);
         this._spineRender.init(templet);
         this._spineRender.mode = !SpineConst.normalRenderSwitch && this._useFastRender ? ESpineRenderMode.Optimize : ESpineRenderMode.Normal;
+        this._spineRender.premultipliedAlpha = this._setPreAlphaFlag ? this._premultipliedAlpha : this._templet.premultipliedAlpha;
         
         // 设置缓存状态
         if (this._enableCache) {
@@ -670,8 +671,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (typeof nameOrIndex == "number") {
             nameOrIndex = this.getAniNameByIndex(nameOrIndex);
         } else {
-            let hasAni = !!this.templet.findAnimation(nameOrIndex);
-            if (!hasAni) return
+            if (!this.templet.hasAnimation(nameOrIndex)) return
         }
 
         if (force || this._pause || this._animationName != nameOrIndex) {

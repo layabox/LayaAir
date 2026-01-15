@@ -224,6 +224,7 @@ export class SpineTemplet extends Resource {
     }
 
     /**
+     * @deprecated only web
      * @en Find the animation by its name
      * @param name The name of the animation to find
      * @returns The found animation index, or -1 if not found
@@ -233,6 +234,18 @@ export class SpineTemplet extends Resource {
      */
     findAnimation(name: string) {
         return this.optimize.findAnimation(name);
+    }
+
+    /**
+     * @en Check if the animation exists
+     * @param name The name of the animation to check
+     * @returns boolean
+     * @zh 检查动画是否存在
+     * @param name 要检查的动画名称
+     * @returns boolean
+     */
+    hasAnimation(name: string) :boolean{
+        return this.optimize.hasAnimation(name);
     }
 
     /**

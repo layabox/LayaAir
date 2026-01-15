@@ -299,7 +299,6 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
             return;
         }
 
-        // Call native reset method
         if (this._nativeRender.reset) {
             this._nativeRender.reset();
         }
@@ -332,8 +331,7 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
 
         this._premultipliedAlpha = value;
 
-        // Update native layer
-        if (this._nativeRender && this._nativeRender.setPremultipliedAlpha) {
+        if (this._nativeRender) {
             this._nativeRender.setPremultipliedAlpha(value);
         }
     }
@@ -476,7 +474,7 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
      * @en Enable cache. When enabled, the Spine animation's render data will be automatically cached, improving performance for repeated playback.
      */
     enableCache(): void {
-        if (this._nativeRender && this._nativeRender.enableCache) {
+        if (this._nativeRender) {
             this._nativeRender.enableCache();
         }
     }
@@ -486,7 +484,7 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
      * @en Disable cache.
      */
     disableCache(): void {
-        if (this._nativeRender && this._nativeRender.disableCache) {
+        if (this._nativeRender) {
             this._nativeRender.disableCache();
         }
     }
