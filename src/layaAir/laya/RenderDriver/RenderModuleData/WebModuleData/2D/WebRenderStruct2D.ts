@@ -385,6 +385,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
                let mat = trans.matrix;
                let cm = info.clipMatrix;
                let { x, y, width, height } = rect;
+               width = Math.max(width, 0.0001);
+               height = Math.max(height, 0.0001);
                let tx = mat.tx, ty = mat.ty;
                cm.tx = x * mat.a + y * mat.c + tx;
                cm.ty = x * mat.b + y * mat.d + ty;
