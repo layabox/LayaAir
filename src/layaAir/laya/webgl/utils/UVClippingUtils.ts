@@ -52,7 +52,7 @@ export class UVClippingUtils {
         outColorsLength: 0,
         clipBuffer1Length: 0,
         clipBuffer2Length: 0,
-        earcutDataLength: 0,
+        // earcutDataLength: 0,
         // vertexIndicesLength: 0,
 
         // 可复用的TypedArray缓冲区,用于减少对象创建和GC开销
@@ -74,7 +74,7 @@ export class UVClippingUtils {
         ctx.outColorsLength = 0;
         ctx.clipBuffer1Length = 0;
         ctx.clipBuffer2Length = 0;
-        ctx.earcutDataLength = 0;
+        // ctx.earcutDataLength = 0;
         // ctx.vertexIndicesLength = 0;
     }
 
@@ -410,7 +410,8 @@ export class UVClippingUtils {
                     earcutData[earcutLen++] = clippedPolygon[i].x;
                     earcutData[earcutLen++] = clippedPolygon[i].y;
                 }
-                ctx.earcutDataLength = earcutLen;
+                earcutData.length = earcutLen;
+                // ctx.earcutDataLength = earcutLen;
 
                 const triangulated = Earcut.earcut(earcutData, null, 2);
 
