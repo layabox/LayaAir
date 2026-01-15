@@ -28,7 +28,6 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     private _ownerSimpleRenderNode: ISimpleSkinRenderNode;
 
     /**
-     * @internal
      * @en The animator texture
      * @zh 动画帧贴图
      */
@@ -36,9 +35,6 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         return this._simpleAnimatorTexture;
     }
 
-    /**
-     * @internal
-     */
     set simpleAnimatorTexture(value: Texture2D) {
         this._simpleAnimatorTexture = value;
         this._simpleAnimatorTextureSize = value.width;

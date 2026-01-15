@@ -97,13 +97,15 @@ export class SkyRenderer {
         }
     }
 
-    /** @internal */
-    private get meshType(): "box" | "dome" | "" {
+    /**
+     * @en The type of sky mesh.
+     * @zh 天空网格的类型。
+     */
+    get meshType(): "box" | "dome" | "" {
         return this.mesh == SkyBox.instance ? "box" : (this.mesh == SkyDome.instance ? "dome" : "");
     }
 
-    /** @internal */
-    private set meshType(value: "box" | "dome" | "") {
+    set meshType(value: "box" | "dome" | "") {
         if (value == "dome")
             this.mesh = SkyDome.instance;
         else
