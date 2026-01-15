@@ -13,7 +13,8 @@ export class NativeBrowserAdapter extends BrowserAdapter {
         Browser.onLayaRuntime = true;
         Browser.isDomSupported = false;
         PAL.g = (window as any).conch;
-
+        //建议取值 30 60 120
+        PAL.g.setPreferredFramesPerSecond(Config.FPS);
         //ios glBufferSubData is versy slow
         if ((window as any).conchConfig.getOS() == "Conch-ios") {
             Config.enableUniformBufferObject = false;
