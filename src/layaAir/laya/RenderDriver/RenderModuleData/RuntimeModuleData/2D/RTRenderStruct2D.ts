@@ -306,7 +306,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
          this._nativeObj.setRenderUpdate(null);
    }
    setClipRect(rect: Rectangle): void {
-      this._clipRect.cloneTo(rect);
+      rect.cloneTo(this._clipRect);
       this._clipRect.width = Math.max(this._clipRect.width, 0.0001);
       this._clipRect.height = Math.max(this._clipRect.height, 0.0001);
       this._nativeObj.setClipRect(this._clipRect);
