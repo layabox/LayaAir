@@ -36,6 +36,7 @@ import { PrimitiveMesh } from "../../d3/resource/models/PrimitiveMesh";
 import { pxStatics } from "./pxStatics";
 import { ICompoundColliderShape } from "../interface/Shape/ICompoundColliderShape";
 import { pxCompoundColliderShape } from "./Shape/pxCompoundColliderShape";
+import { Config3D } from "../../../Config3D";
 
 
 /**
@@ -92,7 +93,7 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
      * @returns 当初始化完成时解析的Promise。
      */
     initialize(): Promise<void> {
-        return (window as any).PHYSX().then((PHYSX: any) => {
+        return (window as any).PHYSX(Math.max(16, Config3D.defaultPhysicsMemory) * 16, null).then((PHYSX: any) => {
             this._init(PHYSX);
             console.log("PhysX loaded.");
             this.initPhysicsCapable();
