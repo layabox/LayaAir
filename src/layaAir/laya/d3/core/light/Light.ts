@@ -34,12 +34,10 @@ export enum LightMode {
  * @zh LightSprite 类用于创建灯光的父类。
  */
 export class Light extends Component {
-    /**@internal 下沉数据集合 */
+    /**下沉数据集合 */
     protected _dataModule: IDirectLightData | ISpotLightData | IPointLightData;
-    /** @internal */
     protected _shadowMode: ShadowMode = ShadowMode.None;
 
-    /** @internal */
     private _isAlternate: boolean = false;
     /** @internal */
     _intensityColor: Vector3;
