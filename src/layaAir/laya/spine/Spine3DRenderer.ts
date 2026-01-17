@@ -360,7 +360,6 @@ export class Spine3DRenderer extends BaseRender {
         if (!this._templet)
             return;
         this._spineRender.mode = value ? ESpineRenderMode.Optimize : ESpineRenderMode.Normal;
-        this.play(this._animationName, this._loop, true, this._spineRender.currentTime * 1000);
     }
 
     /**

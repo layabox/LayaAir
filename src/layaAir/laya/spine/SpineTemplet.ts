@@ -49,8 +49,8 @@ export class SpineTemplet extends Resource {
      * @zh spine 动画Y轴偏移
      */
     offsetY: number = 0;
-
-    public parse: ISpineTempletParser;
+    /** @internal */
+    _parser: ISpineTempletParser;
 
     public optimize: ISkeletonOptimise;
 
@@ -264,7 +264,7 @@ export class SpineTemplet extends Resource {
      */
     protected _disposeResource(): void {
 
-        this.parse.destroy();
+        this._parser.destroy();
 
         this.optimize.destroy();
 
@@ -284,6 +284,6 @@ export class SpineTemplet extends Resource {
             console.error("SpineTemplet is using");
         }
 
-        this.parse = null;
+        this._parser = null;
     }
 }

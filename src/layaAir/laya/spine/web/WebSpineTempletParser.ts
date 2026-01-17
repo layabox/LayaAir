@@ -64,6 +64,8 @@ export class WebSpineTempletParser implements ISpineTempletParser {
         skeletonOptimise.canCache = SpineConst.cacheSwitch && !skeletonOptimise.hasPhysics;
         skeletonOptimise.checkMainAttach(skeleton, skeletonData);
         templet.optimize = skeletonOptimise;
+        templet._parser = this;
+
         return templet;
     }
 

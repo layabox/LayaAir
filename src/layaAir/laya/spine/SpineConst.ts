@@ -106,11 +106,11 @@ export class SpineConst {
 
 export enum ESpineRenderMode {
     /** 普通渲染模式 */
-    Normal = "normal",
+    Normal,
     /** 优化渲染模式 */
-    Optimize = "optimize",
+    Optimize,
     /** 烘焙渲染模式 */
-    Bake = "bake",
+    Bake,
 }
 
 export enum ESpineRenderState {

@@ -110,12 +110,6 @@ export interface ISpineRender {
     render(time: number , physicsUpdate: number): void;
     
     /**
-     * @zh 设置皮肤索引
-     * @param index 皮肤索引
-     */
-    setSkinIndex(index: number): void;
-    
-    /**
      * @zh 通过名称显示皮肤
      * @param name 皮肤名称
      */

@@ -159,6 +159,7 @@ export class NativeSpineTempletParser implements ISpineTempletParser {
 
         templet._premultipliedAlpha = this._premultipliedAlpha;
         // optimize.initMaterials(textureUrls, textures);
+        templet._parser = this;
 
         return templet;
     }
@@ -169,7 +170,8 @@ export class NativeSpineTempletParser implements ISpineTempletParser {
      * @zh 销毁解析器。
      */
     destroy(): void {
-        // Cleanup if needed
+        this._nativeParser.destroy();
+        this._nativeParser = null;
     }
 }
 

@@ -167,16 +167,11 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
         this._nativeRender.render(time, physicsUpdate);
     }
 
-    setSkinIndex(index: number): void {
+    showSkinByIndex(skinIndex: number): void {
         if (!this._nativeRender) {
             return;
         }
-
-        this._nativeRender.setSkinIndex(index);
-    }
-
-    showSkinByIndex(skinIndex: number): void {
-        this.setSkinIndex(skinIndex);
+        this._nativeRender.showSkinByIndex(skinIndex);
     }
 
     setAttachment(slotName: string, attachmentName: string): void {

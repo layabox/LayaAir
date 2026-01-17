@@ -158,27 +158,19 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
             const block = cache.renderBlocks[i];
             const batch = this.batches[i];
             const subMeshBuffer = batch.buffer;
+            const geometry = batch.geometry;
 
-            if (subMeshBuffer.vertexData.length < block.vertexData.length) {
-                subMeshBuffer.vertexData = new Float32Array(block.vertexData.length);
-            }
-
-            if (block.indexData && subMeshBuffer.indexData.length < block.indexData.length) {
-                subMeshBuffer.indexData = new Uint16Array(block.indexData.length);
-            }
-
-            // 将缓存数据存储到 cacheVertex 和 cacheIndex（不应用偏移）
-            subMeshBuffer.cacheVertex = new Float32Array(block.vertexData.subarray(0, block.vertexLength));
+            subMeshBuffer.cacheVertex = block.vertexData;
             subMeshBuffer.vertexLength = block.vertexLength;
             subMeshBuffer.offsetX = offsetX;
             subMeshBuffer.offsetY = offsetY;
 
-            if (block.indexData) {
-                subMeshBuffer.cacheIndex = new Uint16Array(block.indexData.subarray(0, block.indexLength!));
-                subMeshBuffer.indexLength = block.indexLength!;
-            }
+            subMeshBuffer.cacheIndex = block.indexData;
+            subMeshBuffer.indexLength = block.indexLength;
 
-            this.uploadBuffer(subMeshBuffer);
+            this.uploadBuffer(subMeshBuffer, true);
+            geometry.clearRenderParams();
+            geometry.setDrawArrayParams(0, block.indexLength);
 
             if (i < cache.materials.length) {
                 batch.material = cache.materials[i];
@@ -195,10 +187,6 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
             if (batch) {
                 this.subMeshes[i] = batch.geometry;
                 this.materials[i] = batch.material;
-                // 上传时应用偏移
-                if (batch.buffer.vertexLength > 0) {
-                    this.uploadBuffer(batch.buffer);
-                }
             }
         }
         this._materialIndex = blockCount;
@@ -503,7 +491,7 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
         this.needUpdate = true;
 
         if (this.autoCacheEnabled && updater) {
-            let frameIndex = Math.floor(time / SpineConst.SPINE_STEP);
+            let frameIndex = updater.cacheFrameIndex;
             let cacheTarget = updater.currentData;
             if (frameIndex >= 0 && !cacheTarget.renderCache[frameIndex]) {
                 let renderBlocks = [];
@@ -511,9 +499,9 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
                     const batch = this.batches[i];
                     if (batch) {
                         renderBlocks.push({
-                            vertexData: new Float32Array(batch.buffer.vertexData.subarray(0, batch.buffer.vertexLength)),
+                            vertexData: batch.buffer.vertexData.slice(0, batch.buffer.vertexLength),
                             vertexLength: batch.buffer.vertexLength,
-                            indexData: new Uint16Array(batch.buffer.indexData.subarray(0, batch.buffer.indexLength)),
+                            indexData:batch.buffer.indexData.slice(0, batch.buffer.indexLength),
                             indexLength: batch.buffer.indexLength
                         });
                     }
@@ -567,7 +555,7 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
         return (currentVertexCount + newVertexCount) < SpineNormalRenderUpdater.MAX_VERTICES_PER_BUFFER;
     }
 
-    private uploadBuffer(subMeshBuffer: SubMeshBuffer): void {
+    private uploadBuffer(subMeshBuffer: SubMeshBuffer , useCache = false): void {
         if (!subMeshBuffer || !subMeshBuffer.bufferState) return;
 
         const vbByteLength = subMeshBuffer.vertexLength * 4;
@@ -575,11 +563,19 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
 
         let vertexBuffer = subMeshBuffer.bufferState._vertexBuffers[0];
         vertexBuffer.setDataLength(vbByteLength);
-        vertexBuffer.setData(subMeshBuffer.vertexData.buffer as ArrayBuffer, 0, 0, vbByteLength);
+        if (useCache && subMeshBuffer.cacheVertex) {
+            vertexBuffer.setData(subMeshBuffer.cacheVertex.buffer as ArrayBuffer, 0, 0, vbByteLength);
+        }else{
+            vertexBuffer.setData(subMeshBuffer.vertexData.buffer as ArrayBuffer, 0, 0, vbByteLength);
+        }
 
         let indexBuffer = subMeshBuffer.bufferState._bindedIndexBuffer;
         indexBuffer._setIndexDataLength(ibByteLength);
-        indexBuffer.setData(subMeshBuffer.indexData.buffer as ArrayBuffer, 0, 0, ibByteLength);
+        if (useCache && subMeshBuffer.cacheIndex) {
+            indexBuffer.setData(subMeshBuffer.cacheIndex.buffer as ArrayBuffer, 0, 0, ibByteLength);
+        }else{
+            indexBuffer.setData(subMeshBuffer.indexData.buffer as ArrayBuffer, 0, 0, ibByteLength);
+        }
     }
 
     /**
