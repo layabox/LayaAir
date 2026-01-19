@@ -200,9 +200,8 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
      * @zh 获取或创建当前渲染批次。
      */
     private getCurrentBatch(): SpineRenderBatch {
-        if (this._currentBatchIndex < 0 || !this.batches[this._currentBatchIndex]) {
-            this._currentBatchIndex++;
-            
+        let batch = this.batches[this._currentBatchIndex];
+        if (!batch) {
             const vertexDeclaration = SpineShaderInit.SpineNormalVertexDeclaration;
             const vertexBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(
                 BufferUsage.Dynamic
@@ -240,15 +239,16 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
             const materialIndex = this._materialIndex - 1;
             const material = materialIndex >= 0 ? this._internalMaterials[materialIndex] : null as any;
 
-            this.batches[this._currentBatchIndex] = {
+            batch = {
                 geometry: geometry,
                 buffer: buffer,
                 material: material,
                 materialIndex: materialIndex
             };
+            this.batches[this._currentBatchIndex] = batch;
         }
 
-        return this.batches[this._currentBatchIndex];
+        return batch;
     }
 
     /**
@@ -319,6 +319,7 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
                 }
             }
 
+            this._currentBatchIndex++;
             const batch = this.getCurrentBatch();
             currentBufferState = batch.buffer.bufferState;
 

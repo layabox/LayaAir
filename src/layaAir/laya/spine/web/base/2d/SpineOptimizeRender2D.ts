@@ -15,6 +15,8 @@ import { OptimizedSpineRenderer, StandardSpineRenderer, RigidBodySpineRenderer, 
 import { BakedSpine2DRenderer, StandardSpine2DRenderer } from "./SpineRendererTypes2D";
 import { Spine2DNormalRenderUpdater } from "./Spine2DNormalRenderUpdater";
 import { WebSpineRenderDataHandle } from "../../../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
+import { SpineConst } from "../../../SpineConst";
+import { SpineNormalRenderUpdater } from "../optimize/SpineNormalRenderUpdater";
 
 /**
  * @en SpineOptimizeRender2D used for optimized rendering of Spine animations in 2D.
@@ -78,12 +80,19 @@ export class SpineOptimizeRender2D extends BaseOptimizeRender {
     protected _createRenderProxies(): void {
         let shaderData = this._owner._struct.spriteShaderData;
         let renderOptimize = new OptimizedSpineRenderer(shaderData);
-        let renderNormal = new StandardSpine2DRenderer(this._owner._struct);
-        renderNormal.normalUpdater = new Spine2DNormalRenderUpdater;
-        renderNormal.normalUpdater.autoCacheEnabled = this._enableCache;
-        (this._handle as WebSpineRenderDataHandle).normalUpdater = renderNormal.normalUpdater;
         let renderRigidBody = new RigidBodySpineRenderer(shaderData);
-        this.renderProxyMap.set(ERenderProxyType.RenderNormal, renderNormal);
+        if (SpineConst.ENABLE_WEB_BATCH) {
+            let renderNormal = new StandardSpine2DRenderer(this._owner._struct);
+            renderNormal.normalUpdater = new Spine2DNormalRenderUpdater;
+            renderNormal.normalUpdater.autoCacheEnabled = this._enableCache;
+            (this._handle as WebSpineRenderDataHandle).normalUpdater = renderNormal.normalUpdater;
+            this.renderProxyMap.set(ERenderProxyType.RenderNormal, renderNormal);
+        } else {
+            let renderNormal = new StandardSpineRenderer(shaderData);
+            renderNormal.normalUpdater = new SpineNormalRenderUpdater;
+            renderNormal.normalUpdater.autoCacheEnabled = this._enableCache;
+            this.renderProxyMap.set(ERenderProxyType.RenderNormal, renderNormal);
+        }
         this.renderProxyMap.set(ERenderProxyType.RenderOptimize, renderOptimize);
         this.renderProxyMap.set(ERenderProxyType.RenderRigidBody, renderRigidBody);
     }

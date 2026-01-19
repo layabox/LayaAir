@@ -380,9 +380,13 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
         if (!this._nativeRender) {
             return;
         }
-
-        // TODO: Implement bake initialization
-        // This might require native side support for bake data
+        
+        this._nativeRender.setBakeBonesNums(obj.bonesNums);
+        let animationMap = obj.aniOffsetMap;
+        for (const key in animationMap) {
+            this._nativeRender.setBakeAniOffset(key , animationMap[key]);
+        }
+        
     }
 
     setEventListener(listeners: {

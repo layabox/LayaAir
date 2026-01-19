@@ -1,4 +1,5 @@
 import { Laya } from "../../Laya";
+import { LayaEnv } from "../../LayaEnv";
 import { Texture2D } from "../resource/Texture2D";
 import { ISpineFactory } from "./interface/ISpineFactory";
 import { SpineShaderInit } from "./shader/SpineShaderInit";
@@ -102,6 +103,9 @@ export class SpineConst {
      * @zh 是否需要插槽
      */
     static NEED_SLOT: boolean = false;
+
+
+    static ENABLE_WEB_BATCH = true;
 }
 
 export enum ESpineRenderMode {
@@ -138,5 +142,7 @@ Laya.addAfterInitCallback(() => {
         SpineConst.NEED_SLOT = true;
     }
 
+    SpineConst.ENABLE_WEB_BATCH = false;
+    // SpineConst.ENABLE_WEB_BATCH = !LayaEnv.isConch || (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() == 2);
     SpineShaderInit.init();
 });
