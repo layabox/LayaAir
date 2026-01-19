@@ -3,21 +3,22 @@ import { SpineTemplet } from "../SpineTemplet";
 import { ESpineRenderMode, ESpineRenderState, TSpineBakeData } from "../SpineConst";
 import { Vector2 } from "../../maths/Vector2";
 import { Color } from "../../maths/Color";
+import { Texture } from "../../resource/Texture";
+import { NativeSkeletonOptimise } from "./NativeSkeletonOptimise";
 
 /**
  * @en Base class for Native Spine Optimize Render implementations.
  * @zh Native Spine 优化渲染基类。
  */
 export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
-    protected _nativeRender: any; // conchSpineOptimizeRender2D/3D from C++
+    protected _nativeRender: any;
     protected _owner: any;
     protected _templet: SpineTemplet;
-    protected _listeners: any; // Event listeners wrapper
+    protected _listeners: any;
 
-    // Shared buffers for automatic data sync with C++ layer
-    protected _sharedBoneBuffer: Float32Array | null = null; // Shared bone data buffer
-    protected _sharedTrackEntryBuffer: Float32Array = new Float32Array(7); // Shared track entry buffer
-    protected _boneNames: string[] = []; // Bone names in order
+    protected _sharedBoneBuffer: Float32Array | null = null;
+    protected _sharedTrackEntryBuffer: Float32Array = new Float32Array(7);
+    protected _boneNames: string[] = [];
     protected _skeletonVec2: Vector2 = new Vector2();
 
     protected _premultipliedAlpha: boolean = true;
@@ -42,6 +43,37 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
         this._nativeRender = nativeRender;
     }
 
+    setSlotTexture(slotName: string, texture: Texture, createAttachment: boolean): void {
+        if (!this._templet || !texture) {
+            return;
+        }
+
+        this._templet.registerTexture(texture);
+        let optimize = this._templet.optimize as NativeSkeletonOptimise;
+
+        optimize.registerTexture(texture);
+        let tex2d = texture.bitmap as any;
+        this._nativeRender.setSlotTexture(slotName, tex2d._id, createAttachment);
+    }
+
+    setTempletAttachment(templet: SpineTemplet, targetSlotName: string, skinName: string, attachmentName: string): void {
+        if (!this._templet || !templet || !targetSlotName || !skinName || !attachmentName) {
+            return;
+        }
+
+        if (templet._textures) {
+            for (let textureName in templet._textures) {
+                let texture2d = templet._textures[textureName];
+                if (texture2d && !this._templet._textures[textureName]) {
+                    this._templet.setTexture(textureName, texture2d);
+                }
+            }
+        }
+
+        let optimize = templet.optimize as NativeSkeletonOptimise;
+        this._nativeRender.setTempletAttachment(optimize._getNativeOptimise(), targetSlotName, skinName, attachmentName);
+    }
+
     getSkeleton(): spine.Skeleton {
         return null as any;
     }
@@ -49,7 +81,7 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
     init(templet: SpineTemplet): void {
         this._templet = templet;
 
-        const optimize = templet.optimize as any;
+        const optimize = templet.optimize as NativeSkeletonOptimise;
         if (!optimize) {
             throw new Error("SpineTemplet.optimize is required for native rendering");
         }
@@ -64,9 +96,7 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
             this._nativeRender.bindTrackEntryBuffer(this._sharedTrackEntryBuffer);
         }
 
-        if (templet.premultipliedAlpha !== undefined) {
-            this.premultipliedAlpha = templet.premultipliedAlpha;
-        }
+        this.premultipliedAlpha = templet.premultipliedAlpha;
 
         this._onInit();
     }
@@ -213,15 +243,7 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
     }
 
     findSlot(slotName: string): ISlotInfo | null {
-        if (!this._nativeRender) {
-            return null;
-        }
-
-        // Slot query is simple, just return name
-        // Native layer doesn't need to provide findSlot since we only need name
-        return {
-            name: slotName
-        };
+        return null
     }
 
     setSkeletonPosition(x: number, y: number): void {
@@ -229,7 +251,6 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
             return;
         }
 
-        // Native layer handles skeleton position
         this._nativeRender.setSkeletonPosition(x, y);
     }
 
@@ -238,7 +259,6 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
             return;
         }
 
-        // Native layer handles physics translation
         this._nativeRender.physicsTranslate(x, y);
     }
 

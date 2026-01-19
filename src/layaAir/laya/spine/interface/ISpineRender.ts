@@ -1,6 +1,7 @@
 import { Color } from "../../maths/Color";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
+import { Texture } from "../../resource/Texture";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { ESpineRenderMode, ESpineRenderState, TSpineBakeData } from "../SpineConst";
 import { SpineTemplet } from "../SpineTemplet";
@@ -130,6 +131,7 @@ export interface ISpineRender {
     findBone(boneName: string): IBoneInfo | null;
     
     /**
+     * @deprecated only WEB
      * @zh 通过名称查找插槽
      * @param slotName 插槽名称
      * @returns 插槽信息，如果不存在返回null
@@ -212,4 +214,21 @@ export interface ISpineRender {
      * @en Disable cache.
      */
     disableCache(): void;
+
+    /**
+     * 设置插槽纹理
+     * @param slotName 
+     * @param texture 
+     * @param createAttachment 
+     */
+    setSlotTexture(slotName: string, texture: Texture, createAttachment: boolean): void;
+
+    /**
+     * @zh 设置插槽附件
+     * @param templet Spine模板
+     * @param targetSlotName 目标插槽名称
+     * @param skinName 皮肤名称
+     * @param attachmentName 附件名称
+     */
+    setTempletAttachment(templet: SpineTemplet, targetSlotName: string, skinName: string,  attachmentName: string): void;
 }

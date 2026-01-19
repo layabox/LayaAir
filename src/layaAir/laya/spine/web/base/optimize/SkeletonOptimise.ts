@@ -6,6 +6,9 @@ import { ESpineRenderType } from "../../../SpineSkeleton";
 import { ESpineRenderMode, SpineConst, TSpineBakeData } from "../../../SpineConst";
 import { AnimationRender, SkinAniRenderData } from "./AnimationRender";
 import { SpineNormalRenderUpdater } from "./SpineNormalRenderUpdater";
+import { Texture } from "../../../../resource/Texture";
+import { Texture2D } from "../../../../resource/Texture2D";
+import { SpineTexture } from "../../SpineTexture";
 
 /**
  * @en SketonOptimise class used for skeleton optimization.
@@ -13,6 +16,8 @@ import { SpineNormalRenderUpdater } from "./SpineNormalRenderUpdater";
  */
 export class SkeletonOptimise implements ISkeletonOptimise {
     private static emptyBounds: {x:number , y:number , width:number , height:number} = {x:0, y:0, width:0, height:0};
+
+    private _registTextures: Record<string, spine.TextureAtlasPage> = {};
 
     /**
      * 4.2版本以上支持物理
@@ -236,6 +241,65 @@ export class SkeletonOptimise implements ISkeletonOptimise {
         }
     }
 
+    registerTexture(texture: Texture) {
+        let tex2d = texture.bitmap as Texture2D;
+        if (!tex2d) return;
+
+        let bitmapUrl = tex2d.url || "texture";
+        let spineTexture = new SpineTexture(tex2d);
+
+        let page = this._registTextures[bitmapUrl];
+        if (!page) {
+            page = new spine.TextureAtlasPage( bitmapUrl );
+            page.name = bitmapUrl;
+            
+            //@ts-ignore
+            page.texture = spineTexture;
+            page.width = tex2d.width;
+            page.height = tex2d.height;
+            
+            this._registTextures[bitmapUrl] = page;
+        }
+
+        let textureName = texture.url;
+        let region: spine.TextureAtlasRegion = null;
+        
+        if (!region) {
+            region = new spine.TextureAtlasRegion(page, textureName);
+            region.page = page;
+            region.name = textureName;
+        }
+        
+        region.width = texture.width;
+        region.height = texture.height;
+        region.originalWidth = texture.sourceWidth ;
+        region.originalHeight = texture.sourceHeight ;
+        region.offsetX = texture.offsetX;
+        region.offsetY = texture.offsetY;
+        
+        if (texture.uv && texture.uv.length >= 8) {
+            region.u = texture.uv[0];
+            region.v = texture.uv[1];
+            region.u2 = texture.uv[4];
+            region.v2 = texture.uv[5];
+        } else {
+            // 默认使用完整纹理
+            region.u = 0;
+            region.v = 0;
+            region.u2 = 1.0;
+            region.v2 = 1.0;
+        }
+        
+        region.texture = spineTexture;
+    }
+
+    getTextureRegion(pageName: string, textureName: string): spine.TextureAtlasRegion {
+        let page = this._registTextures[pageName];
+        if (!page) return null;
+
+        return page.regions.find(region => region.name === textureName);
+    }
+    
     /**
      * @en Initialize animations from the skeleton data.
      * @param animations Array of animations to initialize.

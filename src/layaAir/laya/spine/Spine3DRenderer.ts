@@ -608,6 +608,7 @@ export class Spine3DRenderer extends BaseRender {
     }
 
     /**
+     * @deprecated only WEB
      * @zh 通过名字得到插槽的引用
      * @param slotName 插槽的名字
      * @en Get the reference to the slot by name.
@@ -694,6 +695,7 @@ export class Spine3DRenderer extends BaseRender {
      * @en Transform changed, update the skeleton position.
      */
     private onTransformChanged() {
+        if (!this._spineRender) return
         let matrix = this.owner.transform.worldMatrix;
         this._spineRender.setSkeletonPosition(
             matrix.elements[12],

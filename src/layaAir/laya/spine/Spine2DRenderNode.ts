@@ -22,6 +22,7 @@ import { Matrix } from "../maths/Matrix";
 import { ISpineRender } from "./interface/ISpineRender";
 import { ESpineRenderMode, ESpineRenderState, SpineConst } from "./SpineConst";
 import { RepaintFlag } from "../display/SpriteConst";
+import { Texture } from "../resource/Texture";
 
 /**
  * @zh Spine动画渲染节点。
@@ -39,7 +40,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     private _createBone: boolean = false;
 
-    protected _spineRender: ISpineRender;
+    /** @internal */
+    _spineRender: ISpineRender;
     
     /** 
      * @zh 物理更新模式。
@@ -219,8 +221,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @en Resets the external loaded skin data. After replacing attachments or skin data, this method needs to be called, otherwise it will not take effect.
      */
     resetExternalSkin() {
-        this._spineRender.resetExternalSkin();
-        this._flushExtSkin();
+        if (this._spineRender) {
+            this._spineRender.resetExternalSkin();
+            this._flushExtSkin();
+        }
     }
 
     /**
@@ -752,10 +756,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     private _flushExtSkin() {
         let skins = this._externalSkins;
         if (skins) {
-            // let normal = false;//todo 需要修改顶点构成?
             for (let i = skins.length - 1; i >= 0; i--) {
                 skins[i].flush();
-                // normal = skins[i].normal || normal;
             }
             this.useFastRender = false;
         }
@@ -779,6 +781,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
+     * @deprecated only WEB
      * @zh 通过名字得到插槽的引用
      * @param slotName 插槽的名字
      * @en Get the reference to the slot by name.
@@ -942,25 +945,35 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @param texture Texture object
      * @param createAttachment Whether to create a new attachment copy
      */
-    // setSlotTexture(slotName: string, texture: Texture, createAttachment: boolean = true) {
-    //     if (this._useFastRender) {
-    //         console.log("setSlotTexture: useFastRender is true, return");
-    //         return
-    //     }
+    setSlotTexture(slotName: string, texture: Texture, createAttachment: boolean = true) {
+        if (this._useFastRender) {
+            console.log("setSlotTexture: useFastRender is true, return");
+            return
+        }
 
-    //     if (!this._skeleton){
-    //         console.log("setSlotTexture: skeleton not found, return");
-    //         return;
-    //     }
-        
-    //     let slot = this._skeleton.findSlot(slotName);
-    //     if (!slot){
-    //         console.log("setSlotTexture: slot not found, slotName: " + slotName);
-    //         return;
-    //     }
-        
-    //     SlotUtils.setSlotTexture(slot, texture, this._templet, createAttachment);
-    // }
+        this._spineRender.setSlotTexture(slotName, texture, createAttachment);
+    }
+
+    /**
+     * @zh 设置模板附件
+     * @param templet Spine模板
+     * @param targetSlotName 目标插槽名称
+     * @param skinName 皮肤名称
+     * @param attachmentName 附件名称
+     * @en Set the template attachment.
+     * @param templet Spine template.
+     * @param targetSlotName Target slot name.
+     * @param skinName Skin name.
+     * @param attachmentName Attachment name.
+     */
+    setTempletAttachment( templet: SpineTemplet, targetSlotName: string, skinName: string, attachmentName: string) {
+        if (this._useFastRender) {
+            console.log("setTempletAttachment: useFastRender is true, return");
+            return
+        }
+
+        this._spineRender.setTempletAttachment(templet, targetSlotName, skinName, attachmentName);
+    }
 
     /**
      * @zh 设置当动画被改变时，存储混合(交叉淡出)的持续时间
@@ -1023,11 +1036,13 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @en Transform changed, update the skeleton position.
      */
     private onTransformChanged() {
-        let matrix = this.owner.globalTrans.getMatrix();
-        this._spineRender.setSkeletonPosition(
-            matrix.tx,
-            matrix.ty
-        );
+        if (this._spineRender) {
+            let matrix = this.owner.globalTrans.getMatrix();
+            this._spineRender.setSkeletonPosition(
+                matrix.tx,
+                matrix.ty
+            );
+        }
     }
     
     /**

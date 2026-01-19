@@ -1,4 +1,5 @@
 import { Material } from "../../resource/Material";
+import { Texture } from "../../resource/Texture";
 import { Texture2D } from "../../resource/Texture2D";
 import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 import { ISkeletonOptimise } from "../interface/ISpineParse";
@@ -11,6 +12,8 @@ import { SpineTemplet } from "../SpineTemplet";
  */
 export class NativeSkeletonOptimise implements ISkeletonOptimise {
     private _nativeOptimise: any;
+
+    private _registTextures: Map<string, Set<string>> = new Map();
 
     static __init__() {
         let dec = SpineShaderInit.getAllVertexDeclarations();
@@ -174,6 +177,42 @@ export class NativeSkeletonOptimise implements ISkeletonOptimise {
         // This method is kept for interface compatibility
     }
 
+    registerTexture(texture: Texture): void {
+        let tex2d = texture.bitmap as Texture2D;
+        if (!tex2d) return;
+
+        let bitmapUrl = tex2d.url || "texture";
+
+        let page = this._registTextures.get(bitmapUrl);
+        if (!page) {
+            page = new Set<string>();
+            this._registTextures.set(bitmapUrl, page);
+        }
+
+        let textureName = texture.url;
+
+        if (!page.has(textureName)) {
+            page.add(textureName);
+            let width = texture.width;
+            let height = texture.height;
+            let originalWidth = texture.sourceWidth ;
+            let originalHeight = texture.sourceHeight ;
+            let offsetX = texture.offsetX;
+            let offsetY = texture.offsetY;
+            let u = 0;
+            let v = 0;
+            let u2 = 1.0;
+            let v2 = 1.0;
+            if (texture.uv && texture.uv.length >= 8) {
+                u = texture.uv[0];
+                v = texture.uv[1];
+                u2 = texture.uv[4];
+                v2 = texture.uv[5];
+            }
+
+            this._nativeOptimise.registerTexture(bitmapUrl, textureName, width, height, originalWidth, originalHeight, offsetX, offsetY, u, v, u2, v2);
+        }
+    }
     /**
      * @en Initialize materials for textures and cache them for cleanup.
      * @param textureUrls Array of texture URLs.

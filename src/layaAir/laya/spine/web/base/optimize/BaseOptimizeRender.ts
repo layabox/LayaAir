@@ -16,7 +16,8 @@ import { IRenderGeometryElement } from "../../../../RenderDriver/DriverDesign/Re
 import { IRender } from "../../IWebSpine";
 import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Vector2 } from "../../../../maths/Vector2";
-import { StandardSpineRenderer } from "./SpineRendererTypes";
+import { BakedSpineRenderer, StandardSpineRenderer } from "./SpineRendererTypes";
+import { Texture } from "../../../../resource/Texture";
 
 enum ERenderProxyType {
     RenderNormal,
@@ -384,18 +385,20 @@ export abstract class BaseOptimizeRender implements ISpineRender {
     initBake(obj: TSpineBakeData): void {
         this.bakeData = obj;
         if (obj) {
-            let render = this.renderProxyMap.get(ERenderProxyType.RenderBake);
+            let render = this.renderProxyMap.get(ERenderProxyType.RenderBake) as BakedSpineRenderer;
             if (!render) {
-                render = this._createBakedRenderer();
+                render = this._createBakedRenderer() as BakedSpineRenderer;
+                render.bind(this.updater, this._skeleton);
                 this.renderProxyMap.set(ERenderProxyType.RenderBake, render);
             }
             if (render) {
-                (render as any).simpleAnimatorTexture = obj.texture2d;
-                (render as any)._bonesNums = obj.bonesNums;
-                (render as any).aniOffsetMap = obj.aniOffsetMap;
+                render.simpleAnimatorTexture = obj.texture2d;
+                render._bonesNums = obj.bonesNums;
+                render.aniOffsetMap = obj.aniOffsetMap;
             }
         }
-        this.mode = ESpineRenderMode.Bake;
+        
+        this._mode = ESpineRenderMode.Bake;
 
         if (this._curAnimationName) {
             this._clearRenderElements();
@@ -661,6 +664,11 @@ export abstract class BaseOptimizeRender implements ISpineRender {
     }
 
     enableCache(): void {
+
+        if (this._mode !== ESpineRenderMode.Normal) {
+            console.log("enableCache: mode is not Normal");
+        }
+
         if (this.renderProxyMap) {
             const renderNormal = this.renderProxyMap.get(ERenderProxyType.RenderNormal) as StandardSpineRenderer;
             
@@ -672,6 +680,11 @@ export abstract class BaseOptimizeRender implements ISpineRender {
     }
 
     disableCache(): void {
+
+        if (this._mode !== ESpineRenderMode.Normal) {
+            console.log("disableCache: mode is not Normal");
+        }
+
         if (this.renderProxyMap) {
             const renderNormal = this.renderProxyMap.get(ERenderProxyType.RenderNormal) as StandardSpineRenderer;
             
@@ -682,4 +695,92 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         this._enableCache = false;
     }
     
+    setSlotTexture(slotName: string, texture: Texture, createAttachment: boolean): void {
+        if (this._mode !== ESpineRenderMode.Normal) {
+            console.log("setSlotTexture: mode is not Normal, return");
+            return;
+        }
+        
+        let slot = this._skeleton.findSlot(slotName);
+        if (!slot) return;
+        let attachment = slot.getAttachment();
+        if (!attachment) return;
+
+        this._templet.registerTexture(texture);
+        this._optimize.registerTexture(texture);
+        
+        if (createAttachment) {
+            attachment = attachment.copy();
+            slot.setAttachment(attachment);
+        }
+
+        let pageName = texture.url;
+        let textureName = slotName;
+        let newRegion = this._optimize.getTextureRegion(pageName, textureName);
+        
+        if (attachment instanceof spine.RegionAttachment) {
+            attachment.region = newRegion;
+            attachment.width = newRegion.width;
+            attachment.height = newRegion.height;
+
+            if (attachment.updateRegion) {
+                attachment.updateRegion();
+            }
+            //@ts-ignore
+            else if(attachment.updateOffset){
+                //@ts-ignore
+                attachment.updateOffset();
+            }
+
+        } else if (attachment instanceof spine.MeshAttachment) {
+            attachment.region = newRegion;
+            attachment.width = newRegion.width;
+            attachment.height = newRegion.height;
+
+            if (attachment.updateRegion) {
+                attachment.updateRegion();
+            }
+            //@ts-ignore
+            else if(attachment.updateUVs){
+                //@ts-ignore
+                attachment.updateUVs();
+            }
+        }
+    }
+
+    setTempletAttachment(templet: SpineTemplet, targetSlotName: string, skinName: string,  attachmentName: string): void { 
+        if (this._mode !== ESpineRenderMode.Normal) {
+            console.log("setSlotAttachment: mode is not Normal");
+            return;
+        }
+       
+        let optimize = templet.optimize as SkeletonOptimise;
+
+        if (attachmentName && targetSlotName && skinName) {
+            let attachment: spine.Attachment = null;
+            let skins = optimize.data.skins;
+            for (let j = skins.length - 1; j >= 0; j--) {
+                if (skins[j].name == skinName) {
+                    let skin = skins[j];
+                    let attachments = skin.attachments;
+                    for (let j = attachments.length - 1; j >= 0; j--) {
+                        attachment = attachments[j]?.[attachmentName];
+                        if (attachment) {
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            if (attachment && (attachment as any).region) {
+                let regionPage = (attachment as any).region.page;
+                this._templet.setTexture(regionPage.name , regionPage.texture.realTexture);
+                let slotObj = this._skeleton.findSlot(targetSlotName);
+                if (slotObj) {
+                    slotObj.setAttachment(attachment);
+                }
+            }
+        }
+    }
 }

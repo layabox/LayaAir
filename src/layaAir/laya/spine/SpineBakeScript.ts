@@ -1,5 +1,6 @@
 import { Laya } from "../../Laya";
 import { Script } from "../components/Script";
+import { Event } from "../events/Event";
 import { Loader } from "../net/Loader";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { ClassUtils } from "../utils/ClassUtils";
@@ -43,9 +44,9 @@ export class SpineBakeScript extends Script {
      */
     onDisable(): void {
         let spine = this.owner.getComponent(Spine2DRenderNode) as Spine2DRenderNode;
-        // if (spine.spineItem){
-        //     spine.spineItem.initBake(null);
-        // }
+        if (spine._spineRender){
+            spine._spineRender.initBake(null);
+        }
     }
 
     async initBake(data: TSpineBakeData) {
@@ -59,20 +60,14 @@ export class SpineBakeScript extends Script {
         });
         data.texture2d = texture;
 
-        // let spine = this.owner.getComponent(Spine2DRenderNode) as Spine2DRenderNode;
-        // if (spine.spineItem && !(spine.spineItem instanceof SpineEmptyRender)) {
-        //     if (spine.useFastRender) {
-        //         if (!(spine.spineItem instanceof SpineOptimizeRender)) {
-        //             spine.changeFast();
-        //             spine.play(spine.animationName, spine.loop, true, spine.currentTime);
-        //         }
-        //         spine.spineItem.initBake(data);
-        //     }
-        // } else {
-        //     this.owner.on(Event.READY, this, () => {
-        //         spine._spineRender.initBake(data);
-        //     });
-        // }
+        let spine = this.owner.getComponent(Spine2DRenderNode) as Spine2DRenderNode;
+        if (spine.templet) {
+            spine._spineRender.initBake(data);
+        } else {
+            this.owner.on(Event.READY, this, () => {
+                spine._spineRender.initBake(data);
+            });
+        }
     }
 }
 

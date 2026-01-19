@@ -22,8 +22,6 @@ export class ExternalSkin {
      */
     target: Spine2DRenderNode;
 
-    normal = false;
-
     /**
      * @en The source of the external skin Spine.
      * @zh 外部皮肤spine的源。
@@ -88,50 +86,16 @@ export class ExternalSkin {
      */
     flush() {
         let targetTemplet = this.target?.templet;
-        let skeletonData = (this._templet as any).skeletonData;
+        let optimize = this._templet.optimize;
         if (
-            this._items && skeletonData 
+            this._items && optimize 
             && targetTemplet
-            && (targetTemplet as any)._textures) 
+            && targetTemplet._textures) 
         {
             for (let i = this._items.length - 1; i >= 0; i--) {
                 let o = this._items[i];
-                let attachmentStr = o.attachment;
-                let slot = o.slot;
-                let skinStr = o.skin;
-
-                if (attachmentStr && slot && skinStr) {
-                    let attachment: spine.Attachment = null;
-                    let skins = skeletonData.skins;
-                    for (let j = skins.length - 1; j >= 0; j--) {
-                        if (skins[j].name == skinStr) {
-                            let skin = skins[j];
-                            let attachments = skin.attachments;
-                            for (let j = attachments.length - 1; j >= 0; j--) {
-                                attachment = attachments[j]?.[attachmentStr];
-                                if (attachment) {
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    if (attachment) {
-                        let regionPage = (attachment as any).region.page;
-                        targetTemplet.setTexture(regionPage.name , regionPage.texture.realTexture);
-                        let slotObj = this.target.getSkeleton().findSlot(slot);
-                        if (slotObj) {
-                            slotObj.setAttachment(attachment);
-                        }
-
-                    }
-                }
-
+                this.target.setTempletAttachment(this._templet, o.slot,  o.skin, o.attachment);
             }
-            this.normal = this._templet !== targetTemplet;
-        }else{
-            this.normal = false;
         }
-
     }
 }
