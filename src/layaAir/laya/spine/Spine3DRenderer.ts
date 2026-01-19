@@ -137,12 +137,14 @@ export class Spine3DRenderer extends BaseRender {
 
     /** @internal */
     set premultipliedAlpha(value: boolean) {
+        this._premultipliedAlpha = value;
+
+        if (!this._spineRender) return;
         if (this._setPreAlphaFlag || !this._templet) {
             this._spineRender.premultipliedAlpha = value;
         } else {
             this._spineRender.premultipliedAlpha = this._templet._premultipliedAlpha;
         }
-        this._premultipliedAlpha = value;
     }
     
     /**
@@ -393,7 +395,7 @@ export class Spine3DRenderer extends BaseRender {
         super.onEnable();
         this.owner.on(Event.TRANSFORM_CHANGED, this, this.onTransformChanged);
 
-        if (LayaEnv.isPlaying && this._animationName !== undefined)
+        if (this._spineRender && LayaEnv.isPlaying && this._animationName !== undefined)
             this.play(this._animationName, this._loop, true);
     }
 

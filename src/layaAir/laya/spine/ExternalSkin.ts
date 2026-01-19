@@ -86,12 +86,14 @@ export class ExternalSkin {
      */
     flush() {
         let targetTemplet = this.target?.templet;
-        let optimize = this._templet.optimize;
         if (
-            this._items && optimize 
+            this._items
             && targetTemplet
             && targetTemplet._textures) 
         {
+            let optimize = this._templet.optimize;
+            if (!optimize) 
+                return
             for (let i = this._items.length - 1; i >= 0; i--) {
                 let o = this._items[i];
                 this.target.setTempletAttachment(this._templet, o.slot,  o.skin, o.attachment);
