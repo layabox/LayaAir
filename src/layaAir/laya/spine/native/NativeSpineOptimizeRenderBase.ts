@@ -61,16 +61,17 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
             return;
         }
 
+        let optimize = this._templet.optimize as NativeSkeletonOptimise;
         if (templet._textures) {
             for (let textureName in templet._textures) {
                 let texture2d = templet._textures[textureName];
                 if (texture2d && !this._templet._textures[textureName]) {
                     this._templet.setTexture(textureName, texture2d);
+                    // optimize.registerTexture(texture2d);
                 }
             }
         }
 
-        let optimize = templet.optimize as NativeSkeletonOptimise;
         this._nativeRender.setTempletAttachment(optimize._getNativeOptimise(), targetSlotName, skinName, attachmentName);
     }
 

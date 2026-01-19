@@ -177,11 +177,18 @@ export class NativeSkeletonOptimise implements ISkeletonOptimise {
         // This method is kept for interface compatibility
     }
 
-    registerTexture(texture: Texture): void {
-        let tex2d = texture.bitmap as Texture2D;
-        if (!tex2d) return;
+    registerTexture(texture: Texture | Texture2D): void {
+        let isTexture = false;
+        let texture2d: Texture2D;
+        if (texture instanceof Texture) {
+            texture2d = texture.bitmap as Texture2D;
+            isTexture = true;
+        }else
+            texture2d = texture;
+        
+        if (!texture2d) return;
 
-        let bitmapUrl = tex2d.url || "texture";
+        let bitmapUrl = texture2d.url;
 
         let page = this._registTextures.get(bitmapUrl);
         if (!page) {
@@ -193,24 +200,31 @@ export class NativeSkeletonOptimise implements ISkeletonOptimise {
 
         if (!page.has(textureName)) {
             page.add(textureName);
+
             let width = texture.width;
             let height = texture.height;
-            let originalWidth = texture.sourceWidth ;
-            let originalHeight = texture.sourceHeight ;
-            let offsetX = texture.offsetX;
-            let offsetY = texture.offsetY;
+            let originalWidth = texture.width;
+            let originalHeight = texture.height;
+            let offsetX = 0;
+            let offsetY = 0;
             let u = 0;
             let v = 0;
             let u2 = 1.0;
             let v2 = 1.0;
-            if (texture.uv && texture.uv.length >= 8) {
-                u = texture.uv[0];
-                v = texture.uv[1];
-                u2 = texture.uv[4];
-                v2 = texture.uv[5];
+            if (isTexture) {
+                originalWidth = (texture as Texture).sourceWidth ;
+                originalHeight = (texture as Texture).sourceHeight ;
+                offsetX = (texture as Texture).offsetX;
+                offsetY = (texture as Texture).offsetY;
+                if ((texture as Texture).uv && (texture as Texture).uv.length >= 8) {
+                    u = (texture as Texture).uv[0];
+                    v = (texture as Texture).uv[1];
+                    u2 = (texture as Texture).uv[4];
+                    v2 = (texture as Texture).uv[5];
+                }
             }
 
-            this._nativeOptimise.registerTexture(bitmapUrl, textureName, width, height, originalWidth, originalHeight, offsetX, offsetY, u, v, u2, v2);
+            this._nativeOptimise.registerTexture( texture2d.id , bitmapUrl, textureName, width, height, originalWidth, originalHeight, offsetX, offsetY, u, v, u2, v2);
         }
     }
     /**

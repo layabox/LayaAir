@@ -251,7 +251,7 @@ export class StandardSpineRenderer extends SpineBaseRenderer {
      */
     change() {
         this._shaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
-        this._skeleton.setToSetupPose();
+        this._skeleton.setBonesToSetupPose();
         this.normalUpdater.needUpdate = true;
     }
 
