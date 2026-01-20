@@ -4,8 +4,8 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineShaderInit } from "../../../shader/SpineShaderInit";
-import { SpineConst } from "../../../SpineConst";
-import { IRender, ISpineNormalUpdater } from "../../IWebSpine";
+import { ESpineRenderMode, SpineConst } from "../../../SpineConst";
+import { ERenderProxyType, IRender, ISpineNormalUpdater } from "../../IWebSpine";
 import { BaseOptimizeRender } from "./BaseOptimizeRender";
 import { SpineRenderUpdater } from "./SpineRenderUpdater";
 
@@ -14,6 +14,7 @@ import { SpineRenderUpdater } from "./SpineRenderUpdater";
  * @zh 所有 Spine 渲染器的基础类。
  */
 export abstract class SpineBaseRenderer implements IRender {
+    type: ESpineRenderMode = ESpineRenderMode.Optimize;
     /** @internal */
     protected _shaderData: ShaderData;
     /** @internal */
@@ -101,6 +102,7 @@ export abstract class SpineBaseRenderer implements IRender {
  * @zh RigidBodySpineRenderer 类用于刚体渲染的 Spine 动画。
  */
 export class RigidBodySpineRenderer extends SpineBaseRenderer {
+
     private _matrix_0 = new Vector3(1,0,0);
     private _matrix_1 = new Vector3(0,1,0);
 
@@ -228,6 +230,8 @@ export class OptimizedSpineRenderer extends SpineBaseRenderer {
  */
 export class StandardSpineRenderer extends SpineBaseRenderer {
 
+    type: ESpineRenderMode = ESpineRenderMode.Normal;
+    
     normalUpdater: ISpineNormalUpdater;
 
     /** @ignore @blueprintIgnore */
@@ -251,7 +255,7 @@ export class StandardSpineRenderer extends SpineBaseRenderer {
      */
     change() {
         this._shaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
-        this._skeleton.setBonesToSetupPose();
+        // this._skeleton.setBonesToSetupPose();
         this.normalUpdater.needUpdate = true;
     }
 
@@ -294,6 +298,8 @@ export class StandardSpineRenderer extends SpineBaseRenderer {
  * @zh BakedSpineRenderer 类用于烘焙 Spine 动画的渲染。
  */
 export class BakedSpineRenderer extends SpineBaseRenderer {
+
+    type: ESpineRenderMode = ESpineRenderMode.Bake;
     
     /** @internal */
     private _simpleAnimatorParams: Vector4 = new Vector4();

@@ -88,6 +88,7 @@ export class ExternalSkin {
         let targetTemplet = this.target?.templet;
         if (
             this._items
+            && this._templet
             && targetTemplet
             && targetTemplet._textures) 
         {

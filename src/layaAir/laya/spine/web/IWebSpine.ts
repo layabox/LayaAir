@@ -1,6 +1,7 @@
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { Material } from "../../resource/Material";
 import { ISpineFactory } from "../interface/ISpineFactory";
+import { ESpineRenderMode } from "../SpineConst";
 import { VBCreator } from "./base/buffer/VBCreator";
 import { FrameRenderCache } from "./base/optimize/AnimationRender";
 import { AttachmentParse } from "./base/optimize/AttachmentParse";
@@ -25,6 +26,7 @@ export interface IChange {
 }
 
 export interface IRender {
+    type: ESpineRenderMode;
     bind( updater: SpineRenderUpdater, skeleton: spine.Skeleton): void;
     change(): void;
     leave(): void;

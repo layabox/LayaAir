@@ -227,7 +227,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
                 !this._enableCache
                 || !this.updater.currentData.renderCache[cacheFrameIndex]
             )
-            && this._mode !== ESpineRenderMode.Bake
+            && this.renderProxy.type !== ESpineRenderMode.Bake
         ) {
             this._state.apply(this._skeleton);
         } else {
@@ -309,7 +309,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
 
         if ((!this._enableCache
             || !this.updater.currentData.renderCache[this.updater.cacheFrameIndex])
-            && this._mode !== ESpineRenderMode.Bake
+            && this.renderProxy.type !== ESpineRenderMode.Bake
         ) {
             this._skeleton.updateWorldTransform(physicsUpdate);
         }
@@ -571,9 +571,13 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         }
 
         if (this.renderProxy && currentAnimator) {
-            this.renderProxy.change();
             this.updater.animator = currentAnimator;
             this._currentAnimator = currentAnimator;
+            this.renderProxy.change();
+        }
+
+        if (this.renderProxy.type !== ESpineRenderMode.Optimize) {
+            this._skeleton.setBonesToSetupPose();
         }
     }
     
