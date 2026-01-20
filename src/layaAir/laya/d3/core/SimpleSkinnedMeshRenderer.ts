@@ -20,9 +20,11 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     private _simpleAnimatorTextureSize: number;
     /**  x simpleAnimation offset,y simpleFrameOffset*/
     private _simpleAnimatorOffset: Vector2;
-    /**@internal */
+    /**
+     * @en The number of bones.
+     * @zh 骨骼数量
+     */
     _bonesNums: number;
-
 
     //解决编译bug TODO
     private _ownerSimpleRenderNode: ISimpleSkinRenderNode;

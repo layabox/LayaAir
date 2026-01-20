@@ -3,7 +3,6 @@
  * @zh 用来描述动画层遮罩。
  */
 export class AvatarMask {
-    /**@internal */
     private _avatarPathMap: Record<string, boolean>;
 
     /**

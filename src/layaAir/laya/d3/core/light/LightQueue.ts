@@ -1,9 +1,7 @@
 import { Light } from "./Light";
 
-
-
 /**
- * @internal
+ * @ignore
  * @en The `LightQueue` class manages a queue of lights.
  * @zh `LightQueue` 类管理一个灯光队列
  */
@@ -18,7 +16,7 @@ export class LightQueue<T extends Light> {
      */
     add(light: T): void {
         let index = this._elements.indexOf(light);
-        if (index !=-1 && index < this._length) {
+        if (index != -1 && index < this._length) {
             return;
         }
         if (this._length === this._elements.length)
@@ -34,7 +32,7 @@ export class LightQueue<T extends Light> {
      */
     remove(light: T): void {
         var index: number = this._elements.indexOf(light);
-        if(index == -1)
+        if (index == -1)
             return;
         this._length--;
         if (index !== this._length) {
@@ -87,7 +85,7 @@ export class LightQueue<T extends Light> {
  * @en The `AlternateLightQueue` class extends the `LightQueue` class, and overrides the remove method.
  * @zh `AlternateLightQueue` 类继承自 `LightQueue` 类，重写了移除灯光的方法
  */
-export class AlternateLightQueue extends LightQueue<Light>{
+export class AlternateLightQueue extends LightQueue<Light> {
 
     /**
      * @en Removes a light from the queue.

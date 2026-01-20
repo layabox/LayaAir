@@ -22,23 +22,23 @@ export class GradientDataNumber implements IClone {
         return gradientData;
     }
 
-    private _currentLength: number = 0;
-
     /**
-     * @internal
+     * @en The current length of the gradient data.
+     * @zh 渐变数据的当前长度。
      */
+    _currentLength: number = 0;
+
+    /** @internal */
     _dataBuffer: Float32Array;
 
     /**
-     * @internal
+     * @en The gradient elements.
+     * @zh 渐变元素。
      */
     get _elements(): Float32Array {
         return this._dataBuffer;
     }
 
-    /**
-     * @internal
-     */
     set _elements(value: Float32Array) {
         let currentLength = value.length;
         currentLength = currentLength > 8 ? 8 : currentLength;
@@ -47,9 +47,16 @@ export class GradientDataNumber implements IClone {
         this._formatData();
     }
 
-    /**@internal 曲线编辑范围*/
+    /**
+     * @en Curve editing range
+     * @zh 曲线编辑范围
+     */
     _curveMin: number;
-    /**@internal 曲线编辑范围*/
+
+    /**
+     * @en Curve editing range
+     * @zh 曲线编辑范围
+     */
     _curveMax: number;
     /**
      * @en The number of gradient floats.

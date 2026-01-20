@@ -16,9 +16,12 @@ import { Material } from "../../resource/Material";
  * @zh `TrailRenderer` 类用于创建拖尾渲染器。
  */
 export class TrailRenderer extends BaseRender {
-
-    /**@internal */
+    /**
+     * @en The trail filter.
+     * @zh 拖尾过滤器。
+     */
     _trailFilter: TrailFilter;
+
     /** @ignore */
     constructor() {
         super();
