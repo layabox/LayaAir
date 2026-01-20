@@ -8,7 +8,7 @@ import { SpineNormalRenderUpdater } from "./base/optimize/SpineNormalRenderUpdat
 import { JSSpineFactory } from "./JSSpineFactory";
 import { SpineAdapter } from "./SpineAdapter";
 
-Laya.addInitCallback(() => {
+Laya.addAfterInitCallback(() => {
     SpineConst.factory = new JSSpineFactory();
     SpineNormalRenderUpdater.__init__();
     SpineAdapter.adaptJS();

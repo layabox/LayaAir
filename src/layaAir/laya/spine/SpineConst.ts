@@ -105,7 +105,7 @@ export class SpineConst {
     static NEED_SLOT: boolean = false;
 
 
-    static ENABLE_WEB_BATCH = true;
+    static ENABLE_WEB_BATCH = false;
 }
 
 export enum ESpineRenderMode {
@@ -142,7 +142,7 @@ Laya.addAfterInitCallback(() => {
         SpineConst.NEED_SLOT = true;
     }
 
-    SpineConst.ENABLE_WEB_BATCH = false;
-    // SpineConst.ENABLE_WEB_BATCH = !LayaEnv.isConch || (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() == 2);
+    // SpineConst.ENABLE_WEB_BATCH = false;
+    SpineConst.ENABLE_WEB_BATCH = !LayaEnv.isConch || (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() == 2);
     SpineShaderInit.init();
 });
