@@ -23,7 +23,15 @@ const downEffectValueS = 0.9;
 
 /**
  * @en GButton is a button widget that can display a title and an icon, and supports different modes such as common, check, and radio.
+ * The button itself does not have any visual effects. If you want to display a title, you need to bind a child node (usually a GTextField) through the titleWidget; if you want to display an icon, you bind a child node (usually a GImage or GLoader) through the iconWidget.
+ * If the button needs to have a press-down effect, you can set the effect when pressed through the downEffect property. Currently, three effects are supported: darken, scale down, and scale up.
+ * The button can also achieve advanced visual effects by switching 3-state images. The specific method is to add a controller named "button" to the button. The controller needs to have the following pages: up, over, down, selectedOver.
+ * Then the image can be linked with the controller by GearDisplay, setting which pages the image is displayed on, thereby achieving visual effects in different states.
  * @zh GButton 是一个按钮小部件，可以显示标题和图标，并支持不同的模式，如常规、复选和单选。
+ * 按钮自身不带有任何视觉效果，如果需要显示标题，需要通过titleWidget绑定一个孩子节点（通常是GTextField），如果需要显示图标，则通过iconWidget绑定孩子节点（通常是GImage或者GLoader）。
+ * 如果按钮需要有按下效果，可以通过downEffect属性设置按下时的效果，目前支持变暗、向下缩放和向上缩放三种效果。
+ * 按钮也可以通过切换3态图实现高级视觉效果，具体做法是给按钮添加一个名称为button的控制器，控制器需要有如下页面：up、over、down、selectedOver。
+ * 然后图片可以通过GearDisplay与控制器联动，设置图片在哪些页面下显示，从而实现不同状态下的视觉效果。
  * @blueprintInheritable
  */
 export class GButton extends GLabel {
