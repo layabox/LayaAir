@@ -23,7 +23,8 @@ import { SpineNormalRenderUpdater } from "../optimize/SpineNormalRenderUpdater";
  * @zh SpineOptimizeRender2D 类用于优化 2D 空间中的 Spine 动画渲染。
  */
 export class SpineOptimizeRender2D extends BaseOptimizeRender {
-
+    private static _emptyList: IRenderElement2D[] = [];
+    
     static _NODE_COMMONMAP_ = ["BaseRender2D", "Spine2D"];
     /** @ignore @blueprintIgnore */
     static _pool: IRenderElement2D[] = [];
@@ -162,7 +163,7 @@ export class SpineOptimizeRender2D extends BaseOptimizeRender {
     ): void {
         if (!subMeshes || !materials || subMeshes.length === 0 || materials.length === 0) {
             this._clearRenderElements();
-            struct.renderElements = [];
+            // struct.renderElements = SpineOptimizeRender2D._emptyList;
             return;
         }
 
@@ -170,7 +171,7 @@ export class SpineOptimizeRender2D extends BaseOptimizeRender {
         const materialCount = materials.length;
         const targetCount = Math.max(subMeshCount, materialCount);
 
-        let need = false;
+        let need = !SpineConst.ENABLE_WEB_BATCH && subMeshCount != this._renderElements.length ? true : false;
         
         for (let i = 0; i < targetCount; i++) {
             let element = this._renderElements[i];
@@ -231,7 +232,7 @@ export class SpineOptimizeRender2D extends BaseOptimizeRender {
         this._renderElements.length = 0;
         
         if (this._owner && this._owner._struct) {
-            this._owner._struct.renderElements = [];
+            this._owner._struct.renderElements = SpineOptimizeRender2D._emptyList;
         }
     }
 

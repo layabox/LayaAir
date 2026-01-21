@@ -9,7 +9,7 @@ import { IBaseRenderNode } from "../../../../RenderDriver/RenderModuleData/Desig
 import { Laya3DRender } from "../../../../d3/RenderObjs/Laya3DRender";
 import { OptimizedSpineRenderer, StandardSpineRenderer, RigidBodySpineRenderer, BakedSpineRenderer } from "../optimize/SpineRendererTypes";
 import { ERenderProxyType, IRender, IRenderBatch } from "../../IWebSpine";
-import { ESpineRenderMode } from "../../../SpineConst";
+import { ESpineRenderMode, SpineConst } from "../../../SpineConst";
 import { SpineNormalRenderUpdater } from "../optimize/SpineNormalRenderUpdater";
 
 /**
@@ -17,7 +17,7 @@ import { SpineNormalRenderUpdater } from "../optimize/SpineNormalRenderUpdater";
  * @zh SpineOptimizeRender3D 类用于优化 3D 空间中的 Spine 动画渲染。
  */
 export class SpineOptimizeRender3D extends BaseOptimizeRender {
-
+    private static _emptyList: IRenderElement3D[] = [];
     /** @ignore @blueprintIgnore */
     static _pool: IRenderElement3D[] = [];
 
@@ -124,7 +124,7 @@ export class SpineOptimizeRender3D extends BaseOptimizeRender {
         if (!subMeshes || !materials || subMeshes.length === 0 || materials.length === 0) {
             // 清理所有元素
             this._clearRenderElements();
-            this._owner.setRenderelements([]);
+            // this._owner.setRenderelements(SpineOptimizeRender3D._emptyList);
             return;
         }
 
@@ -132,7 +132,8 @@ export class SpineOptimizeRender3D extends BaseOptimizeRender {
         const materialCount = materials.length;
         const targetCount = Math.max(subMeshCount, materialCount);
 
-        let need = false;
+        // let need = false;
+        let need = !SpineConst.ENABLE_WEB_BATCH && subMeshCount != this._renderElements.length ? true : false;
         
         // 更新或创建 RenderElements
         for (let i = 0; i < targetCount; i++) {
@@ -195,7 +196,7 @@ export class SpineOptimizeRender3D extends BaseOptimizeRender {
         this._renderElements.length = 0;
         
         if (this._owner) {
-            this._owner.setRenderelements([]);
+            this._owner.setRenderelements(SpineOptimizeRender3D._emptyList);
         }
     }
 

@@ -532,7 +532,8 @@ export abstract class BaseOptimizeRender implements ISpineRender {
 
         let currentAnimator = this._optimize.animators.find(animator => animator.name === animationName);
 
-        if (!skinAttach.isNormalRender && (this.mode === ESpineRenderMode.Optimize || this.mode === ESpineRenderMode.Bake)) {
+        let isNormalRender = skinAttach.isNormalRender || currentAnimator.hasClip;
+        if (!isNormalRender && (this.mode === ESpineRenderMode.Optimize || this.mode === ESpineRenderMode.Bake)) {
 
             if (skinAttach.vertexBones > 4) {
                 console.warn(`In FastRender mode - Current skin: ${skinAttach.name} has ${skinAttach.vertexBones} bones influencing each vertex. This exceeds the recommended limit of 4 bones per vertex.`);
