@@ -11,7 +11,6 @@ import { Scene2DSpecialManager } from "./Scene2DSpecial/Scene2DSpecialManager";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { TransformKind } from "./SpriteConst";
 import { Area2D } from "./Area2D";
-import { LayaEnv } from "../../LayaEnv";
 import { IElementComponentManager } from "../components/IScenceComponentManager";
 import { ShaderDataItem, ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { I2DGlobalRenderData } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
@@ -128,17 +127,19 @@ export class Scene extends Sprite {
         BlendModeHandler.initBlendMode(this._shaderData);
     }
 
-    /** @internal */
+    /** 
+     * @en The data map of component elements in the scene.
+     * @zh 场景中组件元素的数据映射表。
+     */
+    get componentElementDatasMap(): any {
+        return this._componentElementDatasMap;
+    }
+
     set componentElementDatasMap(value: any) {
         this._componentElementDatasMap = value;
         this._specialManager.componentElementMap.forEach((value, key) => {
             this._componentElementDatasMap[key] && value.Init(this._componentElementDatasMap[key])
         });
-    }
-
-    /** @internal */
-    get componentElementDatasMap(): any {
-        return this._componentElementDatasMap;
     }
 
     _update() {

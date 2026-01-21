@@ -1957,8 +1957,8 @@ export class Text extends Sprite {
     }
 
     /** @ignore */
-    protected _setParent(value: Node): void {
-        super._setParent(value);
+    protected _setParent(value: Node, index: number = -1): void {
+        super._setParent(value, index);
 
         if (value && this._fontGlobalScale != null && this._fontGlobalScale !== TextRenderConfig.fontScale) {
             this.repaint();

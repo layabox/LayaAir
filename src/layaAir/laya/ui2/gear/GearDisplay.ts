@@ -15,6 +15,10 @@ export class GearDisplay extends Gear {
         this.propPath = "internalVisible";
     }
 
+    /**
+     * @en Sets an array of page indices where the object is visible. If the array is empty, the object is visible on all pages.
+     * @zh 设定一个页面索引数组，对象只在这些页面中可见。如果数组为空，则表示在所有页面中都可见。
+     */
     get pages() {
         return this._pages;
     }
@@ -24,6 +28,10 @@ export class GearDisplay extends Gear {
         this.onChanged(null);
     }
 
+    /**
+     * @en The interaction of this gear with other GearDisplays of the object. 0 means AND condition, 1 means OR condition.
+     * @zh 本齿轮与物体的其他GearDisplay的相互作用。0表示与条件，1表示或条件。
+     */
     get condition() {
         return this._condition;
     }

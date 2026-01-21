@@ -309,8 +309,6 @@ export class Scene3D extends Sprite {
     /**@internal ide配置文件使用 */
     _reflectionsIblSamples = 128;
 
-
-
     /** @internal */
     private _group: string;
     /** @internal */

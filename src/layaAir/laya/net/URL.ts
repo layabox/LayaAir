@@ -56,7 +56,8 @@ export class URL {
         "skel": "skel.bin",
         "lavm": "lavm.json",
         "bp": "bp.json",
-        "tres": "tres.json"
+        "tres": "tres.json",
+        "lensflare": "lensflare.json"
     };
 
     /**

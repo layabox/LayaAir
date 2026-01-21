@@ -296,7 +296,7 @@ export class RigidBody extends ColliderBase {
     set position(pos: Point) {
         if (!this._box2DBody) return;
         var factory = Physics2D.I._factory;
-        let rotateValue = Utils.toAngle(factory.get_RigidBody_Angle(this._box2DBody));
+        let rotateValue = factory.get_RigidBody_Angle(this._box2DBody);
         _tempP0.x = pos.x;
         _tempP0.y = pos.y;
         let globalPos = this.owner.parent.localToGlobal(_tempP0);
@@ -329,8 +329,8 @@ export class RigidBody extends ColliderBase {
     }
 
     /**
-     * @zh 强制设置刚体的旋转（弧度）
-     * @en Force the rotation of the rigidbody (in radians)
+     * @zh 强制设置刚体的旋转（角度）
+     * @en Force the rotation of the rigidbody (in degrees)
      */
     set rotation(number: number) {
         if (!this._box2DBody) return;
@@ -338,7 +338,7 @@ export class RigidBody extends ColliderBase {
         var pos = Vector2.TEMP;
         factory.get_RigidBody_Position(this._box2DBody, pos);
         pos.setValue(pos.x, pos.y);
-        factory.set_RigibBody_Transform(this._box2DBody, pos.x, pos.y, number);//重新给个setPos的接口
+        factory.set_RigibBody_Transform(this._box2DBody, pos.x, pos.y, Utils.toRadian(number));//重新给个setPos的接口
         factory.set_rigidBody_Awake(this._box2DBody, true);
         Physics2D.I._addRigidBody(this);
     }
@@ -631,7 +631,7 @@ export class RigidBody extends ColliderBase {
     setAngle(value: number): void {
         if (!this._box2DBody) return;
         var factory = Physics2D.I._factory;
-        factory.set_RigibBody_Transform(this._box2DBody, this.owner.globalTrans.x, this.owner.globalTrans.y, value);
+        factory.set_RigibBody_Transform(this._box2DBody, this.owner.globalTrans.x, this.owner.globalTrans.y, Utils.toRadian(value));
         factory.set_rigidBody_Awake(this._box2DBody, true);
     }
 

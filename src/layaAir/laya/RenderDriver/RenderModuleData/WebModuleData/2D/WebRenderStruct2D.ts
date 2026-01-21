@@ -312,6 +312,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
             this._blendMode = BlendMode.invalid;
             this._currentData = _DefaultParentData;
+            value.needUploadAlpha = true;
 
          } else if (this._subStruct) {
 
@@ -355,6 +356,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    /** @internal */
    _clipInfo: IClipInfo = null;
 
+   private _uniformClip = false;
    /**@deprecated 使用_currentData.clipInfo代替 */
    get _parentClipInfo(): IClipInfo {
       return this._currentData.clipInfo;
@@ -383,6 +385,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
                let mat = trans.matrix;
                let cm = info.clipMatrix;
                let { x, y, width, height } = rect;
+               width = Math.max(width, 0.0001);
+               height = Math.max(height, 0.0001);
                let tx = mat.tx, ty = mat.ty;
                cm.tx = x * mat.a + y * mat.c + tx;
                cm.ty = x * mat.b + y * mat.d + ty;
@@ -452,10 +456,21 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          let data = this.spriteShaderData;
          // clip
          let info = this.getClipInfo();
-         if (this.needUploadClip < info._updateFrame) {
-            data.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, info.clipMatDir);
-            data.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, info.clipMatPos);
-            this.needUploadClip = info._updateFrame;
+         if (info !== _DefaultClipInfo) {
+            if (this.needUploadClip < info._updateFrame) {
+               data.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, info.clipMatDir);
+               data.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, info.clipMatPos);
+               this.needUploadClip = info._updateFrame;
+            }
+
+            if (!this._uniformClip) {
+               this._uniformClip = true;
+               data.addDefine(ShaderDefines2D.UNIFORMCLIP);
+            }
+            
+         }else if (this._uniformClip) {
+            data.removeDefine(ShaderDefines2D.UNIFORMCLIP);
+            this._uniformClip = false;
          }
 
          // global alpha

@@ -8,6 +8,10 @@ import { ControllerRef } from "../ControllerRef";
 import type { GWidget } from "../GWidget";
 import { GearTweenConfig } from "./GearTweenConfig";
 
+/**
+ * @en Base class for gears that manage property changes based on controller pages.
+ * @zh 管理基于控制器页面的属性更改的齿轮基类。
+ */
 export class Gear {
     protected _owner: GWidget;
     protected _controller: ControllerRef;
@@ -18,6 +22,10 @@ export class Gear {
     /** @internal */
     _propPathArr: string[];
 
+    /**
+     * @en The values associated with different pages.
+     * @zh 与不同页面关联的值。
+     */
     values: Record<number, any>;
 
     static disableAllTweenEffect = false;
@@ -26,6 +34,10 @@ export class Gear {
         this.values = {};
     }
 
+    /**
+     * @en The owner widget of this gear.
+     * @zh 此齿轮的拥有者小部件。
+     */
     get owner() {
         return this._owner;
     }
@@ -42,6 +54,10 @@ export class Gear {
         }
     }
 
+    /**
+     * @en The controller associated with this gear.
+     * @zh 与此齿轮关联的控制器。
+     */
     get controller() {
         return this._controller;
     }
@@ -57,6 +73,10 @@ export class Gear {
         }
     }
 
+    /**
+     * @en The property path controlled by this gear. Each dot in the path represents a level of hierarchy.
+     * @zh 此齿轮控制的属性路径。路径中的每个点表示一个层级关系。
+     */
     get propPath(): string {
         return this._propPath;
     }
@@ -67,6 +87,10 @@ export class Gear {
         this.onChanged(null);
     }
 
+    /**
+     * @en The tween configuration for this gear.
+     * @zh 此齿轮的缓动配置。
+     */
     get tween(): GearTweenConfig {
         return this._tweenCfg;
     }
@@ -168,11 +192,34 @@ export class Gear {
     }
 }
 
+/**
+ * @en Gear class for managing number properties.
+ * @zh 管理数字属性的齿轮类。
+ */
 export class GearNumber extends Gear { }
+
+/**
+ * @en Gear class for managing string properties.
+ * @zh 管理字符串属性的齿轮类。
+ */
 export class GearString extends Gear { }
+
+/**
+ * @en Gear class for managing boolean properties.
+ * @zh 管理布尔属性的齿轮类。
+ */
 export class GearBool extends Gear { }
+
+/**
+ * @en Gear class for managing color properties. The data type is Color object.
+ * @zh 管理颜色属性的齿轮类。数据类型是Color对象。
+ */
 export class GearColor extends Gear { }
 
+/**
+ * @en Gear class for managing string color properties. 
+ * @zh 管理字符串颜色属性的齿轮类。
+ */
 export class GearStrColor extends Gear {
     protected doTween(obj: any, key: string, oldValue: string, newValue: string): void {
         super.doTween(obj, key, oldValue, newValue);
@@ -180,6 +227,10 @@ export class GearStrColor extends Gear {
     }
 }
 
+/**
+ * @en Gear class for managing hexadecimal color properties. The data type is number.
+ * @zh 管理十六进制颜色属性的齿轮类。数据类型是数字。
+ */
 export class GearHexColor extends Gear {
     protected doTween(obj: any, key: string, oldValue: number, newValue: number): void {
         super.doTween(obj, key, oldValue, newValue);

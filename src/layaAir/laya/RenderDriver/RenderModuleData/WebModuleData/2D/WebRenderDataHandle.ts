@@ -83,19 +83,22 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     mask: WebRenderStruct2D | null = null;
 
     private _bufferBlocks: IGraphics2DBufferBlock[] = null;
-    private _skipBufferUpdate: boolean = false;
     private _modifiedFrame: number = -1;
     private _clonesViews: Web2DGraphic2DIndexCloneDataView[];
     private _globalAlpha: number = 1;
 
     applyVertexBufferBlock(blocks: IGraphics2DBufferBlock[] ): void {
         this._bufferBlocks = blocks;
-        this._skipBufferUpdate = blocks.length > 0;
         this.updateCloneView();
+        if (this._owner.trans) {
+            this._modifiedFrame = this._owner.trans.modifiedFrame;
+        }
     }
 
     skipBufferUpdate() {
-        this._skipBufferUpdate = true;
+        if (this._owner.trans) {
+            this._modifiedFrame = this._owner.trans.modifiedFrame;
+        }
     }
 
     /** @internal */
@@ -131,11 +134,6 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                 this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
                 this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
             } else {
-                if (this._skipBufferUpdate) {  
-                    this._modifiedFrame = trans.modifiedFrame;
-                    this._skipBufferUpdate = false;
-                    return;
-                }
                 this._updateVertexData(mat, this._owner.globalAlpha, true, true , false);
                 this._globalAlpha = this._owner.globalAlpha;
             }
@@ -201,7 +199,6 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                     pos += stride;
                     ci += 2;
                 }
-                this._skipBufferUpdate = false;
             }
 
         }

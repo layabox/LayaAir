@@ -449,28 +449,29 @@ export class HierarchyParser {
 
     public static collectResourceLinks(data: any, basePath: string) {
         let test: Record<string, string[]> = {};
-        let innerUrls: (string | ILoadURL)[] = [];
+        let innerUrls: ILoadURL[] = [];
 
         function addInnerUrl(url: string, type: string, absolutePath?: boolean) {
             if (!url)
                 return "";
+
+            type = type || undefined;
+
+            if (Utils.isUUID(url))
+                url = "res://" + url;
+            else if (!absolutePath)
+                url = URL.join(basePath, url);
+
             let entry = test[url];
             if (entry === undefined) {
-                let url2: string;
-                if (Utils.isUUID(url))
-                    url2 = "res://" + url;
-                else if (absolutePath)
-                    url2 = url;
-                else
-                    url2 = URL.join(basePath, url);
-                innerUrls.push({ url: url2, type: type });
-                test[url] = entry = [url2, type];
+                innerUrls.push({ url, type });
+                test[url] = [type];
             }
-            else if (entry.indexOf(type, 1) == -1) {
+            else if (entry.indexOf(type) === -1) {
+                innerUrls.push({ url, type });
                 entry.push(type);
-                innerUrls.push({ url: entry[0], type: type });
             }
-            return entry[0];
+            return url;
         }
 
         let type: string;
@@ -532,9 +533,9 @@ export class HierarchyParser {
             let pi = 0;
             for (let url of data._$preloads) {
                 if (types && types[pi])
-                    addInnerUrl(url, Loader.assetTypeToLoadType[types[pi]]);
+                    addInnerUrl(url, Loader.assetTypeToLoadType[types[pi]], true);
                 else
-                    innerUrls.push(url);
+                    addInnerUrl(url, null, true);
                 pi++;
             }
         }

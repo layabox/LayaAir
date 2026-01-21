@@ -42,13 +42,13 @@ export class Camera2D extends Sprite {
     private _drag_Bottom: number;
     private _positionSmooth: boolean;
     private _positionSpeed: number;//
+
     /**@internal TODO*/
     _renderTarget: RenderTexture;
     /**@internal */
     _isMain: boolean;
     /**@internal */
     _cameraRotation: number;//angle 
-
 
     /**
      * @en Whether to ignore rotation, if the value is true, the rotation value of camera2d will always be 0
@@ -119,6 +119,10 @@ export class Camera2D extends Sprite {
 
     private _zoom: Vector2;
 
+    /**
+     * @en Zoom factor of the camera
+     * @zh 相机的缩放系数
+     */
     public get zoom(): Vector2 {
         return this._zoom;
     }
@@ -133,7 +137,10 @@ export class Camera2D extends Sprite {
     /** @internal min_x max_x min_y max_y */
     _rect: Vector4;
 
-
+    /**
+     * @en The left boundary of the camera position limit range
+     * @zh 相机位置的限制范围的左边界
+     */
     public get limit_Left(): number {
         return this._limit_Left;
     }
@@ -142,6 +149,10 @@ export class Camera2D extends Sprite {
         this._limit_Left = value;
     }
 
+    /**
+     * @en The right boundary of the camera position limit range
+     * @zh 相机位置的限制范围的右边界
+     */
     public get limit_Right(): number {
         return this._limit_Right;
     }
@@ -150,6 +161,10 @@ export class Camera2D extends Sprite {
         this._limit_Right = value;
     }
 
+    /**
+     * @en The bottom boundary of the camera position limit range
+     * @zh 相机位置的限制范围的下边界
+     */
     public get limit_Bottom(): number {
         return this._limit_Bottom;
     }
@@ -158,6 +173,10 @@ export class Camera2D extends Sprite {
         this._limit_Bottom = value;
     }
 
+    /**
+     * @en The top boundary of the camera position limit range
+     * @zh 相机位置的限制范围的上边界
+     */
     public get limit_Top(): number {
         return this._limit_Top;
     }
@@ -166,6 +185,10 @@ export class Camera2D extends Sprite {
         this._limit_Top = value;
     }
 
+    /**
+     * @en Whether to enable position smoothing
+     * @zh 是否启用位置平滑
+     */
     public get positionSmooth(): boolean {
         return this._positionSmooth;
     }
@@ -173,6 +196,10 @@ export class Camera2D extends Sprite {
         this._positionSmooth = value;
     }
 
+    /**
+     * @en The speed of position smoothing, the larger the value, the faster the speed
+     * @zh 位置平滑的速度，值越大，速度越快
+     */
     public get positionSpeed(): number {
         return this._positionSpeed;
     }
@@ -180,9 +207,22 @@ export class Camera2D extends Sprite {
         this._positionSpeed = value;
     }
 
-    rotationSmooth: boolean;//TODO
-    rotationSpeed: number;//0-1
+    /**
+     * @en Whether to enable rotation smoothing
+     * @zh 是否启用旋转平滑
+     */
+    rotationSmooth: boolean;
 
+    /**
+     * @en The speed of rotation smoothing, the larger the value, the faster the speed. The value range is 0-1
+     * @zh 旋转平滑的速度，值越大，速度越快。取值范围0-1
+     */
+    rotationSpeed: number;
+
+    /**
+     * @en Whether to enable horizontal drag
+     * @zh 是否启用水平拖拽
+     */
     public get dragHorizontalEnable(): boolean {
         return this._dragHorizontalEnable;
     }
@@ -191,6 +231,10 @@ export class Camera2D extends Sprite {
         this._dragHorizontalEnable = value;
     }
 
+    /**
+     * @en Whether to enable vertical drag
+     * @zh 是否启用垂直拖拽
+     */
     public get dragVerticalEnable(): boolean {
         return this._dragVerticalEnable;
     }
@@ -198,6 +242,10 @@ export class Camera2D extends Sprite {
         this._dragVerticalEnable = value;
     }
 
+    /**
+     * @en Left drag boundary. The value range is 0-1
+     * @zh 左拖拽边界。取值范围0-1
+     */
     public get drag_Left(): number {
         return this._drag_Left;
     }
@@ -205,6 +253,10 @@ export class Camera2D extends Sprite {
         this._drag_Left = value;
     }
 
+    /**
+     * @en Right drag boundary. The value range is 0-1
+     * @zh 右拖拽边界。取值范围0-1
+     */
     public get drag_Right(): number {
         return this._drag_Right;
     }
@@ -212,6 +264,10 @@ export class Camera2D extends Sprite {
         this._drag_Right = value;
     }
 
+    /**
+     * @en Top drag boundary. The value range is 0-1
+     * @zh 上拖拽边界。取值范围0-1
+     */
     public get drag_Top(): number {
         return this._drag_Top;
     }
@@ -219,6 +275,10 @@ export class Camera2D extends Sprite {
         this._drag_Top = value;
     }
 
+    /**
+     * @en Bottom drag boundary. The value range is 0-1
+     * @zh 下拖拽边界。取值范围0-1
+     */
     public get drag_Bottom(): number {
         return this._drag_Bottom;
     }
@@ -252,15 +312,15 @@ export class Camera2D extends Sprite {
      */
     constructor() {
         super();
-        this.limit_Left = -10000000;
-        this.limit_Right = 10000000;
-        this.limit_Top = -10000000;
-        this.limit_Bottom = 10000000;
-        this.drag_Left = 0.2;//0-1
-        this.drag_Right = 0.2;
-        this.drag_Top = 0.2;
-        this.drag_Bottom = 0.2;
-        this.positionSmooth = false;
+        this._limit_Left = -10000000;
+        this._limit_Right = 10000000;
+        this._limit_Top = -10000000;
+        this._limit_Bottom = 10000000;
+        this._drag_Left = 0.2;//0-1
+        this._drag_Right = 0.2;
+        this._drag_Top = 0.2;
+        this._drag_Bottom = 0.2;
+        this._positionSmooth = false;
         this._rect = new Vector4();
         this._zoom = new Vector2(1, 1);
     }
@@ -286,7 +346,7 @@ export class Camera2D extends Sprite {
         this._struct.setRepaint();
         this.parentRepaint();
     }
-    
+
     /**
      * @internal
      * @returns 
@@ -298,18 +358,18 @@ export class Camera2D extends Sprite {
         this.globalTrans.getPos(curPosPoint);
         let extendHorizental = viewport.x * 0.5 * this._zoom.x;
         let extendVertical = viewport.y * 0.5 * this._zoom.y;
-        
+
         if (!this._firstUpdate) {
             //drag
-            if (this.dragHorizontalEnable) {
-                this._cameraPos.x = Math.min(this._cameraPos.x, curPosPoint.x + extendHorizental * this.drag_Left);
-                this._cameraPos.x = Math.max(this._cameraPos.x, curPosPoint.x - extendHorizental * this.drag_Right);
+            if (this._dragHorizontalEnable) {
+                this._cameraPos.x = Math.min(this._cameraPos.x, curPosPoint.x + extendHorizental * this._drag_Left);
+                this._cameraPos.x = Math.max(this._cameraPos.x, curPosPoint.x - extendHorizental * this._drag_Right);
             } else {
                 this._cameraPos.x = curPosPoint.x;
             }
-            if (this.dragVerticalEnable) {
-                this._cameraPos.y = Math.min(this._cameraPos.y, curPosPoint.y + extendVertical * this.drag_Top);
-                this._cameraPos.y = Math.max(this._cameraPos.y, curPosPoint.y - extendVertical * this.drag_Bottom);
+            if (this._dragVerticalEnable) {
+                this._cameraPos.y = Math.min(this._cameraPos.y, curPosPoint.y + extendVertical * this._drag_Top);
+                this._cameraPos.y = Math.max(this._cameraPos.y, curPosPoint.y - extendVertical * this._drag_Bottom);
             } else {
                 this._cameraPos.y = curPosPoint.y;
             }
@@ -320,24 +380,24 @@ export class Camera2D extends Sprite {
             let sceneRect_bottom = sceneRect_top + viewport.y;
 
             //limit
-            if (sceneRect_left < this.limit_Left) {
-                this._cameraPos.x -= sceneRect_left - this.limit_Left;
+            if (sceneRect_left < this._limit_Left) {
+                this._cameraPos.x -= sceneRect_left - this._limit_Left;
             }
 
-            if (sceneRect_right > this.limit_Right) {
-                this._cameraPos.x -= sceneRect_right - this.limit_Right;
+            if (sceneRect_right > this._limit_Right) {
+                this._cameraPos.x -= sceneRect_right - this._limit_Right;
             }
 
-            if (sceneRect_bottom > this.limit_Bottom) {
-                this._cameraPos.y -= sceneRect_bottom - this.limit_Bottom;
+            if (sceneRect_bottom > this._limit_Bottom) {
+                this._cameraPos.y -= sceneRect_bottom - this._limit_Bottom;
             }
-            if (sceneRect_top < this.limit_Top) {
-                this._cameraPos.y -= sceneRect_top - this.limit_Top;
+            if (sceneRect_top < this._limit_Top) {
+                this._cameraPos.y -= sceneRect_top - this._limit_Top;
             }
 
-            if (this.positionSmooth) {
+            if (this._positionSmooth) {
                 let epsilon = 0.01;
-                let speed = Math.max(epsilon, Math.min(1.0, this.positionSpeed * 0.16));// 0.1
+                let speed = Math.max(epsilon, Math.min(1.0, this._positionSpeed * 0.16));// 0.1
                 let deltaX = this._cameraPos.x - this._cameraSmoothPos.x;
                 let deltaY = this._cameraPos.y - this._cameraSmoothPos.y;
                 let transX = deltaX * speed;

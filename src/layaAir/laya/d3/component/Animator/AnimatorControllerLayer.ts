@@ -112,7 +112,6 @@ export class AnimatorControllerLayer implements IClone {
     }
 
     /**
-     * @internal
      * @en The name of the default animation state machine for this layer.
      * @zh 此层的默认动画状态机的名称。
      */

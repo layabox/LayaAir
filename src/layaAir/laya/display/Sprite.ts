@@ -794,6 +794,10 @@ export class Sprite extends Node {
         return this._oriRenderPass.postProcess;
     }
 
+    /**
+     * @en The post-processing effect of the sprite.
+     * @zh 精灵的后处理效果。
+     */
     get postProcess(): PostProcess2D {
         return this.getPostProcess(false);
     }
@@ -806,7 +810,7 @@ export class Sprite extends Node {
             if (this._ownPostProcess) {
                 this._oriRenderPass.postProcess.destroy();
                 this._ownPostProcess = false;
-            }else{
+            } else {
                 this._oriRenderPass.postProcess.owner = null;
             }
             this._oriRenderPass.postProcess = null;
@@ -2070,10 +2074,10 @@ export class Sprite extends Node {
 
     /** @internal */
     _needGraphicsUpdate(): boolean {
-        return !this._destroyed 
-        && this._struct.enabled 
-        && this._renderType & SpriteConst.GRAPHICS 
-        && !!(this.displayedInStage || this._maskParent);
+        return !this._destroyed
+            && this._struct.enabled
+            && this._renderType & SpriteConst.GRAPHICS
+            && !!(this.displayedInStage || this._maskParent);
     }
 
     /**
@@ -2272,7 +2276,7 @@ export class Sprite extends Node {
         }
     }
 
-    protected _setStructParent(value: Sprite) {
+    protected _setStructParent(value: Sprite, index: number) {
         let struct = this._struct;
 
         if (struct && struct.parent) {
@@ -2281,7 +2285,6 @@ export class Sprite extends Node {
         }
 
         if (value && value._struct) {
-            let index = value._children.indexOf(this);
             value._struct.addChild(struct, index);
         }
     }
@@ -2456,12 +2459,12 @@ export class Sprite extends Node {
     /**
      * @ignore
      */
-    protected _setParent(value: Node): void {
+    protected _setParent(value: Node, index: number = -1): void {
         this._globalTrans._spTransChanged(TransformKind.TRS);
 
-        super._setParent(value);
+        super._setParent(value, index);
 
-        this._setStructParent(value as Sprite);
+        this._setStructParent(value as Sprite, index);
 
         if (value && (this._mouseState === 2 || this._mouseState === 0 && this._getBit(NodeFlags.CHECK_INPUT))
             && !value._getBit(NodeFlags.CHECK_INPUT)) {

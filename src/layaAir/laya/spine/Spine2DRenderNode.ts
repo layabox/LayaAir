@@ -84,8 +84,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     private _skin: string;
     private _renderOffset: Vector2 = new Vector2();
     private _offset: Vector2 = new Vector2();
-    /** @internal */
-    _setPreAlphaFlag = false;
+    private _setPreAlphaFlag = false;
     private _premultipliedAlpha = true;
 
     protected _bones: Sprite[];
@@ -443,9 +442,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     set offset(value: Vector2) {
         this._offset = value;
         // this._renderHandle.offset = this._offset;
-        if (value) {
-            this._renderOffset.x = value.x + this._templet.offsetX;
-            this._renderOffset.y = value.y - this._templet.offsetY;
+        if (this._templet) {
+            if (value) {
+                this._renderOffset.x = value.x + this._templet.offsetX;
+                this._renderOffset.y = value.y - this._templet.offsetY;
+            } else {
+                this._renderOffset.x = this._templet.offsetX;
+                this._renderOffset.y = - this._templet.offsetY;
+            }
             this._renderHandle.offset = this._renderOffset;
         }
         this.boundsChange = true;

@@ -107,7 +107,6 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
     transitions: AnimatorTransition2D[] = [];
 
     /**
-     * @internal
      * @en Priority Transition List.
      * @zh 优先过渡列表。
      */

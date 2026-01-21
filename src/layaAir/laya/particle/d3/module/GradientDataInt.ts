@@ -5,22 +5,25 @@ import { IClone } from "../../../utils/IClone";
  * @zh GradientDataInt 类用于创建整形渐变。
  */
 export class GradientDataInt implements IClone {
-    private _currentLength: number = 0;
     /**
-     * @internal
+     * @en The current length of the gradient data.
+     * @zh 渐变数据的当前长度。
+     */
+    _currentLength: number = 0;
+
+    /**
      * @en Developers are prohibited from modifying this.
      * @zh 开发者禁止修改。
      */
     _elements: Float32Array;//TODO:是否用int
 
     /**
-     * @internal
      * @en Curve editing range (minimum).
      * @zh 曲线编辑范围（最小值）。
      */
     _curveMin: number = 0;
+
     /**
-     * @internal
      * @en Curve editing range (maximum).
      * @zh 曲线编辑范围（最大值）。
      */

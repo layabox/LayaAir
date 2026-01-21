@@ -27,12 +27,41 @@ export enum FillOrigin {
 }
 
 export class ProgressMesh implements IMeshFactory {
+    /**
+     * @en The origin point for filling. Its meaning varies depending on the method.
+     * - When the method is Horizontal, use FillOrigin.Left and FillOrigin.Right to indicate the starting point;
+     * - When the method is Vertical, use FillOrigin.Top and FillOrigin.Bottom to indicate the starting point;
+     * - When the method is Radial90, use FillOrigin.TopLeft, FillOrigin.TopRight, FillOrigin.BottomLeft, and FillOrigin.BottomRight to indicate the four corners;
+     * - When the method is Radial180, use FillOrigin.Top, FillOrigin.Bottom, FillOrigin.Left, and FillOrigin.Right to indicate the four sides, starting from the center of the corresponding side;
+     * - When the method is Radial360, use FillOrigin.Top, FillOrigin.Bottom, FillOrigin.Left, and FillOrigin.Right to indicate the four sides, starting from the center of the corresponding side;
+     * 
+     * @zh 填充的起始点。method不同，值的含义也不同。
+     * - 当method为Horizontal时，使用FillOrigin.Left和FillOrign.Right表示起始点；
+     * - 当method为Vertical时，使用FillOrigin.Top和FillOrigin.Bottom表示起始点；
+     * - 当method为Radial90时，使用FillOrigin.TopLeft、FillOrigin.TopRight、FillOrigin.BottomLeft、FillOrigin.BottomRight四个值表示四个角；
+     * - 当method为Radial180时，使用FillOrigin.Top、FillOrigin.Bottom、FillOrigin.Left、FillOrigin.Right四个值表示四个边，从对应边的中心开始填充；
+     * - 当method为Radial360时，使用FillOrigin.Top、FillOrigin.Bottom、FillOrigin.Left、FillOrigin.Right四个值表示四个边，从对应边的中心开始填充；
+     */
     origin: number = 0;
+
+    /**
+     * @en The amount of fill, ranging from 0 to 1.
+     * @zh 填充的数量，范围从0到1。
+     */
     amount: number = 0.6;
+
+    /**
+     * @en Whether the filling is done in a clockwise direction. Only applicable for Radial90, Radial180, and Radial360 methods.
+     * @zh 填充是否按顺时针方向进行。仅对Radial90、Radial180和Radial360方法适用。
+     */
     clockwise: boolean = true;
 
     private _method: number = 5;
 
+    /**
+     * @en The filling method.
+     * @zh 填充的方法。
+     */
     get method(): FillMethod {
         return this._method;
     }

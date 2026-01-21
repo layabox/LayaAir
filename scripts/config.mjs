@@ -253,12 +253,23 @@ export const allBundles = [{
         'UIConfig.ts',
     ],
 },
+//// SPINE
 {
     name: 'spine',
     input: [
         'laya/spine/interface/*.*',
         'laya/spine/shader/**/*.*',
         'laya/spine/web/**/*.*',
+        'laya/spine/*.ts',
+    ],
+    copy: ['jsLibs/spine-core-*.js']
+    },
+{
+    name: 'native-spine42',
+    input: [
+        'laya/spine/interface/*.*',
+        'laya/spine/shader/**/*.*',
+        'laya/spine/native/**/*.*',
         'laya/spine/*.ts',
     ],
     copy: ['jsLibs/spine-core-*.js']

@@ -1,3 +1,4 @@
+import { Config } from "../../../../../Config";
 import { Const } from "../../../../Const";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
@@ -31,6 +32,9 @@ export class GraphicsShaderInfo {
    constructor() {
       this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
       this.shaderData.addDefine(ShaderDefines2D.TEXTURESHADER);
+      if (Config.uvClipMode === "gpu") {
+         this.shaderData.addDefine(ShaderDefines2D.UV_CLIP_GPU);
+      }
       this.toDefault();
       BlendModeHandler.initBlendMode(this.shaderData);
    }

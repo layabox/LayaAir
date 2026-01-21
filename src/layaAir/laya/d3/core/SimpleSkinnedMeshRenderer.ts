@@ -21,15 +21,16 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     private _simpleAnimatorTextureSize: number;
     /**  x simpleAnimation offset,y simpleFrameOffset*/
     private _simpleAnimatorOffset: Vector2;
-    /**@internal */
+    /**
+     * @en The number of bones.
+     * @zh 骨骼数量
+     */
     _bonesNums: number;
-
 
     //解决编译bug TODO
     private _ownerSimpleRenderNode: ISimpleSkinRenderNode;
 
     /**
-     * @internal
      * @en The animator texture
      * @zh 动画帧贴图
      */
@@ -37,9 +38,6 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         return this._simpleAnimatorTexture;
     }
 
-    /**
-     * @internal
-     */
     set simpleAnimatorTexture(value: Texture2D) {
         this._simpleAnimatorTexture = value;
         this._simpleAnimatorTextureSize = value.width;

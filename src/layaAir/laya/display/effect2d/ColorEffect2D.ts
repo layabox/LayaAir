@@ -53,6 +53,10 @@ export class ColorEffect2D extends PostProcess2DEffect {
         this.setByMatrix(matrix || IDENTITY_MATRIX);
     }
 
+    /**
+     * @en The color matrix.
+     * @zh 颜色矩阵。
+     */
     get colorMat(): Matrix4x4 {
         return this._colorMat;
     }
@@ -65,10 +69,19 @@ export class ColorEffect2D extends PostProcess2DEffect {
         this._owner && this._owner._onChangeRender();
     }
 
+    /**
+     * @en Sets the filter to a grayscale filter.
+     * @zh 将滤镜设置为灰度滤镜。
+     * @returns The current ColorEffect2D instance. 
+     */
     gray(): ColorEffect2D {
         return this.setByMatrix(GRAY_MATRIX);
     }
 
+    /**
+     * @en The alpha value.
+     * @zh Alpha 值。
+     */
     get alpha(): Vector4 {
         return this._alpha;
     }
@@ -82,6 +95,7 @@ export class ColorEffect2D extends PostProcess2DEffect {
 
     }
 
+    /** @ignore */
     effectInit(postprocess: PostProcess2D): void {
         this._owner = postprocess;
         (!this._mat || this._mat.destroyed) && (this._mat = new Material());
