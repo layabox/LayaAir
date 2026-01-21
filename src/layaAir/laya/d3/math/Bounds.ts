@@ -20,10 +20,15 @@ export class Bounds implements IClone {
      * @param out 生成的包围盒。
      */
     static merge(box1: Bounds, box2: Bounds, out: Bounds): void {
-        Vector3.min(box1.min, box2.min, out.min);
+        /*Vector3.min(box1.min, box2.min, out.min);
         Vector3.max(box1.max, box2.max, out.max);
         out.min = out.min;
-        out.max = out.max;
+        out.max = out.max;*/
+        //上面写法native会导致数据覆盖
+        Vector3.min(box1.min, box2.min, _tempVector30);
+        Vector3.max(box1.max, box2.max, _tempVector31);
+        out.min = _tempVector30;
+        out.max = _tempVector31;
     }
 
     /**
@@ -329,3 +334,5 @@ export class Bounds implements IClone {
     }
 
 }
+const _tempVector30: Vector3 = new Vector3();
+const _tempVector31: Vector3 = new Vector3();
