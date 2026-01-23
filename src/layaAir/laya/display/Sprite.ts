@@ -604,8 +604,8 @@ export class Sprite extends Node {
     }
 
     /**
-     * @en The anchor point's x-coordinate, ranging from 0 to 1. Setting anchorX will ultimately change the node's pivot point through the pivotX value.
-     * @zh X 轴锚点,值为 0-1。设置 anchorX 值最终会通过 pivotX 值来改变节点的轴心点。
+     * @en The anchor point's x-coordinate, ranging from 0 to 1. Setting anchorX will ultimately change the node's pivot point through the pivotX value. The anchor point affects the object's position, scaling center, and rotation center. The object's position calculation within the parent element is based on the anchor point. However, the position calculation of the object's child nodes is still based on the top-left corner.
+     * @zh X 轴锚点,值为 0-1。设置 anchorX 值最终会通过 pivotX 值来改变节点的轴心点。锚点会影响对象的位置、缩放中心和旋转中心。对象在父元件中的位置计算是基于锚点的。但对象的子节点位置计算仍然是基于左上角。
      */
     get anchorX(): number {
         return this._anchorX;
