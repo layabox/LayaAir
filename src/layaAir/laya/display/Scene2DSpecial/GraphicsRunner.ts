@@ -2260,6 +2260,8 @@ export class GraphicsRunner {
             cachedVbdata = new Float32Array(count * vertexLength);
         }
 
+        let globalAlpha = this._renderer._struct.globalAlpha;
+
         let cachedVi = 0;
         for (let i = 0, pi = 0, ci = 0, vi = 0; i < vertexCount; i++) {
 
@@ -2320,6 +2322,7 @@ export class GraphicsRunner {
             // 优先取 submit._internalInfo.texArrayLayer
             // 若未设置则为0
             // 注意：四个顶点需保持一致
+            vbdata[vi + 10] = globalAlpha;
             // @ts-ignore
             vbdata[vi + 11] = (submit && submit._internalInfo && submit._internalInfo.texArrayLayer) ? submit._internalInfo.texArrayLayer : 0;
 

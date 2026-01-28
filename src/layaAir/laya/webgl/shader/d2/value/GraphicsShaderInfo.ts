@@ -32,6 +32,7 @@ export class GraphicsShaderInfo {
    constructor() {
       this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
       this.shaderData.addDefine(ShaderDefines2D.TEXTURESHADER);
+      this.shaderData.addDefine(ShaderDefines2D.VERTEXALPHA);
       if (Config.uvClipMode === "gpu") {
          this.shaderData.addDefine(ShaderDefines2D.UV_CLIP_GPU);
       }

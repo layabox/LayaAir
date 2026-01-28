@@ -50,7 +50,7 @@ export interface IRenderStruct2D {
    //----- 渲染继承累加数据 -----
    renderMatrix: Matrix;
    /** 非即时数据 */
-   globalAlpha: number;
+   readonly globalAlpha: number;
 
    alpha: number;
 

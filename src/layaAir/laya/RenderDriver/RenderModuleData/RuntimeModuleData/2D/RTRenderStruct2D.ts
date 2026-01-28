@@ -53,7 +53,9 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    owner: Sprite;
 
-   globalAlpha: number = 1.0;
+   public get globalAlpha(): number {
+      return this._nativeObj.getGlobalAlpha();
+   }
 
    private _clipRect: Rectangle = new Rectangle(0, 0, 0, 0);
 
@@ -292,7 +294,6 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       this.renderLayer = 1;
       this.renderType = -1;
       this.renderUpdateMask = 0;
-      this.globalAlpha = 1.0;
       this.alpha = 1.0;
       this.blendMode = BlendMode.invalid;
       this.enabled = true;
