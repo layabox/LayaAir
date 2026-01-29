@@ -1110,5 +1110,3 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
 }
-
-ClassUtils.regClass("Spine2DRenderNode", Spine2DRenderNode);

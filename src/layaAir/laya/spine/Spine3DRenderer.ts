@@ -110,6 +110,7 @@ export class Spine3DRenderer extends BaseRender {
     /** @ignore */
     constructor() {
         super();
+        this._baseRenderNode.baseGeometryBounds = this._geometryBounds;
     }
 
     protected _createBaseRenderNode(): IBaseRenderNode {
