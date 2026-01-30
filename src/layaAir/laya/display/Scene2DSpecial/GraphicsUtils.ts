@@ -354,7 +354,7 @@ export class GraphicsRenderer {
       if (res instanceof Texture) {
          let inf = this.texturesMap.get(res.id);
          if (!inf) {
-            res.on("dispose", this, this._resourceRepaint , [res.id]);
+            res.on(Event.CHANGE, this, this._resourceRepaint , [res.id]);
             this.texturesMap.set(res.id, {
                texture: res,
                time: this.modified
@@ -368,7 +368,7 @@ export class GraphicsRenderer {
       let inf = this.texturesMap.get(id);
       if (inf.time !== this.modified) {
          this.texturesMap.delete(id);
-         inf.texture.off("dispose", this, this._resourceRepaint);
+         inf.texture.off(Event.CHANGE, this, this._resourceRepaint);
          return;
       }
 

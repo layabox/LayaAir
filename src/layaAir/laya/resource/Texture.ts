@@ -322,7 +322,6 @@ export class Texture extends Resource {
         this._bitmap && this._bitmap._removeReference(this._referenceCount);
         this._bitmap = value;
         value && (value._addReference(this._referenceCount));
-        this.event(Event.CHANGE);
     }
 
     public get rotate(): boolean {
@@ -595,7 +594,6 @@ export class Texture extends Resource {
         }
         else if (this._bitmap) {
             this._bitmap.destroy();
-            this.event("dispose");
         }
         
         this.event(Event.CHANGE);
