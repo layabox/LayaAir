@@ -148,8 +148,14 @@ export class Mesh2DRender extends BaseRenderNode2D {
      * @zh 渲染纹理，如果2DMesh中没有uv，则不会生效 
      */
     set texture(value: BaseTexture | Texture) {
+        if (this._texture instanceof Texture) {
+            this._texture._removeReference();
+        }
         this._texture = value;
+
         if (value instanceof Texture) {
+            value._addReference();
+
             if (value.uv !== Texture.DEF_UV) {
                 console.warn("Texture uv is not default, it will affect the tiling offset.");
                 let sx = value.uvrect[2] / value.width;
