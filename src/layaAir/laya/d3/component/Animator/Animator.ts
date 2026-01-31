@@ -1404,7 +1404,12 @@ export class Animator extends Component {
                     var clip: AnimationClip = animatorState._clip!;
                     var speed: number = this._speed * animatorState.speed;
                     var finish: boolean = playStateInfo._finish;//提前取出finish,防止最后一帧跳过
-                    finish || this._updatePlayer(animatorState, playStateInfo, delta * speed, animatorState.islooping, i);
+                    if (finish) {
+                        // 动画已结束，但仍需检查条件触发的过渡（用户可能在动画结束后设置条件）
+                        this._applyTransition(animatorState, i, animatorState._eventtransition(playStateInfo._normalizedPlayTime, this.animatorParams));
+                    } else {
+                        this._updatePlayer(animatorState, playStateInfo, delta * speed, animatorState.islooping, i);
+                    }
                     if (needRender) {
                         var addtive: boolean = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
                         this._updateClipDatas(animatorState, addtive, playStateInfo, controllerLayer.avatarMask);//clipDatas为逐动画文件,防止两个使用同一动画文件的Animator数据错乱,即使动画停止也要updateClipDatas
