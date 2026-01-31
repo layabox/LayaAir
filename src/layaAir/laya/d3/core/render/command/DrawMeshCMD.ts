@@ -31,6 +31,7 @@ export class DrawMeshCMD extends Command {
         cmd.material = material;
         cmd.subMeshIndex = subMeshIndex;
         cmd._subShaderIndex = subShaderIndex;
+        cmd._meshRender.probReflection = RenderContext3D._instance.scene.sceneReflectionProb;
         cmd.mesh = mesh;
         cmd._commandBuffer = commandBuffer;
         return cmd;
@@ -129,7 +130,7 @@ export class DrawMeshCMD extends Command {
         this._meshRender._baseRenderNode.ismoved.setValue(Stat.loopCount, LayaGL.renderEngine._framePassCount);
         this._meshRender.renderUpdate(RenderContext3D._instance);
         // todo scene ibl
-        this._meshRender.probReflection = RenderContext3D._instance.scene.sceneReflectionProb;
+        // this._meshRender.probReflection = RenderContext3D._instance.scene.sceneReflectionProb;
 
         this._drawRenderCMDDData.destSubShader = this.material.shader.getSubShaderAt(this._subShaderIndex);
         this._drawRenderCMDDData.destShaderData = this.material.shaderData;
