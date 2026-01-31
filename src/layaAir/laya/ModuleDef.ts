@@ -60,6 +60,7 @@ import { PostProcess2D } from "./display/PostProcess2D";
 import { PostProcess2DEffect } from "./display/PostProcess2DEffect";
 import { SoundPlayer } from "./media/SoundPlayer";
 import { VideoPlayer } from "./media/VideoPlayer";
+import { AnimatorClip2D } from "./components/AnimatorClip2D";
 
 let c = ClassUtils.regClass;
 c("Record", Object);
@@ -90,6 +91,7 @@ c("Texture2D", Texture2D);
 c("Prefab", Prefab);
 
 c("Animator2D", Animator2D);
+c("AnimatorClip2D", AnimatorClip2D);
 c("AnimatorControllerLayer2D", AnimatorControllerLayer2D);
 c("AnimatorState2D", AnimatorState2D);
 c("AnimationClip2D", AnimationClip2D);
