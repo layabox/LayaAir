@@ -90,7 +90,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
      * @en Current render mode.
      * @zh 当前渲染模式。
      */
-    protected _mode: ESpineRenderMode = ESpineRenderMode.Optimize;
+    protected _mode: ESpineRenderMode = ESpineRenderMode.None;
 
     public get mode(): ESpineRenderMode {
         return this._mode;
@@ -99,6 +99,11 @@ export abstract class BaseOptimizeRender implements ISpineRender {
     public set mode(value: ESpineRenderMode) {
         if (this._mode === value) return;
         
+        if (value !== ESpineRenderMode.Normal && this._optimize.maxBoneNumber > SpineConst.MAX_BONES) {
+            console.warn("The number of Bones :", this._optimize.maxBoneNumber, " > ", SpineConst.MAX_BONES, ", use CPU caculation");
+            value = ESpineRenderMode.Normal;
+        }
+
         this._mode = value;
 
         if (this._curAnimationName) {
