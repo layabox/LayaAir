@@ -63,8 +63,8 @@ export class FillTextureCmd implements IGraphicsCmd {
     percent: boolean = true;
 
     /**
-     * @en (Optional) Drawing color
-     * @zh （可选）绘图颜色
+     * @en (Optional) Drawing color. The format is ABGR.
+     * @zh （可选）绘图颜色。格式是ABGR。
      */
     color: number = 0xffffffff;
 

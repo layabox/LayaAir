@@ -62,8 +62,8 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
     sizeGrid: number[];
 
     /**
-     * @en Color tint for the texture (default: 0xffffffff)
-     * @zh 纹理的颜色色调（默认值：0xffffffff）
+     * @en Color tint for the texture (default: 0xffffffff). The format is ABGR.
+     * @zh 纹理的颜色色调（默认值：0xffffffff）。格式是ABGR。
      */
     color: number = 0xffffffff;
 
