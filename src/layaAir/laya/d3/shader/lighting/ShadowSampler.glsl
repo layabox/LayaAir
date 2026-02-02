@@ -115,7 +115,7 @@ mediump int computeCascadeIndex(in vec3 positionWS)
     comparison.yzw = clamp(comparison.yzw - comparison.xyz, 0.0, 1.0); // keep the nearest
     mediump vec4 indexCoefficient = vec4(4.0, 3.0, 2.0, 1.0);
     mediump int index = 4 - int(dot(comparison, indexCoefficient));
-    return clamp(index, 0, 3);
+    return int(clamp(float(index), 0.0, 3.0));
 }
 	#endif
 
