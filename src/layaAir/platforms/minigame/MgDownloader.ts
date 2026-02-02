@@ -88,11 +88,24 @@ export class MgDownloader extends Downloader {
     }
 
     image(owner: any, url: string, originalUrl: string, onProgress: ProgressCallback, onComplete: DownloadCompleteCallback): void {
+        let skipCache = false;
+        if (Browser.onTBMiniGame) {
+            if ((window as any).__NOT_TBMINIGAME__ !== undefined) {
+                skipCache = (window as any).__NOT_TBMINIGAME__;
+            }
+        }
+        if (skipCache) {
+            if (url.startsWith("http://") || url.startsWith("https://")) {
+                super.image(owner, url, originalUrl, onProgress, onComplete);
+            } else {
+                super.image(owner, this.escapeURL(url), originalUrl, onProgress, onComplete);
+            }
+            return;
+        }
         if (!url.startsWith("http://") && !url.startsWith("https://") || !this.cacheManager) {
             super.image(owner, this.escapeURL(url), originalUrl, onProgress, onComplete);
             return;
         }
-
         this.cacheManager.getFile(url).then(cacheFilePath => {
             if (cacheFilePath)
                 super.image(owner, cacheFilePath, originalUrl, onProgress, onComplete);
