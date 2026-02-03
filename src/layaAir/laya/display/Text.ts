@@ -73,6 +73,8 @@ export class Text extends Sprite {
     static _testWord: string = "游";
     static _passwordChar = "●";
 
+    static splitStr: (text: string) => string[] = defaultSplitStr;
+
     /**
      * @en Dictionary of bitmap fonts.
      * @zh 位图字体字典。
@@ -1279,9 +1281,17 @@ export class Text extends Sprite {
         };
 
         let splitCmd = (cmd: ITextCmd, pos: number) => {
-            let ccode = cmd.wt.text.charCodeAt(pos);
-            if (isLowSurrogate(ccode))
-                pos--;
+            const arrCh = Text.splitStr(cmd.wt.text);
+            let text = "";
+            for (let index = 0; index < arrCh.length; index++) {
+                const ch = arrCh[index];
+                const tmp = text + ch;
+                if (tmp.length > pos) {
+                    break;
+                }
+                text = tmp;
+            }
+            pos = text.length;
             if (pos == 0)
                 return false;
 
@@ -1370,34 +1380,22 @@ export class Text extends Sprite {
             let isPunc: boolean;
             let testResult: RegExpExecArray;
 
-            let isEmoji = emojiTest.test(text);
-            if (!bfont && !isEmoji) {
-                //优化2，预算第几个字符会超出，减少遍历及字符宽度度量
-                maybeIndex = Math.floor(remainWidth / charWidth);
-                if (maybeIndex != 0)
-                    wordWidth = getTextWidth(text.substring(0, maybeIndex));
-            }
-
-            let len = text.length;
-            for (let j = maybeIndex; j < len; j++) {
-                let cc = text.charAt(j);
-                let ccode = cc.charCodeAt(0);
-
-                if (isEmoji && isHighSurrogate(ccode) && j + 1 < len)
-                    cc += text.charAt(j + 1);
-
+            const arrCh = Text.splitStr(text);
+            const chNum = arrCh.length;
+            for (let j = maybeIndex; j < chNum; j++) {
+                let cc = arrCh[j];
                 tw = getTextWidth(cc);
                 wordWidth += tw;
 
                 if (wordWidth <= remainWidth || j === startIndex && lineX === 0) { //一行如果连一个字符都放不下，强制放一个
-                    if (cc.length > 1) //emoji
-                        j++;
                     continue;
                 }
 
-                let part = text.substring(startIndex, j);
+                let arrPartCh = arrCh.slice(startIndex, j);
+                let part = arrPartCh.join("");
                 wordWidth -= tw;
 
+                let ccode = cc.charCodeAt(0);
                 //如果换行位置是字母或标点符号，需要向前查找单词的边界，避免单词被拆开
                 //如果是标点符号，还需要保证不在行首
                 if (noBreakWord && ((ccode >= 65 && ccode <= 90) || (ccode >= 97 && ccode <= 122) //英文字符
@@ -1407,7 +1405,7 @@ export class Text extends Sprite {
                     if (wb > 0) { //边界在文本中间
                         if (wb > part.length - maxWordLength) { //限制字符个数，超过的不看做一个单词
                             j = startIndex + wb;
-                            part = text.substring(startIndex, j);
+                            part = part.substring(0, wb);
                             wordWidth = null; //part指向的字符串已改变，wordWidth无效
                             tw = null; //j指向的字符已改变，tw无效
                         }
@@ -1468,10 +1466,11 @@ export class Text extends Sprite {
                     }
                     else { //边界就在文本的末尾
                         if (isPunc) { //标点符号不允许在行首
-                            let b = (isEmoji && j >= 1 && isLowSurrogate(text.charCodeAt(j - 1))) ? 2 : 1;
+                            let b = 1;
                             if (j - b > startIndex || lineX > 0) { //这里有个边界判断，如果只剩一个字符了，并且在行头，就不能移动了
                                 j -= b; //回退一个字符
-                                part = text.substring(startIndex, j);
+                                arrPartCh = arrCh.slice(startIndex, j);
+                                part = arrPartCh.join("");
                                 wordWidth = null; //part指向的字符串已改变，wordWidth无效
                                 tw = null; //j指向的字符已改变，tw无效
                             }
@@ -1492,17 +1491,18 @@ export class Text extends Sprite {
                     j += maybeIndex - 1;
                 else if (tw != null) { //一个优化，如果是单字符遍历，而且j还是指向当前字符，那么直接用tw就行
                     wordWidth = tw;
-                    if (cc.length > 1)
-                        j++;
                 }
-                else if (isEmoji && isHighSurrogate(text.charCodeAt(j)))
-                    j++;
 
-                if (wordWidth == null && j < len - 1)
-                    wordWidth = getTextWidth(text.substring(startIndex, j + 1));
+                if (wordWidth == null && j < chNum - 1) {
+                    const arrTmpCh = arrCh.slice(startIndex, j + 1);
+                    const tmpText = arrTmpCh.join("");
+                    wordWidth = getTextWidth(tmpText);
+                }
             }
 
-            addCmd(text.substring(startIndex, len), style);
+            const arrLastCh = arrCh.slice(startIndex, chNum);
+            const lastText = arrLastCh.join("");
+            addCmd(lastText, style);
         };
 
         let calcTextSize = () => {
@@ -1667,14 +1667,14 @@ export class Text extends Sprite {
                         let space = cmd.x + cmd.width - rectWidth;
                         let remove = space < 5 ? 2 : space < 10 ? 1 : 0; //视剩余空间删减字符数量
                         let min = cmd === curLine.cmd ? 1 : 0; //如果是这行的第一个元素，则至少保留一个字符
-                        let i = cmd.wt.text.length;
+                        const arrLineCh = Text.splitStr(cmd.wt.text);
+                        let i = arrLineCh.length;
                         while (i > min && remove > 0) {
-                            if (isLowSurrogate(cmd.wt.text.charCodeAt(i - 1)))
-                                i--;
+                            arrLineCh.pop();
                             i--;
                             remove--;
                         }
-                        cmd.wt.setText(cmd.wt.text.substring(0, i) + ellipsisStr);
+                        cmd.wt.setText(arrLineCh.join("") + ellipsisStr);
                     }
                     cmd.width = cmd.wt.width = getTextWidth2(cmd.wt.text, cmd.ctxFont, cmd.fontSize);
                     cmd.next = null;
@@ -1956,7 +1956,7 @@ function cleanCmd(cmd: ITextCmd, releaseObj: boolean) {
         cmd.wt.cleanCache();
 }
 
-const emojiTest = /[\uD800-\uDBFF][\uDC00-\uDFFF]/;
+const emojiRegex = createEmojiRegex();
 const wordBoundaryTest = /[a-zA-Z0-9\!-\+\/_]+$/;
 const punctuationChars = Array.from(".,，。、!！；;”’)）]】}》").map(char => char.charCodeAt(0));
 const normalizeCR = /\r\n/g;
@@ -1969,10 +1969,39 @@ function getReplaceStr(word: string): string {
     return escapeSequence[word];
 }
 
-function isHighSurrogate(c: number): boolean {
-    return c >= 0xD800 && c <= 0xDBFF;
+// 从emoji-regex-xs抄的
+function createEmojiRegex() {
+    const r = String.raw;
+    const e = r`\p{Emoji}(?:\p{EMod}|[\u{E0020}-\u{E007E}]+\u{E007F}|\uFE0F?\u20E3?)`;
+    return new RegExp(r`\p{RI}{2}|(?![#*\d](?!\uFE0F?\u20E3))${e}(?:\u200D${e})*`, 'gu');
 }
 
-function isLowSurrogate(c: number): boolean {
-    return c >= 0xDC00 && c <= 0xDFFF;
+function defaultSplitStr(text: string): string[] {
+    // 可以考虑使用浏览器标准，只有现代浏览器支持
+    // if (typeof (Intl) == "object" && typeof (Intl.Segmenter) == "function") {
+    //     const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+
+    //     // 使用分段器
+    //     const segments = segmenter.segment(text);
+
+    //     // 转换为数组
+    //     const result = Array.from(segments).map(s => s.segment);
+    //     return result;
+    // }
+    const arrCh: string[] = [];
+    let pos = 0;
+    text.replace(emojiRegex, function (match, offset) {
+        if (pos < offset) {
+            const tmp = text.substring(pos, offset);
+            arrCh.push(...tmp);
+        };
+        arrCh.push(match);
+        pos = offset + match.length;
+        return match; // 返回原值，不改变字符串
+    });
+    if (pos < text.length) {
+        const tmp = text.substring(pos);
+        arrCh.push(...tmp);
+    }
+    return arrCh;
 }
