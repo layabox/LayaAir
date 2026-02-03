@@ -23,7 +23,7 @@ export class GraphicsShaderInfo {
    private _texRange: Vector4 = null;
    private _vertexSize: Vector4 = null;
    private _isTextrueReadGamma: boolean = false;
-   private _bitmap: Texture2D;
+   private _bitmap: Texture2D | Texture2DArray;
    // 使用 Texture2DArray 时的层索引
    texArrayLayer: number = 0;
 
@@ -89,18 +89,17 @@ export class GraphicsShaderInfo {
       if (!tex) {
          tex = Texture2D.whiteTexture;
       }
-      // 切换到数组纹理路径: 传入 Texture2DArray 则启用 USE_TEX_ARRAY 宏与数组uniform
-      if (tex instanceof Texture2DArray) {
-         this.shaderData.addDefine(ShaderDefines2D.USE_TEX_ARRAY);
-         this.shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE_ARRAY, tex);
-      } else {
-         this.shaderData.removeDefine(ShaderDefines2D.USE_TEX_ARRAY);
-         this.shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, tex);
-      }
 
-      if (this._bitmap != tex) {
-         this._bitmap = tex as Texture2D;
-         this.shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, this._bitmap);
+      if (this._bitmap != tex) { 
+         this._bitmap = tex as Texture2D | Texture2DArray;
+         // 切换到数组纹理路径: 传入 Texture2DArray 则启用 USE_TEX_ARRAY 宏与数组uniform
+         if (tex instanceof Texture2DArray) {
+            this.shaderData.addDefine(ShaderDefines2D.USE_TEX_ARRAY);
+            this.shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE_ARRAY, tex);
+         } else {
+            this.shaderData.removeDefine(ShaderDefines2D.USE_TEX_ARRAY);
+            this.shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, tex);
+         }
       }
    }
 
