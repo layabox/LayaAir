@@ -82,7 +82,7 @@ export class GLESEngine implements IRenderEngine {
     this._nativeObj.matUseUBO = Config.matUseUBO;
   }
   copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void {
-    throw new NotImplementedError();
+    this._nativeObj.copySubFrameBuffertoTex((texture as any)._nativeObj, level, xoffset, yoffset, x, y, width, height);
   }
   propertyNameToID(name: string): number {
     return this._nativeObj.propertyNameToID(name);
