@@ -64,8 +64,8 @@ export class DrawTextureCmd implements IGraphicsCmd {
      */
     alpha: number = 1;
     /**
-     * @en (Optional) Color filter.
-     * @zh （可选）颜色滤镜。
+     * @en (Optional) Color filter. The format is ABGR.
+     * @zh （可选）颜色滤镜。格式是ABGR。
      */
     color: number = 0xffffffff;
     /**

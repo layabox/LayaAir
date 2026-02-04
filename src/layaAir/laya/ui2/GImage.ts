@@ -9,8 +9,8 @@ import { ImageRenderer } from "./ImageRenderer";
 import { IMeshFactory } from "../display/mesh/MeshFactory";
 
 /**
- * @en GImage is a widget that displays an image resource.
- * @zh GImage 是一个显示图像资源的小部件。
+ * @en GImage is a widget that displays an image resource. Set the image resource URL using the src property. By default, the autoSize property is true, so the node will automatically adjust to the original size of the image when the src is changed; if you want the node size not to change with the image size, you can set the autoSize property to false.
+ * @zh GImage 是一个显示图像资源的小部件。 使用src属性设置图像资源的URL。默认情况下，autoSize属性为true，所以更改src后，节点会自动调整为图像的原始大小；如果希望节点大小不跟随图像大小变化，可以将autoSize属性设置为false。
  * @blueprintInheritable
  */
 export class GImage extends GWidget {

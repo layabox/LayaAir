@@ -60,6 +60,8 @@ export class MgTextInputAdapter extends TextInputAdapter {
     }
 
     private onKeyboardInput(ev: WechatMinigame.OnKeyboardInputListenerResult) {
+        if (!this.target)
+            return;
         let str = this.validateText(ev.value);
         if (this.updateTargetText(str))
             this.target.event(Event.INPUT);

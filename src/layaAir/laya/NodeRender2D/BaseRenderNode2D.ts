@@ -358,6 +358,14 @@ export class BaseRenderNode2D extends Component {
         }
     }
 
+    /**
+     * @en Whether to receive light
+     * @zh 是否接受灯光。
+     */
+    get lightReceive() {
+        return this._lightReceive;
+    }
+
     set lightReceive(value: boolean) {
         if (value === this._lightReceive)
             return;
@@ -369,10 +377,6 @@ export class BaseRenderNode2D extends Component {
         }
         this._renderHandle.lightReceive = value;
         this._resetUpdateMark();
-    }
-
-    get lightReceive() {
-        return this._lightReceive;
     }
 
     _resetUpdateMark() {

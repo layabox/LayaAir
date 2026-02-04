@@ -20,10 +20,8 @@ export class Gradient implements IClone {
     private _colorRGBKeysCount: number = 0;
 
     /**
-     * @en Get the count of color RGB keys.
-     * @returns The count of color RGB keys.
-     * @zh 获取颜色 RGB 数量。
-     * @returns 颜色 RGB 数量。
+     * @en The count of color RGB keys.
+     * @zh 颜色 RGB 数量。
      */
     get colorRGBKeysCount(): number {
         return this._colorRGBKeysCount;
@@ -33,17 +31,14 @@ export class Gradient implements IClone {
     _rgbElementDatas: Float32Array;
 
     /**
-     * @internal
-     * rgb 数据 保存设置值
+     * @ignore
+     * @en RGB data storage settings. The first is the key, and the second, third, and fourth are the R, G, and B values, forming a group, and so on.
+     * @zh RGB数据 保存设置值。第一个为键，第二、第三、第四为R、G、B值，组成一组，以此类推。
      */
     get _rgbElements(): Float32Array {
         return this._rgbElementDatas;
     }
 
-    /**
-     * @internal
-     * rgb 数据 保存设置值
-     */
     set _rgbElements(value: Float32Array) {
         this._rgbElementDatas = value;
         this._maxColorRGBKeysCount = value ? value.length / 4 : 0;
@@ -58,28 +53,25 @@ export class Gradient implements IClone {
     private _colorAlphaKeysCount: number = 0;
 
     /**
-     * 获取颜色Alpha数量。
-     * @return 颜色Alpha数量。
+     * @en The count of color Alpha keys.
+     * @zh 颜色 Alpha 数量。
      */
     get colorAlphaKeysCount(): number {
         return this._colorAlphaKeysCount;
     }
 
-    /**@internal */
+    /** @internal */
     _alphaElementDatas: Float32Array;
 
     /**
-     * @internal
-     * alpha 保存设置值
+     * @ignore
+     * @en Alpha data storage settings. The first is the key, and the second is the value, forming a pair, and so on.
+     * @zh 透明度数据 保存设置值。第一个为键，第二个为值，组成一对，以此类推。
      */
     get _alphaElements(): Float32Array {
         return this._alphaElementDatas;
     }
 
-    /**
-     * @internal
-     * alpha 保存设置值
-     */
     set _alphaElements(value: Float32Array) {
         this._alphaElementDatas = value;
         this._maxColorAlphaKeysCount = value ? value.length / 2 : 0;
@@ -105,21 +97,13 @@ export class Gradient implements IClone {
     _keyRanges: Vector4 = new Vector4(1, 0, 1, 0);
 
     /**
-     * @en Get the gradient mode.
-     * @returns The gradient mode.
-     * @zh 获取梯度模式。
-     * @returns 梯度模式。
+     * @en Gradient mode. 0: Blend mode, 1: Fixed mode.
+     * @zh 渐变模式。0：混合模式，1：固定模式。
      */
     get mode(): number {
         return this._mode;
     }
 
-    /**
-     * @en Set the gradient mode.
-     * @param value The gradient mode.
-     * @zh 设置梯度模式。
-     * @param value 梯度模式。
-     */
     set mode(value: number) {
         this._mode = value;
     }

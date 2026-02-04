@@ -114,8 +114,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     private _skin: string;
     private _offset: Vector2 = new Vector2();
     private _renderOffset: Vector2 = new Vector2();
-    /** @internal */
-    _setPreAlphaFlag = false;
+    private _setPreAlphaFlag = false;
     private _premultipliedAlpha = true;
 
     /** @ignore */
