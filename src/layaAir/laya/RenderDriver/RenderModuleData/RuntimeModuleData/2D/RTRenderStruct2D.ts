@@ -55,8 +55,6 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    globalAlpha: number = 1.0;
 
-   private _clipRect: Rectangle = new Rectangle(0, 0, 0, 0);
-
    private _dcOptimize: boolean = false;
    public get dcOptimize(): boolean {
       return this._dcOptimize;
@@ -307,14 +305,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
    
    setClipRect(rect: Rectangle): void {
-      if (rect) {
-         rect.cloneTo(this._clipRect);
-         this._clipRect.width = Math.max(this._clipRect.width, 0.0001);
-         this._clipRect.height = Math.max(this._clipRect.height, 0.0001);
-         this._nativeObj.setClipRect(this._clipRect);
-      } else {
-         this._nativeObj.setClipRect(null);
-      }
+      this._nativeObj.setClipRect(rect);
    }
 
    setRepaint(): void {
