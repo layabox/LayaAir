@@ -24,11 +24,25 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
      */
     static readonly ID: string = className;
 
+    /** @internal */
+    _texture: Texture = null;
     /**
      * @en The texture to be drawn
      * @zh 要绘制的纹理
      */
-    texture: Texture;
+    get texture(): Texture {
+        return this._texture;
+    }
+    /**
+     * @en The texture to be drawn
+     * @zh 要绘制的纹理
+     */
+    set texture(val: Texture) { //修复场景或预制体加载时没有添加资源引用
+        !!val && val._addReference();
+        this._texture?._removeReference();
+        this._texture = val;
+    }
+
     /**
      * @en (Optional) X-axis offset
      * @zh （可选）X轴偏移量
@@ -99,7 +113,6 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
     static create(texture: Texture, x: number, y: number, width: number, height: number, sizeGrid: number[], percent?: boolean, color?: string): Draw9GridTextureCmd {
         let cmd: Draw9GridTextureCmd = Pool.getItemByClass(className, Draw9GridTextureCmd);
         cmd.texture = texture;
-        texture._addReference();
         cmd.x = x;
         cmd.y = y;
         cmd.width = width;
@@ -115,8 +128,8 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
      * @zh 将实例回收到对象池
      */
     recover(): void {
-        this.texture?._removeReference();
-        this.texture = null;
+        this._texture?._removeReference();
+        this._texture = null;
         Pool.recover(className, this);
     }
 
@@ -131,8 +144,8 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
      * @param gy 全局 y 坐标
      */
     run(runner: GraphicsRunner, gx: number, gy: number): void {
-        if (this.texture) {
-            let sizeGrid = this.sizeGrid || this.texture._sizeGrid || EMPTY_SIZE_GRID;
+        if (this._texture) {
+            let sizeGrid = this.sizeGrid || this._texture._sizeGrid || EMPTY_SIZE_GRID;
             let x = this.x;
             let y = this.y;
 
@@ -146,7 +159,7 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
                 h *= runner.sprite.height;
             }
 
-            let vb = VertexStream.pool.take(this.texture);
+            let vb = VertexStream.pool.take(this._texture);
             vb.contentRect.setTo(0, 0, w, h);
             if (this.color)
                 vb.color.setABGR(this.color);
@@ -160,20 +173,20 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
 
             genSliceMesh(vb, vb.contentRect, vb.uvRect, gridRect, sizeGrid[4] === 1 ? 0xff : 0);
 
-            if (this.texture.uvrect) {
+            if (this._texture.uvrect) {
                 if (Config.uvClipMode === "cpu") {
                     const clippedData = UVClippingUtils.clipTrianglesByUVRange(
-                        vb.getVertices(), vb.getIndices(), vb.getUVs(), this.texture.uvrect, vb.getColors()
+                        vb.getVertices(), vb.getIndices(), vb.getUVs(), this._texture.uvrect, vb.getColors()
                     );
-                    drawTrianglesBatched(runner, this.texture, x + gx, y + gy,
+                    drawTrianglesBatched(runner, this._texture, x + gx, y + gy,
                         clippedData.vertices, clippedData.uvs, clippedData.indices,
                         null, 1, null, null, clippedData.colors, null);
                 } else {
-                    drawTrianglesBatched(runner, this.texture, x + gx, y + gy, vb.getVertices(), vb.getUVs(), vb.getIndices(),
-                        null, 1, null, null, vb.getColors(), this.texture.uvrect);
+                    drawTrianglesBatched(runner, this._texture, x + gx, y + gy, vb.getVertices(), vb.getUVs(), vb.getIndices(),
+                        null, 1, null, null, vb.getColors(), this._texture.uvrect);
                 }
             } else {
-                drawTrianglesBatched(runner, this.texture, x + gx, y + gy, vb.getVertices(), vb.getUVs(), vb.getIndices(),
+                drawTrianglesBatched(runner, this._texture, x + gx, y + gy, vb.getVertices(), vb.getUVs(), vb.getIndices(),
                     null, 1, null, null, vb.getColors(), null);
             }
 
