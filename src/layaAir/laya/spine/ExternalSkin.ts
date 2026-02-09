@@ -20,7 +20,22 @@ export class ExternalSkin {
      * @en The target Spine skeleton.
      * @zh 目标 Spine 骨骼。
      */
-    target: Spine2DRenderNode;
+    private _target: Spine2DRenderNode;
+    
+    public get target(): Spine2DRenderNode {
+        return this._target;
+    }
+    public set target(value: Spine2DRenderNode) {
+        if (this._target && this._templet) {
+            this._templet._removeReference();
+        }
+
+        if (value && this._templet)  {
+            this._templet._addReference();
+        }
+
+        this._target = value;
+    }
 
     normal = false;
 
@@ -75,10 +90,14 @@ export class ExternalSkin {
      * @param templet 动画模板的引用。
      */
     protected init(templet: SpineTemplet): void {
+        if (this._templet) {
+            this._templet._removeReference();
+        }
         this._templet = templet;
         if (!this._templet) {
             return;
         }
+        this._templet._addReference();
         this.flush();
     }
 
@@ -133,5 +152,14 @@ export class ExternalSkin {
             this.normal = false;
         }
 
+    }
+
+    destroy() {
+        if (this._templet) {
+            this._templet._removeReference();
+        }
+        this._templet = null;
+        this._items = null;
+        this.target = null;
     }
 }
