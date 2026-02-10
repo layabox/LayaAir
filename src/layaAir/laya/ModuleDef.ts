@@ -60,6 +60,7 @@ import { PostProcess2D } from "./display/PostProcess2D";
 import { PostProcess2DEffect } from "./display/PostProcess2DEffect";
 import { SoundPlayer } from "./media/SoundPlayer";
 import { VideoPlayer } from "./media/VideoPlayer";
+import { ComputeShader } from "./RenderDriver/DriverDesign/RenderDevice/ComputeShader/ComputeShader";
 import { AnimatorClip2D } from "./components/AnimatorClip2D";
 
 let c = ClassUtils.regClass;
@@ -117,3 +118,5 @@ c("FloatKeyframe", FloatKeyframe);
 
 c("PostProcess2D", PostProcess2D);
 c("PostProcess2DEffect", PostProcess2DEffect);
+
+c("COMPUTESHADER", ComputeShader);

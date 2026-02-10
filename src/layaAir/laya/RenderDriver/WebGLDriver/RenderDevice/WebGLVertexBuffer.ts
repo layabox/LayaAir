@@ -3,6 +3,7 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { StatElement } from "../../../layagl/StatisticsContext";
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { VertexDeclaration, VertexStateContext } from "../../../RenderEngine/VertexDeclaration";
+import { IDeviceBuffer } from "../../DriverDesign/RenderDevice/IDeviceBuffer";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
 import { WebGLEngine } from "./WebGLEngine";
 import { GLBuffer } from "./WebGLEngine/GLBuffer";
@@ -28,6 +29,10 @@ export class WebGLVertexBuffer implements IVertexBuffer {
 
     constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage) {
         this._glBuffer = WebGLEngine.instance.createBuffer(targetType, bufferUsageType) as GLBuffer;
+    }
+
+    getStorageBuffer(): IDeviceBuffer {
+        return null;
     }
 
     setDataLength(byteLength: number): void {

@@ -1,4 +1,5 @@
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
+import { IDeviceBuffer } from "./IDeviceBuffer";
 
 /**
  * @blueprintIgnore @blueprintIgnoreSubclasses
@@ -8,5 +9,6 @@ export interface IVertexBuffer {
     instanceBuffer: boolean;
     setData(buffer: ArrayBufferLike, bufferOffset: number, dataStartIndex: number, dataCount: number): void;
     setDataLength(byteLength: number): void;
-    destroy():void;
+    getStorageBuffer(): IDeviceBuffer;
+    destroy(): void;
 }

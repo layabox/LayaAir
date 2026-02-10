@@ -1,5 +1,5 @@
 import { Config } from "../../../../Config";
-import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
+import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { HTMLCanvas } from "../../../resource/HTMLCanvas";
@@ -29,4 +29,5 @@ export interface IRenderDeviceFactory {
     createComputeShader?(info: ComputeShaderProcessInfo): IComputeShader;
     createComputeContext?(): IComputeContext;
     createDeviceBuffer?(type: EDeviceBufferUsage): IDeviceBuffer;
+    createDeviceVertexBuffer?(type: EDeviceBufferUsage): IVertexBuffer;
 }
