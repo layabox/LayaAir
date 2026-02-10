@@ -1,5 +1,5 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
-import { CopyTextureInfo, IComputeCMD_Dispatch, IComputeContext } from "./IComputeContext";
+import { CopyTextureInfo, IComputeCMD_Dispatch, IComputeCMD_DispatchIndirect, IComputeContext } from "./IComputeContext";
 import { IDeviceBuffer } from "../IDeviceBuffer";
 import { IVertexBuffer } from "../IVertexBuffer";
 import { ShaderData, ShaderDataItem, ShaderDataType } from "../ShaderData";
@@ -51,6 +51,16 @@ export class ComputeCommandBuffer {
         }
         this._context.addDispatchCommand(cmd);
     };
+
+    addDispatchIndirectCommand(computeshader: ComputeShader, shaderDefine: IDefineDatas, datas: ShaderData[], indirectBuffer: IDeviceBuffer, indirectOffset: number): void {
+        let cmd: IComputeCMD_DispatchIndirect = {
+            shader: computeshader.getCacheShader(shaderDefine),
+            shaderData: datas,
+            indirectBuffer: indirectBuffer as any,
+            indirectOffset: indirectOffset
+        }
+        this._context.addDispatchIndirectCommand(cmd);
+    }
 
     /**
      * 添加修改ShaderData值的命令

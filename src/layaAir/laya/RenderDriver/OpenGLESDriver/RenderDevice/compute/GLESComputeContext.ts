@@ -5,7 +5,7 @@ import { Vector2 } from '../../../../maths/Vector2';
 import { Vector3 } from '../../../../maths/Vector3';
 import { Vector4 } from '../../../../maths/Vector4';
 import { BaseTexture } from '../../../../resource/BaseTexture';
-import { IComputeCMD_Dispatch, IComputeContext, IGPUBuffer } from '../../../DriverDesign/RenderDevice/ComputeShader/IComputeContext';
+import { IComputeCMD_Dispatch, IComputeCMD_DispatchIndirect, IComputeContext, IGPUBuffer } from '../../../DriverDesign/RenderDevice/ComputeShader/IComputeContext';
 import { IComputeShader } from '../../../DriverDesign/RenderDevice/ComputeShader/IComputeShader';
 import { ShaderData, ShaderDataType, ShaderDataItem } from '../../../DriverDesign/RenderDevice/ShaderData';
 import { GLESIndexBuffer } from '../GLESIndexBuffer';
@@ -240,6 +240,14 @@ export class GLESComputeContext implements IComputeContext {
         cmdInfo.dispatchParams = cmd.dispatchParams as Vector3;
         this.commands.push(cmdInfo);
         this._nativeObj.addCMD(cmdInfo._nativeObj as any);
+    }
+
+    /**
+     * 添加间接调度计算命令
+     * @param cmd 间接调度命令信息
+     */
+    addDispatchIndirectCommand(cmd: IComputeCMD_DispatchIndirect): void {
+        //TODO
     }
 
     /**
