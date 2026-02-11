@@ -1,16 +1,20 @@
-import { Camera } from "../../../layaAir/laya/d3/core/Camera";
-import { ShadowMode } from "../../../layaAir/laya/d3/core/light/ShadowMode";
-import { Scene3D } from "../../../layaAir/laya/d3/core/scene/Scene3D";
-import { IRender3DProcess, IRenderContext3D } from "../../../layaAir/laya/RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
-import { ISceneRenderManager } from "../../../layaAir/laya/RenderDriver/DriverDesign/3DRenderPass/ISceneRenderManager";
-import { WebDirCascadeShadowRP } from "../../../layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/3D/WebShadowRP/WebDirCascadeShadowRP";
-import { WebBaseSpotRP } from "../../../layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/3D/WebShadowRP/WebBaseSpotRP";
-import { Config3D } from "../../../layaAir/Config3D";
-import { Cluster } from "../../../layaAir/laya/d3/graphics/renderPath/Cluster";
-import { ICameraNodeData } from "../../../layaAir/laya/RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
-import { WebDirectLight } from "../../../layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/3D/WebDirectLight";
-import { WebCameraNodeData } from "../../../layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/3D/WebModuleData";
-import { WebSpotLight } from "../../../layaAir/laya/RenderDriver/RenderModuleData/WebModuleData/3D/WebSpotLight";
+import { Config3D } from "../../../Config3D";
+import { Camera } from "../../d3/core/Camera";
+import { ShadowMode } from "../../d3/core/light/ShadowMode";
+import { ShadowUtils, ShadowMapFormat } from "../../d3/core/light/ShadowUtils";
+import { Scene3D } from "../../d3/core/scene/Scene3D";
+import { Cluster } from "../../d3/graphics/renderPath/Cluster";
+import { ShadowCasterPass } from "../../d3/shadowMap/ShadowCasterPass";
+import { IRender3DProcess, IRenderContext3D } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import { ISceneRenderManager } from "../../RenderDriver/DriverDesign/3DRenderPass/ISceneRenderManager";
+import { WebDirectLight } from "../../RenderDriver/RenderModuleData/WebModuleData/3D/WebDirectLight";
+import { WebCameraNodeData } from "../../RenderDriver/RenderModuleData/WebModuleData/3D/WebModuleData";
+import { WebBaseSpotRP } from "../../RenderDriver/RenderModuleData/WebModuleData/3D/WebShadowRP/WebBaseSpotRP";
+import { WebDirCascadeShadowRP } from "../../RenderDriver/RenderModuleData/WebModuleData/3D/WebShadowRP/WebDirCascadeShadowRP";
+import { WebSpotLight } from "../../RenderDriver/RenderModuleData/WebModuleData/3D/WebSpotLight";
+import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
+import { RenderTexture } from "../../resource/RenderTexture";
+
 
 /**
  * WebShadowOnlyProcess - 阴影专用渲染流程
@@ -31,10 +35,13 @@ export class WebShadowOnlyProcess implements IRender3DProcess {
     /** 场景渲染管理器引用 */
     render3DManager: ISceneRenderManager;
 
+    protected _defaultShadowMap: RenderTexture;
+    
     /**
      * 构造函数
      */
     constructor() {
+        this._defaultShadowMap = ShadowUtils.getTemporaryShadowTexture(1, 1, ShadowMapFormat.bit16);
         this._dirShadowRP = new WebDirCascadeShadowRP();
         this._spotShadowRP = new WebBaseSpotRP();
     }
@@ -69,7 +76,10 @@ export class WebShadowOnlyProcess implements IRender3DProcess {
         // 5. 添加必要的 uniform maps
         context.preDrawUniformMaps.add("Scene3D");
         context.preDrawUniformMaps.add("Global");
+        context.preDrawUniformMaps.add("Shadow");
 
+        context.sceneData.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, this._defaultShadowMap);
+        
         // 6. 渲染方向光阴影
         const mainDirLight = scene._mainDirectionLight;
         const needDirectionShadow = mainDirLight && mainDirLight.shadowMode !== ShadowMode.None;
@@ -94,8 +104,6 @@ export class WebShadowOnlyProcess implements IRender3DProcess {
             // 应用阴影资源到场景
             this._dirShadowRP.useRPResource(context);
 
-            // 添加阴影 uniform map
-            context.preDrawUniformMaps.add("Shadow");
         } else {
             this._dirShadowRP.unuseRPResource(context);
         }
@@ -123,10 +131,6 @@ export class WebShadowOnlyProcess implements IRender3DProcess {
             // 应用阴影资源到场景
             this._spotShadowRP.useRPResource(context);
 
-            // 添加阴影 uniform map
-            if (!needDirectionShadow) {
-                context.preDrawUniformMaps.add("Shadow");
-            }
         } else {
             this._spotShadowRP.unuseRPResource(context);
         }
@@ -136,6 +140,8 @@ export class WebShadowOnlyProcess implements IRender3DProcess {
             context.preDrawUniformMaps.delete("Shadow");
         }
 
+        context.setRenderTarget(null, RenderClearFlag.Nothing);
+        // LayaGL.textureContext.bindoutScreenTarget();
         // 注意：这里不执行前向渲染通道（mainRenderpass.render）
         // 也不执行后期处理（postProcess）
         // 只渲染阴影贴图
@@ -155,6 +161,10 @@ export class WebShadowOnlyProcess implements IRender3DProcess {
             this._spotShadowRP = null;
         }
 
+        if (this._defaultShadowMap) {
+            this._defaultShadowMap.destroy();
+            this._defaultShadowMap = null;
+        }
         this.render3DManager = null;
     }
 }

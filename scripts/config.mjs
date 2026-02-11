@@ -450,4 +450,11 @@ export const allBundles = [{
     input: [
         'laya/ik/**/*.ts'
     ]
-}];
+},
+{
+    name: 'bridge',
+    input: [
+        'laya/bridge/**/*.ts'
+    ]
+},
+];

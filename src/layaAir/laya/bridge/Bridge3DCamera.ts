@@ -1,9 +1,15 @@
-import { Camera, CameraClearFlags } from "../../layaAir/laya/d3/core/Camera";
-import { Scene3D } from "../../layaAir/laya/d3/core/scene/Scene3D";
-import { RenderContext3D } from "../../layaAir/laya/d3/core/render/RenderContext3D";
-import { Color } from "../../layaAir/laya/maths/Color";
-import { RenderListQueue } from "../../layaAir/laya/RenderDriver/DriverCommon/RenderListQueue";
-import { FastSinglelist } from "laya/utils/SingletonList";
+
+import { BaseCamera } from "../d3/core/BaseCamera";
+import { Camera, CameraClearFlags } from "../d3/core/Camera";
+import { RenderContext3D } from "../d3/core/render/RenderContext3D";
+import { Scene3D } from "../d3/core/scene/Scene3D";
+import { LayaGL } from "../layagl/LayaGL";
+import { Color } from "../maths/Color";
+import { RenderListQueue } from "../RenderDriver/DriverCommon/RenderListQueue";
+import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
+import { FastSinglelist } from "../utils/SingletonList";
 import { WebShadowOnlyProcess } from "./WebShadowOnlyRP/WebShadowOnlyProcess";
 
 /**
@@ -18,6 +24,28 @@ import { WebShadowOnlyProcess } from "./WebShadowOnlyRP/WebShadowOnlyProcess";
  * - 独立管理：由Bridge3DManager或Bridge3DScene3D管理，与Scene3D解耦
  */
 export class Bridge3DCamera extends Camera {
+    
+    /** @internal Bridge3D clip define */
+    static BRIDGE3D_CLIP: ShaderDefine;
+    /** @internal */
+    static BRIDGE3D_CLIPDIR: number;
+    /** @internal */
+    static BRIDGE3D_CLIPPOS: number;
+    /** @internal */
+    static BRIDGE3D_CLIPRTH: number;
+
+    static __init__() {
+        // Bridge3D clip
+        Bridge3DCamera.BRIDGE3D_CLIP = Shader3D.getDefineByName("BRIDGE3D_CLIP");
+        Bridge3DCamera.BRIDGE3D_CLIPDIR = Shader3D.propertyNameToID("u_Bridge3DClipDir");
+        Bridge3DCamera.BRIDGE3D_CLIPPOS = Shader3D.propertyNameToID("u_Bridge3DClipPos");
+        Bridge3DCamera.BRIDGE3D_CLIPRTH = Shader3D.propertyNameToID("u_Bridge3DClipRTH");
+
+        let camerauniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(BaseCamera.cameraBlockName);
+        camerauniformMap.addShaderUniform(Bridge3DCamera.BRIDGE3D_CLIPDIR, "u_Bridge3DClipDir", ShaderDataType.Vector4);
+        camerauniformMap.addShaderUniform(Bridge3DCamera.BRIDGE3D_CLIPPOS, "u_Bridge3DClipPos", ShaderDataType.Vector4);
+        camerauniformMap.addShaderUniform(Bridge3DCamera.BRIDGE3D_CLIPRTH, "u_Bridge3DClipRTH", ShaderDataType.Float);
+    }
 
     /**
      * 阴影专用渲染流程
@@ -124,6 +152,7 @@ export class Bridge3DCamera extends Camera {
 
         // 7. 恢复场景的剔除相机
         scene.recaculateCullCamera();
+
     }
 
     /**

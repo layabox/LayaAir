@@ -1,17 +1,18 @@
-import { Laya } from "../../layaAir/Laya";
-import { Scene } from "../../layaAir/laya/display/Scene";
-import { Bridge3DSprite } from "./Bridge3DSprite";
-import { MeshSprite3D } from "../../layaAir/laya/d3/core/MeshSprite3D";
-import { PrimitiveMesh } from "../../layaAir/laya/d3/resource/models/PrimitiveMesh";
-import { Vector3 } from "../../layaAir/laya/maths/Vector3";
-import { Vector4 } from "../../layaAir/laya/maths/Vector4";
-import { BlinnPhongMaterial } from "../../layaAir/laya/d3/core/material/BlinnPhongMaterial";
-import { Color } from "../../layaAir/laya/maths/Color";
-import { Sprite3D } from "../../layaAir/laya/d3/core/Sprite3D";
-import { Bridge3DManager } from "./Bridge3DManager";
-import { Bridge3DCoordinate } from "./utils/Bridge3DCoordinate";
-import { Sprite } from "laya/display/Sprite";
-import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
+import { Laya } from "../../../layaAir/Laya";
+import { Bridge3DSprite } from "../../../layaAir/laya/bridge/Bridge3DSprite";
+import { Bridge3DCoordinate } from "../../../layaAir/laya/bridge/utils/Bridge3DCoordinate";
+import { DirectionLightCom } from "../../../layaAir/laya/d3/core/light/DirectionLightCom";
+import { BlinnPhongMaterial } from "../../../layaAir/laya/d3/core/material/BlinnPhongMaterial";
+import { MeshSprite3D } from "../../../layaAir/laya/d3/core/MeshSprite3D";
+import { Sprite3D } from "../../../layaAir/laya/d3/core/Sprite3D";
+import { PrimitiveMesh } from "../../../layaAir/laya/d3/resource/models/PrimitiveMesh";
+import { Scene } from "../../../layaAir/laya/display/Scene";
+import { Sprite } from "../../../layaAir/laya/display/Sprite";
+import { Color } from "../../../layaAir/laya/maths/Color";
+import { Matrix4x4 } from "../../../layaAir/laya/maths/Matrix4x4";
+import { Vector3 } from "../../../layaAir/laya/maths/Vector3";
+import { Vector4 } from "../../../layaAir/laya/maths/Vector4";
+
 
 /**
  * Bridge3D测试示例
@@ -28,21 +29,23 @@ export class Bridge3DTest {
     private onLoaded(): void {
         console.log("Bridge3D Test - Started");
 
-        // 输出坐标系统调试信息
+        // Output coordinate system debug info
         Bridge3DCoordinate.debugInfo();
 
-        // 创建2D场景(现在Scene已经内置Bridge3DManager支持)
+        // Create 2D scene (Scene now has built-in Bridge3DScene3D support via auto-initialization)
         const scene2D = new Scene();
         Laya.stage.addChild(scene2D);
 
-        let manager = scene2D._bridge3DManager = new Bridge3DManager(scene2D);
-
-        let x = 0;
-        let y = 0;
-        // 创建Bridge3DSprite
+        let x = 500;
+        let y = 500;
+        // Create Bridge3DSprite (auto-creates Bridge3DScene3D on first add)
         const bridge = new Bridge3DSprite();
         bridge.pos(x, y);
+        bridge.scale3DToPixel = 1;
         scene2D.addChild(bridge);
+
+        // Access scene3D through Bridge3DSprite getter (triggers lazy initialization)
+        let scene3d = scene2D.bridge3D;
 
         let sprite = new Sprite;
         sprite.graphics.drawCircle(0, 0, 30, "#ff0000");
@@ -52,12 +55,27 @@ export class Bridge3DTest {
         console.log("Bridge3D created at (400, 300)");
         console.log("2D Logic Position: (400, 300)");
 
+        scene3d.ambientColor = new Color(1, 1, 1, 1);
+        let lightSprite = new Bridge3DSprite;
+        scene2D.addChild(lightSprite);
+
+        let directionLight = new Sprite3D;
+        let dircom = directionLight.addComponent(DirectionLightCom);
+        lightSprite.addChild(directionLight);
+
+        dircom.color = new Color(1, 0, 0, 1);
+        //设置平行光的方向
+        var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+        mat.setForward(new Vector3(-1.0, -1.0, -1.0));
+        directionLight.transform.worldMatrix = mat;
+
         // 输出转换后的3D世界坐标
         // 创建3D立方体
         const cube = new MeshSprite3D(PrimitiveMesh.createSphere(50));
 
         // 创建材质
-        const material = new UnlitMaterial();
+        // const material = new UnlitMaterial();
+        const material = new BlinnPhongMaterial();
         material.albedoColor = new Color(0.8, 0.3, 0.3, 1.0);
         cube.meshRenderer.material = material;
 
@@ -77,8 +95,8 @@ export class Bridge3DTest {
 
         // Run diagnostic tests
         this.addVisualMarkers(scene2D);
-        this.logCameraState(manager);
-        this.testWorldToScreen(bridge, manager);
+        this.logCameraState(scene2D);
+        this.testWorldToScreen(scene2D);
         this.logTransformChain(bridge);
     }
 
@@ -115,8 +133,11 @@ export class Bridge3DTest {
     /**
      * Log camera state and projection parameters
      */
-    private logCameraState(manager: Bridge3DManager): void {
-        const camera = manager.sharedCamera;
+    private logCameraState(scene2D: Scene): void {
+        const scene3d = scene2D.bridge3D;
+        if (!scene3d) return;
+
+        const camera = scene3d.sharedCamera;
         const stage = Laya.stage;
 
         console.log("\n--- Camera State ---");
@@ -131,8 +152,11 @@ export class Bridge3DTest {
     /**
      * Test 3D world to screen space coordinate projection
      */
-    private testWorldToScreen(bridge: Bridge3DSprite, manager: Bridge3DManager): void {
-        const camera = manager.sharedCamera;
+    private testWorldToScreen(scene2D: Scene): void {
+        const scene3d = scene2D.bridge3D;
+        if (!scene3d) return;
+
+        const camera = scene3d.sharedCamera;
         const stage = Laya.stage;
 
         // Test positions
@@ -213,7 +237,7 @@ export class Bridge3DTest {
             cube.name = `Cube${i}`;
 
             // 创建材质
-            const material = new UnlitMaterial();
+            const material = new BlinnPhongMaterial();
             const hue = i / 3;
             material.albedoColor = new Color(hue, 0.5, 1 - hue, 1.0);
             cube.meshRenderer.material = material;

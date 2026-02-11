@@ -1,7 +1,8 @@
-import { ILaya } from "../../../layaAir/ILaya";
-import { RenderState2D } from "../../../layaAir/laya/webgl/utils/RenderState2D";
-import { Vector3 } from "../../../layaAir/laya/maths/Vector3";
-import { Camera } from "../../../layaAir/laya/d3/core/Camera";
+import { ILaya } from "../../../ILaya";
+import { Camera } from "../../d3/core/Camera";
+import { Vector3 } from "../../maths/Vector3";
+import { RenderState2D } from "../../webgl/utils/RenderState2D";
+
 
 /**
  * Bridge3D坐标转换工具类

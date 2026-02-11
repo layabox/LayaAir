@@ -708,6 +708,15 @@ export class Vector3 implements IClone {
         this.y = 0;
         this.z = 0;
     }
+
+    /**
+     * @en Converts the vector to a string.
+     * @zh 将向量转换为字符串。
+     * @returns 字符串。
+     */
+    toString():string {
+        return `{x:${this.x}, y:${this.y}, z:${this.z}}`;
+    }
 }
 
 const _tempVector4 = new Vector4();

@@ -11,8 +11,8 @@ import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineTexture } from "../../SpineTexture";
 
 /**
- * @en SketonOptimise class used for skeleton optimization.
- * @zh SketonOptimise 类用于骨骼优化。
+ * @en SkeletonOptimise class used for skeleton optimization.
+ * @zh SkeletonOptimise 类用于骨骼优化。
  */
 export class SkeletonOptimise implements ISkeletonOptimise {
     private static emptyBounds: {x:number , y:number , width:number , height:number} = {x:0, y:0, width:0, height:0};

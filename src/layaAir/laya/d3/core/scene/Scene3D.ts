@@ -330,7 +330,7 @@ export class Scene3D extends Sprite {
     /** @internal */
     private _timer: Timer;
     /** @internal */
-    private _time: number = 0;
+    protected _time: number = 0;
     /** @internal */
     private _fogParams: Vector4;
     /** @internal */
@@ -889,12 +889,30 @@ export class Scene3D extends Sprite {
         scenes.splice(scenes.indexOf(this), 1);
     }
 
-    private _prepareSceneToRender(): void {
+    /**
+     * @internal
+     * @en Get the light texture for this scene. Can be overridden by subclasses to use instance-level light textures.
+     * @zh 获取此场景的灯光贴图。子类可以重写此方法以使用实例级别的灯光贴图。
+     */
+    protected _getLightTexture(): Texture2D {
+        return Scene3D._lightTexture;
+    }
+
+    /**
+     * @internal
+     * @en Get the light pixels array for this scene. Can be overridden by subclasses to use instance-level light data.
+     * @zh 获取此场景的灯光像素数组。子类可以重写此方法以使用实例级别的灯光数据。
+     */
+    protected _getLightPixels(): Float32Array {
+        return Scene3D._lightPixles;
+    }
+
+    protected _prepareSceneToRender(): void {
         var shaderValues: ShaderData = this._shaderValues;
         var multiLighting: boolean = Config3D._multiLighting && Stat.enableMulLight;
         if (multiLighting) {
-            var ligTex: Texture2D = Scene3D._lightTexture;
-            var ligPix: Float32Array = Scene3D._lightPixles;
+            var ligTex: Texture2D = this._getLightTexture();
+            var ligPix: Float32Array = this._getLightPixels();
             const pixelWidth: number = ligTex.width;
             const floatWidth: number = pixelWidth * 4;
             var curCount: number = 0;

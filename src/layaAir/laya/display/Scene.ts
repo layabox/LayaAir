@@ -19,6 +19,18 @@ import { type Scene3D } from "../d3/core/scene/Scene3D";
 import { ProgressCallback } from "../net/BatchProgress";
 import { Camera2D } from "./Scene2DSpecial/Camera2D";
 import { BlendModeHandler } from "../webgl/canvas/BlendMode";
+import { Bridge3DScene3D } from "../bridge/Bridge3DScene3D";
+
+/** @blueprintIgnore */
+export interface IBridge3DScene extends Scene3D {
+    readonly sharedCamera: any;  // Bridge3DCamera
+    readonly bridge3DShadowCamera: any;  // Bridge3DCamera
+    registerBridge3D(bridge: Sprite): void; // Bridge3DSprite
+    unregisterBridge3D(bridge: Sprite): void; // Bridge3DSprite
+    setupCamera(): void;
+    destroy(): void;
+    cameraZDistance: number;
+}
 
 /** @blueprintIgnore */
 export interface ILight2DManager {
@@ -39,6 +51,12 @@ export interface ILight2DManager {
  */
 export class Scene extends Sprite {
     static scene2DUniformMap: CommandUniformMap;
+
+    /**
+     * Factory method to create Bridge3DScene3D
+     * Can be overridden to provide custom implementation
+     */
+    static createBridge3DScene: () => IBridge3DScene;
 
     /**创建后，还未被销毁的场景列表，方便查看还未被销毁的场景列表，方便内存管理，本属性只读，请不要直接修改*/
     /**
@@ -86,6 +104,29 @@ export class Scene extends Sprite {
     _scene3D: Scene3D;
     /** @internal */
     _area2Ds: Set<Area2D>;
+    /**
+     * @internal
+     * @en Bridge3D scene
+     * @zh Bridge3D场景
+     */
+    _bridge3DScene: IBridge3DScene | null;
+
+    set bridge3D(bridge3D: IBridge3DScene) {
+        if (this._bridge3DScene) {
+            console.warn("Bridge3DScene already exists");
+            return
+        }
+        this._bridge3DScene = bridge3D;
+        this._bridge3DScene._scene2D = this;
+    }
+
+    get bridge3D() {
+        if (!this._bridge3DScene) {
+            this._bridge3DScene = Scene.createBridge3DScene();
+            this._bridge3DScene._scene2D = this;
+        }
+        return this._bridge3DScene;
+    }
 
     /**
      * @en relative layout component
@@ -244,6 +285,12 @@ export class Scene extends Sprite {
      * @param destroyChild 是否删除子节点。
      */
     destroy(destroyChild: boolean = true): void {
+        // Destroy Bridge3D scene
+        if (this._bridge3DScene) {
+            this._bridge3DScene.destroy();
+            this._bridge3DScene = null;
+        }
+
         super.destroy(destroyChild);
         if (this._scene3D) {
             this._scene3D.destroy();

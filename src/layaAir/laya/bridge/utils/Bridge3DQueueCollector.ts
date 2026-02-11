@@ -1,7 +1,6 @@
+import { RenderListQueue } from "../../RenderDriver/DriverCommon/RenderListQueue";
+import { FastSinglelist } from "../../utils/SingletonList";
 import { Bridge3DSprite } from "../Bridge3DSprite";
-import { RenderListQueue } from "../../../layaAir/laya/RenderDriver/DriverCommon/RenderListQueue";
-import { IRenderContext2D } from "../../../layaAir/laya/RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
-import { FastSinglelist } from "laya/utils/SingletonList";
 
 /**
  * Bridge3D队列收集器，收集所有Bridge3DRenderElement的_opaqueList
