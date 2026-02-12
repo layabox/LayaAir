@@ -83,12 +83,12 @@ export class MgBrowserAdapter extends BrowserAdapter {
                 this._pixelRatio = 2;
         }
 
-        PAL.g.onShow(() => {
+        PAL.g.onShow && PAL.g.onShow(() => {
             this._visible = true;
             this.event(Event.VISIBILITY_CHANGE, true);
             this.event(Event.FOCUS);
         });
-        PAL.g.onHide(() => {
+        PAL.g.onHide && PAL.g.onHide(() => {
             this._visible = false;
             this.event(Event.VISIBILITY_CHANGE, false);
             this.event(Event.BLUR);
@@ -209,10 +209,16 @@ export class MgBrowserAdapter extends BrowserAdapter {
 
     createElement<K extends keyof HTMLElementTagNameMap>(tagName: K): HTMLElementTagNameMap[K] {
         let ele: any;
-        if (tagName === "canvas" && typeof (PAL.g.createCanvas) === "function")
-            ele = PAL.g.createCanvas();
-        else
+        if (tagName === "canvas" && typeof (PAL.g.createCanvas) === "function") {
+            if (Browser.onTBMiniGame && (window as any).__NOT_TBMINIGAME__) {
+                ele = (window as any).canvas.getRealCanvas();   // taobao app/plugin canvas get.
+            } else {
+                ele = PAL.g.createCanvas();
+            }
+        }
+        else {
             ele = super.createElement(tagName);
+        }
         if (!ele.style)
             ele.style = {};
         else if (ele.style === (window as any).canvas?.style) //douyin共享了style对象
