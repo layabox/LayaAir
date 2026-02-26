@@ -11,7 +11,7 @@ import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevic
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 import { WebBaseRenderNode } from "../RenderDriver/RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
-import { WebRenderStruct2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
+import type { WebRenderStruct2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 import { RenderClearFlag } from "../RenderEngine/RenderEnum/RenderClearFlag";
 import { SubShader } from "../RenderEngine/RenderShader/SubShader";
 import { SingletonList } from "../utils/SingletonList";
@@ -95,6 +95,15 @@ export class Bridge3DRenderElement implements IBridgeRenderElement {
      */
     private static _tempClipPos: Vector4 = new Vector4();
 
+    private _cachedPassData: ShaderData = null;
+
+    /** clip 变换结果缓存：以 info._updateFrame + rtH + passData 为失效依据，避免逐分量比较 */
+    private _cachedRtClipDir: Vector4 = new Vector4();
+    private _cachedRtClipPos: Vector4 = new Vector4();
+    private _cachedRtH = -1;
+    private _cachedClipUpdateFrame = -1;
+    private _clipCacheValid = false;
+
     /**
      * 创建Bridge3DRenderElement实例
      */
@@ -146,7 +155,7 @@ export class Bridge3DRenderElement implements IBridgeRenderElement {
     get bridge3DContext(): Bridge3DContext {
         return this._bridge3DContext;
     }
-    
+
     /**
      * 准备渲染元素
      * @remarks
@@ -193,7 +202,7 @@ export class Bridge3DRenderElement implements IBridgeRenderElement {
     }
 
     _prepare(context: IRenderContext2D) {
-        
+
     }
 
     /**
@@ -208,6 +217,7 @@ export class Bridge3DRenderElement implements IBridgeRenderElement {
      * 5. 恢复2D状态
      */
     _render(context: IRenderContext2D): void {
+        // window.startCapture();
         let context3d = RenderContext3D._instance._contextOBJ;
 
         // 如果没有任何渲染元素,直接返回
@@ -315,38 +325,45 @@ export class Bridge3DRenderElement implements IBridgeRenderElement {
             }
         }
 
-        // ===== 7. Fragment shader clip =====
+        // ===== 7. Fragment shader clip（从 struct.getClipInfo() 读取，以 _updateFrame 判定缓存失效）=====
         let hasShaderClip = false;
-
         const ownerStruct = this.owner as WebRenderStruct2D;
-        if (ownerStruct) {
-            const spriteData = ownerStruct.spriteShaderData;
-            if (spriteData && spriteData.hasDefine(ShaderDefines2D.UNIFORMCLIP)) {
-                const clipDir = spriteData.getVector(ShaderDefines2D.UNIFORM_CLIPMATDIR);
-                const clipPos = spriteData.getVector(ShaderDefines2D.UNIFORM_CLIPMATPOS);
-                if (clipDir && clipPos) {
-                    // Transform clipPos origin (xy) to RT pixel space
-                    const rtClipPos = Bridge3DRenderElement._tempClipPos;
-                    rtClipPos.x = invA * clipPos.x + invC * clipPos.y + invTx;
-                    rtClipPos.y = invB * clipPos.x + invD * clipPos.y + invTy;
-                    rtClipPos.z = 0;
-                    rtClipPos.w = 0;
+        if (ownerStruct && typeof ownerStruct.getClipInfo === 'function') {
+            if (ownerStruct.hasClip()) {
+                const info = ownerStruct.getClipInfo();
+                const clipReuse =
+                    this._clipCacheValid &&
+                    this._cachedClipUpdateFrame === info._updateFrame &&
+                    this._cachedRtH === rtH &&
+                    this._cachedPassData === context.passData;
 
-                    // Transform clipDir direction vectors to RT pixel space (linear part only, no translation)
-                    const rtClipDir = Bridge3DRenderElement._tempClipDir;
-                    rtClipDir.x = invA * clipDir.x + invC * clipDir.y;  // width dir x
-                    rtClipDir.y = invB * clipDir.x + invD * clipDir.y;  // width dir y
-                    rtClipDir.z = invA * clipDir.z + invC * clipDir.w;  // height dir x
-                    rtClipDir.w = invB * clipDir.z + invD * clipDir.w;  // height dir y
-
-                    const cameraData = this._bridge3DContext.cameraData;
-                    cameraData.addDefine(Bridge3DCamera.BRIDGE3D_CLIP);
-                    cameraData.setVector(Bridge3DCamera.BRIDGE3D_CLIPDIR, rtClipDir);
-                    cameraData.setVector(Bridge3DCamera.BRIDGE3D_CLIPPOS, rtClipPos);
-                    cameraData.setNumber(Bridge3DCamera.BRIDGE3D_CLIPRTH, rtH);
-                    hasShaderClip = true;
+                if (!clipReuse) {
+                    const clipDir = info.clipMatDir;
+                    const clipPos = info.clipMatPos;
+                    this._cachedRtClipPos.x = invA * clipPos.x + invC * clipPos.y + invTx;
+                    this._cachedRtClipPos.y = invB * clipPos.x + invD * clipPos.y + invTy;
+                    this._cachedRtClipPos.z = rtH;
+                    this._cachedRtClipPos.w = 0;
+                    this._cachedRtClipDir.x = invA * clipDir.x + invC * clipDir.y;
+                    this._cachedRtClipDir.y = invB * clipDir.x + invD * clipDir.y;
+                    this._cachedRtClipDir.z = invA * clipDir.z + invC * clipDir.w;
+                    this._cachedRtClipDir.w = invB * clipDir.z + invD * clipDir.w;
+                    this._cachedClipUpdateFrame = info._updateFrame;
+                    this._cachedRtH = rtH;
+                    this._cachedPassData = context.passData;
+                    this._clipCacheValid = true;
                 }
+
+                const cameraData = this._bridge3DContext.cameraData;
+                cameraData.addDefine(Bridge3DCamera.BRIDGE3D_CLIP);
+                cameraData.setVector(Bridge3DCamera.BRIDGE3D_CLIPDIR, this._cachedRtClipDir);
+                cameraData.setVector(Bridge3DCamera.BRIDGE3D_CLIPPOS, this._cachedRtClipPos);
+                hasShaderClip = true;
+            } else {
+                this._clipCacheValid = false;
             }
+        } else {
+            this._clipCacheValid = false;
         }
 
         // ===== 8. 渲染3D内容 =====
@@ -378,6 +395,8 @@ export class Bridge3DRenderElement implements IBridgeRenderElement {
         // 恢复2D RT和invertY
         context.setRenderTarget(rt2d, false, Color.BLACK);
         context.invertY = cachedInvertY;
+
+        // window.stopCapture();
     }
 
     /**
@@ -389,6 +408,8 @@ export class Bridge3DRenderElement implements IBridgeRenderElement {
         this._opaqueList = null;
         this._transparentList = null;
         this._bridge3DContext = null; // 只清理引用，不销毁（由Scene3D管理）
+        this._cachedPassData = null;
+        this._clipCacheValid = false;
         this.owner = null;
         this.geometry = null;
         this.materialShaderData = null;

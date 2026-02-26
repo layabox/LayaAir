@@ -55,9 +55,6 @@ export class NoRender2DProcess implements I2DRenderPassFactory {
     createRenderStruct2D(): IRenderStruct2D {
         return null;
     }
-    createRender2DDataHandle(): IRender2DDataHandle {
-        return null;
-    }
     create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle {
         return null;
     }
@@ -91,7 +88,9 @@ export class NoRender2DProcess implements I2DRenderPassFactory {
     createRenderContext2D(): IRenderContext2D {
         return new NoRenderContext2D();
     }
-
+    createEmptyRenderDataHandle(): IRender2DDataHandle {
+        return null;
+    }
 }
 
 export class NoRenderElement2D implements IRenderElement2D {

@@ -230,6 +230,8 @@ export class WebGLShaderData extends ShaderData {
             this._uniformBuffersPropertyMap.set(uniformId, uboBuffer);
         });
 
+        uboBuffer.needUpload && uboBuffer.upload();
+
         return uboBuffer;
     }
 

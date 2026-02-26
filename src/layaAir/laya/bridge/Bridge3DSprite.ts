@@ -20,8 +20,7 @@ import { Bridge3DRenderElement } from "./Bridge3DRenderElement";
 import { Bridge3DScene3D } from "./Bridge3DScene3D";
 import { Bridge3DCoordinate } from "./utils/Bridge3DCoordinate";
 
-
-export interface IBridgeRenderElement extends IRenderElement2D{
+export interface IBridgeRenderElement extends IRenderElement2D {
     addBaseRenderNode(node: IBaseRenderNode): void;
     removeBaseRenderNode(node: IBaseRenderNode): void;
     updateRenderElements(): void;
@@ -43,7 +42,7 @@ export class Bridge3DSprite extends Sprite {
     static createBridge3DRenderElement(): IBridgeRenderElement {
         if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {//native
             return null;
-        }else
+        } else
             return new Bridge3DRenderElement();
     }
     /**
@@ -110,8 +109,13 @@ export class Bridge3DSprite extends Sprite {
         //占位几何体
         this._bridge3DRenderElement.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(0, 0);
         this._struct.renderElements = [this._bridge3DRenderElement];
-        // 初始化2D变换同步到3D
-        this._syncTransform2DTo3D();
+        // 使 _handleInterData 跑通，父级 scrollRect（clipRect）可写入 spriteShaderData，供 Bridge3DRenderElement 裁剪
+        this._initShaderData();
+        const emptyHandle = LayaGL.render2DRenderPassFactory.createEmptyRenderDataHandle();
+        if (emptyHandle) {
+            this._struct.renderDataHandler = emptyHandle;
+            emptyHandle.needUseMatrix = false;
+        }
     }
 
     /**
@@ -205,6 +209,22 @@ export class Bridge3DSprite extends Sprite {
     }
 
     /**
+     * @internal
+     */
+    _setBelongScene(scene: Node): void {
+        super._setBelongScene(scene);
+        this._regsiterScene();
+    }
+
+    /**
+     * @internal
+     */
+    _setUnBelongScene(): void {
+        this._removeRegister();
+        super._setUnBelongScene();
+    }
+
+    /**
      * Called when node is added to display list
      * @remarks
      * - Overrides Sprite._onAdded
@@ -212,31 +232,35 @@ export class Bridge3DSprite extends Sprite {
      * @protected
      */
     protected _onAdded(): void {
-
         this.on(Event.TRANSFORM_CHANGED, this, this._syncTransform2DTo3D);
-
         super._onAdded();
+    }
 
+    private _regsiterScene() {
+        if (!this._scene) {
+            return;
+        }
         // Auto-initialize and register to Bridge3DScene3D
         const scene3d = this._scene.bridge3D;  // Triggers lazy initialization
         if (scene3d) {
             scene3d.registerBridge3D(this);
             this._isRegistered = true;
         }
-
     }
 
     private _removeRegister() {
+        if (!this._scene) {
+            return;
+        }
         // Unregister from Bridge3DScene3D
         if (this._isRegistered) {
-            const scene3d = this._scene.bridge3D; 
+            const scene3d = this._scene.bridge3D;
             if (scene3d) {
                 scene3d.unregisterBridge3D(this);
             }
             this._isRegistered = false;
         }
 
-        this.off(Event.TRANSFORM_CHANGED, this, this._syncTransform2DTo3D);
     }
 
     /**
@@ -247,8 +271,16 @@ export class Bridge3DSprite extends Sprite {
      * @protected
      */
     protected _onRemoved(): void {
-        this._removeRegister();
+        // this._removeRegister();
+        this.off(Event.TRANSFORM_CHANGED, this, this._syncTransform2DTo3D);
         super._onRemoved();
+    }
+
+    protected _setParent(value: Node, index?: number): void {
+        super._setParent(value, index);
+        if (value) {
+            this._syncTransform2DTo3D();
+        }
     }
 
     /**
@@ -305,14 +337,15 @@ export class Bridge3DSprite extends Sprite {
         const e = matrix.elements;
 
         // 第一列（X轴基向量）
+        // b/d 分量表示 2D Y-down 方向的贡献，在 3D Y-up 世界中需取反
         e[0] = a * scale;
-        e[1] = b * scale;
+        e[1] = -b * scale;
         e[2] = 0;
         e[3] = 0;
 
         // 第二列（Y轴基向量）
         e[4] = c * scale;
-        e[5] = d * scale;
+        e[5] = -d * scale;
         e[6] = 0;
         e[7] = 0;
 

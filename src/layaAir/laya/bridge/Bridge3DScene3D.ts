@@ -30,7 +30,7 @@ import { Texture2D } from "../resource/Texture2D";
  * @class Bridge3DScene3D
  * @extends Scene3D
  */
-export class Bridge3DScene3D extends Scene3D implements IBridge3DScene{
+export class Bridge3DScene3D extends Scene3D implements IBridge3DScene {
     /**
      * Shared Bridge3D camera
      * @private
@@ -77,7 +77,7 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene{
      * Camera Z distance (negative value means camera is in front of the scene)
      * @private
      */
-    private _cameraZDistance: number = -100;
+    private _cameraZDistance: number = 100;
 
     /**
      * Bridge3D独立的灯光贴图
@@ -193,7 +193,7 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene{
      * @internal
      */
     _addRenderObject(render: BaseRender): void {
-        
+
         super._addRenderObject(render);
 
         // 找到渲染对象所属的 Bridge3DSprite
@@ -232,7 +232,7 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene{
      * @internal
      */
     _removeRenderObject(render: BaseRender): void {
-        
+
         super._removeRenderObject(render);
 
         const bridge = this._renderToBridgeMap.get(render);
@@ -339,12 +339,12 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene{
         // Set camera position using the configured Z distance
         this._updateCameraPosition();
 
-        // Set camera orientation: look from negative Z towards positive Z (into screen)
-        // 1. Use up=(0,-1,0) to make Y point down
+        // Set camera orientation: look from positive Z towards negative Z (standard 3D convention)
+        // Use up=(0,+1,0) so that Y points up in 3D world space
         let rotationEuler = this._sharedCamera.transform.rotationEuler;
         rotationEuler.x = 0;
-        rotationEuler.y = 180;
-        rotationEuler.z = 180;
+        rotationEuler.y = 0;
+        rotationEuler.z = 0;
         this._sharedCamera.transform.rotationEuler = rotationEuler;
     }
 
@@ -456,7 +456,17 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene{
         // 2. Prepare scene rendering (使用Bridge3D独立的灯光贴图，通过重写的_getLightTexture方法)
         this._prepareSceneToRender();
 
-        // 3. Call shadow update
+        // 3. 无条件写入相机矩阵到 _shaderValues，与阴影渲染解耦
+        // 避免首帧或 opaqueListQueues 为空时 UBO 全为 0 的问题
+        const context = RenderContext3D._instance;
+        this._sharedCamera._prepareCameraToRender();
+        this._sharedCamera._applyViewProject(
+            this._sharedCamera.viewMatrix,
+            this._sharedCamera.projectionMatrix,
+            context.invertY   // invertY 由 Bridge3DRenderElement 在 2D pass 中单独处理
+        );
+
+        // 4. Call shadow update
         this.updateBridge3DShadows();
     }
 
@@ -482,7 +492,7 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene{
             this._volumeManager.handleMotionlist();
 
         // 只更新根级 Bridge3DSprite 的 renderUpdate
-        for (let i = 0 , l = this._bridge3DList.length; i < l; i++) {
+        for (let i = 0, l = this._bridge3DList.length; i < l; i++) {
             this._bridge3DList[i]._renderUpdate();
         }
         // 这样避免了每次都重新 _collectRenderNodes
@@ -496,7 +506,7 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene{
         // - UI3D 管理 (_UI3DManager.update)
     }
 
-    
+
 
     /**
      * Destroy lightweight scene

@@ -24,27 +24,23 @@ import { WebShadowOnlyProcess } from "./WebShadowOnlyRP/WebShadowOnlyProcess";
  * - 独立管理：由Bridge3DManager或Bridge3DScene3D管理，与Scene3D解耦
  */
 export class Bridge3DCamera extends Camera {
-    
+
     /** @internal Bridge3D clip define */
     static BRIDGE3D_CLIP: ShaderDefine;
     /** @internal */
     static BRIDGE3D_CLIPDIR: number;
     /** @internal */
     static BRIDGE3D_CLIPPOS: number;
-    /** @internal */
-    static BRIDGE3D_CLIPRTH: number;
 
     static __init__() {
         // Bridge3D clip
         Bridge3DCamera.BRIDGE3D_CLIP = Shader3D.getDefineByName("BRIDGE3D_CLIP");
         Bridge3DCamera.BRIDGE3D_CLIPDIR = Shader3D.propertyNameToID("u_Bridge3DClipDir");
         Bridge3DCamera.BRIDGE3D_CLIPPOS = Shader3D.propertyNameToID("u_Bridge3DClipPos");
-        Bridge3DCamera.BRIDGE3D_CLIPRTH = Shader3D.propertyNameToID("u_Bridge3DClipRTH");
 
         let camerauniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(BaseCamera.cameraBlockName);
         camerauniformMap.addShaderUniform(Bridge3DCamera.BRIDGE3D_CLIPDIR, "u_Bridge3DClipDir", ShaderDataType.Vector4);
         camerauniformMap.addShaderUniform(Bridge3DCamera.BRIDGE3D_CLIPPOS, "u_Bridge3DClipPos", ShaderDataType.Vector4);
-        camerauniformMap.addShaderUniform(Bridge3DCamera.BRIDGE3D_CLIPRTH, "u_Bridge3DClipRTH", ShaderDataType.Float);
     }
 
     /**
@@ -136,8 +132,9 @@ export class Bridge3DCamera extends Camera {
         context.camera = this;
 
         // 3. 准备相机着色器值（设置相机位置、方向、视口、投影参数等）
-        this._prepareCameraToRender();
-        this._applyViewProject(this.viewMatrix, this.projectionMatrix, context.invertY);
+        // this._prepareCameraToRender();
+        // this._applyViewProject(this.viewMatrix, this.projectionMatrix, context.invertY);
+
         this._contextApply(context);
 
         // 4. 设置场景的剔除相机（用于阴影剔除）

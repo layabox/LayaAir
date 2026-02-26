@@ -41,9 +41,10 @@ export class Bridge3DCoordinate {
         const scaleX = stage.scaleX;
         const scaleY = stage.scaleY;
 
-        // 2D逻辑坐标 → Canvas渲染坐标（3D世界坐标）
+        // 2D逻辑坐标 → Canvas渲染坐标（3D世界坐标，Y-up）
+        // 3D Y 轴朝上，2D Y 轴朝下，需将 Y 翻转
         out.x = x * scaleX;
-        out.y = y * scaleY;
+        out.y = RenderState2D.height - y * scaleY;
         out.z = z;
 
         return out;
@@ -68,10 +69,10 @@ export class Bridge3DCoordinate {
         const scaleX = stage.scaleX;
         const scaleY = stage.scaleY;
 
-        // 3D世界坐标（Canvas渲染坐标） → 2D逻辑坐标
+        // 3D世界坐标（Canvas渲染坐标，Y-up） → 2D逻辑坐标（Y-down）
         return {
             x: worldPos.x / scaleX,
-            y: worldPos.y / scaleY
+            y: (RenderState2D.height - worldPos.y) / scaleY
         };
     }
 
