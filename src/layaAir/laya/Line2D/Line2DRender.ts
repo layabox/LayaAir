@@ -97,7 +97,7 @@ export class Line2DRender extends BaseRenderNode2D {
         return this._lineWidth;
     }
     set lineWidth(value: number) {
-        this._lineWidth = Math.max(1, value);
+        this._lineWidth = value;
         this._spriteShaderData.setNumber(LineShader.LINEWIDTH, this._lineWidth);
     }
 
