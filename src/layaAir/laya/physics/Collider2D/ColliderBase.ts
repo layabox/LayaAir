@@ -202,7 +202,7 @@ export class ColliderBase extends Component {
         if (this._box2DBody) {
             this._isAwake = Physics2D.I._factory.get_rigidBody_IsAwake(this._box2DBody);
         }
-        return this.isAwake;
+        return this._isAwake;
     }
     public set isAwake(value: boolean) {
         this._isAwake = value;
