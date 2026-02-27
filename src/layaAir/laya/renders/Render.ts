@@ -42,16 +42,46 @@ export class Render {
     static predicate: (timestamp: number) => boolean = null;
 
     /**
+     * @internal
+     */
+    private static _paused: boolean = false;
+
+    /**
      * @en Pauses or resumes the rendering loop.
      * @zh 暂停或恢复渲染循环。
      */
-    static paused: boolean = false;
+    static get paused(): boolean {
+        return Render._paused;
+    }
+
+    static set paused(value: boolean) {
+        if (Render._paused === value) return;
+
+        Render._paused = value;
+
+        // Resume: mark all timers as just resumed for smooth transition
+        if (!value) {
+            ILaya.systemTimer?._markResumed();
+            ILaya.physicsTimer?._markResumed();
+            ILaya.timer?._markResumed();
+        }
+    }
 
     /**
      * @en Force the next frame to be rendered. This flag is automatically cleared after rendering.
      * @zh 强制渲染下一帧。渲染后该标记会自动清除。
      */
     static forceOnce: boolean = false;
+
+    /**
+     * @en Indicates whether the engine is in step mode.
+     * When true, Timer will use a fixed frame interval instead of real elapsed time.
+     * This ensures animations advance by exactly one frame during step execution.
+     * @zh 指示引擎是否处于单步模式。
+     * 为 true 时，Timer 将使用固定的帧间隔而非真实经过的时间。
+     * 这确保了动画在单步执行时精确前进一帧。
+     */
+    static stepMode: boolean = false;
 
     /**
      * @internal
@@ -112,8 +142,11 @@ export class Render {
         _renderCount++;
 
         if (!Render.forceOnce) {
-            if (Render.paused)
+            if (Render.paused) {
+                // Sync timer timestamps while paused to prevent time jump on resume
+                Render._syncTimersOnPause(timestamp);
                 return;
+            }
 
             let shouldUpdate = true;
             if (Render.predicate != null)
@@ -134,8 +167,10 @@ export class Render {
             if (!shouldUpdate)
                 return;
         }
-        else
+        else {
+            Render.stepMode = true;
             Render.forceOnce = false;
+        }
 
         Render.frameStartTime = timestamp;
 
@@ -144,6 +179,8 @@ export class Render {
         ILaya.stage.render(timestamp);
 
         LayaGL.statAgent.endFrameLogic(timestamp);
+
+        Render.stepMode = false;
     }
 
     /**
@@ -151,6 +188,17 @@ export class Render {
      */
     static vsyncTime() {
         return Render.lastFrame * Render.frameInterval;
+    }
+
+    /**
+     * @en Synchronize all timer timestamps when paused to avoid time jump on resume.
+     * @zh 暂停时同步所有计时器的时间戳，避免恢复时时间跳跃。
+     * @internal
+     */
+    private static _syncTimersOnPause(timestamp: number): void {
+        ILaya.systemTimer?._syncTimestamp(timestamp);
+        ILaya.physicsTimer?._syncTimestamp(timestamp);
+        ILaya.timer?._syncTimestamp(timestamp);
     }
 
     /** @deprecated */
