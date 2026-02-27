@@ -31,7 +31,12 @@ void main(){
     d *= step(fract(t/v_dashed.x), v_dashed.y);
     vec2 uv =  transformUV(v_texcoord.xy,u_TilingOffset);
     vec4 textureColor = texture2D(u_baseRender2DTexture, fract(uv));
-    textureColor = transspaceColor(textureColor*u_baseRenderColor);
+    textureColor = transspaceColor(textureColor);
+    vec4 renderColor = u_baseRenderColor;
+    #ifdef GAMMASPACE
+        renderColor = linearToGamma(renderColor);
+    #endif
+    textureColor *= renderColor;
 
     gl_FragColor = vec4(textureColor.rgb,textureColor.a*smoothstep(0.0,2.0,d));
     //gl_FragColor = vec4(fract(uv.x) ,fract(uv.y),0.0,textureColor.a*smoothstep(0.0,2.0,d));

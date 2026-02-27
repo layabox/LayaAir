@@ -337,15 +337,14 @@ export class Bridge3DSprite extends Sprite {
         const e = matrix.elements;
 
         // 第一列（X轴基向量）
-        // b/d 分量表示 2D Y-down 方向的贡献，在 3D Y-up 世界中需取反
         e[0] = a * scale;
         e[1] = -b * scale;
         e[2] = 0;
         e[3] = 0;
 
         // 第二列（Y轴基向量）
-        e[4] = c * scale;
-        e[5] = -d * scale;
+        e[4] = -c * scale;
+        e[5] = d * scale;
         e[6] = 0;
         e[7] = 0;
 

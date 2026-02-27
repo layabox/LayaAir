@@ -1,18 +1,19 @@
 
-import { Laya } from "../../../layaAir/Laya";
-import { Bridge3DSprite } from "../../../layaAir/laya/bridge/Bridge3DSprite";
-import { Script } from "../../../layaAir/laya/components/Script";
-import { DirectionLightCom } from "../../../layaAir/laya/d3/core/light/DirectionLightCom";
-import { ShadowCascadesMode } from "../../../layaAir/laya/d3/core/light/ShadowCascadesMode";
-import { ShadowMode } from "../../../layaAir/laya/d3/core/light/ShadowMode";
-import { PBRStandardMaterial } from "../../../layaAir/laya/d3/core/material/PBRStandardMaterial";
-import { MeshSprite3D } from "../../../layaAir/laya/d3/core/MeshSprite3D";
-import { Sprite3D } from "../../../layaAir/laya/d3/core/Sprite3D";
-import { PrimitiveMesh } from "../../../layaAir/laya/d3/resource/models/PrimitiveMesh";
-import { Scene } from "../../../layaAir/laya/display/Scene";
-import { Sprite } from "../../../layaAir/laya/display/Sprite";
-import { Color } from "../../../layaAir/laya/maths/Color";
-import { Vector3 } from "../../../layaAir/laya/maths/Vector3";
+import { Laya } from "Laya";
+import { Bridge3DSprite } from "laya/bridge/Bridge3DSprite";
+import { Script } from "laya/components/Script";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
+import { ShadowCascadesMode } from "laya/d3/core/light/ShadowCascadesMode";
+import { ShadowMode } from "laya/d3/core/light/ShadowMode";
+import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
+import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
+import { Scene } from "laya/display/Scene";
+import { Sprite } from "laya/display/Sprite";
+import { Color } from "laya/maths/Color";
+import { Vector3 } from "laya/maths/Vector3";
+import { Main } from "../../Main";
 
 /**
  * 光源旋转脚本
@@ -52,20 +53,17 @@ export class Bridge3DShadow {
     private directionLight: Sprite3D;
     private lightRotationScript: LightRotationScript;
 
-    constructor() {
-        // 初始化Laya
-        Laya.init(1200, 800).then(() => {
-            this.onLoaded();
-        });
+    constructor(maincls: typeof Main) {
+        this.onLoaded(maincls);
     }
 
-    private onLoaded(): void {
+    private onLoaded(maincls: typeof Main): void {
         console.log("Bridge3D Shadow Test - Started");
 
         // 创建2D场景
         const scene2D = new Scene();
-        Laya.stage.addChild(scene2D);
-        
+        maincls.box2D.addChild(scene2D);
+
         // 创建Bridge3DSprite容器 (auto-creates Bridge3DScene3D)
         this.bridge = new Bridge3DSprite();
         this.bridge.scale3DToPixel = 1;
@@ -74,7 +72,7 @@ export class Bridge3DShadow {
 
         // Access scene3D through Scene.getBridge3D()
         const scene3d = scene2D.bridge3D;
-        scene3d.cameraZDistance = -300;
+        scene3d.cameraZDistance = 300;
         // 设置环境光（较暗，以突出阴影效果）
         scene3d.ambientColor = new Color(0.3, 0.3, 0.3, 1);
 
@@ -143,7 +141,7 @@ export class Bridge3DShadow {
         ground.meshRenderer.material = groundMaterial;
         ground.meshRenderer.receiveShadow = true;  // 接收阴影
         ground.transform.localPosition = new Vector3(0, -80, 0);
-        ground.transform.localRotationEuler = new Vector3(-90, 0, 0);
+        ground.transform.localRotationEuler = new Vector3(90, 0, 0);  // Y-up: Rx(+90°) makes normal face +Z toward camera
         this.bridge.addChild(ground);
         console.log("Ground created (receives shadow)");
 
@@ -156,7 +154,7 @@ export class Bridge3DShadow {
         centerSphere.meshRenderer.material = sphereMaterial;
         centerSphere.meshRenderer.castShadow = true;  // 投射阴影
         centerSphere.meshRenderer.receiveShadow = true;  // 接收阴影
-        centerSphere.transform.localPosition = new Vector3(0, 0, 0);
+        centerSphere.transform.localPosition = new Vector3(0, -30, 0);  // r=50, bottom at y=-80 (on ground)
         this.bridge.addChild(centerSphere);
         console.log("Center sphere created (casts and receives shadow)");
 
@@ -182,7 +180,7 @@ export class Bridge3DShadow {
             box.meshRenderer.material = material;
             box.meshRenderer.castShadow = true;  // 投射阴影
             box.meshRenderer.receiveShadow = true;  // 接收阴影
-            box.transform.localPosition = new Vector3(x, -20, z);
+            box.transform.localPosition = new Vector3(x, -50, z);  // h=60, bottom at y=-80 (on ground)
 
             // 添加旋转脚本
             const rotScript = box.addComponent(ObjectRotationScript);

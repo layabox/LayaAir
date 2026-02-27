@@ -73,7 +73,7 @@ export class DrawMesh2DCMD extends Command2D {
         this._shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, temp);
         temp.x = temp.w = Const.MAX_CLIP_SIZE;
         this._shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, temp);
-        
+
         this._needUpdateElement = true;
         this._matrix = new Matrix();
     }
@@ -143,7 +143,7 @@ export class DrawMesh2DCMD extends Command2D {
             this._shaderData.removeDefine(ShaderDefines2D.GAMMATEXTURE);
         }
         this._texture = value;
-        
+
         this._shaderData.setVector(BaseRenderNode2D.TILINGOFFSET, this._tilingOffset);
         this._shaderData.setTexture(BaseRenderNode2D.BASERENDER2DTEXTURE, value);
     }
@@ -153,9 +153,8 @@ export class DrawMesh2DCMD extends Command2D {
 
     set color(value: Color) {
         this._color = value;
-        let a = value.a;
         let renderColor: Color = this._renderColor;
-        renderColor.setValue(value.r * a, value.g * a, value.b * a, a);
+        renderColor.setValue(value.r, value.g, value.b, value.a);
         this._shaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, renderColor);
     }
     get color(): Color {

@@ -1,31 +1,42 @@
 
-import { Laya } from "../../../layaAir/Laya";
-import { Bridge3DSprite } from "../../../layaAir/laya/bridge/Bridge3DSprite";
-import { UnlitMaterial } from "../../../layaAir/laya/d3/core/material/UnlitMaterial";
-import { MeshSprite3D } from "../../../layaAir/laya/d3/core/MeshSprite3D";
-import { PrimitiveMesh } from "../../../layaAir/laya/d3/resource/models/PrimitiveMesh";
-import { Scene } from "../../../layaAir/laya/display/Scene";
-import { Sprite } from "../../../layaAir/laya/display/Sprite";
-import { Text } from "../../../layaAir/laya/display/Text";
-import { Color } from "../../../layaAir/laya/maths/Color";
+import { Laya } from "Laya";
+import { Bridge3DSprite } from "laya/bridge/Bridge3DSprite";
+import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
+import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
+import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
+import { Scene } from "laya/display/Scene";
+import { Sprite } from "laya/display/Sprite";
+import { Text } from "laya/display/Text";
+import { Color } from "laya/maths/Color";
+import { Main } from "../../Main";
+import { Script } from "laya/components/Script";
+
+class SkewAnimScript extends Script {
+    sprite2D: Sprite;
+    private _time: number = 0;
+    onUpdate(): void {
+        this._time += 0.05;
+        const skew = Math.sin(this._time) * 45;
+        (this.owner as Bridge3DSprite).skewX = skew;
+        if (this.sprite2D) this.sprite2D.skewX = skew;
+    }
+}
 
 /**
  * Bridge3D倾斜变换测试示例
  * 演示skewX和skewY在3D中的效果
  */
 export class Bridge3DSkewTest {
-    constructor() {
-        Laya.init(1200, 800).then(() => {
-            this.onLoaded();
-        });
+    constructor(maincls: typeof Main) {
+        this.onLoaded(maincls);
     }
 
-    private onLoaded(): void {
+    private onLoaded(maincls: typeof Main): void {
         console.log("Bridge3D Skew Test - Started");
 
         // 创建2D场景
         const scene2D = new Scene();
-        Laya.stage.addChild(scene2D);
+        maincls.box2D.addChild(scene2D);
         // Bridge3DScene3D will be auto-created when first Bridge3DSprite is added
 
         // 添加标题
@@ -179,13 +190,8 @@ export class Bridge3DSkewTest {
         scene.addChild(sprite2D);
 
         // 动画：skewX在-45到45度之间振荡
-        let time = 0;
-        Laya.timer.frameLoop(1, this, () => {
-            time += 0.05;
-            const skew = Math.sin(time) * 45;
-            bridge.skewX = skew;
-            sprite2D.skewX = skew;
-        });
+        const skewScript = bridge.addComponent(SkewAnimScript);
+        skewScript.sprite2D = sprite2D;
 
         console.log("Animation test added: skewX oscillating");
     }

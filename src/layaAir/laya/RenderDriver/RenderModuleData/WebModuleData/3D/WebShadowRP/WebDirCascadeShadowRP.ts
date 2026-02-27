@@ -341,7 +341,7 @@ export class WebDirCascadeShadowRP implements IDirShadowRP {
     }
 
     destory(): void {
-        throw new Error("Method not implemented.");
+        // throw new Error("Method not implemented.");
     }
 
 }
