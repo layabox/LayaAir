@@ -36,6 +36,7 @@ void main(){
     #ifdef GAMMASPACE
         renderColor = linearToGamma(renderColor);
     #endif
+    renderColor.rgb *= renderColor.a;
     textureColor *= renderColor;
 
     gl_FragColor = vec4(textureColor.rgb,textureColor.a*smoothstep(0.0,2.0,d));

@@ -193,7 +193,10 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
             info.color = a_color;
             info.color.rgb *=a_color.a;
         #endif
-        info.color*= linearToGamma(u_baseRenderColor);
+
+        vec4 ucolor = linearToGamma(u_baseRenderColor);
+        ucolor.rgb *= ucolor.a;
+        info.color*= ucolor;
         #ifdef UV
             info.uv = a_uv;
         #endif
