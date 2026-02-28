@@ -96,6 +96,8 @@ export class ShuriKenParticle3DShaderDeclaration {
 	static CURRENTTIME: number;
 	/**@internal */
 	static DRAG: number;
+	/**@internal */
+	static PIVOT: number;
 
 	//VelocityOverLifetime
 	/**@internal  Mul Shuriken Define*/
@@ -248,6 +250,7 @@ export class ShuriKenParticle3DShaderDeclaration {
 		ShuriKenParticle3DShaderDeclaration.SIMULATIONSPACE = Shader3D.propertyNameToID("u_SimulationSpace");
 		ShuriKenParticle3DShaderDeclaration.CURRENTTIME = Shader3D.propertyNameToID("u_CurrentTime");
 		ShuriKenParticle3DShaderDeclaration.DRAG = Shader3D.propertyNameToID("u_DragConstanct");
+		ShuriKenParticle3DShaderDeclaration.PIVOT = Shader3D.propertyNameToID("u_Pivot");
 
 		//VelocityOverLifetime
 		mulDefineMode && (ShuriKenParticle3DShaderDeclaration.VOLVELOCITYCONST = Shader3D.propertyNameToID("u_VOLVelocityConst"));
@@ -355,5 +358,6 @@ export class ShuriKenParticle3DShaderDeclaration {
 		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTUVS, 'u_TSAGradientUVs', ShaderDataType.Vector4, 2); //兼容WGSL
 		uniformMap.addShaderUniformArray(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTMAXUVS, 'u_TSAMaxGradientUVs', ShaderDataType.Vector4, 2); //兼容WGSL
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.DRAG, 'u_DragConstanct', ShaderDataType.Vector2);
+		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.PIVOT, 'u_Pivot', ShaderDataType.Vector3);
 	}
 }

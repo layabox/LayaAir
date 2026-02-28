@@ -121,3 +121,5 @@ uniform vec4 u_ROLAngularVelocityGradientMax[2]; //// x为key,y为旋转,z为key
 #ifdef TEXTURESHEETANIMATIONRANDOMCURVE
     uniform vec4 u_TSAMaxGradientUVs[2]; // x为key,y为frame
 #endif
+
+uniform vec3 u_Pivot;

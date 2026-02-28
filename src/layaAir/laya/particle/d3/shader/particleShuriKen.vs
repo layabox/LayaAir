@@ -403,7 +403,10 @@ void main()
 	    vec3 cameraUpVector = normalize(u_CameraUp); // TODO:是否外面归一化
 	    vec3 sideVector = normalize(cross(u_CameraDirection, cameraUpVector));
 	    vec3 upVector = normalize(cross(sideVector, u_CameraDirection));
-	    corner *= computeParticleSizeBillbard(a_StartSize.xy, normalizedAge);
+	    vec2 bbSize = computeParticleSizeBillbard(a_StartSize.xy, normalizedAge);
+	    corner *= bbSize;
+	    vec2 pivot2D = u_Pivot.xy * bbSize;
+	    corner += pivot2D * vec2(-1.0, 1.0);
     #if defined(ROTATIONOVERLIFETIME) || defined(ROTATIONOVERLIFETIMESEPERATE)
 	    if (u_ThreeDStartRotation!=0)
 		{
@@ -465,7 +468,7 @@ void main()
 	    corner.y = corner.y - abs(corner.y);
 
 	    float speed = length(velocity); // TODO:
-	    center += sign(u_SizeScale.x) * (sign(u_StretchedBillboardLengthScale) * size.x * corner.x * sideVector + (speed * u_StretchedBillboardSpeedScale + size.y * u_StretchedBillboardLengthScale) * corner.y * cameraUpVector);
+	    center += sign(u_SizeScale.x) * (sign(u_StretchedBillboardLengthScale) * size.x * (corner.x - u_Pivot.x) * sideVector + (speed * u_StretchedBillboardSpeedScale + size.y * u_StretchedBillboardLengthScale) * (corner.y + u_Pivot.y) * cameraUpVector);
 #endif
 
 #ifdef HORIZONTALBILLBOARD
@@ -473,12 +476,14 @@ void main()
 	    const vec3 cameraUpVector = vec3(0.0, 0.0, 1.0);
 	    const vec3 sideVector = vec3(-1.0, 0.0, 0.0);
 
+	    vec2 hBbSize = computeParticleSizeBillbard(a_StartSize.xy, normalizedAge);
+	    corner += u_Pivot.xy * vec2(-1.0, 1.0);
 	    float rot = computeParticleRotationFloat(a_StartRotation0.x, age, normalizedAge);
 	    float c = cos(rot);
 	    float s = sin(rot);
 	    mat2 rotation = mat2(c, -s, s, c);
 	    corner = rotation * corner * cos(0.78539816339744830961566084581988); // TODO:临时缩小cos45,不确定U3D原因
-	    corner *= computeParticleSizeBillbard(a_StartSize.xy, normalizedAge);
+	    corner *= hBbSize;
 	    center += u_SizeScale.xzy * (corner.x * sideVector + corner.y * cameraUpVector);
 #endif
 
@@ -487,17 +492,21 @@ void main()
 	    const vec3 cameraUpVector = vec3(0.0, 1.0, 0.0);
 	    vec3 sideVector = normalize(cross(u_CameraDirection, cameraUpVector));
 
+	    vec2 vBbSize = computeParticleSizeBillbard(a_StartSize.xy, normalizedAge);
+	    corner += u_Pivot.xy * vec2(-1.0, 1.0);
 	    float rot = computeParticleRotationFloat(a_StartRotation0.x, age, normalizedAge);
 	    float c = cos(rot);
 	    float s = sin(rot);
 	    mat2 rotation = mat2(c, -s, s, c);
 	    corner = rotation * corner * cos(0.78539816339744830961566084581988); // TODO:临时缩小cos45,不确定U3D原因
-	    corner *= computeParticleSizeBillbard(a_StartSize.xy, normalizedAge);
+	    corner *= vBbSize;
 	    center += u_SizeScale.xzy * (corner.x * sideVector + corner.y * cameraUpVector);
 #endif
 
 #ifdef RENDERMODE_MESH
 	    vec3 size = computeParticleSizeMesh(a_StartSize, normalizedAge);
+	    vec3 pivot = u_Pivot * size;
+	    vec3 scaledPivot = u_SizeScale * pivot;
 		#if defined(ROTATIONOVERLIFETIME) || defined(ROTATIONOVERLIFETIMESEPERATE)
 			if (u_ThreeDStartRotation!=0)
 			{
@@ -505,7 +514,7 @@ void main()
 				a_StartRotation0.xy,
 				computeParticleRotationFloat(a_StartRotation0.z, age, normalizedAge));
 				center += rotationByQuaternions(
-				u_SizeScale * rotationByEuler(a_MeshPosition * size, rotation),
+				u_SizeScale * rotationByEuler(a_MeshPosition * size + pivot, rotation),
 				worldRotation);
 			}
 			else
@@ -516,7 +525,7 @@ void main()
 						{
 							center += (rotationByQuaternions(
 							rotationByAxis(
-								u_SizeScale * a_MeshPosition * size,
+								u_SizeScale * a_MeshPosition * size + scaledPivot,
 								normalize(cross(vec3(0.0, 0.0, 1.0),
 								vec3(a_ShapePositionStartLifeTime.xy, 0.0))),
 								angle),
@@ -526,12 +535,12 @@ void main()
 						{
 							vec3 axis = mix(vec3(0.0, 0.0, -1.0), vec3(0.0, -1.0, 0.0), float(u_Shape));
 							#ifdef SHAPE
-			    				center += u_SizeScale.xzy * (rotationByQuaternions(rotationByAxis(a_MeshPosition * size, axis, angle), worldRotation));
+			    				center += u_SizeScale.xzy * (rotationByQuaternions(rotationByAxis(a_MeshPosition * size + pivot, axis, angle), worldRotation));
 	    					#else
 								if (u_SimulationSpace == 0)
-									center += rotationByAxis(u_SizeScale * a_MeshPosition * size,axis,angle); //已验证
+									center += rotationByAxis(u_SizeScale * a_MeshPosition * size + scaledPivot,axis,angle); //已验证
 								else if (u_SimulationSpace == 1)
-									center += rotationByQuaternions(u_SizeScale * rotationByAxis(a_MeshPosition * size, axis, angle),worldRotation); //已验证
+									center += rotationByQuaternions(u_SizeScale * rotationByAxis(a_MeshPosition * size + pivot, axis, angle),worldRotation); //已验证
 							#endif
 						}
 							
@@ -541,7 +550,7 @@ void main()
 						vec3 angle = computeParticleRotationVec3(
 						vec3(0.0, 0.0, -a_StartRotation0.x), age, normalizedAge);
 						center += (rotationByQuaternions(
-						rotationByEuler(u_SizeScale * a_MeshPosition * size,
+						rotationByEuler(u_SizeScale * a_MeshPosition * size + scaledPivot,
 							vec3(angle.x, angle.y, angle.z)),
 						worldRotation)); //已验证
 				#endif
@@ -550,40 +559,40 @@ void main()
 	    if (u_ThreeDStartRotation!=0)
 		{
 		    center += rotationByQuaternions(
-			u_SizeScale * rotationByEuler(a_MeshPosition * size, a_StartRotation0),
+			u_SizeScale * rotationByEuler(a_MeshPosition * size + pivot, a_StartRotation0),
 			worldRotation); //已验证
 		}
 	    else
 		{
 			#ifdef SHAPE
 			    if (u_SimulationSpace == 0)
-				center += u_SizeScale * rotationByAxis(a_MeshPosition * size, vec3(0.0, -1.0, 0.0), a_StartRotation0.x);
+				center += u_SizeScale * rotationByAxis(a_MeshPosition * size + pivot, vec3(0.0, -1.0, 0.0), a_StartRotation0.x);
 			    else if (u_SimulationSpace == 1)
 				center += rotationByQuaternions(
-				    u_SizeScale * rotationByAxis(a_MeshPosition * size, vec3(0.0, -1.0, 0.0), a_StartRotation0.x),
+				    u_SizeScale * rotationByAxis(a_MeshPosition * size + pivot, vec3(0.0, -1.0, 0.0), a_StartRotation0.x),
 				    worldRotation);
 			#else
 				if (a_ShapePositionStartLifeTime.x != 0.0 || a_ShapePositionStartLifeTime.y != 0.0)
 				{
 					if (u_SimulationSpace == 0)
 						center += rotationByAxis(
-							u_SizeScale * a_MeshPosition * size,
+							u_SizeScale * a_MeshPosition * size + scaledPivot,
 							normalize(cross(vec3(0.0, 0.0, 1.0),
 							vec3(a_ShapePositionStartLifeTime.xy, 0.0))),
 							a_StartRotation0.x);
 					else if (u_SimulationSpace == 1)
 						center += (rotationByQuaternions(
-							u_SizeScale * rotationByAxis(a_MeshPosition * size, normalize(cross(vec3(0.0, 0.0, 1.0), vec3(a_ShapePositionStartLifeTime.xy, 0.0))), a_StartRotation0.x),
+							u_SizeScale * rotationByAxis(a_MeshPosition * size + pivot, normalize(cross(vec3(0.0, 0.0, 1.0), vec3(a_ShapePositionStartLifeTime.xy, 0.0))), a_StartRotation0.x),
 							worldRotation)); //已验证
 				}
 				else
 				{
 					vec3 axis = mix(vec3(0.0, 0.0, -1.0), vec3(0.0, -1.0, 0.0), float(u_Shape));
 					if (u_SimulationSpace == 0)
-						center += u_SizeScale * rotationByAxis(a_MeshPosition * size, axis, a_StartRotation0.x);
+						center += u_SizeScale * rotationByAxis(a_MeshPosition * size + pivot, axis, a_StartRotation0.x);
 					else if (u_SimulationSpace == 1)
 						center += rotationByQuaternions(
-						u_SizeScale * rotationByAxis(a_MeshPosition * size, axis, a_StartRotation0.x),
+						u_SizeScale * rotationByAxis(a_MeshPosition * size + pivot, axis, a_StartRotation0.x),
 						worldRotation);
 				}
 			#endif
