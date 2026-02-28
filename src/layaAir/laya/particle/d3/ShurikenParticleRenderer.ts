@@ -43,6 +43,7 @@ export class ShurikenParticleRenderer extends BaseRender {
     private _dragConstant: Vector2 = new Vector2();
     private _renderMode: number;
     private _mesh: Mesh = null;
+    private _pivot: Vector3 = new Vector3(0, 0, 0);
 
     /**@internal */
     _particleSystem: ShurikenParticleSystem;
@@ -141,6 +142,18 @@ export class ShurikenParticleRenderer extends BaseRender {
             (value) && (value._addReference());
             this._particleSystem._initBufferDatas();
         }
+    }
+
+    /**
+     * @en Pivot offset for the particle rotation center. The value is a multiplier of the particle size. Effective for all render modes.
+     * @zh 粒子旋转中心偏移，值是粒子size的乘数。对所有渲染模式有效。
+     */
+    get pivot(): Vector3 {
+        return this._pivot;
+    }
+
+    set pivot(value: Vector3) {
+        value.cloneTo(this._pivot);
     }
 
     /**
@@ -308,6 +321,7 @@ export class ShurikenParticleRenderer extends BaseRender {
         sv.setNumber(ShuriKenParticle3DShaderDeclaration.STRETCHEDBILLBOARDLENGTHSCALE, this.stretchedBillboardLengthScale);
         sv.setNumber(ShuriKenParticle3DShaderDeclaration.STRETCHEDBILLBOARDSPEEDSCALE, this.stretchedBillboardSpeedScale);
         sv.setNumber(ShuriKenParticle3DShaderDeclaration.CURRENTTIME, particleSystem._currentTime);
+        sv.setVector3(ShuriKenParticle3DShaderDeclaration.PIVOT, this._pivot);
     }
 
     /**
@@ -344,6 +358,7 @@ export class ShurikenParticleRenderer extends BaseRender {
         dest.sharedMaterial = this.sharedMaterial;
         dest.renderMode = this.renderMode;
         dest.mesh = this.mesh;
+        this._pivot.cloneTo(dest._pivot);
         dest.stretchedBillboardCameraSpeedScale = this.stretchedBillboardCameraSpeedScale;
         dest.stretchedBillboardSpeedScale = this.stretchedBillboardSpeedScale;
         dest.stretchedBillboardLengthScale = this.stretchedBillboardLengthScale;
