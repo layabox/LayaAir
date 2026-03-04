@@ -1045,7 +1045,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     /** @internal */
     _updateMaterials(elements: Material[]) {
         for (let i = 0, len = this._materials.length; i < len; i++) {
-            this._materials[i]._removeReference();
+            if (this._materials[i]) {
+                this._materials[i]._removeReference();
+            }
         }
         this._materials.length = 0;
 
