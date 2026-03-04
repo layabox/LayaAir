@@ -33,7 +33,9 @@ export class Bridge3DTest {
     }
 
     private onLoaded(maincls: typeof Main): void {
-        console.log("Bridge3D Test - Started");
+        // console.log("Bridge3D Test - Started");
+
+        Laya.stage.bgColor = "#232628";
 
         // Output coordinate system debug info
         // Bridge3DCoordinate.debugInfo();

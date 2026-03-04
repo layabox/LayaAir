@@ -63,6 +63,8 @@ export class Bridge3DPBRMaterial {
     }
 
     private onLoaded(maincls: typeof Main): void {
+        Laya.stage.bgColor = "#232628";
+
         // 创建 2D 场景
         this.scene2D = new Scene();
         maincls.box2D.addChild(this.scene2D);

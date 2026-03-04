@@ -13,6 +13,7 @@ import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { Laya } from "../../Laya";
 import { SpineShaderInit } from "./shader/SpineShaderInit";
+import { Spine3DShaderInit } from "./shader/Spine3DShaderInit";
 import { Vector3 } from "../maths/Vector3";
 import { IRenderContext3D } from "../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { IBaseRenderNode } from "../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
@@ -97,9 +98,9 @@ export class Spine3DRenderer extends BaseRender {
             return;
         this._billboard = value;
         if (this._billboard) {
-            this._baseRenderNode.shaderData.addDefine(SpineShaderInit.SPINE_BILLBOARD);
+            this._baseRenderNode.shaderData.addDefine(Spine3DShaderInit.SPINE_BILLBOARD);
         } else {
-            this._baseRenderNode.shaderData.removeDefine(SpineShaderInit.SPINE_BILLBOARD);
+            this._baseRenderNode.shaderData.removeDefine(Spine3DShaderInit.SPINE_BILLBOARD);
         }
     }
 
@@ -205,7 +206,7 @@ export class Spine3DRenderer extends BaseRender {
         elements[9] *= lossyScale.z;
         elements[10] *= lossyScale.z;
 
-        renderNode.shaderData.setMatrix4x4(SpineShaderInit.SPINE_BILLBOARD_MATRIX, this._billboardMatrix);
+        renderNode.shaderData.setMatrix4x4(Spine3DShaderInit.SPINE_BILLBOARD_MATRIX, this._billboardMatrix);
     }
 
 

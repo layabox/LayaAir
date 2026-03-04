@@ -1,3 +1,4 @@
+import { Config } from "../../Config";
 import { ILaya } from "../../ILaya";
 import { BaseRender } from "../d3/core/render/BaseRender";
 import { RenderContext3D } from "../d3/core/render/RenderContext3D";
@@ -450,6 +451,9 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene {
         this._bridge3DContext.updateFromCamera(this._sharedCamera);
         this._bridge3DContext.applyToContext(context3d);
 
+        // 添加必要的 uniform maps
+        context3d.preDrawUniformMaps.add("Scene3D");
+        context3d.preDrawUniformMaps.add("Global");
         // 1. Execute _prepare() method for all Bridge3DRenderElements
         this.prepareAllBridge3DElements();
 

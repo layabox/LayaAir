@@ -2378,7 +2378,7 @@ export class Sprite extends Node {
             this._drawOriRT = RenderTexture2D._empty;
         } else {
             let multiSamples = this._maskParent && LayaGL.renderEngine.getCapable(RenderCapable.MSAA) ? 4 : 1;
-            let renderTexture = RenderTexture2D.createFromPool(rect.width, rect.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, multiSamples);
+            let renderTexture = RenderTexture2D.createFromPool(rect.width, rect.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTHSTENCIL_24_8, multiSamples);
             renderTexture._invertY = LayaGL.renderEngine._screenInvertY;
             this._drawOriRT = renderTexture;
         }

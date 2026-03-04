@@ -83,17 +83,6 @@ export class Bridge3DRenderElement implements IBridgeRenderElement {
      */
     private static _savedProjViewMatrix: Matrix4x4 = new Matrix4x4();
 
-    /**
-     * 临时clip方向向量（RT像素空间）
-     * @private
-     */
-    private static _tempClipDir: Vector4 = new Vector4();
-
-    /**
-     * 临时clip位置向量（RT像素空间）
-     * @private
-     */
-    private static _tempClipPos: Vector4 = new Vector4();
 
     private _cachedPassData: ShaderData = null;
 
@@ -271,9 +260,10 @@ export class Bridge3DRenderElement implements IBridgeRenderElement {
         // ===== 3. 应用Bridge3D基础上下文参数 =====
         this._bridge3DContext.applyToContext(context3d);
 
+
         // ===== 4. 设置3D渲染目标为2D当前RT =====
         const clearFlag = this._bridge3DContext.clearDepthBeforeRender
-            ? RenderClearFlag.Depth
+            ? RenderClearFlag.Depth | RenderClearFlag.Stencil
             : RenderClearFlag.Nothing;
         context3d.setRenderTarget(rt2d, clearFlag);
 
@@ -378,7 +368,6 @@ export class Bridge3DRenderElement implements IBridgeRenderElement {
         }
 
         // ===== 9. 恢复状态 =====
-
         // 恢复shader clip
         if (hasShaderClip) {
             const cameraData = this._bridge3DContext.cameraData;

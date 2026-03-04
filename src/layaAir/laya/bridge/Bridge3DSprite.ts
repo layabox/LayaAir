@@ -46,13 +46,13 @@ export class Bridge3DSprite extends Sprite {
             return new Bridge3DRenderElement();
     }
     /**
-     * Internal container Sprite3D, parent node for all 3D children
-     * @private
+     * Internal BridgeContainerSprite3D, parent node for all 3D children
+     * @internal
      * @remarks
      * - Container is added to Bridge3DScene3D
      * - Automatically gets _scene reference, supports component lifecycle
      */
-    private _containerSprite3D: Sprite3D;
+    _containerSprite3D: BridgeContainerSprite3D;
 
     /**
      * Render element
@@ -539,6 +539,10 @@ export class Bridge3DSprite extends Sprite {
     get bridge3DRenderElement(): IBridgeRenderElement {
         return this._bridge3DRenderElement;
     }
+}
+
+export class BridgeContainerSprite3D extends Sprite3D{
+
 }
 
 /** @internal 包围盒计算临时变量 */

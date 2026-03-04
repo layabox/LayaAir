@@ -20,7 +20,6 @@ import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
 import { Event } from "laya/events/Event";
 import { Main } from "../../Main";
-import { initDebug } from "../../debug/WebglDebugTool";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { Script } from "laya/components/Script";
 
@@ -74,7 +73,6 @@ export class Bridge3DPostProcessTest {
     // ── 测试注册 ──────────────────────────────────────────────────────────────
 
     private initializeTestCases(): void {
-        initDebug();
 
         // 颜色滤镜：RGB 三球变灰度
         this.testCases.push({
@@ -125,7 +123,6 @@ export class Bridge3DPostProcessTest {
             ]
         });
 
-        console.log(`[Bridge3DPostProcessTest] 已注册 ${this.testCases.length} 个测试用例`);
     }
 
     // ── 界面 ─────────────────────────────────────────────────────────────────────
@@ -276,9 +273,9 @@ export class Bridge3DPostProcessTest {
 
         const orange = new Color(1, 0.5, 0.1, 1);
         const configs = [
-            { strength: 0,  label: "无模糊" },
-            { strength: 4,  label: "模糊(4)" },
-            { strength: 10, label: "模糊(10)" }
+            { strength: 0, label: "无模糊" },
+            { strength: 50, label: "模糊(50)" },
+            { strength: 100, label: "模糊(100)" }
         ];
         configs.forEach((c, i) => {
             const bridge = this.makeBridge(250 + i * 300, 400, [orange]);

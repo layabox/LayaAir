@@ -1,3 +1,4 @@
+import { Config } from "../../Config";
 import { Laya } from "../../Laya";
 import { Scene } from "../display/Scene";
 import { ClassUtils } from "../utils/ClassUtils";
@@ -9,6 +10,12 @@ let c = ClassUtils.regClass;
 c('Bridge3DCamera', Bridge3DCamera);
 c('Bridge3DScene3D', Bridge3DScene3D);
 c('Bridge3DSprite', Bridge3DSprite);
+
+
+// Bridge3D requires depth buffer for proper 3D depth testing.
+// Set Config.isDepth = true at module load time so users who import Bridge3D
+// automatically get depth enabled. Users can still override this after importing.
+Config.isDepth = true;
 
 Scene.createBridge3DScene = function () {
     return new Bridge3DScene3D();

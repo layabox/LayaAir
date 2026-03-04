@@ -8,7 +8,7 @@ import { SpineConst } from "./SpineConst";
  * @en SpineTempletLoader class used for loading Spine skeleton data and atlas.
  * @zh SpineTempletLoader 类用于加载 Spine 骨骼数据和图集。
  */
-class SpineTempletLoader implements IResourceLoader {
+export class SpineTempletLoader implements IResourceLoader {
 
     /**
      * @en Load Spine skeleton data and atlas.

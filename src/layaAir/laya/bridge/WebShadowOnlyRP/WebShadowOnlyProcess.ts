@@ -36,7 +36,7 @@ export class WebShadowOnlyProcess implements IRender3DProcess {
     render3DManager: ISceneRenderManager;
 
     protected _defaultShadowMap: RenderTexture;
-    
+
     /**
      * 构造函数
      */
@@ -74,12 +74,10 @@ export class WebShadowOnlyProcess implements IRender3DProcess {
         }
 
         // 5. 添加必要的 uniform maps
-        context.preDrawUniformMaps.add("Scene3D");
-        context.preDrawUniformMaps.add("Global");
         context.preDrawUniformMaps.add("Shadow");
 
         context.sceneData.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, this._defaultShadowMap);
-        
+
         // 6. 渲染方向光阴影
         const mainDirLight = scene._mainDirectionLight;
         const needDirectionShadow = mainDirLight && mainDirLight.shadowMode !== ShadowMode.None;

@@ -65,6 +65,8 @@ export class Bridge3DAnimator {
     }
 
     private onLoaded(maincls: typeof Main): void {
+
+        Laya.stage.bgColor = "#232628";
         // 创建2D场景
         const scene2D = new Scene();
         maincls.box2D.addChild(scene2D);
@@ -110,7 +112,6 @@ export class Bridge3DAnimator {
         // PangZi模型
         const pangzi = Loader.createNodes("res/threeDimen/skinModel/BoneLinkScene/PangZi.lh") as Sprite3D;
         pangzi.transform.localRotationEuler = new Vector3(0, 0, 0);
-        pangzi.transform.localPosition = new Vector3(0, 1, 0);
         bridge.addChild(pangzi);
 
         // 获取动画组件并创建动作状态

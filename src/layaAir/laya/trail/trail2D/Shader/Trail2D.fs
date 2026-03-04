@@ -8,8 +8,12 @@ varying vec4 v_Color;
 
 void main(){
     vec4 color =  v_Color;
-   vec4 textureColor = texture2D(u_baseRender2DTexture, v_Texcoord0);
+    vec4 textureColor = texture2D(u_baseRender2DTexture, v_Texcoord0);
     textureColor = transspaceColor(textureColor);
-    color *= textureColor*u_baseRenderColor;
+    vec4 renderColor = u_baseRenderColor;
+    #ifdef GAMMASPACE
+        renderColor = linearToGamma(renderColor);
+    #endif
+    color *= textureColor * renderColor;
     gl_FragColor = color;
 }

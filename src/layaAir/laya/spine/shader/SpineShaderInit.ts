@@ -13,12 +13,9 @@ import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
 import spineVertexCommon from "./files/SpineVertexCommon.glsl";
 import spineFragment from "./files/SpineFragment.glsl"
-import spine3DVertex from "./files/Spine3DVertex.glsl";
 import spine2DVertex from "./files/Spine2DVertex.glsl";
 import spineStandardVS from "./files/SpineStandard.vs"
 import spineStandardFS from "./files/SpineStandard.fs"
-import spine3DVS from "./files/Spine3D.vs"
-import spine3DFS from "./files/Spine3D.fs"
 
 /**
  * @en SpineShaderInit class handles the initialization and management of Spine shader-related components.
@@ -184,18 +181,6 @@ export class SpineShaderInit {
     static SPINE_PREMULTIPLYALPHA: ShaderDefine;
 
     /**
-     * @en Shader define for Spine billboard rendering (always face camera).
-     * @zh Spine 广告牌渲染的着色器定义（始终面向相机）。
-     */
-    static SPINE_BILLBOARD: ShaderDefine;
-
-    /**
-     * @en Property ID for Spine billboard world matrix.
-     * @zh Spine 广告牌世界矩阵的属性 ID。
-     */
-    static SPINE_BILLBOARD_MATRIX: number;
-
-    /**
      * @en TextureSV Mesh Descript.
      * @zh 纹理 Spine 顶点属性描述。
      */
@@ -230,7 +215,6 @@ export class SpineShaderInit {
      */
     static init() {
         Shader3D.addInclude("SpineFragment.glsl", spineFragment);
-        Shader3D.addInclude("Spine3DVertex.glsl", spine3DVertex);
         Shader3D.addInclude("Spine2DVertex.glsl", spine2DVertex);
         Shader3D.addInclude("SpineVertexCommon.glsl", spineVertexCommon);
         
@@ -254,8 +238,6 @@ export class SpineShaderInit {
         SpineShaderInit.SPINE_GPU_INSTANCE = Shader3D.getDefineByName("GPU_INSTANCE");
         SpineShaderInit.SPINE_TWOCOLORTINT = Shader3D.getDefineByName("TWOCOLORTINT");
         SpineShaderInit.SPINE_COLOR2 = Shader3D.getDefineByName("COLOR2");
-        SpineShaderInit.SPINE_BILLBOARD = Shader3D.getDefineByName("SPINE_BILLBOARD");
-        SpineShaderInit.SPINE_BILLBOARD_MATRIX = Shader3D.propertyNameToID("u_spineBillboardMatrix");
 
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Spine2D");
         commandUniform.addShaderUniformArray(SpineShaderInit.BONEMAT, "u_sBone", ShaderDataType.Vector4, 200);
@@ -272,17 +254,6 @@ export class SpineShaderInit {
 
         // commandUniform.addShaderUniform(SpineShaderInit.SpineTexture, "u_spineTexture", ShaderDataType.Texture2D);
 
-        // 为3D shader注册全局uniform map
-        const commandUniform3D = LayaGL.renderDeviceFactory.createGlobalUniformMap("Spine3D");
-        commandUniform3D.addShaderUniformArray(SpineShaderInit.BONEMAT, "u_sBone", ShaderDataType.Vector4, 200);
-        commandUniform3D.addShaderUniform(SpineShaderInit.BONEMAT_0, "u_sBone0", ShaderDataType.Vector3);
-        commandUniform3D.addShaderUniform(SpineShaderInit.BONEMAT_1, "u_sBone1", ShaderDataType.Vector3);
-        commandUniform3D.addShaderUniform(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS, "u_SimpleAnimatorParams", ShaderDataType.Vector4);
-        commandUniform3D.addShaderUniform(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURE, "u_SimpleAnimatorTexture", ShaderDataType.Texture2D);
-        commandUniform3D.addShaderUniform(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURESIZE, "u_SimpleAnimatorTextureSize", ShaderDataType.Float);
-        commandUniform3D.addShaderUniform(SpineShaderInit.SPINE_RENDER_SIZE, "u_spineRenderSize", ShaderDataType.Vector2);
-        commandUniform3D.addShaderUniform(SpineShaderInit.SPINE_BILLBOARD_MATRIX, "u_spineBillboardMatrix", ShaderDataType.Matrix4x4);
-
         let shader = Shader3D.add("SpineStandard", true, false);
         shader.shaderType = ShaderFeatureType.D2_BaseRenderNode2D;
         let uniformMap = {
@@ -291,16 +262,6 @@ export class SpineShaderInit {
         let subShader = new SubShader(SpineShaderInit.textureSpineAttribute, uniformMap);
         shader.addSubShader(subShader);
         let shadingPass = subShader.addShaderPass(spineStandardVS, spineStandardFS);
-
-        // 注册Spine3D shader用于3D世界渲染
-        let shader3D = Shader3D.add("Spine3D", true, false);
-        shader3D.shaderType = ShaderFeatureType.D3;
-        let uniformMap3D = {
-            "u_spineTexture": ShaderDataType.Texture2D
-        }
-        let subShader3D = new SubShader(SpineShaderInit.textureSpineAttribute, uniformMap3D);
-        shader3D.addSubShader(subShader3D);
-        let shadingPass3D = subShader3D.addShaderPass(spine3DVS, spine3DFS);
 
         // SpineShaderInit.SpineFastVertexDeclaration = new VertexDeclaration(88, [
         //     new VertexElement(0, VertexElementFormat.Vector2, 0),

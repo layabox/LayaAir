@@ -258,22 +258,46 @@ export const allBundles = [{
     name: 'spine',
     input: [
         'laya/spine/interface/*.*',
-        'laya/spine/shader/**/*.*',
+        'laya/spine/shader/SpineShaderInit.ts',
         'laya/spine/web/**/*.*',
-        'laya/spine/*.ts',
+        'laya/spine/ExternalSkin.ts',
+        'laya/spine/ExternalSkinItem.ts',
+        'laya/spine/ModuleDef.ts',
+        'laya/spine/Spine2DRenderNode.ts',
+        'laya/spine/SpineBakeScript.ts',
+        'laya/spine/SpineConst.ts',
+        'laya/spine/SpineSkeleton.ts',
+        'laya/spine/SpineTemplet.ts',
+        'laya/spine/SpineTempletLoader.ts',
     ],
     copy: ['jsLibs/spine-core-*.js']
-    },
+},
+{
+    name: 'spine3D',
+    input: [
+        'laya/spine/shader/Spine3DShaderInit.ts',
+        'laya/spine/ModuleDef3D.ts',
+        'laya/spine/Spine3DRenderer.ts',
+    ]
+},
 {
     name: 'native-spine42',
     input: [
         'laya/spine/interface/*.*',
         'laya/spine/shader/**/*.*',
         'laya/spine/native/**/*.*',
-        'laya/spine/*.ts',
-    ],
-    copy: ['jsLibs/spine-core-*.js']
+        'laya/spine/ExternalSkin.ts',
+        'laya/spine/ExternalSkinItem.ts',
+        'laya/spine/ModuleDef.ts',
+        'laya/spine/Spine2DRenderNode.ts',
+        'laya/spine/SpineBakeScript.ts',
+        'laya/spine/SpineConst.ts',
+        'laya/spine/SpineSkeleton.ts',
+        'laya/spine/SpineTemplet.ts',
+        'laya/spine/SpineTempletLoader.ts',
+    ]
 },
+/////
 {
     name: 'ani',
     input: [

@@ -43,7 +43,8 @@ export class Bridge3DClipRectTest {
     }
 
     private run(maincls: typeof Main): void {
-        console.log("Bridge3D ClipRect (scrollRect) Test - Started");
+        // console.log("Bridge3D ClipRect (scrollRect) Test - Started");
+        Laya.stage.bgColor = "#232628";
 
         const scene2D = new Scene();
         maincls.box2D.addChild(scene2D);

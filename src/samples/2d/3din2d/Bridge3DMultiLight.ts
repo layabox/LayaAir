@@ -51,7 +51,8 @@ export class Bridge3DMultiLight {
     }
 
     private onLoaded(maincls: typeof Main): void {
-        console.log("Bridge3D MultiLight Test - Started");
+        // console.log("Bridge3D MultiLight Test - Started");
+        Laya.stage.bgColor = "#232628";
 
         // 创建2D场景
         const scene2D = new Scene();
@@ -69,14 +70,6 @@ export class Bridge3DMultiLight {
         // 设置环境光（较暗，以突出动态光源效果）
         scene3d.ambientColor = new Color(0.1, 0.1, 0.1, 1);
 
-        // 添加2D标记点（红色圆圈标记Bridge3D位置）
-        const marker = new Sprite();
-        marker.graphics.drawCircle(0, 0, 5, "#ff0000");
-        scene2D.addChild(marker);
-        marker.pos(this.bridge.x, this.bridge.y);
-
-        console.log(`Bridge3D created at (${this.bridge.x}, ${this.bridge.y})`);
-
         // 创建3D场景内容
         this.create3DScene();
 
@@ -85,8 +78,6 @@ export class Bridge3DMultiLight {
 
         // 创建聚光灯
         this.createSpotLight();
-
-        console.log("Bridge3D MultiLight Test - All lights created");
     }
 
     /**
@@ -141,7 +132,6 @@ export class Bridge3DMultiLight {
             this.bridge.addChild(box);
         }
 
-        console.log("3D scene objects created");
     }
 
     /**
@@ -197,11 +187,7 @@ export class Bridge3DMultiLight {
             );
             lightMarker.meshRenderer.material = markerMaterial;
             pointLightSprite.addChild(lightMarker);
-
-            console.log(`Point light ${i} created: color=(${pointCom.color.r.toFixed(2)}, ${pointCom.color.g.toFixed(2)}, ${pointCom.color.b.toFixed(2)}), range=${pointCom.range.toFixed(1)}, intensity=${pointCom.intensity.toFixed(2)}`);
         }
-
-        console.log(`Created ${count} point lights with dynamic movement`);
     }
 
     /**
@@ -229,7 +215,5 @@ export class Bridge3DMultiLight {
         spotMarker.meshRenderer.material = markerMaterial;
         spotMarker.transform.localRotationEuler = new Vector3(180, 0, 0);
         spotLight.addChild(spotMarker);
-
-        console.log(`Spot light created: position=(0, 150, 0), angle=${spotCom.spotAngle}, range=${spotCom.range}`);
     }
 }

@@ -12,6 +12,7 @@ import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/Shad
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Material } from "../../../resource/Material";
 import { Mesh2D, VertexMesh2D } from "../../../resource/Mesh2D";
+import { Texture } from "../../../resource/Texture";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Pool } from "../../../utils/Pool";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
@@ -30,7 +31,7 @@ export class DrawMesh2DCMD extends Command2D {
      * @param material 
      * @returns 
      */
-    static create(mesh: Mesh2D, mat: Matrix, texture: BaseTexture, color: Color, material: Material): DrawMesh2DCMD {
+    static create(mesh: Mesh2D, mat: Matrix, texture: BaseTexture | Texture, color: Color, material: Material): DrawMesh2DCMD {
         let cmd = DrawMesh2DCMD._pool.take();
         cmd.mesh = mesh;
         cmd.material = material || Mesh2DRender.mesh2DDefaultMaterial;
@@ -60,7 +61,9 @@ export class DrawMesh2DCMD extends Command2D {
 
     private _renderColor = new Color(1, 1, 1, 1);
 
-    private _texture: BaseTexture;
+    private _texture: BaseTexture | Texture;
+
+    private _textureTilingOffset: Vector4 = new Vector4(0, 0, 1, 1);
 
     private _tilingOffset: Vector4 = new Vector4(0, 0, 1, 1);
 
@@ -134,20 +137,50 @@ export class DrawMesh2DCMD extends Command2D {
         return this._mesh;
     }
 
-    set texture(value: BaseTexture) {
-        value = value ? value : Texture2D.whiteTexture;
+    set texture(value: BaseTexture | Texture) {
+        if (this._texture instanceof Texture) {
+            this._texture._removeReference();
+        }
+        this._texture = value;
 
-        if (value.gammaCorrection != 1) {//预乘纹理特殊处理
+        let baseTexture: BaseTexture;
+        if (value instanceof Texture) {
+            value._addReference();
+
+            if (value.uv !== Texture.DEF_UV) {
+                let sx = value.uvrect[2] / value.width;
+                let sy = value.uvrect[3] / value.height;
+                this._textureTilingOffset.setValue(
+                    value.uvrect[0] - value.offsetX * sx,
+                    value.uvrect[1] - value.offsetY * sy,
+                    value.sourceWidth * sx,
+                    value.sourceHeight * sy
+                );
+            } else {
+                this._textureTilingOffset.setValue(0, 0, 1, 1);
+            }
+            baseTexture = value.bitmap;
+        } else {
+            this._textureTilingOffset.setValue(0, 0, 1, 1);
+            baseTexture = value ? value : Texture2D.whiteTexture;
+        }
+
+        if (baseTexture.gammaCorrection != 1) {
             this._shaderData.addDefine(ShaderDefines2D.GAMMATEXTURE);
         } else {
             this._shaderData.removeDefine(ShaderDefines2D.GAMMATEXTURE);
         }
-        this._texture = value;
 
+        this._tilingOffset.setValue(
+            this._textureTilingOffset.x,
+            this._textureTilingOffset.y,
+            this._textureTilingOffset.z,
+            this._textureTilingOffset.w
+        );
         this._shaderData.setVector(BaseRenderNode2D.TILINGOFFSET, this._tilingOffset);
-        this._shaderData.setTexture(BaseRenderNode2D.BASERENDER2DTEXTURE, value);
+        this._shaderData.setTexture(BaseRenderNode2D.BASERENDER2DTEXTURE, baseTexture);
     }
-    get texture(): BaseTexture {
+    get texture(): BaseTexture | Texture {
         return this._texture;
     }
 
@@ -216,7 +249,10 @@ export class DrawMesh2DCMD extends Command2D {
         DrawMesh2DCMD._pool.recover(this);
         super.recover();
         this.material = null;
-        this.texture = null;
+        if (this._texture instanceof Texture) {
+            this._texture._removeReference();
+        }
+        this._texture = null;
         this.mesh = null;
     }
 

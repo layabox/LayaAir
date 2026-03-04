@@ -49,6 +49,7 @@ export class Bridge3DParticle {
         const scene2D = new Scene();
         maincls.box2D.addChild(scene2D);
 
+        Laya.stage.bgColor = "#232628";
         // fusionGroup - 父容器
         const fusionGroup = new Sprite();
         fusionGroup.pos(Laya.stage.width / 2 - 150, Laya.stage.height / 2 - 200);
@@ -70,9 +71,8 @@ export class Bridge3DParticle {
 
         // === 中间3D：Bridge3DSprite ===
         const bridge = new Bridge3DSprite();
-        bridge.scale3DToPixel = 1;
+        bridge.scale3DToPixel = 100;
         bridge.pos(150, 200);
-        bridge.size(300, 300);
         fusionGroup.addChild(bridge);
 
         const scene3d = scene2D.bridge3D;
@@ -80,8 +80,13 @@ export class Bridge3DParticle {
         scene3d.cameraZDistance = 300;
 
         // 异步加载粒子
-        Sprite3D.load("res/threeDimen/particle/ETF_Burning_Ground.lh", Handler.create(this, function (sprite: Sprite3D): void {
+        Sprite3D.load("res/threeDimen/particle/lv_kuosan.lh", Handler.create(this, function (sprite: Sprite3D): void {
             bridge.addChild(sprite);
+            let localPos = sprite.transform.localPosition;
+            localPos.x = 0;
+            localPos.y = 0;
+            localPos.z = 0;
+            sprite.transform.localPosition = localPos;
         }));
 
         // === 下方2D：冷色矩形 + 描述文本 ===

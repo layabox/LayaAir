@@ -41,6 +41,10 @@ import { WasmAdapter } from "laya/utils/WasmAdapter";
 import "laya/Physics3D/Bullet/btPhysicsCreateUtil";
 import { Browser } from "laya/utils/Browser";
 import { Laya } from "Laya";
+import { Bridge3DCamera } from "laya/bridge/Bridge3DCamera";
+import { Bridge3DScene3D } from "laya/bridge/Bridge3DScene3D";
+import { Scene } from "laya/display/Scene";
+import { Config } from "Config";
 
 //or Use physX physics engine
 //import "laya/Physics3D/PhysX/pxPhysicsCreateUtil";
@@ -48,6 +52,20 @@ import { Laya } from "Laya";
 (window as any).Laya = (window as any).Laya || {};
 (window as any).Laya.WasmAdapter = WasmAdapter;
 
+
+// Bridge3D requires depth buffer for proper 3D depth testing.
+// Set Config.isDepth = true at module load time so users who import Bridge3D
+// automatically get depth enabled. Users can still override this after importing.
+Config.isDepth = true;
+
 Laya.addBeforeInitCallback(() => {
     return Browser.loadLib("jsLibs/laya.Box2D.wasm.js");
+});
+
+Scene.createBridge3DScene = function () {
+    return new Bridge3DScene3D();
+}
+
+Laya.addInitCallback(() => {
+    Bridge3DCamera.__init__();
 });

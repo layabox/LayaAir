@@ -58,7 +58,9 @@ export class Bridge3DShadow {
     }
 
     private onLoaded(maincls: typeof Main): void {
-        console.log("Bridge3D Shadow Test - Started");
+        // console.log("Bridge3D Shadow Test - Started");
+
+        Laya.stage.bgColor = "#232628";
 
         // 创建2D场景
         const scene2D = new Scene();
@@ -76,13 +78,7 @@ export class Bridge3DShadow {
         // 设置环境光（较暗，以突出阴影效果）
         scene3d.ambientColor = new Color(0.3, 0.3, 0.3, 1);
 
-        // 添加2D标记点
-        const marker = new Sprite();
-        marker.graphics.drawCircle(0, 0, 5, "#ff0000");
-        scene2D.addChild(marker);
-        marker.pos(this.bridge.x, this.bridge.y);
-
-        console.log(`Bridge3D created at (${this.bridge.x}, ${this.bridge.y})`);
+        // console.log(`Bridge3D created at (${this.bridge.x}, ${this.bridge.y})`);
 
         // 创建方向光并配置阴影
         this.createDirectionLight();
@@ -90,8 +86,7 @@ export class Bridge3DShadow {
         // 创建3D场景内容
         this.create3DScene();
 
-        console.log("Bridge3D Shadow Test - Scene created");
-        this.logShadowSettings();
+        // console.log("Bridge3D Shadow Test - Scene created");
     }
 
     /**
@@ -120,11 +115,6 @@ export class Bridge3DShadow {
         // 添加光源旋转脚本
         this.lightRotationScript = this.directionLight.addComponent(LightRotationScript);
 
-        console.log("Direction light created with shadow settings:");
-        console.log(`  Shadow Mode: ${directionLightCom.shadowMode}`);
-        console.log(`  Shadow Distance: ${directionLightCom.shadowDistance}`);
-        console.log(`  Shadow Resolution: ${directionLightCom.shadowResolution}`);
-        console.log(`  Shadow Normal Bias: ${directionLightCom.shadowNormalBias}`);
     }
 
     /**
@@ -143,7 +133,6 @@ export class Bridge3DShadow {
         ground.transform.localPosition = new Vector3(0, -80, 0);
         ground.transform.localRotationEuler = new Vector3(90, 0, 0);  // Y-up: Rx(+90°) makes normal face +Z toward camera
         this.bridge.addChild(ground);
-        console.log("Ground created (receives shadow)");
 
         // 创建中心球体（投射和接收阴影）
         const centerSphere = new MeshSprite3D(PrimitiveMesh.createSphere(50));
@@ -156,7 +145,6 @@ export class Bridge3DShadow {
         centerSphere.meshRenderer.receiveShadow = true;  // 接收阴影
         centerSphere.transform.localPosition = new Vector3(0, -30, 0);  // r=50, bottom at y=-80 (on ground)
         this.bridge.addChild(centerSphere);
-        console.log("Center sphere created (casts and receives shadow)");
 
         // 创建围绕中心的立方体（投射阴影）
         const cubeCount = 1;
@@ -188,7 +176,6 @@ export class Bridge3DShadow {
 
             this.bridge.addChild(box);
         }
-        console.log(`Created ${cubeCount} rotating boxes (cast and receive shadow)`);
 
         // 创建悬浮的小球体（投射阴影）
         const floatingSpheres = 4;
@@ -213,7 +200,6 @@ export class Bridge3DShadow {
 
             this.bridge.addChild(sphere);
         }
-        console.log(`Created ${floatingSpheres} floating spheres (cast shadow)`);
 
         // 创建一个高塔（投射长阴影）
         const tower = new MeshSprite3D(PrimitiveMesh.createCylinder(15, 100));
@@ -226,34 +212,6 @@ export class Bridge3DShadow {
         tower.meshRenderer.receiveShadow = true;  // 接收阴影
         tower.transform.localPosition = new Vector3(-150, -30, 0);
         this.bridge.addChild(tower);
-        console.log("Tower created (casts long shadow)");
-    }
-
-    /**
-     * 输出阴影设置信息
-     */
-    private logShadowSettings(): void {
-        console.log("\n--- Shadow Configuration Summary ---");
-        console.log("Direction Light:");
-        const lightCom = this.directionLight.getComponent(DirectionLightCom);
-        console.log(`  Position: (${this.directionLight.transform.localPosition.x}, ${this.directionLight.transform.localPosition.y}, ${this.directionLight.transform.localPosition.z})`);
-        console.log(`  Rotation: (${this.directionLight.transform.localRotationEuler.x}, ${this.directionLight.transform.localRotationEuler.y}, ${this.directionLight.transform.localRotationEuler.z})`);
-        console.log(`  Shadow Mode: ${lightCom.shadowMode === ShadowMode.None ? "None" : lightCom.shadowMode === ShadowMode.Hard ? "Hard" : "Soft"}`);
-        console.log(`  Shadow Distance: ${lightCom.shadowDistance}`);
-        console.log(`  Shadow Resolution: ${lightCom.shadowResolution}`);
-        console.log(`  Auto Rotation: ${this.lightRotationScript.rotation}`);
-        console.log("\nScene Objects:");
-        console.log(`  Total 3D children: ${this.bridge.numChildren}`);
-        console.log("  Ground: receives shadow");
-        console.log("  Center sphere: casts and receives shadow");
-        console.log("  Boxes: cast and receive shadow (rotating)");
-        console.log("  Floating spheres: cast shadow (rotating)");
-        console.log("  Tower: casts long shadow");
-        console.log("\nExpected Effects:");
-        console.log("  - Objects should cast shadows on the ground");
-        console.log("  - Objects should cast shadows on each other");
-        console.log("  - Shadows should rotate with the light source");
-        console.log("  - Rotating objects should show dynamic shadow changes");
     }
 
     /**

@@ -32,7 +32,9 @@ export class Bridge3DSkewTest {
     }
 
     private onLoaded(maincls: typeof Main): void {
-        console.log("Bridge3D Skew Test - Started");
+        // console.log("Bridge3D Skew Test - Started");
+
+        Laya.stage.bgColor = "#232628";
 
         // 创建2D场景
         const scene2D = new Scene();
@@ -43,29 +45,28 @@ export class Bridge3DSkewTest {
         this.addTitle(scene2D, "Bridge3D Skew Transform Test", 20, 20);
 
         // 测试1: 无倾斜（对照组）
-        this.createTestCase(scene2D, "No Skew", 150, 150, 0, 0, 0);
+        this.createTestCase(scene2D, "No Skew", 120, 130, 0, 0, 0);
 
         // 测试2: 仅skewX
-        this.createTestCase(scene2D, "skewX = 30°", 400, 150, 30, 0, 0);
+        this.createTestCase(scene2D, "skewX = 30°", 320, 130, 30, 0, 0);
 
         // 测试3: 仅skewY
-        this.createTestCase(scene2D, "skewY = 30°", 650, 150, 0, 30, 0);
+        this.createTestCase(scene2D, "skewY = 30°", 520, 130, 0, 30, 0);
 
         // 测试4: 同时skewX和skewY
-        this.createTestCase(scene2D, "skewX = 20°, skewY = 20°", 900, 150, 20, 20, 0);
+        this.createTestCase(scene2D, "skewX=20°, skewY=20°", 720, 130, 20, 20, 0);
 
         // 测试5: 倾斜 + 旋转
-        this.createTestCase(scene2D, "skewX = 30° + rotation = 45°", 150, 450, 30, 0, 45);
+        this.createTestCase(scene2D, "skewX=30° + rot=45°", 120, 330, 30, 0, 45);
 
         // 测试6: 倾斜 + 缩放
-        const bridge6 = this.createTestCase(scene2D, "skewX = 30° + scale = 1.5", 400, 450, 30, 0, 0);
-        bridge6.scale(1.5, 1.5);
+        this.createTestCase(scene2D, "skewX=30° + scale=1.5", 320, 330, 30, 0, 0, 1.5, 1.5);
 
         // 测试7: 负倾斜
-        this.createTestCase(scene2D, "skewX = -30°", 650, 450, -30, 0, 0);
+        this.createTestCase(scene2D, "skewX = -30°", 520, 330, -30, 0, 0);
 
         // 测试8: 大角度倾斜
-        this.createTestCase(scene2D, "skewX = 60°", 900, 450, 60, 0, 0);
+        this.createTestCase(scene2D, "skewX = 60°", 720, 330, 60, 0, 0);
 
         // 添加动画测试
         this.addAnimationTest(scene2D);
@@ -83,28 +84,32 @@ export class Bridge3DSkewTest {
         y: number,
         skewX: number,
         skewY: number,
-        rotation: number
+        rotation: number,
+        scaleX: number = 1,
+        scaleY: number = 1
     ): Bridge3DSprite {
         // 添加标签
-        this.addLabel(scene, label, x, y - 80);
+        this.addLabel(scene, label, x, y - 60);
 
-        // 创建2D参考图形（红色矩形）
+        // 创建2D参考图形（红色矩形，垫底，稍大）
         const sprite2D = new Sprite();
-        sprite2D.graphics.drawRect(-40, -40, 80, 80, "#ff000033");
-        sprite2D.graphics.drawRect(-40, -40, 80, 80, null, "#ff0000", 2);
+        sprite2D.graphics.drawRect(-45, -45, 90, 90, "#ff000033");
+        sprite2D.graphics.drawRect(-45, -45, 90, 90, null, "#ff0000", 2);
         sprite2D.pos(x, y);
         sprite2D.skewX = skewX;
         sprite2D.skewY = skewY;
         sprite2D.rotation = rotation;
+        sprite2D.scale(scaleX, scaleY);
         scene.addChild(sprite2D);
 
-        // 创建Bridge3D（蓝色立方体）
+        // 创建Bridge3D（蓝色立方体，显示在2D参考图形前面）
         const bridge = new Bridge3DSprite();
         bridge.scale3DToPixel = 1;
         bridge.pos(x, y);
         bridge.skewX = skewX;
         bridge.skewY = skewY;
         bridge.rotation = rotation;
+        bridge.scale(scaleX, scaleY);
         scene.addChild(bridge);
 
         // 创建3D立方体
@@ -169,30 +174,31 @@ export class Bridge3DSkewTest {
      * 添加动画测试
      */
     private addAnimationTest(scene: Scene): void {
-        this.addLabel(scene, "Animated: skewX oscillating", 150, 650);
+        this.addLabel(scene, "Animated: skewX oscillating", 120, 460);
 
         // 创建动画测试用例
         const bridge = new Bridge3DSprite();
-        bridge.pos(150, 730);
-        scene.addChild(bridge);
+        bridge.pos(120, 530);
 
+        // 添加2D参考（垫底，稍大）
+        const sprite2D = new Sprite();
+        sprite2D.graphics.drawRect(-45, -45, 90, 90, "#00ff0033");
+        sprite2D.graphics.drawRect(-45, -45, 90, 90, null, "#00ff00", 2);
+        sprite2D.pos(120, 530);
+        scene.addChild(sprite2D);
+
+        // Bridge3D 显示在2D参考前面
         const cube = new MeshSprite3D(PrimitiveMesh.createBox(80, 80, 80));
         const material = new UnlitMaterial();
         material.albedoColor = new Color(1.0, 0.5, 0.3, 0.8);
         cube.meshRenderer.material = material;
         bridge.addChild(cube);
-
-        // 添加2D参考
-        const sprite2D = new Sprite();
-        sprite2D.graphics.drawRect(-40, -40, 80, 80, "#ff000033");
-        sprite2D.graphics.drawRect(-40, -40, 80, 80, null, "#ff0000", 2);
-        sprite2D.pos(150, 730);
-        scene.addChild(sprite2D);
+        bridge.scale3DToPixel = 1;
+        scene.addChild(bridge);
 
         // 动画：skewX在-45到45度之间振荡
         const skewScript = bridge.addComponent(SkewAnimScript);
         skewScript.sprite2D = sprite2D;
 
-        console.log("Animation test added: skewX oscillating");
     }
 }
