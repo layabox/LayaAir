@@ -9,6 +9,8 @@ window.screenOrientation = "sensor_landscape";
 loadLib("jsLibs/bullet.js")
 loadLib("jsLibs/laya.Box2d.js")
 loadLib("jsLibs/spine-core-3.8.js")
+loadLib("jsLibs/shader_compiler_web.js")
+loadLib("jsLibs/nagabind.js")
 loadLib("3rd/astar.js")
 // loadLib("3rd/webxr-polyfill.module.js")
 

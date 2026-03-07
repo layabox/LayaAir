@@ -1,0 +1,61 @@
+import { Matrix4x4 } from "../../../maths/Matrix4x4";
+import { ICameraNodeData } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
+import { LayaXTransform3D } from "./LayaXTransform3D";
+
+/**
+ * LayaX CameraNodeData bridge.
+ *
+ * Wraps camera projection parameters for the Rust rendering pipeline via
+ * `conchLayaXCameraNodeData`.
+ */
+export class LayaXCameraNodeData implements ICameraNodeData {
+
+    /** @internal */
+    _nativeObj: any;
+
+    private _transform: LayaXTransform3D;
+
+    public get transform(): LayaXTransform3D {
+        return this._transform;
+    }
+    public set transform(value: LayaXTransform3D) {
+        this._transform = value;
+        this._nativeObj.setTransform(value ? value._nativeObj : null);
+    }
+
+    public get farplane(): number {
+        return this._nativeObj._farplane;
+    }
+    public set farplane(value: number) {
+        this._nativeObj._farplane = value;
+    }
+
+    public get nearplane(): number {
+        return this._nativeObj._nearplane;
+    }
+    public set nearplane(value: number) {
+        this._nativeObj._nearplane = value;
+    }
+
+    public get fieldOfView(): number {
+        return this._nativeObj._fieldOfView;
+    }
+    public set fieldOfView(value: number) {
+        this._nativeObj._fieldOfView = value;
+    }
+
+    public get aspectRatio(): number {
+        return this._nativeObj._aspectRatio;
+    }
+    public set aspectRatio(value: number) {
+        this._nativeObj._aspectRatio = value;
+    }
+
+    constructor() {
+        this._nativeObj = new (window as any).conchLayaXCameraNodeData();
+    }
+
+    setProjectionViewMatrix(value: Matrix4x4): void {
+        value && this._nativeObj.setProjectionViewMatrix(value);
+    }
+}

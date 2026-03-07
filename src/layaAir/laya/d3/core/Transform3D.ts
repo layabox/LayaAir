@@ -987,6 +987,24 @@ export class Transform3D extends EventDispatcher {
         }
     }
 
+    /**
+     * @internal
+     * @en Called when the owner node is added to a scene.
+     * @zh 当所属节点被添加到场景时调用。
+     */
+    activeInScene(): void {
+        //override it.
+    }
+
+    /**
+     * @internal
+     * @en Called when the owner node is removed from a scene.
+     * @zh 当所属节点从场景中移除时调用。
+     */
+    inActiveInScene(): void {
+        //override it.
+    }
+
     //----------------------------------------Discard-------------------------------------------------
     /**
      * 世界坐标系缩放。
