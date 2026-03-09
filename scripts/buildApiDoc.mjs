@@ -4,16 +4,17 @@ import { rimrafSync } from "rimraf";
 import { Application, OptionDefaults } from "typedoc";
 
 const outDir = path.join(".", "docs");// 文档输出的根目录
-const ourTags = ["@en", "@zh", "@perfTag",
+const ourTags = ["@en", "@zh", "@perfTag", "@implements","@description","@note","@important",
     "@blueprintable", "@blueprintableSubclasses", "@blueprintIgnore", "@blueprintIgnoreSubclasses",
-    "@blueprintEvent", "@blueprintDefaultEvent", "@blueprintPure", "@blueprintInheritable"
+    "@blueprintEvent", "@blueprintDefaultEvent", "@blueprintPure", "@blueprintInheritable",
 ];
-const currentVersion = "3.3";
+const currentVersion = "3.4";
 /**
  * @zh 要生成 API 文档的版本列表。
  * @en The list of versions to generate API documentation for.
  */
 const configVersions = [
+    "3.4",
     "3.3",
     "3.2",
     "3.1",
