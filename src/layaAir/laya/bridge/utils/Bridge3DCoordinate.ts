@@ -53,8 +53,6 @@ export class Bridge3DCoordinate {
     /**
      * 将3D世界坐标转换为2D逻辑坐标
      * @param worldPos - 3D世界坐标
-     * @param outX - 输出2D逻辑X坐标的数组（可选）
-     * @param outY - 输出2D逻辑Y坐标的数组（可选）
      * @returns {x: number, y: number} 2D逻辑坐标
      *
      * @example

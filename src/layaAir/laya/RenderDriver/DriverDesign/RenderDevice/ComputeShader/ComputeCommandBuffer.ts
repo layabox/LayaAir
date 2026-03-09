@@ -32,13 +32,11 @@ export class ComputeCommandBuffer {
     /**
      * @en Adds a command to run a ComputeShader.
      * @param computeshader The ComputeShader instance to run.
-     * @param kernel The name of the kernel in the ComputeShader.
      * @param shaderDefine The shader define data.
      * @param datas The list of ShaderData to pass to the shader.
      * @param dispatchParams The dispatch parameters, typically a Vector3 representing the workgroup size
      * @zh 添加运行ComputeShader的命令
      * @param computeshader 计算着色器实例
-     * @param kernel 计算着色器的内核名称
      * @param shaderDefine 着色器定义数据
      * @param datas 需要传递给着色器的数据列表
      * @param dispatchParams 调度参数，通常是一个Vector3，表示计算的工作组大小。

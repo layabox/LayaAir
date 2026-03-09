@@ -111,8 +111,8 @@ export interface ISpineRender {
     render(time: number , physicsUpdate: number): void;
     
     /**
-     * @zh 通过名称显示皮肤
-     * @param name 皮肤名称
+     * @zh 通过索引显示皮肤
+     * @param skinIndex 皮肤索引
      */
     showSkinByIndex(skinIndex: number): void;
     

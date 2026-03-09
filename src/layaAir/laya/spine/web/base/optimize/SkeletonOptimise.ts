@@ -188,10 +188,10 @@ export class SkeletonOptimise implements ISkeletonOptimise {
     /**
      * @en Check and initialize the main attachment.
      * @param skeleton The skeleton
-     * @param skeletonData The skeleton data to check.
+     * @param data The skeleton data to check.
      * @zh 检查并初始化主附件。
      * @param skeleton 骨骼对象。
-     * @param skeletonData 要检查的骨骼数据。
+     * @param data 要检查的骨骼数据。
      */
     checkMainAttach(skeleton: spine.Skeleton, data: spine.SkeletonData) {
         this.skeleton = skeleton;

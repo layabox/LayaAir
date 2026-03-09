@@ -81,12 +81,13 @@ export class NativeSpineTempletParser implements ISpineTempletParser {
     }
 
     /**
+     * @zh 解析骨骼数据并创建 SpineTemplet。
+     * @param desc 骨骼数据（JSON字符串或ArrayBuffer）。
+     * @param textures 加载的纹理对象数组。
      * @en Parse skeleton data and create SpineTemplet.
      * @param desc Skeleton data (JSON string or ArrayBuffer).
      * @param textures Array of loaded texture objects.
-     * @param atlasText Atlas text content (optional, for texture mapping).
      * @returns SpineTemplet instance.
-     * @zh 解析骨骼数据并创建 SpineTemplet。
      */
     create(desc: string | ArrayBuffer, textures: Texture2D[]): SpineTemplet {
         const isBinary = desc instanceof ArrayBuffer;

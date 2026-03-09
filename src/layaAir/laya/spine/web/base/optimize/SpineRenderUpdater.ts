@@ -359,36 +359,36 @@ export class SpineRenderUpdater {
     }
 
     /**
-     * @en Updates bone matrices using cached data.
-     * @param delta Time delta.
-     * @param animation Animation render data.
-     * @param bones Spine bones.
-     * @param state Spine animation state.
-     * @param boneMat Bone matrix array.
      * @zh 使用缓存数据更新骨骼矩阵。
      * @param delta 时间增量。
-     * @param animation 动画渲染数据。
      * @param bones 骨骼数组。
-     * @param state 骨骼动画状态。
      * @param boneMat 骨骼矩阵数组。
+     * @param ofx 偏移x。
+     * @param ofy 偏移y。
+     * @en Updates bone matrices using cached data.
+     * @param delta Time delta.
+     * @param bones Spine bones.
+     * @param boneMat Bone matrix array.
+     * @param ofx Offset x.
+     * @param ofy Offset y.
      */
     updateBoneMatrix(delta: number, bones: spine.Bone[], boneMat: Float32Array, ofx: number = 0, ofy: number = 0): void {
         this.writeBoneBuffer(bones, boneMat, ofx, ofy);
     }
 
     /**
-     * @en Updates bone matrices using cached data.
-     * @param delta Time delta.
-     * @param animation Animation render data.
-     * @param bones Spine bones.
-     * @param state Spine animation state.
-     * @param boneMat Bone matrix array.
      * @zh 使用缓存数据更新骨骼矩阵。
      * @param delta 时间增量。
-     * @param animation 动画渲染数据。
      * @param bones 骨骼数组。
-     * @param state 骨骼动画状态。
      * @param boneMat 骨骼矩阵数组。
+     * @param ofx 偏移x。
+     * @param ofy 偏移y。
+     * @en Updates bone matrices using cached data.
+     * @param delta Time delta.
+     * @param bones Spine bones.
+     * @param boneMat Bone matrix array.
+     * @param ofx Offset x.
+     * @param ofy Offset y.
      */
     updateBoneMatrixCache(delta: number, bones: spine.Bone[], boneMat: Float32Array, ofx: number = 0, ofy: number = 0): void {
         this.writeBoneBufferCache(this._animator.boneFrames, delta / SpineConst.SPINE_STEP, boneMat, ofx, ofy);

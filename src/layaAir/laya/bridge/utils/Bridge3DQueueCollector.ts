@@ -56,9 +56,7 @@ export class Bridge3DQueueCollector {
      * 收集所有Bridge3D的透明渲染队列
      *
      * @param bridge3DSprites 所有注册的Bridge3DSprite
-     * @param context2D 2D渲染上下文
      * @returns 透明渲染队列列表
-     *
      * @remarks
      * 该方法用于收集透明渲染队列，虽然当前Bridge3DCamera主要关注阴影渲染（不透明对象），
      * 但为了完整性和未来扩展，也提供透明队列的收集功能。

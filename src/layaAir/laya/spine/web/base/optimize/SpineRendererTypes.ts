@@ -64,9 +64,7 @@ export abstract class SpineBaseRenderer implements IRender {
 
     /**
      * @en Abstract method to change the current render context.
-     * @param context The render context containing skin and animation updaters.
      * @zh 更改当前渲染上下文的抽象方法。
-     * @param context 包含皮肤和动画更新器的渲染上下文。
      */
     abstract change(): void;
 
@@ -79,10 +77,8 @@ export abstract class SpineBaseRenderer implements IRender {
     /**
      * @en Abstract method to render the current animation at a specific time.
      * @param curTime The current time for rendering.
-     * @param boneMat The bone matrix for rendering.
      * @zh 在特定时间渲染当前动画的抽象方法。
      * @param curTime 渲染的当前时间。
-     * @param boneMat 用于渲染的骨骼矩阵。
      */
     abstract render(curTime: number, offsetX?: number, offsetY?: number): void;
 
@@ -178,9 +174,7 @@ export class OptimizedSpineRenderer extends SpineBaseRenderer {
 
     /**
      * @en Change the current render context.
-     * @param context The render context containing skin and animation updaters.
      * @zh 更改当前渲染上下文。
-     * @param context 包含皮肤和动画更新器的渲染上下文。
      */
     change() {
         this._shaderData.addDefine(SpineShaderInit.SPINE_FAST);
@@ -249,9 +243,7 @@ export class StandardSpineRenderer extends SpineBaseRenderer {
 
     /**
      * @en Change the current render context.
-     * @param context The render context containing skin and animation updaters.
      * @zh 更改当前渲染上下文。
-     * @param context 包含皮肤和动画更新器的渲染上下文。
      */
     change() {
         this._shaderData.addDefine(SpineShaderInit.SPINE_COLOR2);
@@ -365,9 +357,7 @@ export class BakedSpineRenderer extends SpineBaseRenderer {
 
     /**
      * @en Change the current render context.
-     * @param context The render context containing skin and animation updaters.
      * @zh 更改当前渲染上下文。
-     * @param context 包含皮肤和动画更新器的渲染上下文。
      */
     change() {
         this._shaderData.addDefine(SpineShaderInit.SPINE_SIMPLE);
@@ -401,12 +391,10 @@ export class BakedSpineRenderer extends SpineBaseRenderer {
     }
 
     /**
-     * @en Render the current animation at a specific time.
-     * @param curTime The current time for rendering.
-     * @param boneMat The bone matrix for rendering.
      * @zh 在特定时间渲染当前动画。
      * @param curTime 渲染的当前时间。
-     * @param boneMat 用于渲染的骨骼矩阵。
+     * @en Render the current animation at a specific time.
+     * @param curTime The current time for rendering.
      */
     render(curTime: number , offsetX: number = 0, offsetY: number = 0) {
         this.updater.renderWithOutMat(this.slots, curTime);
