@@ -18,6 +18,8 @@ import { LayaXCameraNodeData } from "../RenderModuleData/LayaXCameraNodeData";
 import { LayaXBaseRenderNode } from "../RenderModuleData/LayaXBaseRenderNode";
 import { LayaXDirectLight } from "../RenderModuleData/LayaXDirectLight";
 import { LayaXSpotLight } from "../RenderModuleData/LayaXSpotLight";
+import { LayaXReflectionProbe } from "../RenderModuleData/LayaXReflectionProbe";
+import { LayaXVolumetricGI } from "../RenderModuleData/LayaXVolumetricGI";
 import { LayaXForwardAddRP } from "./LayaXForwardAddRP";
 
 const viewport = new Viewport(0, 0, 0, 0);
@@ -206,10 +208,28 @@ export class LayaXRender3DProcess implements IRender3DProcess {
     }
 
     fowardRender(context: IRenderContext3D, camera: Camera): void {
+        // 帧渲染前统一 flush 本帧变化的 probe 数据到 ShaderData
+        LayaXRender3DProcess._flushDirtyProbes();
+
         Camera.depthPass.cleanUp(camera);
         this.renderDepth(camera);
         this.initRenderpass(camera, context);
         this.renderFowarAddCameraPass(context, this._renderPass);
+    }
+
+    private static _flushDirtyProbes(): void {
+        // ReflectionProbe
+        let rpDirty = LayaXReflectionProbe._dirtySet;
+        if (rpDirty.size > 0) {
+            rpDirty.forEach(probe => probe.applyRenderData());
+            rpDirty.clear();
+        }
+        // VolumetricGI
+        let giDirty = LayaXVolumetricGI._dirtySet;
+        if (giDirty.size > 0) {
+            giDirty.forEach(gi => gi.applyRenderData());
+            giDirty.clear();
+        }
     }
 
     renderFowarAddCameraPass(context: IRenderContext3D, renderpass: LayaXForwardAddRP): void {

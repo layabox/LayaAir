@@ -238,7 +238,10 @@ export class LayaXShaderData extends ShaderData {
 
     /**@internal */
     _setInternalTexture(index: number, value: InternalTexture) {
-        this._nativeObj._setInternalTexture(index, value);
+        // value may be a TS LayaXInternalTex wrapper (from applyRenderData) or
+        // a raw C++ native object (from setTexture). Always extract _nativeObj if present.
+        let nativeVal = value ? ((value as any)._nativeObj || value) : null;
+        this._nativeObj._setInternalTexture(index, nativeVal);
     }
 
     getTexture(index: number): BaseTexture {

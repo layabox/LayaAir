@@ -13282,6 +13282,17 @@ window.Laya=window.Laya||{};
                 box.transform.position = new Laya.Vector3(0.0, 1.0, 2.5);
                 box.transform.rotate(new Laya.Vector3(0, 0, 0), false, false);
                 var mat1 = new Laya.BlinnPhongMaterial();
+                Laya.Texture2D.load("res/threeDimen/texture/layabox.png", Laya.Handler.create(this, function (texture) {
+                    texture.wrapModeU = Laya.WrapMode.Clamp;
+                    texture.wrapModeV = Laya.WrapMode.Repeat;
+                    texture.filterMode = Laya.FilterMode.Bilinear;
+                    texture.anisoLevel = 2;
+                    mat1.albedoTexture = texture;
+                    var tilingOffset = mat1.tilingOffset;
+                    tilingOffset.setValue(3, 3, 0.0, 0.0);
+                    mat1.tilingOffset = tilingOffset;
+                    box.meshRenderer.material = mat1;
+                }));
             });
         }
     }

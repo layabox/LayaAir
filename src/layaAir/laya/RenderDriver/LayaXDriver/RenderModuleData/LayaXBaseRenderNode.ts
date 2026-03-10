@@ -275,11 +275,11 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
     }
 
     _applyLightProb(): void {
-        this._nativeObj._applyLightProb();
+        // LayaX: 由 LayaXProbeApplyHelper.flushDirty() 在帧渲染前统一处理
     }
 
     _applyReflection(): void {
-        this._nativeObj._applyReflection();
+        // LayaX: 由 LayaXProbeApplyHelper.flushDirty() 在帧渲染前统一处理
     }
 
     destroy(): void {
