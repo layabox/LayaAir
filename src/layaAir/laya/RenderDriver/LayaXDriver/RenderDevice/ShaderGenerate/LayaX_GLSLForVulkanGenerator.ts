@@ -5,8 +5,8 @@ import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderNode } from "../../../../webgl/utils/ShaderNode";
 import { UniformProperty } from "../../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../../DriverDesign/RenderDevice/ShaderData";
-import { WebGPUUniformPropertyBindingInfo, WebGPUBindingInfoType, WebGPUBindGroupHelper } from "../../../WebGPUDriver/RenderDevice/WebGPUBindGroupHelper";
-import { WebGPUCommandUniformMap } from "../../../WebGPUDriver/RenderDevice/WebGPUCommandUniformMap";
+import { LayaXBindingInfo, LayaXBindingInfoType, LayaXBindGroupHelper } from "../LayaXBindGroupHelper";
+import { LayaXCommandUniformMap } from "../LayaXCommandUniformMap";
 import { LayaXRenderEngine } from "../LayaXRenderEngine";
 import { getTypeString, getTypeDefaultString, isSamplerType } from "./LayaX_GLSLGeneratorHelper";
 
@@ -18,9 +18,9 @@ const uniformBlockRegex = /(?:layout\s*\([^)]*\)\s*)?uniform\s+(\w+)\s*\{([\s\S]
 const glFragColorRegex = /gl_FragColor/g;
 
 interface CollectUniform {
-    samplerType?: GPUTextureSampleType,
+    samplerType?: string,
     arrayLength?: number,
-    demision?: GPUTextureViewDimension,
+    demision?: string,
     type: ShaderDataType
     set?: number
 }
@@ -55,7 +55,7 @@ export class LayaX_GLSLForVulkanGenerator {
      * @param appendSet 
      * @returns 
      */
-    static layax_process(defines: string[], attributeMap: AttributeMapType[], uniformMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, shaderPassName: string, materialMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode, useTexArray: Set<string>, checkSetNumber: number, appendSet: number) {
+    static layax_process(defines: string[], attributeMap: AttributeMapType[], uniformMap: Map<number, LayaXBindingInfo[]>, shaderPassName: string, materialMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode, useTexArray: Set<string>, checkSetNumber: number, appendSet: number) {
 
         const engine = LayaXRenderEngine._instance;
 
@@ -192,10 +192,10 @@ ${fragmentCode}
 
         let textureNames: string[] = [];
 
-        const executeUniforms = (value: WebGPUUniformPropertyBindingInfo[], key: number) => {
+        const executeUniforms = (value: LayaXBindingInfo[], key: number) => {
 
             value.forEach(uniform => {
-                if (uniform.type == WebGPUBindingInfoType.texture) {
+                if (uniform.type == LayaXBindingInfoType.texture) {
                     let name = uniform.name.replace("_Texture", "");
 
                     textureNames.push(name);
@@ -206,7 +206,7 @@ ${fragmentCode}
                     }
                 }
 
-                if (uniform.type == WebGPUBindingInfoType.sampler) {
+                if (uniform.type == LayaXBindingInfoType.sampler) {
                     let name = uniform.name.replace("_Sampler", "");
                     let collect = collectionUniforms.get(name);
 
@@ -214,7 +214,7 @@ ${fragmentCode}
                         collect.set = uniform.set;
                     }
                     else if (key < checkSetNumber) {
-                        let samplerType: GPUTextureSampleType = uniform.texture.sampleType;
+                        let samplerType: string = uniform.texture.sampleType;
                         if (uniform.sampler?.type == "comparison") {
                             samplerType = "depth";
                         }
@@ -223,17 +223,17 @@ ${fragmentCode}
                     }
                 }
 
-                if (uniform.type == WebGPUBindingInfoType.storageBuffer) {
+                if (uniform.type == LayaXBindingInfoType.storageBuffer) {
                     let collect = collectionUniforms.get(uniform.name);
                     if (collect) {
                         collect.set = uniform.set;
                     }
                 }
 
-                if (uniform.type == WebGPUBindingInfoType.buffer) {
+                if (uniform.type == LayaXBindingInfoType.buffer) {
                     let name = uniform.name;
 
-                    let commandMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(name) as WebGPUCommandUniformMap;
+                    let commandMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(name) as LayaXCommandUniformMap;
 
                     commandMap._idata.forEach((u, i) => {
                         let collect = collectionUniforms.get(u.propertyName);
@@ -247,9 +247,9 @@ ${fragmentCode}
 
         uniformMap.forEach(executeUniforms);
 
-        // 添加 新检出的 uniform 
+        // 添加 新检出的 uniform（appendSet < 0 表示禁用，跳过）
         let appendNewUniform = false;
-        {
+        if (appendSet >= 0) {
             collectionUniforms.forEach((value, name) => {
                 if (value.set == undefined) {
                     appendNewUniform = true;
@@ -263,11 +263,11 @@ ${fragmentCode}
                     materialMap.set(uniform.id, uniform);
                 }
             });
-            if (!uniformMap.has(appendSet)) {
-                uniformMap.set(appendSet, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(appendSet, "Material", shaderPassName, materialMap));
+            // if (!uniformMap.has(appendSet)) {
+            //     uniformMap.set(appendSet, LayaXBindGroupHelper.createBindingInfosByUniformMap(appendSet, "Material", shaderPassName, materialMap));
 
-                executeUniforms(uniformMap.get(appendSet), appendSet);
-            }
+            //     executeUniforms(uniformMap.get(appendSet), appendSet);
+            // }
         }
 
         // remove original uniform blocks
@@ -338,7 +338,7 @@ ${fragmentCode}
 
     }
 
-    static proccessCompute(defines: string[], uniformCommandMaps: WebGPUCommandUniformMap[], uniformMaps: Map<number, WebGPUUniformPropertyBindingInfo[]>, node: ShaderNode, shaderName: string) {
+    static proccessCompute(defines: string[], uniformCommandMaps: LayaXCommandUniformMap[], uniformMaps: Map<number, LayaXBindingInfo[]>, node: ShaderNode, shaderName: string) {
         const engine = LayaXRenderEngine._instance;
 
         let defMap: { [key: string]: boolean } = {};
@@ -356,33 +356,33 @@ ${fragmentCode}
 
         const ssboBindingMap = new Map<string, { set: number, binding: number }>();
 
-        const getUniformDeclaration = (uniformMaps: Map<number, WebGPUUniformPropertyBindingInfo[]>, usedTex?: Map<string, { type: string, format?: string, access?: "readonly" | "writeonly" | "readwrite" }>) => {
+        const getUniformDeclaration = (uniformMaps: Map<number, LayaXBindingInfo[]>, usedTex?: Map<string, { type: string, format?: string, access?: "readonly" | "writeonly" | "readwrite" }>) => {
             let res = "";
             uniformMaps.forEach((value, set) => {
                 let binding = 0;
                 for (let uniform of value) {
                     switch (uniform.type) {
-                        case WebGPUBindingInfoType.storageBuffer: {
+                        case LayaXBindingInfoType.storageBuffer: {
                             let setIndex = set;
                             let bindingIndex = binding++;
                             ssboBindingMap.set(uniform.name, { set: setIndex, binding: bindingIndex });
                             break;
                         }
-                        case WebGPUBindingInfoType.storageTexture:
+                        case LayaXBindingInfoType.storageTexture:
                             {
                                 let access = wgslAccessToGlsl(uniform.storageTexture.access);
                                 res = `${res}layout(${uniform.format ? uniform.format : "rgba8"}, set=${set}, binding=${binding++}) uniform ${access} image2D ${uniform.name};\n`;
                                 break;
                             }
-                        case WebGPUBindingInfoType.buffer: {
-                            let commandMap = (LayaGL.renderDeviceFactory.createGlobalUniformMap(uniform.name) as WebGPUCommandUniformMap)
+                        case LayaXBindingInfoType.buffer: {
+                            let commandMap = (LayaGL.renderDeviceFactory.createGlobalUniformMap(uniform.name) as LayaXCommandUniformMap)
                             if (commandMap._hasUniformBuffer) {
                                 let uniformMap = commandMap._idata;
                                 res = `${res}${uniformMapString(uniformMap, uniform.name, uniform.set, binding++, true, new Map()).code}\n`;
                             }
                             break;
                         }
-                        case WebGPUBindingInfoType.texture: {
+                        case LayaXBindingInfoType.texture: {
                             const textureName = uniform.name.slice(0, -"_Texture".length);
 
                             if (!usedTex || usedTex.has(textureName)) {
@@ -411,7 +411,7 @@ ${fragmentCode}
         // 预处理
         let preprocessRes = engine.shaderCompiler.glslang.preprocess_compute(resCode, 'compute');
         if (!preprocessRes.success) {
-            console.error(`WebGPUComputeShaderInstance ${shaderName} preprocess error:`, preprocessRes.info_log);
+            console.error(`LayaXComputeShader ${shaderName} preprocess error:`, preprocessRes.info_log);
             return {};
         }
 
@@ -420,7 +420,7 @@ ${fragmentCode}
 
         if (preprocessRes.uniforms.size > 0 || preprocessRes.ssbos.size > 0) {
             // 检查是否有新增的 uniform
-            const exists = new Map<number, WebGPUUniformPropertyBindingInfo>();
+            const exists = new Map<number, LayaXBindingInfo>();
             uniformMaps.forEach(properties => {
                 for (let uniform of properties) {
                     // 当前 shader 中都是 匿名 ubo, 
@@ -508,7 +508,7 @@ ${fragmentCode}
                 // const removeRegex = new RegExp(`\\buniform\\s+(?:(?:lowp|mediump|highp)\\s+)?\\w+\\s+(?:${namesStr})\\b(?:\\s*\\[\\s*\\d+\\s*\\])?\\s*;`, "g");
 
                 // 生成新的 resource
-                uniformMaps.set(0, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, [additionMaps._stateName], true, true));
+                uniformMaps.set(0, LayaXBindGroupHelper.createBindingInfoArray(0, [additionMaps._stateName]));
             }
 
             ssboBindingMap.clear();
@@ -595,7 +595,7 @@ function attributeString(attributeMap: AttributeMapType, nouseAttributeMap: Attr
                 res = `${res}const vec4 ${key}_2 = vec4(0.0);\n`;
                 res = `${res}const vec4 ${key}_3 = vec4(0.0);\n`;
 
-                attributeDefines = `${attributeDefines}#define ${key} mat4(${key}_0, ${key}_1, ${key}_2, ${key}_3);\n`;
+                attributeDefines = `${attributeDefines}#define ${key} mat4(${key}_0, ${key}_1, ${key}_2, ${key}_3)\n`;
             }
             else {
                 res = `${res}const ${type} ${key} =${defaultValue};\n`;
@@ -676,27 +676,27 @@ layout(set=${set}, binding=${binding++}) uniform sampler ${uniform.propertyName}
     }
 }
 
-function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingInfo[]>, materialMap: Map<number, UniformProperty>, usedTexSet: Set<string>, collectUniforms: Map<string, CollectUniform>, checkSetNumber: number, appendSet: number) {
+function uniformString2(uniformSetMap: Map<number, LayaXBindingInfo[]>, materialMap: Map<number, UniformProperty>, usedTexSet: Set<string>, collectUniforms: Map<string, CollectUniform>, checkSetNumber: number, appendSet: number) {
     let res = "";
 
-    let samplerMap = new Map<string, WebGPUUniformPropertyBindingInfo>();
+    let samplerMap = new Map<string, LayaXBindingInfo>();
 
     uniformSetMap.forEach((value, key) => {
         let binding = 0;
         if (value.length > 0) {
             for (let uniform of value) {
                 switch (uniform.type) {
-                    case WebGPUBindingInfoType.storageBuffer:
+                    case LayaXBindingInfoType.storageBuffer:
                         binding++;
                         //TODO
                         break;
-                    case WebGPUBindingInfoType.storageTexture:
+                    case LayaXBindingInfoType.storageTexture:
                         binding++;
                         //TODO
                         break;
-                    case WebGPUBindingInfoType.buffer:
+                    case LayaXBindingInfoType.buffer:
                         {
-                            let uniformMap = (LayaGL.renderDeviceFactory.createGlobalUniformMap(uniform.name) as WebGPUCommandUniformMap)._idata;
+                            let uniformMap = (LayaGL.renderDeviceFactory.createGlobalUniformMap(uniform.name) as LayaXCommandUniformMap)._idata;
                             if (key == appendSet) {
                                 uniformMap = materialMap;
                             }
@@ -704,7 +704,7 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
                             res = `${res}${uniformMapString(uniformMap, uniform.name, uniform.set, binding++, true, collectUniforms).code}\n`;
                             break;
                         }
-                    case WebGPUBindingInfoType.texture:
+                    case LayaXBindingInfoType.texture:
                         if (key < checkSetNumber || usedTexSet.has(uniform.name)) {
 
                             let textureName = uniform.name.replace("_Texture", "");
@@ -716,15 +716,17 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
 
                             let textureType = getDimensionTextureType(uniform.texture?.viewDimension);
 
-                            res = `${res}layout(set=${uniform.set}, binding=${binding++}) uniform ${textureType} ${uniform.name};\n`
+                            res = `${res}layout(set=${uniform.set}, binding=${binding}) uniform ${textureType} ${uniform.name};\n`
 
                             let samplerName = uniform.name.replace("_Texture", "");
 
                             samplerMap.set(samplerName, uniform);
 
                         }
+                        // binding 始终递增，与 createBindingInfoArray 保持一致
+                        binding++;
                         break;
-                    case WebGPUBindingInfoType.sampler:
+                    case LayaXBindingInfoType.sampler:
                         if (key < checkSetNumber || usedTexSet.has(uniform.name)) {
                             let sampler = "sampler";
                             let samplerName = uniform.name.replace("_Sampler", "");
@@ -736,8 +738,10 @@ function uniformString2(uniformSetMap: Map<number, WebGPUUniformPropertyBindingI
                                 }
                             }
 
-                            res = `${res}layout(set=${uniform.set}, binding=${binding++}) uniform ${sampler} ${uniform.name};\n`;
+                            res = `${res}layout(set=${uniform.set}, binding=${binding}) uniform ${sampler} ${uniform.name};\n`;
                         }
+                        // binding 始终递增，与 createBindingInfoArray 保持一致
+                        binding++;
                         break;
                     default:
                         break;
@@ -882,7 +886,7 @@ function additionDefineString() {
 }
 
 // todo
-function getSamplerTextureType(type: GPUTextureSampleType = "float", dimension: GPUTextureViewDimension = "2d") {
+function getSamplerTextureType(type: string = "float", dimension: string = "2d") {
     if (dimension == "2d") {
         switch (type) {
             case "depth":
@@ -940,7 +944,7 @@ function getSamplerTextureType(type: GPUTextureSampleType = "float", dimension: 
     }
 }
 
-function getDimensionTextureType(type: GPUTextureViewDimension) {
+function getDimensionTextureType(type: string) {
     switch (type) {
         case "1d":
             return "texture1D";
@@ -992,7 +996,7 @@ function getShaderDataType(type: string) {
     }
 }
 
-function wgslAccessToGlsl(access: GPUStorageTextureAccess) {
+function wgslAccessToGlsl(access: string) {
     switch (access) {
         case "read-only":
             return "readonly";

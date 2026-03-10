@@ -103833,60 +103833,314 @@ ${materialUniformGlsl}`;
     }
     class LayaXSetRenderData extends SetRenderDataCMD {
         constructor() {
-            super(...arguments);
+            super();
             this.type = RenderCMDType.ChangeData;
+            this._nativeObj = new window.conchLayaXSetRenderDataCMD();
+        }
+        get dataType() {
+            return this._dataType;
+        }
+        set dataType(value) {
+            this._dataType = value;
+            this._nativeObj.setDataType(value);
+        }
+        get propertyID() {
+            return this._propertyID;
+        }
+        set propertyID(value) {
+            this._propertyID = value;
+            this._nativeObj.setPropertyID(value);
+        }
+        get dest() {
+            return this._dest;
+        }
+        set dest(value) {
+            this._dest = value;
+            this._nativeObj.setDest(value ? value._nativeObj : null);
+        }
+        get value() {
+            return this._value;
+        }
+        set value(value) {
+            switch (this.dataType) {
+                case exports.ShaderDataType.Int:
+                    this.data_number = value;
+                    this._value = this.data_number;
+                    this._nativeObj.setInt(this._value);
+                    break;
+                case exports.ShaderDataType.Float:
+                    this.data_number = value;
+                    this._value = this.data_number;
+                    this._nativeObj.setFloat(this._value);
+                    break;
+                case exports.ShaderDataType.Bool:
+                    this.data_number = value;
+                    this._value = this.data_number;
+                    this._nativeObj.setBool(this._value);
+                    break;
+                case exports.ShaderDataType.Matrix4x4:
+                    !this.data_mat && (this.data_mat = new Matrix4x4());
+                    value.cloneTo(this.data_mat);
+                    this._value = this.data_mat;
+                    this._nativeObj.setMatrix4x4(this._value);
+                    break;
+                case exports.ShaderDataType.Color:
+                    !this.data_Color && (this.data_Color = new Color());
+                    value.cloneTo(this.data_Color);
+                    this._value = this.data_Color;
+                    this._nativeObj.setColor(this._value);
+                    break;
+                case exports.ShaderDataType.Texture2D:
+                    this._value = this.data_texture = value;
+                    this._nativeObj.setTexture2D(this.data_texture._texture._nativeObj);
+                    break;
+                case exports.ShaderDataType.Vector4:
+                    !this.data_v4 && (this.data_v4 = new Vector4());
+                    value.cloneTo(this.data_v4);
+                    this._value = this.data_v4;
+                    this._nativeObj.setVector(this._value);
+                    break;
+                case exports.ShaderDataType.Vector2:
+                    !this.data_v2 && (this.data_v2 = new Vector2());
+                    value.cloneTo(this.data_v2);
+                    this._value = this.data_v2;
+                    this._nativeObj.setVector2(this._value);
+                    break;
+                case exports.ShaderDataType.Vector3:
+                    !this.data_v3 && (this.data_v3 = new Vector3());
+                    value.cloneTo(this.data_v3);
+                    this._value = this.data_v3;
+                    this._nativeObj.setVector3(this._value);
+                    break;
+                case exports.ShaderDataType.Buffer:
+                    this._value = this.data_Buffer = value;
+                    this._nativeObj.setBufferValue(this.data_Buffer.buffer, this.data_Buffer.byteLength);
+                    break;
+                default:
+                    break;
+            }
         }
         apply(_context) {
+            this._nativeObj.execute();
         }
     }
     class LayaXSetShaderDefine extends SetShaderDefineCMD {
         constructor() {
-            super(...arguments);
+            super();
             this.type = RenderCMDType.ChangeShaderDefine;
+            this._nativeObj = new window.conchLayaXSetShaderDefineCMD();
+        }
+        get define() {
+            return this._define;
+        }
+        set define(value) {
+            this._define = value;
+            this._nativeObj.setDefine(value);
+        }
+        get dest() {
+            return this._dest;
+        }
+        set dest(value) {
+            this._dest = value;
+            this._nativeObj.setDest(value ? value._nativeObj : null);
+        }
+        get add() {
+            return this._add;
+        }
+        set add(value) {
+            this._add = value;
+            this._nativeObj.setAdd(value);
         }
         apply(_context) {
+            this._nativeObj.execute();
         }
     }
     class LayaXDrawNodeCMDData extends DrawNodeCMDData {
         constructor() {
-            super(...arguments);
+            super();
             this.type = RenderCMDType.DrawNode;
+            this._nativeObj = new window.conchLayaXDrawNodeCMD();
+        }
+        get node() {
+            return this._node;
+        }
+        set node(value) {
+            this._node = value;
+            this._nativeObj.setBaseRenderNode(value ? value._nativeObj : null);
+        }
+        get destShaderData() {
+            return this._destShaderData;
+        }
+        set destShaderData(value) {
+            this._destShaderData = value;
+            this._nativeObj.setShaderData(value ? value._nativeObj : null);
+        }
+        get destSubShader() {
+            return this._destSubShader;
+        }
+        set destSubShader(value) {
+            this._destSubShader = value;
+            this._nativeObj.setSubShader(value ? value.moduleData._nativeObj : null);
+        }
+        get subMeshIndex() {
+            return this._subMeshIndex;
+        }
+        set subMeshIndex(value) {
+            this._subMeshIndex = value;
+            this._nativeObj.setSubMeshIndex(value);
         }
         apply(_context) {
+            this._nativeObj.execute();
         }
     }
     class LayaXBlitQuadCMDData extends BlitQuadCMDData {
         constructor() {
-            super(...arguments);
+            super();
             this.type = RenderCMDType.Blit;
+            this._nativeObj = new window.conchLayaXBlitQuadCMD();
+        }
+        get element() {
+            return this._element;
+        }
+        set element(value) {
+            this._element = value;
+            this._nativeObj.setRenderElement(value ? value._nativeObj : null);
+        }
+        get dest() {
+            return this._dest;
+        }
+        set dest(value) {
+            this._dest = value;
+            this._nativeObj.setDest(value ? value._nativeObj : null);
+        }
+        get viewport() {
+            return this._viewport;
+        }
+        set viewport(value) {
+            this._viewport = value;
+            if (value) {
+                this._nativeObj.setViewport(value);
+            }
+        }
+        get scissor() {
+            return this._scissor;
+        }
+        set scissor(value) {
+            this._scissor = value;
+            if (value) {
+                this._nativeObj.setScissor(value);
+            }
+        }
+        get source() {
+            return this._source;
+        }
+        set source(value) {
+            this._source = value;
+        }
+        get offsetScale() {
+            return this._offsetScale;
+        }
+        set offsetScale(value) {
+            this._offsetScale = value;
+            if (value) {
+                this._nativeObj.setOffsetScale(value);
+            }
         }
         apply(_context) {
+            this._nativeObj.execute();
         }
     }
     class LayaXDrawElementCMDData extends DrawElementCMDData {
         constructor() {
-            super(...arguments);
+            super();
             this.type = RenderCMDType.DrawElement;
+            this._nativeObj = new window.conchLayaXDrawElementCMD();
         }
-        setRenderelements(_value) {
+        setRenderelements(value) {
+            this._nativeObj.clearElement();
+            if (value) {
+                for (let i = 0, n = value.length; i < n; i++) {
+                    this._nativeObj.addOneElement(value[i]._nativeObj);
+                }
+            }
         }
         apply(_context) {
+            this._nativeObj.execute();
         }
     }
     class LayaXSetViewportCMD extends SetViewportCMD {
         constructor() {
-            super(...arguments);
+            super();
             this.type = RenderCMDType.ChangeViewPort;
+            this._nativeObj = new window.conchLayaXSetViewportCMD();
+        }
+        get viewport() {
+            return this._viewport;
+        }
+        set viewport(value) {
+            this._viewport = value;
+            if (value) {
+                this._nativeObj.setViewport(value);
+            }
+        }
+        get scissor() {
+            return this._scissor;
+        }
+        set scissor(value) {
+            this._scissor = value;
+            if (value) {
+                this._nativeObj.setScissor(value);
+            }
         }
         apply(_context) {
+            this._nativeObj.execute();
         }
     }
     class LayaXSetRenderTargetCMD extends SetRenderTargetCMD {
         constructor() {
-            super(...arguments);
+            super();
             this.type = RenderCMDType.ChangeRenderTarget;
+            this._nativeObj = new window.conchLayaXSetRenderTargetCMD();
+        }
+        get rt() {
+            return this._rt;
+        }
+        set rt(value) {
+            this._rt = value;
+            this._nativeObj.setRT(value ? value._nativeObj : null);
+        }
+        get clearFlag() {
+            return this._clearFlag;
+        }
+        set clearFlag(value) {
+            this._clearFlag = value;
+            this._nativeObj.setClearFlag(value);
+        }
+        get clearColorValue() {
+            return this._clearColorValue;
+        }
+        set clearColorValue(value) {
+            this._clearColorValue = value;
+            if (value) {
+                this._nativeObj.clearColorValue(value);
+            }
+        }
+        get clearDepthValue() {
+            return this._clearDepthValue;
+        }
+        set clearDepthValue(value) {
+            this._clearDepthValue = value;
+            this._nativeObj.clearDepthValue(value);
+        }
+        get clearStencilValue() {
+            return this._clearStencilValue;
+        }
+        set clearStencilValue(value) {
+            this._clearStencilValue = value;
+            this._nativeObj.clearStencilValue(value);
         }
         apply(_context) {
+            this._nativeObj.execute();
         }
     }
     class LayaX3DRenderPassFactory {
@@ -104501,7 +104755,7 @@ ${materialUniformGlsl}`;
         }
         addDefineDatas(define) {
             if (define._nativeObj) {
-                this._nativeObj.addDefineDatas(define._nativeObj.handle);
+                this._nativeObj.addDefineDatas(define._nativeObj);
             }
         }
         removeDefineDatas(define) {
@@ -104516,16 +104770,13 @@ ${materialUniformGlsl}`;
             const dest = destObject;
             if (dest._nativeObj) {
                 dest._nativeObj.clear();
-                dest._nativeObj.addDefineDatas(this._nativeObj.handle);
+                dest._nativeObj.addDefineDatas(this._nativeObj);
             }
         }
         clone() {
             let dest = new LayaXDefineDatas();
             this.cloneTo(dest);
             return dest;
-        }
-        get handle() {
-            return this._nativeObj.handle;
         }
         destroy() {
             this._nativeObj.destroy();
@@ -104774,6 +105025,7 @@ ${materialUniformGlsl}`;
                         set: groupID,
                         binding: bindingIndex++,
                         propertyId: propertyId,
+                        sourceMapId: propertyId,
                         type: LayaXBindingInfoType.buffer,
                         bindingType: "uniform",
                         dataType: 0,
@@ -104794,6 +105046,7 @@ ${materialUniformGlsl}`;
                                 set: groupID,
                                 binding: bindingIndex++,
                                 propertyId: propID,
+                                sourceMapId: propertyId,
                                 type: LayaXBindingInfoType.texture,
                                 bindingType: "texture",
                                 dataType: prop.uniformtype,
@@ -104809,6 +105062,7 @@ ${materialUniformGlsl}`;
                                 set: groupID,
                                 binding: bindingIndex++,
                                 propertyId: propID,
+                                sourceMapId: propertyId,
                                 type: LayaXBindingInfoType.sampler,
                                 bindingType: "sampler",
                                 dataType: prop.uniformtype,
@@ -104827,6 +105081,7 @@ ${materialUniformGlsl}`;
                                 set: groupID,
                                 binding: bindingIndex++,
                                 propertyId: propID,
+                                sourceMapId: propertyId,
                                 type: LayaXBindingInfoType.storageBuffer,
                                 bindingType: "storageBufferReadOnly",
                                 dataType: prop.uniformtype,
@@ -104840,6 +105095,7 @@ ${materialUniformGlsl}`;
                                 set: groupID,
                                 binding: bindingIndex++,
                                 propertyId: propID,
+                                sourceMapId: propertyId,
                                 type: LayaXBindingInfoType.storageBuffer,
                                 bindingType: "storageBuffer",
                                 dataType: prop.uniformtype,
@@ -104853,6 +105109,7 @@ ${materialUniformGlsl}`;
                                 set: groupID,
                                 binding: bindingIndex++,
                                 propertyId: propID,
+                                sourceMapId: propertyId,
                                 type: LayaXBindingInfoType.storageTexture,
                                 bindingType: "storageTexture",
                                 dataType: prop.uniformtype,
@@ -104895,6 +105152,7 @@ ${materialUniformGlsl}`;
                     set: groupID,
                     binding: bindingIndex++,
                     propertyId: propertyId,
+                    sourceMapId: propertyId,
                     type: LayaXBindingInfoType.buffer,
                     bindingType: "uniform",
                     dataType: 0,
@@ -104910,6 +105168,7 @@ ${materialUniformGlsl}`;
                         set: groupID,
                         binding: bindingIndex++,
                         propertyId: propID,
+                        sourceMapId: propertyId,
                         type: LayaXBindingInfoType.texture,
                         bindingType: "texture",
                         dataType: prop.uniformtype,
@@ -104925,6 +105184,7 @@ ${materialUniformGlsl}`;
                         set: groupID,
                         binding: bindingIndex++,
                         propertyId: propID,
+                        sourceMapId: propertyId,
                         type: LayaXBindingInfoType.sampler,
                         bindingType: "sampler",
                         dataType: prop.uniformtype,
@@ -104943,6 +105203,7 @@ ${materialUniformGlsl}`;
                         set: groupID,
                         binding: bindingIndex++,
                         propertyId: propID,
+                        sourceMapId: propertyId,
                         type: LayaXBindingInfoType.storageBuffer,
                         bindingType: "storageBufferReadOnly",
                         dataType: prop.uniformtype,
@@ -104956,6 +105217,7 @@ ${materialUniformGlsl}`;
                         set: groupID,
                         binding: bindingIndex++,
                         propertyId: propID,
+                        sourceMapId: propertyId,
                         type: LayaXBindingInfoType.storageBuffer,
                         bindingType: "storageBuffer",
                         dataType: prop.uniformtype,
@@ -104969,6 +105231,7 @@ ${materialUniformGlsl}`;
                         set: groupID,
                         binding: bindingIndex++,
                         propertyId: propID,
+                        sourceMapId: propertyId,
                         type: LayaXBindingInfoType.storageTexture,
                         bindingType: "storageTexture",
                         dataType: prop.uniformtype,
@@ -105007,300 +105270,6 @@ ${materialUniformGlsl}`;
         }
     }
     LayaXBindGroupHelper._cache = new Map();
-
-    var WebGPUBindingInfoType;
-    (function (WebGPUBindingInfoType) {
-        WebGPUBindingInfoType[WebGPUBindingInfoType["buffer"] = 0] = "buffer";
-        WebGPUBindingInfoType[WebGPUBindingInfoType["texture"] = 1] = "texture";
-        WebGPUBindingInfoType[WebGPUBindingInfoType["sampler"] = 2] = "sampler";
-        WebGPUBindingInfoType[WebGPUBindingInfoType["storageBuffer"] = 3] = "storageBuffer";
-        WebGPUBindingInfoType[WebGPUBindingInfoType["storageTexture"] = 4] = "storageTexture";
-    })(WebGPUBindingInfoType || (WebGPUBindingInfoType = {}));
-    ;
-    ;
-    class WebGPUBindGroupHelper {
-        static CacheBindGroupPropertyInfo(key, infos, force = false) {
-            if (!force && WebGPUBindGroupHelper.BindGroupPropertyInfoMap.has(key)) {
-                console.warn("WebGPUBindGroupHelper.CacheBindGroupPropertyInfo: key already exists, overwriting.");
-            }
-            WebGPUBindGroupHelper.BindGroupPropertyInfoMap.set(key, infos);
-        }
-        static _getBindGroupID(array) {
-            if (!array || array.length === 0) {
-                return "";
-            }
-            const sortedArray = [...array].sort();
-            return sortedArray.join("_");
-        }
-        static _getBindGroupPropertyID(bindGroupID, array) {
-            return `${bindGroupID}` + this._getBindGroupID(array);
-        }
-        static _getTextureType(uniformType) {
-            switch (uniformType) {
-                case exports.ShaderDataType.Texture2D:
-                    return '2d';
-                case exports.ShaderDataType.Texture3D:
-                    return '3d';
-                case exports.ShaderDataType.TextureCube:
-                    return 'cube';
-                case exports.ShaderDataType.Texture2DArray:
-                    return '2d-array';
-                default:
-                    return '2d';
-            }
-        }
-        static createBindPropertyInfoArrayByCommandMap(groupID, unifromCommandMapArray, isComputeShader = false, force = false) {
-            var _a;
-            const bindGroupKey = this._getBindGroupPropertyID(groupID, unifromCommandMapArray);
-            if (!force && WebGPUBindGroupHelper.BindGroupPropertyInfoMap.has(bindGroupKey)) {
-                return WebGPUBindGroupHelper.BindGroupPropertyInfoMap.get(bindGroupKey);
-            }
-            let bindingInfos = [];
-            let bindingIndex = 0;
-            let visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT;
-            if (isComputeShader) {
-                visibility = GPUShaderStage.COMPUTE;
-            }
-            for (let i = 0; i < unifromCommandMapArray.length; i++) {
-                const commandName = unifromCommandMapArray[i];
-                const propertyId = Shader3D.propertyNameToID(commandName);
-                const uniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(commandName);
-                if (uniformMap._hasUniformBuffer) {
-                    const bindingInfo = {
-                        id: 0,
-                        name: commandName,
-                        set: groupID,
-                        binding: bindingIndex++,
-                        propertyId: propertyId,
-                        visibility: visibility,
-                        type: WebGPUBindingInfoType.buffer,
-                        buffer: {
-                            type: 'uniform'
-                        }
-                    };
-                    if (commandName == "SkinSprite3D") {
-                        bindingInfo.buffer.hasDynamicOffset = true;
-                    }
-                    bindingInfos.push(bindingInfo);
-                }
-                if (uniformMap && uniformMap._idata) {
-                    let defaultMap = uniformMap._defaultData;
-                    for (let [propertyID, uniformProperty] of uniformMap._idata) {
-                        if (uniformProperty.uniformtype >= exports.ShaderDataType.Texture2D) {
-                            let defaultTex = (_a = defaultMap.get(propertyID)) === null || _a === void 0 ? void 0 : _a._texture;
-                            let textureBindInfo = {
-                                id: 0,
-                                set: groupID,
-                                binding: bindingIndex++,
-                                name: uniformProperty.propertyName + "_Texture",
-                                propertyId: propertyID,
-                                visibility: visibility,
-                                type: WebGPUBindingInfoType.texture,
-                                texture: {
-                                    sampleType: 'float',
-                                    viewDimension: WebGPUBindGroupHelper._getTextureType(uniformProperty.uniformtype),
-                                    multisampled: false
-                                }
-                            };
-                            bindingInfos.push(textureBindInfo);
-                            let samplerBindInfo = {
-                                id: 0,
-                                set: groupID,
-                                binding: bindingIndex++,
-                                name: uniformProperty.propertyName + "_Sampler",
-                                propertyId: propertyID,
-                                visibility: visibility,
-                                type: WebGPUBindingInfoType.sampler,
-                                sampler: {
-                                    type: 'filtering'
-                                },
-                                texture: {
-                                    sampleType: 'float',
-                                    viewDimension: WebGPUBindGroupHelper._getTextureType(uniformProperty.uniformtype),
-                                    multisampled: false
-                                }
-                            };
-                            bindingInfos.push(samplerBindInfo);
-                            if (defaultTex) {
-                                defaultTex._getGPUTextureBindingLayout(textureBindInfo.texture);
-                                defaultTex._getSampleBindingLayout(samplerBindInfo.sampler);
-                            }
-                        }
-                        if (uniformProperty.uniformtype == exports.ShaderDataType.ReadOnlyDeviceBuffer) {
-                            let storageBufferBindInfo = {
-                                id: 0,
-                                set: groupID,
-                                binding: bindingIndex++,
-                                name: uniformProperty.propertyName,
-                                propertyId: propertyID,
-                                visibility: visibility,
-                                type: WebGPUBindingInfoType.storageBuffer,
-                                buffer: {
-                                    type: "read-only-storage"
-                                }
-                            };
-                            bindingInfos.push(storageBufferBindInfo);
-                        }
-                        if (uniformProperty.uniformtype == exports.ShaderDataType.DeviceBuffer) {
-                            let storageBufferBindInfo = {
-                                id: 0,
-                                set: groupID,
-                                binding: bindingIndex++,
-                                name: uniformProperty.propertyName,
-                                propertyId: propertyID,
-                                visibility: visibility,
-                                type: WebGPUBindingInfoType.storageBuffer,
-                                buffer: {
-                                    type: "storage"
-                                }
-                            };
-                            bindingInfos.push(storageBufferBindInfo);
-                        }
-                        if (uniformProperty.uniformtype == exports.ShaderDataType.StorageTexture2D) {
-                            let gpuFormat = getWebGPUFormat(uniformProperty.format);
-                            let gpuAccess = getWebGPUAccess(uniformProperty.access);
-                            let info = {
-                                id: 0,
-                                set: groupID,
-                                binding: bindingIndex++,
-                                name: uniformProperty.propertyName,
-                                propertyId: propertyID,
-                                visibility: visibility,
-                                type: WebGPUBindingInfoType.storageTexture,
-                                format: uniformProperty.format,
-                                storageTexture: {
-                                    access: gpuAccess,
-                                    format: gpuFormat,
-                                    viewDimension: WebGPUBindGroupHelper._getTextureType(uniformProperty.uniformtype)
-                                }
-                            };
-                            bindingInfos.push(info);
-                        }
-                    }
-                }
-            }
-            WebGPUBindGroupHelper.CacheBindGroupPropertyInfo(bindGroupKey, bindingInfos, force);
-            return bindingInfos;
-        }
-        static createBindGroupInfosByUniformMap(groupID, name, cacheName, uniformMap) {
-            const bindGroupKey = this._getBindGroupPropertyID(groupID, [cacheName]);
-            if (WebGPUBindGroupHelper.BindGroupPropertyInfoMap.has(bindGroupKey)) {
-                return WebGPUBindGroupHelper.BindGroupPropertyInfoMap.get(bindGroupKey);
-            }
-            let bindingIndex = 0;
-            const propertyId = Shader3D.propertyNameToID(name);
-            let bindingInfos = [];
-            let hasBuffer = false;
-            for (let [propertyID, uniformProperty] of uniformMap) {
-                if (uniformProperty.uniformtype >= exports.ShaderDataType.Texture2D) {
-                    let textureBindInfo = {
-                        id: 0,
-                        set: groupID,
-                        binding: bindingIndex++,
-                        name: uniformProperty.propertyName + "_Texture",
-                        propertyId: propertyID,
-                        visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-                        type: WebGPUBindingInfoType.texture,
-                        texture: {
-                            sampleType: 'float',
-                            viewDimension: WebGPUBindGroupHelper._getTextureType(uniformProperty.uniformtype),
-                            multisampled: false
-                        }
-                    };
-                    bindingInfos.push(textureBindInfo);
-                    let samplerBindInfo = {
-                        id: 0,
-                        set: groupID,
-                        binding: bindingIndex++,
-                        name: uniformProperty.propertyName + "_Sampler",
-                        propertyId: propertyID,
-                        visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-                        type: WebGPUBindingInfoType.sampler,
-                        sampler: {
-                            type: 'filtering'
-                        },
-                        texture: {
-                            sampleType: 'float',
-                            viewDimension: WebGPUBindGroupHelper._getTextureType(uniformProperty.uniformtype),
-                            multisampled: false
-                        }
-                    };
-                    bindingInfos.push(samplerBindInfo);
-                }
-                else if (uniformProperty.uniformtype == exports.ShaderDataType.ReadOnlyDeviceBuffer) {
-                    let storageBufferBindInfo = {
-                        id: 0,
-                        set: groupID,
-                        binding: bindingIndex++,
-                        name: uniformProperty.propertyName,
-                        propertyId: propertyID,
-                        visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-                        type: WebGPUBindingInfoType.storageBuffer,
-                        buffer: {
-                            type: "read-only-storage"
-                        }
-                    };
-                    bindingInfos.push(storageBufferBindInfo);
-                }
-                else if (uniformProperty.uniformtype == exports.ShaderDataType.DeviceBuffer) {
-                    let storageBufferBindInfo = {
-                        id: 0,
-                        set: groupID,
-                        binding: bindingIndex++,
-                        name: uniformProperty.propertyName,
-                        propertyId: propertyID,
-                        visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-                        type: WebGPUBindingInfoType.storageBuffer,
-                        buffer: {
-                            type: "storage"
-                        }
-                    };
-                    bindingInfos.push(storageBufferBindInfo);
-                }
-                else {
-                    hasBuffer = true;
-                }
-            }
-            if (hasBuffer) {
-                const bindingInfo = {
-                    id: 0,
-                    name: name,
-                    set: groupID,
-                    binding: bindingIndex++,
-                    propertyId: propertyId,
-                    visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-                    type: WebGPUBindingInfoType.buffer,
-                    buffer: {
-                        type: 'uniform'
-                    }
-                };
-                bindingInfos.unshift(bindingInfo);
-                bindingInfos.forEach((info, index) => {
-                    info.binding = index;
-                });
-            }
-            WebGPUBindGroupHelper.BindGroupPropertyInfoMap.set(bindGroupKey, bindingInfos);
-            return bindingInfos;
-        }
-    }
-    WebGPUBindGroupHelper.BindGroupPropertyInfoMap = new Map();
-    function getWebGPUFormat(format) {
-        switch (format) {
-            case "rgba8":
-                return "rgba8unorm";
-        }
-        return "rgba8unorm";
-    }
-    function getWebGPUAccess(access) {
-        switch (access) {
-            case "readonly":
-                return "read-only";
-            case "writeonly":
-                return "write-only";
-            case "readwrite":
-                return "read-write";
-        }
-    }
 
     function getTypeString(type) {
         switch (type) {
@@ -105496,7 +105465,7 @@ ${fragmentCode}
             const executeUniforms = (value, key) => {
                 value.forEach(uniform => {
                     var _a;
-                    if (uniform.type == WebGPUBindingInfoType.texture) {
+                    if (uniform.type == LayaXBindingInfoType.texture) {
                         let name = uniform.name.replace("_Texture", "");
                         textureNames.push(name);
                         let collect = collectionUniforms.get(name);
@@ -105504,7 +105473,7 @@ ${fragmentCode}
                             collect.set = uniform.set;
                         }
                     }
-                    if (uniform.type == WebGPUBindingInfoType.sampler) {
+                    if (uniform.type == LayaXBindingInfoType.sampler) {
                         let name = uniform.name.replace("_Sampler", "");
                         let collect = collectionUniforms.get(name);
                         if (collect) {
@@ -105518,13 +105487,13 @@ ${fragmentCode}
                             collectionUniforms.set(name, { type: exports.ShaderDataType.Texture2D, set: uniform.set });
                         }
                     }
-                    if (uniform.type == WebGPUBindingInfoType.storageBuffer) {
+                    if (uniform.type == LayaXBindingInfoType.storageBuffer) {
                         let collect = collectionUniforms.get(uniform.name);
                         if (collect) {
                             collect.set = uniform.set;
                         }
                     }
-                    if (uniform.type == WebGPUBindingInfoType.buffer) {
+                    if (uniform.type == LayaXBindingInfoType.buffer) {
                         let name = uniform.name;
                         let commandMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(name);
                         commandMap._idata.forEach((u, i) => {
@@ -105538,7 +105507,7 @@ ${fragmentCode}
             };
             uniformMap.forEach(executeUniforms);
             let appendNewUniform = false;
-            {
+            if (appendSet >= 0) {
                 collectionUniforms.forEach((value, name) => {
                     if (value.set == undefined) {
                         appendNewUniform = true;
@@ -105551,10 +105520,6 @@ ${fragmentCode}
                         materialMap.set(uniform.id, uniform);
                     }
                 });
-                if (!uniformMap.has(appendSet)) {
-                    uniformMap.set(appendSet, WebGPUBindGroupHelper.createBindGroupInfosByUniformMap(appendSet, "Material", shaderPassName, materialMap));
-                    executeUniforms(uniformMap.get(appendSet), appendSet);
-                }
             }
             vertexCode = vertexCode.replace(uniformBlockRegex, '\n');
             fragmentCode = fragmentCode.replace(uniformBlockRegex, '\n');
@@ -105618,19 +105583,19 @@ ${fragmentCode}
                     let binding = 0;
                     for (let uniform of value) {
                         switch (uniform.type) {
-                            case WebGPUBindingInfoType.storageBuffer: {
+                            case LayaXBindingInfoType.storageBuffer: {
                                 let setIndex = set;
                                 let bindingIndex = binding++;
                                 ssboBindingMap.set(uniform.name, { set: setIndex, binding: bindingIndex });
                                 break;
                             }
-                            case WebGPUBindingInfoType.storageTexture:
+                            case LayaXBindingInfoType.storageTexture:
                                 {
                                     let access = wgslAccessToGlsl(uniform.storageTexture.access);
                                     res = `${res}layout(${uniform.format ? uniform.format : "rgba8"}, set=${set}, binding=${binding++}) uniform ${access} image2D ${uniform.name};\n`;
                                     break;
                                 }
-                            case WebGPUBindingInfoType.buffer: {
+                            case LayaXBindingInfoType.buffer: {
                                 let commandMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(uniform.name);
                                 if (commandMap._hasUniformBuffer) {
                                     let uniformMap = commandMap._idata;
@@ -105638,7 +105603,7 @@ ${fragmentCode}
                                 }
                                 break;
                             }
-                            case WebGPUBindingInfoType.texture: {
+                            case LayaXBindingInfoType.texture: {
                                 const textureName = uniform.name.slice(0, -"_Texture".length);
                                 if (!usedTex || usedTex.has(textureName)) {
                                     const textureType = getSamplerTextureType(uniform.texture.sampleType, uniform.texture.viewDimension);
@@ -105658,7 +105623,7 @@ ${fragmentCode}
             let resCode = getComputeCode(glslVersion, defineStrs, uniformStr, computeCode);
             let preprocessRes = engine.shaderCompiler.glslang.preprocess_compute(resCode, 'compute');
             if (!preprocessRes.success) {
-                console.error(`WebGPUComputeShaderInstance ${shaderName} preprocess error:`, preprocessRes.info_log);
+                console.error(`LayaXComputeShader ${shaderName} preprocess error:`, preprocessRes.info_log);
                 return {};
             }
             computeCode = computeCode.replace(uniformRegex, "");
@@ -105723,7 +105688,7 @@ ${fragmentCode}
                     }
                 }
                 if (addNewUniform || addNewSSBO) {
-                    uniformMaps.set(0, WebGPUBindGroupHelper.createBindPropertyInfoArrayByCommandMap(0, [additionMaps._stateName], true, true));
+                    uniformMaps.set(0, LayaXBindGroupHelper.createBindingInfoArray(0, [additionMaps._stateName]));
                 }
                 ssboBindingMap.clear();
                 const newUniformStr = getUniformDeclaration(uniformMaps, preprocessRes.uniforms);
@@ -105788,7 +105753,7 @@ ${fragmentCode}
                     res = `${res}const vec4 ${key}_1 = vec4(0.0);\n`;
                     res = `${res}const vec4 ${key}_2 = vec4(0.0);\n`;
                     res = `${res}const vec4 ${key}_3 = vec4(0.0);\n`;
-                    attributeDefines = `${attributeDefines}#define ${key} mat4(${key}_0, ${key}_1, ${key}_2, ${key}_3);\n`;
+                    attributeDefines = `${attributeDefines}#define ${key} mat4(${key}_0, ${key}_1, ${key}_2, ${key}_3)\n`;
                 }
                 else {
                     res = `${res}const ${type} ${key} =${defaultValue};\n`;
@@ -105865,13 +105830,13 @@ layout(set=${set}, binding=${binding++}) uniform sampler ${uniform.propertyName}
             if (value.length > 0) {
                 for (let uniform of value) {
                     switch (uniform.type) {
-                        case WebGPUBindingInfoType.storageBuffer:
+                        case LayaXBindingInfoType.storageBuffer:
                             binding++;
                             break;
-                        case WebGPUBindingInfoType.storageTexture:
+                        case LayaXBindingInfoType.storageTexture:
                             binding++;
                             break;
-                        case WebGPUBindingInfoType.buffer:
+                        case LayaXBindingInfoType.buffer:
                             {
                                 let uniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(uniform.name)._idata;
                                 if (key == appendSet) {
@@ -105880,7 +105845,7 @@ layout(set=${set}, binding=${binding++}) uniform sampler ${uniform.propertyName}
                                 res = `${res}${uniformMapString(uniformMap, uniform.name, uniform.set, binding++, true, collectUniforms).code}\n`;
                                 break;
                             }
-                        case WebGPUBindingInfoType.texture:
+                        case LayaXBindingInfoType.texture:
                             if (key < checkSetNumber || usedTexSet.has(uniform.name)) {
                                 let textureName = uniform.name.replace("_Texture", "");
                                 let collectUniform = collectUniforms.get(textureName);
@@ -105889,12 +105854,13 @@ layout(set=${set}, binding=${binding++}) uniform sampler ${uniform.propertyName}
                                     uniform.texture.viewDimension = collectUniform.demision || uniform.texture.viewDimension;
                                 }
                                 let textureType = getDimensionTextureType((_a = uniform.texture) === null || _a === void 0 ? void 0 : _a.viewDimension);
-                                res = `${res}layout(set=${uniform.set}, binding=${binding++}) uniform ${textureType} ${uniform.name};\n`;
+                                res = `${res}layout(set=${uniform.set}, binding=${binding}) uniform ${textureType} ${uniform.name};\n`;
                                 let samplerName = uniform.name.replace("_Texture", "");
                                 samplerMap.set(samplerName, uniform);
                             }
+                            binding++;
                             break;
-                        case WebGPUBindingInfoType.sampler:
+                        case LayaXBindingInfoType.sampler:
                             if (key < checkSetNumber || usedTexSet.has(uniform.name)) {
                                 let sampler = "sampler";
                                 let samplerName = uniform.name.replace("_Sampler", "");
@@ -105904,8 +105870,9 @@ layout(set=${set}, binding=${binding++}) uniform sampler ${uniform.propertyName}
                                         uniform.sampler.type = "comparison";
                                     }
                                 }
-                                res = `${res}layout(set=${uniform.set}, binding=${binding++}) uniform ${sampler} ${uniform.name};\n`;
+                                res = `${res}layout(set=${uniform.set}, binding=${binding}) uniform ${sampler} ${uniform.name};\n`;
                             }
+                            binding++;
                             break;
                         default:
                             break;
@@ -106333,6 +106300,7 @@ ${computeCode}
                     bindingType: b.bindingType,
                     dataType: b.dataType,
                     propertyId: b.propertyId,
+                    sourceMapId: b.sourceMapId,
                 }));
             }
             return JSON.stringify(obj);
@@ -109591,7 +109559,7 @@ ${computeCode}
         }
         set validDefine(value) {
             this._validDefine = value;
-            this._nativeObj.setValidDefine(this._validDefine.handle);
+            this._nativeObj.setValidDefine(this._validDefine._nativeObj);
         }
         get renderState() {
             return this._renderState;
@@ -109630,26 +109598,30 @@ ${computeCode}
             }
             return result;
         }
-        _onCompileCallback(setMapNamesStr, attributeLocationsStr) {
+        _onCompileCallback(defineNamesStr, setMapNamesStr, attributeLocationsStr) {
             try {
-                const compileDefineHandle = this._nativeObj.getCompileDefine();
-                const setMapNames = this._parseSetMapNames(setMapNamesStr);
-                this.compileSetMapNames = setMapNames;
+                const defineStrings = defineNamesStr
+                    ? defineNamesStr.split('\n').filter(s => s.length > 0)
+                    : [];
+                this.compileSetMapNames = this._parseSetMapNames(setMapNamesStr);
                 this.attributeLocations = this._parseAttributeLocations(attributeLocationsStr);
-                const compileDefine = new LayaXDefineDatas();
-                compileDefine._handle = compileDefineHandle;
-                const shaderInstance = this._pass.withCompile(compileDefine, this.is2D);
+                const shaderProcessInfo = {
+                    is2D: this.is2D,
+                    vs: this._pass._VS,
+                    ps: this._pass._PS,
+                    attributeMap: this._pass._owner._attributeMap,
+                    uniformMap: this._pass._owner._uniformMap,
+                    defineString: defineStrings,
+                };
+                const shaderInstance = LayaGL.renderDeviceFactory.createShaderInstance(shaderProcessInfo, this._pass);
                 if (shaderInstance && shaderInstance._nativeObj) {
-                    const handle = shaderInstance._nativeObj.getHandle
-                        ? shaderInstance._nativeObj.getHandle()
-                        : (shaderInstance._nativeObj.handle || 0);
-                    return handle;
+                    return shaderInstance._nativeObj;
                 }
             }
             catch (e) {
                 console.error("LayaXShaderPass compile callback failed:", e);
             }
-            return 0;
+            return null;
         }
         setCacheShader(defines, shaderInstance) {
         }
@@ -109831,930 +109803,6 @@ ${computeCode}
             this.event(Event.MESSAGE, data);
         }
     }
-
-    class PixelLineSprite3D extends RenderableSprite3D {
-        get maxLineCount() {
-            return this._render.maxLineCount;
-        }
-        set maxLineCount(value) {
-            this._render.maxLineCount = value;
-        }
-        get lineCount() {
-            return this._render.lineCount;
-        }
-        get pixelLineRenderer() {
-            return this._render;
-        }
-        constructor(maxCount = 2, name = null) {
-            super(name);
-            this._isRenderActive = false;
-            this._isInRenders = false;
-            this._render = this.addComponent(PixelLineRenderer);
-            this._geometryFilter = this._render._pixelLineFilter;
-            this._render.maxLineCount = maxCount;
-            let material = this._render.material = new UnlitMaterial();
-            material.enableVertexColor = true;
-        }
-        addLine(startPosition, endPosition, startColor, endColor) {
-            this._render.addLine(startPosition, endPosition, startColor, endColor);
-        }
-        addLines(lines) {
-            this._render.addLines(lines);
-        }
-        removeLine(index) {
-            this._render.removeLine(index);
-        }
-        setLine(index, startPosition, endPosition, startColor, endColor) {
-            this._render.setLine(index, startPosition, endPosition, startColor, endColor);
-        }
-        getLine(index, out) {
-            this._render.getLine(index, out);
-        }
-        clear() {
-            this._render.clear();
-        }
-    }
-
-    var Script3D = Script;
-
-    class MaterialInstanceProperty {
-        constructor() {
-            this._isNeedUpdate = false;
-        }
-        createInstanceVertexBuffer3D() {
-            this._instanceData = new Float32Array(DrawMeshInstancedCMD.maxInstanceCount * this._vertexStride);
-            this._vertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(this._instanceData.length * 4, BufferUsage.Dynamic, false);
-            this._vertexBuffer.vertexDeclaration = this._vertexDeclaration;
-            this._vertexBuffer.instanceBuffer = true;
-        }
-        updateVertexBufferData(drawNums) {
-            if (!this._isNeedUpdate)
-                return;
-            let instanceData = this._instanceData;
-            let dataValue = this._value;
-            let datalength = this._value.length;
-            let data;
-            let stride = this._vertexStride;
-            let updateType = 0;
-            if (!(this._value instanceof Float32Array)) {
-                updateType = 1;
-            }
-            switch (updateType) {
-                case 0:
-                    instanceData.set(dataValue, 0);
-                    break;
-                case 1:
-                    for (let i = 0; i < datalength; i++) {
-                        data = dataValue[i];
-                        data.writeTo(instanceData, i * stride);
-                    }
-                    break;
-            }
-            this._vertexBuffer._deviceBuffer.setDataLength(this._vertexBuffer._byteLength);
-            this._vertexBuffer.setData(instanceData.buffer, 0, 0, drawNums * 4 * stride);
-        }
-        destroy() {
-            delete this._value;
-            delete this._instanceData;
-            this._vertexDeclaration = null;
-            this._vertexBuffer.destroy();
-        }
-    }
-
-    exports.InstanceLocation = void 0;
-    (function (InstanceLocation) {
-        InstanceLocation[InstanceLocation["CUSTOME0"] = 12] = "CUSTOME0";
-        InstanceLocation[InstanceLocation["CUSTOME1"] = 13] = "CUSTOME1";
-        InstanceLocation[InstanceLocation["CUSTOME2"] = 14] = "CUSTOME2";
-        InstanceLocation[InstanceLocation["CUSTOME3"] = 15] = "CUSTOME3";
-    })(exports.InstanceLocation || (exports.InstanceLocation = {}));
-    class MaterialInstancePropertyBlock {
-        constructor() {
-            this._type = 0;
-            this._propertyMap = {};
-        }
-        _checkPropertyLegal(vertexElementFormat, propertyName, attributeLocation, prob) {
-            var vecDec = prob._vertexDeclaration;
-            if (vecDec._vertexElements[0]._elementFormat !== vertexElementFormat)
-                throw "Data exists and format does not match";
-            if (prob._name !== propertyName)
-                throw "You cannot add a new property to an existing attributeLocation,Please use another attributeLocation";
-        }
-        _creatProperty(attributeName, arrays, vertexStride, vertexformat, attributeLocation) {
-            var prob = this._propertyMap[attributeLocation] = new MaterialInstanceProperty();
-            prob._name = attributeName;
-            prob._value = arrays;
-            prob._vertexDeclaration = new VertexDeclaration(vertexStride, [new VertexElement(0, vertexformat, attributeLocation)]);
-            prob._isNeedUpdate = true;
-            prob._vertexStride = vertexStride / 4;
-            prob.createInstanceVertexBuffer3D();
-        }
-        setVectorArray(attributeName, arrays, attributeLocation) {
-            var prob = this._propertyMap[attributeLocation];
-            if (prob) {
-                this._checkPropertyLegal(VertexElementFormat.Vector4, attributeName, attributeLocation, prob);
-                prob._value = arrays;
-                prob._isNeedUpdate = true;
-            }
-            else
-                this._creatProperty(attributeName, arrays, 16, VertexElementFormat.Vector4, attributeLocation);
-        }
-        setVector3Array(attributeName, arrays, attributeLocation) {
-            var prob = this._propertyMap[attributeLocation];
-            if (prob) {
-                this._checkPropertyLegal(VertexElementFormat.Vector3, attributeName, attributeLocation, prob);
-                prob._value = arrays;
-                prob._isNeedUpdate = true;
-            }
-            else
-                this._creatProperty(attributeName, arrays, 12, VertexElementFormat.Vector3, attributeLocation);
-        }
-        setVector2Array(attributeName, arrays, attributeLocation) {
-            var prob = this._propertyMap[attributeLocation];
-            if (prob) {
-                this._checkPropertyLegal(VertexElementFormat.Vector2, attributeName, attributeLocation, prob);
-                prob._value = arrays;
-                prob._isNeedUpdate = true;
-            }
-            else
-                this._creatProperty(attributeName, arrays, 8, VertexElementFormat.Vector2, attributeLocation);
-        }
-        setNumberArray(attributeName, arrays, attributeLocation) {
-            var prob = this._propertyMap[attributeLocation];
-            if (prob) {
-                this._checkPropertyLegal(VertexElementFormat.Single, attributeName, attributeLocation, prob);
-                prob._value = arrays;
-                prob._isNeedUpdate = true;
-            }
-            else
-                this._creatProperty(attributeName, arrays, 4, VertexElementFormat.Single, attributeLocation);
-        }
-        getPropertyArray(attributeLocation) {
-            var prob = this._propertyMap[attributeLocation];
-            return prob ? prob._value : null;
-        }
-        clear() {
-            for (var i in this._propertyMap) {
-                this._propertyMap[i].destroy();
-            }
-            this._propertyMap = {};
-        }
-    }
-    MaterialInstancePropertyBlock.INSTANCETYPE_ATTRIBUTE = 0;
-    MaterialInstancePropertyBlock.INSTANCETYPE_UNIFORMBUFFER = 1;
-
-    class WebXRCamera extends Camera {
-        constructor() {
-            super(...arguments);
-            this.isWebXR = true;
-        }
-        get renderTarget() {
-            return this._internalRenderTexture;
-        }
-        set renderTarget(value) {
-            this._internalRenderTexture = value;
-        }
-        set clientWidth(value) {
-            this._clientWidth = value;
-        }
-        set clientHeight(value) {
-            this._clientHeight = value;
-        }
-        get clientWidth() {
-            return this._clientWidth;
-        }
-        get clientHeight() {
-            return this._clientHeight;
-        }
-        _restoreView(gl) {
-            var viewport = this.viewport;
-            var vpX, vpY;
-            var vpW = viewport.width;
-            var vpH = viewport.height;
-            if (this._needInternalRenderTexture()) {
-                vpX = 0;
-                vpY = 0;
-            }
-            else {
-                vpX = viewport.x;
-                vpY = this._getCanvasHeight() - viewport.y - vpH;
-            }
-            gl.viewport(vpX, vpY, vpW, vpH);
-        }
-        render() {
-            if (!this.activeInHierarchy)
-                return;
-            var viewport = this.viewport;
-            var needInternalRT = true;
-            var context = RenderContext3D._instance;
-            var scene = context.scene = this._scene;
-            context.pipelineMode = context.configPipeLineMode;
-        }
-        _renderMainPass(context, viewport, scene, shader, replacementTag, needInternalRT) {
-        }
-        _calculateProjectionMatrix() {
-        }
-        clear(gl) {
-            gl.viewport(0, 0, this._clientWidth, this._clientHeight);
-            gl.scissor(0, 0, this._clientWidth, this._clientHeight);
-            gl.clearColor(this.clearColor.r, this.clearColor.g, this.clearColor.b, this.clearColor.a);
-            gl.depthMask(true);
-            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        }
-        destroy() {
-            super.destroy(true);
-        }
-    }
-
-    class WebXRRenderTexture extends RenderTexture {
-        constructor() {
-            super(1, 1, 1, exports.RenderTargetFormat.STENCIL_8, false, 1);
-            this.frameLoop = -1;
-        }
-        set frameBuffer(value) {
-            this._frameBuffer = value;
-        }
-        _create(width, height) {
-        }
-    }
-
-    class WebXRSessionManager extends EventDispatcher {
-        constructor() {
-            super();
-            this.currentTimestamp = -1;
-            this.defaultHeightCompensation = 1.7;
-            this._sessionEnded = false;
-        }
-        get referenceSpace() {
-            return this._referenceSpace;
-        }
-        set referenceSpace(newReferenceSpace) {
-            this._referenceSpace = newReferenceSpace;
-        }
-        get sessionMode() {
-            return this._sessionMode;
-        }
-        exitXR() {
-            this.endXRRenderLoop();
-            this.event(WebXRSessionManager.EVENT_MANAGER_END);
-        }
-        initializeXRGL(xrSession, gl) {
-            return gl.makeXRCompatible().then(() => {
-                return true;
-            });
-        }
-        ;
-        initializeAsync() {
-            this._xrNavigator = navigator;
-            if (!this._xrNavigator.xr) {
-                return Promise.reject("WebXR not available");
-            }
-            return Promise.resolve();
-        }
-        isSessionSupportedAsync(sessionMode) {
-            if (!navigator.xr) {
-                return Promise.resolve(false);
-            }
-            else {
-                this._xrNavigator = navigator;
-            }
-            const functionToUse = navigator.xr.isSessionSupported || navigator.xr.supportsSession;
-            if (!functionToUse)
-                return Promise.resolve(false);
-            else {
-                return navigator.xr.isSessionSupported(sessionMode);
-            }
-        }
-        initializeSessionAsync(xrSessionMode = 'immersive-vr', xrSessionInit = {}) {
-            return this._xrNavigator.xr.requestSession('immersive-vr').then((session) => {
-                this.session = session;
-                this._sessionMode = xrSessionMode;
-                this._sessionEnded = false;
-                this.session.addEventListener("end", () => {
-                    this._sessionEnded = true;
-                    this.exitXR();
-                }, { once: true });
-                return this.session;
-            });
-        }
-        resetReferenceSpace() {
-            this.referenceSpace = this.baseReferenceSpace;
-        }
-        runXRRenderLoop() {
-            this.session.requestAnimationFrame.bind(this.session);
-            let fn = (timestamp, xrFrame) => {
-                this._updateByXrFrame(xrFrame, timestamp);
-                this.event(WebXRSessionManager.EVENT_FRAME_LOOP, [xrFrame]);
-                Render.loop(timestamp);
-                this.session.requestAnimationFrame(fn);
-            };
-            this.session.requestAnimationFrame(fn);
-        }
-        endXRRenderLoop() {
-        }
-        _updateByXrFrame(xrFrame, timestamp) {
-            this.currentFrame = xrFrame;
-            this.currentTimestamp = timestamp;
-        }
-        setReferenceSpaceTypeAsync(referenceSpaceType = "local-floor") {
-            return this.session
-                .requestReferenceSpace(referenceSpaceType)
-                .then((referenceSpace) => {
-                return referenceSpace;
-            }, (rejectionReason) => {
-                return this.session.requestReferenceSpace("viewer").then((referenceSpace) => {
-                    const heightCompensation = new XRRigidTransform({ x: 0, y: -this.defaultHeightCompensation, z: 0 });
-                    return (referenceSpace).getOffsetReferenceSpace(heightCompensation);
-                }, (rejectionReason) => {
-                    throw 'XR initialization failed: required "viewer" reference space type not supported.';
-                });
-            }).then((referenceSpace) => {
-                this.referenceSpace = this.baseReferenceSpace = referenceSpace;
-                return this.referenceSpace;
-            });
-        }
-        updateRenderStateAsync(state) {
-            if (state.baseLayer) {
-                this._baseLayer = state.baseLayer;
-            }
-            return this.session.updateRenderState(state);
-        }
-        get currentFrameRate() {
-            var _a;
-            return (_a = this.session) === null || _a === void 0 ? void 0 : _a.frameRate;
-        }
-        get supportedFrameRates() {
-            var _a;
-            return (_a = this.session) === null || _a === void 0 ? void 0 : _a.supportedFrameRates;
-        }
-        updateTargetFrameRate(rate) {
-            return this.session.updateTargetFrameRate(rate);
-        }
-        destroy() {
-            if (!this._sessionEnded) {
-                this.exitXR();
-            }
-        }
-    }
-    WebXRSessionManager.EVENT_MANAGER_END = "xrManagerDestory";
-    WebXRSessionManager.EVENT_FRAME_LOOP = "xrFrameLoop";
-
-    class WebXRCameraManager {
-        get position() {
-            return this._position;
-        }
-        set position(newPosition) {
-            newPosition.cloneTo(this._position);
-        }
-        get rotationQuaternion() {
-            return this._referenceQuaternion;
-        }
-        set rotationQuaternion(value) {
-            value.cloneTo(this._referenceQuaternion);
-        }
-        get rigCameras() {
-            return this._rigCameras;
-        }
-        constructor(camera, manager = null) {
-            this._referenceQuaternion = new Quaternion();
-            this._referencedPosition = new Vector3();
-            this._firstFrame = true;
-            this._XRRenderTexture = new WebXRRenderTexture();
-            this._rigCameras = new Array();
-            this._position = new Vector3();
-            this.owner = camera;
-            this.owner.enableRender = false;
-            if (!this.owner.aspectRatio) {
-                console.warn("owner is not Camera");
-            }
-            this._webXRSessionManager = manager;
-            this._webXRSessionManager.on(WebXRSessionManager.EVENT_FRAME_LOOP, this, this._updateFromXRSession);
-            this._webXRSessionManager.on(WebXRSessionManager.EVENT_FRAME_LOOP, this, this._updateReferenceSpace);
-            this._webXRSessionManager.on(WebXRSessionManager.EVENT_MANAGER_END, this, this.destroy);
-        }
-        _updateFromXRSession() {
-            let pose = this._webXRSessionManager.currentFrame && this._webXRSessionManager.currentFrame.getViewerPose(this._webXRSessionManager.referenceSpace);
-            const pos = pose.transform.position;
-            const orientation = pose.transform.orientation;
-            this._referenceQuaternion.setValue(orientation.x, orientation.y, orientation.z, orientation.w);
-            this._referencedPosition.setValue(pos.x, pos.y, pos.z);
-            if (this._firstFrame) {
-                this._firstFrame = false;
-                this.position.y += this._referencedPosition.y;
-                this._referenceQuaternion.setValue(0, 0, 0, 1);
-            }
-            else {
-                this.rotationQuaternion = this._referenceQuaternion;
-                this.position = this._referencedPosition;
-            }
-            if (this.rigCameras.length !== pose.views.length) {
-                this._updateNumberOfRigCameras(pose.views.length);
-            }
-            pose.views.forEach((view, i) => {
-                const currentRig = this.rigCameras[i];
-                if (view.eye === "right")
-                    currentRig.name = "right";
-                else if (view.eye === "left")
-                    currentRig.name = "left";
-                const pos = view.transform.position;
-                const orientation = view.transform.orientation;
-                currentRig.transform.position.setValue(pos.x, pos.y, pos.z);
-                currentRig.transform.rotation.setValue(orientation.x, orientation.y, orientation.z, orientation.w);
-                currentRig.transform.position = currentRig.transform.position;
-                currentRig.transform.rotation = currentRig.transform.rotation;
-                if (this._webXRSessionManager.session.renderState.baseLayer) {
-                    var viewport = this._webXRSessionManager.session.renderState.baseLayer.getViewport(view);
-                    var width = this._webXRSessionManager.session.renderState.baseLayer.framebufferWidth;
-                    var height = this._webXRSessionManager.session.renderState.baseLayer.framebufferHeight;
-                    this._XRRenderTexture.frameBuffer = this._webXRSessionManager.session.renderState.baseLayer.framebuffer;
-                    currentRig.renderTarget = this._XRRenderTexture;
-                    currentRig.clientWidth = width;
-                    currentRig.clientHeight = height;
-                    var cameraViewPort = currentRig.viewport;
-                    cameraViewPort.x = viewport.x;
-                    cameraViewPort.y = viewport.y;
-                    cameraViewPort.width = viewport.width;
-                    cameraViewPort.height = viewport.height;
-                    currentRig.viewport = cameraViewPort;
-                    currentRig.projectionMatrix.cloneByArray(view.projectionMatrix);
-                }
-            });
-        }
-        _updateNumberOfRigCameras(viewCount = 1) {
-            while (this.rigCameras.length < viewCount) {
-                var xrcamera = new WebXRCamera(this.owner.aspectRatio, this.owner.nearPlane, this.owner.farPlane);
-                xrcamera.clearFlag = this.owner.clearFlag;
-                xrcamera.clearColor = this.owner.clearColor;
-                this.owner.addChild(xrcamera);
-                this.rigCameras.push(xrcamera);
-            }
-            while (this.rigCameras.length > viewCount) {
-                let xrcamera = this.rigCameras.pop();
-                this.owner.removeChild(xrcamera);
-            }
-        }
-        _updateReferenceSpace() {
-        }
-        destroy() {
-            this.owner.enableRender = true;
-            this._webXRSessionManager.off(WebXRSessionManager.EVENT_FRAME_LOOP, this, this._updateFromXRSession);
-            this._webXRSessionManager.off(WebXRSessionManager.EVENT_FRAME_LOOP, this, this._updateReferenceSpace);
-            this._webXRSessionManager.off(WebXRSessionManager.EVENT_MANAGER_END, this, this.destroy);
-            this._rigCameras.forEach(element => {
-                element.destroy();
-            });
-            this._rigCameras = null;
-            this._XRRenderTexture.destroy();
-        }
-    }
-
-    class AxiGamepad extends EventDispatcher {
-        constructor(handness, length) {
-            super();
-            this.axisData = new Array();
-            this.handness = handness;
-            this.axisData.length = length;
-            this.axisLength = length;
-        }
-        update(padGameAxi) {
-            for (let i = 0, j = 0; i < padGameAxi.axes.length; i += 2, ++j) {
-                if (!this.axisData[j])
-                    this.axisData[j] = new Vector2();
-                this.axisData[j].setValue(padGameAxi.axes[i], padGameAxi.axes[i + 1]);
-                this.outPutStickValue(this.axisData[j], j);
-            }
-        }
-        outPutStickValue(value, index) {
-            const eventnam = AxiGamepad.EVENT_OUTPUT + index.toString();
-            this.event(eventnam, [value]);
-        }
-        destroy() {
-            for (let i = 0; i < this.axisLength; i++) {
-                let eventname = AxiGamepad.EVENT_OUTPUT + i.toString();
-                this.offAll(eventname);
-            }
-        }
-    }
-    AxiGamepad.EVENT_OUTPUT = "outputAxi_id";
-    class ButtonGamepad extends EventDispatcher {
-        constructor(handness, index) {
-            super();
-            this.lastTouch = false;
-            this.lastPress = false;
-            this.lastPressValue = 0;
-            this.touch = false;
-            this.press = false;
-            this.pressValue = 0;
-            this.handness = handness;
-            this.index = index;
-        }
-        update(padButton) {
-            this.lastTouch = this.touch;
-            this.lastPress = this.press;
-            this.lastPressValue = this.pressValue;
-            this.touch = padButton.touched;
-            this.press = padButton.pressed;
-            this.pressValue = padButton.value;
-            if (!this.lastTouch && !this.touch) {
-                return;
-            }
-            if (this.lastTouch != this.touch && this.touch) {
-                this.touchEnter();
-            }
-            else if (this.lastTouch == this.touch && this.touch) {
-                this.touchStay();
-            }
-            else if (this.lastTouch != this.touch && !this.touch) {
-                this.touchOut();
-            }
-            if (this.lastPress != this.press && this.press) {
-                this.pressEnter();
-            }
-            else if (this.lastPress == this.press && this.press) {
-                this.pressStay();
-            }
-            else if (this.lastPress != this.press && !this.press) {
-                this.pressOut();
-            }
-            if (this.touch) {
-                this.outpressed();
-            }
-        }
-        touchEnter() {
-            this.event(ButtonGamepad.EVENT_TOUCH_ENTER);
-        }
-        touchStay() {
-            this.event(ButtonGamepad.EVENT_TOUCH_STAY);
-        }
-        touchOut() {
-            this.event(ButtonGamepad.EVENT_TOUCH_OUT);
-        }
-        pressEnter() {
-            this.event(ButtonGamepad.EVENT_PRESS_ENTER);
-        }
-        pressStay() {
-            this.event(ButtonGamepad.EVENT_PRESS_STAY);
-        }
-        pressOut() {
-            this.event(ButtonGamepad.EVENT_PRESS_OUT);
-        }
-        outpressed() {
-            this.event(ButtonGamepad.EVENT_PRESS_VALUE, [this.pressValue]);
-        }
-        destroy() {
-            this.offAll(ButtonGamepad.EVENT_PRESS_ENTER);
-            this.offAll(ButtonGamepad.EVENT_PRESS_STAY);
-            this.offAll(ButtonGamepad.EVENT_PRESS_OUT);
-            this.offAll(ButtonGamepad.EVENT_PRESS_ENTER);
-            this.offAll(ButtonGamepad.EVENT_PRESS_STAY);
-            this.offAll(ButtonGamepad.EVENT_PRESS_OUT);
-            this.offAll(ButtonGamepad.EVENT_PRESS_VALUE);
-        }
-    }
-    ButtonGamepad.EVENT_TOUCH_ENTER = "touchEnter";
-    ButtonGamepad.EVENT_TOUCH_STAY = "touchStay";
-    ButtonGamepad.EVENT_TOUCH_OUT = "touchOut";
-    ButtonGamepad.EVENT_PRESS_ENTER = "pressEnter";
-    ButtonGamepad.EVENT_PRESS_STAY = "pressStay";
-    ButtonGamepad.EVENT_PRESS_OUT = "pressOut";
-    ButtonGamepad.EVENT_PRESS_VALUE = "outpressed";
-
-    class WebXRInput extends EventDispatcher {
-        constructor(handness) {
-            super();
-            this.preButtonEventList = [];
-            this.preAxisEventList = [];
-            this.handness = handness;
-            this.position = new Vector3();
-            this.rotation = new Quaternion();
-            this.ray = new Ray(new Vector3(), new Vector3());
-        }
-        _updateByXRPose(xrFrame, referenceSpace) {
-            const rayPose = xrFrame.getPose(this._inputSource.targetRaySpace, referenceSpace);
-            this._lastXRPose = rayPose;
-            if (rayPose) {
-                const pos = rayPose.transform.position;
-                const orientation = rayPose.transform.orientation;
-                WebXRInput.tempQua.setValue(orientation.x, orientation.y, orientation.z, orientation.w);
-                this.ray.origin.setValue(pos.x, pos.y, pos.z);
-                Vector3.transformQuat(Vector3.UnitZ, WebXRInput.tempQua, this.ray.direction);
-                Vector3.scale(this.ray.direction, -1, this.ray.direction);
-            }
-            if (this._inputSource.gripSpace) {
-                let meshPose = xrFrame.getPose(this._inputSource.gripSpace, referenceSpace);
-                if (meshPose) {
-                    const pos = meshPose.transform.position;
-                    const orientation = meshPose.transform.orientation;
-                    this.position.setValue(pos.x, pos.y, pos.z);
-                    this.rotation.setValue(orientation.x, orientation.y, orientation.z, orientation.w);
-                }
-            }
-            this.event(WebXRInput.EVENT_FRAMEUPDATA_WEBXRINPUT, [this]);
-            this._handleProcessGamepad();
-        }
-        _handleProcessGamepad() {
-            const gamepad = this._inputSource.gamepad;
-            if (!this.gamepadAxis) {
-                this.gamepadAxis = new AxiGamepad(this.handness, gamepad.axes.length);
-                this.preAxisEventList.forEach(element => {
-                    this.gamepadAxis.on(element.eventnam, element.caller, element.listener);
-                });
-            }
-            if (!this.gamepadButton) {
-                this.gamepadButton = [];
-                for (let i = 0; i < gamepad.buttons.length; ++i) {
-                    this.gamepadButton.push(new ButtonGamepad(this.handness, i));
-                }
-                this.preButtonEventList.forEach(element => {
-                    this.addButtonEvent(element.index, element.type, element.caller, element.listener);
-                });
-            }
-            this.gamepadAxis.update(gamepad);
-            for (let i = 0; i < gamepad.buttons.length; ++i) {
-                let button = this.gamepadButton[i];
-                button.update(gamepad.buttons[i]);
-            }
-        }
-        addButtonEvent(index, type, caller, listener) {
-            if (!this.gamepadButton) {
-                this.preButtonEventList.push({
-                    "index": index,
-                    "type": type,
-                    "caller": caller,
-                    "listener": listener
-                });
-            }
-            else {
-                let button = this.gamepadButton[index];
-                button.on(type, caller, listener);
-            }
-        }
-        addAxisEvent(index, type, caller, listener) {
-            if (!this.gamepadAxis) {
-                this.preAxisEventList.push({
-                    "eventnam": type + index.toString(),
-                    "caller": caller,
-                    "listener": listener
-                });
-            }
-            else {
-                const eventnam = type + index.toString();
-                this.gamepadAxis.on(eventnam, caller, listener);
-            }
-        }
-        offAxisEvent(index, type, caller, listener) {
-            if (this.gamepadAxis) {
-                const eventnam = type + index.toString();
-                this.gamepadAxis.off(eventnam, caller, listener);
-            }
-        }
-        offButtonEvent(index, type, caller, listener) {
-            if (this.gamepadButton) {
-                let button = this.gamepadButton[index];
-                button.off(type, caller, listener);
-            }
-        }
-        destroy() {
-            this.preButtonEventList = null;
-            this.ray = null;
-            this.position = null;
-            this.rotation = null;
-            this.gamepadAxis.destroy();
-            this.gamepadButton.forEach(element => {
-                element.destroy();
-            });
-        }
-    }
-    WebXRInput.HANDNESS_LEFT = "left";
-    WebXRInput.HANDNESS_RIGHT = "right";
-    WebXRInput.EVENT_FRAMEUPDATA_WEBXRINPUT = "frameXRInputUpdate";
-    WebXRInput.tempQua = new Quaternion();
-
-    class WebXRInputManager {
-        constructor(webxrManager, webXRCamera) {
-            this.controllers = new Map();
-            this.controllerHandMesh = new Map();
-            this.controllerLineRender = new Map();
-            this.lineColor = Color.RED;
-            this.rayLength = 2;
-            this.webXRSessionManager = webxrManager;
-            this.webXRCameraManager = webXRCamera;
-            this.webXRSessionManager.on(WebXRSessionManager.EVENT_MANAGER_END, this, this.destory);
-            this.webXRSessionManager.on(WebXRSessionManager.EVENT_FRAME_LOOP, this, this._updateFromXRFrame);
-        }
-        _updateMeshRender(xrInput) {
-            const handness = xrInput.handness;
-            if (this.controllerHandMesh.has(handness)) {
-                let meshNode = this.controllerHandMesh.get(handness);
-                meshNode.transform.position = xrInput.position;
-                meshNode.transform.rotation = xrInput.rotation;
-            }
-            if (this.controllerLineRender.has(handness)) {
-                let line = this.controllerLineRender.get(handness);
-                line.clear();
-                let ray = xrInput.ray;
-                tempVec.setValue(ray.origin.x, ray.origin.y, ray.origin.z);
-                Vector3.scale(ray.direction, this.rayLength, tempVec1);
-                Vector3.add(tempVec, tempVec1, tempVec1);
-                line.addLine(tempVec, tempVec1, this.lineColor, this.lineColor);
-            }
-        }
-        _updateFromXRFrame(xrFrame) {
-            const session = this.webXRSessionManager.session;
-            const refSpace = this.webXRSessionManager.referenceSpace;
-            for (let inputSource of session.inputSources) {
-                const key = inputSource.handedness;
-                let xrInput;
-                if (!this.controllers.has(key)) {
-                    xrInput = this.getController(key);
-                }
-                else
-                    xrInput = this.controllers.get(key);
-                if (xrInput) {
-                    xrInput = this.controllers.get(key);
-                    xrInput._inputSource = inputSource;
-                    xrInput._updateByXRPose(xrFrame, refSpace);
-                }
-            }
-        }
-        bindMeshNode(meshSprite, handness) {
-            this.controllerHandMesh.set(handness, meshSprite);
-        }
-        bindRayNode(lineSprite, handness) {
-            this.controllerLineRender.set(handness, lineSprite);
-        }
-        getController(handness) {
-            if (handness != "left" && handness != "right")
-                return null;
-            if (!this.controllers.has(handness)) {
-                let value = new WebXRInput(handness);
-                this.controllers.set(handness, value);
-                value.on(WebXRInput.EVENT_FRAMEUPDATA_WEBXRINPUT, this, this._updateMeshRender);
-            }
-            return this.controllers.get(handness);
-        }
-        destory() {
-            this.webXRSessionManager.off(WebXRSessionManager.EVENT_FRAME_LOOP, this, this._updateFromXRFrame);
-            for (let key in this.controllers) {
-                this.controllers.get(key).off("frameXRInputUpdate", this, this._updateMeshRender);
-                this.controllers.get(key).destroy();
-            }
-            this.controllers = null;
-            this.controllerHandMesh = null;
-            this.controllerLineRender = null;
-        }
-    }
-    const tempVec = new Vector3();
-    const tempVec1 = new Vector3();
-
-    class WebXRCameraInfo {
-    }
-    class WebXRExperienceHelper {
-        static supportXR(sessionMode) {
-            return WebXRExperienceHelper.xr_Manager.isSessionSupportedAsync(sessionMode).then(value => {
-                WebXRExperienceHelper.supported = value;
-                return value;
-            });
-        }
-        static enterXRAsync(sessionMode, referenceSpaceType, cameraInfo) {
-            if (sessionMode === "immersive-ar" && referenceSpaceType !== "unbounded") {
-                console.warn("We recommend using 'unbounded' reference space type when using 'immersive-ar' session mode");
-            }
-            return WebXRExperienceHelper.xr_Manager.initializeSessionAsync(sessionMode).then(() => {
-                return WebXRExperienceHelper.xr_Manager.setReferenceSpaceTypeAsync(referenceSpaceType);
-            }).then(() => {
-                return WebXRExperienceHelper.xr_Manager.initializeXRGL(sessionMode, LayaGL.renderEngine.gl);
-            }).then(() => {
-                WebXRExperienceHelper.glInstance = LayaGL.renderEngine.gl;
-                return WebXRExperienceHelper.xr_Manager.updateRenderStateAsync({
-                    depthFar: cameraInfo.depthFar,
-                    depthNear: cameraInfo.depthNear,
-                    baseLayer: new XRWebGLLayer(WebXRExperienceHelper.xr_Manager.session, LayaGL.renderEngine.gl),
-                });
-            }).then(() => {
-                WebXRExperienceHelper.xr_Manager.runXRRenderLoop();
-                return WebXRExperienceHelper.xr_Manager;
-            });
-        }
-        static setWebXRCamera(camera, manager) {
-            return new WebXRCameraManager(camera, manager);
-        }
-        static setWebXRInput(sessionManager, cameraManager) {
-            return new WebXRInputManager(sessionManager, cameraManager);
-        }
-    }
-    WebXRExperienceHelper.xr_Manager = new WebXRSessionManager();
-    WebXRExperienceHelper.supported = false;
-    WebXRExperienceHelper.canvasOptions = {
-        antialias: true,
-        depth: true,
-        stencil: false,
-        alpha: true,
-        multiview: false,
-        framebufferScaleFactor: 1,
-    };
-
-    class Keyboard {
-    }
-    Keyboard.NUMBER_0 = 48;
-    Keyboard.NUMBER_1 = 49;
-    Keyboard.NUMBER_2 = 50;
-    Keyboard.NUMBER_3 = 51;
-    Keyboard.NUMBER_4 = 52;
-    Keyboard.NUMBER_5 = 53;
-    Keyboard.NUMBER_6 = 54;
-    Keyboard.NUMBER_7 = 55;
-    Keyboard.NUMBER_8 = 56;
-    Keyboard.NUMBER_9 = 57;
-    Keyboard.A = 65;
-    Keyboard.B = 66;
-    Keyboard.C = 67;
-    Keyboard.D = 68;
-    Keyboard.E = 69;
-    Keyboard.F = 70;
-    Keyboard.G = 71;
-    Keyboard.H = 72;
-    Keyboard.I = 73;
-    Keyboard.J = 74;
-    Keyboard.K = 75;
-    Keyboard.L = 76;
-    Keyboard.M = 77;
-    Keyboard.N = 78;
-    Keyboard.O = 79;
-    Keyboard.P = 80;
-    Keyboard.Q = 81;
-    Keyboard.R = 82;
-    Keyboard.S = 83;
-    Keyboard.T = 84;
-    Keyboard.U = 85;
-    Keyboard.V = 86;
-    Keyboard.W = 87;
-    Keyboard.X = 88;
-    Keyboard.Y = 89;
-    Keyboard.Z = 90;
-    Keyboard.F1 = 112;
-    Keyboard.F2 = 113;
-    Keyboard.F3 = 114;
-    Keyboard.F4 = 115;
-    Keyboard.F5 = 116;
-    Keyboard.F6 = 117;
-    Keyboard.F7 = 118;
-    Keyboard.F8 = 119;
-    Keyboard.F9 = 120;
-    Keyboard.F10 = 121;
-    Keyboard.F11 = 122;
-    Keyboard.F12 = 123;
-    Keyboard.F13 = 124;
-    Keyboard.F14 = 125;
-    Keyboard.F15 = 126;
-    Keyboard.NUMPAD = 21;
-    Keyboard.NUMPAD_0 = 96;
-    Keyboard.NUMPAD_1 = 97;
-    Keyboard.NUMPAD_2 = 98;
-    Keyboard.NUMPAD_3 = 99;
-    Keyboard.NUMPAD_4 = 100;
-    Keyboard.NUMPAD_5 = 101;
-    Keyboard.NUMPAD_6 = 102;
-    Keyboard.NUMPAD_7 = 103;
-    Keyboard.NUMPAD_8 = 104;
-    Keyboard.NUMPAD_9 = 105;
-    Keyboard.NUMPAD_ADD = 107;
-    Keyboard.NUMPAD_DECIMAL = 110;
-    Keyboard.NUMPAD_DIVIDE = 111;
-    Keyboard.NUMPAD_ENTER = 108;
-    Keyboard.NUMPAD_MULTIPLY = 106;
-    Keyboard.NUMPAD_SUBTRACT = 109;
-    Keyboard.SEMICOLON = 186;
-    Keyboard.EQUAL = 187;
-    Keyboard.COMMA = 188;
-    Keyboard.MINUS = 189;
-    Keyboard.PERIOD = 190;
-    Keyboard.SLASH = 191;
-    Keyboard.BACKQUOTE = 192;
-    Keyboard.LEFTBRACKET = 219;
-    Keyboard.BACKSLASH = 220;
-    Keyboard.RIGHTBRACKET = 221;
-    Keyboard.QUOTE = 222;
-    Keyboard.ALTERNATE = 18;
-    Keyboard.BACKSPACE = 8;
-    Keyboard.CAPS_LOCK = 20;
-    Keyboard.COMMAND = 15;
-    Keyboard.CONTROL = 17;
-    Keyboard.DELETE = 46;
-    Keyboard.ENTER = 13;
-    Keyboard.ESCAPE = 27;
-    Keyboard.PAGE_UP = 33;
-    Keyboard.PAGE_DOWN = 34;
-    Keyboard.END = 35;
-    Keyboard.HOME = 36;
-    Keyboard.LEFT = 37;
-    Keyboard.UP = 38;
-    Keyboard.RIGHT = 39;
-    Keyboard.DOWN = 40;
-    Keyboard.SHIFT = 16;
-    Keyboard.SPACE = 32;
-    Keyboard.TAB = 9;
-    Keyboard.INSERT = 45;
 
     class MovieClip extends Sprite {
         constructor(parentMovieClip = null) {
@@ -111491,6 +110539,108 @@ ${computeCode}
         }
     }
     ClassUtils.regClass("ColorFilter", ColorFilter);
+
+    class Keyboard {
+    }
+    Keyboard.NUMBER_0 = 48;
+    Keyboard.NUMBER_1 = 49;
+    Keyboard.NUMBER_2 = 50;
+    Keyboard.NUMBER_3 = 51;
+    Keyboard.NUMBER_4 = 52;
+    Keyboard.NUMBER_5 = 53;
+    Keyboard.NUMBER_6 = 54;
+    Keyboard.NUMBER_7 = 55;
+    Keyboard.NUMBER_8 = 56;
+    Keyboard.NUMBER_9 = 57;
+    Keyboard.A = 65;
+    Keyboard.B = 66;
+    Keyboard.C = 67;
+    Keyboard.D = 68;
+    Keyboard.E = 69;
+    Keyboard.F = 70;
+    Keyboard.G = 71;
+    Keyboard.H = 72;
+    Keyboard.I = 73;
+    Keyboard.J = 74;
+    Keyboard.K = 75;
+    Keyboard.L = 76;
+    Keyboard.M = 77;
+    Keyboard.N = 78;
+    Keyboard.O = 79;
+    Keyboard.P = 80;
+    Keyboard.Q = 81;
+    Keyboard.R = 82;
+    Keyboard.S = 83;
+    Keyboard.T = 84;
+    Keyboard.U = 85;
+    Keyboard.V = 86;
+    Keyboard.W = 87;
+    Keyboard.X = 88;
+    Keyboard.Y = 89;
+    Keyboard.Z = 90;
+    Keyboard.F1 = 112;
+    Keyboard.F2 = 113;
+    Keyboard.F3 = 114;
+    Keyboard.F4 = 115;
+    Keyboard.F5 = 116;
+    Keyboard.F6 = 117;
+    Keyboard.F7 = 118;
+    Keyboard.F8 = 119;
+    Keyboard.F9 = 120;
+    Keyboard.F10 = 121;
+    Keyboard.F11 = 122;
+    Keyboard.F12 = 123;
+    Keyboard.F13 = 124;
+    Keyboard.F14 = 125;
+    Keyboard.F15 = 126;
+    Keyboard.NUMPAD = 21;
+    Keyboard.NUMPAD_0 = 96;
+    Keyboard.NUMPAD_1 = 97;
+    Keyboard.NUMPAD_2 = 98;
+    Keyboard.NUMPAD_3 = 99;
+    Keyboard.NUMPAD_4 = 100;
+    Keyboard.NUMPAD_5 = 101;
+    Keyboard.NUMPAD_6 = 102;
+    Keyboard.NUMPAD_7 = 103;
+    Keyboard.NUMPAD_8 = 104;
+    Keyboard.NUMPAD_9 = 105;
+    Keyboard.NUMPAD_ADD = 107;
+    Keyboard.NUMPAD_DECIMAL = 110;
+    Keyboard.NUMPAD_DIVIDE = 111;
+    Keyboard.NUMPAD_ENTER = 108;
+    Keyboard.NUMPAD_MULTIPLY = 106;
+    Keyboard.NUMPAD_SUBTRACT = 109;
+    Keyboard.SEMICOLON = 186;
+    Keyboard.EQUAL = 187;
+    Keyboard.COMMA = 188;
+    Keyboard.MINUS = 189;
+    Keyboard.PERIOD = 190;
+    Keyboard.SLASH = 191;
+    Keyboard.BACKQUOTE = 192;
+    Keyboard.LEFTBRACKET = 219;
+    Keyboard.BACKSLASH = 220;
+    Keyboard.RIGHTBRACKET = 221;
+    Keyboard.QUOTE = 222;
+    Keyboard.ALTERNATE = 18;
+    Keyboard.BACKSPACE = 8;
+    Keyboard.CAPS_LOCK = 20;
+    Keyboard.COMMAND = 15;
+    Keyboard.CONTROL = 17;
+    Keyboard.DELETE = 46;
+    Keyboard.ENTER = 13;
+    Keyboard.ESCAPE = 27;
+    Keyboard.PAGE_UP = 33;
+    Keyboard.PAGE_DOWN = 34;
+    Keyboard.END = 35;
+    Keyboard.HOME = 36;
+    Keyboard.LEFT = 37;
+    Keyboard.UP = 38;
+    Keyboard.RIGHT = 39;
+    Keyboard.DOWN = 40;
+    Keyboard.SHIFT = 16;
+    Keyboard.SPACE = 32;
+    Keyboard.TAB = 9;
+    Keyboard.INSERT = 45;
 
     class TimeLine extends EventDispatcher {
         constructor() {
@@ -113858,21 +113008,6 @@ ${computeCode}
         }
     }
 
-    class Gyroscope extends EventDispatcher {
-        static get instance() {
-            Gyroscope._instance = Gyroscope._instance || new Gyroscope();
-            return Gyroscope._instance;
-        }
-        onStartListeningToType(type) {
-            if (type === Event.CHANGE)
-                PAL.device.on("deviceorientation", this, this.onDeviceOrientation);
-            return this;
-        }
-        onDeviceOrientation(absolute, orientationInfo) {
-            this.event(Event.CHANGE, [absolute, orientationInfo]);
-        }
-    }
-
     class Accelerator extends EventDispatcher {
         static get instance() {
             Accelerator._instance = Accelerator._instance || new Accelerator();
@@ -113924,22 +113059,18 @@ ${computeCode}
         }
     }
 
-    class Media {
-        static supported() {
-            return PAL.device.supportedGetUserMedia;
+    class Gyroscope extends EventDispatcher {
+        static get instance() {
+            Gyroscope._instance = Gyroscope._instance || new Gyroscope();
+            return Gyroscope._instance;
         }
-        static getMedia(constraints, onSuccess, onError) {
-            PAL.device.getUserMedia(constraints, stream => {
-                if (onSuccess instanceof Handler)
-                    onSuccess.runWith(stream);
-                else
-                    onSuccess(stream);
-            }, err => {
-                if (onError instanceof Handler)
-                    onError.runWith(err);
-                else if (onError)
-                    onError(err);
-            });
+        onStartListeningToType(type) {
+            if (type === Event.CHANGE)
+                PAL.device.on("deviceorientation", this, this.onDeviceOrientation);
+            return this;
+        }
+        onDeviceOrientation(absolute, orientationInfo) {
+            this.event(Event.CHANGE, [absolute, orientationInfo]);
         }
     }
 
@@ -113988,6 +113119,25 @@ ${computeCode}
     Geolocation.enableHighAccuracy = false;
     Geolocation.timeout = 1E10;
     Geolocation.maximumAge = 0;
+
+    class Media {
+        static supported() {
+            return PAL.device.supportedGetUserMedia;
+        }
+        static getMedia(constraints, onSuccess, onError) {
+            PAL.device.getUserMedia(constraints, stream => {
+                if (onSuccess instanceof Handler)
+                    onSuccess.runWith(stream);
+                else
+                    onSuccess(stream);
+            }, err => {
+                if (onError instanceof Handler)
+                    onError.runWith(err);
+                else if (onError)
+                    onError(err);
+            });
+        }
+    }
 
     class Shake extends EventDispatcher {
         static get instance() {
@@ -118638,6 +117788,828 @@ ${computeCode}
             destObject.radius = this.radius;
         }
     }
+
+    class PixelLineSprite3D extends RenderableSprite3D {
+        get maxLineCount() {
+            return this._render.maxLineCount;
+        }
+        set maxLineCount(value) {
+            this._render.maxLineCount = value;
+        }
+        get lineCount() {
+            return this._render.lineCount;
+        }
+        get pixelLineRenderer() {
+            return this._render;
+        }
+        constructor(maxCount = 2, name = null) {
+            super(name);
+            this._isRenderActive = false;
+            this._isInRenders = false;
+            this._render = this.addComponent(PixelLineRenderer);
+            this._geometryFilter = this._render._pixelLineFilter;
+            this._render.maxLineCount = maxCount;
+            let material = this._render.material = new UnlitMaterial();
+            material.enableVertexColor = true;
+        }
+        addLine(startPosition, endPosition, startColor, endColor) {
+            this._render.addLine(startPosition, endPosition, startColor, endColor);
+        }
+        addLines(lines) {
+            this._render.addLines(lines);
+        }
+        removeLine(index) {
+            this._render.removeLine(index);
+        }
+        setLine(index, startPosition, endPosition, startColor, endColor) {
+            this._render.setLine(index, startPosition, endPosition, startColor, endColor);
+        }
+        getLine(index, out) {
+            this._render.getLine(index, out);
+        }
+        clear() {
+            this._render.clear();
+        }
+    }
+
+    var Script3D = Script;
+
+    class MaterialInstanceProperty {
+        constructor() {
+            this._isNeedUpdate = false;
+        }
+        createInstanceVertexBuffer3D() {
+            this._instanceData = new Float32Array(DrawMeshInstancedCMD.maxInstanceCount * this._vertexStride);
+            this._vertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(this._instanceData.length * 4, BufferUsage.Dynamic, false);
+            this._vertexBuffer.vertexDeclaration = this._vertexDeclaration;
+            this._vertexBuffer.instanceBuffer = true;
+        }
+        updateVertexBufferData(drawNums) {
+            if (!this._isNeedUpdate)
+                return;
+            let instanceData = this._instanceData;
+            let dataValue = this._value;
+            let datalength = this._value.length;
+            let data;
+            let stride = this._vertexStride;
+            let updateType = 0;
+            if (!(this._value instanceof Float32Array)) {
+                updateType = 1;
+            }
+            switch (updateType) {
+                case 0:
+                    instanceData.set(dataValue, 0);
+                    break;
+                case 1:
+                    for (let i = 0; i < datalength; i++) {
+                        data = dataValue[i];
+                        data.writeTo(instanceData, i * stride);
+                    }
+                    break;
+            }
+            this._vertexBuffer._deviceBuffer.setDataLength(this._vertexBuffer._byteLength);
+            this._vertexBuffer.setData(instanceData.buffer, 0, 0, drawNums * 4 * stride);
+        }
+        destroy() {
+            delete this._value;
+            delete this._instanceData;
+            this._vertexDeclaration = null;
+            this._vertexBuffer.destroy();
+        }
+    }
+
+    exports.InstanceLocation = void 0;
+    (function (InstanceLocation) {
+        InstanceLocation[InstanceLocation["CUSTOME0"] = 12] = "CUSTOME0";
+        InstanceLocation[InstanceLocation["CUSTOME1"] = 13] = "CUSTOME1";
+        InstanceLocation[InstanceLocation["CUSTOME2"] = 14] = "CUSTOME2";
+        InstanceLocation[InstanceLocation["CUSTOME3"] = 15] = "CUSTOME3";
+    })(exports.InstanceLocation || (exports.InstanceLocation = {}));
+    class MaterialInstancePropertyBlock {
+        constructor() {
+            this._type = 0;
+            this._propertyMap = {};
+        }
+        _checkPropertyLegal(vertexElementFormat, propertyName, attributeLocation, prob) {
+            var vecDec = prob._vertexDeclaration;
+            if (vecDec._vertexElements[0]._elementFormat !== vertexElementFormat)
+                throw "Data exists and format does not match";
+            if (prob._name !== propertyName)
+                throw "You cannot add a new property to an existing attributeLocation,Please use another attributeLocation";
+        }
+        _creatProperty(attributeName, arrays, vertexStride, vertexformat, attributeLocation) {
+            var prob = this._propertyMap[attributeLocation] = new MaterialInstanceProperty();
+            prob._name = attributeName;
+            prob._value = arrays;
+            prob._vertexDeclaration = new VertexDeclaration(vertexStride, [new VertexElement(0, vertexformat, attributeLocation)]);
+            prob._isNeedUpdate = true;
+            prob._vertexStride = vertexStride / 4;
+            prob.createInstanceVertexBuffer3D();
+        }
+        setVectorArray(attributeName, arrays, attributeLocation) {
+            var prob = this._propertyMap[attributeLocation];
+            if (prob) {
+                this._checkPropertyLegal(VertexElementFormat.Vector4, attributeName, attributeLocation, prob);
+                prob._value = arrays;
+                prob._isNeedUpdate = true;
+            }
+            else
+                this._creatProperty(attributeName, arrays, 16, VertexElementFormat.Vector4, attributeLocation);
+        }
+        setVector3Array(attributeName, arrays, attributeLocation) {
+            var prob = this._propertyMap[attributeLocation];
+            if (prob) {
+                this._checkPropertyLegal(VertexElementFormat.Vector3, attributeName, attributeLocation, prob);
+                prob._value = arrays;
+                prob._isNeedUpdate = true;
+            }
+            else
+                this._creatProperty(attributeName, arrays, 12, VertexElementFormat.Vector3, attributeLocation);
+        }
+        setVector2Array(attributeName, arrays, attributeLocation) {
+            var prob = this._propertyMap[attributeLocation];
+            if (prob) {
+                this._checkPropertyLegal(VertexElementFormat.Vector2, attributeName, attributeLocation, prob);
+                prob._value = arrays;
+                prob._isNeedUpdate = true;
+            }
+            else
+                this._creatProperty(attributeName, arrays, 8, VertexElementFormat.Vector2, attributeLocation);
+        }
+        setNumberArray(attributeName, arrays, attributeLocation) {
+            var prob = this._propertyMap[attributeLocation];
+            if (prob) {
+                this._checkPropertyLegal(VertexElementFormat.Single, attributeName, attributeLocation, prob);
+                prob._value = arrays;
+                prob._isNeedUpdate = true;
+            }
+            else
+                this._creatProperty(attributeName, arrays, 4, VertexElementFormat.Single, attributeLocation);
+        }
+        getPropertyArray(attributeLocation) {
+            var prob = this._propertyMap[attributeLocation];
+            return prob ? prob._value : null;
+        }
+        clear() {
+            for (var i in this._propertyMap) {
+                this._propertyMap[i].destroy();
+            }
+            this._propertyMap = {};
+        }
+    }
+    MaterialInstancePropertyBlock.INSTANCETYPE_ATTRIBUTE = 0;
+    MaterialInstancePropertyBlock.INSTANCETYPE_UNIFORMBUFFER = 1;
+
+    class WebXRCamera extends Camera {
+        constructor() {
+            super(...arguments);
+            this.isWebXR = true;
+        }
+        get renderTarget() {
+            return this._internalRenderTexture;
+        }
+        set renderTarget(value) {
+            this._internalRenderTexture = value;
+        }
+        set clientWidth(value) {
+            this._clientWidth = value;
+        }
+        set clientHeight(value) {
+            this._clientHeight = value;
+        }
+        get clientWidth() {
+            return this._clientWidth;
+        }
+        get clientHeight() {
+            return this._clientHeight;
+        }
+        _restoreView(gl) {
+            var viewport = this.viewport;
+            var vpX, vpY;
+            var vpW = viewport.width;
+            var vpH = viewport.height;
+            if (this._needInternalRenderTexture()) {
+                vpX = 0;
+                vpY = 0;
+            }
+            else {
+                vpX = viewport.x;
+                vpY = this._getCanvasHeight() - viewport.y - vpH;
+            }
+            gl.viewport(vpX, vpY, vpW, vpH);
+        }
+        render() {
+            if (!this.activeInHierarchy)
+                return;
+            var viewport = this.viewport;
+            var needInternalRT = true;
+            var context = RenderContext3D._instance;
+            var scene = context.scene = this._scene;
+            context.pipelineMode = context.configPipeLineMode;
+        }
+        _renderMainPass(context, viewport, scene, shader, replacementTag, needInternalRT) {
+        }
+        _calculateProjectionMatrix() {
+        }
+        clear(gl) {
+            gl.viewport(0, 0, this._clientWidth, this._clientHeight);
+            gl.scissor(0, 0, this._clientWidth, this._clientHeight);
+            gl.clearColor(this.clearColor.r, this.clearColor.g, this.clearColor.b, this.clearColor.a);
+            gl.depthMask(true);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        }
+        destroy() {
+            super.destroy(true);
+        }
+    }
+
+    class WebXRRenderTexture extends RenderTexture {
+        constructor() {
+            super(1, 1, 1, exports.RenderTargetFormat.STENCIL_8, false, 1);
+            this.frameLoop = -1;
+        }
+        set frameBuffer(value) {
+            this._frameBuffer = value;
+        }
+        _create(width, height) {
+        }
+    }
+
+    class WebXRSessionManager extends EventDispatcher {
+        constructor() {
+            super();
+            this.currentTimestamp = -1;
+            this.defaultHeightCompensation = 1.7;
+            this._sessionEnded = false;
+        }
+        get referenceSpace() {
+            return this._referenceSpace;
+        }
+        set referenceSpace(newReferenceSpace) {
+            this._referenceSpace = newReferenceSpace;
+        }
+        get sessionMode() {
+            return this._sessionMode;
+        }
+        exitXR() {
+            this.endXRRenderLoop();
+            this.event(WebXRSessionManager.EVENT_MANAGER_END);
+        }
+        initializeXRGL(xrSession, gl) {
+            return gl.makeXRCompatible().then(() => {
+                return true;
+            });
+        }
+        ;
+        initializeAsync() {
+            this._xrNavigator = navigator;
+            if (!this._xrNavigator.xr) {
+                return Promise.reject("WebXR not available");
+            }
+            return Promise.resolve();
+        }
+        isSessionSupportedAsync(sessionMode) {
+            if (!navigator.xr) {
+                return Promise.resolve(false);
+            }
+            else {
+                this._xrNavigator = navigator;
+            }
+            const functionToUse = navigator.xr.isSessionSupported || navigator.xr.supportsSession;
+            if (!functionToUse)
+                return Promise.resolve(false);
+            else {
+                return navigator.xr.isSessionSupported(sessionMode);
+            }
+        }
+        initializeSessionAsync(xrSessionMode = 'immersive-vr', xrSessionInit = {}) {
+            return this._xrNavigator.xr.requestSession('immersive-vr').then((session) => {
+                this.session = session;
+                this._sessionMode = xrSessionMode;
+                this._sessionEnded = false;
+                this.session.addEventListener("end", () => {
+                    this._sessionEnded = true;
+                    this.exitXR();
+                }, { once: true });
+                return this.session;
+            });
+        }
+        resetReferenceSpace() {
+            this.referenceSpace = this.baseReferenceSpace;
+        }
+        runXRRenderLoop() {
+            this.session.requestAnimationFrame.bind(this.session);
+            let fn = (timestamp, xrFrame) => {
+                this._updateByXrFrame(xrFrame, timestamp);
+                this.event(WebXRSessionManager.EVENT_FRAME_LOOP, [xrFrame]);
+                Render.loop(timestamp);
+                this.session.requestAnimationFrame(fn);
+            };
+            this.session.requestAnimationFrame(fn);
+        }
+        endXRRenderLoop() {
+        }
+        _updateByXrFrame(xrFrame, timestamp) {
+            this.currentFrame = xrFrame;
+            this.currentTimestamp = timestamp;
+        }
+        setReferenceSpaceTypeAsync(referenceSpaceType = "local-floor") {
+            return this.session
+                .requestReferenceSpace(referenceSpaceType)
+                .then((referenceSpace) => {
+                return referenceSpace;
+            }, (rejectionReason) => {
+                return this.session.requestReferenceSpace("viewer").then((referenceSpace) => {
+                    const heightCompensation = new XRRigidTransform({ x: 0, y: -this.defaultHeightCompensation, z: 0 });
+                    return (referenceSpace).getOffsetReferenceSpace(heightCompensation);
+                }, (rejectionReason) => {
+                    throw 'XR initialization failed: required "viewer" reference space type not supported.';
+                });
+            }).then((referenceSpace) => {
+                this.referenceSpace = this.baseReferenceSpace = referenceSpace;
+                return this.referenceSpace;
+            });
+        }
+        updateRenderStateAsync(state) {
+            if (state.baseLayer) {
+                this._baseLayer = state.baseLayer;
+            }
+            return this.session.updateRenderState(state);
+        }
+        get currentFrameRate() {
+            var _a;
+            return (_a = this.session) === null || _a === void 0 ? void 0 : _a.frameRate;
+        }
+        get supportedFrameRates() {
+            var _a;
+            return (_a = this.session) === null || _a === void 0 ? void 0 : _a.supportedFrameRates;
+        }
+        updateTargetFrameRate(rate) {
+            return this.session.updateTargetFrameRate(rate);
+        }
+        destroy() {
+            if (!this._sessionEnded) {
+                this.exitXR();
+            }
+        }
+    }
+    WebXRSessionManager.EVENT_MANAGER_END = "xrManagerDestory";
+    WebXRSessionManager.EVENT_FRAME_LOOP = "xrFrameLoop";
+
+    class WebXRCameraManager {
+        get position() {
+            return this._position;
+        }
+        set position(newPosition) {
+            newPosition.cloneTo(this._position);
+        }
+        get rotationQuaternion() {
+            return this._referenceQuaternion;
+        }
+        set rotationQuaternion(value) {
+            value.cloneTo(this._referenceQuaternion);
+        }
+        get rigCameras() {
+            return this._rigCameras;
+        }
+        constructor(camera, manager = null) {
+            this._referenceQuaternion = new Quaternion();
+            this._referencedPosition = new Vector3();
+            this._firstFrame = true;
+            this._XRRenderTexture = new WebXRRenderTexture();
+            this._rigCameras = new Array();
+            this._position = new Vector3();
+            this.owner = camera;
+            this.owner.enableRender = false;
+            if (!this.owner.aspectRatio) {
+                console.warn("owner is not Camera");
+            }
+            this._webXRSessionManager = manager;
+            this._webXRSessionManager.on(WebXRSessionManager.EVENT_FRAME_LOOP, this, this._updateFromXRSession);
+            this._webXRSessionManager.on(WebXRSessionManager.EVENT_FRAME_LOOP, this, this._updateReferenceSpace);
+            this._webXRSessionManager.on(WebXRSessionManager.EVENT_MANAGER_END, this, this.destroy);
+        }
+        _updateFromXRSession() {
+            let pose = this._webXRSessionManager.currentFrame && this._webXRSessionManager.currentFrame.getViewerPose(this._webXRSessionManager.referenceSpace);
+            const pos = pose.transform.position;
+            const orientation = pose.transform.orientation;
+            this._referenceQuaternion.setValue(orientation.x, orientation.y, orientation.z, orientation.w);
+            this._referencedPosition.setValue(pos.x, pos.y, pos.z);
+            if (this._firstFrame) {
+                this._firstFrame = false;
+                this.position.y += this._referencedPosition.y;
+                this._referenceQuaternion.setValue(0, 0, 0, 1);
+            }
+            else {
+                this.rotationQuaternion = this._referenceQuaternion;
+                this.position = this._referencedPosition;
+            }
+            if (this.rigCameras.length !== pose.views.length) {
+                this._updateNumberOfRigCameras(pose.views.length);
+            }
+            pose.views.forEach((view, i) => {
+                const currentRig = this.rigCameras[i];
+                if (view.eye === "right")
+                    currentRig.name = "right";
+                else if (view.eye === "left")
+                    currentRig.name = "left";
+                const pos = view.transform.position;
+                const orientation = view.transform.orientation;
+                currentRig.transform.position.setValue(pos.x, pos.y, pos.z);
+                currentRig.transform.rotation.setValue(orientation.x, orientation.y, orientation.z, orientation.w);
+                currentRig.transform.position = currentRig.transform.position;
+                currentRig.transform.rotation = currentRig.transform.rotation;
+                if (this._webXRSessionManager.session.renderState.baseLayer) {
+                    var viewport = this._webXRSessionManager.session.renderState.baseLayer.getViewport(view);
+                    var width = this._webXRSessionManager.session.renderState.baseLayer.framebufferWidth;
+                    var height = this._webXRSessionManager.session.renderState.baseLayer.framebufferHeight;
+                    this._XRRenderTexture.frameBuffer = this._webXRSessionManager.session.renderState.baseLayer.framebuffer;
+                    currentRig.renderTarget = this._XRRenderTexture;
+                    currentRig.clientWidth = width;
+                    currentRig.clientHeight = height;
+                    var cameraViewPort = currentRig.viewport;
+                    cameraViewPort.x = viewport.x;
+                    cameraViewPort.y = viewport.y;
+                    cameraViewPort.width = viewport.width;
+                    cameraViewPort.height = viewport.height;
+                    currentRig.viewport = cameraViewPort;
+                    currentRig.projectionMatrix.cloneByArray(view.projectionMatrix);
+                }
+            });
+        }
+        _updateNumberOfRigCameras(viewCount = 1) {
+            while (this.rigCameras.length < viewCount) {
+                var xrcamera = new WebXRCamera(this.owner.aspectRatio, this.owner.nearPlane, this.owner.farPlane);
+                xrcamera.clearFlag = this.owner.clearFlag;
+                xrcamera.clearColor = this.owner.clearColor;
+                this.owner.addChild(xrcamera);
+                this.rigCameras.push(xrcamera);
+            }
+            while (this.rigCameras.length > viewCount) {
+                let xrcamera = this.rigCameras.pop();
+                this.owner.removeChild(xrcamera);
+            }
+        }
+        _updateReferenceSpace() {
+        }
+        destroy() {
+            this.owner.enableRender = true;
+            this._webXRSessionManager.off(WebXRSessionManager.EVENT_FRAME_LOOP, this, this._updateFromXRSession);
+            this._webXRSessionManager.off(WebXRSessionManager.EVENT_FRAME_LOOP, this, this._updateReferenceSpace);
+            this._webXRSessionManager.off(WebXRSessionManager.EVENT_MANAGER_END, this, this.destroy);
+            this._rigCameras.forEach(element => {
+                element.destroy();
+            });
+            this._rigCameras = null;
+            this._XRRenderTexture.destroy();
+        }
+    }
+
+    class AxiGamepad extends EventDispatcher {
+        constructor(handness, length) {
+            super();
+            this.axisData = new Array();
+            this.handness = handness;
+            this.axisData.length = length;
+            this.axisLength = length;
+        }
+        update(padGameAxi) {
+            for (let i = 0, j = 0; i < padGameAxi.axes.length; i += 2, ++j) {
+                if (!this.axisData[j])
+                    this.axisData[j] = new Vector2();
+                this.axisData[j].setValue(padGameAxi.axes[i], padGameAxi.axes[i + 1]);
+                this.outPutStickValue(this.axisData[j], j);
+            }
+        }
+        outPutStickValue(value, index) {
+            const eventnam = AxiGamepad.EVENT_OUTPUT + index.toString();
+            this.event(eventnam, [value]);
+        }
+        destroy() {
+            for (let i = 0; i < this.axisLength; i++) {
+                let eventname = AxiGamepad.EVENT_OUTPUT + i.toString();
+                this.offAll(eventname);
+            }
+        }
+    }
+    AxiGamepad.EVENT_OUTPUT = "outputAxi_id";
+    class ButtonGamepad extends EventDispatcher {
+        constructor(handness, index) {
+            super();
+            this.lastTouch = false;
+            this.lastPress = false;
+            this.lastPressValue = 0;
+            this.touch = false;
+            this.press = false;
+            this.pressValue = 0;
+            this.handness = handness;
+            this.index = index;
+        }
+        update(padButton) {
+            this.lastTouch = this.touch;
+            this.lastPress = this.press;
+            this.lastPressValue = this.pressValue;
+            this.touch = padButton.touched;
+            this.press = padButton.pressed;
+            this.pressValue = padButton.value;
+            if (!this.lastTouch && !this.touch) {
+                return;
+            }
+            if (this.lastTouch != this.touch && this.touch) {
+                this.touchEnter();
+            }
+            else if (this.lastTouch == this.touch && this.touch) {
+                this.touchStay();
+            }
+            else if (this.lastTouch != this.touch && !this.touch) {
+                this.touchOut();
+            }
+            if (this.lastPress != this.press && this.press) {
+                this.pressEnter();
+            }
+            else if (this.lastPress == this.press && this.press) {
+                this.pressStay();
+            }
+            else if (this.lastPress != this.press && !this.press) {
+                this.pressOut();
+            }
+            if (this.touch) {
+                this.outpressed();
+            }
+        }
+        touchEnter() {
+            this.event(ButtonGamepad.EVENT_TOUCH_ENTER);
+        }
+        touchStay() {
+            this.event(ButtonGamepad.EVENT_TOUCH_STAY);
+        }
+        touchOut() {
+            this.event(ButtonGamepad.EVENT_TOUCH_OUT);
+        }
+        pressEnter() {
+            this.event(ButtonGamepad.EVENT_PRESS_ENTER);
+        }
+        pressStay() {
+            this.event(ButtonGamepad.EVENT_PRESS_STAY);
+        }
+        pressOut() {
+            this.event(ButtonGamepad.EVENT_PRESS_OUT);
+        }
+        outpressed() {
+            this.event(ButtonGamepad.EVENT_PRESS_VALUE, [this.pressValue]);
+        }
+        destroy() {
+            this.offAll(ButtonGamepad.EVENT_PRESS_ENTER);
+            this.offAll(ButtonGamepad.EVENT_PRESS_STAY);
+            this.offAll(ButtonGamepad.EVENT_PRESS_OUT);
+            this.offAll(ButtonGamepad.EVENT_PRESS_ENTER);
+            this.offAll(ButtonGamepad.EVENT_PRESS_STAY);
+            this.offAll(ButtonGamepad.EVENT_PRESS_OUT);
+            this.offAll(ButtonGamepad.EVENT_PRESS_VALUE);
+        }
+    }
+    ButtonGamepad.EVENT_TOUCH_ENTER = "touchEnter";
+    ButtonGamepad.EVENT_TOUCH_STAY = "touchStay";
+    ButtonGamepad.EVENT_TOUCH_OUT = "touchOut";
+    ButtonGamepad.EVENT_PRESS_ENTER = "pressEnter";
+    ButtonGamepad.EVENT_PRESS_STAY = "pressStay";
+    ButtonGamepad.EVENT_PRESS_OUT = "pressOut";
+    ButtonGamepad.EVENT_PRESS_VALUE = "outpressed";
+
+    class WebXRInput extends EventDispatcher {
+        constructor(handness) {
+            super();
+            this.preButtonEventList = [];
+            this.preAxisEventList = [];
+            this.handness = handness;
+            this.position = new Vector3();
+            this.rotation = new Quaternion();
+            this.ray = new Ray(new Vector3(), new Vector3());
+        }
+        _updateByXRPose(xrFrame, referenceSpace) {
+            const rayPose = xrFrame.getPose(this._inputSource.targetRaySpace, referenceSpace);
+            this._lastXRPose = rayPose;
+            if (rayPose) {
+                const pos = rayPose.transform.position;
+                const orientation = rayPose.transform.orientation;
+                WebXRInput.tempQua.setValue(orientation.x, orientation.y, orientation.z, orientation.w);
+                this.ray.origin.setValue(pos.x, pos.y, pos.z);
+                Vector3.transformQuat(Vector3.UnitZ, WebXRInput.tempQua, this.ray.direction);
+                Vector3.scale(this.ray.direction, -1, this.ray.direction);
+            }
+            if (this._inputSource.gripSpace) {
+                let meshPose = xrFrame.getPose(this._inputSource.gripSpace, referenceSpace);
+                if (meshPose) {
+                    const pos = meshPose.transform.position;
+                    const orientation = meshPose.transform.orientation;
+                    this.position.setValue(pos.x, pos.y, pos.z);
+                    this.rotation.setValue(orientation.x, orientation.y, orientation.z, orientation.w);
+                }
+            }
+            this.event(WebXRInput.EVENT_FRAMEUPDATA_WEBXRINPUT, [this]);
+            this._handleProcessGamepad();
+        }
+        _handleProcessGamepad() {
+            const gamepad = this._inputSource.gamepad;
+            if (!this.gamepadAxis) {
+                this.gamepadAxis = new AxiGamepad(this.handness, gamepad.axes.length);
+                this.preAxisEventList.forEach(element => {
+                    this.gamepadAxis.on(element.eventnam, element.caller, element.listener);
+                });
+            }
+            if (!this.gamepadButton) {
+                this.gamepadButton = [];
+                for (let i = 0; i < gamepad.buttons.length; ++i) {
+                    this.gamepadButton.push(new ButtonGamepad(this.handness, i));
+                }
+                this.preButtonEventList.forEach(element => {
+                    this.addButtonEvent(element.index, element.type, element.caller, element.listener);
+                });
+            }
+            this.gamepadAxis.update(gamepad);
+            for (let i = 0; i < gamepad.buttons.length; ++i) {
+                let button = this.gamepadButton[i];
+                button.update(gamepad.buttons[i]);
+            }
+        }
+        addButtonEvent(index, type, caller, listener) {
+            if (!this.gamepadButton) {
+                this.preButtonEventList.push({
+                    "index": index,
+                    "type": type,
+                    "caller": caller,
+                    "listener": listener
+                });
+            }
+            else {
+                let button = this.gamepadButton[index];
+                button.on(type, caller, listener);
+            }
+        }
+        addAxisEvent(index, type, caller, listener) {
+            if (!this.gamepadAxis) {
+                this.preAxisEventList.push({
+                    "eventnam": type + index.toString(),
+                    "caller": caller,
+                    "listener": listener
+                });
+            }
+            else {
+                const eventnam = type + index.toString();
+                this.gamepadAxis.on(eventnam, caller, listener);
+            }
+        }
+        offAxisEvent(index, type, caller, listener) {
+            if (this.gamepadAxis) {
+                const eventnam = type + index.toString();
+                this.gamepadAxis.off(eventnam, caller, listener);
+            }
+        }
+        offButtonEvent(index, type, caller, listener) {
+            if (this.gamepadButton) {
+                let button = this.gamepadButton[index];
+                button.off(type, caller, listener);
+            }
+        }
+        destroy() {
+            this.preButtonEventList = null;
+            this.ray = null;
+            this.position = null;
+            this.rotation = null;
+            this.gamepadAxis.destroy();
+            this.gamepadButton.forEach(element => {
+                element.destroy();
+            });
+        }
+    }
+    WebXRInput.HANDNESS_LEFT = "left";
+    WebXRInput.HANDNESS_RIGHT = "right";
+    WebXRInput.EVENT_FRAMEUPDATA_WEBXRINPUT = "frameXRInputUpdate";
+    WebXRInput.tempQua = new Quaternion();
+
+    class WebXRInputManager {
+        constructor(webxrManager, webXRCamera) {
+            this.controllers = new Map();
+            this.controllerHandMesh = new Map();
+            this.controllerLineRender = new Map();
+            this.lineColor = Color.RED;
+            this.rayLength = 2;
+            this.webXRSessionManager = webxrManager;
+            this.webXRCameraManager = webXRCamera;
+            this.webXRSessionManager.on(WebXRSessionManager.EVENT_MANAGER_END, this, this.destory);
+            this.webXRSessionManager.on(WebXRSessionManager.EVENT_FRAME_LOOP, this, this._updateFromXRFrame);
+        }
+        _updateMeshRender(xrInput) {
+            const handness = xrInput.handness;
+            if (this.controllerHandMesh.has(handness)) {
+                let meshNode = this.controllerHandMesh.get(handness);
+                meshNode.transform.position = xrInput.position;
+                meshNode.transform.rotation = xrInput.rotation;
+            }
+            if (this.controllerLineRender.has(handness)) {
+                let line = this.controllerLineRender.get(handness);
+                line.clear();
+                let ray = xrInput.ray;
+                tempVec.setValue(ray.origin.x, ray.origin.y, ray.origin.z);
+                Vector3.scale(ray.direction, this.rayLength, tempVec1);
+                Vector3.add(tempVec, tempVec1, tempVec1);
+                line.addLine(tempVec, tempVec1, this.lineColor, this.lineColor);
+            }
+        }
+        _updateFromXRFrame(xrFrame) {
+            const session = this.webXRSessionManager.session;
+            const refSpace = this.webXRSessionManager.referenceSpace;
+            for (let inputSource of session.inputSources) {
+                const key = inputSource.handedness;
+                let xrInput;
+                if (!this.controllers.has(key)) {
+                    xrInput = this.getController(key);
+                }
+                else
+                    xrInput = this.controllers.get(key);
+                if (xrInput) {
+                    xrInput = this.controllers.get(key);
+                    xrInput._inputSource = inputSource;
+                    xrInput._updateByXRPose(xrFrame, refSpace);
+                }
+            }
+        }
+        bindMeshNode(meshSprite, handness) {
+            this.controllerHandMesh.set(handness, meshSprite);
+        }
+        bindRayNode(lineSprite, handness) {
+            this.controllerLineRender.set(handness, lineSprite);
+        }
+        getController(handness) {
+            if (handness != "left" && handness != "right")
+                return null;
+            if (!this.controllers.has(handness)) {
+                let value = new WebXRInput(handness);
+                this.controllers.set(handness, value);
+                value.on(WebXRInput.EVENT_FRAMEUPDATA_WEBXRINPUT, this, this._updateMeshRender);
+            }
+            return this.controllers.get(handness);
+        }
+        destory() {
+            this.webXRSessionManager.off(WebXRSessionManager.EVENT_FRAME_LOOP, this, this._updateFromXRFrame);
+            for (let key in this.controllers) {
+                this.controllers.get(key).off("frameXRInputUpdate", this, this._updateMeshRender);
+                this.controllers.get(key).destroy();
+            }
+            this.controllers = null;
+            this.controllerHandMesh = null;
+            this.controllerLineRender = null;
+        }
+    }
+    const tempVec = new Vector3();
+    const tempVec1 = new Vector3();
+
+    class WebXRCameraInfo {
+    }
+    class WebXRExperienceHelper {
+        static supportXR(sessionMode) {
+            return WebXRExperienceHelper.xr_Manager.isSessionSupportedAsync(sessionMode).then(value => {
+                WebXRExperienceHelper.supported = value;
+                return value;
+            });
+        }
+        static enterXRAsync(sessionMode, referenceSpaceType, cameraInfo) {
+            if (sessionMode === "immersive-ar" && referenceSpaceType !== "unbounded") {
+                console.warn("We recommend using 'unbounded' reference space type when using 'immersive-ar' session mode");
+            }
+            return WebXRExperienceHelper.xr_Manager.initializeSessionAsync(sessionMode).then(() => {
+                return WebXRExperienceHelper.xr_Manager.setReferenceSpaceTypeAsync(referenceSpaceType);
+            }).then(() => {
+                return WebXRExperienceHelper.xr_Manager.initializeXRGL(sessionMode, LayaGL.renderEngine.gl);
+            }).then(() => {
+                WebXRExperienceHelper.glInstance = LayaGL.renderEngine.gl;
+                return WebXRExperienceHelper.xr_Manager.updateRenderStateAsync({
+                    depthFar: cameraInfo.depthFar,
+                    depthNear: cameraInfo.depthNear,
+                    baseLayer: new XRWebGLLayer(WebXRExperienceHelper.xr_Manager.session, LayaGL.renderEngine.gl),
+                });
+            }).then(() => {
+                WebXRExperienceHelper.xr_Manager.runXRRenderLoop();
+                return WebXRExperienceHelper.xr_Manager;
+            });
+        }
+        static setWebXRCamera(camera, manager) {
+            return new WebXRCameraManager(camera, manager);
+        }
+        static setWebXRInput(sessionManager, cameraManager) {
+            return new WebXRInputManager(sessionManager, cameraManager);
+        }
+    }
+    WebXRExperienceHelper.xr_Manager = new WebXRSessionManager();
+    WebXRExperienceHelper.supported = false;
+    WebXRExperienceHelper.canvasOptions = {
+        antialias: true,
+        depth: true,
+        stencil: false,
+        alpha: true,
+        multiview: false,
+        framebufferScaleFactor: 1,
+    };
 
     class AnimatorStateScript {
         setPlayScriptInfo(animator, layerindex, playstate) {

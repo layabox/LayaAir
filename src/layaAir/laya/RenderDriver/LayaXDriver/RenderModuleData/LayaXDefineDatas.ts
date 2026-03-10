@@ -50,7 +50,8 @@ export class LayaXDefineDatas implements IDefineDatas {
 
     addDefineDatas(define: IDefineDatas): void {
         if ((define as any)._nativeObj) {
-            this._nativeObj.addDefineDatas((define as LayaXDefineDatas)._nativeObj.handle);
+            // C++ addDefineDatas expects LayaXDefineDatas_JS*, pass the native object (not handle number)
+            this._nativeObj.addDefineDatas((define as LayaXDefineDatas)._nativeObj);
         }
     }
 
@@ -72,7 +73,8 @@ export class LayaXDefineDatas implements IDefineDatas {
         const dest = destObject as LayaXDefineDatas;
         if (dest._nativeObj) {
             dest._nativeObj.clear();
-            dest._nativeObj.addDefineDatas(this._nativeObj.handle);
+            // C++ addDefineDatas expects LayaXDefineDatas_JS*, pass the native object
+            dest._nativeObj.addDefineDatas(this._nativeObj);
         }
     }
 
@@ -82,10 +84,6 @@ export class LayaXDefineDatas implements IDefineDatas {
         return dest;
     }
 
-    /** Get the native handle (for passing to ShaderPass etc.) */
-    get handle(): number {
-        return this._nativeObj.handle;
-    }
 
     destroy(): void {
         this._nativeObj.destroy();

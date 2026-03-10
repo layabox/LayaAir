@@ -1,5 +1,6 @@
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { IShaderPassData } from "../../RenderModuleData/Design/IShaderPassData";
@@ -64,7 +65,8 @@ export class LayaXShaderPass implements IShaderPassData {
 
     set validDefine(value: IDefineDatas) {
         this._validDefine = value as LayaXDefineDatas;
-        this._nativeObj.setValidDefine(this._validDefine.handle);
+        // C++ setValidDefine expects LayaXDefineDatas_JS*, pass the native object (not handle number)
+        this._nativeObj.setValidDefine(this._validDefine._nativeObj);
     }
 
     get renderState(): RenderState {
@@ -120,46 +122,45 @@ export class LayaXShaderPass implements IShaderPassData {
     /**
      * Compile callback invoked by Rust on variant cache miss.
      *
+     * @param defineNamesStr - newline-separated define names from Rust (e.g. "DIRECTIONLIGHT\nSHADOWMAP")
      * @param setMapNamesStr - set→map name mapping from Rust (format: "0:Scene3D,Global;1:BaseCamera;2:Sprite3D")
      * @param attributeLocationsStr - attribute locations from Rust (format: "0,1,2,5")
-     * @returns ProgramHandle (u64 as number), 0 on failure
+     * @returns LayaXShaderInstance._nativeObj (C++ LayaXShaderInstance_JS*), C++ extracts handle
      */
-    private _onCompileCallback(setMapNamesStr: string, attributeLocationsStr: string): number {
+    private _onCompileCallback(defineNamesStr: string, setMapNamesStr: string, attributeLocationsStr: string): any {
         try {
-            // 1. Read compileDefine from Rust → get define name list
-            const compileDefineHandle = this._nativeObj.getCompileDefine();
+            // 1. Parse define names from Rust (newline-separated → string[])
+            const defineStrings = defineNamesStr
+                ? defineNamesStr.split('\n').filter(s => s.length > 0)
+                : [];
 
             // 2. Parse set→map name mapping and store for LayaXShaderInstance._create
-            const setMapNames = this._parseSetMapNames(setMapNamesStr);
-            this.compileSetMapNames = setMapNames;
+            this.compileSetMapNames = this._parseSetMapNames(setMapNamesStr);
 
-            // 2.5. Parse attribute locations and set on moduleData
+            // 3. Parse attribute locations
             this.attributeLocations = this._parseAttributeLocations(attributeLocationsStr);
 
-            // 3. Use the pass's compile mechanism to generate shader
-            // The compileDefine is set on Rust side; we read it and use withCompile
-            // which internally creates ShaderProcessInfo and calls _create on ShaderInstance
-            //
-            // TODO: Wire compileDefine handle into the compile flow.
-            // Currently withCompile uses validDefine; need to create a LayaXDefineDatas
-            // wrapper around the compileDefineHandle and pass it instead.
-            const compileDefine = new LayaXDefineDatas();
-            (compileDefine as any)._handle = compileDefineHandle;
+            // 4. Build ShaderProcessInfo directly with define names from Rust
+            const shaderProcessInfo: ShaderProcessInfo = {
+                is2D: this.is2D,
+                vs: this._pass._VS,
+                ps: this._pass._PS,
+                attributeMap: this._pass._owner._attributeMap,
+                uniformMap: this._pass._owner._uniformMap,
+                defineString: defineStrings,
+            };
 
-            const shaderInstance = this._pass.withCompile(
-                compileDefine, this.is2D
-            );
+            // 5. Create shader instance
+            const shaderInstance = LayaGL.renderDeviceFactory.createShaderInstance(shaderProcessInfo, this._pass);
 
+            // Return the C++ native object directly — C++ will call getHandle() on it
             if (shaderInstance && (shaderInstance as any)._nativeObj) {
-                const handle = (shaderInstance as any)._nativeObj.getHandle
-                    ? (shaderInstance as any)._nativeObj.getHandle()
-                    : ((shaderInstance as any)._nativeObj.handle || 0);
-                return handle;
+                return (shaderInstance as any)._nativeObj;
             }
         } catch (e) {
             console.error("LayaXShaderPass compile callback failed:", e);
         }
-        return 0;
+        return null;
     }
 
     setCacheShader(defines: IDefineDatas, shaderInstance: IShaderInstance): void {

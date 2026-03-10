@@ -29,6 +29,8 @@ export interface LayaXBindingInfo {
     set: number;
     binding: number;
     propertyId: number;
+    /** Source ShaderPropertyMap ID (matches Rust source_map_id for ShaderDataBlock lookup) */
+    sourceMapId: number;
     type: LayaXBindingInfoType;
     /** For Rust JSON serialization */
     bindingType: string;
@@ -85,6 +87,7 @@ export class LayaXBindGroupHelper {
                     set: groupID,
                     binding: bindingIndex++,
                     propertyId: propertyId,
+                    sourceMapId: propertyId,
                     type: LayaXBindingInfoType.buffer,
                     bindingType: "uniform",
                     dataType: 0,
@@ -111,6 +114,7 @@ export class LayaXBindGroupHelper {
                             set: groupID,
                             binding: bindingIndex++,
                             propertyId: propID,
+                            sourceMapId: propertyId,
                             type: LayaXBindingInfoType.texture,
                             bindingType: "texture",
                             dataType: prop.uniformtype,
@@ -127,6 +131,7 @@ export class LayaXBindGroupHelper {
                             set: groupID,
                             binding: bindingIndex++,
                             propertyId: propID,
+                            sourceMapId: propertyId,
                             type: LayaXBindingInfoType.sampler,
                             bindingType: "sampler",
                             dataType: prop.uniformtype,
@@ -147,6 +152,7 @@ export class LayaXBindGroupHelper {
                             set: groupID,
                             binding: bindingIndex++,
                             propertyId: propID,
+                            sourceMapId: propertyId,
                             type: LayaXBindingInfoType.storageBuffer,
                             bindingType: "storageBufferReadOnly",
                             dataType: prop.uniformtype,
@@ -162,6 +168,7 @@ export class LayaXBindGroupHelper {
                             set: groupID,
                             binding: bindingIndex++,
                             propertyId: propID,
+                            sourceMapId: propertyId,
                             type: LayaXBindingInfoType.storageBuffer,
                             bindingType: "storageBuffer",
                             dataType: prop.uniformtype,
@@ -177,6 +184,7 @@ export class LayaXBindGroupHelper {
                             set: groupID,
                             binding: bindingIndex++,
                             propertyId: propID,
+                            sourceMapId: propertyId,
                             type: LayaXBindingInfoType.storageTexture,
                             bindingType: "storageTexture",
                             dataType: prop.uniformtype,
@@ -227,6 +235,7 @@ export class LayaXBindGroupHelper {
                 set: groupID,
                 binding: bindingIndex++,
                 propertyId: propertyId,
+                sourceMapId: propertyId,
                 type: LayaXBindingInfoType.buffer,
                 bindingType: "uniform",
                 dataType: 0,
@@ -244,6 +253,7 @@ export class LayaXBindGroupHelper {
                     set: groupID,
                     binding: bindingIndex++,
                     propertyId: propID,
+                    sourceMapId: propertyId,
                     type: LayaXBindingInfoType.texture,
                     bindingType: "texture",
                     dataType: prop.uniformtype,
@@ -260,6 +270,7 @@ export class LayaXBindGroupHelper {
                     set: groupID,
                     binding: bindingIndex++,
                     propertyId: propID,
+                    sourceMapId: propertyId,
                     type: LayaXBindingInfoType.sampler,
                     bindingType: "sampler",
                     dataType: prop.uniformtype,
@@ -279,6 +290,7 @@ export class LayaXBindGroupHelper {
                     set: groupID,
                     binding: bindingIndex++,
                     propertyId: propID,
+                    sourceMapId: propertyId,
                     type: LayaXBindingInfoType.storageBuffer,
                     bindingType: "storageBufferReadOnly",
                     dataType: prop.uniformtype,
@@ -293,6 +305,7 @@ export class LayaXBindGroupHelper {
                     set: groupID,
                     binding: bindingIndex++,
                     propertyId: propID,
+                    sourceMapId: propertyId,
                     type: LayaXBindingInfoType.storageBuffer,
                     bindingType: "storageBuffer",
                     dataType: prop.uniformtype,
@@ -307,6 +320,7 @@ export class LayaXBindGroupHelper {
                     set: groupID,
                     binding: bindingIndex++,
                     propertyId: propID,
+                    sourceMapId: propertyId,
                     type: LayaXBindingInfoType.storageTexture,
                     bindingType: "storageTexture",
                     dataType: prop.uniformtype,

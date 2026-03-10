@@ -142,6 +142,7 @@ export class LayaXShaderInstance implements IShaderInstance {
         const engine = LayaXRenderEngine._instance;
         let vs_wgsl = "";
         let fs_wgsl = "";
+
         {
             let vertexSpvRes = engine.shaderCompiler.glslang.glsl450_to_spirv(glslObj.vertex, "vertex");
             if (!vertexSpvRes.success) {
@@ -223,6 +224,7 @@ export class LayaXShaderInstance implements IShaderInstance {
                 bindingType: b.bindingType,
                 dataType: b.dataType,
                 propertyId: b.propertyId,
+                sourceMapId: b.sourceMapId,
             }));
         }
         return JSON.stringify(obj);
