@@ -10,6 +10,7 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { StatElement } from "../../../layagl/StatisticsContext";
 import { Color } from "../../../maths/Color";
 import { Vector3 } from "../../../maths/Vector3";
+import { Vector4 } from "../../../maths/Vector4";
 import { VertexElement } from "../../../renders/VertexElement";
 import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 import { FastSinglelist } from "../../../utils/SingletonList";
@@ -37,6 +38,8 @@ export class WebglRenderContext2D implements IRenderContext2D {
 
     private _offscreenWidth: number;
     private _offscreenHeight: number;
+    private _offscreenX: number = 0;
+    private _offscreenY: number = 0;
 
     constructor() {
         this._globalConfigShaderData = Shader3D._configDefineValues as WebDefineDatas;
@@ -62,9 +65,15 @@ export class WebglRenderContext2D implements IRenderContext2D {
         return 0;
     }
 
-    setOffscreenView(width: number, height: number): void {
+    setOffscreenView(width: number, height: number, x: number = 0, y: number = 0): void {
         this._offscreenWidth = width;
         this._offscreenHeight = height;
+        this._offscreenX = x;
+        this._offscreenY = y;
+    }
+
+    getOffscreenView(out: Vector4): void {
+        out.setValue(this._offscreenX, this._offscreenY, this._offscreenWidth, this._offscreenHeight);
     }
 
     setRenderTarget(value: WebGLInternalRT, clear: boolean, clearColor: Color): void {
@@ -72,10 +81,10 @@ export class WebglRenderContext2D implements IRenderContext2D {
         clearColor.cloneTo(this._clearColor);
         if (this._destRT) {
             WebGLEngine.instance.getTextureContext().bindRenderTarget(this._destRT);
-            WebGLEngine.instance.viewport(0, 0, this._destRT._textures[0].width, this._destRT._textures[0].height);
+            WebGLEngine.instance.viewport(this._offscreenX, this._offscreenY, this._destRT._textures[0].width, this._destRT._textures[0].height);
         } else {
             WebGLEngine.instance.getTextureContext().bindoutScreenTarget();
-            WebGLEngine.instance.viewport(0, 0, this._offscreenWidth, this._offscreenHeight);
+            WebGLEngine.instance.viewport(this._offscreenX, this._offscreenY, this._offscreenWidth, this._offscreenHeight);
         }
         WebGLEngine.instance.scissorTest(false);
         WebGLEngine.instance.clearRenderTexture(clear ? RenderClearFlag.Color : RenderClearFlag.Nothing, this._clearColor);

@@ -64,13 +64,17 @@ export class CommandBuffer2D {
     }
 
     private cacheData: any = {}
+    private _cacheViewport: Vector4 = new Vector4();
     private _cacheContextState() {
         this.cacheData.rt = this._context.getRenderTarget();
         this.cacheData.pipeline = this._context.pipelineMode;
         this.cacheData.invertY = this._context.invertY;
+        this._context.getOffscreenView(this._cacheViewport);
     }
 
     private _recoverContextState() {
+        let vp = this._cacheViewport;
+        this._context.setOffscreenView(vp.z, vp.w, vp.x, vp.y);
         this._context.setRenderTarget(this.cacheData.rt, false, Color.BLACK);
         this._context.pipelineMode = this.cacheData.pipeline;
         this._context.invertY = this.cacheData.invertY;
@@ -244,9 +248,11 @@ export class CommandBuffer2D {
      * @param clearColor clear color when change target
      * @param colorValue clear color value
      * @param invertY invert y coordinate
+     * @param viewportX viewport x offset
+     * @param viewportY viewport y offset
      */
-    setRenderTarget(renderTexture: IRenderTarget, clearColor: boolean, colorValue: Color = Color.BLACK, invertY: boolean = true): void {
-        let cmd = Set2DRTCMD.create(renderTexture, clearColor, colorValue, invertY);
+    setRenderTarget(renderTexture: IRenderTarget, clearColor: boolean, colorValue: Color = Color.BLACK, invertY: boolean = true, viewportX: number = 0, viewportY: number = 0): void {
+        let cmd = Set2DRTCMD.create(renderTexture, clearColor, colorValue, invertY, viewportX, viewportY);
         this._commands.push(cmd);
         cmd._commandBuffer = this;
         cmd.getRenderCMD && this._renderCMDs.push(cmd.getRenderCMD());

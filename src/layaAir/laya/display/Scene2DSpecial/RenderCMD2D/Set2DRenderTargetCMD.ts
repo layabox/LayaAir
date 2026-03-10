@@ -9,12 +9,14 @@ import { Command2D } from "./Command2D";
 export class Set2DRTCMD extends Command2D {
     private static readonly _pool = Pool.createPool(Set2DRTCMD);
 
-    static create(renderTexture: IRenderTarget, clearColor: boolean, colorValue: Color, renderInvertY: boolean = true): Set2DRTCMD {
+    static create(renderTexture: IRenderTarget, clearColor: boolean, colorValue: Color, renderInvertY: boolean = true, viewportX: number = 0, viewportY: number = 0): Set2DRTCMD {
         let cmd = Set2DRTCMD._pool.take();
         cmd.renderTexture = renderTexture;
         cmd._setRenderTargetCMD.clearColor = clearColor;
         cmd._setRenderTargetCMD.clearColorValue = colorValue;
         cmd._setRenderTargetCMD.invertY = renderInvertY;
+        cmd._setRenderTargetCMD.viewportX = viewportX;
+        cmd._setRenderTargetCMD.viewportY = viewportY;
         return cmd;
     }
 

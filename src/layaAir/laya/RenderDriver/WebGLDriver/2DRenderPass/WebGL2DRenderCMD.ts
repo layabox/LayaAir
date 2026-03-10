@@ -3,6 +3,7 @@ import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
+import { RenderState2D } from "../../../webgl/utils/RenderState2D";
 import { Blit2DQuadCMD, Draw2DElementCMD, SetRendertarget2DCMD } from "../../DriverDesign/2DRenderPass/IRender2DCMD";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
@@ -24,6 +25,8 @@ export class WebGLSetRendertarget2DCMD extends SetRendertarget2DCMD {
     apply(context: IRenderContext2D): void {
         if (this.rt) context.invertY = this.invertY;
         else context.invertY = false;
+        let vpY = context.invertY ? this.viewportY : RenderState2D.height - this.viewportY - this.size.y;
+        context.setOffscreenView(this.size.x, this.size.y, this.viewportX, vpY);
         context.setRenderTarget(this.rt, this.clearColor, this.clearColorValue);
         context.passData.setVector2(ShaderDefines2D.UNIFORM_SIZE, this.size);
     }

@@ -1,5 +1,6 @@
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Color } from "../../../maths/Color";
+import { Vector4 } from "../../../maths/Vector4";
 import { SingletonList } from "../../../utils/SingletonList";
 import { I2DRenderPassFactory } from "../../DriverDesign/2DRenderPass/I2DRenderPassFactory";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
@@ -123,7 +124,10 @@ export class NoRenderContext2D implements IRenderContext2D {
     setRenderTarget(value: InternalRenderTarget, clear: boolean, clearColor: Color): void {
 
     }
-    setOffscreenView(width: number, height: number): void {
+    setOffscreenView(width: number, height: number, x?: number, y?: number): void {
+
+    }
+    getOffscreenView(out: Vector4): void {
 
     }
     drawRenderElementOne(node: IRenderElement2D): void {
