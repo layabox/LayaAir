@@ -134,7 +134,10 @@ export class NoRenderContext2D implements IRenderContext2D {
     setRenderTarget(value: InternalRenderTarget, clear: boolean, clearColor: Color): void {
 
     }
-    setOffscreenView(width: number, height: number): void {
+    setOffscreenView(width: number, height: number, x?: number, y?: number): void {
+
+    }
+    getOffscreenView(out: Vector4): void {
 
     }
     drawRenderElementOne(node: IRenderElement2D): void {

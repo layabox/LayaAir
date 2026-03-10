@@ -6,6 +6,7 @@ import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
+import { Vector4 } from "../../../maths/Vector4";
 import { Vector3 } from "../../../maths/Vector3";
 import { VertexElement } from "../../../renders/VertexElement";
 import { VertexElementFormat } from "../../../renders/VertexElementFormat";
@@ -34,6 +35,11 @@ export class GLESRenderContext2D implements IRenderContext2D {
     _nativeObj: any;
 
     private _dist: GLESInternalRT;
+
+    private _offscreenX: number = 0;
+    private _offscreenY: number = 0;
+    private _offscreenWidth: number = 0;
+    private _offscreenHeight: number = 0;
 
     public get invertY(): boolean {
         return this._nativeObj.invertY;
@@ -87,8 +93,16 @@ export class GLESRenderContext2D implements IRenderContext2D {
         return this._dist;
     }
 
-    setOffscreenView(width: number, height: number): void {
-        this._nativeObj.setOffscreenView(width, height);
+    setOffscreenView(width: number, height: number, x: number = 0, y: number = 0): void {
+        this._offscreenWidth = width;
+        this._offscreenHeight = height;
+        this._offscreenX = x;
+        this._offscreenY = y;
+        this._nativeObj.setOffscreenView(width, height, x, y);
+    }
+
+    getOffscreenView(out: Vector4): void {
+        out.setValue(this._offscreenX, this._offscreenY, this._offscreenWidth, this._offscreenHeight);
     }
 
     drawRenderElementOne(node: GLESRenderElement2D): void {
