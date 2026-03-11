@@ -16,6 +16,7 @@ export enum KeyFrameValueType {
 	Color = 8,
 	Boolean = 9,
 	PathPoint = 10,
+	MaterialRef = 11,
 }
 /**
  * @internal
@@ -141,6 +142,9 @@ export class KeyframeNodeOwner {
 				case KeyFrameValueType.Vector4:
 				case KeyFrameValueType.Color:
 					(<Vector4>this.value).cloneTo(this.crossFixedValue);
+					break;
+				case KeyFrameValueType.MaterialRef:
+					this.crossFixedValue = this.value;
 					break;
 				default:
 					throw new Error("Animator:unknown type.");
