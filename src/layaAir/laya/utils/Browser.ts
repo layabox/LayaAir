@@ -311,6 +311,12 @@ export class Browser {
     static mainCanvas: HTMLCanvas;
 
     /**
+     * @zh 是否使用一个离屏画布来进行渲染，默认是空，即使用mainCanvas。
+     * @en Whether to use an offscreen canvas for rendering. By default, it is null, which means using the mainCanvas.
+     */
+    static offscreenMainCanvas: HTMLCanvas;
+
+    /**
      * @zh 全局离屏画布，主要用来测量文本和获取图像数据。
      * @en The global offscreen canvas, used primarily for measuring text and obtaining image data.
      * @readonly

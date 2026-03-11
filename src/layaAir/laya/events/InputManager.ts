@@ -77,6 +77,12 @@ export class InputManager {
      */
     static readonly onMouseDownCapture: Delegate = new Delegate();
 
+    /** 
+     * @ignore 
+     * Use by IDE
+    */
+    static _previewFlag: boolean = false;
+
     /**@internal */
     protected _stage: Stage;
     /**@internal */
@@ -581,7 +587,7 @@ export class InputManager {
      * @returns 该点下的sprite，如果没有找到则返回null。
      */
     getSpriteUnderPoint(sp: Sprite, x: number, y: number): Sprite {
-        if ((sp._renderType & SpriteConst.AREA2D) !== 0 && LayaEnv.isPlaying) {
+        if ((sp._renderType & SpriteConst.AREA2D) !== 0 && LayaEnv.isPlaying && !InputManager._previewFlag) {
             (<Area2D>sp).localToView(x, y, Point.TEMP);
             x = Point.TEMP.x;
             y = Point.TEMP.y;
@@ -606,8 +612,8 @@ export class InputManager {
             //只有接受交互事件的，才进行处理
             if (!child._destroyed
                 && child._nodeType !== 1
-                && (childEditing ? ((!child.hasHideFlag(HideFlags.HideInHierarchy) || child.mouseThrough) && !child._getBit(NodeFlags.HIDE_BY_EDITOR))
-                    : (child._mouseState === 2 || child._mouseState === 0 && child._getBit(NodeFlags.CHECK_INPUT)))
+                && (childEditing ? (!child.hasHideFlag(HideFlags.HideInHierarchy) || child.mouseThrough)
+                    : (child._mouseState === 2 || child._mouseState === 0 && child._getBit(NodeFlags.CHECK_INPUT) || InputManager._previewFlag))
                 && child._struct.enabled) {
                 _tempPoint.setTo(x, y);
                 child.fromParentPoint(_tempPoint);
@@ -617,10 +623,11 @@ export class InputManager {
             }
         }
 
+        if (sp._getBit(NodeFlags.LOCK_BY_EDITOR) || sp._getBit(NodeFlags.HIDE_BY_EDITOR))
+            return null;
+
         if (editing) {
-            if (!sp._getBit(NodeFlags.LOCK_BY_EDITOR)
-                && !sp.hasHideFlag(HideFlags.HideInHierarchy)
-                && this.hitTest(sp, x, y, editing))
+            if (!sp.hasHideFlag(HideFlags.HideInHierarchy) && this.hitTest(sp, x, y, editing))
                 return sp;
         }
         else if (sp != this._stage) {

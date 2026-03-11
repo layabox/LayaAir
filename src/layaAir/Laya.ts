@@ -147,7 +147,7 @@ export class Laya {
         //beforeInitCallbacks 是按顺序执行
         Laya._beforeInitCallbacks.forEach(func => steps.push(() => func(stageConfig)));
 
-        steps.push(() => LayaGL.renderDeviceFactory.createEngine(null, Browser.mainCanvas));
+        steps.push(() => LayaGL.renderDeviceFactory.createEngine(null, Browser.offscreenMainCanvas || Browser.mainCanvas));
 
         steps.push(() => Laya.initRender2D(stageConfig));
 

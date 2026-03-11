@@ -61,4 +61,16 @@ export class HideFlags {
      * @zh 对象隐藏且不会保存到场景或预制件中。
      */
     static HideAndDontSave = 0x7;
+
+    /**
+     * @en The gizmos of the object are hidden in the scene view.
+     * @zh 对象的 gizmos 在场景视图中隐藏。
+     */
+    static HideGizmos = 0x800;
+
+    /**
+     * @en The transform tool of the object is hidden in the scene view.
+     * @zh 对象的变换工具在场景视图中隐藏。
+     */
+    static HideTransformTool = 0x1000;
 }

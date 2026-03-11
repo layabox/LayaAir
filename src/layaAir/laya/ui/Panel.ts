@@ -5,7 +5,7 @@ import { ScrollBar } from "./ScrollBar";
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { Rectangle } from "../maths/Rectangle"
-import { HideFlags } from "../Const";
+import { HideFlags, NodeFlags } from "../Const";
 import { ScrollType } from "./Styles";
 import { TransformKind } from "../display/SpriteConst";
 import { Node } from "../display/Node";
@@ -53,6 +53,7 @@ export class Panel extends Box {
     protected createChildren(): void {
         this._content = new PanelContentBox();
         this._content.hideFlags = HideFlags.HideAndDontSave;
+        this._content._setBit(NodeFlags.LOCK_BY_EDITOR, true);
         this.addChild(this._content);
 
         this._setContainer(this._content);

@@ -479,6 +479,7 @@ export class List extends Box {
     protected createChildren(): void {
         this._content = new Box();
         this._content.hideFlags = HideFlags.HideAndDontSave;
+        this._content.mouseThrough = true;
         this.addChild(this._content);
     }
 
