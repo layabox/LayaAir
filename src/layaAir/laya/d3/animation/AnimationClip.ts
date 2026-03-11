@@ -21,6 +21,7 @@ import { Vector2Keyframe } from "../../maths/Vector2Keyframe";
 import { Vector3Keyframe } from "../../maths/Vector3Keyframe";
 import { Vector4Keyframe } from "../../maths/Vector4Keyframe";
 import { BooleanKeyframe } from "../../maths/BooleanKeyframe";
+import { StringKeyframe } from "../../maths/StringKeyframe";
 import { PathPointKeyframe } from "../../maths/PathPointKeyframe";
 
 /**
@@ -431,7 +432,7 @@ export class AnimationClip extends Resource {
 	 * @param frontPlay 是否是前向播放。
 	 * @param outDatas 计算好的动画数据。
 	 */
-	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<boolean | number | Vector3 | Quaternion | Vector4 | Vector2 | { pos: Vector3, rotation: Vector3 }>, avatarMask: AvatarMask): void {
+	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<boolean | number | string | Vector3 | Quaternion | Vector4 | Vector2 | { pos: Vector3, rotation: Vector3 }>, avatarMask: AvatarMask): void {
 		for (var i = 0, n = nodes.count; i < n; i++) {
 			var node = nodes.getNodeByIndex(i);
 			var type = node.type;
@@ -500,6 +501,13 @@ export class AnimationClip extends Resource {
 						outDatas[i] = (<BooleanKeyframe>keyFrames[frameIndex]).value;
 					} else {
 						outDatas[i] = (<BooleanKeyframe>keyFrames[0]).value;
+					}
+					break;
+				case KeyFrameValueType.MaterialRef:
+					if (frameIndex !== -1) {
+						outDatas[i] = (<StringKeyframe>keyFrames[frameIndex]).value;
+					} else {
+						outDatas[i] = (<StringKeyframe>keyFrames[0]).value;
 					}
 					break;
 				case KeyFrameValueType.Float:

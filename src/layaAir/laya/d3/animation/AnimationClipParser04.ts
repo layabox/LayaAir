@@ -16,6 +16,7 @@ import { Vector2Keyframe } from "../../maths/Vector2Keyframe";
 import { Vector3Keyframe } from "../../maths/Vector3Keyframe";
 import { Vector4Keyframe } from "../../maths/Vector4Keyframe";
 import { BooleanKeyframe } from "../../maths/BooleanKeyframe";
+import { StringKeyframe } from "../../maths/StringKeyframe";
 import { PathPointKeyframe } from "../../maths/PathPointKeyframe";
 import { CurvePath } from "../../tween/CurvePath";
 import { PathPoint } from "../../tween/PathPoint";
@@ -273,6 +274,13 @@ export class AnimationClipParser04 {
 								valueV4.z = reader.readFloat32();
 								valueV4.w = reader.readFloat32();
 								break;
+							case KeyFrameValueType.MaterialRef: {
+								const kf = new StringKeyframe();
+								kf.time = startTimeTypes[reader.readUint16()];
+								kf.value = reader.readUTFString();
+								node._setKeyframeByIndex(j, kf);
+								break;
+							}
 							default:
 								throw new Error("AnimationClipParser04:unknown type.");
 						}
@@ -299,6 +307,13 @@ export class AnimationClipParser04 {
 								booleanKeyframe.time = startTimeTypes[reader.readUint16()];
 								booleanKeyframe.value = reader.readByte() == 1;
 								break;
+							case KeyFrameValueType.MaterialRef: {
+								const kf = new StringKeyframe();
+								kf.time = startTimeTypes[reader.readUint16()];
+								kf.value = reader.readUTFString();
+								node._setKeyframeByIndex(j, kf);
+								break;
+							}
 							case KeyFrameValueType.Float:
 								var floatKeyframe: FloatKeyframe = new FloatKeyframe();
 								node._setKeyframeByIndex(j, floatKeyframe);
@@ -560,6 +575,13 @@ export class AnimationClipParser04 {
 								valueV4.z = HalfFloatUtils.convertToNumber(reader.readUint16());
 								valueV4.w = HalfFloatUtils.convertToNumber(reader.readUint16());
 								break;
+							case KeyFrameValueType.MaterialRef: {
+								const kf = new StringKeyframe();
+								kf.time = startTimeTypes[reader.readUint16()];
+								kf.value = reader.readUTFString();
+								node._setKeyframeByIndex(j, kf);
+								break;
+							}
 							default:
 								throw "AnimationClipParser04:unknown type.";
 						}

@@ -27,6 +27,9 @@ import { AnimatorUpdateMode } from "../../../components/AnimatorUpdateMode";
 import { AnimatorStateCondition } from "../../../components/AnimatorStateCondition";
 import { Delegate } from "../../../utils/Delegate";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ILaya } from "../../../../ILaya";
+import { StringKeyframe } from "../../../maths/StringKeyframe";
+import { Loader } from "../../../net/Loader";
 
 export type AnimatorParams = { [key: number]: number | boolean };
 
@@ -196,15 +199,18 @@ export class Animator extends Component {
         } else {
             var property = propertyOwner;
             for (var i = 0, n = node.propertyCount; i < n; i++) {
+                if (node.type === KeyFrameValueType.MaterialRef) break;
                 if (mat) {
                     // 使用 KeyframeNode 的缓存方法，直接获取 shader property ID
                     const shaderPropId = node.getMaterialPropertyId(i);
                     const type = node.type;
                     switch (type) {
-                        case KeyFrameValueType.Color:
+                        case KeyFrameValueType.Color: {
                             const color = property.shaderData.getColor(shaderPropId);
-                            property = new Vector4(color.r, color.g, color.b, color.a);
+                            // getColor returns undefined for absent properties; guard null-deref
+                            property = color != null ? new Vector4(color.r, color.g, color.b, color.a) : null;
                             break;
+                        }
                         case KeyFrameValueType.Vector2:
                             property = property.shaderData.getVector2(shaderPropId);
                             break;
@@ -248,15 +254,64 @@ export class Animator extends Component {
             keyframeNodeOwner.property = propertys;
             keyframeNodeOwner.type = node.type;
 
+            // 预加载 MaterialRef 轨道引用的材质资源
+            if (node.type === KeyFrameValueType.MaterialRef) {
+                for (let ki = 0, kn = node.keyFramesCount; ki < kn; ki++) {
+                    const kf = node.getKeyframeByIndex(ki) as StringKeyframe;
+                    if (kf?.value) {
+                        const alreadyCached = ILaya.loader.getRes(kf.value) ||
+                            (!kf.value.startsWith("res://") && ILaya.loader.getRes("res://" + kf.value));
+                        if (!alreadyCached) {
+                            ILaya.loader.load(kf.value, { type: Loader.MATERIAL });
+                        }
+                    }
+                }
+            }
+
             if (property) {//查询成功后赋默认值
                 if (node.type === KeyFrameValueType.Float || node.type === KeyFrameValueType.Boolean || node.type === KeyFrameValueType.PathPoint) {
                     keyframeNodeOwner.defaultValue = property;
+                } else if (node.type === KeyFrameValueType.MaterialRef) {
+                    // loop 提前 break，property 仍为组件对象，defaultValue 应为空字符串
+                    keyframeNodeOwner.defaultValue = "";
                 } else {
                     var defaultValue = new property.constructor();
                     property.cloneTo(defaultValue);
                     keyframeNodeOwner.defaultValue = defaultValue;
                     keyframeNodeOwner.value = new property.constructor();
                     keyframeNodeOwner.crossFixedValue = new property.constructor();
+                }
+            } else if (mat) {
+                // 进入了材质但 shader 属性不存在（如初始材质类型与录制材质不同）
+                // 预分配容器，防止 cross-fade 时写入 nodeOwner.value 崩溃
+                switch (node.type) {
+                    case KeyFrameValueType.Color:
+                    case KeyFrameValueType.Vector4:
+                        keyframeNodeOwner.defaultValue = new Vector4();
+                        keyframeNodeOwner.value = new Vector4();
+                        keyframeNodeOwner.crossFixedValue = new Vector4();
+                        break;
+                    case KeyFrameValueType.Vector3:
+                        keyframeNodeOwner.defaultValue = new Vector3();
+                        keyframeNodeOwner.value = new Vector3();
+                        keyframeNodeOwner.crossFixedValue = new Vector3();
+                        break;
+                    case KeyFrameValueType.Vector2:
+                        keyframeNodeOwner.defaultValue = new Vector2();
+                        keyframeNodeOwner.value = new Vector2();
+                        keyframeNodeOwner.crossFixedValue = new Vector2();
+                        break;
+                    case KeyFrameValueType.Float:
+                    case KeyFrameValueType.Boolean:
+                        keyframeNodeOwner.defaultValue = 0;
+                        keyframeNodeOwner.value = 0;
+                        keyframeNodeOwner.crossFixedValue = 0;
+                        break;
+                    case KeyFrameValueType.Rotation:
+                        keyframeNodeOwner.defaultValue = new Quaternion();
+                        keyframeNodeOwner.value = new Quaternion();
+                        keyframeNodeOwner.crossFixedValue = new Quaternion();
+                        break;
                 }
             }
 
@@ -757,6 +812,25 @@ export class Animator extends Component {
                 case KeyFrameValueType.Boolean:
                     console.log("Animator:Boolean not support3");
                     break;
+                case KeyFrameValueType.MaterialRef: {
+                    // 离散值：crossWeight < 0.5 用 src 材质，否则用 dest 材质
+                    const srcStr = typeof srcValue === "string" && srcValue ? srcValue : null;
+                    const desStr = typeof desValue === "string" && desValue ? desValue : null;
+                    const matPath = (srcStr && crossWeight < 0.5) ? srcStr : desStr;
+                    if (!matPath) break;
+                    let mat = ILaya.loader.getRes(matPath) as Material;
+                    if (!mat && !matPath.startsWith("res://")) mat = ILaya.loader.getRes("res://" + matPath) as Material;
+                    if (!mat) { ILaya.loader.load(matPath, { type: Loader.MATERIAL }); break; }
+                    const pn = nodeOwner.property[0];
+                    const idx = parseInt(nodeOwner.property[nodeOwner.property.length - 1]);
+                    const mats: Material[] = (pro as any)[pn];
+                    if (Array.isArray(mats)) {
+                        if (mats[idx] !== mat) { mats[idx] = mat; (pro as any)[pn] = mats; }
+                    } else {
+                        (pro as any)[pn] = mat;
+                    }
+                    break;
+                }
                 case KeyFrameValueType.Float: //Float
                     var proPat: string[] = nodeOwner.property!;
                     var m: number = proPat.length - 1;
@@ -831,7 +905,11 @@ export class Animator extends Component {
                     if (!nodeOwner.isMaterial) {
                         pro && (pro[lastpro] = this._applyColor(pro[lastpro], nodeOwner, additive, weight, isFirstLayer, v44));
                     } else {
-                        pro && (pro as Material).setColor(lastpro, this._applyColor((pro as Material).getColor(lastpro), nodeOwner, additive, weight, isFirstLayer, v44));
+                        // getColor 对不存在的属性返回 undefined，跳过以防写入 null 污染 ShaderData
+                        const crossColor = pro && (pro as Material).getColor(lastpro);
+                        if (crossColor != null) {
+                            (pro as Material).setColor(lastpro, this._applyColor(crossColor, nodeOwner, additive, weight, isFirstLayer, v44));
+                        }
                     }
                     if (nodeOwner.callbackFun) {
                         nodeOwner.animatorDataSetCallBack();
@@ -854,7 +932,8 @@ export class Animator extends Component {
                     if (!nodeOwner.isMaterial) {
                         pro && (pro[lastpro] = this._applyVec2(pro[lastpro], nodeOwner, additive, weight, isFirstLayer, v2));
                     } else {
-                        pro && (pro as Material).setVector2(lastpro, this._applyVec2((pro as Material).getVector2(lastpro), nodeOwner, additive, weight, isFirstLayer, v2));
+                        const crossV2 = pro && (pro as Material).getVector2(lastpro);
+                        crossV2 && (pro as Material).setVector2(lastpro, this._applyVec2(crossV2, nodeOwner, additive, weight, isFirstLayer, v2));
                     }
                     if (nodeOwner.callbackFun) {
                         nodeOwner.animatorDataSetCallBack();
@@ -878,7 +957,8 @@ export class Animator extends Component {
                     if (!nodeOwner.isMaterial) {
                         pro && (pro[lastpro] = this._applyVec4(pro[lastpro], nodeOwner, additive, weight, isFirstLayer, v4));
                     } else {
-                        pro && (pro as Material).setVector4(lastpro, this._applyVec4((pro as Material).getVector4(lastpro), nodeOwner, additive, weight, isFirstLayer, v4));
+                        const crossV4 = pro && (pro as Material).getVector4(lastpro);
+                        crossV4 && (pro as Material).setVector4(lastpro, this._applyVec4(crossV4, nodeOwner, additive, weight, isFirstLayer, v4));
                     }
                     if (nodeOwner.callbackFun) {
                         nodeOwner.animatorDataSetCallBack();
@@ -901,7 +981,8 @@ export class Animator extends Component {
                     if (!nodeOwner.isMaterial) {
                         pro && (pro[lastpro] = this._applyVec3(pro[lastpro], nodeOwner, additive, weight, isFirstLayer, v3));
                     } else {
-                        pro && (pro as Material).setVector3(lastpro, this._applyVec3((pro as Material).getVector3(lastpro), nodeOwner, additive, weight, isFirstLayer, v3));
+                        const crossV3 = pro && (pro as Material).getVector3(lastpro);
+                        crossV3 && (pro as Material).setVector3(lastpro, this._applyVec3(crossV3, nodeOwner, additive, weight, isFirstLayer, v3));
                     }
                     if (nodeOwner.callbackFun) {
                         nodeOwner.animatorDataSetCallBack();
@@ -920,10 +1001,40 @@ export class Animator extends Component {
      * @param isFirstLayer 是否是第一层
      */
     private _setClipDatasToNode(stateInfo: AnimatorState, additive: boolean, weight: number, isFirstLayer: boolean, controllerLayer: AnimatorControllerLayer = null): void {
-        var realtimeDatas: Array<number | Vector3 | Quaternion | Vector2 | Vector4 | Color | { pos: Vector3, rotation: Quaternion }> = stateInfo._realtimeDatas;
+        var realtimeDatas: Array<number | string | Vector3 | Quaternion | Vector2 | Vector4 | Color | { pos: Vector3, rotation: Quaternion }> = stateInfo._realtimeDatas;
         var nodes: KeyframeNodeList = stateInfo._clip!._nodes!;
         var nodeOwners: KeyframeNodeOwner[] = stateInfo._nodeOwners;
-        for (var i: number = 0, n: number = nodes.count; i < n; i++) {
+
+        // 第一遍先换材质，确保后续属性节点（Color/Float 等）写入的是当帧正确的材质实例
+        const n: number = nodes.count;
+        for (let mi = 0; mi < n; mi++) {
+            const mo: KeyframeNodeOwner = nodeOwners[mi];
+            if (!mo || mo.type !== KeyFrameValueType.MaterialRef) continue;
+            const mn = nodes.getNodeByIndex(mi);
+            if (controllerLayer.avatarMask && !controllerLayer.avatarMask.getTransformActive(mn.nodePath)) continue;
+            const mp: any = mo.propertyOwner;
+            if (!mp) continue;
+            const matUrl = realtimeDatas[mi] as string;
+            if (!matUrl) continue;
+            let mat = ILaya.loader.getRes(matUrl) as Material;
+            if (!mat && !matUrl.startsWith("res://")) mat = ILaya.loader.getRes("res://" + matUrl) as Material;
+            if (mat) {
+                const pn = mo.property[0];
+                const idx = parseInt(mo.property[mo.property.length - 1]);
+                const mats: Material[] = (mp as any)[pn];
+                if (Array.isArray(mats)) {
+                    if (mats[idx] !== mat) { mats[idx] = mat; (mp as any)[pn] = mats; }
+                } else {
+                    (mp as any)[pn] = mat;
+                }
+                mo.value = matUrl;
+            } else {
+                ILaya.loader.load(matUrl, { type: Loader.MATERIAL });
+            }
+            mo.updateMark = this._updateMark;
+        }
+
+        for (var i: number = 0; i < n; i++) {
             var nodeOwner: KeyframeNodeOwner = nodeOwners[i];
             if (nodeOwner) {//骨骼中没有该节点
                 var node = nodes.getNodeByIndex(i);
@@ -964,6 +1075,32 @@ export class Animator extends Component {
                                 pro && (pro[lastBoolPro] = realtimeDatas[i])
                             }
                             break;
+                        case KeyFrameValueType.MaterialRef: {
+                            // 第一遍已写入；此处保留以更新 updateMark 和 value（供 cross-fade 使用）
+                            const matPath = realtimeDatas[i] as string;
+                            if (!matPath || !pro) break;
+                            let material = ILaya.loader.getRes(matPath) as Material;
+                            if (!material && !matPath.startsWith("res://")) {
+                                material = ILaya.loader.getRes("res://" + matPath) as Material;
+                            }
+                            if (material) {
+                                const propName = nodeOwner.property[0];
+                                const matIndex = parseInt(nodeOwner.property[nodeOwner.property.length - 1]);
+                                const mats: Material[] = (pro as any)[propName];
+                                if (Array.isArray(mats)) {
+                                    if (mats[matIndex] !== material) {
+                                        mats[matIndex] = material;
+                                        (pro as any)[propName] = mats;
+                                    }
+                                } else {
+                                    (pro as any)[propName] = material;
+                                }
+                                nodeOwner.value = matPath;  // track for saveCrossFixedValue
+                            } else {
+                                ILaya.loader.load(matPath, { type: Loader.MATERIAL });
+                            }
+                            break;
+                        }
                         case KeyFrameValueType.Float: //Float
                             var proPat: string[] = nodeOwner.property!;
                             var m: number = proPat.length - 1;
@@ -1072,8 +1209,8 @@ export class Animator extends Component {
                                     nodeOwner.animatorDataSetCallBack();
                                 }
                             } else {
-                                const color = pro.getColor(value);
-                                if (pro && color) {
+                                const color = pro && (pro as Material).getColor(value);
+                                if (color) {
                                     _tempColor.r = color.r;
                                     _tempColor.g = color.g;
                                     _tempColor.b = color.b;
@@ -1095,10 +1232,10 @@ export class Animator extends Component {
         var additive: boolean = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
         var weight: number = controllerLayer.defaultWeight;
 
-        var destRealtimeDatas: Array<number | Vector3 | Quaternion> = destState._realtimeDatas;
+        var destRealtimeDatas: Array<number | string | Vector3 | Quaternion> = destState._realtimeDatas;
         var destDataIndices: number[] = controllerLayer._destCrossClipNodeIndices;
         var destNodeOwners: KeyframeNodeOwner[] = destState._nodeOwners;
-        var srcRealtimeDatas: Array<number | Vector3 | Quaternion> = srcState._realtimeDatas;
+        var srcRealtimeDatas: Array<number | string | Vector3 | Quaternion> = srcState._realtimeDatas;
         var srcDataIndices: number[] = controllerLayer._srcCrossClipNodeIndices;
         var srcNodeOwners: KeyframeNodeOwner[] = srcState._nodeOwners;
 
@@ -1128,7 +1265,7 @@ export class Animator extends Component {
         var ownerCount: number = controllerLayer._crossNodesOwnersCount;
         var additive: boolean = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
         var weight: number = controllerLayer.defaultWeight;
-        var destRealtimeDatas: Array<number | Vector3 | Quaternion> = destState._realtimeDatas;
+        var destRealtimeDatas: Array<number | string | Vector3 | Quaternion> = destState._realtimeDatas;
         var destDataIndices: number[] = controllerLayer._destCrossClipNodeIndices;
 
         for (var i: number = 0; i < ownerCount; i++) {
@@ -1265,7 +1402,7 @@ export class Animator extends Component {
                                     nodeOwner.animatorDataSetCallBack();
                                 }
                             } else {
-                                pro && pro.getVector3(value) && (pro as Material).setVector3(value, nodeOwner.defaultValue);
+                                pro && pro.getVector4(value) && (pro as Material).setVector4(value, nodeOwner.defaultValue);
                             }
                             break;
                         case KeyFrameValueType.Color:
@@ -1290,6 +1427,9 @@ export class Animator extends Component {
                             } else {
                                 pro && pro.getColor(value) && (pro as Material).setColor(value, _tempColor);
                             }
+                            break;
+                        case KeyFrameValueType.MaterialRef:
+                            // Material references are discrete; no interpolation/revert needed
                             break;
                         default:
                             throw "Animator:unknown type.";
