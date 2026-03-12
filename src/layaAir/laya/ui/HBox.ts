@@ -72,7 +72,7 @@ export class HBox extends LayoutBox {
     }
 
     protected changeItems(): void {
-        this._itemChanged = false;
+        super.changeItems();
 
         const items: UIComponent[] = [];
         let maxChildHeight = 0;      // 子项最大高度（用于对齐/可能用于自适应高）

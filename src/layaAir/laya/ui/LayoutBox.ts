@@ -24,6 +24,8 @@ export class LayoutBox extends Box {
     protected _skipHidden: boolean = false;
     /** 自适应模式, 默认值为 AUTO_SIZE_NONE。*/
     protected _autoSizeMode: string = LayoutBox.AUTO_SIZE_NONE;
+    /** @internal */
+    private _childVisibleStates: boolean[] | null = null;
     /**
      * @zh 子对象的间隔。
      * @en The space between child objects.
@@ -77,6 +79,10 @@ export class LayoutBox extends Box {
      */
     protected changeItems(): void {
         this._itemChanged = false;
+        if (this._skipHidden && this.numChildren > 0) {
+            this._snapshotVisibility();
+            this.callLater(this._detectVisibilityChange);
+        }
     }
 
     /** 
@@ -95,6 +101,30 @@ export class LayoutBox extends Box {
 
     private onResize(e: Event): void {
         this._setItemChanged();
+    }
+
+    private _snapshotVisibility(): void {
+        let n = this.numChildren;
+        if (!this._childVisibleStates)
+            this._childVisibleStates = [];
+        this._childVisibleStates.length = n;
+        for (let i = 0; i < n; i++) {
+            this._childVisibleStates[i] = (this.getChildAt(i) as Sprite).visible;
+        }
+    }
+
+    private _detectVisibilityChange(): void {
+        if (!this._skipHidden || !this._childVisibleStates || this._destroyed) return;
+        let n = this.numChildren;
+        let states = this._childVisibleStates;
+        if (n !== states.length) return;
+        for (let i = 0; i < n; i++) {
+            if ((this.getChildAt(i) as Sprite).visible !== states[i]) {
+                this._setItemChanged();
+                return;
+            }
+        }
+        this.callLater(this._detectVisibilityChange);
     }
 
     /**

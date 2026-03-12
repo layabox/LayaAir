@@ -77,7 +77,7 @@ export class VBox extends LayoutBox {
     }
 
     protected changeItems(): void {
-        this._itemChanged = false;
+        super.changeItems();
 
         const items: UIComponent[] = [];
         let maxChildWidth = 0;       // 子项最大宽（用于对齐/可能用于自适应宽）
