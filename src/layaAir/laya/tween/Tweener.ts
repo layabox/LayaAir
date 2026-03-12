@@ -2,7 +2,6 @@ import { ILaya } from "../../ILaya";
 import { IPool, Pool } from "../utils/Pool";
 import { Ease } from "./Ease";
 import { TweenValue, TweenValueAdapterKey } from "./TweenValue";
-import { Color } from "../maths/Color";
 import { EaseFunction, TweenInterpolator, ITweener, TweenCallback, TweenValueAdapter } from "./ITween";
 import type { Tween } from "./Tween";
 
@@ -161,7 +160,7 @@ export class Tweener implements ITweener {
             prop.type = 0;
         else if (type === "string") //for string color
             prop.type = 2;
-        else if (type == "object" && (adapter = (<any>startValue)[TweenValueAdapterKey]) != null)
+        else if (type == "object" && (adapter = (startValue != null ? (<any>startValue)[TweenValueAdapterKey] : (<any>endValue)[TweenValueAdapterKey])) != null)
             prop.type = adapter;
         else //default use boolean
             prop.type = 1;
