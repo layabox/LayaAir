@@ -103279,6 +103279,304 @@ ${materialUniformGlsl}`;
         }
     }
 
+    class LayaXDefineDatas {
+        constructor() {
+            this._nativeObj = new window.conchLayaXDefineDatas();
+            this._nativeObj.create();
+        }
+        get _length() {
+            return 0;
+        }
+        set _length(value) {
+        }
+        get _mask() {
+            return [];
+        }
+        set _mask(value) {
+        }
+        _intersectionDefineDatas(define) {
+        }
+        add(define) {
+            this._nativeObj.add(define._index, define._value);
+        }
+        remove(define) {
+            this._nativeObj.remove(define._index, define._value);
+        }
+        addDefineDatas(define) {
+            if (define._nativeObj) {
+                this._nativeObj.addDefineDatas(define._nativeObj);
+            }
+        }
+        removeDefineDatas(define) {
+        }
+        has(define) {
+            return this._nativeObj.has(define._index, define._value);
+        }
+        clear() {
+            this._nativeObj.clear();
+        }
+        cloneTo(destObject) {
+            const dest = destObject;
+            if (dest._nativeObj) {
+                dest._nativeObj.clear();
+                dest._nativeObj.addDefineDatas(this._nativeObj);
+            }
+        }
+        clone() {
+            let dest = new LayaXDefineDatas();
+            this.cloneTo(dest);
+            return dest;
+        }
+        destroy() {
+            this._nativeObj.destroy();
+        }
+    }
+
+    class LayaXShaderData extends ShaderData {
+        constructor(ownerResource = null, createNativeObj = true) {
+            super(ownerResource);
+            this._defineDatas = new LayaXDefineDatas();
+            this._renderStateListeners = new Set();
+            if (createNativeObj) {
+                this._nativeObj = new window.conchLayaXShaderData(this._defineDatas._nativeObj);
+            }
+            else {
+                this._nativeObj = null;
+            }
+            this._textureData = {};
+            this._bufferData = {};
+            this._deviceBufferData = {};
+        }
+        getDefineData() {
+            return this._defineDatas;
+        }
+        getData() {
+        }
+        clearData() {
+            this._nativeObj.clearData();
+        }
+        addDefine(define) {
+            this._defineDatas.add(define);
+        }
+        addDefines(define) {
+            this._defineDatas.addDefineDatas(define);
+        }
+        removeDefine(define) {
+            this._defineDatas.remove(define);
+        }
+        hasDefine(define) {
+            return this._defineDatas.has(define);
+        }
+        clearDefine() {
+            this._defineDatas.clear();
+        }
+        static _isRenderStateProp(index) {
+            return index === Shader3D.CULL
+                || index === Shader3D.BLEND
+                || index === Shader3D.BLEND_SRC
+                || index === Shader3D.BLEND_DST
+                || index === Shader3D.BLEND_SRC_RGB
+                || index === Shader3D.BLEND_DST_RGB
+                || index === Shader3D.BLEND_SRC_ALPHA
+                || index === Shader3D.BLEND_DST_ALPHA
+                || index === Shader3D.BLEND_EQUATION
+                || index === Shader3D.BLEND_EQUATION_RGB
+                || index === Shader3D.BLEND_EQUATION_ALPHA
+                || index === Shader3D.DEPTH_TEST
+                || index === Shader3D.DEPTH_WRITE
+                || index === Shader3D.STENCIL_TEST
+                || index === Shader3D.STENCIL_WRITE
+                || index === Shader3D.STENCIL_WRITE_MASK
+                || index === Shader3D.STENCIL_READ_MASK
+                || index === Shader3D.STENCIL_Ref
+                || index === Shader3D.STENCIL_Op;
+        }
+        _notifyRenderStateChanged() {
+            if (this._renderStateListeners.size > 0) {
+                this._renderStateListeners.forEach(l => l._onRenderStateChanged());
+            }
+        }
+        _addRenderStateListener(listener) {
+            this._renderStateListeners.add(listener);
+        }
+        _removeRenderStateListener(listener) {
+            this._renderStateListeners.delete(listener);
+        }
+        getBool(index) {
+            return this._nativeObj.getBool(index);
+        }
+        setBool(index, value) {
+            this._nativeObj.setBool(index, value);
+            if (LayaXShaderData._isRenderStateProp(index))
+                this._notifyRenderStateChanged();
+        }
+        getInt(index) {
+            return this._nativeObj.getInt(index);
+        }
+        setInt(index, value) {
+            this._nativeObj.setInt(index, value);
+            if (LayaXShaderData._isRenderStateProp(index))
+                this._notifyRenderStateChanged();
+        }
+        getNumber(index) {
+            return this._nativeObj.getNumber(index);
+        }
+        setNumber(index, value) {
+            this._nativeObj.setNumber(index, value);
+            if (LayaXShaderData._isRenderStateProp(index))
+                this._notifyRenderStateChanged();
+        }
+        getVector2(index) {
+            let value = this._nativeObj.getVector2(index);
+            if (value == null) {
+                return value;
+            }
+            else {
+                let _tempVector2 = new Vector2();
+                _tempVector2.x = value.x;
+                _tempVector2.y = value.y;
+                return _tempVector2;
+            }
+        }
+        setVector2(index, value) {
+            this._nativeObj.setVector2(index, value);
+        }
+        getVector3(index) {
+            let value = this._nativeObj.getVector3(index);
+            if (value == null) {
+                return value;
+            }
+            else {
+                let _tempVector3 = new Vector3();
+                _tempVector3.x = value.x;
+                _tempVector3.y = value.y;
+                _tempVector3.z = value.z;
+                return _tempVector3;
+            }
+        }
+        setVector3(index, value) {
+            this._nativeObj.setVector3(index, value);
+            if (index === Shader3D.STENCIL_Op)
+                this._notifyRenderStateChanged();
+        }
+        getVector(index) {
+            let value = this._nativeObj.getVector(index);
+            let _tempVector = new Vector4();
+            _tempVector.x = value.x;
+            _tempVector.y = value.y;
+            _tempVector.z = value.z;
+            _tempVector.w = value.w;
+            return _tempVector;
+        }
+        setVector(index, value) {
+            this._nativeObj.setVector(index, value);
+        }
+        getColor(index) {
+            let value = this._nativeObj.getColor(index);
+            if (value == null) {
+                return value;
+            }
+            else {
+                let _tempColor = new Color();
+                _tempColor.r = value.r;
+                _tempColor.g = value.g;
+                _tempColor.b = value.b;
+                _tempColor.a = value.a;
+                return _tempColor;
+            }
+        }
+        setColor(index, value) {
+            if (!value)
+                return;
+            this._nativeObj.setColor(index, value);
+        }
+        getMatrix4x4(index) {
+            let value = this._nativeObj.getMatrix4x4(index);
+            if (value == null) {
+                return value;
+            }
+            else {
+                let _tempMatrix4x4 = new Matrix4x4();
+                _tempMatrix4x4.elements.set(value.elements);
+                return _tempMatrix4x4;
+            }
+        }
+        setMatrix4x4(index, value) {
+            this._nativeObj.setMatrix4x4(index, value);
+        }
+        getMatrix3x3(index) {
+            let value = this._nativeObj.getMatrix3x3(index);
+            if (value == null) {
+                return value;
+            }
+            else {
+                let _tempMatrix3x3 = new Matrix3x3();
+                _tempMatrix3x3.elements.set(value.elements);
+                return _tempMatrix3x3;
+            }
+        }
+        setMatrix3x3(index, value) {
+            this._nativeObj.setMatrix3x3(index, value);
+        }
+        getBuffer(index) {
+            return null;
+        }
+        setBuffer(index, value) {
+            this._bufferData[index] = value;
+            this._nativeObj.setBuffer(index, value);
+        }
+        setDeviceBuffer(index, value) {
+            this._deviceBufferData[index] = value;
+            this._nativeObj.setDeviceBuffer(index, value._nativeObj);
+        }
+        setTexture(index, value) {
+            var lastValue = this._textureData[index];
+            if (value && value.bitmap)
+                value = value.bitmap;
+            this._textureData[index] = value;
+            if (value && value._texture) {
+                this._setInternalTexture(index, value._texture._nativeObj);
+            }
+            else {
+                this._setInternalTexture(index, null);
+            }
+            lastValue && lastValue._removeReference();
+            value && value._addReference();
+        }
+        _setInternalTexture(index, value) {
+            let nativeVal = value ? (value._nativeObj || value) : null;
+            this._nativeObj._setInternalTexture(index, nativeVal);
+        }
+        getTexture(index) {
+            return this._textureData[index];
+        }
+        update(name) {
+            this._nativeObj.update(name);
+        }
+        cloneTo(destObject) {
+            this._nativeObj.cloneTo(destObject._nativeObj);
+            var dest = destObject;
+            var destData = dest._textureData;
+            for (var k in this._textureData) {
+                var value = this._textureData[k];
+                if (value != null) {
+                    if (value instanceof BaseTexture) {
+                        destData[k] = value;
+                        value._addReference();
+                    }
+                }
+            }
+        }
+        clone() {
+            var dest = new LayaXShaderData();
+            this.cloneTo(dest);
+            return dest;
+        }
+        destroy() {
+            this._nativeObj.destroy();
+        }
+    }
+
     class LayaXRenderElement3D {
         constructor() {
             this._isRender = true;
@@ -103296,9 +103594,16 @@ ${materialUniformGlsl}`;
         }
         get materialShaderData() { return this._materialShaderData; }
         set materialShaderData(data) {
+            if (this._materialShaderData instanceof LayaXShaderData) {
+                this._materialShaderData._removeRenderStateListener(this);
+            }
             this._materialShaderData = data;
             if (this._nativeObj) {
                 this._nativeObj.setMaterialShaderData(data ? data._nativeObj : null);
+            }
+            if (data instanceof LayaXShaderData) {
+                data._addRenderStateListener(this);
+                this._onRenderStateChanged();
             }
         }
         get renderShaderData() { return this._renderShaderData; }
@@ -103347,7 +103652,39 @@ ${materialUniformGlsl}`;
         }
         get canDynamicBatch() { return this._canDynamicBatch; }
         set canDynamicBatch(value) { this._canDynamicBatch = value; }
+        _onRenderStateChanged() {
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s;
+            let sd = this._materialShaderData;
+            if (!sd || !this._nativeObj)
+                return;
+            let D = RenderState.Default;
+            let blend = (_a = sd.getInt(Shader3D.BLEND)) !== null && _a !== void 0 ? _a : D.blend;
+            let srcBlend = (_b = sd.getInt(Shader3D.BLEND_SRC)) !== null && _b !== void 0 ? _b : D.srcBlend;
+            let dstBlend = (_c = sd.getInt(Shader3D.BLEND_DST)) !== null && _c !== void 0 ? _c : D.dstBlend;
+            let blendEq = (_d = sd.getInt(Shader3D.BLEND_EQUATION)) !== null && _d !== void 0 ? _d : D.blendEquation;
+            let srcBlendRGB = (_e = sd.getInt(Shader3D.BLEND_SRC_RGB)) !== null && _e !== void 0 ? _e : D.srcBlendRGB;
+            let dstBlendRGB = (_f = sd.getInt(Shader3D.BLEND_DST_RGB)) !== null && _f !== void 0 ? _f : D.dstBlendRGB;
+            let srcBlendAlpha = (_g = sd.getInt(Shader3D.BLEND_SRC_ALPHA)) !== null && _g !== void 0 ? _g : D.srcBlendAlpha;
+            let dstBlendAlpha = (_h = sd.getInt(Shader3D.BLEND_DST_ALPHA)) !== null && _h !== void 0 ? _h : D.dstBlendAlpha;
+            let blendEqRGB = (_j = sd.getInt(Shader3D.BLEND_EQUATION_RGB)) !== null && _j !== void 0 ? _j : D.blendEquationRGB;
+            let blendEqAlpha = (_k = sd.getInt(Shader3D.BLEND_EQUATION_ALPHA)) !== null && _k !== void 0 ? _k : D.blendEquationAlpha;
+            let depthTest = (_l = sd.getInt(Shader3D.DEPTH_TEST)) !== null && _l !== void 0 ? _l : D.depthTest;
+            let depthWrite = (_m = sd.getBool(Shader3D.DEPTH_WRITE)) !== null && _m !== void 0 ? _m : D.depthWrite;
+            let stencilTest = (_o = sd.getInt(Shader3D.STENCIL_TEST)) !== null && _o !== void 0 ? _o : D.stencilTest;
+            let stencilRef = (_p = sd.getInt(Shader3D.STENCIL_Ref)) !== null && _p !== void 0 ? _p : D.stencilRef;
+            let stencilReadMask = (_q = sd.getInt(Shader3D.STENCIL_READ_MASK)) !== null && _q !== void 0 ? _q : D.stencilReadMask;
+            let stencilWriteMask = (_r = sd.getInt(Shader3D.STENCIL_WRITE_MASK)) !== null && _r !== void 0 ? _r : D.stencilWriteMask;
+            let stencilOp = sd.getVector3(Shader3D.STENCIL_Op);
+            let stencilFail = stencilOp ? stencilOp.x : D.stencilOp.x;
+            let stencilZFail = stencilOp ? stencilOp.y : D.stencilOp.y;
+            let stencilPass = stencilOp ? stencilOp.z : D.stencilOp.z;
+            let cull = (_s = sd.getInt(Shader3D.CULL)) !== null && _s !== void 0 ? _s : D.cull;
+            this._nativeObj.registerAndSetRenderState(blend, srcBlend, dstBlend, blendEq, srcBlendRGB, dstBlendRGB, srcBlendAlpha, dstBlendAlpha, blendEqRGB, blendEqAlpha, depthTest, depthWrite ? 1 : 0, stencilTest, stencilRef, stencilReadMask, stencilWriteMask, stencilFail, stencilZFail, stencilPass, cull, LayaXRenderElement3D._defaultFrontFace);
+        }
         destroy() {
+            if (this._materialShaderData instanceof LayaXShaderData) {
+                this._materialShaderData._removeRenderStateListener(this);
+            }
             if (this._nativeObj) {
                 this._nativeObj.destroy();
                 this._nativeObj = null;
@@ -103360,6 +103697,7 @@ ${materialUniformGlsl}`;
             this._subShader = null;
         }
     }
+    LayaXRenderElement3D._defaultFrontFace = 1;
 
     class LayaXReflectionProbe {
         get boxProjection() { return this._nativeObj._boxProjection; }
@@ -104966,263 +105304,6 @@ ${materialUniformGlsl}`;
         }
         get indexFormat() {
             return this._nativeObj.indexFormat;
-        }
-    }
-
-    class LayaXDefineDatas {
-        constructor() {
-            this._nativeObj = new window.conchLayaXDefineDatas();
-            this._nativeObj.create();
-        }
-        get _length() {
-            return 0;
-        }
-        set _length(value) {
-        }
-        get _mask() {
-            return [];
-        }
-        set _mask(value) {
-        }
-        _intersectionDefineDatas(define) {
-        }
-        add(define) {
-            this._nativeObj.add(define._index, define._value);
-        }
-        remove(define) {
-            this._nativeObj.remove(define._index, define._value);
-        }
-        addDefineDatas(define) {
-            if (define._nativeObj) {
-                this._nativeObj.addDefineDatas(define._nativeObj);
-            }
-        }
-        removeDefineDatas(define) {
-        }
-        has(define) {
-            return this._nativeObj.has(define._index, define._value);
-        }
-        clear() {
-            this._nativeObj.clear();
-        }
-        cloneTo(destObject) {
-            const dest = destObject;
-            if (dest._nativeObj) {
-                dest._nativeObj.clear();
-                dest._nativeObj.addDefineDatas(this._nativeObj);
-            }
-        }
-        clone() {
-            let dest = new LayaXDefineDatas();
-            this.cloneTo(dest);
-            return dest;
-        }
-        destroy() {
-            this._nativeObj.destroy();
-        }
-    }
-
-    class LayaXShaderData extends ShaderData {
-        constructor(ownerResource = null, createNativeObj = true) {
-            super(ownerResource);
-            this._defineDatas = new LayaXDefineDatas();
-            if (createNativeObj) {
-                this._nativeObj = new window.conchLayaXShaderData(this._defineDatas._nativeObj);
-            }
-            else {
-                this._nativeObj = null;
-            }
-            this._textureData = {};
-            this._bufferData = {};
-            this._deviceBufferData = {};
-        }
-        getDefineData() {
-            return this._defineDatas;
-        }
-        getData() {
-        }
-        clearData() {
-            this._nativeObj.clearData();
-        }
-        addDefine(define) {
-            this._defineDatas.add(define);
-        }
-        addDefines(define) {
-            this._defineDatas.addDefineDatas(define);
-        }
-        removeDefine(define) {
-            this._defineDatas.remove(define);
-        }
-        hasDefine(define) {
-            return this._defineDatas.has(define);
-        }
-        clearDefine() {
-            this._defineDatas.clear();
-        }
-        getBool(index) {
-            return this._nativeObj.getBool(index);
-        }
-        setBool(index, value) {
-            this._nativeObj.setBool(index, value);
-        }
-        getInt(index) {
-            return this._nativeObj.getInt(index);
-        }
-        setInt(index, value) {
-            this._nativeObj.setInt(index, value);
-        }
-        getNumber(index) {
-            return this._nativeObj.getNumber(index);
-        }
-        setNumber(index, value) {
-            this._nativeObj.setNumber(index, value);
-        }
-        getVector2(index) {
-            let value = this._nativeObj.getVector2(index);
-            if (value == null) {
-                return value;
-            }
-            else {
-                let _tempVector2 = new Vector2();
-                _tempVector2.x = value.x;
-                _tempVector2.y = value.y;
-                return _tempVector2;
-            }
-        }
-        setVector2(index, value) {
-            this._nativeObj.setVector2(index, value);
-        }
-        getVector3(index) {
-            let value = this._nativeObj.getVector3(index);
-            if (value == null) {
-                return value;
-            }
-            else {
-                let _tempVector3 = new Vector3();
-                _tempVector3.x = value.x;
-                _tempVector3.y = value.y;
-                _tempVector3.z = value.z;
-                return _tempVector3;
-            }
-        }
-        setVector3(index, value) {
-            this._nativeObj.setVector3(index, value);
-        }
-        getVector(index) {
-            let value = this._nativeObj.getVector(index);
-            let _tempVector = new Vector4();
-            _tempVector.x = value.x;
-            _tempVector.y = value.y;
-            _tempVector.z = value.z;
-            _tempVector.w = value.w;
-            return _tempVector;
-        }
-        setVector(index, value) {
-            this._nativeObj.setVector(index, value);
-        }
-        getColor(index) {
-            let value = this._nativeObj.getColor(index);
-            if (value == null) {
-                return value;
-            }
-            else {
-                let _tempColor = new Color();
-                _tempColor.r = value.r;
-                _tempColor.g = value.g;
-                _tempColor.b = value.b;
-                _tempColor.a = value.a;
-                return _tempColor;
-            }
-        }
-        setColor(index, value) {
-            if (!value)
-                return;
-            this._nativeObj.setColor(index, value);
-        }
-        getMatrix4x4(index) {
-            let value = this._nativeObj.getMatrix4x4(index);
-            if (value == null) {
-                return value;
-            }
-            else {
-                let _tempMatrix4x4 = new Matrix4x4();
-                _tempMatrix4x4.elements.set(value.elements);
-                return _tempMatrix4x4;
-            }
-        }
-        setMatrix4x4(index, value) {
-            this._nativeObj.setMatrix4x4(index, value);
-        }
-        getMatrix3x3(index) {
-            let value = this._nativeObj.getMatrix3x3(index);
-            if (value == null) {
-                return value;
-            }
-            else {
-                let _tempMatrix3x3 = new Matrix3x3();
-                _tempMatrix3x3.elements.set(value.elements);
-                return _tempMatrix3x3;
-            }
-        }
-        setMatrix3x3(index, value) {
-            this._nativeObj.setMatrix3x3(index, value);
-        }
-        getBuffer(index) {
-            return null;
-        }
-        setBuffer(index, value) {
-            this._bufferData[index] = value;
-            this._nativeObj.setBuffer(index, value);
-        }
-        setDeviceBuffer(index, value) {
-            this._deviceBufferData[index] = value;
-            this._nativeObj.setDeviceBuffer(index, value._nativeObj);
-        }
-        setTexture(index, value) {
-            var lastValue = this._textureData[index];
-            if (value && value.bitmap)
-                value = value.bitmap;
-            this._textureData[index] = value;
-            if (value && value._texture) {
-                this._setInternalTexture(index, value._texture._nativeObj);
-            }
-            else {
-                this._setInternalTexture(index, null);
-            }
-            lastValue && lastValue._removeReference();
-            value && value._addReference();
-        }
-        _setInternalTexture(index, value) {
-            let nativeVal = value ? (value._nativeObj || value) : null;
-            this._nativeObj._setInternalTexture(index, nativeVal);
-        }
-        getTexture(index) {
-            return this._textureData[index];
-        }
-        update(name) {
-            this._nativeObj.update(name);
-        }
-        cloneTo(destObject) {
-            this._nativeObj.cloneTo(destObject._nativeObj);
-            var dest = destObject;
-            var destData = dest._textureData;
-            for (var k in this._textureData) {
-                var value = this._textureData[k];
-                if (value != null) {
-                    if (value instanceof BaseTexture) {
-                        destData[k] = value;
-                        value._addReference();
-                    }
-                }
-            }
-        }
-        clone() {
-            var dest = new LayaXShaderData();
-            this.cloneTo(dest);
-            return dest;
-        }
-        destroy() {
-            this._nativeObj.destroy();
         }
     }
 
@@ -111186,6 +111267,197 @@ ${computeCode}
     }
     MovieClip._ValueList = ["x", "y", "width", "height", "scaleX", "scaleY", "rotation", "alpha"];
 
+    var _definiteIntegralMap = {};
+    class BlurEffect2D extends PostProcess2DEffect {
+        get shaderV1() {
+            return this._shaderV1;
+        }
+        set shaderV1(value) {
+            if (value != this._shaderV1) {
+                value.cloneTo(this._shaderV1);
+            }
+            this._mat && this._mat.setVector4("u_strength_sig2_2sig2_gauss1", this._shaderV1);
+            this._owner && this._owner._onChangeRender();
+        }
+        constructor(strength) {
+            super();
+            this._centerScale = new Vector2();
+            this._shaderV1 = new Vector4();
+            this._blurInfo = new Vector2();
+            this._shaderV1 = new Vector4();
+            this.strength = strength !== null && strength !== void 0 ? strength : 4;
+        }
+        effectInit(postprocess) {
+            this._owner = postprocess;
+            (!this._mat) && (this._mat = new Material());
+            this._mat.setShaderName("BlurEffect2D");
+            if (!this._renderElement) {
+                this._renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
+                this._renderElement.geometry = Blit2DCMD.InvertQuadGeometry;
+                this._renderElement.nodeCommonMap = null;
+                this._renderElement.renderStateIsBySprite = false;
+                this._renderElement.materialShaderData = this._mat.shaderData;
+                this._renderElement.subShader = this._mat.shader.getSubShaderAt(0);
+            }
+            this._mat.setVector4("u_strength_sig2_2sig2_gauss1", this._shaderV1);
+            this._mat.setVector2("u_centerScale", this._centerScale);
+            this._mat.lock = true;
+        }
+        render(context) {
+            let marginLeft = 50;
+            let marginTop = 50;
+            let width = context.indirectTarget.width;
+            let height = context.indirectTarget.height;
+            let texwidth = width + 2 * marginLeft;
+            let texheight = height + 2 * marginTop;
+            this._blurInfo.setValue(texwidth, texheight);
+            this._checkRenderTarget(texwidth, texheight, context);
+            this._centerScale.setValue(width / texwidth, height / texheight);
+            this._mat.setVector2("u_centerScale", this._centerScale);
+            this._mat.setVector2("u_blurInfo", this._blurInfo);
+            this._mat.setTexture("u_MainTex", context.indirectTarget);
+            context.command.setRenderTarget(this._destRT, true, Color.CLEAR);
+            context.command.drawRenderElement(this._renderElement, Matrix.EMPTY);
+            context.destination = this._destRT;
+        }
+        _checkRenderTarget(width, height, context) {
+            if (this._destRT && (this._destRT._inPool || this._destRT.destroyed || this._destRT.width !== width || this._destRT.height !== height)) {
+                RenderTexture2D.recoverToPool(this._destRT);
+                this._destRT = null;
+            }
+            if (!this._destRT) {
+                this._destRT = context.getRenderTexture(width, height, exports.RenderTargetFormat.R8G8B8A8, exports.RenderTargetFormat.None);
+            }
+        }
+        clearRT(context) {
+            if (this._destRT && this._destRT !== context.destination) {
+                RenderTexture2D.recoverToPool(this._destRT);
+                this._destRT = null;
+            }
+        }
+        get strength() {
+            return this._strength;
+        }
+        set strength(v) {
+            if (v == this._strength)
+                return;
+            this._strength = Math.max(Math.abs(v), 2);
+            var sigma = this._strength / 3.0;
+            var sigma2 = sigma * sigma;
+            let v1 = this._shaderV1.setValue(this.strength, sigma2, 2.0 * sigma2, 1.0 / (2.0 * Math.PI * sigma2));
+            let s = 0;
+            let key = Math.floor(this.strength * 10);
+            if (_definiteIntegralMap[key] != undefined) {
+                s = _definiteIntegralMap[key];
+            }
+            else {
+                for (let y = -4; y <= 4; ++y) {
+                    for (let x = -4; x <= 4; ++x) {
+                        s += v1.w * Math.exp(-(x * x + y * y) / v1.z);
+                    }
+                }
+                _definiteIntegralMap[key] = s;
+            }
+            v1.w /= s;
+            this.shaderV1 = v1;
+        }
+        destroy() {
+            var _a;
+            super.destroy();
+            if (this._destRT) {
+                RenderTexture2D.recoverToPool(this._destRT);
+            }
+            this._destRT = null;
+            this._mat.destroy();
+            this._mat = null;
+            (_a = this._renderElement) === null || _a === void 0 ? void 0 : _a.destroy();
+            this._renderElement = null;
+        }
+    }
+    ClassUtils.regClass("BlurEffect2D", BlurEffect2D);
+
+    class Filter extends EventDispatcher {
+        onChange() {
+            this.event(Event.CHANGED);
+        }
+    }
+
+    class BlurFilter extends Filter {
+        getEffect() {
+            return this._effect2D;
+        }
+        constructor(strength = 4) {
+            super();
+            this._effect2D = new BlurEffect2D(strength);
+        }
+        get strength() {
+            return this._effect2D.strength;
+        }
+        set strength(v) {
+            this._effect2D.strength = v;
+            this.onChange();
+        }
+    }
+    ClassUtils.regClass("BlurFilter", BlurFilter);
+
+    class ColorFilter extends Filter {
+        getEffect() {
+            return this._effect2D;
+        }
+        constructor(mat = null) {
+            super();
+            this._effect2D = new ColorEffect2D(mat);
+        }
+        gray() {
+            this._effect2D.gray();
+            return this;
+        }
+        color(red = 0, green = 0, blue = 0, alpha = 1) {
+            this._effect2D.color(red, green, blue, alpha);
+            return this;
+        }
+        setColor(color) {
+            this._effect2D.setColor(color);
+            return this;
+        }
+        setByMatrix(matrix) {
+            this._effect2D.setByMatrix(matrix);
+            this.onChange();
+            return this;
+        }
+        adjustColor(brightness, contrast, saturation, hue) {
+            this._effect2D.adjustColor(brightness, contrast, saturation, hue);
+            return this;
+        }
+        adjustBrightness(brightness) {
+            this._effect2D.adjustBrightness(brightness);
+            return this;
+        }
+        adjustContrast(contrast) {
+            this._effect2D.adjustContrast(contrast);
+            return this;
+        }
+        adjustSaturation(saturation) {
+            this._effect2D.adjustSaturation(saturation);
+            return this;
+        }
+        adjustHue(hue) {
+            this._effect2D.adjustHue(hue);
+            return this;
+        }
+        reset() {
+            this._effect2D.reset();
+            return this;
+        }
+        onAfterDeserialize() {
+            if (SerializeUtil.hasProp("_color"))
+                this.setColor(this._color);
+            if (SerializeUtil.hasProp("_brightness", "_contrast", "_saturation", "_hue"))
+                this.adjustColor(this._brightness || 0, this._contrast || 0, this._saturation || 0, this._hue || 0);
+        }
+    }
+    ClassUtils.regClass("ColorFilter", ColorFilter);
+
     class GlowEffect2D extends PostProcess2DEffect {
         get sv_blurInfo1() {
             return this._sv_blurInfo1;
@@ -111365,12 +111637,6 @@ ${computeCode}
     }
     ClassUtils.regClass("GlowEffect2D", GlowEffect2D);
 
-    class Filter extends EventDispatcher {
-        onChange() {
-            this.event(Event.CHANGED);
-        }
-    }
-
     class GlowFilter extends Filter {
         constructor(color, blur = 4, offX = 6, offY = 6) {
             super();
@@ -111409,191 +111675,6 @@ ${computeCode}
         }
     }
     ClassUtils.regClass("GlowFilter", GlowFilter);
-
-    var _definiteIntegralMap = {};
-    class BlurEffect2D extends PostProcess2DEffect {
-        get shaderV1() {
-            return this._shaderV1;
-        }
-        set shaderV1(value) {
-            if (value != this._shaderV1) {
-                value.cloneTo(this._shaderV1);
-            }
-            this._mat && this._mat.setVector4("u_strength_sig2_2sig2_gauss1", this._shaderV1);
-            this._owner && this._owner._onChangeRender();
-        }
-        constructor(strength) {
-            super();
-            this._centerScale = new Vector2();
-            this._shaderV1 = new Vector4();
-            this._blurInfo = new Vector2();
-            this._shaderV1 = new Vector4();
-            this.strength = strength !== null && strength !== void 0 ? strength : 4;
-        }
-        effectInit(postprocess) {
-            this._owner = postprocess;
-            (!this._mat) && (this._mat = new Material());
-            this._mat.setShaderName("BlurEffect2D");
-            if (!this._renderElement) {
-                this._renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
-                this._renderElement.geometry = Blit2DCMD.InvertQuadGeometry;
-                this._renderElement.nodeCommonMap = null;
-                this._renderElement.renderStateIsBySprite = false;
-                this._renderElement.materialShaderData = this._mat.shaderData;
-                this._renderElement.subShader = this._mat.shader.getSubShaderAt(0);
-            }
-            this._mat.setVector4("u_strength_sig2_2sig2_gauss1", this._shaderV1);
-            this._mat.setVector2("u_centerScale", this._centerScale);
-            this._mat.lock = true;
-        }
-        render(context) {
-            let marginLeft = 50;
-            let marginTop = 50;
-            let width = context.indirectTarget.width;
-            let height = context.indirectTarget.height;
-            let texwidth = width + 2 * marginLeft;
-            let texheight = height + 2 * marginTop;
-            this._blurInfo.setValue(texwidth, texheight);
-            this._checkRenderTarget(texwidth, texheight, context);
-            this._centerScale.setValue(width / texwidth, height / texheight);
-            this._mat.setVector2("u_centerScale", this._centerScale);
-            this._mat.setVector2("u_blurInfo", this._blurInfo);
-            this._mat.setTexture("u_MainTex", context.indirectTarget);
-            context.command.setRenderTarget(this._destRT, true, Color.CLEAR);
-            context.command.drawRenderElement(this._renderElement, Matrix.EMPTY);
-            context.destination = this._destRT;
-        }
-        _checkRenderTarget(width, height, context) {
-            if (this._destRT && (this._destRT._inPool || this._destRT.destroyed || this._destRT.width !== width || this._destRT.height !== height)) {
-                RenderTexture2D.recoverToPool(this._destRT);
-                this._destRT = null;
-            }
-            if (!this._destRT) {
-                this._destRT = context.getRenderTexture(width, height, exports.RenderTargetFormat.R8G8B8A8, exports.RenderTargetFormat.None);
-            }
-        }
-        clearRT(context) {
-            if (this._destRT && this._destRT !== context.destination) {
-                RenderTexture2D.recoverToPool(this._destRT);
-                this._destRT = null;
-            }
-        }
-        get strength() {
-            return this._strength;
-        }
-        set strength(v) {
-            if (v == this._strength)
-                return;
-            this._strength = Math.max(Math.abs(v), 2);
-            var sigma = this._strength / 3.0;
-            var sigma2 = sigma * sigma;
-            let v1 = this._shaderV1.setValue(this.strength, sigma2, 2.0 * sigma2, 1.0 / (2.0 * Math.PI * sigma2));
-            let s = 0;
-            let key = Math.floor(this.strength * 10);
-            if (_definiteIntegralMap[key] != undefined) {
-                s = _definiteIntegralMap[key];
-            }
-            else {
-                for (let y = -4; y <= 4; ++y) {
-                    for (let x = -4; x <= 4; ++x) {
-                        s += v1.w * Math.exp(-(x * x + y * y) / v1.z);
-                    }
-                }
-                _definiteIntegralMap[key] = s;
-            }
-            v1.w /= s;
-            this.shaderV1 = v1;
-        }
-        destroy() {
-            var _a;
-            super.destroy();
-            if (this._destRT) {
-                RenderTexture2D.recoverToPool(this._destRT);
-            }
-            this._destRT = null;
-            this._mat.destroy();
-            this._mat = null;
-            (_a = this._renderElement) === null || _a === void 0 ? void 0 : _a.destroy();
-            this._renderElement = null;
-        }
-    }
-    ClassUtils.regClass("BlurEffect2D", BlurEffect2D);
-
-    class BlurFilter extends Filter {
-        getEffect() {
-            return this._effect2D;
-        }
-        constructor(strength = 4) {
-            super();
-            this._effect2D = new BlurEffect2D(strength);
-        }
-        get strength() {
-            return this._effect2D.strength;
-        }
-        set strength(v) {
-            this._effect2D.strength = v;
-            this.onChange();
-        }
-    }
-    ClassUtils.regClass("BlurFilter", BlurFilter);
-
-    class ColorFilter extends Filter {
-        getEffect() {
-            return this._effect2D;
-        }
-        constructor(mat = null) {
-            super();
-            this._effect2D = new ColorEffect2D(mat);
-        }
-        gray() {
-            this._effect2D.gray();
-            return this;
-        }
-        color(red = 0, green = 0, blue = 0, alpha = 1) {
-            this._effect2D.color(red, green, blue, alpha);
-            return this;
-        }
-        setColor(color) {
-            this._effect2D.setColor(color);
-            return this;
-        }
-        setByMatrix(matrix) {
-            this._effect2D.setByMatrix(matrix);
-            this.onChange();
-            return this;
-        }
-        adjustColor(brightness, contrast, saturation, hue) {
-            this._effect2D.adjustColor(brightness, contrast, saturation, hue);
-            return this;
-        }
-        adjustBrightness(brightness) {
-            this._effect2D.adjustBrightness(brightness);
-            return this;
-        }
-        adjustContrast(contrast) {
-            this._effect2D.adjustContrast(contrast);
-            return this;
-        }
-        adjustSaturation(saturation) {
-            this._effect2D.adjustSaturation(saturation);
-            return this;
-        }
-        adjustHue(hue) {
-            this._effect2D.adjustHue(hue);
-            return this;
-        }
-        reset() {
-            this._effect2D.reset();
-            return this;
-        }
-        onAfterDeserialize() {
-            if (SerializeUtil.hasProp("_color"))
-                this.setColor(this._color);
-            if (SerializeUtil.hasProp("_brightness", "_contrast", "_saturation", "_hue"))
-                this.adjustColor(this._brightness || 0, this._contrast || 0, this._saturation || 0, this._hue || 0);
-        }
-    }
-    ClassUtils.regClass("ColorFilter", ColorFilter);
 
     class TimeLine extends EventDispatcher {
         constructor() {
@@ -113564,45 +113645,30 @@ ${computeCode}
         }
     }
 
-    class BoxCollider extends StaticCollider {
-        get width() {
-            return this._width;
+    class CircleCollider extends StaticCollider {
+        get radius() {
+            return this._radius;
         }
-        set width(value) {
+        set radius(value) {
             if (value <= 0)
-                throw "BoxCollider size cannot be less than 0";
-            if (this._width == value)
+                throw "CircleCollider radius cannot be less than 0";
+            if (this._radius == value)
                 return;
-            this._width = value;
-            this._rigidbody && this.createShape(this._rigidbody);
-        }
-        get height() {
-            return this._height;
-        }
-        set height(value) {
-            if (value <= 0)
-                throw "BoxCollider size cannot be less than 0";
-            if (this._height == value)
-                return;
-            this._height = value;
+            this._radius = value;
             this._rigidbody && this.createShape(this._rigidbody);
         }
         constructor() {
             super();
-            this._width = 100;
-            this._height = 100;
-            this._shapeDef.shapeType = exports.EPhysics2DShape.BoxShape;
+            this._radius = 50;
+            this._shapeDef.shapeType = exports.EPhysics2DShape.CircleShape;
         }
         _setShapeData(shape) {
             if (!shape)
                 return;
-            let helfW = this._width * 0.5;
-            let helfH = this._height * 0.5;
-            var center = {
-                x: helfW + this.pivotoffx,
-                y: helfH + this.pivotoffy
-            };
-            Physics2D.I._factory.set_collider_SetAsBox(shape, helfW, helfH, center, Math.abs(this.scaleX), Math.abs(this.scaleY));
+            var scale = Math.max(Math.abs(this.scaleX), Math.abs(this.scaleY));
+            let radius = this.radius;
+            Physics2D.I._factory.set_CircleShape_radius(shape, radius, scale);
+            Physics2D.I._factory.set_CircleShape_pos(shape, this.x, this.y, this.scaleX, this.scaleY);
         }
     }
 
@@ -113665,76 +113731,6 @@ ${computeCode}
                 let sp = this.owner;
                 this._datas.push(0, 0, sp.width, 0, 0, sp.height, sp.width, sp.height);
             }
-        }
-    }
-
-    class PolygonCollider extends StaticCollider {
-        get points() {
-            return this._points;
-        }
-        set points(value) {
-            if (!value)
-                throw "PolygonCollider points cannot be empty";
-            this._points = value;
-            var arr = this._points.split(",");
-            let length = arr.length;
-            this._datas = [];
-            for (var i = 0, n = length; i < n; i++) {
-                this._datas.push(parseInt(arr[i]));
-            }
-            this._rigidbody && this.createShape(this._rigidbody);
-        }
-        get datas() {
-            return this._datas;
-        }
-        set datas(value) {
-            if (!value)
-                throw "PolygonCollider points cannot be empty";
-            this._datas = value;
-            this._rigidbody && this.createShape(this._rigidbody);
-        }
-        constructor() {
-            super();
-            this._points = "50,0,100,100,0,100";
-            this._datas = [50, 0, 100, 100, 0, 100];
-            this._shapeDef.shapeType = exports.EPhysics2DShape.PolygonShape;
-        }
-        _setShapeData(shape) {
-            if (!shape)
-                return;
-            var len = this.datas.length;
-            if (len < 6)
-                throw "PolygonCollider points must be greater than 3";
-            if (len % 2 == 1)
-                throw "PolygonCollider points lenth must a multiplier of 2";
-            Physics2D.I._factory.set_PolygonShape_data(shape, this.pivotoffx, this.pivotoffy, this.datas, this.scaleX, this.scaleY);
-        }
-    }
-
-    class CircleCollider extends StaticCollider {
-        get radius() {
-            return this._radius;
-        }
-        set radius(value) {
-            if (value <= 0)
-                throw "CircleCollider radius cannot be less than 0";
-            if (this._radius == value)
-                return;
-            this._radius = value;
-            this._rigidbody && this.createShape(this._rigidbody);
-        }
-        constructor() {
-            super();
-            this._radius = 50;
-            this._shapeDef.shapeType = exports.EPhysics2DShape.CircleShape;
-        }
-        _setShapeData(shape) {
-            if (!shape)
-                return;
-            var scale = Math.max(Math.abs(this.scaleX), Math.abs(this.scaleY));
-            let radius = this.radius;
-            Physics2D.I._factory.set_CircleShape_radius(shape, radius, scale);
-            Physics2D.I._factory.set_CircleShape_pos(shape, this.x, this.y, this.scaleX, this.scaleY);
         }
     }
 
@@ -113835,6 +113831,91 @@ ${computeCode}
                 this.selfBody.owner.off("bodyCreated", this, this._createJoint);
                 this.otherBody && this.otherBody.owner.off("bodyCreated", this, this._createJoint);
             }
+        }
+    }
+
+    class BoxCollider extends StaticCollider {
+        get width() {
+            return this._width;
+        }
+        set width(value) {
+            if (value <= 0)
+                throw "BoxCollider size cannot be less than 0";
+            if (this._width == value)
+                return;
+            this._width = value;
+            this._rigidbody && this.createShape(this._rigidbody);
+        }
+        get height() {
+            return this._height;
+        }
+        set height(value) {
+            if (value <= 0)
+                throw "BoxCollider size cannot be less than 0";
+            if (this._height == value)
+                return;
+            this._height = value;
+            this._rigidbody && this.createShape(this._rigidbody);
+        }
+        constructor() {
+            super();
+            this._width = 100;
+            this._height = 100;
+            this._shapeDef.shapeType = exports.EPhysics2DShape.BoxShape;
+        }
+        _setShapeData(shape) {
+            if (!shape)
+                return;
+            let helfW = this._width * 0.5;
+            let helfH = this._height * 0.5;
+            var center = {
+                x: helfW + this.pivotoffx,
+                y: helfH + this.pivotoffy
+            };
+            Physics2D.I._factory.set_collider_SetAsBox(shape, helfW, helfH, center, Math.abs(this.scaleX), Math.abs(this.scaleY));
+        }
+    }
+
+    class PolygonCollider extends StaticCollider {
+        get points() {
+            return this._points;
+        }
+        set points(value) {
+            if (!value)
+                throw "PolygonCollider points cannot be empty";
+            this._points = value;
+            var arr = this._points.split(",");
+            let length = arr.length;
+            this._datas = [];
+            for (var i = 0, n = length; i < n; i++) {
+                this._datas.push(parseInt(arr[i]));
+            }
+            this._rigidbody && this.createShape(this._rigidbody);
+        }
+        get datas() {
+            return this._datas;
+        }
+        set datas(value) {
+            if (!value)
+                throw "PolygonCollider points cannot be empty";
+            this._datas = value;
+            this._rigidbody && this.createShape(this._rigidbody);
+        }
+        constructor() {
+            super();
+            this._points = "50,0,100,100,0,100";
+            this._datas = [50, 0, 100, 100, 0, 100];
+            this._shapeDef.shapeType = exports.EPhysics2DShape.PolygonShape;
+        }
+        _setShapeData(shape) {
+            if (!shape)
+                return;
+            var len = this.datas.length;
+            if (len < 6)
+                throw "PolygonCollider points must be greater than 3";
+            if (len % 2 == 1)
+                throw "PolygonCollider points lenth must a multiplier of 2";
+            Physics2D.I._factory.set_PolygonShape_data(shape, this.pivotoffx, this.pivotoffy, this.datas, this.scaleX, this.scaleY);
         }
     }
 
@@ -113976,6 +114057,52 @@ ${computeCode}
         }
     }
 
+    class Geolocation {
+        static getCurrentPosition(onSuccess, onError) {
+            PAL.device.getCurrentPosition(info => {
+                if (onSuccess instanceof Handler)
+                    onSuccess.runWith(info);
+                else
+                    onSuccess(info);
+            }, err => {
+                if (onError instanceof Handler)
+                    onError.runWith(err);
+                else if (onError)
+                    onError(err);
+            }, {
+                enableHighAccuracy: Geolocation.enableHighAccuracy,
+                timeout: Geolocation.timeout,
+                maximumAge: Geolocation.maximumAge
+            });
+        }
+        static watchPosition(onSuccess, onError) {
+            return PAL.device.watchPosition(info => {
+                if (onSuccess instanceof Handler)
+                    onSuccess.runWith(info);
+                else
+                    onSuccess(info);
+            }, err => {
+                if (onError instanceof Handler)
+                    onError.runWith(err);
+                else if (onError)
+                    onError(err);
+            }, {
+                enableHighAccuracy: Geolocation.enableHighAccuracy,
+                timeout: Geolocation.timeout,
+                maximumAge: Geolocation.maximumAge
+            });
+        }
+        static clearWatch(id) {
+            PAL.device.clearWatchPosition(id);
+        }
+    }
+    Geolocation.PERMISSION_DENIED = 1;
+    Geolocation.POSITION_UNAVAILABLE = 2;
+    Geolocation.TIMEOUT = 3;
+    Geolocation.enableHighAccuracy = false;
+    Geolocation.timeout = 1E10;
+    Geolocation.maximumAge = 0;
+
     class Accelerator extends EventDispatcher {
         static get instance() {
             Accelerator._instance = Accelerator._instance || new Accelerator();
@@ -114027,71 +114154,6 @@ ${computeCode}
         }
     }
 
-    class Geolocation {
-        static getCurrentPosition(onSuccess, onError) {
-            PAL.device.getCurrentPosition(info => {
-                if (onSuccess instanceof Handler)
-                    onSuccess.runWith(info);
-                else
-                    onSuccess(info);
-            }, err => {
-                if (onError instanceof Handler)
-                    onError.runWith(err);
-                else if (onError)
-                    onError(err);
-            }, {
-                enableHighAccuracy: Geolocation.enableHighAccuracy,
-                timeout: Geolocation.timeout,
-                maximumAge: Geolocation.maximumAge
-            });
-        }
-        static watchPosition(onSuccess, onError) {
-            return PAL.device.watchPosition(info => {
-                if (onSuccess instanceof Handler)
-                    onSuccess.runWith(info);
-                else
-                    onSuccess(info);
-            }, err => {
-                if (onError instanceof Handler)
-                    onError.runWith(err);
-                else if (onError)
-                    onError(err);
-            }, {
-                enableHighAccuracy: Geolocation.enableHighAccuracy,
-                timeout: Geolocation.timeout,
-                maximumAge: Geolocation.maximumAge
-            });
-        }
-        static clearWatch(id) {
-            PAL.device.clearWatchPosition(id);
-        }
-    }
-    Geolocation.PERMISSION_DENIED = 1;
-    Geolocation.POSITION_UNAVAILABLE = 2;
-    Geolocation.TIMEOUT = 3;
-    Geolocation.enableHighAccuracy = false;
-    Geolocation.timeout = 1E10;
-    Geolocation.maximumAge = 0;
-
-    class Media {
-        static supported() {
-            return PAL.device.supportedGetUserMedia;
-        }
-        static getMedia(constraints, onSuccess, onError) {
-            PAL.device.getUserMedia(constraints, stream => {
-                if (onSuccess instanceof Handler)
-                    onSuccess.runWith(stream);
-                else
-                    onSuccess(stream);
-            }, err => {
-                if (onError instanceof Handler)
-                    onError.runWith(err);
-                else if (onError)
-                    onError(err);
-            });
-        }
-    }
-
     class Shake extends EventDispatcher {
         static get instance() {
             Shake._instance = Shake._instance || new Shake();
@@ -114133,6 +114195,25 @@ ${computeCode}
                 (deltaY > this.threshold ? 2 : 0) |
                 (deltaZ > this.threshold ? 4 : 0);
             return (mask & (mask - 1)) !== 0;
+        }
+    }
+
+    class Media {
+        static supported() {
+            return PAL.device.supportedGetUserMedia;
+        }
+        static getMedia(constraints, onSuccess, onError) {
+            PAL.device.getUserMedia(constraints, stream => {
+                if (onSuccess instanceof Handler)
+                    onSuccess.runWith(stream);
+                else
+                    onSuccess(stream);
+            }, err => {
+                if (onError instanceof Handler)
+                    onError.runWith(err);
+                else if (onError)
+                    onError(err);
+            });
         }
     }
 
@@ -118664,43 +118745,6 @@ ${computeCode}
         }
     }
 
-    class CircleShape2D extends Physics2DShapeBase {
-        get radius() {
-            return this._radius;
-        }
-        set radius(value) {
-            this._radius = value;
-            this._updateShapeData();
-        }
-        constructor() {
-            super();
-            this._radius = 50;
-            this._shapeDef.shapeType = exports.EPhysics2DShape.CircleShape;
-        }
-        _createShape() {
-            this._box2DShape = Physics2D.I._factory.createShape(this._physics2DManager.box2DWorld, this._box2DBody, exports.EPhysics2DShape.CircleShape, this._box2DShapeDef);
-            this._updateShapeData();
-        }
-        _updateShapeData() {
-            if (!LayaEnv.isPlaying || !this._body || !this._box2DBody)
-                return;
-            var scale = Math.max(Math.abs(this.scaleX), Math.abs(this.scaleY));
-            let radius = this.radius;
-            let shape = this._box2DShape ? Physics2D.I._factory.getShape(this._box2DShape, this._shapeDef.shapeType) : Physics2D.I._factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType);
-            Physics2D.I._factory.set_CircleShape_radius(shape, radius, scale);
-            Physics2D.I._factory.set_CircleShape_pos(shape, this.pivotoffx, this.pivotoffy, this.scaleX, this.scaleY);
-        }
-        clone() {
-            let dest = new CircleShape2D();
-            this.cloneTo(dest);
-            return dest;
-        }
-        cloneTo(destObject) {
-            super.cloneTo(destObject);
-            destObject.radius = this.radius;
-        }
-    }
-
     class PolygonShape2D extends Physics2DShapeBase {
         get datas() {
             return this._datas;
@@ -118739,6 +118783,43 @@ ${computeCode}
         cloneTo(destObject) {
             super.cloneTo(destObject);
             destObject.datas = this.datas;
+        }
+    }
+
+    class CircleShape2D extends Physics2DShapeBase {
+        get radius() {
+            return this._radius;
+        }
+        set radius(value) {
+            this._radius = value;
+            this._updateShapeData();
+        }
+        constructor() {
+            super();
+            this._radius = 50;
+            this._shapeDef.shapeType = exports.EPhysics2DShape.CircleShape;
+        }
+        _createShape() {
+            this._box2DShape = Physics2D.I._factory.createShape(this._physics2DManager.box2DWorld, this._box2DBody, exports.EPhysics2DShape.CircleShape, this._box2DShapeDef);
+            this._updateShapeData();
+        }
+        _updateShapeData() {
+            if (!LayaEnv.isPlaying || !this._body || !this._box2DBody)
+                return;
+            var scale = Math.max(Math.abs(this.scaleX), Math.abs(this.scaleY));
+            let radius = this.radius;
+            let shape = this._box2DShape ? Physics2D.I._factory.getShape(this._box2DShape, this._shapeDef.shapeType) : Physics2D.I._factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType);
+            Physics2D.I._factory.set_CircleShape_radius(shape, radius, scale);
+            Physics2D.I._factory.set_CircleShape_pos(shape, this.pivotoffx, this.pivotoffy, this.scaleX, this.scaleY);
+        }
+        clone() {
+            let dest = new CircleShape2D();
+            this.cloneTo(dest);
+            return dest;
+        }
+        cloneTo(destObject) {
+            super.cloneTo(destObject);
+            destObject.radius = this.radius;
         }
     }
 

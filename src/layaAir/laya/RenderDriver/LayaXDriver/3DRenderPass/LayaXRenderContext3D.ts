@@ -12,11 +12,9 @@ import { ICameraNodeData, ISceneNodeData } from "../../RenderModuleData/Design/3
 /**
  * LayaX render context for 3D.
  *
- * RenderElement 已改为持久 handle 模式（每个 element 通过 _nativeObj 注册到 Rust），
- * 不再需要 POD 序列化提交。
- *
- * drawRenderElementList / drawRenderElementOne 保留接口兼容但为 no-op，
- * 因为 layax_execute_forward_pass 直接从 Rust 侧 render_elements 读取。
+ * 职责精简：只负责 ShaderData / ModuleData / InvertY 绑定到 Rust。
+ * 渲染 Pass 配置（viewport/scissor/clear/RT）由 LayaXForwardAddClusterRP 直接设置。
+ * RenderElement 是 Rust 侧持久对象，draw 方法为 no-op。
  */
 export class LayaXRenderContext3D implements IRenderContext3D {
 
@@ -24,7 +22,7 @@ export class LayaXRenderContext3D implements IRenderContext3D {
     _nativeObj: any;
 
     // ------------------------------------------------------------------
-    // IRenderContext3D property implementations
+    // ShaderData bindings → C++ → Rust FFI
     // ------------------------------------------------------------------
 
     private _globalShaderData: ShaderData;
@@ -45,6 +43,19 @@ export class LayaXRenderContext3D implements IRenderContext3D {
         }
     }
 
+    private _cameraData: ShaderData;
+    public get cameraData(): ShaderData { return this._cameraData; }
+    public set cameraData(value: ShaderData) {
+        this._cameraData = value;
+        if (this._nativeObj) {
+            this._nativeObj.setCameraShaderData(value ? (value as any)._nativeObj : null);
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // ModuleData bindings → C++ → Rust FFI
+    // ------------------------------------------------------------------
+
     private _sceneModuleData: ISceneNodeData;
     public get sceneModuleData(): ISceneNodeData { return this._sceneModuleData; }
     public set sceneModuleData(value: ISceneNodeData) {
@@ -63,14 +74,9 @@ export class LayaXRenderContext3D implements IRenderContext3D {
         }
     }
 
-    private _cameraData: ShaderData;
-    public get cameraData(): ShaderData { return this._cameraData; }
-    public set cameraData(value: ShaderData) {
-        this._cameraData = value;
-        if (this._nativeObj) {
-            this._nativeObj.setCameraShaderData(value ? (value as any)._nativeObj : null);
-        }
-    }
+    // ------------------------------------------------------------------
+    // Simple properties (interface compat)
+    // ------------------------------------------------------------------
 
     private _sceneUpdateMask: number = 0;
     public get sceneUpdateMask(): number { return this._sceneUpdateMask; }
@@ -96,18 +102,6 @@ export class LayaXRenderContext3D implements IRenderContext3D {
     preDrawUniformMaps: Set<string> = new Set<string>();
 
     // ------------------------------------------------------------------
-    // Recorded render pass state
-    // ------------------------------------------------------------------
-
-    private _rtHandle: number = 0;
-    private _clearFlag: number = 0;
-    private _clearColor: Color = new Color(0, 0, 0, 1);
-    private _clearDepth: number = 1.0;
-    private _clearStencil: number = 0;
-    private _viewport: Viewport = new Viewport(0, 0, 0, 0);
-    private _scissor: Vector4 = new Vector4(0, 0, 0, 0);
-
-    // ------------------------------------------------------------------
     // Constructor
     // ------------------------------------------------------------------
 
@@ -117,90 +111,37 @@ export class LayaXRenderContext3D implements IRenderContext3D {
     }
 
     // ------------------------------------------------------------------
-    // Render pass lifecycle
-    // ------------------------------------------------------------------
-
-    /**
-     * Begin the current render pass: send RT/clear/viewport/scissor to Rust.
-     */
-    _start(): void {
-        this._nativeObj.beginRenderPass(
-            this._rtHandle,
-            this._clearFlag,
-            this._clearColor.r, this._clearColor.g,
-            this._clearColor.b, this._clearColor.a,
-            this._clearDepth,
-            this._clearStencil,
-            this._viewport.x, this._viewport.y,
-            this._viewport.width, this._viewport.height,
-            this._scissor.x | 0, this._scissor.y | 0,
-            this._scissor.z | 0, this._scissor.w | 0
-        );
-    }
-
-    /**
-     * End the current render pass.
-     */
-    _submit(): void {
-        this._nativeObj.endRenderPass();
-    }
-
-    // ------------------------------------------------------------------
-    // IRenderContext3D methods
+    // IRenderContext3D methods — pass config is handled by ForwardAddClusterRP
     // ------------------------------------------------------------------
 
     setRenderTarget(value: InternalRenderTarget, clearFlag: RenderClearFlag): void {
-        if (value) {
-            this._rtHandle = (value as any)._nativeObj ? (value as any)._nativeObj.handle || 0 : 0;
-        } else {
-            this._rtHandle = 0;
-        }
-        this._clearFlag = clearFlag;
+        // No-op: RT is set via LayaXForwardAddClusterRP.setDestTarget → Rust FFI
     }
 
     setViewPort(value: Viewport): void {
-        this._viewport.x = value.x;
-        this._viewport.y = value.y;
-        this._viewport.width = value.width;
-        this._viewport.height = value.height;
+        // No-op: viewport is set via LayaXForwardAddClusterRP.setViewPort → Rust FFI
     }
 
     setScissor(value: Vector4): void {
-        this._scissor.x = value.x;
-        this._scissor.y = value.y;
-        this._scissor.z = value.z;
-        this._scissor.w = value.w;
+        // No-op: scissor is set via LayaXForwardAddClusterRP.setScissor → Rust FFI
     }
 
     setClearData(clearFlag: number, color: Color, depth: number, stencil: number): number {
-        this._clearFlag = clearFlag;
-        if (color) {
-            this._clearColor.r = color.r;
-            this._clearColor.g = color.g;
-            this._clearColor.b = color.b;
-            this._clearColor.a = color.a;
-        }
-        this._clearDepth = depth;
-        this._clearStencil = stencil;
+        // No-op: clear is set via LayaXForwardAddClusterRP.setClearFlag/setClearColor → Rust FFI
         return 0;
     }
 
     clearRenderTarget(): void {
-        // Clear is handled as part of beginRenderPass
+        // No-op: clear is part of the render pass begin in Rust
     }
 
-    /**
-     * No-op: RenderElement 已是 Rust 侧持久对象。
-     * Forward pass 直接从 Rust render_elements 读取，不需要 TS 侧提交。
-     */
     drawRenderElementList(list: FastSinglelist<IRenderElement3D>): number {
+        // No-op: RenderElements are persistent Rust objects
         return list ? list.length : 0;
     }
 
-    /**
-     * No-op: 同上。
-     */
     drawRenderElementOne(node: IRenderElement3D): number {
+        // No-op: RenderElements are persistent Rust objects
         return node ? 1 : 0;
     }
 

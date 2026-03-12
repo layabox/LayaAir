@@ -6,12 +6,18 @@ import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Resource } from "../../../resource/Resource";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { IDeviceBuffer } from "../../DriverDesign/RenderDevice/IDeviceBuffer";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { LayaXDefineDatas } from "../RenderModuleData/LayaXDefineDatas";
 import { RTShaderDefine } from "../../RenderModuleData/RuntimeModuleData/RTShaderDefine";
 import { LayaXInternalTex } from "./LayaXInternalTex";
+
+/** RenderState 变化监听者接口（避免循环引用） */
+export interface IRenderStateListener {
+    _onRenderStateChanged(): void;
+}
 
 export class LayaXShaderData extends ShaderData {
     nativeObjID: number;
@@ -20,6 +26,9 @@ export class LayaXShaderData extends ShaderData {
     _textureData: { [key: number]: BaseTexture };
     _bufferData: { [key: number]: Float32Array };
     _deviceBufferData: { [key: number]: IDeviceBuffer };
+
+    /** @internal RenderState 监听者集合 */
+    _renderStateListeners: Set<IRenderStateListener> = new Set();
 
     /**
      * @internal
@@ -86,12 +95,51 @@ export class LayaXShaderData extends ShaderData {
         this._defineDatas.clear();
     }
 
+    /** @internal 检测是否为 RenderState 属性 */
+    private static _isRenderStateProp(index: number): boolean {
+        return index === Shader3D.CULL
+            || index === Shader3D.BLEND
+            || index === Shader3D.BLEND_SRC
+            || index === Shader3D.BLEND_DST
+            || index === Shader3D.BLEND_SRC_RGB
+            || index === Shader3D.BLEND_DST_RGB
+            || index === Shader3D.BLEND_SRC_ALPHA
+            || index === Shader3D.BLEND_DST_ALPHA
+            || index === Shader3D.BLEND_EQUATION
+            || index === Shader3D.BLEND_EQUATION_RGB
+            || index === Shader3D.BLEND_EQUATION_ALPHA
+            || index === Shader3D.DEPTH_TEST
+            || index === Shader3D.DEPTH_WRITE
+            || index === Shader3D.STENCIL_TEST
+            || index === Shader3D.STENCIL_WRITE
+            || index === Shader3D.STENCIL_WRITE_MASK
+            || index === Shader3D.STENCIL_READ_MASK
+            || index === Shader3D.STENCIL_Ref
+            || index === Shader3D.STENCIL_Op;
+    }
+
+    /** @internal 通知所有监听者 RenderState 变化 */
+    private _notifyRenderStateChanged(): void {
+        if (this._renderStateListeners.size > 0) {
+            this._renderStateListeners.forEach(l => l._onRenderStateChanged());
+        }
+    }
+
+    _addRenderStateListener(listener: IRenderStateListener): void {
+        this._renderStateListeners.add(listener);
+    }
+
+    _removeRenderStateListener(listener: IRenderStateListener): void {
+        this._renderStateListeners.delete(listener);
+    }
+
     getBool(index: number): boolean {
         return this._nativeObj.getBool(index);
     }
 
     setBool(index: number, value: boolean): void {
         this._nativeObj.setBool(index, value);
+        if (LayaXShaderData._isRenderStateProp(index)) this._notifyRenderStateChanged();
     }
 
     getInt(index: number): number {
@@ -100,6 +148,7 @@ export class LayaXShaderData extends ShaderData {
 
     setInt(index: number, value: number): void {
         this._nativeObj.setInt(index, value);
+        if (LayaXShaderData._isRenderStateProp(index)) this._notifyRenderStateChanged();
     }
 
     getNumber(index: number): number {
@@ -108,6 +157,7 @@ export class LayaXShaderData extends ShaderData {
 
     setNumber(index: number, value: number): void {
         this._nativeObj.setNumber(index, value);
+        if (LayaXShaderData._isRenderStateProp(index)) this._notifyRenderStateChanged();
     }
 
     getVector2(index: number): Vector2 {
@@ -141,6 +191,7 @@ export class LayaXShaderData extends ShaderData {
 
     setVector3(index: number, value: Vector3): void {
         this._nativeObj.setVector3(index, value);
+        if (index === Shader3D.STENCIL_Op) this._notifyRenderStateChanged();
     }
 
     getVector(index: number): Vector4 {

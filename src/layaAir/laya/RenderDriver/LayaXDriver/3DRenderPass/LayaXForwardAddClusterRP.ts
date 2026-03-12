@@ -8,7 +8,6 @@ import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRende
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { LayaXCameraNodeData } from "../RenderModuleData/LayaXCameraNodeData";
-import { LayaXBaseRenderNode } from "../RenderModuleData/LayaXBaseRenderNode";
 
 export class LayaXForwardAddClusterRP {
 
@@ -90,15 +89,6 @@ export class LayaXForwardAddClusterRP {
         this._nativeObj.enableTransparent = value;
     }
 
-    private _skyRenderNode: LayaXBaseRenderNode;
-    public get skyRenderNode(): LayaXBaseRenderNode {
-        return this._skyRenderNode;
-    }
-    public set skyRenderNode(value: LayaXBaseRenderNode) {
-        this._skyRenderNode = value;
-        this._nativeObj.setSkyRenderNode(value ? value._nativeObj : null);
-    }
-
     private _camera: LayaXCameraNodeData;
     public get camera(): LayaXCameraNodeData {
         return this._camera;
@@ -163,18 +153,6 @@ export class LayaXForwardAddClusterRP {
             });
         } else {
             this._nativeObj.clearBeforeForwardCmds();
-        }
-    }
-
-    setBeforeSkyboxCmds(value: CommandBuffer[]): void {
-        if (value && value.length > 0) {
-            this._nativeObj.clearBeforeSkyboxCmds();
-            value.forEach(element => {
-                element._apply(false);
-                this._nativeObj.addBeforeSkyboxCmds(this._getRenderCMDArray(element._renderCMDs));
-            });
-        } else {
-            this._nativeObj.clearBeforeSkyboxCmds();
         }
     }
 

@@ -15,7 +15,6 @@ import { Stat } from "../../../utils/Stat";
 import { IRender3DProcess, IRenderContext3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
 import { LayaXCameraNodeData } from "../RenderModuleData/LayaXCameraNodeData";
-import { LayaXBaseRenderNode } from "../RenderModuleData/LayaXBaseRenderNode";
 import { LayaXDirectLight } from "../RenderModuleData/LayaXDirectLight";
 import { LayaXSpotLight } from "../RenderModuleData/LayaXSpotLight";
 import { LayaXReflectionProbe } from "../RenderModuleData/LayaXReflectionProbe";
@@ -115,18 +114,10 @@ export class LayaXRender3DProcess implements IRender3DProcess {
         renderpass.enableOpaque = Stat.enableOpaque;
         renderpass.enableTransparent = Stat.enableTransparent;
         renderpass.enableCMD = Stat.enableCameraCMD;
-        renderpass.setBeforeSkyboxCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeSkyBox]);
         renderpass.setBeforeForwardCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeForwardOpaque]);
         renderpass.setBeforeTransparentCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeTransparent]);
         this._renderPass.setBeforeImageEffect(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeImageEffect]);
         this._renderPass.setAfterEventCmd(camera._cameraEventCommandBuffer[CameraEventFlags.AfterEveryThing]);
-
-        if (clearFlag == CameraClearFlags.Sky) {
-            renderpass.skyRenderNode = <LayaXBaseRenderNode>camera.scene.skyRenderer._baseRenderNode;
-        }
-        else {
-            renderpass.skyRenderNode = null;
-        }
 
         // todo
         renderpass.pipelineMode = RenderContext3D._instance.configPipeLineMode;
