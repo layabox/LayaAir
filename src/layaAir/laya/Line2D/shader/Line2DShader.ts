@@ -15,6 +15,7 @@ export class LineShader {
     static LINEWIDTH: number;
     static DASHED: number;
     static TILINGOFFSET: number;
+    static SCREENSPACEWIDTH: number;
 
     static linePoisitionDesc: VertexDeclaration;
 
@@ -50,12 +51,14 @@ export class LineShader {
         LineShader.LINEWIDTH = Shader3D.propertyNameToID("u_lineWidth");
         LineShader.DASHED = Shader3D.propertyNameToID("u_dashed");
         LineShader.TILINGOFFSET = Shader3D.propertyNameToID("u_TilingOffset");
+        LineShader.SCREENSPACEWIDTH = Shader3D.propertyNameToID("u_screenSpaceWidth");
 
 
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Line2DRender");
         commandUniform.addShaderUniform(LineShader.LINEWIDTH, "u_lineWidth", ShaderDataType.Float);
         commandUniform.addShaderUniform(LineShader.DASHED, "u_dashed", ShaderDataType.Vector3);
         commandUniform.addShaderUniform(LineShader.TILINGOFFSET, "u_TilingOffset", ShaderDataType.Vector4);
+        commandUniform.addShaderUniform(LineShader.SCREENSPACEWIDTH, "u_screenSpaceWidth", ShaderDataType.Float);
 
 
         let vertexs: Float32Array = new Float32Array([

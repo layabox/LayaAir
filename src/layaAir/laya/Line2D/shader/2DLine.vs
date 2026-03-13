@@ -10,6 +10,7 @@ varying vec3 v_dashed;
 varying float v_lineWidth;
 uniform vec3 u_dashed;
 uniform float u_lineWidth;
+uniform float u_screenSpaceWidth;
 
 
 
@@ -46,7 +47,7 @@ void main(){
     v_dashed = vec3(u_dashed.x*lengthScale,u_dashed.y,u_dashed.z*lengthScale);
     v_linePionts=vec4(left,right);
     
-    float lineWidth = u_lineWidth*lengthScale;
+    float lineWidth = u_lineWidth * mix(lengthScale, 1.0, u_screenSpaceWidth);
     v_lineWidth = lineWidth;
     v_linedir = normalize(right - left) * v_lineWidth*0.5;
     vec3 xDir;

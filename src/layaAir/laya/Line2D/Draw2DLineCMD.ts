@@ -16,7 +16,7 @@ import { Const } from "../Const";
 export class Draw2DLineCMD extends Command2D {
     private static readonly _pool = Pool.createPool(Draw2DLineCMD);
 
-    static create(pointArray: number[], mat: Matrix, color: Color = Color.WHITE, lineWidth: number = 3) {
+    static create(pointArray: number[], mat: Matrix, color: Color = Color.WHITE, lineWidth: number = 3, screenSpaceWidth: boolean = false) {
         var cmd = Draw2DLineCMD._pool.take();
         // cmd.color = color;
         // cmd.positions = pointArray;
@@ -24,6 +24,7 @@ export class Draw2DLineCMD extends Command2D {
         cmd._line2DRender.color = color;
         cmd._line2DRender.positions = pointArray;
         cmd._line2DRender.lineWidth = lineWidth;
+        cmd._line2DRender.screenSpaceWidth = screenSpaceWidth;
         cmd._needUpdateElement = true;
         cmd._setMatrix(mat);
         return cmd;

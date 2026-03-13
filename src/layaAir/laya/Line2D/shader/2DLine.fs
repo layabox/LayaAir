@@ -40,6 +40,6 @@ void main(){
     renderColor.rgb *= renderColor.a;
     textureColor *= renderColor;
 
-    gl_FragColor = vec4(textureColor.rgb,textureColor.a*smoothstep(0.0,2.0,d));
-    //gl_FragColor = vec4(fract(uv.x) ,fract(uv.y),0.0,textureColor.a*smoothstep(0.0,2.0,d));
+    float aa = min(v_lineWidth * 0.5, 2.0);
+    gl_FragColor = vec4(textureColor.rgb,textureColor.a*smoothstep(0.0,aa,d));
 }

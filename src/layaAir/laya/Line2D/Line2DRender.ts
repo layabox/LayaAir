@@ -63,6 +63,8 @@ export class Line2DRender extends BaseRenderNode2D {
 
     private _lineWidth: number = 1;
 
+    private _screenSpaceWidth: boolean = false;
+
     private _renderGeometry: IRenderGeometryElement;
 
     private _positionInstansBufferData: Float32Array;
@@ -99,6 +101,18 @@ export class Line2DRender extends BaseRenderNode2D {
     set lineWidth(value: number) {
         this._lineWidth = value;
         this._spriteShaderData.setNumber(LineShader.LINEWIDTH, this._lineWidth);
+    }
+
+    /**
+     * @en Whether the line width is in screen space. When enabled, the line width remains constant regardless of node transformations.
+     * @zh 线宽是否为屏幕空间宽度。启用后，线宽不受节点变换矩阵的影响，始终保持设定的像素宽度。
+     */
+    get screenSpaceWidth(): boolean {
+        return this._screenSpaceWidth;
+    }
+    set screenSpaceWidth(value: boolean) {
+        this._screenSpaceWidth = value;
+        this._spriteShaderData.setNumber(LineShader.SCREENSPACEWIDTH, value ? 1.0 : 0.0);
     }
 
     /**
@@ -252,6 +266,7 @@ export class Line2DRender extends BaseRenderNode2D {
         //this._spriteShaderData.addDefine(Shader3D.getDefineByName("UV"));
         this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
         this._updateDashValue();
+        this._spriteShaderData.setNumber(LineShader.SCREENSPACEWIDTH, 0.0);
         this.tillOffset = null;
         this.texture = null;
     }
