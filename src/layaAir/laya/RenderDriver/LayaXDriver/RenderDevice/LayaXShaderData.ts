@@ -13,6 +13,7 @@ import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { LayaXDefineDatas } from "../RenderModuleData/LayaXDefineDatas";
 import { RTShaderDefine } from "../../RenderModuleData/RuntimeModuleData/RTShaderDefine";
 import { LayaXInternalTex } from "./LayaXInternalTex";
+import { LayaXInternalRT } from "./LayaXInternalRT";
 
 /** RenderState 变化监听者接口（避免循环引用） */
 export interface IRenderStateListener {
@@ -279,7 +280,14 @@ export class LayaXShaderData extends ShaderData {
         // Maintain reference
         this._textureData[index] = value;
         if (value && value._texture) {
-            this._setInternalTexture(index, (value._texture as LayaXInternalTex)._nativeObj);
+            let tex = value._texture;
+            if (tex instanceof LayaXInternalRT) {
+                // RT 作为纹理使用时，取其第一个 color attachment
+                let colorTex = tex._textures[0];
+                this._setInternalTexture(index, colorTex ? (colorTex as LayaXInternalTex)._nativeObj : null);
+            } else {
+                this._setInternalTexture(index, (tex as LayaXInternalTex)._nativeObj);
+            }
         } else {
             this._setInternalTexture(index, null);
         }
@@ -291,7 +299,7 @@ export class LayaXShaderData extends ShaderData {
     _setInternalTexture(index: number, value: InternalTexture) {
         // value may be a TS LayaXInternalTex wrapper (from applyRenderData) or
         // a raw C++ native object (from setTexture). Always extract _nativeObj if present.
-        let nativeVal = value ? ((value as any)._nativeObj || value) : null;
+        let nativeVal = value ? ((value as any)) : null;
         this._nativeObj._setInternalTexture(index, nativeVal);
     }
 

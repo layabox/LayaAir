@@ -8,6 +8,8 @@ import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { ICameraNodeData, ISceneNodeData } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
+import { LayaXBlitRenderFeature } from "./LayaXBlitRenderFeature";
+import { LayaXRenderElement3D } from "./LayaXRenderElement3D";
 
 /**
  * LayaX render context for 3D.
@@ -111,19 +113,31 @@ export class LayaXRenderContext3D implements IRenderContext3D {
     }
 
     // ------------------------------------------------------------------
-    // IRenderContext3D methods — pass config is handled by ForwardAddClusterRP
+    // IRenderContext3D methods
     // ------------------------------------------------------------------
 
+    /** BlitRenderFeature 实例（惰性创建） */
+    private _blitFeature: LayaXBlitRenderFeature;
+
+    /** 缓存当前 destRT（由 setRenderTarget 设置，drawRenderElementOne 消费） */
+    private _destRT: InternalRenderTarget | null = null;
+    /** 缓存当前 viewport */
+    private _viewport: Viewport = new Viewport(0, 0, 0, 0);
+    /** 缓存当前 scissor (x, y, w, h) */
+    private _scissor: Vector4 = new Vector4();
+    /** 缓存当前 offsetScale (ox, oy, sx, sy) */
+    private _offsetScale: Vector4 = new Vector4(0, 0, 1, 1);
+
     setRenderTarget(value: InternalRenderTarget, clearFlag: RenderClearFlag): void {
-        // No-op: RT is set via LayaXForwardAddClusterRP.setDestTarget → Rust FFI
+        this._destRT = value;
     }
 
     setViewPort(value: Viewport): void {
-        // No-op: viewport is set via LayaXForwardAddClusterRP.setViewPort → Rust FFI
+        value.cloneTo(this._viewport);
     }
 
     setScissor(value: Vector4): void {
-        // No-op: scissor is set via LayaXForwardAddClusterRP.setScissor → Rust FFI
+        value.cloneTo(this._scissor);
     }
 
     setClearData(clearFlag: number, color: Color, depth: number, stencil: number): number {
@@ -136,13 +150,29 @@ export class LayaXRenderContext3D implements IRenderContext3D {
     }
 
     drawRenderElementList(list: FastSinglelist<IRenderElement3D>): number {
-        // No-op: RenderElements are persistent Rust objects
-        return list ? list.length : 0;
+        if (!list) return 0;
+        for (let i = 0, n = list.length; i < n; i++) {
+            this.drawRenderElementOne(list.elements[i]);
+        }
+        return list.length;
     }
 
     drawRenderElementOne(node: IRenderElement3D): number {
-        // No-op: RenderElements are persistent Rust objects
-        return node ? 1 : 0;
+        if (!node) return 0;
+        if (!this._blitFeature) {
+            this._blitFeature = new LayaXBlitRenderFeature();
+        }
+        this._blitFeature.dispatch(
+            node as LayaXRenderElement3D,
+            this._destRT,
+            this._globalShaderData,
+            this._sceneData,
+            this._cameraData,
+            this._viewport,
+            this._scissor,
+            this._offsetScale
+        );
+        return 1;
     }
 
     runOneCMD(cmd: IRenderCMD): void {
