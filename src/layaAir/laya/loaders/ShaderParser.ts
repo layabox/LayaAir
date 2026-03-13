@@ -90,6 +90,8 @@ export class ShaderParser {
             if (shaderObj.shaderType === ShaderFeatureType.D2_primitive) {
                 shaderObj.shaderType = ShaderFeatureType.D2_TextureSV;
             }
+
+            shaderObj.previewType = shaderObj.previewType || null;
         } catch (err: any) {
             console.error("Shader parse error: " + err + "\n" + source.substring(0, 100) + "...");
         }
