@@ -201,6 +201,24 @@ async function buildDeclarations() {
         return code;
     }
 
+    const builtinTypeNames = new Set([
+        "Float32Array", "Float32ArrayConstructor",
+        "Float64Array", "Float64ArrayConstructor",
+        "Int8Array", "Int8ArrayConstructor",
+        "Int16Array", "Int16ArrayConstructor",
+        "Int32Array", "Int32ArrayConstructor",
+        "Uint8Array", "Uint8ArrayConstructor",
+        "Uint8ClampedArray", "Uint8ClampedArrayConstructor",
+        "Uint16Array", "Uint16ArrayConstructor",
+        "Uint32Array", "Uint32ArrayConstructor",
+        "BigInt64Array", "BigInt64ArrayConstructor",
+        "BigUint64Array", "BigUint64ArrayConstructor",
+        "ArrayBuffer", "ArrayBufferConstructor",
+        "ArrayBufferView", "ArrayBufferLike",
+        "DataView", "DataViewConstructor",
+        "SharedArrayBuffer",
+    ]);
+
     let files = emitResult.getFiles();
     files.sort((a, b) => a.filePath.localeCompare(b.filePath));
     for (let file of files) {
@@ -226,6 +244,7 @@ async function buildDeclarations() {
                 code = code.substring(1);
                 if (!inNamespace && code.indexOf(".") == -1
                     && !code.startsWith("Promise") && code !== "ErrorEvent"
+                    && !builtinTypeNames.has(code)
                     && code.length > 1)
                     return " Laya." + code;
                 else if (code.startsWith("glTF."))
