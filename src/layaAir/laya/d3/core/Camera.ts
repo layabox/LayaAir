@@ -170,7 +170,6 @@ export class Camera extends BaseCamera {
         camera.render(scene);
         camera.renderTarget = recoverTexture;
         scene.recaculateCullCamera();
-        scene._componentDriver.callPostRender();
 
         camera._aftRenderMainPass();
 
