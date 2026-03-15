@@ -78,6 +78,20 @@ export class DrawRoundRectCmd implements IGraphicsCmd {
      */
     percent: boolean = true;
 
+    /**
+     * @en Minimum number of arc segments for a full circle (controls smoothness at small radii).
+     * @zh 圆弧最小分段数（整圆），控制小半径时的平滑度。
+     */
+    minNum: number = 20;
+
+    /**
+     * @en Pixel step for arc segmentation. Smaller value = more segments = smoother arcs.
+     * The arc uses `max(circumference / segPixel, minNum)` segments.
+     * @zh 圆弧分段的像素步长。值越小分段越多、弧线越平滑。
+     * 实际分段数 = max(周长 / segPixel, minNum)。
+     */
+    segPixel: number = 5;
+
 
     /**
      * @en Create a DrawRoundRectCmd instance
@@ -109,7 +123,7 @@ export class DrawRoundRectCmd implements IGraphicsCmd {
      * @param percent 位置和大小是否是百分比
      * @returns DrawRoundRectCmd 实例
      */
-    static create(x: number, y: number, width: number, height: number, lt: number, rt: number, lb: number, rb: number, fillColor: any, lineColor: any, lineWidth: number, percent?: boolean): DrawRoundRectCmd {
+    static create(x: number, y: number, width: number, height: number, lt: number, rt: number, lb: number, rb: number, fillColor: any, lineColor: any, lineWidth: number, percent?: boolean, minNum?: number, segPixel?: number): DrawRoundRectCmd {
         var cmd = Pool.getItemByClass(className, DrawRoundRectCmd);
         cmd.x = x;
         cmd.y = y;
@@ -123,6 +137,8 @@ export class DrawRoundRectCmd implements IGraphicsCmd {
         cmd.lineColor = lineColor;
         cmd.lineWidth = lineWidth;
         cmd.percent = percent;
+        if (minNum != null) cmd.minNum = minNum;
+        if (segPixel != null) cmd.segPixel = segPixel;
         return cmd;
     }
     /**
@@ -132,6 +148,8 @@ export class DrawRoundRectCmd implements IGraphicsCmd {
     recover(): void {
         this.fillColor = null;
         this.lineColor = null;
+        this.minNum = 20;
+        this.segPixel = 5;
         Pool.recover(className, this);
     }
 
@@ -151,10 +169,10 @@ export class DrawRoundRectCmd implements IGraphicsCmd {
         if (this.percent && runner.sprite) {
             let w = runner.sprite.width;
             let h = runner.sprite.height;
-            runner._drawRoundRect(this.x * w + offset + gx, this.y * h + offset + gy, this.width * w - lineOffset, this.height * h - lineOffset, this.lt, this.rt, this.lb, this.rb, this.fillColor, this.lineColor, this.lineWidth);
+            runner._drawRoundRect(this.x * w + offset + gx, this.y * h + offset + gy, this.width * w - lineOffset, this.height * h - lineOffset, this.lt, this.rt, this.lb, this.rb, this.fillColor, this.lineColor, this.lineWidth, this.minNum, this.segPixel);
         }
         else {
-            runner._drawRoundRect(this.x + offset + gx, this.y + offset + gy, this.width - lineOffset, this.height - lineOffset, this.lt, this.rt, this.lb, this.rb, this.fillColor, this.lineColor, this.lineWidth);
+            runner._drawRoundRect(this.x + offset + gx, this.y + offset + gy, this.width - lineOffset, this.height - lineOffset, this.lt, this.rt, this.lb, this.rb, this.fillColor, this.lineColor, this.lineWidth, this.minNum, this.segPixel);
         }
     }
 
@@ -178,7 +196,7 @@ export class DrawRoundRectCmd implements IGraphicsCmd {
      */
     getBounds(assembler: IGraphicsBoundsAssembler): void {
         let rect = Rectangle.TEMP.setTo(this.x, this.y, this.width, this.height);
-        if (this) {
+        if (this.percent) {
             rect.scale(assembler.width, assembler.height);
         }
         rect.getBoundPoints(assembler.points);

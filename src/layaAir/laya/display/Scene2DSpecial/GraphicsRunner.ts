@@ -280,7 +280,7 @@ export class GraphicsRunner {
         this._fillAndStroke(fillColor, lineColor, lineWidth);
     }
     /**@internal */
-    _drawRoundRect(x: number, y: number, width: number, height: number, lt: number, rt: number, lb: number, rb: number, fillColor: any, lineColor: any, lineWidth: number) {
+    _drawRoundRect(x: number, y: number, width: number, height: number, lt: number, rt: number, lb: number, rb: number, fillColor: any, lineColor: any, lineWidth: number, minNum = 20, segPixel = 5) {
         if (width <= 0) return;
         if (height <= 0) return;
         //当宽高小于一定程度的时候,面积就是0了,这里不好判断什么时候是0,直接采用下面的当起始角度>终止角度时不画就行.
@@ -313,7 +313,7 @@ export class GraphicsRunner {
             if (st > ed) {
                 //tPath.addPoint(x, y);
             } else {
-                this.arc(x + lt, y + lt, lt, lt, st, ed, false, true, 5);
+                this.arc(x + lt, y + lt, lt, lt, st, ed, false, true, minNum, segPixel);
             }
         }
         let startX = x + width - rt;
@@ -344,7 +344,7 @@ export class GraphicsRunner {
             if (st > ed) {
                 //tPath.addPoint(startX, y);
             } else {
-                this.arc(startX, y + rt, rt, rt, st, ed, false, true, 5);
+                this.arc(startX, y + rt, rt, rt, st, ed, false, true, minNum, segPixel);
             }
         }
         startX = x + width - rb;
@@ -376,7 +376,7 @@ export class GraphicsRunner {
             if (st > ed) {
                 //tPath.addPoint(startX, startY);
             } else {
-                this.arc(startX, startY, rb, rb, st, ed, false, true, 5);
+                this.arc(startX, startY, rb, rb, st, ed, false, true, minNum, segPixel);
             }
         }
         startX = x + lb;
@@ -407,7 +407,7 @@ export class GraphicsRunner {
             if (st > ed) {
                 //tPath.addPoint(startX, startY);
             } else {
-                this.arc(startX, startY, lb, lb, st, ed, false, true, 5);
+                this.arc(startX, startY, lb, lb, st, ed, false, true, minNum, segPixel);
             }
         }
         //tPath.addPoint(x, y + lt);  这个是干什么的,不要了
@@ -1767,7 +1767,7 @@ export class GraphicsRunner {
         }
     }
 
-    arc(cx: number, cy: number, rx: number, ry: number, startAngle: number, endAngle: number, counterclockwise = false, b = true, minNum = 20): void {
+    arc(cx: number, cy: number, rx: number, ry: number, startAngle: number, endAngle: number, counterclockwise = false, b = true, minNum = 20, segPixel = 5): void {
         // Clamp angles
         if (startAngle > endAngle) {
             [startAngle, endAngle] = [endAngle, startAngle];
@@ -1794,7 +1794,7 @@ export class GraphicsRunner {
         var sy = this.getCurrentScaleY();
         var sr = rx * (sx > sy ? sx : sy);
         var cl = 2 * Math.PI * sr;
-        let ndivs = (Math.max(cl / 5, minNum)) | 0;
+        let ndivs = (Math.max(cl / segPixel, minNum)) | 0;
         let stepAng = Math.PI * 2 / ndivs;
 
         var tPath = this._getPath();

@@ -1,5 +1,6 @@
 
 #include "ClipVertex.glsl";
+#include "Color.glsl";
 
 #ifdef CAMERA2D
  uniform mat3 u_view2D;
@@ -177,14 +178,6 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
             v2.z = -(a1 * ty1 - b1 * tx1) / n;
         }
     #endif
-
-    vec4 linearToGamma(in vec4 value)
-    {
-        return vec4(mix(pow(value.rgb, vec3(0.41666)) * 1.055 - vec3(0.055), value.rgb * 12.92, vec3(lessThanEqual(value.rgb, vec3(0.0031308)))),value.a);
-
-        // return pow(value, vec3(1.0 / 2.2));
-        // return pow(value, vec3(0.455));
-    }
 
     void getVertexInfo(inout vertexInfo info){
         info.pos = a_position.xy;
