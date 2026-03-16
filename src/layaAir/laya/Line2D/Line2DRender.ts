@@ -230,11 +230,14 @@ export class Line2DRender extends BaseRenderNode2D {
         return this._tillOffset;
     }
 
-
     /**
-   * @en Render material
-   * @zh 渲染材质
-   */
+     * @en Render material
+     * @zh 渲染材质
+     */
+    get sharedMaterial(): Material {
+        return this._materials[0];
+    }
+
     set sharedMaterial(value: Material) {
         super.sharedMaterial = value;
         BaseRenderNode2D._setRenderElement2DMaterial(this._renderElements[0], this._materials[0] ? this._materials[0] : Line2DRender.defaultLine2DMaterial);
