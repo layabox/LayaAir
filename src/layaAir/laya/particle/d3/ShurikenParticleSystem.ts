@@ -325,8 +325,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     randomizeRotationDirection: number = 0;
 
     /**
-     * @en Start color mode. 0 for constant color, 2 for random between two constant colors. Two modes are missing.
-     * @zh 开始颜色模式。0为恒定颜色，2为两个恒定颜色的随机插值。缺少2种模式。
+     * @en Start color mode. 0 for constant color, 1 for Gradient, 2 for random between two constant colors, 3 for random between two Gradient colors.
+     * @zh 开始颜色模式。0为恒定颜色，1为Gradient，2为两个恒定颜色的随机插值，3为两个Gradient颜色的随机插值。
      */
     startColorType: number = 0;
     /**
@@ -344,6 +344,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @zh 最大开始颜色，1模式。
      */
     startColorConstantMax: Vector4 = new Vector4(1, 1, 1, 1);
+
+    startColorGradient: Gradient = new Gradient();
+
+    startColorGradientMin: Gradient = new Gradient();
+
+    startColorGradientMax: Gradient = new Gradient();
 
     /**
      * @en Gravity modifier.
@@ -1967,6 +1973,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         this.startColorConstant = null;
         this.startColorConstantMin = null;
         this.startColorConstantMax = null;
+        this.startColorGradient = null;
+        this.startColorGradientMin = null;
+        this.startColorGradientMax = null;
         this._velocityOverLifetime = null;
         this._colorOverLifetime = null;
         this._sizeOverLifetime = null;
@@ -2484,6 +2493,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         this.startColorConstant.cloneTo(destObject.startColorConstant);
         this.startColorConstantMin.cloneTo(destObject.startColorConstantMin);
         this.startColorConstantMax.cloneTo(destObject.startColorConstantMax);
+        this.startColorGradient.cloneTo(destObject.startColorGradient);
+        this.startColorGradientMin.cloneTo(destObject.startColorGradientMin);
+        this.startColorGradientMax.cloneTo(destObject.startColorGradientMax);
 
         destObject.gravityModifier = this.gravityModifier;
         destObject.simulationSpace = this.simulationSpace;

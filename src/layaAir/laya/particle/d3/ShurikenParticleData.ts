@@ -14,6 +14,7 @@ import { StartFrame } from "./module/StartFrame";
 import { TextureSheetAnimation } from "./module/TextureSheetAnimation";
 import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
 import { ShurikenParticleSystem } from "./ShurikenParticleSystem";
+import { Color } from "../../maths/Color";
 
 /**
  *  @internal
@@ -91,6 +92,9 @@ export class ShurikenParticleData {
 		var rand: Rand = particleSystem._rand;
 		var randomSeeds: Uint32Array = particleSystem._randomSeeds;
 
+		const duration = particleSystem.duration;
+		const normalizedTime = duration > 0 ? (particleSystem.emissionTime % duration) / duration : 0;
+
 		//StartColor
 		switch (particleSystem.startColorType) {
 			case 0:
@@ -99,6 +103,13 @@ export class ShurikenParticleData {
 				ShurikenParticleData.startColor.y = constantStartColor.y;
 				ShurikenParticleData.startColor.z = constantStartColor.z;
 				ShurikenParticleData.startColor.w = constantStartColor.w;
+				break;
+			case 1:
+				particleSystem.startColorGradient.evaluateColorRGB(normalizedTime, tempColor);
+				ShurikenParticleData.startColor.x = tempColor.r;
+				ShurikenParticleData.startColor.y = tempColor.g;
+				ShurikenParticleData.startColor.z = tempColor.b;
+				ShurikenParticleData.startColor.w = tempColor.a;
 				break;
 			case 2:
 				if (autoRandomSeed) {
@@ -109,6 +120,32 @@ export class ShurikenParticleData {
 					randomSeeds[3] = rand.seed;
 				}
 				break;
+			case 3: {
+				particleSystem.startColorGradientMin.evaluateColorRGB(normalizedTime, tempColor);
+				const colorMin = tempVector4;
+				colorMin.x = tempColor.r;
+				colorMin.y = tempColor.g;
+				colorMin.z = tempColor.b;
+				colorMin.w = tempColor.a;
+
+				particleSystem.startColorGradientMax.evaluateColorRGB(normalizedTime, tempColor);
+				const colorMax = tempVector41;
+				colorMax.x = tempColor.r;
+				colorMax.y = tempColor.g;
+				colorMax.z = tempColor.b;
+				colorMax.w = tempColor.a;
+				if (autoRandomSeed) {
+					Vector4.lerp(colorMin, colorMax, Math.random(), ShurikenParticleData.startColor);
+				}
+				else {
+					rand.seed = randomSeeds[3];
+					const lerp = rand.getFloat();
+					randomSeeds[3] = rand.seed;
+
+					Vector4.lerp(colorMin, colorMax, lerp, ShurikenParticleData.startColor);
+				}
+				break;
+			}
 		}
 		var colorOverLifetime: ColorOverLifetime = particleSystem.colorOverLifetime;
 		if (colorOverLifetime && colorOverLifetime.enable) {
@@ -378,3 +415,6 @@ export class ShurikenParticleData {
 }
 
 const _tempVector30: Vector3 = new Vector3();
+const tempColor = new Color();
+const tempVector4 = new Vector4();
+const tempVector41 = new Vector4();
