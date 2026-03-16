@@ -149,13 +149,11 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
 
     /**
      * 是否是相机目标纹理
-     * @internal
      */
     _isCameraTarget: boolean = false;
 
     /**
      * 渲染纹理
-     * @internal
      */
     _renderTarget: InternalRenderTarget;
 

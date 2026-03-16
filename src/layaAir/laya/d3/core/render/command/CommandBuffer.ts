@@ -41,13 +41,9 @@ export class CommandBuffer {
     _name: string
     /**@internal */
     private _shadow: boolean = false;
-    /**@internal */
     _camera: Camera = null;
-    /**@internal */
     _context: RenderContext3D;
-    /**@internal */
     private _commands: Command[] = [];
-    /**@internal */
     _renderCMDs: any[] = [];
 
     /** @ignore */
@@ -562,7 +558,6 @@ export class CommandBuffer {
     }
 
     /**
-     * @internal
      * @en Clears the command buffer.
      * @zh 清除命令缓冲区。
      */

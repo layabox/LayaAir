@@ -186,7 +186,6 @@ export class BaseCamera extends Sprite3D {
     protected _useUserProjectionMatrix: boolean;
 
     /**
-     * @internal
      * @en Shader data.
      * @zh 着色器数据。
      */

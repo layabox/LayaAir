@@ -19,12 +19,12 @@ const _rect: Rectangle = new Rectangle();
  */
 export class HitArea implements IHitArea {
     /**
-     * @internal
+     * @ignore
      */
     _hit: Graphics;
 
     /**
-     * @internal
+     * @ignore
      */
     _unHit: Graphics;
 

@@ -15,9 +15,6 @@ import { CommandBuffer } from "./CommandBuffer";
 export class DrawRenderCMD extends Command {
     private static readonly _pool = Pool.createPool(DrawRenderCMD);
 
-    /**
-     * @internal
-     */
     static create(render: BaseRender, material: Material, subMeshIndex: number, commandBuffer: CommandBuffer): DrawRenderCMD {
         var cmd: DrawRenderCMD;
         cmd = DrawRenderCMD._pool.take();

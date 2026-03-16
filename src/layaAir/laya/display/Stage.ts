@@ -212,11 +212,9 @@ export class Stage extends Sprite {
      */
     readonly passManager: Render2DProcessor;
 
-    /** @internal */
     readonly _scene3Ds: Scene3D[] = [];
-    /** @internal */
     readonly _scene2Ds: Scene[] = [];
-    ;
+
     private _screenMode: string = "none";
     private _scaleMode: string = "noscale";
     private _alignV: string = "top";

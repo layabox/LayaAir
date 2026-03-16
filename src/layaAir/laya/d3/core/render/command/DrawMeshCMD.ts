@@ -14,15 +14,11 @@ import { Stat } from "../../../../utils/Stat";
 import { LayaGL } from "../../../../layagl/LayaGL";
 
 /**
- * @internal
  * <code>SetShaderDataTextureCMD</code> 类用于创建设置渲染目标指令。
  */
 export class DrawMeshCMD extends Command {
     private static readonly _pool = Pool.createPool(DrawMeshCMD);
 
-    /**
-     * @internal
-     */
     static create(mesh: Mesh, matrix: Matrix4x4, material: Material, subMeshIndex: number, subShaderIndex: number, commandBuffer: CommandBuffer): DrawMeshCMD {
         var cmd: DrawMeshCMD;
         cmd = DrawMeshCMD._pool.take();

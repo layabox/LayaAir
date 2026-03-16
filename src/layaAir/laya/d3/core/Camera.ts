@@ -113,7 +113,6 @@ export class Camera extends BaseCamera {
     static _contextScissorPortCatch: Vector4 = new Vector4(0, 0, 0, 0);
 
     /**
-     * @internal
      * @en Update flag
      * @zh 更新标志位
      */

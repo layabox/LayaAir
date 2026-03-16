@@ -168,7 +168,7 @@ export class BaseRender extends Component {
         Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION = Shader3D.getDefineByName("SPECCUBE_BOX_PROJECTION");
     }
 
-    /**@internal renderData*/
+    /**renderData*/
     _baseRenderNode: IBaseRenderNode;
 
     /** @internal */
@@ -825,7 +825,6 @@ export class BaseRender extends Component {
     }
 
     /**
-     * @internal
      * @param boundFrustum 裁剪。
      */
     _needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {

@@ -128,7 +128,6 @@ export class Shader3D {
     /**@internal */
     static _propertyNameMap: any = {};
 
-    /**@internal */
     static _preCompileShader: { [key: string]: Shader3D } = {};
     /**@internal */
     static _debugShaderVariantInfo: any;
@@ -303,7 +302,6 @@ export class Shader3D {
     _supportReflectionProbe: boolean = false;
     /**@internal */
     _supportVolumetricGI: boolean = false;
-    /**@internal */
     _subShaders: SubShader[] = [];
 
     /**
