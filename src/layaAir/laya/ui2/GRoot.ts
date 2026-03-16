@@ -7,6 +7,7 @@ import { GWidget } from "./GWidget";
 import { GWindow } from "./GWindow";
 import { Loader } from "../net/Loader";
 import { HideFlags } from "../Const";
+import { LayaEnv } from "../../LayaEnv";
 
 /**
  * @en GRoot is the root widget of the application, managing modal layers, popups, and windows.
@@ -38,7 +39,8 @@ export class GRoot extends GWidget {
         this.name = "GRoot";
         this.zOrder = GRoot.LAYER;
         this.mouseThrough = true;
-        this.hideFlags |= HideFlags.HideAndDontSave;
+        if (!LayaEnv.isPlaying)
+            this.hideFlags |= HideFlags.HideAndDontSave;
         this.size(ILaya.stage.width, ILaya.stage.height);
         ILaya.stage.addChild(this);
 

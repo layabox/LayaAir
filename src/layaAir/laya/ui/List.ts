@@ -16,6 +16,7 @@ import { ScrollType } from "./Styles";
 import { TransformKind } from "../display/SpriteConst";
 import { Prefab } from "../resource/HierarchyResource";
 import { PrefabImpl } from "../resource/PrefabImpl";
+import { LayaEnv } from "../../LayaEnv";
 
 
 /**
@@ -478,7 +479,8 @@ export class List extends Box {
 
     protected createChildren(): void {
         this._content = new Box();
-        this._content.hideFlags = HideFlags.HideAndDontSave;
+        if (!LayaEnv.isPlaying)
+            this._content.hideFlags = HideFlags.HideAndDontSave;
         this._content.mouseThrough = true;
         this.addChild(this._content);
     }
@@ -533,7 +535,6 @@ export class List extends Box {
                     cell = arr.pop();
                 } else {
                     cell = this.createItem();
-                    cell.hideFlags = HideFlags.HideAndDontSave;
                 }
                 cell.x = (this._isVertical ? l : k) * cellWidth - box._x;
                 cell.y = (this._isVertical ? k : l) * cellHeight - box._y;
@@ -606,7 +607,8 @@ export class List extends Box {
             console.warn("cannot create list item");
             box = new Box();
         }
-        box.hideFlags = HideFlags.HideAndDontSave;
+        if (!LayaEnv.isPlaying)
+            box.hideFlags = HideFlags.HideAndDontSave;
 
         if (arr.length == 0 && (<any>box)["_watchMap"]) {
             let watchMap = (<any>box)["_watchMap"];

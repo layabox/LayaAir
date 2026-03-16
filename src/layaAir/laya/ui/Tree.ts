@@ -6,6 +6,7 @@ import { Event } from "../events/Event"
 import { Handler } from "../utils/Handler"
 import { HideFlags } from "../Const";
 import { XML } from "../html/XML";
+import { LayaEnv } from "../../LayaEnv";
 
 /**@internal */
 interface ITreeDataSource {
@@ -220,7 +221,8 @@ export class Tree extends Box {
     }
     protected createChildren(): void {
         this._list = new List();
-        this._list.hideFlags = HideFlags.HideAndDontSave;
+        if (!LayaEnv.isPlaying)
+            this._list.hideFlags = HideFlags.HideAndDontSave;
         this._list.left = 0;
         this._list.right = 0;
         this._list.top = 0;

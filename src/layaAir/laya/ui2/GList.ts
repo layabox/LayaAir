@@ -268,7 +268,8 @@ export class GList extends GPanel {
             let m = (itemData && i < itemData.length) ? itemData[i] : null;
             if (m != null) {
                 let child = <GWidget>(m.res ? m.res.create() : this.getFromPool());
-                child.hideFlags |= HideFlags.HideAndDontSave;
+                if (!LayaEnv.isPlaying)
+                    child.hideFlags |= HideFlags.HideAndDontSave;
                 child.text = m.title;
                 if (m.icon)
                     child.icon = m.icon;
