@@ -1751,6 +1751,7 @@ export class glTFResource extends Prefab {
      */
     protected createMesh(glTFMesh: glTF.glTFMesh, glTFSkin?: glTF.glTFSkin): Mesh {
         let layaMesh: Mesh = new Mesh();
+        layaMesh.name = glTFMesh.name || "";
 
         let glTFMeshPrimitives: glTF.glTFMeshPrimitive[] = glTFMesh.primitives;
         let morphWeights: number[] = glTFMesh.weights;
