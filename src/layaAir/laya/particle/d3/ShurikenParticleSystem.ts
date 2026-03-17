@@ -394,6 +394,27 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      */
     isPerformanceMode: boolean = false;
 
+    protected _gradientKeyCount8: boolean = false;
+    /**
+     * @en Whether to use 8-key gradient mode. When enabled, gradient curves (velocity/size/rotation/textureSheet over lifetime) support up to 8 key points instead of 4. This increases shader complexity but provides finer control over particle animations.
+     * @zh 是否使用8关键点渐变模式。开启后，生命周期曲线（速度/尺寸/旋转/纹理动画）支持最多8个关键点（默认4个）。会增加shader复杂度，但能提供更精细的粒子动画控制。
+     */
+    get gradientKeyCount8(): boolean {
+        return this._gradientKeyCount8;
+    }
+
+    set gradientKeyCount8(value: boolean) {
+        if (this._gradientKeyCount8 !== value) {
+            this._gradientKeyCount8 = value;
+            var shaDat: ShaderData = this._ownerRender._baseRenderNode.shaderData;
+            if (value) {
+                shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_GRADIENTKEYCOUNT_8);
+            } else {
+                shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_GRADIENTKEYCOUNT_8);
+            }
+        }
+    }
+
     /**
      * @en Maximum number of particles
      * @zh 最大粒子数。
@@ -2518,6 +2539,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         //
 
         destObject.isPerformanceMode = this.isPerformanceMode;
+        destObject.gradientKeyCount8 = this._gradientKeyCount8;
 
         destObject._isEmitting = this._isEmitting;
         destObject._isPlaying = this._isPlaying;

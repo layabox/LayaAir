@@ -1,5 +1,5 @@
 #ifdef GRAPHICS_API_GLES3
-vec2 getVec2ValueByIndexFromeVec4Array(in vec4 gradientNumbers[2],in int vec2Index){
+vec2 getVec2ValueByIndexFromeVec4Array(in vec4 gradientNumbers[GRADIENT_VEC4_COUNT],in int vec2Index){
 	int v4Index = int(floor(float(vec2Index)/2.0));
 	int offset =(vec2Index- v4Index*2)*2;
 	return vec2(gradientNumbers[v4Index][offset],gradientNumbers[v4Index][offset+1]);
@@ -13,18 +13,29 @@ vec2 getVec2ValueByIndexFromeVec4Array_COLORCOUNT(in vec4 gradientNumbers[COLORC
 }
 #endif
 
-float getCurValueFromGradientFloat(in vec4 gradientNumbers[2], in float normalizedAge)
+float getCurValueFromGradientFloat(in vec4 gradientNumbers[GRADIENT_VEC4_COUNT], in float normalizedAge)
 {
     float curValue;
 	#ifndef GRAPHICS_API_GLES3
-		vec2 gradientNumbersVec2[4];
-		gradientNumbersVec2[0] = gradientNumbers[0].xy;
-		gradientNumbersVec2[1] = gradientNumbers[0].zw;
-		gradientNumbersVec2[2] = gradientNumbers[1].xy;
-		gradientNumbersVec2[3] = gradientNumbers[1].zw;
-
+		#ifdef GRADIENTKEYCOUNT_8
+			vec2 gradientNumbersVec2[8];
+			gradientNumbersVec2[0] = gradientNumbers[0].xy;
+			gradientNumbersVec2[1] = gradientNumbers[0].zw;
+			gradientNumbersVec2[2] = gradientNumbers[1].xy;
+			gradientNumbersVec2[3] = gradientNumbers[1].zw;
+			gradientNumbersVec2[4] = gradientNumbers[2].xy;
+			gradientNumbersVec2[5] = gradientNumbers[2].zw;
+			gradientNumbersVec2[6] = gradientNumbers[3].xy;
+			gradientNumbersVec2[7] = gradientNumbers[3].zw;
+		#else
+			vec2 gradientNumbersVec2[4];
+			gradientNumbersVec2[0] = gradientNumbers[0].xy;
+			gradientNumbersVec2[1] = gradientNumbers[0].zw;
+			gradientNumbersVec2[2] = gradientNumbers[1].xy;
+			gradientNumbersVec2[3] = gradientNumbers[1].zw;
+		#endif
 	#endif
-    for (int i = 1; i < 4; i++)
+    for (int i = 1; i < GRADIENT_KEY_COUNT; i++)
 	{
 	    vec2 gradientNumber;
 		#ifdef GRAPHICS_API_GLES3
@@ -52,19 +63,31 @@ float getCurValueFromGradientFloat(in vec4 gradientNumbers[2], in float normaliz
     return curValue;
 }
 
-float getTotalValueFromGradientFloat(in vec4 gradientNumbers[2],
+float getTotalValueFromGradientFloat(in vec4 gradientNumbers[GRADIENT_VEC4_COUNT],
     in float normalizedAge)
 {
 	#ifndef GRAPHICS_API_GLES3
-		vec2 gradientNumbersVec2[4];
-		gradientNumbersVec2[0] = gradientNumbers[0].xy;
-		gradientNumbersVec2[1] = gradientNumbers[0].zw;
-		gradientNumbersVec2[2] = gradientNumbers[1].xy;
-		gradientNumbersVec2[3] = gradientNumbers[1].zw;
+		#ifdef GRADIENTKEYCOUNT_8
+			vec2 gradientNumbersVec2[8];
+			gradientNumbersVec2[0] = gradientNumbers[0].xy;
+			gradientNumbersVec2[1] = gradientNumbers[0].zw;
+			gradientNumbersVec2[2] = gradientNumbers[1].xy;
+			gradientNumbersVec2[3] = gradientNumbers[1].zw;
+			gradientNumbersVec2[4] = gradientNumbers[2].xy;
+			gradientNumbersVec2[5] = gradientNumbers[2].zw;
+			gradientNumbersVec2[6] = gradientNumbers[3].xy;
+			gradientNumbersVec2[7] = gradientNumbers[3].zw;
+		#else
+			vec2 gradientNumbersVec2[4];
+			gradientNumbersVec2[0] = gradientNumbers[0].xy;
+			gradientNumbersVec2[1] = gradientNumbers[0].zw;
+			gradientNumbersVec2[2] = gradientNumbers[1].xy;
+			gradientNumbersVec2[3] = gradientNumbers[1].zw;
+		#endif
 	#endif
-	
+
 	#ifdef GRAPHICS_API_GLES3
-		vec2 val = getVec2ValueByIndexFromeVec4Array(gradientNumbers,0);	
+		vec2 val = getVec2ValueByIndexFromeVec4Array(gradientNumbers,0);
 	#else
 		vec2 val = gradientNumbersVec2[0];
 	#endif
@@ -73,7 +96,7 @@ float getTotalValueFromGradientFloat(in vec4 gradientNumbers[2],
     float totalValue = keyTime * val.y;
 
 	float lastSpeed = 0.;
-    for (int i = 1; i < 4; i++)
+    for (int i = 1; i < GRADIENT_KEY_COUNT; i++)
 	{
 		#ifdef GRAPHICS_API_GLES3
 			vec2 gradientNumber= getVec2ValueByIndexFromeVec4Array(gradientNumbers,i);
@@ -173,17 +196,29 @@ vec4 getColorFromGradient(in vec4 gradientAlphas[COLORCOUNT_HALF],
     return overTimeColor;
 }
 
-float getFrameFromGradient(in vec4 gradientFrames[2], in float normalizedAge)
+float getFrameFromGradient(in vec4 gradientFrames[GRADIENT_VEC4_COUNT], in float normalizedAge)
 {
 	#ifndef GRAPHICS_API_GLES3
-		vec2 gradientNumbersVec2[4];
-		gradientNumbersVec2[0] = gradientFrames[0].xy;
-		gradientNumbersVec2[1] = gradientFrames[0].zw;
-		gradientNumbersVec2[2] = gradientFrames[1].xy;
-		gradientNumbersVec2[3] = gradientFrames[1].zw;
+		#ifdef GRADIENTKEYCOUNT_8
+			vec2 gradientNumbersVec2[8];
+			gradientNumbersVec2[0] = gradientFrames[0].xy;
+			gradientNumbersVec2[1] = gradientFrames[0].zw;
+			gradientNumbersVec2[2] = gradientFrames[1].xy;
+			gradientNumbersVec2[3] = gradientFrames[1].zw;
+			gradientNumbersVec2[4] = gradientFrames[2].xy;
+			gradientNumbersVec2[5] = gradientFrames[2].zw;
+			gradientNumbersVec2[6] = gradientFrames[3].xy;
+			gradientNumbersVec2[7] = gradientFrames[3].zw;
+		#else
+			vec2 gradientNumbersVec2[4];
+			gradientNumbersVec2[0] = gradientFrames[0].xy;
+			gradientNumbersVec2[1] = gradientFrames[0].zw;
+			gradientNumbersVec2[2] = gradientFrames[1].xy;
+			gradientNumbersVec2[3] = gradientFrames[1].zw;
+		#endif
 	#endif
     float overTimeFrame;
-    for (int i = 1; i < 4; i++)
+    for (int i = 1; i < GRADIENT_KEY_COUNT; i++)
 	{
 		#ifdef GRAPHICS_API_GLES3
 	    	vec2 gradientFrame = getVec2ValueByIndexFromeVec4Array(gradientFrames,i);
