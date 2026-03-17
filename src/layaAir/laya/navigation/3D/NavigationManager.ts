@@ -84,4 +84,4 @@ export class NavigationManager extends BaseNavigationManager {
 //reg nav Component Manager
 Scene3D.regManager(NavigationManager._managerName, NavigationManager);
 //reg loader init
-Laya.addBeforeInitCallback(NavigationManager._initialize);
+Laya.addInitCallback(NavigationManager._initialize);
