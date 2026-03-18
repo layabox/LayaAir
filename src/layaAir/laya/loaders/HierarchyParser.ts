@@ -450,6 +450,7 @@ export class HierarchyParser {
     public static collectResourceLinks(data: any, basePath: string) {
         let test: Record<string, string[]> = {};
         let innerUrls: ILoadURL[] = [];
+        let preload = true;
 
         function addInnerUrl(url: string, type: string, absolutePath?: boolean) {
             if (!url)
@@ -464,11 +465,11 @@ export class HierarchyParser {
 
             let entry = test[url];
             if (entry === undefined) {
-                innerUrls.push({ url, type });
+                innerUrls.push({ url, type, preload });
                 test[url] = [type];
             }
             else if (entry.indexOf(type) === -1) {
-                innerUrls.push({ url, type });
+                innerUrls.push({ url, type, preload });
                 entry.push(type);
             }
             return url;
@@ -526,8 +527,7 @@ export class HierarchyParser {
             }
         }
 
-        check(data);
-
+        //firstly check preload, so that the isPreload flag can be correctly set
         if (data._$preloads) {
             let types = data._$preloadTypes;
             let pi = 0;
@@ -539,6 +539,9 @@ export class HierarchyParser {
                 pi++;
             }
         }
+
+        preload = false;
+        check(data);
 
         return innerUrls;
     }

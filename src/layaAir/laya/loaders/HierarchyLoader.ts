@@ -33,7 +33,22 @@ export class HierarchyLoader implements IResourceLoader {
         options.initiator = task;
         delete options.cache;
         delete options.ignoreCache;
-        return task.loader.load(links, options, task.progress.createCallback()).then((resArray: any[]) => {
+        let preloadLinks = links.filter(link => (link as any).preload);
+        let p: Promise<any>;
+        if (preloadLinks.length > 0) {
+            links = links.filter(link => !(link as any).preload);
+            p = task.loader.load(preloadLinks, options, task.progress.createCallback(0.2)).then((resArray: any[]) => {
+                return task.loader.load(links, options, task.progress.createCallback(0.8)).then((resArray2: any[]) => {
+                    resArray.push(...resArray2);
+                    return resArray;
+                });
+            });
+        }
+        else {
+            p = task.loader.load(links, options, task.progress.createCallback());
+        }
+
+        return p.then((resArray: any[]) => {
             let res = new PrefabImpl(api, data);
             res.fromDCC = fromDCC;
             res.onLoad();
