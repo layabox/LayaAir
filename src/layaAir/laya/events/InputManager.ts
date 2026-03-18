@@ -623,7 +623,7 @@ export class InputManager {
             }
         }
 
-        if (sp._getBit(NodeFlags.LOCK_BY_EDITOR) || sp._getBit(NodeFlags.HIDE_BY_EDITOR))
+        if (sp._getBit(NodeFlags.LOCK_BY_EDITOR) || sp._getBit(NodeFlags.HIDE_BY_EDITOR) || InputManager._previewFlag && sp.hasHideFlag(HideFlags.HideInHierarchy))
             return null;
 
         if (editing) {
