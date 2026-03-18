@@ -217,14 +217,10 @@ export class Texture2D extends BaseTexture {
             texture.setImageData(imageSource, false, false);
 
         if (canread) {
-            if (LayaEnv.isConch && imageSource._nativeObj) {
-                texture._pixels = new Uint8Array(imageSource._nativeObj.getImageData(0, 0, imageSource.width, imageSource.height));
-            } else {
-                Browser.canvas.size(imageSource.width, imageSource.height);
-                Browser.canvas.clear();
-                Browser.context.drawImage(imageSource, 0, 0, imageSource.width, imageSource.height);
-                texture._pixels = new Uint8Array(Browser.context.getImageData(0, 0, imageSource.width, imageSource.height).data.buffer);
-            }
+            Browser.canvas.size(imageSource.width, imageSource.height);
+            Browser.canvas.clear();
+            Browser.context.drawImage(imageSource, 0, 0, imageSource.width, imageSource.height);
+            texture._pixels = new Uint8Array(Browser.context.getImageData(0, 0, imageSource.width, imageSource.height).data.buffer);
         }
 
         return texture;
