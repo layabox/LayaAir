@@ -266,17 +266,11 @@ async function main() {
 
     // === 修改 docs/index.html 的跳转路径，默认跳到最新版本 ===
     try {
-        // 读取 HTML 文件内容
-        const data = await fs.promises.readFile(path.join(outDir, "index.html"), 'utf8');
-
-        // 正则表达式匹配 <meta http-equiv="refresh"> 标签中的 url= 部分
-        const regex = /<meta http-equiv="refresh" content="[^"]*url=([^"]*)[^"]*"/;
-
-        // 替换 url 的值
-        const updatedData = data.replace(regex, `<meta http-equiv="refresh" content="0; url=${configVersions[0]}"/>`);
+        // 读取模板文件内容
+        const templateData = await fs.promises.readFile(path.join(".", "scripts", "buildApiDocTemplate.html"), 'utf8');
 
         // 写回修改后的 HTML 文件
-        await fs.promises.writeFile(path.join(outDir, "index.html"), updatedData, 'utf8');
+        await fs.promises.writeFile(path.join(outDir, "index.html"), templateData, 'utf8');
 
         console.log('✅ HTML 文件更新成功');
     } catch (err) {

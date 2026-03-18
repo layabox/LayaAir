@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LayaAir引擎API</title>
+    <script type="module">
+        import { DOC_VERSIONS } from './versions.js';
+
+        window.onload = function () {
+            // 获取当前页面的 URL
+            var currentUrl = window.location.href;
+            // 获取当前 URL 的协议和主机部分
+            var baseUrl = currentUrl.split('/').slice(0, 3).join('/');
+            // 移除查询字符串（如果有）
+            var path = currentUrl.replace(baseUrl, '').split('?')[0];
+            // 若路径末尾有文件名（如 index.html），将其移除，只保留目录
+            if (path.includes('.html')) {
+                path = path.substring(0, path.lastIndexOf('/') + 1);
+            }
+            // 确保路径以斜杠结尾
+            if (!path.endsWith('/')) {
+                path = path + '/';
+            }
+            // 使用版本数组的第一个版本进行重定向
+            var version = DOC_VERSIONS[0];
+            var newUrl = baseUrl + path + version + '/';
+            // 重定向到新的 URL
+            window.location.href = newUrl;
+        };
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>
