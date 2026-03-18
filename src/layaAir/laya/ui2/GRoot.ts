@@ -41,6 +41,7 @@ export class GRoot extends GWidget {
         this.mouseThrough = true;
         if (!LayaEnv.isPlaying)
             this.hideFlags |= HideFlags.HideAndDontSave;
+        this.hideFlags |= HideFlags.HideTransformTool;
         this.size(ILaya.stage.width, ILaya.stage.height);
         ILaya.stage.addChild(this);
 
