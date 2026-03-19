@@ -66,7 +66,8 @@ export class TextRender {
         if (letterSpacing > 0) //有字间距时，强制字符模式
             charMode = true;
         let shadow = shadowOffsetX !== 0 || shadowOffsetY !== 0;
-        let tint = stroke > 0 || !charMode && hasEmoji || shadow; //染色的条件： 有描边 或 非字符模式下且包含emoji
+        //let tint = stroke > 0 || !charMode && hasEmoji || shadow; //染色的条件： 有描边 或 非字符模式下且包含emoji
+        let tint = true; //这种优化机制存在变粗的问题，先屏蔽，统一染色
         if (tint)
             cacheKey += colorNum + "_";
         if (stroke > 0)
