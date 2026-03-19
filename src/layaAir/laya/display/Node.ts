@@ -430,7 +430,7 @@ export class Node extends EventDispatcher {
             }
             return node;
         } else {
-            throw new OutOfRangeError(index);
+            return null;
         }
     }
 
@@ -492,7 +492,7 @@ export class Node extends EventDispatcher {
         if (index >= 0 && index < this.numChildren)
             return <T>this._$children[index];
         else
-            throw new OutOfRangeError(index);
+            return null;
     }
 
     /**
@@ -758,7 +758,7 @@ export class Node extends EventDispatcher {
             }
             return node;
         } else {
-            throw new OutOfRangeError(index);
+            return null;
         }
     }
 
