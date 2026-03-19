@@ -142,7 +142,10 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
     varying vec2 v_texcoord;
 
     uniform vec4 u_baseRenderColor;
-    
+    #ifdef UNITQUAD
+        uniform vec2 u_baseRenderSize2D;
+    #endif
+
     struct vertexInfo {
         vec4 color;
         vec2 uv;
@@ -180,7 +183,11 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
     #endif
 
     void getVertexInfo(inout vertexInfo info){
-        info.pos = a_position.xy;
+        #ifdef UNITQUAD
+            info.pos = a_position.xy * u_baseRenderSize2D;
+        #else
+            info.pos = a_position.xy;
+        #endif
         info.color = vec4(1.0,1.0,1.0,1.0);
         #ifdef COLOR
             info.color = a_color;

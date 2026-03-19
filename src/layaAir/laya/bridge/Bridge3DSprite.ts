@@ -19,6 +19,7 @@ import { SingletonList } from "../utils/SingletonList";
 import { Bridge3DRenderElement } from "./Bridge3DRenderElement";
 import { Bridge3DScene3D } from "./Bridge3DScene3D";
 import { Bridge3DCoordinate } from "./utils/Bridge3DCoordinate";
+import { RTBridge3DRenderElement } from "./RTBridge3DRenderElement";
 
 export interface IBridgeRenderElement extends IRenderElement2D {
     addBaseRenderNode(node: IBaseRenderNode): void;
@@ -41,7 +42,7 @@ export class Bridge3DSprite extends Sprite {
 
     static createBridge3DRenderElement(): IBridgeRenderElement {
         if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {//native
-            return null;
+            return new RTBridge3DRenderElement();
         } else
             return new Bridge3DRenderElement();
     }
@@ -56,9 +57,9 @@ export class Bridge3DSprite extends Sprite {
 
     /**
      * Render element
-     * @private
+     * @internal
      */
-    private _bridge3DRenderElement: IBridgeRenderElement;
+    _bridge3DRenderElement: IBridgeRenderElement;
 
     /**
      * Whether registered to Bridge3DScene3D

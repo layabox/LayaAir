@@ -95,7 +95,7 @@ export class WebGLBlit2DQuadCMD extends Blit2DQuadCMD {
 
     apply(context: WebglRenderContext2D): void {
         let cacheInvert = context.invertY;
-        if (!this._dest) {
+        if (!this._dest || context._destRT._textures[0].gammaCorrection != 1) {
             context.invertY = false;
             this.element.materialShaderData.addDefine(WebGLBlit2DQuadCMD.GammaCorrect);
         } else {

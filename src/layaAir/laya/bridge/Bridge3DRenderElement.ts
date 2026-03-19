@@ -38,8 +38,7 @@ export class Bridge3DRenderElement implements IBridgeRenderElement {
     nodeCommonMap: Array<string> = [];
     owner: IRenderStruct2D = null;
     _index?: number;
-
-    private _baseRenderList: SingletonList<WebBaseRenderNode> = new SingletonList();
+    _baseRenderList: SingletonList<WebBaseRenderNode> = new SingletonList();
 
     /**
      * Bridge3D渲染上下文（由Scene3D传递，不持有）
@@ -257,6 +256,7 @@ export class Bridge3DRenderElement implements IBridgeRenderElement {
             }
         }
 
+        
         // ===== 3. 应用Bridge3D基础上下文参数 =====
         this._bridge3DContext.applyToContext(context3d);
 
@@ -266,6 +266,8 @@ export class Bridge3DRenderElement implements IBridgeRenderElement {
             ? RenderClearFlag.Depth | RenderClearFlag.Stencil
             : RenderClearFlag.Nothing;
         context3d.setRenderTarget(rt2d, clearFlag);
+
+        context3d.pipelineMode = context.pipelineMode;
 
         // ===== 5. 设置viewport和scissor为RT尺寸 =====
         if (rt2d) {

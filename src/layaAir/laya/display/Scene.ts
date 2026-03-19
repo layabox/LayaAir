@@ -19,7 +19,6 @@ import { type Scene3D } from "../d3/core/scene/Scene3D";
 import { ProgressCallback } from "../net/BatchProgress";
 import { Camera2D } from "./Scene2DSpecial/Camera2D";
 import { BlendModeHandler } from "../webgl/canvas/BlendMode";
-import { Bridge3DScene3D } from "../bridge/Bridge3DScene3D";
 
 /** @blueprintIgnore */
 export interface IBridge3DScene extends Scene3D {
@@ -56,7 +55,7 @@ export class Scene extends Sprite {
      * Factory method to create Bridge3DScene3D
      * Can be overridden to provide custom implementation
      */
-    static createBridge3DScene: () => IBridge3DScene;
+    static createBridge3DScene: () => IBridge3DScene = function () { return {} as any };
 
     /**创建后，还未被销毁的场景列表，方便查看还未被销毁的场景列表，方便内存管理，本属性只读，请不要直接修改*/
     /**

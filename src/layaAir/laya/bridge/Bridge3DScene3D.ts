@@ -1,5 +1,6 @@
 import { Config } from "../../Config";
 import { ILaya } from "../../ILaya";
+import { LayaEnv } from "../../LayaEnv";
 import { BaseRender } from "../d3/core/render/BaseRender";
 import { RenderContext3D } from "../d3/core/render/RenderContext3D";
 import { AmbientMode } from "../d3/core/scene/AmbientMode";
@@ -13,11 +14,11 @@ import { FastSinglelist } from "../utils/SingletonList";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { Bridge3DCamera } from "./Bridge3DCamera";
 import { Bridge3DContext } from "./Bridge3DContext";
-import { Bridge3DRenderElement } from "./Bridge3DRenderElement";
-import { Bridge3DSprite } from "./Bridge3DSprite";
+import { Bridge3DSprite, IBridgeRenderElement } from "./Bridge3DSprite";
 import { Config3D } from "../../Config3D";
 import { Utils3D } from "../d3/utils/Utils3D";
 import { Texture2D } from "../resource/Texture2D";
+import { RTBridge3DContext } from "../RenderDriver/OpenGLESDriver/2DRenderPass/RTBridge3DContext";
 
 /**
  * Bridge3DScene3D is a lightweight Scene3D implementation optimized for Bridge3D system
@@ -72,7 +73,7 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene {
      * Bridge3D rendering context (unified held and managed by Scene3D)
      * @private
      */
-    private _bridge3DContext: Bridge3DContext;
+    private _bridge3DContext: Bridge3DContext | RTBridge3DContext;
 
     /**
      * Camera Z distance (negative value means camera is in front of the scene)
@@ -162,8 +163,12 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene {
             this._bridge3DLightTexture.lock = true;
         }
 
-        // Create unified Bridge3D rendering context
-        this._bridge3DContext = new Bridge3DContext();
+        // Create unified Bridge3D rendering context (platform-aware)
+        if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {
+            this._bridge3DContext = new RTBridge3DContext();
+        } else {
+            this._bridge3DContext = new Bridge3DContext();
+        }
         // 设置Bridge3D独立的灯光贴图到context
         this._bridge3DContext.setBridge3DLightData(this._bridge3DLightTexture, this._getLightPixels());
 
@@ -389,7 +394,7 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene {
                 continue;
             }
 
-            const bridge3DElement = bridge3DSprite.bridge3DRenderElement as Bridge3DRenderElement;
+            const bridge3DElement = bridge3DSprite.bridge3DRenderElement as IBridgeRenderElement;
             if (!bridge3DElement) {
                 continue;
             }

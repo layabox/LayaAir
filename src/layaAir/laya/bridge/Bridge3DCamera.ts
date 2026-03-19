@@ -1,4 +1,5 @@
 
+import { LayaEnv } from "../../LayaEnv";
 import { BaseCamera } from "../d3/core/BaseCamera";
 import { Camera, CameraClearFlags } from "../d3/core/Camera";
 import { RenderContext3D } from "../d3/core/render/RenderContext3D";
@@ -6,10 +7,12 @@ import { Scene3D } from "../d3/core/scene/Scene3D";
 import { LayaGL } from "../layagl/LayaGL";
 import { Color } from "../maths/Color";
 import { RenderListQueue } from "../RenderDriver/DriverCommon/RenderListQueue";
+import { IRender3DProcess } from "../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { FastSinglelist } from "../utils/SingletonList";
+import { RTShadowOnlyProcess } from "./RTShadowOnlyRP/RTShadowOnlyProcess";
 import { WebShadowOnlyProcess } from "./WebShadowOnlyRP/WebShadowOnlyProcess";
 
 /**
@@ -47,7 +50,7 @@ export class Bridge3DCamera extends Camera {
      * 阴影专用渲染流程
      * @private
      */
-    private _shadowOnlyProcess: WebShadowOnlyProcess;
+    private _shadowOnlyProcess: IRender3DProcess;
 
     /**
      * 收集到的不透明渲染队列列表
@@ -61,8 +64,12 @@ export class Bridge3DCamera extends Camera {
     constructor() {
         super();
 
-        // 创建阴影专用渲染流程
-        this._shadowOnlyProcess = new WebShadowOnlyProcess();
+        // 创建阴影专用渲染流程（平台感知）
+        if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {
+            this._shadowOnlyProcess = new RTShadowOnlyProcess();
+        } else {
+            this._shadowOnlyProcess = new WebShadowOnlyProcess();
+        }
 
         // 配置Bridge3DCamera的默认设置
         this._setupBridge3DCameraDefaults();
