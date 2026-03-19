@@ -70,6 +70,9 @@ export class ChainShape2D extends Physics2DShapeBase {
         if (!LayaEnv.isPlaying || !this._body || !this._box2DBody) return;
         var len: number = this._datas.length;
         if (len % 2 == 1) throw "ChainCollider datas lenth must a multiplier of 2";
+        var pointCount: number = len >> 1;
+        // Box2D CreateChain requires >= 2 vertices, CreateLoop requires >= 3
+        if (pointCount < 2 || (this._loop && pointCount < 3)) return;
         let shape: any = this._box2DShape ? Physics2D.I._factory.getShape(this._box2DShape, this._shapeDef.shapeType) : Physics2D.I._factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType);
         Physics2D.I._factory.set_ChainShape_data(shape, this.pivotoffx, this.pivotoffy, this._datas, this._loop, this.scaleX, this.scaleY);
     }
