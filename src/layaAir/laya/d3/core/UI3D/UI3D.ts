@@ -238,6 +238,7 @@ export class UI3D extends BaseRender {
         value.cloneTo(this._size);
         this._resizeRT();
         this.boundsChange = true;
+        this._sizeChange = true;
         this._scale.setValue(value.x, value.y, 1);
     }
 
@@ -513,8 +514,10 @@ export class UI3D extends BaseRender {
                 let camera = this.owner.scene.cullInfoCamera;
                 Matrix4x4.createAffineTransformation(this._transform.position, camera.transform.rotation, this._scale, this._matrix);
             } else if (this._sizeChange) {
+                this._sizeChange = false;
                 this.boundsChange = true;
-                this._transform.worldMatrix.cloneTo(this._matrix);
+                Matrix4x4.createScaling(this._scale, tempMatrix);
+                Matrix4x4.multiply(this._transform.worldMatrix, tempMatrix, this._matrix);
             }
         }
     }
