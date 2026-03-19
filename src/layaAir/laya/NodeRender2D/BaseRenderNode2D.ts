@@ -386,6 +386,10 @@ export class BaseRenderNode2D extends Component {
         this._lightUpdateMark = 0;
     }
 
+    protected _notifyDataChange() {
+        this.owner?.repaint();
+    }
+
     _updateLight() {
         if (!this.lightReceive || !this.owner.scene || !this.owner.scene._light2DManager) return;
         const light2DManager = this.owner.scene._light2DManager;
