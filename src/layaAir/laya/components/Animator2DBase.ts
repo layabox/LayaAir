@@ -26,7 +26,7 @@ export class Animator2DBase extends Component {
     /**@internal */
     protected _isPlaying = true;
     /**@internal */
-    protected _ownerMap: Map<KeyframeNode2D, { ower: Node, pro?: { ower: any, key: string, defVal: any } }>;
+    protected _ownerMap: Map<KeyframeNode2D, { ower: Node, pro?: { ower: any, key: string, defVal: any, parentOwer?: any, parentKey?: string } }>;
     /**@internal */
     protected _isPlayBack: boolean = false;
 
@@ -73,13 +73,19 @@ export class Animator2DBase extends Component {
     /**
      * @internal
      */
-    protected _applyAniData(o: { ower: Node, pro?: { ower: any, key: string, defVal: any } }, additive: boolean, weight: number, data: string | number | boolean | { pos: Vector3, rotation: Vector3 }): void {
+    protected _applyAniData(o: { ower: Node, pro?: { ower: any, key: string, defVal: any, parentOwer?: any, parentKey?: string } }, additive: boolean, weight: number, data: string | number | boolean | { pos: Vector3, rotation: Vector3 }): void {
         var pro = o.pro;
         if (pro && pro.ower) {
             if (additive && "number" === typeof data) {
                 pro.ower[pro.key] = pro.defVal + weight * data;
+                if (pro.parentOwer && pro.parentKey != null) {
+                    pro.parentOwer[pro.parentKey] = pro.ower;
+                }
             } else if ("number" === typeof data) {
                 pro.ower[pro.key] = weight * data;
+                if (pro.parentOwer && pro.parentKey != null) {
+                    pro.parentOwer[pro.parentKey] = pro.ower;
+                }
             } else if ("object" === typeof data) {
                 if (data.pos) {
                     pro.ower.x = data.pos.x;
@@ -99,6 +105,9 @@ export class Animator2DBase extends Component {
                             ILaya.loader.load(url, { type: Loader.IMAGE }).then(tex => {
                                 if (!this.destroyed) {
                                     pro.ower[pro.key] = tex;
+                                    if (pro.parentOwer && pro.parentKey != null) {
+                                        pro.parentOwer[pro.parentKey] = pro.ower;
+                                    }
                                 }
                             });
                             return;
@@ -106,6 +115,9 @@ export class Animator2DBase extends Component {
                     }
                 }
                 pro.ower[pro.key] = data;
+                if (pro.parentOwer && pro.parentKey != null) {
+                    pro.parentOwer[pro.parentKey] = pro.ower;
+                }
             }
         }
     }
@@ -117,7 +129,12 @@ export class Animator2DBase extends Component {
         if (!this._ownerMap) return;
         this._ownerMap.forEach((ownerData) => {
             if (ownerData.pro && ownerData.pro.ower) {
-                ownerData.pro.defVal = ownerData.pro.ower[ownerData.pro.key];
+                if (ownerData.pro.parentOwer && ownerData.pro.parentKey != null) {
+                    ownerData.pro.ower = ownerData.pro.parentOwer[ownerData.pro.parentKey];
+                    ownerData.pro.defVal = ownerData.pro.ower ? ownerData.pro.ower[ownerData.pro.key] : null;
+                } else {
+                    ownerData.pro.defVal = ownerData.pro.ower[ownerData.pro.key];
+                }
             }
         });
     }
@@ -126,7 +143,7 @@ export class Animator2DBase extends Component {
      * @internal
      */
     protected getOwner(node: KeyframeNode2D) {
-        var ret: { ower: Node, pro?: { ower: any, key: string, defVal: any } };
+        var ret: { ower: Node, pro?: { ower: any, key: string, defVal: any, parentOwer?: any, parentKey?: string } };
         if (this._ownerMap) {
             ret = this._ownerMap.get(node);
             if (ret) return ret;
@@ -149,15 +166,20 @@ export class Animator2DBase extends Component {
                 var pname = node.getPropertyByIndex(0);
                 ret.pro = { ower: property, key: pname, defVal: (property as any)[pname] };
             } else {
+                var prevPobj: any = undefined;
+                var prevPname: string = undefined;
                 for (var i = 0; i < propertyCount; i++) {
                     var pname = node.getPropertyByIndex(i);
                     if (i == propertyCount - 1 || null == pobj) {
-                        ret.pro = { ower: pobj, key: pname, defVal: pobj ? pobj[pname] : null };
+                        ret.pro = { ower: pobj, key: pname, defVal: pobj ? pobj[pname] : null, parentOwer: prevPobj, parentKey: prevPname };
                         break;
                     }
+                    prevPobj = pobj;
+                    prevPname = pname;
                     if ('_gcmds' === pname && null == pobj[pname] && pobj.graphics) {
                         pobj = pobj.graphics;
                         pname = "cmds";
+                        prevPname = pname;
                     }
                     if (null == pobj[pname] && property == pobj) {
                         pobj = null;

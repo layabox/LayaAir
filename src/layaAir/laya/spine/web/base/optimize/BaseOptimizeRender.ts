@@ -537,7 +537,8 @@ export abstract class BaseOptimizeRender implements ISpineRender {
 
         let currentAnimator = this._optimize.animators.find(animator => animator.name === animationName);
 
-        let isNormalRender = skinAttach.isNormalRender || currentAnimator.hasClip;
+        let skinAniData = currentAnimator.skinDataArray[skinAttach.index];
+        let isNormalRender = skinAttach.isNormalRender || currentAnimator.hasClip || (skinAniData && skinAniData.isNormalRender);
         if (!isNormalRender && (this.mode === ESpineRenderMode.Optimize || this.mode === ESpineRenderMode.Bake)) {
 
             if (skinAttach.vertexBones > 4) {
