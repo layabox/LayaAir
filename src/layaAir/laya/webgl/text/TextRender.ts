@@ -153,7 +153,7 @@ export class TextRender {
         let rectY = ((margin - fontSizeOffY - lineWidth) * fontScale | 0) - blockGap;
         let correctionW = height * 0.08; //某些字体（例如华文行楷，华文隶书，自带斜体效果，测算的宽度可能不够，这里补一些，0.08是经验值
         let rectW = Math.ceil((width + fontSizeOffX + lineWidth * 2 + correctionW) * fontScale) + blockGap * 2;
-        let rectH = Math.ceil((fontSizeH + lineWidth * 2) * fontScale) + blockGap * 2;
+        let rectH = Math.ceil((fontSizeH + lineWidth * 2 + 1) * fontScale) + blockGap * 2;
 
         let needCanvW = Math.min(rectW + Math.ceil(margin * 2 * fontScale), TextRenderConfig.maxCanvasWidth);
         let needCanvH = Math.min(rectH + Math.ceil(margin * 2 * fontScale), TextRenderConfig.maxCanvasWidth);
