@@ -130,6 +130,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
      */
     set color(value: Color) {
         this._renderHandle.baseColor = value;
+        this._notifyDataChange();
     }
 
 
@@ -144,6 +145,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
     set size(value: Vector2) {
         value.cloneTo(this._size);
         this._spriteShaderData.setVector2(BaseRenderNode2D.BASERENDERSIZE, this._size);
+        this._notifyDataChange();
     }
 
     get size(): Vector2 { return this._size; }
@@ -155,6 +157,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
     set tilingOffset(value: Vector4) {
         this._tilingOffset = value;
         this._updateTilingOffset();
+        this._notifyDataChange();
     }
 
     get tilingOffset(): Vector4 {
@@ -213,6 +216,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
         }
         this._updateTilingOffset();
         this._renderHandle.baseTexture = value;
+        this._notifyDataChange();
     }
 
     get texture(): BaseTexture | Texture {
@@ -225,6 +229,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
      */
     set normalTexture(value: BaseTexture) {
         this._renderHandle.normal2DTexture = value;
+        this._notifyDataChange();
     }
 
     get normalTexture(): BaseTexture {
@@ -236,7 +241,8 @@ export class Mesh2DRender extends BaseRenderNode2D {
      * @zh 法线效果强度
      */
     set normalStrength(value: number) {
-        this._renderHandle.normal2DStrength = value
+        this._renderHandle.normal2DStrength = value;
+        this._notifyDataChange();
     }
 
     get normalStrength() {
@@ -250,6 +256,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
     set sharedMaterial(value: Material) {
         super.sharedMaterial = value;
         this._changeMesh();
+        this._notifyDataChange();
     }
 
     get sharedMaterial() {
@@ -264,6 +271,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
             this._spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_UNITQUAD);
         }
         this._changeMesh();
+        this._notifyDataChange();
     }
 
     private _changeMesh() {
