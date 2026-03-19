@@ -60,7 +60,8 @@ export class TextRender {
         let italicDeg = italic ? 13 : 0;
         let cacheKey = (curFont.id * 10000) + fontSize + (bold ? "b_" : "_");
         let colorNum = ColorUtils.create(color).numColor;
-        let tint = stroke > 0 || !charMode && hasEmoji; //染色的条件： 有描边 或 非字符模式下且包含emoji
+        //let tint = stroke > 0 || !charMode && hasEmoji; //染色的条件： 有描边 或 非字符模式下且包含emoji
+        let tint = true; //这种优化机制存在变粗的问题，先屏蔽，统一染色
         if (tint)
             cacheKey += colorNum + "_";
         if (stroke > 0)
