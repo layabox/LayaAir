@@ -154,7 +154,7 @@ export class LayaXReflectionProbe implements IReflectionProbeData {
             data.addDefine(ReflectionProbe.SHADERDEFINE_GI_IBL);
             data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
             if (this._iblTex) {
-                data._setInternalTexture(ReflectionProbe.IBLTEX, this._iblTex);
+                data._setInternalTexture(ReflectionProbe.IBLTEX, (this._iblTex as any)._nativeObj);
                 data.setNumber(ReflectionProbe.IBLROUGHNESSLEVEL, this._iblTex.maxMipmapLevel);
             }
             this.iblTexRGBD ? data.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD) : data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD);

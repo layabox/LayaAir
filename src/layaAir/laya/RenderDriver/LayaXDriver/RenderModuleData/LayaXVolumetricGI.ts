@@ -109,8 +109,8 @@ export class LayaXVolumetricGI implements IVolumetricGIData {
         data.setVector3(VolumetricGI.VOLUMETRICGI_PROBESTEPS, this._probeStep);
         data.setVector3(VolumetricGI.VOLUMETRICGI_PROBESTARTPOS, this._bound.getMin());
         data.setVector(VolumetricGI.VOLUMETRICGI_PROBEPARAMS, this._params);
-        data._setInternalTexture(VolumetricGI.VOLUMETRICGI_IRRADIANCE, this._irradiance);
-        data._setInternalTexture(VolumetricGI.VOLUMETRICGI_DISTANCE, this._distance);
+        data._setInternalTexture(VolumetricGI.VOLUMETRICGI_IRRADIANCE, this._irradiance ? (this._irradiance as any)._nativeObj : null);
+        data._setInternalTexture(VolumetricGI.VOLUMETRICGI_DISTANCE, this._distance ? (this._distance as any)._nativeObj : null);
         data.setNumber(ReflectionProbe.AMBIENTINTENSITY, this.intensity);
     }
 
