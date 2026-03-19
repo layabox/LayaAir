@@ -19,6 +19,7 @@ import { type Scene3D } from "../d3/core/scene/Scene3D";
 import { ProgressCallback } from "../net/BatchProgress";
 import { Camera2D } from "./Scene2DSpecial/Camera2D";
 import { BlendModeHandler } from "../webgl/canvas/BlendMode";
+import { HideFlags } from "../Const";
 
 /** @blueprintIgnore */
 export interface IBridge3DScene extends Scene3D {
@@ -511,6 +512,7 @@ export class Scene extends Sprite {
             root = Scene._root = ILaya.stage.addChild(new Sprite());
             root.name = "root";
             root.mouseThrough = true;
+            root.hideFlags |= HideFlags.HideTransformTool;
             ILaya.stage.on("resize", null, () => {
                 root.size(ILaya.stage.width, ILaya.stage.height);
                 root.event(Event.RESIZE);
