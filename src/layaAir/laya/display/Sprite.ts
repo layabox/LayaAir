@@ -1629,20 +1629,59 @@ export class Sprite extends Node {
      * @returns 绘制的 RenderTexture2D 对象。
      */
     static drawToRenderTexture2D(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt?: RenderTexture2D, isDrawRenderRect?: boolean, flipY?: boolean, clearColor?: Color, renderScaleX = 1, renderScaleY = 1): RenderTexture2D {
-        if (isDrawRenderRect == null)
-            isDrawRenderRect = true;
-
         let renderout = rt || new RenderTexture2D(canvasWidth, canvasHeight, RenderTargetFormat.R8G8B8A8);
         renderout._invertY = flipY;
 
         if (LayaGL.renderEngine._screenInvertY) {
             renderout._invertY = !renderout._invertY;
         }
-
-        let runner = Render2DProcessor.runner;
-
-        let passSet = new Set<IRender2DPass>();
         let processor = new Render2DProcessor();
+
+        let pass = processor.basePass;
+
+        if (clearColor) {
+            pass.setClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+            pass.doClearColor = true;
+        }
+
+        let { root, subPasses } = sprite.prepareOSR();
+        for (let subPass of subPasses) {
+            processor.addPass(subPass);
+        }
+
+        pass.renderTexture = renderout;
+        pass.root = root;
+
+        let matrix = pass.offsetMatrix;
+        matrix.identity();
+
+        let local = sprite.transform;
+        if (local)
+            local.copyTo(matrix);
+
+        matrix.scale(renderScaleX, renderScaleY);
+
+        matrix.invert();
+        matrix.tx = -offsetX;
+        matrix.ty = -offsetY;
+        pass.offsetMatrix = matrix;
+
+        processor.apply(Render2DProcessor.rendercontext2D);
+        processor.clear();
+        pass.destroy();
+
+        return renderout;
+    }
+
+    /**
+     * @en Prepare for off-screen rendering. This method will update the render texture of the current Sprite and its child nodes, and return the root node and sub-pass information for the current Sprite. This method is used internally when rendering to a texture, and generally does not need to be called externally.
+     * @returns An object containing the root node and an array of sub-pass information.
+     * @zh 准备离屏渲染。此方法会更新当前 Sprite 及其子节点的渲染纹理，并返回当前 Sprite 的根节点和子通道信息。此方法在渲染到纹理时内部使用，一般不需要外部调用。
+     * @return 包含根节点和子通道信息的对象。
+     */
+    prepareOSR(): { root: IRenderStruct2D, subPasses: Array<IRender2DPass> } {
+        let runner = Render2DProcessor.runner;
+        let passSet = new Set<IRender2DPass>();
 
         const updateSprites = function (sprite: Sprite): void {
             if (!sprite._struct || !sprite._struct.enabled)
@@ -1652,7 +1691,7 @@ export class Sprite extends Node {
                 if (sprite._oriRenderPass) {
                     let result = sprite.updateRenderTexture();
 
-                    let destrt: RenderTexture2D = sprite._drawOriRT;
+                    let destrt = sprite._drawOriRT;
                     if (destrt) {
                         sprite._oriRenderPass.renderTexture = destrt;
                         if (sprite.mask) {
@@ -1707,43 +1746,12 @@ export class Sprite extends Node {
                 updateSprites(sprite._children[i]);
         }
 
-        updateSprites(sprite);
+        updateSprites(this);
 
-        let pass = processor.basePass;
+        let root = this._oriRenderPass && this._oriRenderPass.enable ? this._subStruct : this._struct;
+        let subPasses = Array.from(passSet).filter(pass => pass.priority > 0);
 
-        if (clearColor) {
-            pass.setClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-            pass.doClearColor = true;
-        }
-
-        pass.renderTexture = renderout;
-        let struct = sprite._oriRenderPass && sprite._oriRenderPass.enable ? sprite._subStruct : sprite._struct;
-        pass.root = struct;
-
-        let matrix = pass.offsetMatrix;
-        matrix.identity();
-
-        let local = sprite.transform;
-        if (local)
-            local.copyTo(matrix);
-
-        matrix.scale(renderScaleX, renderScaleY);
-
-        matrix.invert();
-        matrix.tx = -offsetX;
-        matrix.ty = -offsetY;
-        pass.offsetMatrix = matrix;
-
-        for (let pass of passSet) {
-            if (pass.priority > 0) {
-                processor.addPass(pass);
-            }
-        }
-
-        processor.apply(Render2DProcessor.rendercontext2D);
-        processor.clear();
-        pass.destroy();
-        return renderout;
+        return { root, subPasses };
     }
 
     /**
