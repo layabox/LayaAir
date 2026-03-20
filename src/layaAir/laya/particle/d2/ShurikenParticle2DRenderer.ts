@@ -792,6 +792,10 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
             let element = createRenderElement(geometry);
             this._renderElements.push(element);
         }
+
+        if (this.owner) {
+            this.owner._struct.renderElements = this._renderElements;
+        }
     }
 
     private _updateParticleBuffer(startActive: number, endActive: number) {
