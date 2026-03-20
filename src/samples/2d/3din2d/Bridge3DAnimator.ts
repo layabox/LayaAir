@@ -96,9 +96,9 @@ export class Bridge3DAnimator {
         bridge.pos(150, 200);
         fusionGroup.addChild(bridge);
 
-        const scene3d = scene2D.bridge3D;
-        scene3d.ambientColor = new Color(0.5, 0.5, 0.5, 1);
-        scene3d.cameraZDistance = 300;
+        const holder = scene2D.bridge3D;
+        holder.scene3d.ambientColor = new Color(0.5, 0.5, 0.5, 1);
+        holder.cameraZDistance = 300;
 
         // 方向光
         const lightSprite = new Sprite3D();

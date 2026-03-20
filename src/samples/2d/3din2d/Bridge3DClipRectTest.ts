@@ -94,8 +94,8 @@ export class Bridge3DClipRectTest {
         bridge.scale3DToPixel = 1;
         container.addChild(bridge);
 
-        const scene3d = scene2D.bridge3D;
-        scene3d.ambientColor = new Color(1, 1, 1, 1);
+        const holder = scene2D.bridge3D;
+        holder.scene3d.ambientColor = new Color(1, 1, 1, 1);
 
         // 平行光（复用 Bridge3DTest 方式）
         const lightSprite = new Bridge3DSprite();

@@ -63,8 +63,9 @@ export class Bridge3DPostProcessTest {
     // ── 场景 / 光照 ──────────────────────────────────────────────────────────
 
     private setupGlobalLight(): void {
-        const scene3d = this.scene2D.bridge3D;
-        scene3d.ambientColor = new Color(0.4, 0.4, 0.4, 1);
+        const holder = this.scene2D.bridge3D;
+        holder.initScene3D();
+        holder.scene3d.ambientColor = new Color(0.4, 0.4, 0.4, 1);
 
         const lightSprite = new Bridge3DSprite();
         this.scene2D.addChild(lightSprite);

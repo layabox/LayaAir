@@ -5,7 +5,6 @@ import { Sprite3D } from "../d3/core/Sprite3D";
 import { Transform3D } from "../d3/core/Transform3D";
 import { Bounds } from "../d3/math/Bounds";
 import { Node } from "../display/Node";
-import { Scene } from "../display/Scene";
 import { Sprite } from "../display/Sprite";
 import { Event } from "../events/Event";
 import { LayaGL } from "../layagl/LayaGL";
@@ -16,10 +15,9 @@ import { RenderListQueue } from "../RenderDriver/DriverCommon/RenderListQueue";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IBaseRenderNode } from "../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { SingletonList } from "../utils/SingletonList";
-import { Bridge3DRenderElement } from "./Bridge3DRenderElement";
-import { Bridge3DScene3D } from "./Bridge3DScene3D";
+import { Bridge3DRenderElement } from "./render/Bridge3DRenderElement";
+import { RTBridge3DRenderElement } from "./render/RTBridge3DRenderElement";
 import { Bridge3DCoordinate } from "./utils/Bridge3DCoordinate";
-import { RTBridge3DRenderElement } from "./RTBridge3DRenderElement";
 
 export interface IBridgeRenderElement extends IRenderElement2D {
     addBaseRenderNode(node: IBaseRenderNode): void;
@@ -238,30 +236,15 @@ export class Bridge3DSprite extends Sprite {
     }
 
     private _regsiterScene() {
-        if (!this._scene) {
-            return;
-        }
-        // Auto-initialize and register to Bridge3DScene3D
-        const scene3d = this._scene.bridge3D;  // Triggers lazy initialization
-        if (scene3d) {
-            scene3d.registerBridge3D(this);
-            this._isRegistered = true;
-        }
+        if (!this._scene) return;
+        this._scene.bridge3D.registerBridge3D(this);
+        this._isRegistered = true;
     }
 
     private _removeRegister() {
-        if (!this._scene) {
-            return;
-        }
-        // Unregister from Bridge3DScene3D
-        if (this._isRegistered) {
-            const scene3d = this._scene.bridge3D;
-            if (scene3d) {
-                scene3d.unregisterBridge3D(this);
-            }
-            this._isRegistered = false;
-        }
-
+        if (!this._scene || !this._isRegistered) return;
+        this._scene.bridge3D.unregisterBridge3D(this);
+        this._isRegistered = false;
     }
 
     /**
