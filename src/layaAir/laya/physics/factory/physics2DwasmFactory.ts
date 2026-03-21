@@ -1028,7 +1028,7 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         def.fixedRotation = rigidbodyDef.fixedRotation;
         def.gravityScale = rigidbodyDef.gravityScale;
         def.linearDamping = rigidbodyDef.linearDamping;
-        def.linearVelocity = new this.box2d.b2Vec2(this.convertLayaValueToPhysics(world, rigidbodyDef.linearVelocity.x), this.convertLayaValueToPhysics(world, rigidbodyDef.linearVelocity.y));
+        def.linearVelocity.Set(this.convertLayaValueToPhysics(world, rigidbodyDef.linearVelocity.x), this.convertLayaValueToPhysics(world, rigidbodyDef.linearVelocity.y));
         def.type = this.getbodyType(rigidbodyDef.type);
         return def;
     }
