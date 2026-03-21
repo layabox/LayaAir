@@ -338,6 +338,7 @@ export class ColliderBase extends Component {
     /**@internal*/
     protected _onDisable(): void {
         this._box2DBody && Physics2D.I._factory.removeBody(this._physics2DManager.box2DWorld, this._box2DBody);
+        this._box2DBodyDef && Physics2D.I._factory.destroyData(this._box2DBodyDef);
         this._box2DBody = null;
         this._box2DBodyDef = null;
         this.owner.off(SpriteGlobalTransform.CHANGED, this, this._needupdataShapeAttribute);
@@ -345,6 +346,7 @@ export class ColliderBase extends Component {
 
     protected _onDestroy(): void {
         this._box2DBody && Physics2D.I._factory.removeBody(this._physics2DManager.box2DWorld, this._box2DBody);
+        this._box2DBodyDef && Physics2D.I._factory.destroyData(this._box2DBodyDef);
         this._box2DBodyDef && Physics2D.I._factory.destroyData(this._box2DBodyDef);
         this._box2DBody = null;
         this._box2DBodyDef = null;
