@@ -88,10 +88,10 @@ export class WebBaseRenderNode implements IBaseRenderNode {
      * @internal
      */
     _renderUpdatePre(context3D: IRenderContext3D): void {
-        if (this._updateMark == context3D.sceneUpdateMask)
+        if (this._updateMark == context3D.cameraUpdateMask)
             return;
         this._renderUpdatePreFun.call(this._renderUpdatePreCall, context3D);
-        this._updateMark = context3D.sceneUpdateMask;
+        this._updateMark = context3D.cameraUpdateMask;
     }
 
     _calculateBoundingBox() {
