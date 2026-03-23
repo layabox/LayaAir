@@ -61,6 +61,11 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     private _renderUpdatePreCall: any;
     private _renderUpdatePreFun: Function;
     private _updateMark: number;
+    /**
+     * @en If true, _renderUpdatePre is called once per camera; otherwise once per frame.
+     * @zh 为 true 时 _renderUpdatePre 逐相机调用，否则逐帧调用。
+     */
+    perCameraUpdate: boolean = false;
 
     protected _additionShaderData: Map<string, ShaderData>;
 
@@ -88,10 +93,13 @@ export class WebBaseRenderNode implements IBaseRenderNode {
      * @internal
      */
     _renderUpdatePre(context3D: IRenderContext3D): void {
-        if (this._updateMark == context3D.cameraUpdateMask)
+        const mask = this.perCameraUpdate
+            ? context3D.cameraUpdateMask
+            : context3D.sceneUpdateMask;
+        if (this._updateMark == mask)
             return;
         this._renderUpdatePreFun.call(this._renderUpdatePreCall, context3D);
-        this._updateMark = context3D.cameraUpdateMask;
+        this._updateMark = mask;
     }
 
     _calculateBoundingBox() {
