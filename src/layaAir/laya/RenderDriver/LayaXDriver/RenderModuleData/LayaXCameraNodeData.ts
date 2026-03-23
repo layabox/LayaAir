@@ -58,4 +58,12 @@ export class LayaXCameraNodeData implements ICameraNodeData {
     setProjectionViewMatrix(value: Matrix4x4): void {
         value && this._nativeObj.setProjectionViewMatrix(value);
     }
+
+    setForward(x: number, y: number, z: number): void {
+        this._nativeObj.setForward(x, y, z);
+    }
+
+    syncProjection(): void {
+        this._nativeObj.syncProjection();
+    }
 }

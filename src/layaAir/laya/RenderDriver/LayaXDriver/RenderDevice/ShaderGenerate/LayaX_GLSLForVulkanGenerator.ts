@@ -100,6 +100,7 @@ export class LayaX_GLSLForVulkanGenerator {
 #define varying out
 #define textureCube texture
 #define texture2D texture
+#define NO_NATIVE_SHADOWMAP
 
 ${defineStrs}
 
@@ -130,6 +131,7 @@ out highp vec4 pc_fragColor;
 #define texture2DGradEXT textureGrad
 #define texture2DProjGradEXT textureProjGrad
 #define textureCubeGradEXT textureGrad
+#define NO_NATIVE_SHADOWMAP
 
 ${defineStrs}
 

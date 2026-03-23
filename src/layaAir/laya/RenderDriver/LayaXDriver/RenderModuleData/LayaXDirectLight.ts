@@ -60,4 +60,13 @@ export class LayaXDirectLight implements IDirectLightData {
     constructor() {
         this._nativeObj = new (window as any).conchLayaXDirectLight();
     }
+
+    syncShadow(): void {
+        this._nativeObj.setShadow(
+            this._nativeObj._shadowResolution,
+            this._nativeObj._shadowDistance,
+            this._nativeObj._shadowStrength,
+            this._nativeObj._shadowMode
+        );
+    }
 }

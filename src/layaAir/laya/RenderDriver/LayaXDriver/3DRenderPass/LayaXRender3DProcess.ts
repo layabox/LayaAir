@@ -56,6 +56,9 @@ export class LayaXRender3DProcess implements IRender3DProcess {
     }
 
     initRenderpass(camera: Camera, context: IRenderContext3D) {
+        // Sync camera projection params (fov/near/far/aspect) to Rust ECS for culling
+        (<LayaXCameraNodeData>camera._renderDataModule).syncProjection();
+
         let renderpass = this._renderPass.mainRenderpass;
         let renderRT = camera._getRenderTexture();
         // clear
@@ -134,11 +137,10 @@ export class LayaXRender3DProcess implements IRender3DProcess {
 
             this._renderPass.enableDirectLightShadow = needDirectionShadow;
             if (needDirectionShadow) {
-                this._renderPass.dirShadowRenderPass.setRPData(
-                    <LayaXDirectLight>mainDirectionLight._dataModule,
-                    <LayaXCameraNodeData>camera._renderDataModule,
-                    context
-                );
+                let dirLight = <LayaXDirectLight>mainDirectionLight._dataModule;
+                let camData = <LayaXCameraNodeData>camera._renderDataModule;
+                dirLight.syncShadow();
+                this._renderPass.dirShadowRenderPass.setRPData(dirLight, camData, context);
                 this._renderPass.dirShadowRenderPass.setCameraCullInfo(this._render3DManager);
             }
 

@@ -1,5 +1,6 @@
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
 import { Scene3D } from "../../../d3/core/scene/Scene3D";
+import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { IRenderContext3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
@@ -40,6 +41,18 @@ export class LayaXDirCascadeShadowRP {
             (context as any)._nativeObj,
             (this._destShadowRT._renderTarget as any)._nativeObj
         );
+
+        // Pass light orientation (up/side/forward) to Rust for cascade VP computation
+        if (dirLight.transform) {
+            let lightWorld = Matrix4x4.TEMP;
+            Matrix4x4.createFromQuaternion(dirLight.transform.rotation, lightWorld);
+            let e = lightWorld.elements;
+            dirLight._nativeObj.setOrientation(
+                e[4], e[5], e[6],     // lightUp
+                e[0], e[1], e[2],     // lightSide
+                -e[8], -e[9], -e[10]  // lightForward
+            );
+        }
     }
 
     setCameraCullInfo(sceneManager: ISceneRenderManager): void {

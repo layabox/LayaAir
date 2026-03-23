@@ -158,7 +158,9 @@ export class LayaXShaderPass implements IShaderPassData {
                 return (shaderInstance as any)._nativeObj;
             }
         } catch (e) {
-            console.error("LayaXShaderPass compile callback failed:", e);
+            const shaderName = this._pass._owner?._owner?.name || "unknown";
+            const passIdx = this._pass._owner?._passes?.indexOf(this._pass) ?? -1;
+            console.error(`LayaXShaderPass compile callback failed: ${shaderName}_pass${passIdx} defines=[${defineNamesStr?.replace(/\n/g, ',')}]`, e);
         }
         return null;
     }
