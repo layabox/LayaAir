@@ -38,6 +38,7 @@ import { Config } from "../../Config";
 import { MathUtil } from "../maths/MathUtil";
 import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
 import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
+import { StatElement } from "../layagl/StatisticsContext";
 
 const hiddenBits = NodeFlags.NOT_IN_PAGE;
 
@@ -263,6 +264,16 @@ export class Sprite extends Node {
         this._struct = LayaGL.render2DRenderPassFactory.createRenderStruct2D();
         this._struct.owner = this;
         this._globalTrans = new SpriteGlobalTransform(this);
+    }
+
+    protected _onActive(): void {
+        super._onActive();
+        LayaGL.statAgent.recordCountData(StatElement.C_Sprite2DCount, 1);
+    }
+
+    protected _onInActive(): void {
+        super._onInActive();
+        LayaGL.statAgent.recordCountData(StatElement.C_Sprite2DCount, -1);
     }
 
     /** @internal */
