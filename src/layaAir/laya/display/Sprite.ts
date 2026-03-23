@@ -24,6 +24,7 @@ import { Component } from "../components/Component";
 import { SpriteGlobalTransform } from "./SpriteGlobaTransform";
 import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 import { LayaGL } from "../layagl/LayaGL";
+import { StatElement } from "../layagl/StatisticsContext";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
 import { BlendMode, BlendModeHandler } from "../webgl/canvas/BlendMode";
@@ -263,6 +264,18 @@ export class Sprite extends Node {
         this._struct = LayaGL.render2DRenderPassFactory.createRenderStruct2D();
         this._struct.owner = this;
         this._globalTrans = new SpriteGlobalTransform(this);
+    }
+
+    /** @internal */
+    protected _onActive(): void {
+        super._onActive();
+        LayaGL.statAgent.recordCountData(StatElement.C_Sprite2DCount, 1);
+    }
+
+    /** @internal */
+    protected _onInActive(): void {
+        super._onInActive();
+        LayaGL.statAgent.recordCountData(StatElement.C_Sprite2DCount, -1);
     }
 
     /** @internal */
