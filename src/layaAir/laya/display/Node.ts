@@ -12,8 +12,6 @@ import { type Sprite } from "./Sprite";
 import { type Sprite3D } from "../d3/core/Sprite3D";
 import { type Scene3D } from "../d3/core/scene/Scene3D";
 import { type GWidget } from "../ui2/GWidget"
-import { LayaGL } from "../layagl/LayaGL"
-import { StatElement } from "../layagl/StatisticsContext"
 
 const ARRAY_EMPTY: any[] = [];
 const initBits = NodeFlags.ACTIVE;
@@ -1225,7 +1223,6 @@ export class Node extends EventDispatcher {
         }
 
         this._onActive();
-        LayaGL.statAgent.recordCountData(StatElement.C_Sprite2DCount, 1);
 
         for (let child of this._children) {
             if ((child._bits & NodeFlags.ACTIVE) !== 0 && (child._bits & NodeFlags.NOT_IN_PAGE) === 0)
@@ -1247,7 +1244,6 @@ export class Node extends EventDispatcher {
      */
     _inActiveHierarchy(activeChangeScripts: any[], fromSetter?: boolean): void {
         this._onInActive();
-        LayaGL.statAgent.recordCountData(StatElement.C_Sprite2DCount, -1);
 
         if (this._components) {
             for (let i = 0, n = this._components.length; i < n; i++) {
