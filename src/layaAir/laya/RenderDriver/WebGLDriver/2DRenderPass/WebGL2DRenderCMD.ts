@@ -25,7 +25,8 @@ export class WebGLSetRendertarget2DCMD extends SetRendertarget2DCMD {
     apply(context: IRenderContext2D): void {
         if (this.rt) context.invertY = this.invertY;
         else context.invertY = false;
-        let vpY = context.invertY ? this.viewportY : RenderState2D.height - this.viewportY - this.size.y;
+        let targetHeight = this.rt ? this.size.y : RenderState2D.height;
+        let vpY = context.invertY ? this.viewportY : targetHeight - this.viewportY - this.size.y;
         context.setOffscreenView(this.size.x, this.size.y, this.viewportX, vpY);
         context.setRenderTarget(this.rt, this.clearColor, this.clearColorValue);
         context.passData.setVector2(ShaderDefines2D.UNIFORM_SIZE, this.size);
