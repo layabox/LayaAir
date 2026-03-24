@@ -117,8 +117,9 @@ export class MgCacheManager {
 
         if (this.toClear != 0) {
             this.running = true;
+            let clearFlag = this.toClear;
             this.toClear = 0;
-            if ((this.toClear & 2) !== 0)
+            if ((clearFlag & 2) !== 0)
                 this.doClearAllCache().then(() => this.running = false);
             else
                 this.clearSpace(0).then(() => this.saveDirtyManifests()).then(() => this.running = false);
