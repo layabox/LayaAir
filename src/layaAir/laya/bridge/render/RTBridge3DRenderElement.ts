@@ -1,15 +1,15 @@
-import { RenderContext3D } from "../d3/core/render/RenderContext3D";
-import { LayaGL } from "../layagl/LayaGL";
-import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
-import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
-import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
-import { IBaseRenderNode } from "../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
-import { RenderListQueue } from "../RenderDriver/DriverCommon/RenderListQueue";
-import { SubShader } from "../RenderEngine/RenderShader/SubShader";
-import { SingletonList } from "../utils/SingletonList";
-import { IBridgeRenderElement } from "./Bridge3DSprite";
-import { RTBridge3DContext } from "../RenderDriver/OpenGLESDriver/2DRenderPass/RTBridge3DContext";
+import { RenderContext3D } from "../../d3/core/render/RenderContext3D";
+import { RenderListQueue } from "../../RenderDriver/DriverCommon/RenderListQueue";
+import { IRenderContext2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
+import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
+import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { IRenderStruct2D } from "../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
+import { IBaseRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { SubShader } from "../../RenderEngine/RenderShader/SubShader";
+import { SingletonList } from "../../utils/SingletonList";
+import { IBridgeRenderElement } from "../Bridge3DSprite";
+import { RTBridge3DContext } from "./RTBridge3DContext";
+
 
 /**
  * RTBridge3DRenderElement - Native implementation of IBridgeRenderElement

@@ -52,8 +52,8 @@ export class Bridge3DTest {
         bridge.scale3DToPixel = 1;
         scene2D.addChild(bridge);
 
-        // Access scene3D through Bridge3DSprite getter (triggers lazy initialization)
-        let scene3d = scene2D.bridge3D;
+        // Access holder (scene3d auto-created by addChild above)
+        let holder = scene2D.bridge3D;
 
         let sprite = new Sprite;
         sprite.graphics.drawCircle(0, 0, 30, "#ff0000");
@@ -63,7 +63,7 @@ export class Bridge3DTest {
         console.log("Bridge3D created at (400, 300)");
         console.log("2D Logic Position: (400, 300)");
 
-        scene3d.ambientColor = new Color(1, 1, 1, 1);
+        holder.scene3d.ambientColor = new Color(1, 1, 1, 1);
         let lightSprite = new Bridge3DSprite;
         scene2D.addChild(lightSprite);
 
