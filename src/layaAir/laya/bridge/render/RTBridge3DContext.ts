@@ -1,14 +1,14 @@
-import { Camera } from "../../../d3/core/Camera";
-import { Color } from "../../../maths/Color";
-import { Matrix4x4 } from "../../../maths/Matrix4x4";
-import { Vector4 } from "../../../maths/Vector4";
-import { Viewport } from "../../../maths/Viewport";
-import { IRenderContext3D, PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
-import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
-import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
-import { ISceneNodeData, ICameraNodeData } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
-import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
-import { RenderState2D } from "../../../webgl/utils/RenderState2D";
+import { Camera } from "../../d3/core/Camera";
+import { Color } from "../../maths/Color";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Vector4 } from "../../maths/Vector4";
+import { Viewport } from "../../maths/Viewport";
+import { IRenderContext3D, PipelineMode } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import { InternalRenderTarget } from "../../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
+import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { ISceneNodeData, ICameraNodeData } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
+import { RenderState2D } from "../../webgl/utils/RenderState2D";
 
 /**
  * RTBridge3DContext - Native wrapper for GLESBridge3DContext
@@ -65,7 +65,7 @@ export class RTBridge3DContext {
     }
 
     setInvertMatrix(a: number, b: number, c: number, d: number, tx: number, ty: number): void {
-        this._nativeObj.setInvertMatrix(a, b, c, d, tx, ty);
+        // Not used on native - C++ _render() handles invert matrix internally
     }
 
     applyToContext(context: IRenderContext3D): void {
@@ -73,7 +73,7 @@ export class RTBridge3DContext {
     }
 
     computeCorrectionMatrix(vpW: number, vpH: number, rtW: number, rtH: number, out: Matrix4x4): void {
-        this._nativeObj.computeCorrectionMatrix(vpW, vpH, rtW, rtH, out);
+        // Not used on native - C++ _render() handles projection correction internally
     }
 
     get clearDepthBeforeRender(): boolean {
@@ -101,19 +101,19 @@ export class RTBridge3DContext {
     }
 
     get pipelineMode(): PipelineMode {
-        return this._nativeObj.pipelineMode;
+        return null; // Not used on native - C++ handles pipelineMode via applyToContext internally
     }
 
     set pipelineMode(value: PipelineMode) {
-        this._nativeObj.pipelineMode = value;
+        // Not used on native - C++ handles pipelineMode via applyToContext internally
     }
 
     get invertY(): boolean {
-        return this._nativeObj.invertY;
+        return false; // Not used on native - C++ handles invertY internally
     }
 
     set invertY(value: boolean) {
-        this._nativeObj.invertY = value;
+        // Not used on native - C++ handles invertY internally
     }
 
     get sceneModuleData(): ISceneNodeData {

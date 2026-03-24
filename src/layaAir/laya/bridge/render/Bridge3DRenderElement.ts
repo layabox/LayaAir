@@ -1,25 +1,25 @@
 
-import { BaseCamera } from "../d3/core/BaseCamera";
-import { RenderContext3D } from "../d3/core/render/RenderContext3D";
-import { Color } from "../maths/Color";
-import { Matrix4x4 } from "../maths/Matrix4x4";
-import { Vector4 } from "../maths/Vector4";
-import { Viewport } from "../maths/Viewport";
-import { RenderListQueue } from "../RenderDriver/DriverCommon/RenderListQueue";
-import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
-import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
-import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
-import { WebBaseRenderNode } from "../RenderDriver/RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
-import type { WebRenderStruct2D } from "../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
-import { RenderClearFlag } from "../RenderEngine/RenderEnum/RenderClearFlag";
-import { SubShader } from "../RenderEngine/RenderShader/SubShader";
-import { SingletonList } from "../utils/SingletonList";
-import { RenderState2D } from "../webgl/utils/RenderState2D";
-import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
+import { BaseCamera } from "../../d3/core/BaseCamera";
+import { RenderContext3D } from "../../d3/core/render/RenderContext3D";
+import { Color } from "../../maths/Color";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Vector4 } from "../../maths/Vector4";
+import { Viewport } from "../../maths/Viewport";
+import { RenderListQueue } from "../../RenderDriver/DriverCommon/RenderListQueue";
+import { IRenderContext2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
+import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
+import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { IRenderStruct2D } from "../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
+import { WebBaseRenderNode } from "../../RenderDriver/RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
+import type { WebRenderStruct2D } from "../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
+import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
+import { SubShader } from "../../RenderEngine/RenderShader/SubShader";
+import { SingletonList } from "../../utils/SingletonList";
+import { RenderState2D } from "../../webgl/utils/RenderState2D";
+import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
+import { IBridgeRenderElement } from "../Bridge3DSprite";
+import { Bridge3DCamera } from "../Bridge3DCamera";
 import { Bridge3DContext } from "./Bridge3DContext";
-import { IBridgeRenderElement } from "./Bridge3DSprite";
-import { Bridge3DCamera } from "./Bridge3DCamera";
 
 /**
  * Bridge3DRenderElement是Bridge3DSprite的渲染元素,负责将3D内容集成到2D渲染管线

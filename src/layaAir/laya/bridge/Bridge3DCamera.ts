@@ -12,8 +12,8 @@ import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/Shader
 import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { FastSinglelist } from "../utils/SingletonList";
-import { RTShadowOnlyProcess } from "./RTShadowOnlyRP/RTShadowOnlyProcess";
-import { WebShadowOnlyProcess } from "./WebShadowOnlyRP/WebShadowOnlyProcess";
+import { RTShadowOnlyProcess } from "./render/RTShadowOnlyProcess";
+import { WebShadowOnlyProcess } from "./render/WebShadowOnlyProcess";
 
 /**
  * Bridge3D专用相机，用于2D场景中3D节点的阴影渲染

@@ -1,4 +1,3 @@
-import { Config } from "../../Config";
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { BaseRender } from "../d3/core/render/BaseRender";
@@ -6,33 +5,38 @@ import { RenderContext3D } from "../d3/core/render/RenderContext3D";
 import { AmbientMode } from "../d3/core/scene/AmbientMode";
 import { Scene3D } from "../d3/core/scene/Scene3D";
 import { Sprite3D } from "../d3/core/Sprite3D";
-import { IBridge3DScene, Scene } from "../display/Scene";
 import { Event } from "../events/Event";
-import { Color } from "../maths/Color";
 import { RenderListQueue } from "../RenderDriver/DriverCommon/RenderListQueue";
 import { FastSinglelist } from "../utils/SingletonList";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { Bridge3DCamera } from "./Bridge3DCamera";
-import { Bridge3DContext } from "./Bridge3DContext";
 import { Bridge3DSprite, IBridgeRenderElement } from "./Bridge3DSprite";
 import { Config3D } from "../../Config3D";
 import { Utils3D } from "../d3/utils/Utils3D";
 import { Texture2D } from "../resource/Texture2D";
-import { RTBridge3DContext } from "../RenderDriver/OpenGLESDriver/2DRenderPass/RTBridge3DContext";
+import { RTBridge3DContext } from "./render/RTBridge3DContext";
+import { Bridge3DSceneHolder } from "./Bridge3DSceneHolder";
+import { Bridge3DContext } from "./render/Bridge3DContext";
 
 /**
- * Bridge3DScene3D is a lightweight Scene3D implementation optimized for Bridge3D system
+ * Bridge3DScene3D is a lightweight Scene3D implementation optimized for Bridge3D system.
+ * Only responsible for rendering pipeline — lifecycle and list management are handled by Bridge3DSceneHolder.
  *
  * Main optimizations:
  * 1. _addRenderObject/_removeRenderObject delegated to Bridge3DSprite management
  * 2. _update only updates root-level Bridge3DSprite renderUpdate, avoiding redundant _collectRenderNodes
  * 3. Removes unnecessary heavyweight features (physics, light management, volume management, etc.)
- * 4. Manages shared camera and stage lifecycle directly (merged from Bridge3DManager)
  *
  * @class Bridge3DScene3D
  * @extends Scene3D
  */
-export class Bridge3DScene3D extends Scene3D implements IBridge3DScene {
+export class Bridge3DScene3D extends Scene3D {
+    /**
+     * Reference to the owning holder
+     * @internal
+     */
+    private _holder: Bridge3DSceneHolder;
+
     /**
      * Shared Bridge3D camera
      * @private
@@ -41,27 +45,15 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene {
 
     /**
      * Whether camera has been initialized
-     * @private
+     * @internal
      */
-    private _cameraInitialized: boolean = false;
-
-    /**
-     * Whether added to Stage
-     * @private
-     */
-    private _isAddedToStage: boolean = false;
+    _cameraInitialized: boolean = false;
 
     /**
      * Render object to Bridge3DSprite mapping
      * @private
      */
     private _renderToBridgeMap: Map<BaseRender, Bridge3DSprite> = new Map();
-
-    /**
-     * Registered Bridge3DSprite list (managed by this Scene3D)
-     * @private
-     */
-    private _bridge3DList: Bridge3DSprite[] = [];
 
     /**
      * Collected opaque render queue list
@@ -76,7 +68,7 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene {
     private _bridge3DContext: Bridge3DContext | RTBridge3DContext;
 
     /**
-     * Camera Z distance (negative value means camera is in front of the scene)
+     * Camera Z distance (synced from holder)
      * @private
      */
     private _cameraZDistance: number = 100;
@@ -96,64 +88,21 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene {
     }
 
     /**
-     * Registered Bridge3DSprite count
-     * @readonly
-     */
-    get bridge3DListLength(): number {
-        return this._bridge3DList.length;
-    }
-
-    /**
-     * Get or set the camera Z distance
-     * @remarks
-     * - Negative values place the camera in front of the scene (looking towards positive Z)
-     * - Default value is -100
-     * - Changing this value will update the camera position immediately
-     */
-    get cameraZDistance(): number {
-        return this._cameraZDistance;
-    }
-
-    set cameraZDistance(value: number) {
-        if (this._cameraZDistance !== value) {
-            this._cameraZDistance = value;
-            // Update camera position immediately if camera is initialized
-            if (this._cameraInitialized) {
-                this._updateCameraPosition();
-            }
-        }
-    }
-
-    /**
      * Get the shared Bridge3D camera
      * @readonly
-     * @remarks
-     * - All Bridge3DSprites share this camera
-     * - Camera is managed by Scene3D, users should not destroy or replace it
      */
     get sharedCamera(): Bridge3DCamera {
         return this._sharedCamera;
     }
 
     /**
-     * Get the Bridge3D shadow rendering camera (same as shared camera)
-     * @readonly
-     * @remarks
-     * - Dedicated for Bridge3D element shadow rendering
-     * - Managed by Scene3D, users should not destroy or replace it
-     */
-    get bridge3DShadowCamera(): Bridge3DCamera {
-        return this._sharedCamera;
-    }
-
-    /**
      * Create Bridge3DScene3D instance
-     * @remarks
-     * - Each Scene2D has a unique Bridge3DScene3D
-     * - Automatically creates internal shared orthographic camera
+     * @param holder - The owning Bridge3DSceneHolder
      */
-    constructor() {
+    constructor(holder: Bridge3DSceneHolder) {
         super();
+
+        this._holder = holder;
 
         // 创建Bridge3D独立的灯光贴图（复用全局pixels数组）
         if (Config3D._multiLighting) {
@@ -182,6 +131,20 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene {
 
         // Listen to stage resize
         ILaya.stage.on(Event.RESIZE, this, this.onStageResize);
+    }
+
+    /**
+     * Apply camera Z distance (called by holder)
+     * @param value - Camera Z distance
+     * @internal
+     */
+    _applyCameraZDistance(value: number): void {
+        if (this._cameraZDistance !== value) {
+            this._cameraZDistance = value;
+            if (this._cameraInitialized) {
+                this._updateCameraPosition();
+            }
+        }
     }
 
     updateContext() {
@@ -219,7 +182,7 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene {
      * @private
      */
     private _findOwnerBridge3DSprite(node: Sprite3D): Bridge3DSprite | null {
-        const list = this._bridge3DList;
+        const list = this._holder.bridge3DList;
         while (node) {
             for (let i = 0, len = list.length; i < len; i++) {
                 const bridge = list[i];
@@ -247,60 +210,6 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene {
             bridge._removeRenderObject(render);
             this._renderToBridgeMap.delete(render);
         }
-    }
-
-    /**
-     * Register Bridge3DSprite and add its container to this Scene3D
-     * @param bridge - Bridge3DSprite to register
-     * @internal
-     */
-    registerBridge3D(bridge: Bridge3DSprite): void {
-        if (this._bridge3DList.indexOf(bridge) !== -1) {
-            return;
-        }
-        this._bridge3DList.push(bridge);
-
-        // Add to stage if needed
-        if (!this._isAddedToStage && this._bridge3DList.length > 0) {
-            ILaya.stage.addChild(this);
-            this._isAddedToStage = true;
-        }
-
-        this.addChild(bridge.containerSprite3D);
-
-        // First time initialization
-        if (!this._cameraInitialized) {
-            this.setupCamera();
-            this._cameraInitialized = true;
-        }
-
-    }
-
-    /**
-     * Unregister Bridge3DSprite and remove its container from this Scene3D
-     * @param bridge - Bridge3DSprite to unregister
-     * @internal
-     */
-    unregisterBridge3D(bridge: Bridge3DSprite): void {
-        const index = this._bridge3DList.indexOf(bridge);
-        if (index !== -1) {
-            this._bridge3DList.splice(index, 1);
-            this.removeChild(bridge.containerSprite3D);
-        }
-
-        // Remove from stage if no more bridges
-        if (this._isAddedToStage && this._bridge3DList.length === 0) {
-            ILaya.stage.removeChild(this);
-            this._isAddedToStage = false;
-        }
-    }
-
-    /**
-     * Get registered Bridge3DSprite list (for Manager iteration, etc.)
-     * @internal
-     */
-    getBridge3DList(): Bridge3DSprite[] {
-        return this._bridge3DList;
     }
 
     /**
@@ -388,8 +297,10 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene {
         // 清空之前收集的渲染队列
         this._opaqueListQueues.length = 0;
 
+        const bridge3DList = this._holder.bridge3DList;
+
         // 遍历所有Bridge3DSprite，调用其Bridge3DRenderElement的_prepare方法
-        for (const bridge3DSprite of this._bridge3DList) {
+        for (const bridge3DSprite of bridge3DList) {
             if (!bridge3DSprite) {
                 continue;
             }
@@ -416,14 +327,6 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene {
 
     /**
      * Update Bridge3D shadows (main entry point)
-     *
-     * @remarks
-     * This is the main entry method for Bridge3D shadow rendering, performing the following steps:
-     * 1. Check if lighting is enabled
-     * 2. Collect prepared opaque render queues
-     * 3. Use shared camera for shadow rendering
-     * 4. Pass collected queues to camera
-     * 5. Execute shadow rendering
      */
     updateBridge3DShadows(): void {
         // Check if lighting is enabled
@@ -501,39 +404,22 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene {
             this._volumeManager.handleMotionlist();
 
         // 只更新根级 Bridge3DSprite 的 renderUpdate
-        for (let i = 0, l = this._bridge3DList.length; i < l; i++) {
-            this._bridge3DList[i]._renderUpdate();
+        const bridge3DList = this._holder.bridge3DList;
+        for (let i = 0, l = bridge3DList.length; i < l; i++) {
+            bridge3DList[i]._renderUpdate();
         }
-        // 这样避免了每次都重新 _collectRenderNodes
-        // 注意：这里我们不直接调用 _renderUpdate，而是让渲染管线在合适的时候调用
-        // Bridge3DSprite 的 _renderUpdate 会在渲染阶段被调用
-
-        // 跳过以下重量级操作：
-        // - 物理更新 (physicsManager.update)
-        // - 全局渲染管理 (_sceneRenderManager.renderUpdate)
-        // - 天空渲染 (skyRenderer.renderUpdate)
-        // - UI3D 管理 (_UI3DManager.update)
     }
 
-
-
     /**
-     * Destroy lightweight scene
+     * Destroy rendering resources (stage/list management is handled by holder)
      * @param destroyChild - Whether to destroy child nodes
      */
     destroy(destroyChild: boolean = true): void {
         // Remove stage event listener
         ILaya.stage.off(Event.RESIZE, this, this.onStageResize);
 
-        // Remove from stage if added
-        if (this._isAddedToStage) {
-            ILaya.stage.removeChild(this);
-            this._isAddedToStage = false;
-        }
-
-        // Clear Bridge3DSprite related data
+        // Clear render-to-bridge mapping
         this._renderToBridgeMap.clear();
-        this._bridge3DList.length = 0;
 
         // Clear Bridge3D独立的灯光贴图（pixels数组是全局共享的，不需要清理）
         if (this._bridge3DLightTexture) {
@@ -552,8 +438,9 @@ export class Bridge3DScene3D extends Scene3D implements IBridge3DScene {
             this._bridge3DContext = null;
         }
 
-        // Clear camera reference
+        // Clear references
         this._sharedCamera = null;
+        this._holder = null;
 
         // Call parent destroy
         super.destroy(destroyChild);
