@@ -74,6 +74,7 @@ export class Text extends Sprite {
     static _passwordChar = "●";
 
     static splitStr: (text: string) => string[] = defaultSplitStr;
+    static punctuationChars: number[] = Array.from(".,，。、!！；;”’)）]】}》").map(char => char.charCodeAt(0));
 
     /**
      * @en Dictionary of bitmap fonts.
@@ -185,6 +186,8 @@ export class Text extends Sprite {
     protected _hideText: boolean;
     private _updatingLayout: boolean;
     private _fontSizeScale: number;
+    private _singleLineAutoFill: boolean = false;
+    private _lineFillRemainderPolicy: "ltr" | "rtl" = "ltr";
 
     /**
      * @internal
@@ -576,6 +579,37 @@ export class Text extends Sprite {
     set wordWrap(value: boolean) {
         if (this._wordWrap != value) {
             this._wordWrap = value;
+            this.markChanged();
+        }
+    }
+
+    /**
+     * @en Whether to automatically add spacing to fill a single line when width is explicitly set.
+     * @zh 在显式设置宽度时，是否自动增加字间距以撑满单行。
+     */
+    get singleLineAutoFill(): boolean {
+        return this._singleLineAutoFill;
+    }
+
+    set singleLineAutoFill(value: boolean) {
+        if (this._singleLineAutoFill != value) {
+            this._singleLineAutoFill = value;
+            this.markChanged();
+        }
+    }
+
+    /**
+     * @en Remainder allocation policy for line fill.
+     * @zh 行补空白时的余数分配策略。
+     */
+    get lineFillRemainderPolicy(): "ltr" | "rtl" {
+        return this._lineFillRemainderPolicy;
+    }
+
+    set lineFillRemainderPolicy(value: "ltr" | "rtl") {
+        value = value === "rtl" ? "rtl" : "ltr";
+        if (this._lineFillRemainderPolicy != value) {
+            this._lineFillRemainderPolicy = value;
             this.markChanged();
         }
     }
@@ -1141,6 +1175,10 @@ export class Text extends Sprite {
         let rectHeight = this._isHeightSet ? (this._height - padding[0] - padding[2]) : Number.MAX_VALUE;
         let bfont = this._bitmapFont;
         let alignItems = this._textStyle.alignItems == "middle" ? 1 : (this._textStyle.alignItems == "bottom" ? 2 : 0);
+        let enablePunctuationLineFill = wordWrap && this._overflow != Text.SHRINK;
+        let enableSingleLineAutoFill = this._singleLineAutoFill && !this._wordWrap && this._isWidthSet
+            && this._overflow != Text.SHRINK;
+        let enableLineFill = enablePunctuationLineFill || enableSingleLineAutoFill;
 
         let lineX: number, lineY: number;
         let curLine: ITextLine;
@@ -1168,6 +1206,235 @@ export class Text extends Sprite {
                 let ret = Browser.context.measureText(text);
                 Browser.context.font = t;
                 return ret ? ret.width : 100;
+            }
+        };
+
+        let getLastCharWidth = (text: string, font: string, curFontSize: number) => {
+            let arrCh = Text.splitStr(text);
+            if (arrCh.length == 0)
+                return 0;
+
+            return getTextWidth2(arrCh[arrCh.length - 1], font, curFontSize);
+        };
+
+        let getLineWidth = (line: ITextLine) => {
+            let width = 0;
+            let cmd = line.cmd;
+            while (cmd) {
+                width += cmd.width;
+                cmd = cmd.next;
+            }
+            return width;
+        };
+
+        let recordLineFillWidth = (width: number) => {
+            if (!enablePunctuationLineFill || width <= 0 || !curLine)
+                return;
+
+            curLine.fillWidth += width;
+        };
+
+        let applyTextCmdText = (cmd: ITextCmd, source: ITextCmd, text: string, width?: number) => {
+            if (!cmd.wt)
+                cmd.wt = new WordText();
+
+            cmd.obj = null;
+            cmd.wt.setText(text);
+            cmd.wt.splitRender = this._singleCharRender;
+            cmd.style = source.style;
+            cmd.ctxFont = source.ctxFont;
+            cmd.fontSize = source.fontSize;
+            if (width == null)
+                width = getTextWidth2(text, cmd.ctxFont, cmd.fontSize);
+            cmd.width = cmd.wt.width = width;
+            cmd.height = source.height;
+            cmd.y = source.y;
+            cmd.next = null;
+            cmd.prev = null;
+            cmd.linkEnd = false;
+        };
+
+        let splitLineTextCmds = (line: ITextLine, gapExtras: number[]) => {
+            let cmd = line.cmd;
+            let newHead: ITextCmd = null;
+            let newLast: ITextCmd = null;
+            let prevTextTail: ITextCmd = null;
+            let x = 0;
+            let gapIndex = 0;
+
+            while (cmd) {
+                let next = cmd.next;
+                if (cmd.obj || !cmd.wt || cmd.wt.text.length == 0) {
+                    cmd.x = x;
+                    cmd.prev = newLast;
+                    cmd.next = null;
+                    if (newLast)
+                        newLast.next = cmd;
+                    else
+                        newHead = cmd;
+                    newLast = cmd;
+                    x += cmd.width;
+                    prevTextTail = null;
+                }
+                else {
+                    let arrCh = Text.splitStr(cmd.wt.text);
+                    let source: ITextCmd = cmd;
+                    let sourceLinkEnd = cmd.linkEnd;
+                    let charWidths: number[] = [];
+
+                    if (arrCh.length > 1) {
+                        let prefixText = "";
+                        let prefixWidth = 0;
+                        for (let i = 0, n = arrCh.length; i < n; i++) {
+                            let charWidth: number;
+                            if (i == n - 1) {
+                                // 最后一个字符直接吸收剩余宽度，避免整串拆字后累计宽度超过原命令宽度。
+                                charWidth = Math.max(0, source.width - prefixWidth);
+                            }
+                            else {
+                                prefixText += arrCh[i];
+                                let measuredWidth = getTextWidth2(prefixText, source.ctxFont, source.fontSize);
+                                charWidth = Math.max(0, measuredWidth - prefixWidth);
+                                prefixWidth = measuredWidth;
+                            }
+                            charWidths.push(charWidth);
+                        }
+                    }
+
+                    if (prevTextTail) {
+                        let extra = gapExtras[gapIndex++];
+                        if (extra > 0) {
+                            prevTextTail.width += extra;
+                            x += extra;
+                        }
+                    }
+
+                    for (let i = 0, n = arrCh.length; i < n; i++) {
+                        let charCmd = i == 0 ? cmd : (cmdPool.length > 0 ? cmdPool.pop() : <any>{});
+                        applyTextCmdText(charCmd, source, arrCh[i], charWidths[i] ?? source.width);
+                        charCmd.x = x;
+                        charCmd.linkEnd = i == n - 1 ? sourceLinkEnd : false;
+                        charCmd.prev = newLast;
+                        if (newLast)
+                            newLast.next = charCmd;
+                        else
+                            newHead = charCmd;
+                        newLast = charCmd;
+
+                        if (i < n - 1) {
+                            let extra = gapExtras[gapIndex++];
+                            if (extra > 0)
+                                charCmd.width += extra;
+                        }
+
+                        // 这里按真实宽度累计，避免字符级 rounding 误差压到最后一个字上。
+                        x += charCmd.width;
+                    }
+
+                    prevTextTail = newLast;
+                }
+
+                cmd = next;
+            }
+
+            if (newLast)
+                newLast.next = null;
+            if (newHead)
+                newHead.prev = null;
+            line.cmd = newHead;
+        };
+
+        let applyLineFill = (line: ITextLine, lineWidth: number) => {
+            line.gapCount = 0;
+            line.appliedFillWidth = 0;
+            if (!enableLineFill || line.fillWidth <= 0)
+                return lineWidth;
+
+            let maxFillWidth = Math.floor(Math.max(0, rectWidth - lineWidth - 1));
+            let fillWidth = Math.min(Math.floor(line.fillWidth), maxFillWidth);
+            if (fillWidth <= 0)
+                return lineWidth;
+
+            let cmd = line.cmd;
+            let prevTextCmd: ITextCmd = null;
+            while (cmd) {
+                if (!cmd.obj && cmd.wt && cmd.wt.text.length > 0) {
+                    let charCount = Text.splitStr(cmd.wt.text).length;
+                    if (charCount > 0) {
+                        if (prevTextCmd)
+                            line.gapCount++;
+                        if (charCount > 1)
+                            line.gapCount += charCount - 1;
+                        prevTextCmd = cmd;
+                    }
+                }
+                else {
+                    prevTextCmd = null;
+                }
+
+                cmd = cmd.next;
+            }
+
+            if (line.gapCount == 0)
+                return lineWidth;
+
+            let base = Math.floor(fillWidth / line.gapCount);
+            let rem = fillWidth % line.gapCount;
+            let gapExtras = new Array<number>(line.gapCount).fill(base);
+            if (rem > 0) {
+                if (this._lineFillRemainderPolicy === "rtl") {
+                    for (let i = line.gapCount - rem; i < line.gapCount; i++)
+                        gapExtras[i] += 1;
+                }
+                else {
+                    for (let i = 0; i < rem; i++)
+                        gapExtras[i] += 1;
+                }
+            }
+
+            splitLineTextCmds(line, gapExtras);
+
+            line.appliedFillWidth = fillWidth;
+            return getLineWidth(line);
+        };
+
+        let applyLineFillToLines = () => {
+            if (!enableLineFill)
+                return;
+
+            if (enableSingleLineAutoFill && this._lines.length == 1) {
+                let line = this._lines[0];
+                // 单行自动撑满只在显式宽度且最终仍为单行时生效。
+                line.fillWidth = Math.max(line.fillWidth, Math.max(0, rectWidth - getLineWidth(line)));
+            }
+
+            for (let i = 0, n = this._lines.length; i < n; i++) {
+                let line = this._lines[i];
+                // `addLine()` 缓存的宽度可能还是换行中间态，HTML 分段或跨 cmd 挪字后要按最终链表重算。
+                let actualWidth = getLineWidth(line);
+                if (actualWidth != line.width)
+                    line.width = Math.round(actualWidth);
+                line.width = Math.round(applyLineFill(line, actualWidth));
+            }
+        };
+
+        let applySingleLineAutoFillToFinalLine = () => {
+            if (!enableSingleLineAutoFill || this._lines.length != 1)
+                return;
+
+            let line = this._lines[0];
+            if (line.appliedFillWidth > 0)
+                return;
+
+            let actualWidth = getLineWidth(line);
+            if (actualWidth != line.width)
+                line.width = Math.round(actualWidth);
+
+            line.fillWidth = Math.max(line.fillWidth, Math.max(0, rectWidth - actualWidth));
+            let filledWidth = applyLineFill(line, actualWidth);
+            if (filledWidth != actualWidth) {
+                line.width = Math.round(filledWidth);
+                calcTextSize();
             }
         };
 
@@ -1358,6 +1625,9 @@ export class Text extends Sprite {
             curLine = linePool.length > 0 ? linePool.pop() : <any>{};
             curLine.x = 0;
             curLine.y = lineY;
+            curLine.fillWidth = 0;
+            curLine.gapCount = 0;
+            curLine.appliedFillWidth = 0;
             this._lines.push(curLine);
             lastCmd = null;
 
@@ -1400,7 +1670,7 @@ export class Text extends Sprite {
                 //如果是标点符号，还需要保证不在行首
                 if (noBreakWord && ((ccode >= 65 && ccode <= 90) || (ccode >= 97 && ccode <= 122) //英文字符
                     || (ccode >= 48 && ccode <= 57) // 0-9
-                    || (isPunc = punctuationChars.includes(ccode)))) {
+                    || (isPunc = Text.punctuationChars.includes(ccode)))) {
                     let wb = part.length > 0 ? ((testResult = wordBoundaryTest.exec(part)) ? testResult.index : null) : 0;
                     if (wb > 0) { //边界在文本中间
                         if (wb > part.length - maxWordLength) { //限制字符个数，超过的不看做一个单词
@@ -1423,6 +1693,12 @@ export class Text extends Sprite {
                                 testResult = wordBoundaryTest.exec(cmd.wt.text);
                                 let textLen = cmd.wt.text.length;
                                 if (testResult == null) { //边界就在文本的末尾
+                                    if (isPunc && totalLen == 0) {
+                                        if (textLen > 1)
+                                            recordLineFillWidth(getLastCharWidth(cmd.wt.text, cmd.ctxFont, cmd.fontSize));
+                                        else if (cmd.x > 0)
+                                            recordLineFillWidth(cmd.width);
+                                    }
                                     addLine();
                                     if (isPunc && totalLen == 0) { //再次检查标点符号不能在行首
                                         if (splitCmd(cmd, textLen - 1)) //将最后一个字符移到下一行
@@ -1468,7 +1744,10 @@ export class Text extends Sprite {
                         if (isPunc) { //标点符号不允许在行首
                             let b = 1;
                             if (j - b > startIndex || lineX > 0) { //这里有个边界判断，如果只剩一个字符了，并且在行头，就不能移动了
+                                let movedChar = arrCh[j - b];
                                 j -= b; //回退一个字符
+                                if (movedChar)
+                                    recordLineFillWidth(getTextWidth(movedChar));
                                 arrPartCh = arrCh.slice(startIndex, j);
                                 part = arrPartCh.join("");
                                 wordWidth = null; //part指向的字符串已改变，wordWidth无效
@@ -1567,6 +1846,7 @@ export class Text extends Sprite {
             }
 
             addLine(true);
+            applyLineFillToLines();
             calcTextSize();
         };
 
@@ -1687,6 +1967,8 @@ export class Text extends Sprite {
 
             if (done || linesDeleted)
                 calcTextSize();
+
+            applySingleLineAutoFillToFinalLine();
         }
 
         if (this._onPostLayout)
@@ -1923,6 +2205,9 @@ export interface ITextLine {
     height: number;
     width: number;
     cmd: ITextCmd;
+    fillWidth: number;
+    gapCount: number;
+    appliedFillWidth: number;
 }
 
 const cmdPool: Array<ITextCmd> = [];
@@ -1958,7 +2243,6 @@ function cleanCmd(cmd: ITextCmd, releaseObj: boolean) {
 
 const emojiRegex = createEmojiRegex();
 const wordBoundaryTest = /[a-zA-Z0-9\!-\+\/_]+$/;
-const punctuationChars = Array.from(".,，。、!！；;”’)）]】}》").map(char => char.charCodeAt(0));
 const normalizeCR = /\r\n/g;
 const escapeCharsPattern = /\\(\w)/g;
 const escapeSequence: any = { "\\n": "\n", "\\t": "\t" };
