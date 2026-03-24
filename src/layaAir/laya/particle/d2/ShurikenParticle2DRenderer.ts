@@ -1,4 +1,5 @@
 import { addAfterInitCallback } from "../../../Laya";
+import { ILaya } from "../../../ILaya";
 import { LayaEnv } from "../../../LayaEnv";
 import { Sprite } from "../../display/Sprite";
 import { LayaGL } from "../../layagl/LayaGL";
@@ -659,6 +660,14 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
                 if (this.owner.scene) {
                     scaleX *= this.owner.scene.globalScaleX;
                     scaleY *= this.owner.scene.globalScaleY;
+                }
+                // globalScaleX stops at Stage, but translate (worldMat.tx/ty)
+                // includes Stage scale (which contains dpr). Must include
+                // Stage scale here for consistency with translate in shader.
+                let stage = ILaya.stage;
+                if (stage) {
+                    scaleX *= stage.scaleX;
+                    scaleY *= stage.scaleY;
                 }
                 break;
             default:
