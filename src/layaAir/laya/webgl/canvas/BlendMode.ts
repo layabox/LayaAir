@@ -65,7 +65,7 @@ export class BlendModeHandler {
                 break;
             case 7://destination
                 shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
-                shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ZERO);
+                shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
                 break;
             case 9:// not premul alpha
                 shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
