@@ -23,11 +23,25 @@ export class DrawTextureCmd implements IGraphicsCmd {
      */
     static readonly ID: string = className;
 
+    /** @internal */
+    _texture: Texture | null = null;
     /**
      * @en The texture to be drawn.
      * @zh 要绘制的纹理。
      */
-    texture: Texture | null;
+    get texture(): Texture | null {
+        return this._texture;
+    }
+    /**
+     * @en The texture to be drawn.
+     * @zh 要绘制的纹理。
+     */
+    set texture(val: Texture) { //修复场景或预制体加载时没有添加资源引用
+        !!val && val._addReference();
+        this._texture?._removeReference();
+        this._texture = val;
+    }
+
     /**
      * @en (Optional) X-axis offset.
      * @zh （可选）X轴偏移量。
@@ -109,7 +123,6 @@ export class DrawTextureCmd implements IGraphicsCmd {
     static create(texture: Texture, x?: number, y?: number, width?: number, height?: number, matrix?: Matrix, alpha?: number, color?: string, blendMode?: string, uv?: number[], percent?: boolean): DrawTextureCmd {
         let cmd: DrawTextureCmd = Pool.getItemByClass(className, DrawTextureCmd);
         cmd.texture = texture;
-        texture && texture._addReference();
         cmd.x = x ?? 0;
         cmd.y = y ?? 0;
         cmd.width = width ?? texture.sourceWidth;
@@ -128,8 +141,8 @@ export class DrawTextureCmd implements IGraphicsCmd {
      * @zh 回收到对象池
      */
     recover(): void {
-        this.texture && this.texture._removeReference();
-        this.texture = null;
+        this._texture && this._texture._removeReference();
+        this._texture = null;
         this.matrix = null;
         this._cacheData = null;
         Pool.recover(className, this);
@@ -147,7 +160,7 @@ export class DrawTextureCmd implements IGraphicsCmd {
      */
 
     run(runner: GraphicsRunner, gx: number, gy: number): void {
-        let tex = this.texture;
+        let tex = this._texture;
         if (!tex)
             return;
 
@@ -167,7 +180,7 @@ export class DrawTextureCmd implements IGraphicsCmd {
         x += tex.offsetX * wRate;
         y += tex.offsetY * hRate;
 
-        runner.drawTextureWithTransform(this.texture, x, y, w, h, this.matrix, gx, gy, this.alpha, this.blendMode, this.uv, this.color);
+        runner.drawTextureWithTransform(this._texture, x, y, w, h, this.matrix, gx, gy, this.alpha, this.blendMode, this.uv, this.color);
     }
 
     /**

@@ -54,6 +54,7 @@ export class Light2DRenderRes {
             material.setFloat('u_Shadow2DStrength', 0.5);
             material.setColor('u_ShadowColor', new Color(0, 0, 0, 1));
         } else material.setShaderName('LightAndShadowGen2D');
+        material.lock = true;
         material.setColor('u_LightColor', new Color(1, 1, 1, 1));
         material.setFloat('u_LightRotation', 0);
         material.setFloat('u_LightIntensity', 1);
@@ -84,6 +85,7 @@ export class Light2DRenderRes {
             material.setColor('u_ShadowColor', light.shadowColor);
             material.setFloat('u_Shadow2DStrength', light.shadowStrength);
         }
+        material.lock = true;
         material.setColor('u_LightColor', light.color);
         material.setFloat('u_LightIntensity', light.intensity);
         material.setFloat('u_LightRotation', light.lightRotation);
@@ -304,6 +306,7 @@ export class Light2DRenderRes {
      * @param j 数组索引
      */
     updateLightMesh(mesh: Mesh2D, i: number, j: number) {
+        !!mesh && (mesh.lock = true);
         this.lightMeshs[i][j] = mesh;
         if (Light2DManager.REUSE_CMD) {
             if (this._cmdLightMeshs[i] && this._cmdLightMeshs[i][j])
@@ -320,6 +323,7 @@ export class Light2DRenderRes {
      * @param i 数组索引
      */
     updateShadowMesh(mesh: Mesh2D, i: number) {
+        !!mesh && (mesh.lock = true);
         this.shadowMeshs[i] = mesh;
         if (Light2DManager.REUSE_CMD) {
             if (this._cmdShadowMeshs[i])
