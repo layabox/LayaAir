@@ -278,6 +278,8 @@ export class Physics2DShapeBase implements IClone {
         this._box2DShape = null;
         this._box2DFilter = null;
         this._box2DShapeDef = null;
+        this._body = null;
+        this._box2DBody = null;
     }
 
     clone() {
