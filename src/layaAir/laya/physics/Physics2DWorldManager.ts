@@ -415,8 +415,9 @@ export class Physics2DWorldManager implements IElementComponentManager {
     destroy(): void {
         Physics2D.I._factory.removeBody(this._box2DWorld, Physics2D.I._emptyBody);
         Physics2D.I._emptyBody = null;
+        let box2DWorld = this._box2DWorld;
         Laya.timer.callLater(this, () => {
-            Physics2D.I._factory.destroyWorld(this._box2DWorld);
+            Physics2D.I._factory.destroyWorld(box2DWorld);
         })
         if (this._debugDraw) {
             this._debugDraw.destroy();
