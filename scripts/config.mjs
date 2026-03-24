@@ -138,26 +138,26 @@ export const allBundles = [{
         'laya/RenderDriver/RenderModuleData/WebModuleData/3D/**/*.*',
     ],
 },
-// {
-//     name: 'webgpu_2D',
-//     input: [
-//         'laya/RenderDriver/WebGPUDriver/RenderDevice/**/*.*',
-//         'laya/RenderDriver/WebGPUDriver/ShaderCompile/**/*.*',
-//         'laya/RenderDriver/WebGPUDriver/2DRenderPass/**/*.*',
-//         'laya/RenderDriver/RenderModuleData/WebModuleData/*.*',
-//         'laya/RenderDriver/RenderModuleData/WebModuleData/2D/*.*',
-//     ],
-//     copy: ['jsLibs/nagabind_bg.wasm', 'jsLibs/nagabind.js', 'jsLibs/shader_compiler_web.wasm', 'jsLibs/shader_compiler_web.js']
-// },
-// {
-//     name: 'webgpu_3D',
-//     input: [
-//         'laya/RenderDriver/DriverCommon/**/*.*',
-//         'laya/RenderDriver/WebGPUDriver/ShaderCompile/**/*.*',
-//         'laya/RenderDriver/WebGPUDriver/3DRenderPass/**/*.*',
-//         'laya/RenderDriver/RenderModuleData/WebModuleData/3D/**/*.*',
-//     ],
-// },
+{
+    name: 'webgpu_2D',
+    input: [
+        'laya/RenderDriver/WebGPUDriver/RenderDevice/**/*.*',
+        'laya/RenderDriver/WebGPUDriver/ShaderCompile/**/*.*',
+        'laya/RenderDriver/WebGPUDriver/2DRenderPass/**/*.*',
+        'laya/RenderDriver/RenderModuleData/WebModuleData/*.*',
+        'laya/RenderDriver/RenderModuleData/WebModuleData/2D/*.*',
+    ],
+    copy: ['jsLibs/nagabind_bg.wasm', 'jsLibs/nagabind.js', 'jsLibs/shader_compiler_web.wasm', 'jsLibs/shader_compiler_web.js']
+},
+{
+    name: 'webgpu_3D',
+    input: [
+        'laya/RenderDriver/DriverCommon/**/*.*',
+        'laya/RenderDriver/WebGPUDriver/ShaderCompile/**/*.*',
+        'laya/RenderDriver/WebGPUDriver/3DRenderPass/**/*.*',
+        'laya/RenderDriver/RenderModuleData/WebModuleData/3D/**/*.*',
+    ],
+},
 {
     name: 'physics3D',
     input: [

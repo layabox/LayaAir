@@ -15,6 +15,14 @@ const buildOutPath = "./build/libs/";
 
 const ignoreCircularDependencyWarnings = true;//process.argv.indexOf("-cd") == -1;
 
+const webgpuSubmoduleReady = fs.existsSync("./src/layaAir/laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderEngine.ts");
+
+if (!webgpuSubmoduleReady) {
+    console.warn("\x1b[33m[WARNING] WebGPUDriver submodule is not initialized.");
+    console.warn("[WARNING] Skipping webgpu_2D and webgpu_3D bundles.");
+    console.warn("[WARNING] Run: git submodule update --init src/layaAir/laya/RenderDriver/WebGPUDriver\x1b[0m");
+}
+
 buildBundles().then(buildDeclarations);
 
 async function buildBundles() {
@@ -80,7 +88,11 @@ async function buildBundles() {
         };
     }
 
-    for (let bundleDef of allBundles) {
+    const bundles = webgpuSubmoduleReady
+        ? allBundles
+        : allBundles.filter(b => b.name !== 'webgpu_2D' && b.name !== 'webgpu_3D');
+
+    for (let bundleDef of bundles) {
         let files = await glob(bundleDef.input.map(e => "./layaAir/" + e), { cwd: path.join(process.cwd(), "./src"), realpath: false });
         files.sort();
         files = files.filter(ele => ele.endsWith(".ts"))
