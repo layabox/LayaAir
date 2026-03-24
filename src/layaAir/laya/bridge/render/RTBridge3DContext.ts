@@ -150,6 +150,7 @@ export class RTBridge3DContext {
 
     /**
      * Update viewport/scissor from camera (mirrors Bridge3DContext.updateFromCamera)
+     * @remarks Kept for backward compatibility, but not called in hot path (use prepareForRender instead)
      */
     updateFromCamera(camera: Camera): void {
         if (!camera) return;
@@ -160,9 +161,17 @@ export class RTBridge3DContext {
         this._nativeObj.setScissor(sc);
     }
 
-    // Stage render dimensions (set before rendering)
-    updateStageRenderSize(): void {
-        this._nativeObj.stageRenderWidth = RenderState2D.width;
-        this._nativeObj.stageRenderHeight = RenderState2D.height;
+    /**
+     * 合并多个初始化操作为一次 C++ 调用
+     * 包含: updateFromCamera + applyToContext + addPreDrawUniformMap("Scene3D") + addPreDrawUniformMap("Global")
+     * 同时设置 stageRenderSize
+     */
+    prepareForRender(camera: Camera, context3d: IRenderContext3D): void {
+        this._nativeObj.prepareForRender(
+            (context3d as any)._nativeObj,
+            camera.viewport.x, camera.viewport.y,
+            camera.viewport.width, camera.viewport.height,
+            RenderState2D.width, RenderState2D.height
+        );
     }
 }

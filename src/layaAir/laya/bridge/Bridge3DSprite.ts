@@ -16,16 +16,23 @@ import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRen
 import { IBaseRenderNode } from "../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { SingletonList } from "../utils/SingletonList";
 import { Bridge3DRenderElement } from "./render/Bridge3DRenderElement";
+import { IBridge3DRenderProcess } from "./render/IBridge3DRenderProcess";
 import { RTBridge3DRenderElement } from "./render/RTBridge3DRenderElement";
 import { Bridge3DCoordinate } from "./utils/Bridge3DCoordinate";
 
 export interface IBridgeRenderElement extends IRenderElement2D {
     addBaseRenderNode(node: IBaseRenderNode): void;
     removeBaseRenderNode(node: IBaseRenderNode): void;
-    updateRenderElements(): void;
+    getBaseRenderList(): SingletonList<any>;
     getOpaqueList(): RenderListQueue;
     getTransparentList(): RenderListQueue;
     setBridge3DContext(context: any): void;
+    setRenderProcess(process: IBridge3DRenderProcess): void;
+    /**
+     * 收集渲染元素：遍历节点 → 更新数据 → 分类到队列 → 排序
+     * @returns opaqueCount (Native) or -1 (Web, use TS queue)
+     */
+    collectElements(context3d: any): number;
 }
 
 /**

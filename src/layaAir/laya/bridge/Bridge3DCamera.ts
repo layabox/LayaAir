@@ -6,25 +6,19 @@ import { RenderContext3D } from "../d3/core/render/RenderContext3D";
 import { Scene3D } from "../d3/core/scene/Scene3D";
 import { LayaGL } from "../layagl/LayaGL";
 import { Color } from "../maths/Color";
-import { RenderListQueue } from "../RenderDriver/DriverCommon/RenderListQueue";
-import { IRender3DProcess } from "../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
-import { FastSinglelist } from "../utils/SingletonList";
-import { RTShadowOnlyProcess } from "./render/RTShadowOnlyProcess";
-import { WebShadowOnlyProcess } from "./render/WebShadowOnlyProcess";
+import { IBridge3DRenderProcess } from "./render/IBridge3DRenderProcess";
+import { RTBridge3DRenderProcess } from "./render/RTBridge3DRenderProcess";
+import { WebBridge3DRenderProcess } from "./render/WebBridge3DRenderProcess";
 
 /**
- * Bridge3D专用相机，用于2D场景中3D节点的阴影渲染
+ * Bridge3D专用相机，用于2D场景中3D节点的渲染
  *
  * @remarks
- * 该相机继承自标准Camera类，但专注于阴影生成，不进行屏幕渲染。
- * 主要特性：
- * - 阴影专用渲染：只渲染阴影贴图，不输出到屏幕
- * - Bridge3D集成：专门处理Bridge3DRenderElement对象
- * - 轻量级设计：移除不必要的渲染通道，优化性能
- * - 独立管理：由Bridge3DManager或Bridge3DScene3D管理，与Scene3D解耦
+ * 该相机继承自标准Camera类，持有统一的Bridge3D渲染流程（阴影+前向），
+ * 与Scene3D的Camera持有IRender3DProcess的架构对称。
  */
 export class Bridge3DCamera extends Camera {
 
@@ -47,16 +41,10 @@ export class Bridge3DCamera extends Camera {
     }
 
     /**
-     * 阴影专用渲染流程
+     * Bridge3D统一渲染流程（阴影+前向，与Scene3D的Camera持有IRender3DProcess对称）
      * @private
      */
-    private _shadowOnlyProcess: IRender3DProcess;
-
-    /**
-     * 收集到的不透明渲染队列列表
-     * @private
-     */
-    private _opaqueListQueues: FastSinglelist<RenderListQueue> = new FastSinglelist;
+    private _bridge3DRenderProcess: IBridge3DRenderProcess;
 
     /**
      * 构造函数
@@ -64,11 +52,11 @@ export class Bridge3DCamera extends Camera {
     constructor() {
         super();
 
-        // 创建阴影专用渲染流程（平台感知）
+        // 创建统一渲染流程（平台感知）
         if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {
-            this._shadowOnlyProcess = new RTShadowOnlyProcess();
+            this._bridge3DRenderProcess = new RTBridge3DRenderProcess();
         } else {
-            this._shadowOnlyProcess = new WebShadowOnlyProcess();
+            this._bridge3DRenderProcess = new WebBridge3DRenderProcess();
         }
 
         // 配置Bridge3DCamera的默认设置
@@ -99,64 +87,35 @@ export class Bridge3DCamera extends Camera {
     }
 
     /**
-     * 设置不透明渲染队列列表
-     * @param opaqueQueues 不透明渲染队列列表
+     * 获取Bridge3D渲染流程
      */
-    setOpaqueListQueues(opaqueQueues: FastSinglelist<RenderListQueue>): void {
-        this._opaqueListQueues = opaqueQueues;
+    get bridge3DRenderProcess(): IBridge3DRenderProcess {
+        return this._bridge3DRenderProcess;
     }
 
     /**
-     * 获取不透明渲染队列列表
-     * @returns 不透明渲染队列列表
-     */
-    getOpaqueListQueues(): FastSinglelist<RenderListQueue> {
-        return this._opaqueListQueues;
-    }
-
-    /**
-     * 渲染阴影贴图（重写父类方法）
+     * 重写Camera.render()，匹配Scene3D Camera.render()的流程：
+     *   1. 上下文设置
+     *   2. 相机准备（无条件，保证UBO始终有效）
+     *   3. 委托 process.fowardRender（context准备+元素收集+阴影）
      *
-     * @remarks
-     * 该方法使用 WebShadowOnlyProcess 执行阴影专用渲染，跳过所有几何体/精灵的屏幕渲染。
-     *
-     * 关键步骤：
-     * 1. 准备相机着色器值（u_CameraPos, u_View, u_Projection, u_ViewProjection等）
-     * 2. 设置渲染上下文矩阵
-     * 3. 执行阴影渲染
-     *
-     * @param scene 场景对象（用于获取灯光信息和场景渲染管理器）
+     * @param scene 场景对象
      */
     override render(scene: Scene3D): void {
-        // 1. 验证输入
-        if (!scene || !this._opaqueListQueues || this._opaqueListQueues.length === 0) {
-            return;
-        }
+        if (!scene) return;
 
-        // 2. 设置渲染上下文
+        // 1. 上下文设置（对标 Camera.render 开头）
         const context = RenderContext3D._instance;
         context.scene = scene;
         context.camera = this;
 
-        // 3. 准备相机着色器值（设置相机位置、方向、视口、投影参数等）
-        // this._prepareCameraToRender();
-        // this._applyViewProject(this.viewMatrix, this.projectionMatrix, context.invertY);
-
+        // 2. 相机准备（无条件，对标 Camera.render 中的 _prepareCameraToRender + _applyViewProject + _contextApply）
+        this._prepareCameraToRender();
+        this._applyViewProject(this.viewMatrix, this.projectionMatrix, context.invertY);
         this._contextApply(context);
 
-        // 4. 设置场景的剔除相机（用于阴影剔除）
-        scene._setCullCamera(this);
-
-        // 5. 设置阴影专用流程的渲染管理器
-        this._shadowOnlyProcess.render3DManager = scene.sceneRenderableManager._sceneManagerOBJ;
-
-        // 6. 执行阴影专用渲染
-        // 注意：这里不需要创建内部渲染纹理，因为我们不渲染到屏幕
-        this._shadowOnlyProcess.fowardRender(context._contextOBJ, this);
-
-        // 7. 恢复场景的剔除相机
-        scene.recaculateCullCamera();
-
+        // 3. 委托 process 处理完整流程（对标 Camera.render → _Render3DProcess.fowardRender）
+        this._bridge3DRenderProcess.fowardRender(context._contextOBJ, this);
     }
 
     /**
@@ -165,7 +124,6 @@ export class Bridge3DCamera extends Camera {
      */
     override clone(): Bridge3DCamera {
         const clonedCamera = <Bridge3DCamera>super.clone();
-        // 注意：克隆的相机会在构造函数中创建新的 _shadowOnlyProcess
         return clonedCamera;
     }
 
@@ -174,14 +132,11 @@ export class Bridge3DCamera extends Camera {
      * @param destroyChild 是否销毁子节点
      */
     override destroy(destroyChild: boolean = true): void {
-        // 销毁阴影专用渲染流程
-        if (this._shadowOnlyProcess) {
-            this._shadowOnlyProcess.destroy();
-            this._shadowOnlyProcess = null;
+        // 销毁Bridge3D渲染流程
+        if (this._bridge3DRenderProcess) {
+            this._bridge3DRenderProcess.destroy();
+            this._bridge3DRenderProcess = null;
         }
-
-        // 清理渲染队列引用
-        this._opaqueListQueues = null;
 
         // 调用父类销毁方法
         super.destroy(destroyChild);

@@ -1,8 +1,7 @@
 import { ILaya } from "../../ILaya";
 import { Scene, IBridge3DSceneHolder } from "../display/Scene";
-import { Bridge3DCamera } from "./Bridge3DCamera";
 import { Bridge3DScene3D } from "./Bridge3DScene3D";
-import { Bridge3DSprite } from "./Bridge3DSprite";
+import { Bridge3DSprite, IBridgeRenderElement } from "./Bridge3DSprite";
 
 /**
  * Bridge3DSceneHolder manages the lifecycle of Bridge3DScene3D and registered Bridge3DSprites.
@@ -107,6 +106,15 @@ export class Bridge3DSceneHolder implements IBridge3DSceneHolder {
             scene3d.setupCamera();
             scene3d._cameraInitialized = true;
         }
+
+        // Register render element to process (one-time context/process binding + add to list)
+        const element = bridge.bridge3DRenderElement as IBridgeRenderElement;
+        if (element) {
+            const process = scene3d.sharedCamera.bridge3DRenderProcess;
+            element.setBridge3DContext(scene3d.bridge3DContext);
+            element.setRenderProcess(process);
+            process.addBridgeElement(element);
+        }
     }
 
     /**
@@ -117,7 +125,13 @@ export class Bridge3DSceneHolder implements IBridge3DSceneHolder {
         const index = this._bridge3DList.indexOf(bridge);
         if (index !== -1) {
             this._bridge3DList.splice(index, 1);
+
+            // Remove render element from process
             if (this._scene3d) {
+                const element = bridge.bridge3DRenderElement as IBridgeRenderElement;
+                if (element) {
+                    this._scene3d.sharedCamera.bridge3DRenderProcess.removeBridgeElement(element);
+                }
                 this._scene3d.removeChild(bridge.containerSprite3D);
             }
         }

@@ -1,4 +1,3 @@
-import { RenderContext3D } from "../../d3/core/render/RenderContext3D";
 import { RenderListQueue } from "../../RenderDriver/DriverCommon/RenderListQueue";
 import { IRenderContext2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
@@ -8,6 +7,7 @@ import { IBaseRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I
 import { SubShader } from "../../RenderEngine/RenderShader/SubShader";
 import { SingletonList } from "../../utils/SingletonList";
 import { IBridgeRenderElement } from "../Bridge3DSprite";
+import { IBridge3DRenderProcess } from "./IBridge3DRenderProcess";
 import { RTBridge3DContext } from "./RTBridge3DContext";
 
 
@@ -28,6 +28,12 @@ export class RTBridge3DRenderElement implements IBridgeRenderElement {
     renderStateIsBySprite: boolean = true;
     nodeCommonMap: Array<string> = [];
     _index?: number;
+
+    /**
+     * 渲染流程引用（由Bridge3DCamera持有，通过setRenderProcess传入）
+     * @internal
+     */
+    _renderProcess: IBridge3DRenderProcess = null;
 
     _nativeObj: any;
 
@@ -56,17 +62,32 @@ export class RTBridge3DRenderElement implements IBridgeRenderElement {
 
     addBaseRenderNode(node: IBaseRenderNode): void {
         this._baseRenderList.add(node);
+        // Sync to C++ node list for collectFromNodes
+        this._nativeObj.addBaseRenderNode((node as any)._nativeObj);
     }
 
     removeBaseRenderNode(node: IBaseRenderNode): void {
         this._baseRenderList.remove(node);
+        this._nativeObj.removeBaseRenderNode((node as any)._nativeObj);
     }
 
     setBridge3DContext(context: any): void {
         if (context instanceof RTBridge3DContext) {
-            this._bridge3DContext = context;
-            this._nativeObj.setBridge3DContext(context._nativeObj);
+            if (this._bridge3DContext !== context) {
+                this._bridge3DContext = context;
+                this._nativeObj.setBridge3DContext(context._nativeObj);
+            }
+            // If same context, skip C++ call
         }
+    }
+
+    setRenderProcess(process: IBridge3DRenderProcess): void {
+        this._renderProcess = process;
+        this._nativeObj.setRenderProcess(process ? (process as any)._nativeObj : null);
+    }
+
+    getBaseRenderList(): SingletonList<IBaseRenderNode> {
+        return this._baseRenderList;
     }
 
     getOpaqueList(): RenderListQueue {
@@ -78,59 +99,27 @@ export class RTBridge3DRenderElement implements IBridgeRenderElement {
     }
 
     /**
-     * Update render elements: collect from render nodes, populate C++ queues
+     * 获取Bridge3D渲染上下文
      */
-    updateRenderElements(): void {
-        // Clear C++ queues
-        this._nativeObj.clearQueues();
-        // Clear TS queues too
-        this._opaqueList.clear();
-        this._transparentList.clear();
+    get bridge3DContext(): RTBridge3DContext {
+        return this._bridge3DContext;
+    }
 
-        if (!this._bridge3DContext) {
-            return;
-        }
-
-        // Update stage render size for C++ projection correction
-        this._bridge3DContext.updateStageRenderSize();
-
-        let context3d = RenderContext3D._instance._contextOBJ;
-
-        for (let i = 0, l = this._baseRenderList.length; i < l; i++) {
-            let renderNode = this._baseRenderList.elements[i] as any;
-            // Call render node update
-            renderNode._renderUpdatePre(context3d);
-
-            const elements = renderNode.renderelements;
-            if (elements) {
-                for (let j = 0; j < elements.length; j++) {
-                    const element = elements[j];
-                    if (!element || !element.isRender) continue;
-
-                    // Add to appropriate C++ queue via native obj
-                    if (element.materialRenderQueue > 2500) {
-                        this._nativeObj.addTransparentElement(element._nativeObj);
-                        this._transparentList.addRenderElement(element);
-                    } else {
-                        this._nativeObj.addOpaqueElement(element._nativeObj);
-                        this._opaqueList.addRenderElement(element);
-                    }
-                }
-            }
-        }
-
-        // Sort both queues
-        this._nativeObj.sortQueues();
-        this._opaqueList.sort();
-        this._transparentList.sort();
+    collectElements(context3d: any): number {
+        return this._nativeObj.collectFromNodes((context3d as any)._nativeObj);
     }
 
     _prepare(context: IRenderContext2D) {
         // no-op on TS side, C++ handles it
     }
 
+    /**
+     * 渲染3D内容到2D当前RT
+     * C++端 GLESBridge3DRenderElement2D::_render 负责完整流程:
+     *   collectFromNodes → renderProcess->render (三阶段)
+     */
     _render(context: IRenderContext2D) {
-        // no-op on TS side, C++ handles all rendering
+        // no-op: C++ _render handles collect + render process delegation
     }
 
     destroy(): void {
@@ -139,6 +128,7 @@ export class RTBridge3DRenderElement implements IBridgeRenderElement {
         this._opaqueList = null;
         this._transparentList = null;
         this._bridge3DContext = null;
+        this._renderProcess = null; // 只清理引用，不销毁（由Bridge3DCamera管理）
         this._nativeObj?.destroy();
         this._nativeObj = null;
         this._owner = null;
