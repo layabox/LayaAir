@@ -259,6 +259,7 @@ export class VideoPlayer extends Component {
     play(): void {
         if (!this._api)
             return;
+        this._paused = false;
         this._api.play();
     }
 
