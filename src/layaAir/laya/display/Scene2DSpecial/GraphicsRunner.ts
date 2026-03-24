@@ -1185,6 +1185,12 @@ export class GraphicsRunner {
 
         let vertexCount = vertices.length / 2;
         let vertexResult = this.acquire(vertexCount);
+        if (!vertexResult || !vertexResult.mesh) {
+            if (blendMode != null) {
+                this.globalCompositeOperation = oldcomp!;
+            }
+            return;
+        }
         let mesh = vertexResult.mesh;
 
         // 为了提高效率，把一些变量放到这里
