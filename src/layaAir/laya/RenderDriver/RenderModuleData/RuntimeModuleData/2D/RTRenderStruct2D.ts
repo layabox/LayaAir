@@ -53,6 +53,16 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    owner: Sprite;
 
+   /** 手动渲染模式：子节点不参与父 pass 的自动遍历和渲染 */
+   private _manualRender: boolean = false;
+   get manualRender(): boolean {
+      return this._manualRender;
+   }
+   set manualRender(value: boolean) {
+      this._manualRender = value;
+      this._nativeObj.manualRender = value;
+   }
+
    public get globalAlpha(): number {
       return this._nativeObj.getGlobalAlpha();
    }

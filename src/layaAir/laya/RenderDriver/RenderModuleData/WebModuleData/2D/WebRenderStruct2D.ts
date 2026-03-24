@@ -67,6 +67,9 @@ const _DefaultParentData: ParentData = {
 export class WebRenderStruct2D implements IRenderStruct2D {
    owner: Sprite;
 
+   /** 手动渲染模式：子节点不参与父 pass 的自动遍历和渲染 */
+   manualRender: boolean = false;
+
    /** @internal 原始数据，修改操作时修改这个 */
    _parentData: ParentData = {
       ..._DefaultParentData,
@@ -203,6 +206,9 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
    public set renderDataHandler(value: WebRender2DDataHandle) {
+      if (this._renderDataHandler) {
+         this._renderDataHandler.owner = null;
+      }
       this._renderDataHandler = value;
       if (value)
          this._renderDataHandler.owner = this;

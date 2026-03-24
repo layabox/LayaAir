@@ -38,6 +38,7 @@ import { Config } from "../../Config";
 import { MathUtil } from "../maths/MathUtil";
 import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
 import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
+import { StatElement } from "../layagl/StatisticsContext";
 
 const hiddenBits = NodeFlags.NOT_IN_PAGE;
 
@@ -255,6 +256,8 @@ export class Sprite extends Node {
     /** @internal 片，代替的结构 ，真正的结构划到了rt上 */
     _subStruct: IRenderStruct2D;
     /** @internal */
+    _manualRender: boolean = false;
+    /** @internal */
     _shaderData: ShaderData;
 
     /** @ignore */
@@ -263,6 +266,16 @@ export class Sprite extends Node {
         this._struct = LayaGL.render2DRenderPassFactory.createRenderStruct2D();
         this._struct.owner = this;
         this._globalTrans = new SpriteGlobalTransform(this);
+    }
+
+    protected _onActive(): void {
+        super._onActive();
+        LayaGL.statAgent.recordCountData(StatElement.C_Sprite2DCount, 1);
+    }
+
+    protected _onInActive(): void {
+        super._onInActive();
+        LayaGL.statAgent.recordCountData(StatElement.C_Sprite2DCount, -1);
     }
 
     /** @internal */
@@ -818,6 +831,7 @@ export class Sprite extends Node {
         }
 
         if (value) {
+            if (this._manualRender) this.manualRender = false;
             if (!this._oriRenderPass) {
                 this.createSubRenderPass();
             }
@@ -848,6 +862,8 @@ export class Sprite extends Node {
         if (b === this._cacheAsBmp)
             return;
 
+        if (b && this._manualRender) this.manualRender = false;
+
         this._cacheAsBmp = b;
 
         if (b) {
@@ -875,6 +891,8 @@ export class Sprite extends Node {
         if (value && value.isAncestorOf(this))
             throw new Error("Mask cannot be ancestor of the masked object");
 
+        if (value && this._manualRender) this.manualRender = false;
+
         if (this._mask) {
             this._mask.cacheAs = "none";
             this._mask._maskParent = null;
@@ -893,6 +911,68 @@ export class Sprite extends Node {
         }
         this.setSubpassFlag(SubPassFlag.Mask);
         this.repaint();
+    }
+
+    /**
+     * @en Manual rendering mode. When enabled, children of this sprite are excluded from the parent pass's automatic traversal and rendering. Use `renderToScreen()` to render to the screen each frame, or `Sprite.drawToRenderTexture2D()` to render to a RenderTexture.
+     * @zh 手动渲染模式。启用后，此 Sprite 的子节点不参与父 pass 的自动遍历和渲染。使用 `renderToScreen()` 每帧渲染到屏幕，或使用 `Sprite.drawToRenderTexture2D()` 渲染到 RT。
+     */
+    get manualRender(): boolean {
+        return this._manualRender;
+    }
+
+    set manualRender(value: boolean) {
+        if (value === this._manualRender) return;
+        this._manualRender = value;
+        value ? this._enableManualRender() : this._disableManualRender();
+    }
+
+    private _enableManualRender(): void {
+        if (this._renderType & SpriteConst.DRAW2RT) {
+            if (this._cacheAsBmp) this.cacheAs = "none";
+            if (this._mask) this.mask = null;
+        }
+
+        this._ensureSubPassBase();
+
+        this._subStruct.manualRender = true;
+        this._struct.subStruct = this._subStruct;
+        this._subStruct.enabled = true;
+        this._oriRenderPass.enable = false;
+    }
+
+    private _disableManualRender(): void {
+        if (!this._subStruct) return;
+        this._subStruct.manualRender = false;
+        this._subStruct.enabled = false;
+        this._struct.subStruct = null;
+        this._struct.setRepaint();
+    }
+
+    /**
+     * @en Render this manual-render sprite directly to the screen. Must be called every frame while manual rendering is active.
+     * @zh 将此手动渲染 Sprite 直接渲染到屏幕。在手动渲染激活期间需要每帧调用。
+     */
+    renderToScreen(): void {
+        if (!this._manualRender) return;
+
+        let { root, subPasses } = this.prepareOSR();
+        let context = Render2DProcessor.rendercontext2D;
+
+        // 先渲染子 pass（如子节点的 cacheAs/mask 等 RT）
+        for (let subPass of subPasses) {
+            if (subPass.needRender()) {
+                subPass.fowardRender(context);
+            }
+        }
+
+        // 复用 _oriRenderPass 渲染到屏幕（null RT = 屏幕）
+        let pass = this._oriRenderPass;
+        pass.renderTexture = null;
+        pass.root = root;
+        pass.repaint = true;
+        pass.doClearColor = false;
+        pass.fowardRender(context);
     }
 
     /** @ignore @blueprintIgnore */
@@ -1687,47 +1767,51 @@ export class Sprite extends Node {
             if (!sprite._struct || !sprite._struct.enabled)
                 return;
             if (sprite._subpassUpdateFlag) {
-                sprite.updateSubRenderPassState();
-                if (sprite._oriRenderPass) {
-                    let result = sprite.updateRenderTexture();
+                if (sprite._manualRender) {
+                    sprite._subpassUpdateFlag = 0;
+                } else {
+                    sprite.updateSubRenderPassState();
+                    if (sprite._oriRenderPass) {
+                        let result = sprite.updateRenderTexture();
 
-                    let destrt = sprite._drawOriRT;
-                    if (destrt) {
-                        sprite._oriRenderPass.renderTexture = destrt;
-                        if (sprite.mask) {
-                            sprite._oriRenderPass.mask = sprite.mask._struct;
-                        } else
-                            sprite._oriRenderPass.mask = null;
-
-                        if (result) {
+                        let destrt = sprite._drawOriRT;
+                        if (destrt) {
                             sprite._oriRenderPass.renderTexture = destrt;
-                        }
+                            if (sprite.mask) {
+                                sprite._oriRenderPass.mask = sprite.mask._struct;
+                            } else
+                                sprite._oriRenderPass.mask = null;
 
-                        let process = sprite._renderType & SpriteConst.POSTPROCESS ? sprite.postProcess : null;
-                        if (
-                            process
-                            && destrt != RenderTexture2D._empty
-                        ) {
+                            if (result) {
+                                sprite._oriRenderPass.renderTexture = destrt;
+                            }
 
+                            let process = sprite._renderType & SpriteConst.POSTPROCESS ? sprite.postProcess : null;
                             if (
-                                result ||
-                                (sprite._subpassUpdateFlag & SubPassFlag.UPDATE_POSTPROCESS)
+                                process
+                                && destrt != RenderTexture2D._empty
                             ) {
-                                process.setResource(destrt);
-                                process.clearCMD();
-                                process._render();
+
+                                if (
+                                    result ||
+                                    (sprite._subpassUpdateFlag & SubPassFlag.UPDATE_POSTPROCESS)
+                                ) {
+                                    process.setResource(destrt);
+                                    process.clearCMD();
+                                    process._render();
+                                }
+
+                                if (process.enabled) {
+                                    destrt = process._context.destination;
+                                }
                             }
 
-                            if (process.enabled) {
-                                destrt = process._context.destination;
-                            }
+                            sprite._subStructRender._updateRenderTexture(sprite._drawOriRT, destrt);
+                            sprite._subpassUpdateFlag = 0;
+
+                        } else {
+                            sprite.setSubRenderPassState(false);
                         }
-
-                        sprite._subStructRender._updateRenderTexture(sprite._drawOriRT, destrt);
-                        sprite._subpassUpdateFlag = 0;
-
-                    } else {
-                        sprite.setSubRenderPassState(false);
                     }
                 }
             }
@@ -2297,22 +2381,33 @@ export class Sprite extends Node {
         }
     }
 
-    private createSubRenderPass() {
-        let subPass = LayaGL.render2DRenderPassFactory.createRender2DPass();
+    private _ensureSubPassBase(): void {
+        if (this._oriRenderPass) return;
 
+        let subPass = LayaGL.render2DRenderPassFactory.createRender2DPass();
         subPass.root = this._struct;
         subPass.enable = false;
         subPass.setClearColor(0, 0, 0, 0);
+
         let subStruct = LayaGL.render2DRenderPassFactory.createRenderStruct2D();
         subStruct.owner = this;
         subStruct.pass = subPass;
 
-        this._subStructRender = new SubStructRender();
-        this._subStructRender.bind(this, subPass, subStruct);
         this._subStruct = subStruct;
         this._oriRenderPass = subPass;
 
         subStruct.renderMatrix = this.globalTrans.getMatrix();
+    }
+
+    private _ensureSubStructRender(): void {
+        if (this._subStructRender) return;
+        this._subStructRender = new SubStructRender();
+        this._subStructRender.bind(this, this._oriRenderPass, this._subStruct);
+    }
+
+    private createSubRenderPass() {
+        this._ensureSubPassBase();
+        this._ensureSubStructRender();
     }
 
     /** @internal */
