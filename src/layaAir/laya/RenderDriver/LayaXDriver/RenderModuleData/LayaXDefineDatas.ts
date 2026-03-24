@@ -72,9 +72,7 @@ export class LayaXDefineDatas implements IDefineDatas {
         // and adding all defines from this one
         const dest = destObject as LayaXDefineDatas;
         if (dest._nativeObj) {
-            dest._nativeObj.clear();
-            // C++ addDefineDatas expects LayaXDefineDatas_JS*, pass the native object
-            dest._nativeObj.addDefineDatas(this._nativeObj);
+            this._nativeObj.cloneTo(dest._nativeObj);
         }
     }
 
