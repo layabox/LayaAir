@@ -257,6 +257,11 @@ export class TimeLine extends EventDispatcher {
                         tTween = Tween.from(tTweenData.target, tTweenData.data, tTweenData.duration, tTweenData.ease, Handler.create(this, this._animComplete));
                     this._tweenDic.push(tTween);
                 }
+            } else if (tTweenData.type == 1) {
+                if (time >= tTweenData.startTime) {
+                    this._index = Math.max(this._index, i + 1);
+                    this.event(Event.LABEL, tTweenData.data);
+                }
             }
         }
     }
@@ -368,7 +373,7 @@ export class TimeLine extends EventDispatcher {
         var tCurrTime: number = this._currTime += tFrameTime * this.scale;
         this._lastTime = tNow;
 
-        if (this._tweenDataList.length != 0 && this._index < this._tweenDataList.length) {
+        while (this._tweenDataList.length != 0 && this._index < this._tweenDataList.length) {
             var tTweenData: tweenData = this._tweenDataList[this._index];
             if (tCurrTime >= tTweenData.startTime) {
                 this._index++;
@@ -383,6 +388,8 @@ export class TimeLine extends EventDispatcher {
                 } else {
                     this.event(Event.LABEL, tTweenData.data);
                 }
+            } else {
+                break;
             }
         }
     }
