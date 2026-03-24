@@ -214,6 +214,13 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         }
     }
 
+    public get perCameraUpdate(): boolean {
+        return this._nativeObj.perCameraUpdate;
+    }
+    public set perCameraUpdate(value: boolean) {
+        this._nativeObj.perCameraUpdate = value;
+    }
+
     constructor() {
         this._getNativeObj();
         this._defaultBaseGeometryBounds = new Bounds();

@@ -66,6 +66,7 @@ export interface IBaseRenderNode {
     lightProbUpdateMark: number;
     irradientMode: IrradianceMode;
     ismoved: Vector2;
+    perCameraUpdate: boolean;
     set_renderUpdatePreCall(call: any, fun: any): void;
     set_caculateBoundingBox(call: any, fun: any): void;
     /**
