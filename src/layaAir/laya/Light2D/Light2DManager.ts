@@ -165,8 +165,13 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             new Vector2(2, 2),
         ];
     }
+    
     destroy(): void {
-        //throw new NotImplementedError();
+        for (let i = this._lightRenderRes.length - 1; i > -1; i--) {
+            if (this._lightRenderRes[i])
+                this._lightRenderRes[i].destroy();
+        }
+        this._lightRenderRes.length = 0;
     }
 
     /**

@@ -146,6 +146,7 @@ export class Light2DRenderRes {
 
             if (!this.material[i]) {
                 this.material[i] = new Material();
+                this.material[i]._addReference();
                 this._initMaterial(this.material[i], false);
             } else this.setMaterialData(light, this.material[i], false);
             this.textures[i] = light._texLight;
@@ -160,6 +161,7 @@ export class Light2DRenderRes {
             if (light._isNeedShadowMesh()) {
                 if (!this.materialShadow[i]) {
                     this.materialShadow[i] = new Material();
+                    this.materialShadow[i]._addReference();
                     this._initMaterial(this.materialShadow[i], true);
                 } else this.setMaterialData(light, this.materialShadow[i], true);
                 this.needShadowMesh[i] = true;
@@ -360,6 +362,7 @@ export class Light2DRenderRes {
                     }
                     if (!this.materialShadow[i]) {
                         this.materialShadow[i] = new Material();
+                        this.materialShadow[i]._addReference();
                         this._initMaterial(this.materialShadow[i], true);
                     }
                     this.needShadowMesh[i] = true;
@@ -367,6 +370,27 @@ export class Light2DRenderRes {
                 return;
             }
         }
+    }
+
+    /**
+     * @en Destroy and release all material references
+     * @zh 销毁并释放所有材质引用
+     */
+    destroy() {
+        for (let i = this.material.length - 1; i > -1; i--) {
+            if (this.material[i]) {
+                this.material[i]._removeReference();
+                this.material[i] = null;
+            }
+        }
+        for (let i = this.materialShadow.length - 1; i > -1; i--) {
+            if (this.materialShadow[i]) {
+                this.materialShadow[i]._removeReference();
+                this.materialShadow[i] = null;
+            }
+        }
+        this.material.length = 0;
+        this.materialShadow.length = 0;
     }
 
     /**
