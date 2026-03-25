@@ -147,8 +147,12 @@ export class URL {
 
             let ver = URL.version[url];
             if (ver != null) {
-                let i = url.lastIndexOf(".");
-                url = url.substring(0, i) + "-" + ver + url.substring(i);
+                if (ver == "")
+                    url += "?v=" + Date.now();
+                else {
+                    let i = url.lastIndexOf(".");
+                    url = url.substring(0, i) + "-" + ver + url.substring(i);
+                }
             }
 
             if (base == null) {
