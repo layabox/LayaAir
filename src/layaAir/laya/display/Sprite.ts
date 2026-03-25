@@ -831,7 +831,7 @@ export class Sprite extends Node {
         }
 
         if (value) {
-            if (this._manualRender) this.manualRender = false;
+            if (this._manualRender) this._setManualRender(false);
             if (!this._oriRenderPass) {
                 this.createSubRenderPass();
             }
@@ -862,7 +862,7 @@ export class Sprite extends Node {
         if (b === this._cacheAsBmp)
             return;
 
-        if (b && this._manualRender) this.manualRender = false;
+        if (b && this._manualRender) this._setManualRender(false);
 
         this._cacheAsBmp = b;
 
@@ -891,7 +891,7 @@ export class Sprite extends Node {
         if (value && value.isAncestorOf(this))
             throw new Error("Mask cannot be ancestor of the masked object");
 
-        if (value && this._manualRender) this.manualRender = false;
+        if (value && this._manualRender) this._setManualRender(false);
 
         if (this._mask) {
             this._mask.cacheAs = "none";
@@ -913,15 +913,8 @@ export class Sprite extends Node {
         this.repaint();
     }
 
-    /**
-     * @en Manual rendering mode. When enabled, children of this sprite are excluded from the parent pass's automatic traversal and rendering. Use `renderToScreen()` to render to the screen each frame, or `Sprite.drawToRenderTexture2D()` to render to a RenderTexture.
-     * @zh 手动渲染模式。启用后，此 Sprite 的子节点不参与父 pass 的自动遍历和渲染。使用 `renderToScreen()` 每帧渲染到屏幕，或使用 `Sprite.drawToRenderTexture2D()` 渲染到 RT。
-     */
-    get manualRender(): boolean {
-        return this._manualRender;
-    }
-
-    set manualRender(value: boolean) {
+    /** @internal */
+    _setManualRender(value: boolean): void {
         if (value === this._manualRender) return;
         this._manualRender = value;
         value ? this._enableManualRender() : this._disableManualRender();
@@ -947,32 +940,6 @@ export class Sprite extends Node {
         this._subStruct.enabled = false;
         this._struct.subStruct = null;
         this._struct.setRepaint();
-    }
-
-    /**
-     * @en Render this manual-render sprite directly to the screen. Must be called every frame while manual rendering is active.
-     * @zh 将此手动渲染 Sprite 直接渲染到屏幕。在手动渲染激活期间需要每帧调用。
-     */
-    renderToScreen(): void {
-        if (!this._manualRender) return;
-
-        let { root, subPasses } = this.prepareOSR();
-        let context = Render2DProcessor.rendercontext2D;
-
-        // 先渲染子 pass（如子节点的 cacheAs/mask 等 RT）
-        for (let subPass of subPasses) {
-            if (subPass.needRender()) {
-                subPass.fowardRender(context);
-            }
-        }
-
-        // 复用 _oriRenderPass 渲染到屏幕（null RT = 屏幕）
-        let pass = this._oriRenderPass;
-        pass.renderTexture = null;
-        pass.root = root;
-        pass.repaint = true;
-        pass.doClearColor = false;
-        pass.fowardRender(context);
     }
 
     /** @ignore @blueprintIgnore */
