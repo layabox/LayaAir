@@ -1227,6 +1227,25 @@ export class Text extends Sprite {
             return width;
         };
 
+        let getCmdChainWidth = (cmd: ITextCmd) => {
+            let width = 0;
+            while (cmd) {
+                width += cmd.width;
+                cmd = cmd.next;
+            }
+            return width;
+        };
+
+        let getMovedWidthFromSplit = (cmd: ITextCmd, pos: number) => {
+            let width = getCmdChainWidth(cmd.next);
+            if (cmd.wt && pos < cmd.wt.text.length) {
+                let text = cmd.wt.text.substring(pos);
+                if (text.length > 0)
+                    width += getTextWidth2(text, cmd.ctxFont, cmd.fontSize);
+            }
+            return width;
+        };
+
         let recordLineFillWidth = (width: number) => {
             if (!enablePunctuationLineFill || width <= 0 || !curLine)
                 return;
@@ -1674,6 +1693,15 @@ export class Text extends Sprite {
                     let wb = part.length > 0 ? ((testResult = wordBoundaryTest.exec(part)) ? testResult.index : null) : 0;
                     if (wb > 0) { //边界在文本中间
                         if (wb > part.length - maxWordLength) { //限制字符个数，超过的不看做一个单词
+                            if (isPunc) {
+                                let movedText = part.substring(wb);
+                                let movedWidth = 0;
+                                if (movedText.length > 0)
+                                    movedWidth += getTextWidth(movedText);
+                                if (tw != null)
+                                    movedWidth += tw;
+                                recordLineFillWidth(movedWidth);
+                            }
                             j = startIndex + wb;
                             part = part.substring(0, wb);
                             wordWidth = null; //part指向的字符串已改变，wordWidth无效
@@ -1695,9 +1723,9 @@ export class Text extends Sprite {
                                 if (testResult == null) { //边界就在文本的末尾
                                     if (isPunc && totalLen == 0) {
                                         if (textLen > 1)
-                                            recordLineFillWidth(getLastCharWidth(cmd.wt.text, cmd.ctxFont, cmd.fontSize));
+                                            recordLineFillWidth(getMovedWidthFromSplit(cmd, textLen - 1) + (tw || 0));
                                         else if (cmd.x > 0)
-                                            recordLineFillWidth(cmd.width);
+                                            recordLineFillWidth(getMovedWidthFromSplit(cmd, 0) + (tw || 0));
                                     }
                                     addLine();
                                     if (isPunc && totalLen == 0) { //再次检查标点符号不能在行首
@@ -1714,6 +1742,8 @@ export class Text extends Sprite {
                                 }
                                 else if (testResult.index > 0) {
                                     if (testResult.index > textLen - (maxWordLength - totalLen)) { //限制字符个数，超过的不看做一个单词
+                                        if (isPunc && totalLen == 0)
+                                            recordLineFillWidth(getMovedWidthFromSplit(cmd, testResult.index) + (tw || 0));
                                         addLine();
                                         splitCmd(cmd, testResult.index);
                                         moveCmds(cmd.next);
@@ -1746,8 +1776,12 @@ export class Text extends Sprite {
                             if (j - b > startIndex || lineX > 0) { //这里有个边界判断，如果只剩一个字符了，并且在行头，就不能移动了
                                 let movedChar = arrCh[j - b];
                                 j -= b; //回退一个字符
+                                let movedWidth = 0;
                                 if (movedChar)
-                                    recordLineFillWidth(getTextWidth(movedChar));
+                                    movedWidth += getTextWidth(movedChar);
+                                if (tw != null)
+                                    movedWidth += tw;
+                                recordLineFillWidth(movedWidth);
                                 arrPartCh = arrCh.slice(startIndex, j);
                                 part = arrPartCh.join("");
                                 wordWidth = null; //part指向的字符串已改变，wordWidth无效
