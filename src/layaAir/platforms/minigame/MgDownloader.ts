@@ -159,7 +159,7 @@ export class MgDownloader extends Downloader {
             success: (res) => {
                 if (res.statusCode == null || res.statusCode === 200) {
                     let filePath = res.tempFilePath || (res as any).apFilePath; //淘宝用apFilePath
-                    if (this.cacheManager)
+                    if (this.cacheManager && url.indexOf("?v=") === -1) //带有?v=的URL是强制不缓存的
                         this.cacheManager.addFile(url, filePath);
                     onComplete(filePath);
                 }
