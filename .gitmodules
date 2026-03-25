@@ -4,3 +4,4 @@
 [submodule "src/layaAir/laya/RenderDriver/WebGPUDriver"]
 	path = src/layaAir/laya/RenderDriver/WebGPUDriver
 	url = https://github.com/layabox/WebGPUDriver.git
+	branch = webgpu_3.3
