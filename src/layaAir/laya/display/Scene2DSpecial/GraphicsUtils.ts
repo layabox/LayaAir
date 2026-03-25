@@ -431,7 +431,7 @@ export class SubStructRender {
       this._subStruct = subStruct;
       this._subStruct.spriteShaderData = this._shaderData;
       this._subStruct.renderType = BaseRender2DType.graphics;
-      this._submit.material = sprite.material;
+      // this._submit.material = sprite.material;
 
       subStruct.renderDataHandler = this._handle;
       subStruct.renderMatrix = sprite.globalTrans.getMatrix();
