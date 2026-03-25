@@ -110,6 +110,8 @@ export class Bridge3DCamera extends Camera {
         context.camera = this;
 
         // 2. 相机准备（无条件，对标 Camera.render 中的 _prepareCameraToRender + _applyViewProject + _contextApply）
+        // Bridge3D 相机不渲染到独立 RT，始终 invertY = false（对标 Camera.render 1378 行）
+        // context.invertY = false;
         this._prepareCameraToRender();
         this._applyViewProject(this.viewMatrix, this.projectionMatrix, context.invertY);
         this._contextApply(context);
