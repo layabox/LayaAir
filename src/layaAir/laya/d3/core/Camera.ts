@@ -740,6 +740,11 @@ export class Camera extends BaseCamera {
         }
 
         this._renderDataModule.setProjectionViewMatrix(this._projectionViewMatrix);
+        // Pass camera forward direction to native for shadow cascade culling
+        if ((this._renderDataModule as any).setForward) {
+            this.transform.getForward(Vector3.TEMP);
+            (this._renderDataModule as any).setForward(Vector3.TEMP.x, Vector3.TEMP.y, Vector3.TEMP.z);
+        }
     }
 
     /**

@@ -7,6 +7,7 @@ import { DepthTextureMode } from "../../../resource/RenderTexture";
 import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
+import { IBaseRenderNode } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { LayaXCameraNodeData } from "../RenderModuleData/LayaXCameraNodeData";
 
 export class LayaXForwardAddClusterRP {
@@ -142,6 +143,22 @@ export class LayaXForwardAddClusterRP {
             nativeobCMDs.push((element as any)._nativeObj);
         });
         return nativeobCMDs;
+    }
+
+    setSkyRenderNode(value: IBaseRenderNode): void {
+        this._nativeObj.setSkyRenderNode(value ? (value as any)._nativeObj : null);
+    }
+
+    setBeforeSkyboxCmds(value: CommandBuffer[]): void {
+        if (value && value.length > 0) {
+            this._nativeObj.clearBeforeSkyboxCmds();
+            value.forEach(element => {
+                element._apply(false);
+                this._nativeObj.addBeforeSkyboxCmds(this._getRenderCMDArray(element._renderCMDs));
+            });
+        } else {
+            this._nativeObj.clearBeforeSkyboxCmds();
+        }
     }
 
     setBeforeForwardCmds(value: CommandBuffer[]): void {

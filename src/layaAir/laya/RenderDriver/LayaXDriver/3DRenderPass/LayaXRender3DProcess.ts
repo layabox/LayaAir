@@ -118,7 +118,15 @@ export class LayaXRender3DProcess implements IRender3DProcess {
         renderpass.enableTransparent = Stat.enableTransparent;
         renderpass.enableCMD = Stat.enableCameraCMD;
         renderpass.setBeforeForwardCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeForwardOpaque]);
+        renderpass.setBeforeSkyboxCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeSkyBox]);
         renderpass.setBeforeTransparentCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeTransparent]);
+
+        // Skybox render node
+        if (clearFlag == CameraClearFlags.Sky) {
+            renderpass.setSkyRenderNode(camera.scene.skyRenderer._baseRenderNode);
+        } else {
+            renderpass.setSkyRenderNode(null);
+        }
         this._renderPass.setBeforeImageEffect(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeImageEffect]);
         this._renderPass.setAfterEventCmd(camera._cameraEventCommandBuffer[CameraEventFlags.AfterEveryThing]);
 
