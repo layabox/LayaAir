@@ -655,19 +655,24 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
             case Particle2DScalingMode.Hierarchy:
                 break;
             case Particle2DScalingMode.Local:
+                // Local mode: particle's own scale × scene global scale,
+                // ignoring intermediate parent hierarchy scales.
+                //
+                // scene.globalScaleX (cached path) already includes Stage's
+                // DPR scale (extracted from world matrix), so do NOT multiply
+                // by stage.scaleX again.  Only fall back to stage.scaleX when
+                // there is no scene (e.g. particle added directly to Stage).
                 scaleX = this.owner.scaleX;
                 scaleY = this.owner.scaleY;
                 if (this.owner.scene) {
                     scaleX *= this.owner.scene.globalScaleX;
                     scaleY *= this.owner.scene.globalScaleY;
-                }
-                // globalScaleX stops at Stage, but translate (worldMat.tx/ty)
-                // includes Stage scale (which contains dpr). Must include
-                // Stage scale here for consistency with translate in shader.
-                let stage = ILaya.stage;
-                if (stage) {
-                    scaleX *= stage.scaleX;
-                    scaleY *= stage.scaleY;
+                } else {
+                    let stage = ILaya.stage;
+                    if (stage) {
+                        scaleX *= stage.scaleX;
+                        scaleY *= stage.scaleY;
+                    }
                 }
                 break;
             default:
