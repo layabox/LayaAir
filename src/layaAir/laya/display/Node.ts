@@ -409,14 +409,14 @@ export class Node extends EventDispatcher {
     }
 
     /**
-     * @en Insert a child node at a specific index.
+     * @en Insert a child node at a specific index. 
      * @param node The child node to be inserted.
-     * @param index The index at which the child node will be inserted.
-     * @returns The inserted child node.
+     * @param index The index.
+     * @returns The inserted child node.Throws `OutOfRangeError` if the index is out of range [0, childCount].
      * @zh 在指定的索引位置插入子节点。
-     * @param node 节点对象。
-     * @param index 索引位置。
-     * @returns 返回添加的节点。
+     * @param node 要插入的子节点对象。
+     * @param index 索引。
+     * @returns 返回添加的节点。如果索引超出范围 [0, 子节点数量]，则抛出 `OutOfRangeError`。
      */
     addChildAt<T extends Node>(node: T, index: number): T {
         if (index >= 0 && index <= this._$children.length) {
@@ -479,14 +479,14 @@ export class Node extends EventDispatcher {
     }
 
     /**
-     * @en Get a child node by its index.
-     * @param index The index of the child node.
+     * @en Get a child node by index. 
+     * @param index The index.
      * @param classType Optional child node type, used to specify the type of the returned child node.
-     * @returns The child node at the specified index, or null if the index is out of range.
-     * @zh 根据子节点的索引位置获取子节点对象。
-     * @param index 索引位置。
+     * @returns The child node at the specified index.OutOfRangeError If the index is out of range.
+     * @zh 根据索引获取子节点对象。
+     * @param index 索引。
      * @param classType 可选的子节点类型，用于明确返回子节点的类型。
-     * @returns 指定索引处的子节点，如果索引超出范围，则为空。
+     * @returns 指定索引处的子节点。索引超出范围时抛出OutOfRangeError。
      */
     getChildAt<T extends Node = ChildType<this>>(index: number, classType?: new (...args: any[]) => T): T {
         if (index >= 0 && index < this.numChildren)
