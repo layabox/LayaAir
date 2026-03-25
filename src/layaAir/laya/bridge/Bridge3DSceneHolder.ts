@@ -1,5 +1,6 @@
 import { ILaya } from "../../ILaya";
 import { Scene, IBridge3DSceneHolder } from "../display/Scene";
+import { Bridge3DCamera } from "./Bridge3DCamera";
 import { Bridge3DScene3D } from "./Bridge3DScene3D";
 import { Bridge3DSprite, IBridgeRenderElement } from "./Bridge3DSprite";
 
