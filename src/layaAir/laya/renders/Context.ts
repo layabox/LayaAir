@@ -1332,6 +1332,7 @@ export class Context {
             preKey.other === webGLImg.id &&
             preKey.blendShader == this._nBlendType &&
             this._mesh.vertexNum + vertices.length / 2 < Context._MAXVERTNUM &&
+            !this.isStopMerge(this._curSubmit) &&
             this._curSubmit.material == this._material;
 
         if (!sameKey) {
