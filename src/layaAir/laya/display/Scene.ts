@@ -20,6 +20,7 @@ import { ProgressCallback } from "../net/BatchProgress";
 import { Camera2D } from "./Scene2DSpecial/Camera2D";
 import { BlendModeHandler } from "../webgl/canvas/BlendMode";
 import { HideFlags } from "../Const";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 
 /**
  * @en Bridge3D scene holder interface. Manages Bridge3DScene3D lifecycle and Bridge3DSprite registration.
@@ -100,10 +101,8 @@ export class Scene extends Sprite {
 
     /** @internal */
     static __init__() {
-        Camera2D.shaderValueInit();
-
         let scene2DUniformMap = Scene.scene2DUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal"); //名称保持一致 //兼容Light2D
-        scene2DUniformMap.addShaderUniform(Camera2D.VIEW2D, "u_view2D", ShaderDataType.Matrix3x3);
+        scene2DUniformMap.addShaderUniform(ShaderDefines2D.VIEW2D, "u_view2D", ShaderDataType.Matrix3x3);
         // scene2DUniformMap.addShaderUniform(BaseRenderNode2D.BASERENDERSIZE, "u_baseRenderSize2D", ShaderDataType.Vector2);
     }
 

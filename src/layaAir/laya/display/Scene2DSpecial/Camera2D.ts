@@ -13,16 +13,6 @@ import { Sprite } from "../Sprite";
 import { SpriteConst, TransformKind } from "../SpriteConst";
 
 export class Camera2D extends Sprite {
-    /**@internal */
-    static shaderValueInit() {
-        Camera2D.VIEW2D = Shader3D.propertyNameToID("u_view2D");
-        Camera2D.SHADERDEFINE_CAMERA2D = Shader3D.getDefineByName("CAMERA2D");
-    }
-
-    /**@internal */
-    static VIEW2D: number;
-    /**@internal */
-    static SHADERDEFINE_CAMERA2D: ShaderDefine;
 
     private _cameraPos: Vector2 = new Vector2();
     private _cameraSmoothPos: Vector2 = new Vector2();

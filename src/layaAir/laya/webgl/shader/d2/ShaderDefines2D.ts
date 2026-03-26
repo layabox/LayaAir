@@ -64,6 +64,11 @@ export class ShaderDefines2D {
     /** uniform vec3 u_InvertMat_1; // 反转矩阵的第二行 */
     static UNIFORM_INVERTMAT_1: number;
 
+    /**@internal */
+    static VIEW2D: number;
+    /**@internal */
+    static SHADERDEFINE_CAMERA2D: ShaderDefine;
+
     //TODO?
     //static NOOPTMASK: number = ShaderDefines2D.FILTERGLOW | ShaderDefines2D.FILTERBLUR | ShaderDefines2D.FILTERCOLOR | ShaderDefines2D.FILLTEXTURE;	//有这些定义的不要优化。见submittexture
 
@@ -88,6 +93,8 @@ export class ShaderDefines2D {
 
         ShaderDefines2D.VERTEXALPHA = Shader3D.getDefineByName("VERTEXALPHA");
         ShaderDefines2D.USE_TEX_ARRAY = Shader3D.getDefineByName('USE_TEX_ARRAY');
+        ShaderDefines2D.SHADERDEFINE_CAMERA2D = Shader3D.getDefineByName("CAMERA2D");
+
         ShaderDefines2D.initSprite2DCommandEncoder();
     }
 
@@ -100,6 +107,8 @@ export class ShaderDefines2D {
         ShaderDefines2D.UNIFORM_CLIPMATPOS = Shader3D.propertyNameToID("u_clipMatPos");
         ShaderDefines2D.UNIFORM_SIZE = Shader3D.propertyNameToID("u_size");
         ShaderDefines2D.UNIFORM_VERTALPHA = Shader3D.propertyNameToID("u_VertAlpha");
+        ShaderDefines2D.VIEW2D = Shader3D.propertyNameToID("u_view2D");
+        
 
         // sprite2d
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2D");

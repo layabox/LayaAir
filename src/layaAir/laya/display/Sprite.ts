@@ -39,6 +39,7 @@ import { MathUtil } from "../maths/MathUtil";
 import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
 import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
 import { StatElement } from "../layagl/StatisticsContext";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 
 const hiddenBits = NodeFlags.NOT_IN_PAGE;
 
@@ -1713,7 +1714,21 @@ export class Sprite extends Node {
         matrix.ty = -offsetY;
         pass.offsetMatrix = matrix;
 
+        // 临时清理 Camera2D，避免 RT 内渲染受相机影响
+        let globalSD = sprite._struct.globalRenderData?.globalShaderData;
+        let hadCamera2D = false;
+        if (globalSD && globalSD.hasDefine(ShaderDefines2D.SHADERDEFINE_CAMERA2D)) {
+            hadCamera2D = true;
+            globalSD.removeDefine(ShaderDefines2D.SHADERDEFINE_CAMERA2D);
+        }
+
         processor.apply(Render2DProcessor.rendercontext2D);
+
+        // 恢复 Camera2D
+        if (hadCamera2D) {
+            globalSD.addDefine(ShaderDefines2D.SHADERDEFINE_CAMERA2D);
+        }
+
         processor.clear();
         pass.destroy();
 
