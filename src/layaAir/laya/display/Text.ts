@@ -76,6 +76,7 @@ export class Text extends Sprite {
     static splitStr: (text: string) => string[] = defaultSplitStr;
     static punctuationChars: number[] = Array.from(".,，。、!！；;”’)）]】}》").map(char => char.charCodeAt(0));
     static lineEndForbiddenChars: number[] = Array.from("(（<《[［{｛【〈〔“‘「『").map(char => char.charCodeAt(0));
+    static wordBoundaryTest: RegExp = /(?:[+-]?\d+(?:\.\d+)*(?:[%％])?|[a-zA-Z0-9\!-\+\/_]+(?:\.[0-9\!-\+\/_]+)*)$/;
 
     /**
      * @en Dictionary of bitmap fonts.
@@ -1681,8 +1682,6 @@ export class Text extends Sprite {
             let wordWidth = 0;
             let startIndex = 0;
             let isPunc: boolean;
-            let testResult: RegExpExecArray;
-
             const arrCh = Text.splitStr(text);
             const chNum = arrCh.length;
             for (let j = maybeIndex; j < chNum; j++) {
@@ -1704,7 +1703,7 @@ export class Text extends Sprite {
                 if (noBreakWord && ((ccode >= 65 && ccode <= 90) || (ccode >= 97 && ccode <= 122) //英文字符
                     || (ccode >= 48 && ccode <= 57) // 0-9
                     || (isPunc = Text.punctuationChars.includes(ccode)))) {
-                    let wb = part.length > 0 ? ((testResult = wordBoundaryTest.exec(part)) ? testResult.index : null) : 0;
+                    let wb = getWordBoundaryIndex(part, cc);
                     if (wb > 0) { //边界在文本中间
                         if (wb > part.length - maxWordLength) { //限制字符个数，超过的不看做一个单词
                             if (isPunc) {
@@ -1732,9 +1731,9 @@ export class Text extends Sprite {
                                 if (cmd.obj != null)
                                     break;
 
-                                testResult = wordBoundaryTest.exec(cmd.wt.text);
+                                let cmdBoundary = getWordBoundaryIndex(cmd.wt.text, cc);
                                 let textLen = cmd.wt.text.length;
-                                if (testResult == null) { //边界就在文本的末尾
+                                if (cmdBoundary == null) { //边界就在文本的末尾
                                     let lastCmdChar = getLastSplitChar(cmd.wt.text);
                                     let forbidLineEnd = totalLen == 0 && lastCmdChar != null && Text.lineEndForbiddenChars.includes(lastCmdChar.charCodeAt(0));
                                     if (forbidLineEnd) {
@@ -1768,12 +1767,12 @@ export class Text extends Sprite {
                                     newLine = true;
                                     break;
                                 }
-                                else if (testResult.index > 0) {
-                                    if (testResult.index > textLen - (maxWordLength - totalLen)) { //限制字符个数，超过的不看做一个单词
+                                else if (cmdBoundary > 0) {
+                                    if (cmdBoundary > textLen - (maxWordLength - totalLen)) { //限制字符个数，超过的不看做一个单词
                                         if (isPunc && totalLen == 0)
-                                            recordLineFillWidth(getMovedWidthFromSplit(cmd, testResult.index) + (tw || 0));
+                                            recordLineFillWidth(getMovedWidthFromSplit(cmd, cmdBoundary) + (tw || 0));
                                         addLine();
-                                        splitCmd(cmd, testResult.index);
+                                        splitCmd(cmd, cmdBoundary);
                                         moveCmds(cmd.next);
 
                                         newLine = true;
@@ -2316,8 +2315,25 @@ function cleanCmd(cmd: ITextCmd, releaseObj: boolean) {
         cmd.wt.cleanCache();
 }
 
+function getWordBoundaryIndex(text: string, nextChar?: string): number | null {
+    if (text.length == 0)
+        return 0;
+
+    let testText = text;
+    if (nextChar) {
+        let ccode = nextChar.charCodeAt(0);
+        if (ccode >= 48 && ccode <= 57)
+            testText += nextChar;
+    }
+
+    let testResult = Text.wordBoundaryTest.exec(testText);
+    if (!testResult)
+        return null;
+
+    return testResult.index < text.length ? testResult.index : null;
+}
+
 const emojiRegex = createEmojiRegex();
-const wordBoundaryTest = /[a-zA-Z0-9\!-\+\/_]+$/;
 const normalizeCR = /\r\n/g;
 const escapeCharsPattern = /\\(\w)/g;
 const escapeSequence: any = { "\\n": "\n", "\\t": "\t" };
