@@ -186,6 +186,7 @@ export class Text extends Sprite {
     protected _hideText: boolean;
     private _updatingLayout: boolean;
     private _fontSizeScale: number;
+    private _lineFill: boolean = false;
     private _singleLineAutoFill: boolean = false;
     private _lineFillRemainderPolicy: "ltr" | "rtl" = "ltr";
 
@@ -579,6 +580,21 @@ export class Text extends Sprite {
     set wordWrap(value: boolean) {
         if (this._wordWrap != value) {
             this._wordWrap = value;
+            this.markChanged();
+        }
+    }
+
+    /**
+     * @en Whether to fill the remaining width of a wrapped line after line-break adjustment.
+     * @zh 在自动换行发生挪字调整后，是否补字间距以撑满该行剩余宽度。
+     */
+    get lineFill(): boolean {
+        return this._lineFill;
+    }
+
+    set lineFill(value: boolean) {
+        if (this._lineFill != value) {
+            this._lineFill = value;
             this.markChanged();
         }
     }
@@ -1175,7 +1191,7 @@ export class Text extends Sprite {
         let rectHeight = this._isHeightSet ? (this._height - padding[0] - padding[2]) : Number.MAX_VALUE;
         let bfont = this._bitmapFont;
         let alignItems = this._textStyle.alignItems == "middle" ? 1 : (this._textStyle.alignItems == "bottom" ? 2 : 0);
-        let enablePunctuationLineFill = wordWrap && this._overflow != Text.SHRINK;
+        let enablePunctuationLineFill = this._lineFill && wordWrap && this._overflow != Text.SHRINK;
         let enableSingleLineAutoFill = this._singleLineAutoFill && !this._wordWrap && this._isWidthSet
             && this._overflow != Text.SHRINK;
         let enableLineFill = enablePunctuationLineFill || enableSingleLineAutoFill;
