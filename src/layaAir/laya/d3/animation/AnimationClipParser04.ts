@@ -277,7 +277,7 @@ export class AnimationClipParser04 {
 							case KeyFrameValueType.MaterialRef: {
 								const kf = new StringKeyframe();
 								kf.time = startTimeTypes[reader.readUint16()];
-								kf.value = reader.readUTFString();
+								kf.value = AnimationClipParser04._strings[reader.readUint16()];
 								node._setKeyframeByIndex(j, kf);
 								break;
 							}
@@ -310,7 +310,7 @@ export class AnimationClipParser04 {
 							case KeyFrameValueType.MaterialRef: {
 								const kf = new StringKeyframe();
 								kf.time = startTimeTypes[reader.readUint16()];
-								kf.value = reader.readUTFString();
+								kf.value = AnimationClipParser04._strings[reader.readUint16()];
 								node._setKeyframeByIndex(j, kf);
 								break;
 							}
@@ -578,7 +578,7 @@ export class AnimationClipParser04 {
 							case KeyFrameValueType.MaterialRef: {
 								const kf = new StringKeyframe();
 								kf.time = startTimeTypes[reader.readUint16()];
-								kf.value = reader.readUTFString();
+								kf.value = AnimationClipParser04._strings[reader.readUint16()];
 								node._setKeyframeByIndex(j, kf);
 								break;
 							}
