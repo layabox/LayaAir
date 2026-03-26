@@ -240,6 +240,11 @@ export class Physics2DWorldManager implements IElementComponentManager {
             for (let i = 0; i < length; i += 2) {
                 this._dispatchEvent(this._eventList[i], this._eventList[i + 1]);
             }
+            // 清理 Emscripten __cache__ 中的 b2Contact wrapper，防止缓存条目只增不减
+            let factory = Physics2D.I._factory;
+            for (let i = 1; i < length; i += 2) {
+                factory._cleanCache(this._eventList[i]);
+            }
             this._eventList.length = 0;
         }
     }
@@ -379,16 +384,18 @@ export class Physics2DWorldManager implements IElementComponentManager {
     RayCast(res: Physics2DHitResult[], startPos: Vector2, endPos: Vector2): void {
         let callback = (warp: any, point: any, normal: any, fraction: number) => {
             let fixture = Physics2D.I._factory.warpPoint(warp, Ebox2DType.b2Fixture);
-            point = Physics2D.I._factory.warpPoint(point, Ebox2DType.b2Vec2);
-            normal = Physics2D.I._factory.warpPoint(normal, Ebox2DType.b2Vec2);
             if (!fixture) return 1;
+            let v = Physics2D.I._factory.warpPoint(point, Ebox2DType.b2Vec2);
+            let px = v.x, py = v.y;
+            v = Physics2D.I._factory.warpPoint(normal, Ebox2DType.b2Vec2);
+            let nx = v.x, ny = v.y;
             let hitRes = new Physics2DHitResult();
             let collider = fixture.collider;
             hitRes.collider = collider;
-            hitRes.hitPoint.x = this.physics2DToLaya(point.x);
-            hitRes.hitPoint.y = this.physics2DToLaya(point.y);
-            hitRes.hitNormal.x = this.physics2DToLaya(normal.x);
-            hitRes.hitNormal.y = this.physics2DToLaya(normal.y);
+            hitRes.hitPoint.x = this.physics2DToLaya(px);
+            hitRes.hitPoint.y = this.physics2DToLaya(py);
+            hitRes.hitNormal.x = this.physics2DToLaya(nx);
+            hitRes.hitNormal.y = this.physics2DToLaya(ny);
             hitRes.fraction = fraction;
             res.push(hitRes);
 
@@ -518,12 +525,12 @@ export class Physics2DWorldManager implements IElementComponentManager {
     // }
 
     private _debugDrawSegment(p1: any, p2: any, color: any): void {
-        p1 = Physics2D.I._factory.warpPoint(p1, Ebox2DType.b2Vec2);
-        p2 = Physics2D.I._factory.warpPoint(p2, Ebox2DType.b2Vec2);
-        let p1x = this.physics2DToLaya(p1.x);
-        let p1y = this.physics2DToLaya(p1.y);
-        let p2x = this.physics2DToLaya(p2.x);
-        let p2y = this.physics2DToLaya(p2.y);
+        let v = Physics2D.I._factory.warpPoint(p1, Ebox2DType.b2Vec2);
+        let p1x = this.physics2DToLaya(v.x);
+        let p1y = this.physics2DToLaya(v.y);
+        v = Physics2D.I._factory.warpPoint(p2, Ebox2DType.b2Vec2);
+        let p2x = this.physics2DToLaya(v.x);
+        let p2y = this.physics2DToLaya(v.y);
         let points: any[] = [];
         points.push(p1x);
         points.push(p1y);
@@ -531,7 +538,6 @@ export class Physics2DWorldManager implements IElementComponentManager {
         points.push(p2y);
         let outColor = this._makeStyleString(color, 1);
         this._debugDraw.addLineDebugDrawCMD(points, outColor);
-        // this._debugDraw.mG.drawLine(p1.x, p1.y, p2.x, p2.y, this._makeStyleString(color, 1), this._debugDraw.lineWidth);
     }
 
     private _debugDrawPolygon(vertices: any, vertexCount: any, color: any): void {
@@ -572,16 +578,14 @@ export class Physics2DWorldManager implements IElementComponentManager {
     }
 
     private _debugDrawSolidCircle(center: any, radius: any, axis: any, color: any): void {
-        center = Physics2D.I._factory.warpPoint(center, Ebox2DType.b2Vec2);
-        axis = Physics2D.I._factory.warpPoint(axis, Ebox2DType.b2Vec2);
-        let cx: any = this.physics2DToLaya(center.x);
-        let cy: any = this.physics2DToLaya(center.y);
+        let v = Physics2D.I._factory.warpPoint(center, Ebox2DType.b2Vec2);
+        let cx: any = this.physics2DToLaya(v.x);
+        let cy: any = this.physics2DToLaya(v.y);
+        // axis 值当前未使用，无需再读
         radius = this.physics2DToLaya(radius);
         let outColor = this._makeStyleString(color, 0.5);
         let mesh2d = this._debugDraw.createCircleMeshByVertices({ x: cx, y: cy }, radius, 100);
         this._debugDraw.addMeshDebugDrawCMD(mesh2d, outColor);
-        // this._debugDraw.mG.drawCircle(cx, cy, radius, this._makeStyleString(color, 0.5), this._makeStyleString(color, 1), this._debugDraw.lineWidth);
-        // this._debugDraw.mG.drawLine(cx, cy, (cx + axis.x * radius), (cy + axis.y * radius), this._makeStyleString(color, 1), this._debugDraw.lineWidth);
     }
 
     private _debugDrawTransform(xf: any): void {
@@ -656,12 +660,14 @@ export class Physics2DWorldManager implements IElementComponentManager {
     }
 
     private _debugDrawAABB(min: any, max: any, color: any): void {
-        min = Physics2D.I._factory.warpPoint(min, Ebox2DType.b2Vec2);
-        max = Physics2D.I._factory.warpPoint(max, Ebox2DType.b2Vec2);
-        var cx: number = (max.x + min.x) * 0.5;
-        var cy: number = (max.y + min.y) * 0.5;
-        var hw: number = (max.x - min.x) * 0.5;
-        var hh: number = (max.y - min.y) * 0.5;
+        let v = Physics2D.I._factory.warpPoint(min, Ebox2DType.b2Vec2);
+        let minX = v.x, minY = v.y;
+        v = Physics2D.I._factory.warpPoint(max, Ebox2DType.b2Vec2);
+        let maxX = v.x, maxY = v.y;
+        var cx: number = (maxX + minX) * 0.5;
+        var cy: number = (maxY + minY) * 0.5;
+        var hw: number = (maxX - minX) * 0.5;
+        var hh: number = (maxY - minY) * 0.5;
         let outColor = this._makeStyleString(color, 1);
         let point0: any[] = [];
         point0.push(this.physics2DToLaya(cx - hw));

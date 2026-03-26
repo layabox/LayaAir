@@ -16,6 +16,11 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
     private _tempVe21: any;
     private _tempVe22: any;
 
+    /** @internal 复用的临时 JS 对象，用于 debug draw 等只读场景避免 wrapPointer 污染 __cache__ */
+    private _tempReadVec2: { x: number, y: number } = { x: 0, y: 0 };
+    private _tempReadColor: { r: number, g: number, b: number } = { r: 0, g: 0, b: 0 };
+    private _tempReadTransform: { x: number, y: number, angle: number } = { x: 0, y: 0, angle: 0 };
+
     /**@internal box2D Engine */
     _box2d: any;
 
@@ -42,6 +47,15 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
 
     createPhyFromLayaVec2(world: any, x: number, y: number): any {
         return new this.box2d.b2Vec2(this.convertLayaValueToPhysics(world, x), this.convertLayaValueToPhysics(world, y));
+    }
+
+    /**
+     * @internal
+     * 释放通过 new b2Vec2 创建的 WASM 对象，同时清除 Emscripten __cache__ 条目。
+     */
+    private _destroyVec2(vec: any): void {
+        if (!vec) return;
+        this._box2d.destroy(vec);
     }
 
     convertLayaValueToPhysics(world: any, value: number): number {
@@ -93,8 +107,9 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
     }
 
     createWorld(worldDef: box2DWorldDef): any {
-        let gravity = this.createPhyVec2(worldDef.gravity.x, worldDef.gravity.y)
+        let gravity = this.createPhyVec2(worldDef.gravity.x, worldDef.gravity.y);
         let world: any = new this._box2d.b2World(gravity);
+        this._destroyVec2(gravity);
         world.destroyed = false;
         return world;
     }
@@ -243,6 +258,7 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
                 jointDef = new this.box2d.b2RevoluteJointDef();
                 let revoluteAnchorVec = this.createPhyFromLayaVec2(world, (def as physics2D_RevoluteJointDef).anchor.x, (def as physics2D_RevoluteJointDef).anchor.y);
                 jointDef.Initialize((def as physics2D_RevoluteJointDef).bodyA, (def as physics2D_RevoluteJointDef).bodyB, revoluteAnchorVec);
+                this._destroyVec2(revoluteAnchorVec);
                 jointDef.enableMotor = (def as physics2D_RevoluteJointDef).enableMotor;
                 jointDef.motorSpeed = (def as physics2D_RevoluteJointDef).motorSpeed;
                 jointDef.maxMotorTorque = (def as physics2D_RevoluteJointDef).maxMotorTorque;
@@ -268,6 +284,10 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
                 let anchorVecA = this.createPhyFromLayaVec2(world, (def as physics2D_PulleyJointDef).localAnchorA.x, (def as physics2D_PulleyJointDef).localAnchorA.y);
                 let anchorVecB = this.createPhyFromLayaVec2(world, (def as physics2D_PulleyJointDef).localAnchorB.x, (def as physics2D_PulleyJointDef).localAnchorB.y);
                 jointDef.Initialize((def as physics2D_PulleyJointDef).bodyA, (def as physics2D_PulleyJointDef).bodyB, groundVecA, groundVecB, anchorVecA, anchorVecB, (def as physics2D_PulleyJointDef).ratio);
+                this._destroyVec2(groundVecA);
+                this._destroyVec2(groundVecB);
+                this._destroyVec2(anchorVecA);
+                this._destroyVec2(anchorVecB);
                 jointDef.collideConnected = (def as physics2D_PulleyJointDef).collideConnected;
                 break;
 
@@ -276,6 +296,8 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
                 let anchorVec = this.createPhyFromLayaVec2(world, (def as physics2D_WheelJointDef).anchor.x, (def as physics2D_WheelJointDef).anchor.y);
                 let wheelAxis = this.createPhyVec2((def as physics2D_WheelJointDef).axis.x, (def as physics2D_WheelJointDef).axis.y);
                 jointDef.Initialize((def as physics2D_WheelJointDef).bodyA, (def as physics2D_WheelJointDef).bodyB, anchorVec, wheelAxis);
+                this._destroyVec2(anchorVec);
+                this._destroyVec2(wheelAxis);
                 jointDef.enableMotor = (def as physics2D_WheelJointDef).enableMotor;
                 jointDef.motorSpeed = (def as physics2D_WheelJointDef).motorSpeed;
                 jointDef.maxMotorTorque = (def as physics2D_WheelJointDef).maxMotorTorque;
@@ -290,6 +312,7 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
                 jointDef = new this.box2d.b2WeldJointDef();
                 let weldAnchorVec = this.createPhyFromLayaVec2(world, (def as physics2D_WeldJointDef).anchor.x, (def as physics2D_WeldJointDef).anchor.y);
                 jointDef.Initialize((def as physics2D_WeldJointDef).bodyA, (def as physics2D_WeldJointDef).bodyB, weldAnchorVec);
+                this._destroyVec2(weldAnchorVec);
                 this.b2AngularStiffness(jointDef, (def as physics2D_WeldJointDef).frequency, (def as physics2D_WeldJointDef).dampingRatio, (def as physics2D_WeldJointDef).bodyA, (def as physics2D_WeldJointDef).bodyB);
                 jointDef.collideConnected = (def as physics2D_WeldJointDef).collideConnected;
                 break;
@@ -298,7 +321,9 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
                 jointDef = new this.box2d.b2MouseJointDef();
                 jointDef.bodyA = (def as physics2D_MouseJointJointDef).bodyA;
                 jointDef.bodyB = (def as physics2D_MouseJointJointDef).bodyB;
-                jointDef.target = this.createPhyFromLayaVec2(world, (def as physics2D_MouseJointJointDef).target.x, (def as physics2D_MouseJointJointDef).target.y);
+                let mouseTarget = this.createPhyFromLayaVec2(world, (def as physics2D_MouseJointJointDef).target.x, (def as physics2D_MouseJointJointDef).target.y);
+                jointDef.target = mouseTarget;
+                this._destroyVec2(mouseTarget);
                 jointDef.maxForce = (def as physics2D_MouseJointJointDef).maxForce * (def as physics2D_MouseJointJointDef).bodyB.GetMass();
                 jointDef.collideConnected = true;
                 this.b2LinearStiffness(jointDef, (def as physics2D_MouseJointJointDef).frequency, (def as physics2D_MouseJointJointDef).dampingRatio, (def as physics2D_MouseJointJointDef).bodyA, (def as physics2D_MouseJointJointDef).bodyB)
@@ -307,7 +332,9 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
             case EPhysics2DJoint.MotorJoint:
                 jointDef = new this.box2d.b2MotorJointDef();
                 jointDef.Initialize((def as physics2D_MotorJointDef).bodyA, (def as physics2D_MotorJointDef).bodyB);
-                jointDef.linearOffset = this.createPhyFromLayaVec2(world, (def as physics2D_MotorJointDef).linearOffset.x, (def as physics2D_MotorJointDef).linearOffset.y);
+                let motorOffset = this.createPhyFromLayaVec2(world, (def as physics2D_MotorJointDef).linearOffset.x, (def as physics2D_MotorJointDef).linearOffset.y);
+                jointDef.linearOffset = motorOffset;
+                this._destroyVec2(motorOffset);
                 jointDef.angularOffset = (def as physics2D_MotorJointDef).angularOffset;
                 jointDef.maxForce = (def as physics2D_MotorJointDef).maxForce;
                 jointDef.maxTorque = (def as physics2D_MotorJointDef).maxTorque;
@@ -320,6 +347,8 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
                 let prismaticAnchorVec = this.createPhyFromLayaVec2(world, (def as physics2D_PrismaticJointDef).anchor.x, (def as physics2D_PrismaticJointDef).anchor.y);
                 let axis = this.createPhyVec2((def as physics2D_PrismaticJointDef).axis.x, (def as physics2D_PrismaticJointDef).axis.y);
                 jointDef.Initialize((def as physics2D_PrismaticJointDef).bodyA, (def as physics2D_PrismaticJointDef).bodyB, prismaticAnchorVec, axis);
+                this._destroyVec2(prismaticAnchorVec);
+                this._destroyVec2(axis);
                 jointDef.enableMotor = (def as physics2D_PrismaticJointDef).enableMotor;
                 jointDef.motorSpeed = (def as physics2D_PrismaticJointDef).motorSpeed;
                 jointDef.maxMotorForce = (def as physics2D_PrismaticJointDef).maxMotorForce;
@@ -631,7 +660,8 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
      */
     set_MotorJoint_linearOffset(joint: any, x: number, y: number): void {
         let world: any = joint.world;
-        joint.SetLinearOffset(this.createPhyFromLayaVec2(world, x, y));
+        this._tempVe21.Set(this.convertLayaValueToPhysics(world, x), this.convertLayaValueToPhysics(world, y));
+        joint.SetLinearOffset(this._tempVe21);
     }
 
     /** 
@@ -811,6 +841,7 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
             shape.CreateChain(ptr_wrapped, len >> 1);
         }
         this._box2d._free(ptr_wrapped.ptr);
+        this._cleanCache(ptr_wrapped);
     }
 
 
@@ -866,12 +897,9 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
      */
     set_EdgeShape_data(shape: any, x: number, y: number, arr: number[], scaleX: number, scaleY: number) {
         let world: any = shape.world;
-        let len = arr.length;
-        var ps: any[] = [];
-        for (var i: number = 0, n: number = len; i < n; i += 2) {
-            ps.push(this.createPhyFromLayaVec2(world, (x + arr[i]) * scaleX, (y + arr[i + 1]) * scaleY));
-        }
-        shape.SetTwoSided(ps[0], ps[1])
+        this._tempVe21.Set(this.convertLayaValueToPhysics(world, (x + arr[0]) * scaleX), this.convertLayaValueToPhysics(world, (y + arr[1]) * scaleY));
+        this._tempVe22.Set(this.convertLayaValueToPhysics(world, (x + arr[2]) * scaleX), this.convertLayaValueToPhysics(world, (y + arr[3]) * scaleY));
+        shape.SetTwoSided(this._tempVe21, this._tempVe22);
     }
 
     /**
@@ -895,10 +923,16 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         let ptr_wrapped = this.createVec2Pointer(world, arr, x, y, scaleX, scaleY);
         shape.Set(ptr_wrapped, arr.length / 2);
         this._box2d._free(ptr_wrapped.ptr);
+        this._cleanCache(ptr_wrapped);
     }
 
     destroyShape(world: any, body: any, shape: any): void {
+        if (!shape || !body) return;
+        // Clean sub-object cache entries before DestroyFixture frees the C++ memory
+        if (shape.shape) this._cleanCache(shape.shape);
+        if (shape.filter) this._cleanCache(shape.filter);
         body.DestroyFixture(shape);
+        this._cleanCache(shape);
     }
 
     set_shapeDef_GroupIndex(def: any, groupIndex: number) {
@@ -1011,10 +1045,17 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         if (body.world._indexInMap != world._indexInMap) return;
         if (!world.destroyed) world.DestroyBody(body);
         body.destroyed = true;
+        // Clean up Emscripten __cache__ entry for the body wrapper
+        this._cleanCache(body);
     }
 
     rigidBody_DestroyShape(body: any, shape: any) {
+        if (!shape || !body) return;
+        // Clean sub-object cache entries before DestroyFixture frees the C++ memory
+        if (shape.shape) this._cleanCache(shape.shape);
+        if (shape.filter) this._cleanCache(shape.filter);
         if (body.world && !body.world.destroyed) body.DestroyFixture(shape);
+        this._cleanCache(shape);
     }
 
     createBodyDef(world: any, rigidbodyDef: RigidBody2DInfo): any {
@@ -1028,7 +1069,7 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         def.fixedRotation = rigidbodyDef.fixedRotation;
         def.gravityScale = rigidbodyDef.gravityScale;
         def.linearDamping = rigidbodyDef.linearDamping;
-        def.linearVelocity = new this.box2d.b2Vec2(this.convertLayaValueToPhysics(world, rigidbodyDef.linearVelocity.x), this.convertLayaValueToPhysics(world, rigidbodyDef.linearVelocity.y));
+        def.linearVelocity.Set(this.convertLayaValueToPhysics(world, rigidbodyDef.linearVelocity.x), this.convertLayaValueToPhysics(world, rigidbodyDef.linearVelocity.y));
         def.type = this.getbodyType(rigidbodyDef.type);
         return def;
     }
@@ -1057,7 +1098,8 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
 
     get_rigidBody_WorldPoint(body: any, x: number, y: number): IV2 {
         let world: any = body.world;
-        let data = body.GetWorldPoint(this.createPhyFromLayaVec2(world, x, y));
+        this._tempVe21.Set(this.convertLayaValueToPhysics(world, x), this.convertLayaValueToPhysics(world, y));
+        let data = body.GetWorldPoint(this._tempVe21);
         return {
             x: this.convertPhysicsValueToLaya(world, data.x),
             y: this.convertPhysicsValueToLaya(world, data.y)
@@ -1066,7 +1108,8 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
 
     get_rigidBody_LocalPoint(body: any, x: number, y: number): IV2 {
         let world: any = body.world;
-        let data = body.GetLocalPoint(this.createPhyFromLayaVec2(world, x, y));
+        this._tempVe21.Set(this.convertLayaValueToPhysics(world, x), this.convertLayaValueToPhysics(world, y));
+        let data = body.GetLocalPoint(this._tempVe21);
         return {
             x: this.convertPhysicsValueToLaya(world, data.x),
             y: this.convertPhysicsValueToLaya(world, data.y)
@@ -1475,9 +1518,16 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
 
     warpPoint(ins: any, type: Ebox2DType): any {
         let res: any;
+        let tmp: any;
         switch (type) {
             case Ebox2DType.b2Color:
-                res = this._box2d.wrapPointer(ins, this._box2d.b2Color);
+                // 通过接口读取值到复用对象，读完立即清理 __cache__
+                tmp = this._box2d.wrapPointer(ins, this._box2d.b2Color);
+                res = this._tempReadColor;
+                res.r = tmp.get_r();
+                res.g = tmp.get_g();
+                res.b = tmp.get_b();
+                this._cleanCache(tmp);
                 break;
 
             case Ebox2DType.b2Contact:
@@ -1493,16 +1543,22 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
                 break;
 
             case Ebox2DType.b2Transform:
-                res = this._box2d.wrapPointer(ins, this._box2d.b2Transform);
-                res.x = res.p.x;
-                res.y = res.p.y;
-                res.angle = res.q.GetAngle();
+                // 通过接口读取值到复用对象，读完立即清理 __cache__
+                tmp = this._box2d.wrapPointer(ins, this._box2d.b2Transform);
+                res = this._tempReadTransform;
+                res.x = tmp.get_p().get_x();
+                res.y = tmp.get_p().get_y();
+                res.angle = tmp.get_q().GetAngle();
+                this._cleanCache(tmp);
                 break;
 
             case Ebox2DType.b2Vec2:
-                res = this._box2d.wrapPointer(ins, this._box2d.b2Vec2);
-                res.x = res.get_x();
-                res.y = res.get_y();
+                // 通过接口读取值到复用对象，读完立即清理 __cache__
+                tmp = this._box2d.wrapPointer(ins, this._box2d.b2Vec2);
+                res = this._tempReadVec2;
+                res.x = tmp.get_x();
+                res.y = tmp.get_y();
+                this._cleanCache(tmp);
                 break;
 
             case Ebox2DType.b2Filter:
@@ -1546,13 +1602,16 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
     getDestructionListener() {
         var listner = new this.box2d.JSDestructionListener();
         let box2d = this.box2d;
+        let self = this;
         listner.SayGoodbyeJoint = function (joint: any): void {
             joint = box2d.wrapPointer(joint, box2d.b2Joint);
             joint.GetUserData().pointer = -1;
+            self._cleanCache(joint);
         }
         listner.SayGoodbyeFixture = function (fixture: any): void {
             fixture = box2d.wrapPointer(fixture, box2d.b2Fixture);
             fixture.GetUserData().pointer = -1;
+            self._cleanCache(fixture);
         }
         return listner;
     }
@@ -1570,27 +1629,6 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
      */
     castObject(pointer: any, cls: any): any {
         return this.box2d.castObject(pointer, cls)
-    }
-
-    /**
-     * @internal
-     * @en Create a wrapped pointer from points.
-     * @param points The points.
-     * @returns The wrapped pointer.
-     * @zh 从点创建包装的指针。
-     * @param points 点。
-     * @returns 包装的指针。
-     */
-    createWrapPointer(world: any, points: number[]): any {
-        var len: number = points.length;
-        var buffer = this.box2d._malloc(len * 4);
-        var offset = 0;
-        for (var i: number = 0; i < len; i++) {
-            //TODO value convert
-            this.box2d.HEAPF32[buffer + offset >> 2] = this.convertLayaValueToPhysics(world, points[i]);
-            offset += 4;
-        }
-        return buffer;
     }
 
     /**
@@ -1728,7 +1766,28 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
      * @param data 要销毁的数据。
      */
     destroyData(data: any): void {
-        data && data.__destroy__();
+        if (!data) return;
+        // Use Module.destroy instead of raw __destroy__ to also remove
+        // the wrapper object from Emscripten's __cache__, preventing JS heap leak.
+        if (this._box2d.destroy) {
+            this._box2d.destroy(data);
+        } else {
+            data.__destroy__();
+        }
+    }
+
+    /**
+     * @internal
+     * Clean up Emscripten wrapper cache entry for an object that was destroyed
+     * by Box2D internally (e.g., DestroyBody/DestroyFixture), not via Module.destroy.
+     */
+    _cleanCache(obj: any): void {
+        if (!obj || obj.ptr == null) return;
+        let cache = this._box2d.getCache;
+        if (cache && obj.__class__) {
+            let c = cache(obj.__class__);
+            if (c) delete c[obj.ptr];
+        }
     }
 
     /**
