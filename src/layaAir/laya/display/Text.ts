@@ -75,6 +75,7 @@ export class Text extends Sprite {
 
     static splitStr: (text: string) => string[] = defaultSplitStr;
     static punctuationChars: number[] = Array.from(".,，。、!！；;”’)）]】}》").map(char => char.charCodeAt(0));
+    static lineEndForbiddenChars: number[] = Array.from("(（<《[［{｛【〈〔“‘「『").map(char => char.charCodeAt(0));
 
     /**
      * @en Dictionary of bitmap fonts.
@@ -1225,12 +1226,9 @@ export class Text extends Sprite {
             }
         };
 
-        let getLastCharWidth = (text: string, font: string, curFontSize: number) => {
+        let getLastSplitChar = (text: string) => {
             let arrCh = Text.splitStr(text);
-            if (arrCh.length == 0)
-                return 0;
-
-            return getTextWidth2(arrCh[arrCh.length - 1], font, curFontSize);
+            return arrCh.length > 0 ? arrCh[arrCh.length - 1] : null;
         };
 
         let getLineWidth = (line: ITextLine) => {
@@ -1737,14 +1735,28 @@ export class Text extends Sprite {
                                 testResult = wordBoundaryTest.exec(cmd.wt.text);
                                 let textLen = cmd.wt.text.length;
                                 if (testResult == null) { //边界就在文本的末尾
-                                    if (isPunc && totalLen == 0) {
+                                    let lastCmdChar = getLastSplitChar(cmd.wt.text);
+                                    let forbidLineEnd = totalLen == 0 && lastCmdChar != null && Text.lineEndForbiddenChars.includes(lastCmdChar.charCodeAt(0));
+                                    if (forbidLineEnd) {
+                                        if (textLen > 1)
+                                            recordLineFillWidth(getMovedWidthFromSplit(cmd, textLen - 1));
+                                        else if (cmd.x > 0)
+                                            recordLineFillWidth(getMovedWidthFromSplit(cmd, 0));
+                                    }
+                                    else if (isPunc && totalLen == 0) {
                                         if (textLen > 1)
                                             recordLineFillWidth(getMovedWidthFromSplit(cmd, textLen - 1) + (tw || 0));
                                         else if (cmd.x > 0)
                                             recordLineFillWidth(getMovedWidthFromSplit(cmd, 0) + (tw || 0));
                                     }
                                     addLine();
-                                    if (isPunc && totalLen == 0) { //再次检查标点符号不能在行首
+                                    if (forbidLineEnd) { //再次检查禁排行尾符号不能留在上一行末尾
+                                        if (splitCmd(cmd, textLen - 1)) //将最后一个字符移到下一行
+                                            moveCmds(cmd.next);
+                                        else if (cmd.x > 0) //如果命令不在行首，整个命令移到下一行
+                                            moveCmds(cmd);
+                                    }
+                                    else if (isPunc && totalLen == 0) { //再次检查标点符号不能在行首
                                         if (splitCmd(cmd, textLen - 1)) //将最后一个字符移到下一行
                                             moveCmds(cmd.next);
                                         else if (cmd.x > 0) //如果命令不在行首，整个命令移到下一行
@@ -1805,6 +1817,19 @@ export class Text extends Sprite {
                             }
                         }
                         //else 做默认处理即可
+                    }
+                }
+
+                let tailChar = part.length > 0 ? getLastSplitChar(part) : null;
+                if (tailChar && Text.lineEndForbiddenChars.includes(tailChar.charCodeAt(0))) {
+                    let b = 1;
+                    if (j - b > startIndex || lineX > 0) {
+                        j -= b; //回退一个禁排行尾字符
+                        recordLineFillWidth(getTextWidth(tailChar));
+                        arrPartCh = arrCh.slice(startIndex, j);
+                        part = arrPartCh.join("");
+                        wordWidth = null; //part指向的字符串已改变，wordWidth无效
+                        tw = null; //j指向的字符已改变，tw无效
                     }
                 }
 
@@ -2298,7 +2323,6 @@ const escapeCharsPattern = /\\(\w)/g;
 const escapeSequence: any = { "\\n": "\n", "\\t": "\t" };
 const ellipsisStr = "…";
 const maxWordLength = 20;
-
 function getReplaceStr(word: string): string {
     return escapeSequence[word];
 }
