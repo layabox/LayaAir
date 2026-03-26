@@ -93,31 +93,53 @@ export class StaticCollider extends ColliderBase {
     }
 
     _removeShapeAndDestroyData() {
-        if (!this._rigidbody) {
-            if (!this._shapes) return;
-            for (let i = 0; i < this.shapes.length; i++) {
-                let shape = this._shapes[i];
-                shape.destroy();
+        if (this._rigidbody) {
+            // Collider 挂在 RigidBody 节点上，body 由 RigidBody 管理
+            // 只移除自己的 fixture，不销毁 body
+            let body = this._rigidbody.getBox2DBody();
+            if (body && !body.destroyed && this._box2DShape) {
+                Physics2D.I._factory.destroyShape(this._physics2DManager.box2DWorld, body, this._box2DShape);
+            }
+        } else {
+            // 独立 StaticCollider，自己拥有 body
+            if (this._shapes) {
+                for (let i = 0; i < this._shapes.length; i++) {
+                    let shape = this._shapes[i];
+                    shape.destroy();
+                }
+            }
+            // DestroyBody 会连带销毁 body 上所有 fixture，之后不可再对 fixture 调用 __destroy__
+            if (this._box2DBody) {
+                Physics2D.I._factory.removeBody(this._physics2DManager.box2DWorld, this._box2DBody);
             }
         }
-        this._rigidbody && (this._box2DBody = this._rigidbody.getBox2DBody());
-        this._box2DBody && (Physics2D.I._factory.removeBody(this._physics2DManager.box2DWorld, this._box2DBody));
+        // filter 和 shapeDef 是独立分配的 WASM 对象，需要单独释放
         this._box2DFilter && Physics2D.I._factory.destroyData(this._box2DFilter);
+        // Destroy the template b2Shape allocated in createShapeDef before destroying the b2FixtureDef
+        if (this._box2DShapeDef && this._box2DShapeDef._shape) {
+            Physics2D.I._factory.destroyData(this._box2DShapeDef._shape);
+            this._box2DShapeDef._shape = null;
+        }
         this._box2DShapeDef && Physics2D.I._factory.destroyData(this._box2DShapeDef);
-        this._box2DShape && Physics2D.I._factory.destroyData(this._box2DShape);
+        // _box2DShape (b2Fixture) 已在上面被 DestroyBody 或 DestroyFixture 释放，不可再 destroyData
         this._box2DBody = null;
         this._box2DFilter = null;
         this._box2DShape = null;
         this._box2DShapeDef = null;
+        this._shapes = null;
     }
 
     protected _onDisable(): void {
         this._removeShapeAndDestroyData();
+        // super._onDisable handles _box2DBodyDef destruction and event listener cleanup
+        // _box2DBody is already null from _removeShapeAndDestroyData, so removeBody is a no-op
+        super._onDisable();
     }
 
     protected _onDestroy(): void {
         this._shapeDef = null;
         this._removeShapeAndDestroyData();
+        super._onDestroy();
     }
 
     // ----------------------- deprecated 废弃方法与参数 兼容使用 ---------------------
@@ -134,6 +156,11 @@ export class StaticCollider extends ColliderBase {
         this._box2DBody = collider.getBox2DBody();
         if (this._box2DShape) {
             Physics2D.I._factory.destroyShape(this._physics2DManager.box2DWorld, this._box2DBody, this._box2DShape);
+            // Destroy the template b2Shape allocated in createShapeDef before destroying the b2FixtureDef
+            if (this._box2DShapeDef && this._box2DShapeDef._shape) {
+                Physics2D.I._factory.destroyData(this._box2DShapeDef._shape);
+                this._box2DShapeDef._shape = null;
+            }
             Physics2D.I._factory.destroyData(this._box2DShapeDef);
             this._box2DShape = null;
             this._box2DShapeDef = null;
