@@ -44,7 +44,7 @@ export interface IBridgeRenderElement extends IRenderElement2D {
  */
 export class Bridge3DSprite extends Sprite {
 
-    static scale3DToPixel = 10;
+    static readonly defaultPixelsPerUnit = 10;
 
     static createBridge3DRenderElement(): IBridgeRenderElement {
         if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {//native
@@ -54,34 +54,30 @@ export class Bridge3DSprite extends Sprite {
     }
     /**
      * Internal BridgeContainerSprite3D, parent node for all 3D children
-     * @internal
      * @remarks
      * - Container is added to Bridge3DScene3D
      * - Automatically gets _scene reference, supports component lifecycle
      */
-    _containerSprite3D: BridgeContainerSprite3D;
+    private _containerSprite3D: BridgeContainerSprite3D;
 
     /**
      * Render element
-     * @internal
      */
-    _bridge3DRenderElement: IBridgeRenderElement;
+    private _bridge3DRenderElement: IBridgeRenderElement;
 
     /**
      * Whether registered to Bridge3DScene3D
-     * @private
      */
     private _isRegistered: boolean = false;
 
     /**
-     * Scale factor from 3D units to pixels
-     * @private
+     * Pixels per unit
      * @remarks
      * - Controls how 3D content is scaled relative to 2D pixels
      * - Default: Bridge3DConfig.defaultScale3DToPixel
      * - Example: 100 means 1 3D unit = 100 pixels
      */
-    private _scale3DToPixel: number;
+    private _ppu: number;
 
     /** 缓存的3D世界空间包围盒 */
     private _bounds3D: Bounds;
@@ -100,7 +96,7 @@ export class Bridge3DSprite extends Sprite {
         super();
 
         // Initialize scale from global default
-        this._scale3DToPixel = Bridge3DSprite.scale3DToPixel;
+        this._ppu = Bridge3DSprite.defaultPixelsPerUnit;
 
         // Initialize bounds cache
         this._bounds3D = new Bounds(new Vector3(), new Vector3());
@@ -128,7 +124,6 @@ export class Bridge3DSprite extends Sprite {
 
     /**
      * Get internal container Sprite3D
-     * @internal
      * @remarks
      * - Only for internal engine use (e.g., used by Bridge3DScene3D during registration)
      * - User code should use addChild/removeChild APIs, not access container directly
@@ -156,8 +151,8 @@ export class Bridge3DSprite extends Sprite {
      * - Example: 100 means 1 3D unit = 100 pixels
      * - Affects the visual size of 3D content in the 2D scene
      */
-    get scale3DToPixel(): number {
-        return this._scale3DToPixel;
+    get pixelsPerUnit(): number {
+        return this._ppu;
     }
 
     /**
@@ -180,13 +175,13 @@ export class Bridge3DSprite extends Sprite {
      * // The cube will appear as 100x100 pixels on screen
      * ```
      */
-    set scale3DToPixel(value: number) {
+    set pixelsPerUnit(value: number) {
         if (value <= 0) {
             throw new Error("scale3DToPixel must be greater than 0");
         }
 
-        if (this._scale3DToPixel !== value) {
-            this._scale3DToPixel = value;
+        if (this._ppu !== value) {
+            this._ppu = value;
             // Trigger transform sync to apply new scale
             this._syncTransform2DTo3D();
         }
@@ -314,7 +309,7 @@ export class Bridge3DSprite extends Sprite {
         const ty = globalMatrix.ty;
 
         // 应用单位转换缩放
-        const scale = this._scale3DToPixel;
+        const scale = this._ppu;
 
         // 获取3D位置
         // globalMatrix的tx/ty已经是canvas像素坐标（包含了stage缩放和pixelRatio），
@@ -531,18 +526,25 @@ export class Bridge3DSprite extends Sprite {
 
     /**
      * 获取Bridge3D渲染元素
-     * @internal
      */
     get bridge3DRenderElement(): IBridgeRenderElement {
         return this._bridge3DRenderElement;
     }
+
+    /** @ignore */
+    _child3dChanged(child?: Node): void {
+    }
 }
 
-export class BridgeContainerSprite3D extends Sprite3D {
-    _ownerBridge : Bridge3DSprite;
+class BridgeContainerSprite3D extends Sprite3D {
+    _ownerBridge: Bridge3DSprite;
+
+    protected _childChanged(child?: Sprite): void {
+        super._childChanged(child);
+        this._ownerBridge._child3dChanged(child);
+    }
 }
 
-/** @internal 包围盒计算临时变量 */
 const _boundsTemp0: Vector3 = new Vector3();
 const _boundsTemp1: Vector3 = new Vector3();
 const _boundsPoint: Point = new Point();
