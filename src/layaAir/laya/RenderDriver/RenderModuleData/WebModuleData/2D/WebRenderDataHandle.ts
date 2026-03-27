@@ -100,7 +100,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     private _clonesViews: Web2DGraphic2DIndexCloneDataView[];
     private _globalAlpha: number = 1;
 
-    applyVertexBufferBlock(blocks: IGraphics2DBufferBlock[] ): void {
+    applyVertexBufferBlock(blocks: IGraphics2DBufferBlock[]): void {
         this._bufferBlocks = blocks;
         this.updateCloneView();
         this._globalAlpha = this._owner.globalAlpha;
@@ -148,7 +148,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                 this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
                 this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
             } else {
-                this._updateVertexData(mat, this._owner.globalAlpha, true, true , false);
+                this._updateVertexData(mat, this._owner.globalAlpha, true, true, false);
                 this._globalAlpha = this._owner.globalAlpha;
             }
             this._modifiedFrame = trans.modifiedFrame;
@@ -156,13 +156,14 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         else if (this._globalAlpha != this._owner.globalAlpha) {
             this._globalAlpha = this._owner.globalAlpha;
             // 乘到顶点里
-            this._updateVertexData(mat, this._owner.globalAlpha , false, true , false);
+            if (this._bufferBlocks && this._bufferBlocks.length)
+                this._updateVertexData(mat, this._owner.globalAlpha, false, true, false);
         }
     }
 
     private _updateVertexData(
-        mat: Matrix, globalAlpha: number, 
-        updateMatrix: boolean, updateGlobalAlpha: boolean , updateTextureArrayLayerIndex: boolean
+        mat: Matrix, globalAlpha: number,
+        updateMatrix: boolean, updateGlobalAlpha: boolean, updateTextureArrayLayerIndex: boolean
     ) {
         let pos = 0, dataViewIndex = 0, ci = 0;
         let dataView: Web2DGraphic2DVertexDataView = null;
@@ -202,7 +203,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                         vbdata[pos + 1] = x * m01 + y * m11 + ty;
                     }
 
-                    if (updateGlobalAlpha) { 
+                    if (updateGlobalAlpha) {
                         vbdata[pos + 10] = globalAlpha;
                     }
 
@@ -405,7 +406,7 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
         super.inheriteRenderData(context);
         if (this._renderAlpha != this._owner.globalAlpha) {
             let a = this._owner.globalAlpha * this._baseColor.a;
-            _setRenderColor.setValue(this._baseColor.r, this._baseColor.g , this._baseColor.b, a);
+            _setRenderColor.setValue(this._baseColor.r, this._baseColor.g, this._baseColor.b, a);
             this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, _setRenderColor);
             this._renderAlpha = this._owner.globalAlpha;
         }
@@ -483,7 +484,7 @@ export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implemen
 
         if (this._renderAlpha != this._owner.globalAlpha) {
             let a = this._owner.globalAlpha * this._baseColor.a;
-            _setRenderColor.setValue(this._baseColor.r , this._baseColor.g , this._baseColor.b , a);
+            _setRenderColor.setValue(this._baseColor.r, this._baseColor.g, this._baseColor.b, a);
             this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, _setRenderColor);
             this._renderAlpha = this._owner.globalAlpha;
         }
