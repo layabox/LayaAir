@@ -18,6 +18,7 @@ import { SingletonList } from "../utils/SingletonList";
 import { Bridge3DRenderElement } from "./render/Bridge3DRenderElement";
 import { IBridge3DRenderProcess } from "./render/IBridge3DRenderProcess";
 import { RTBridge3DRenderElement } from "./render/RTBridge3DRenderElement";
+import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { Bridge3DCoordinate } from "./utils/Bridge3DCoordinate";
 
 export interface IBridgeRenderElement extends IRenderElement2D {
@@ -316,8 +317,12 @@ export class Bridge3DSprite extends Sprite {
         const scale = this._scale3DToPixel;
 
         // 获取3D位置
+        // globalMatrix的tx/ty已经是canvas像素坐标（包含了stage缩放和pixelRatio），
+        // 直接转换到3D坐标系（Y轴翻转），不能再经过logicTo3D二次缩放
         const pos3D = Vector3.TEMP;
-        Bridge3DCoordinate.logicTo3D(tx, ty, 0, pos3D);
+        pos3D.x = tx;
+        pos3D.y = RenderState2D.height - ty;
+        pos3D.z = 0;
 
         // 构建4x4矩阵
         // 矩阵布局（列主序）：
