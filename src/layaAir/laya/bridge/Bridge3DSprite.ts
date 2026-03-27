@@ -106,8 +106,9 @@ export class Bridge3DSprite extends Sprite {
         this._bounds2DRect = new Rectangle();
 
         // 创建内部容器Sprite3D
-        this._containerSprite3D = new Sprite3D();
+        this._containerSprite3D = new BridgeContainerSprite3D();
         this._containerSprite3D.name = "Bridge3DContainer";
+        this._containerSprite3D._ownerBridge = this;
         this._setContainer(this._containerSprite3D);
         // 创建渲染元素
         this._bridge3DRenderElement = Bridge3DSprite.createBridge3DRenderElement();
@@ -532,8 +533,8 @@ export class Bridge3DSprite extends Sprite {
     }
 }
 
-export class BridgeContainerSprite3D extends Sprite3D{
-
+export class BridgeContainerSprite3D extends Sprite3D {
+    _ownerBridge : Bridge3DSprite;
 }
 
 /** @internal 包围盒计算临时变量 */
