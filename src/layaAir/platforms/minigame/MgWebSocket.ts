@@ -28,9 +28,26 @@ export class MgWebSocket implements IWebSocket {
         this.ws.onClose(() => this.onClose());
         this.ws.onError(err => this.onError(err));
         this.ws.onMessage(msg => {
-            if (msg.data)
-                this.onMessage(msg.data);
+            if (msg.data){
+                var data:any = msg.data;
+                if (data.isBuffer) {
+                    // 对齐web转成arrayBuffer;
+                    data = this.base64ToArrayBuffer(data.data);
+                }
+                this.onMessage(data);
+            }
         });
+    }
+
+    /** 将 Base64 字符串转为 ArrayBuffer */
+    private base64ToArrayBuffer(base64: string): ArrayBuffer {
+        const binary = atob(base64);
+        const len = binary.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binary.charCodeAt(i);
+        }
+        return bytes.buffer;
     }
 
     close(): void {
