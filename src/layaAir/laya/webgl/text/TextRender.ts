@@ -191,6 +191,20 @@ export class TextRender {
 
         let imgdt = ctx.getImageData(rectX, rectY, rectW, rectH);
 
+        //预乘一下
+        if (TextRenderConfig.premultiplyAlpha) {
+            let pix = imgdt.data.length / 4;
+            let dt = imgdt.data;
+            for (let i = 0; i < pix; i++) {
+                let pos = i * 4;
+                let k = dt[pos + 3] / 255;
+                if (k > 0) {
+                    dt[pos] = dt[pos] * k;
+                    dt[pos + 1] = dt[pos + 1] * k;
+                    dt[pos + 2] = dt[pos + 2] * k;
+                }
+            }
+        }
         let ri: ITextRenderInfo = {
             x: - fontSizeOffX - lineWidth - offsetLeft,
             //这里不应该包含fontSizeOffY，否则文字绘制会向上突出
@@ -309,6 +323,13 @@ export class TextRender {
             // 尝试从数组纹理池分配一层并注册映射，使本 TextTexture 被绘制时自动替换为 Texture2DArray+layer
             const alloc = TextureArrayRegistry2D.allocateLayerAsTexture(width, height, TextureFormat.R8G8B8A8, 64, /*sRGB*/ false);
             if (alloc) {
+                // 当启用 CPU 预乘时，文本数据来自 Canvas 2D（sRGB 空间）且已预乘 alpha。
+                // 不能使用硬件 sRGB 格式（会对预乘数据错误解码产生白边），
+                // 但需要标记 gammaCorrection 使 GAMMATEXTURE 宏生效，
+                // 避免 shader 对已是 sRGB 的数据重复执行 linearToGamma 导致边缘过亮。
+                if (TextRenderConfig.premultiplyAlpha && alloc.array.gammaCorrection === 1) {
+                    alloc.array._texture.gammaCorrection = 2.2;
+                }
                 TextureArrayRegistry2D.register(tex, alloc.array, alloc.layer);
             }
         }
@@ -325,7 +346,8 @@ export class TextRender {
         if (reg) {
             reg.array.setSubPixelsData(x, y, reg.layer, imgdt.width, imgdt.height, 1, data, 0, false, false, false);
         } else {
-            LayaGL.textureContext.setTextureSubPixelsData(tex._texture, data, 0, false, x, y, imgdt.width, imgdt.height, true, false);
+            // CPU 预乘已完成时不再请求 GPU 预乘，避免双重预乘
+            LayaGL.textureContext.setTextureSubPixelsData(tex._texture, data, 0, false, x, y, imgdt.width, imgdt.height, !TextRenderConfig.premultiplyAlpha, false);
         }
 
         let u0 = (x + blockGap) / tex.width;
