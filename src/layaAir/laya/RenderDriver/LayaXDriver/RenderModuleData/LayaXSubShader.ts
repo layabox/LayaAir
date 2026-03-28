@@ -1,6 +1,8 @@
 import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ISubshaderData } from "../../RenderModuleData/Design/ISubShaderData";
 import { IShaderPassData } from "../../RenderModuleData/Design/IShaderPassData";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { LayaXCommandUniformMap } from "../RenderDevice/LayaXCommandUniformMap";
 import { LayaXShaderPass } from "./LayaXShaderPass";
 
 /**
@@ -25,6 +27,7 @@ export class LayaXSubShader implements ISubshaderData {
     set shaderName(value: string) {
         this._shaderName = value;
         this._nativeObj.setName(value);
+        this._ensureMaterialMap();
     }
 
     get enableInstance(): boolean {
@@ -44,6 +47,26 @@ export class LayaXSubShader implements ISubshaderData {
                 value.arrayLength
             );
         });
+        this._pendingUniformMap = _uniformMap;
+        this._ensureMaterialMap();
+    }
+
+    private _pendingUniformMap: Map<number, UniformProperty> | null = null;
+
+    /** Create global CommandUniformMap for material Set3 using SubShader's uniform properties */
+    private _ensureMaterialMap(): void {
+        if (!this._pendingUniformMap || !this._shaderName) return;
+        let map = LayaGL.renderDeviceFactory.createGlobalUniformMap(this._shaderName) as LayaXCommandUniformMap;
+        if (map._idata.size == 0) {
+            this._pendingUniformMap.forEach((value) => {
+                if (value.arrayLength > 0) {
+                    map.addShaderUniformArray(value.id, value.propertyName, value.uniformtype, value.arrayLength);
+                } else {
+                    map.addShaderUniform(value.id, value.propertyName, value.uniformtype);
+                }
+            });
+        }
+        this._pendingUniformMap = null;
     }
 
     addShaderPass(pass: IShaderPassData): void {
