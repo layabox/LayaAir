@@ -214,11 +214,17 @@ export class AnimationRender {
                 // spine.timline
             }
             //@ts-ignore
-            else if (time instanceof (spine.ColorTimeline || spine.RGBATimeline) || (spine.TwoColorTimeline && time instanceof spine.TwoColorTimeline)) {
+            else if (time instanceof (spine.ColorTimeline || spine.RGBATimeline) || (spine.TwoColorTimeline && time instanceof spine.TwoColorTimeline)
+                || (spine.AlphaTimeline && time instanceof spine.AlphaTimeline)
+                || (spine.RGBTimeline && time instanceof spine.RGBTimeline)
+                || (spine.RGBA2Timeline && time instanceof spine.RGBA2Timeline)
+                || (spine.RGB2Timeline && time instanceof spine.RGB2Timeline)) {
                 let rgba = time as spine.RGBATimeline;
                 let slotIndex = rgba.slotIndex;
+                let frameEntries = time.getFrameEntries ? time.getFrameEntries() : 5;
 
-                if (frames.length == 5 && frames[0] == 0 && frames[4] == 0) {//优化，当0帧 透明度0时。
+                if (frames.length == frameEntries && frames[0] == 0
+                    && ((frameEntries >= 5 && frames[4] == 0) || (frameEntries == 2 && frames[1] == 0))) {//优化，当0帧 透明度0时。
                     let change = new ChangeSlot();
                     change.slotId = slotIndex;
                     change.attachment = null;
@@ -239,8 +245,8 @@ export class AnimationRender {
 
                     let changeRGBA = new ChangeRGBA(slotIndex);
                     let startFrame = frames[0];
-                    let num = frames.length / 5 | 0;
-                    let endFrame = frames[(num - 1) * 5];
+                    let num = frames.length / frameEntries | 0;
+                    let endFrame = frames[(num - 1) * frameEntries];
 
                     changeRGBA.startFrame = startFrame;
                     changeRGBA.endFrame = endFrame;
@@ -306,12 +312,6 @@ export class AnimationRender {
             else {
                 // console.warn("unknow timeline:",time);
             }
-            // else if (time instanceof window.spine.AlphaTimeline) {
-            //     debugger;
-            // }
-            // else if (time instanceof window.spine.RGBTimeline) {
-            //     debugger;
-            // }
         }
 
         this.isDynamic = isDynamic;
