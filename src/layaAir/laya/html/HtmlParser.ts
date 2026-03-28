@@ -149,6 +149,14 @@ export class HtmlParser {
                             this._style.color = color;
                             (<any>this._style).colorChanged = true;
                         }
+                        let stroke: string = XMLIterator.getAttribute("stroke");
+                        if (stroke != null) {
+                            this._style.stroke = parseInt(stroke) || 0;
+                        }
+                        let strokeColor: string = XMLIterator.getAttribute("strokeColor");
+                        if (strokeColor != null) {
+                            this._style.strokeColor = strokeColor;
+                        }
                     }
                     else if (XMLIterator.tagType == XMLTagType.End)
                         this.popStyle();
