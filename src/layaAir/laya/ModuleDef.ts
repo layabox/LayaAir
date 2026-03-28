@@ -54,6 +54,7 @@ import { BaseRenderNode2D } from "./NodeRender2D/BaseRenderNode2D";
 import { Mesh2D } from "./resource/Mesh2D";
 import { Gradient } from "./maths/Gradient";
 import { FloatKeyframe } from "./maths/FloatKeyframe";
+import { Curve } from "./maths/Curve";
 import { Area2D } from "./display/Area2D";
 import { OpenDataContextView } from "./display/OpenDataContextView";
 import { PostProcess2D } from "./display/PostProcess2D";
@@ -115,6 +116,7 @@ c("BaseRenderNode2D", BaseRenderNode2D);
 c("Mesh2D", Mesh2D);
 c("Gradient", Gradient);
 c("FloatKeyframe", FloatKeyframe);
+c("Curve", Curve);
 
 c("PostProcess2D", PostProcess2D);
 c("PostProcess2DEffect", PostProcess2DEffect);
