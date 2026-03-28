@@ -110,7 +110,7 @@ export class LayaXShaderInstance implements IShaderInstance {
         Config.matUseUBO = useMaterial;
 
         // 6. Cull already done inside layax_process (after replaceTextureSampler, before uniformString2)
-        // bindingInfoMap now has only used entries with continuous binding indices
+        // bindingInfoMap is now culled with continuous binding indices
 
         // 7. Compile GLSL → SPIR-V → WGSL
         // TODO: Extract shaderCompiler as shared service (not WebGPU-specific)

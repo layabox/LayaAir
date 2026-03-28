@@ -287,6 +287,7 @@ ${fragmentCode}
         fragmentCode = replaceTextureSampler(fragmentCode, useTexArray);
 
         // Cull unused textures from uniformMap and renumber binding indices
+        // (before uniformString2, so GLSL has continuous bindings matching propertySetMap)
         {
             let texturePropertyIds: number[] = [];
             for (const texName of useTexArray) {
