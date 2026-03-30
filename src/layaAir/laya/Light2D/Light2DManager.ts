@@ -1045,48 +1045,29 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * 更新屏幕尺寸和偏移参数
      */
     private _updateScreen() {
-        // if (this._scene._area2Ds.size > 0) {
-        //     let xL = 10000000;
-        //     let xR = -10000000;
-        //     let yB = 10000000;
-        //     let yT = -10000000;
-        // TODO::因为现在sprite 找灯光数据只是layer查找，还要区分 area2d ，暂时先做全局。可以尝试设置个对应的 Area2D GlobalShaderData.
-        //     for (let i = 0 , n = this._lights.length; i < n; i++) {
-        //         let sprite = this._lights[i].owner;
-        //         if (sprite) { 
-        //             let renderData = sprite._struct.globalRenderData;
-        //             // 相机
-        //             let cameraRect = renderData ? renderData.cullRect : null;
-        //             if (cameraRect) {
-        //                 xL = Math.min(xL, cameraRect.x);
-        //                 xR = Math.max(xR, cameraRect.y);
-        //                 yB = Math.min(yB, cameraRect.z);
-        //                 yT = Math.max(yT, cameraRect.w);
-        //             } else {
-        //                 xR = -1 , yT = -1;
-        //                 break;
-        //             }
-        //         }else{
-        //             xR = -1 , yT = -1;
-        //             break;
-        //         }
-        //     }
-        //     this._screen.x = xL;
-        //     this._screen.y = yB;
-        //     this._screen.width = xR - xL;
-        //     this._screen.height = yT - yB;
-        //     if (this._screen.width < 0 || this._screen.height < 0) {
-        //         this._screen.x = 0;
-        //         this._screen.y = 0;
-        //         this._screen.width = RenderState2D.width | 0;
-        //         this._screen.height = RenderState2D.height | 0;
-        //     }
-        // } else {
+        let usedCamera = false;
+        if (this._scene._area2Ds.size > 0) {
+            for (let area of this._scene._area2Ds) {
+                const camera = area.mainCamera;
+                if (camera && camera._rect) {
+                    const rect = camera._rect; // (min_x, max_x, min_y, max_y)
+                    this._screen.x = rect.x | 0;
+                    this._screen.y = rect.z | 0;
+                    this._screen.width = (rect.y - rect.x) | 0;
+                    this._screen.height = (rect.w - rect.z) | 0;
+                    if (this._screen.width > 0 && this._screen.height > 0) {
+                        usedCamera = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (!usedCamera) {
             this._screen.x = 0;
             this._screen.y = 0;
             this._screen.width = RenderState2D.width | 0;
             this._screen.height = RenderState2D.height | 0;
-        // }
+        }
 
         if (this._screen.width <= 0 || this._screen.height <= 0)
             return false; //屏幕尺寸不合理
