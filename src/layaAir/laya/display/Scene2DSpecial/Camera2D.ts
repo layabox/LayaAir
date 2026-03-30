@@ -102,9 +102,10 @@ export class Camera2D extends Sprite {
             }
             ele = ele._parent;
         }
-        if (this._ownerArea == null) {
-            console.warn("Camera2D must be a descendant of Area2D");
-        }
+        // Avoid warning when using Camera2D in prefabs
+        // if (this._ownerArea == null) {
+        //     console.warn("Camera2D must be a descendant of Area2D");
+        // }
     }
 
     private _zoom: Vector2;
