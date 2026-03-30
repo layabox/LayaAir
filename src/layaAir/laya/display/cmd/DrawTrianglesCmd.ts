@@ -79,6 +79,11 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      */
     color: number | null;
     /**
+     * @en Vertex Colors.
+     * @zh 顶点颜色数组。
+     */
+    colors: ArrayLike<number> | null;
+    /**
      * @en Mesh factory for creating the mesh.
      * @zh 用于创建网格的工厂。
      */
@@ -217,7 +222,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
             // 直接传递顶点数据的路径（无需裁剪处理）
             runner.drawTriangles(this.texture, this.x + gx, this.y + gy,
                 this.vertices, this.uvs, this.indices,
-                this.matrix, this.alpha, this.blendMode, this.color);
+                this.matrix, this.alpha, this.blendMode, this.color , this.colors as Float32Array);
         }
     }
 
