@@ -3,9 +3,8 @@ import { IRender2DPass, IRender2DPassManager } from "../../Design/2D/IRender2DPa
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { PostProcess2D } from "../../../../display/PostProcess2D";
 import { RTRenderStruct2D } from "./RTRenderStruct2D";
-import { GLESInternalRT } from "../../../OpenGLESDriver/RenderDevice/GLESInternalRT";
-import { GLESShaderData } from "../../../OpenGLESDriver/RenderDevice/GLESShaderData";
-import { GLESRenderContext2D } from "../../../OpenGLESDriver/2DRenderPass/GLESRenderContext2D";
+import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
+import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { Matrix } from "../../../../maths/Matrix";
 
 export class RTRender2DPass implements IRender2DPass {
@@ -58,6 +57,7 @@ export class RTRender2DPass implements IRender2DPass {
       return this._doClearColor;
    }
    postProcess: PostProcess2D = null;
+   private _enablePostProcess: boolean = false;
 
    private _mask: RTRenderStruct2D;
    public set mask(value: RTRenderStruct2D) {
@@ -85,7 +85,7 @@ export class RTRender2DPass implements IRender2DPass {
    public set renderTexture(value: RenderTexture2D) {
       this._renderTexture = value;
       if (value) {
-         this._nativeObj.setRenderTexture((value._renderTarget as GLESInternalRT)._nativeObj, value.width, value.height, value._invertY);
+         this._nativeObj.setRenderTexture((value._renderTarget as any)._nativeObj, value.width, value.height, value._invertY);
       }
       else {
          this._nativeObj.setRenderTexture(null, 0, 0, false);
@@ -101,11 +101,11 @@ export class RTRender2DPass implements IRender2DPass {
       this._nativeObj.priority = value;
    }
 
-   private _shaderData: GLESShaderData = null;
-   set shaderData(value: GLESShaderData) {
+   private _shaderData: ShaderData = null;
+   set shaderData(value: ShaderData) {
       this._shaderData = value;
    }
-   get shaderData(): GLESShaderData {
+   get shaderData(): ShaderData {
       return this._shaderData;
    }
 
@@ -127,44 +127,55 @@ export class RTRender2DPass implements IRender2DPass {
       this._nativeObj.setClearColor(r, g, b, a);
    }
 
-   constructor() {
-      this._shaderData = LayaGL.renderDeviceFactory.createShaderData(null) as GLESShaderData;
-      this._nativeObj = new (window as any).conchRTRender2DPass(this._shaderData._nativeObj);
-      this._nativeObj.setRenderCallback(this.renderCallBack.bind(this));
-      this.enable = true;
-      this.enableBatch = true;
-      this.isSupport = false;
-      this.doClearColor = true;
-      this.repaint = true;
-      this.priority = 0;
-      this.offsetMatrix = new Matrix();
+   constructor(skipNative?: boolean) {
+      this._shaderData = LayaGL.renderDeviceFactory.createShaderData(null) as ShaderData;
+      if (!skipNative) {
+         this._nativeObj = new (window as any).conchRTRender2DPass((this._shaderData as any)._nativeObj);
+         this.enable = true;
+         this.enableBatch = true;
+         this.isSupport = false;
+         this.doClearColor = true;
+         this.repaint = true;
+         this.priority = 0;
+         this.offsetMatrix = new Matrix();
+      }
    }
 
    /**
     * pass 2D 渲染
     * @param context 
     */
-   fowardRender(context: GLESRenderContext2D) {
+   fowardRender(context: IRenderContext2D) {
       let rt = this.renderTexture;
       if (rt) {
          context.invertY = rt._invertY;
       }
-      this._nativeObj.fowardRender(context._nativeObj);
+      this._nativeObj.fowardRender((context as any)._nativeObj);
    }
 
-   // /**
-   //  * 渲染
-   //  * @param context 
-   //  */
-   // render(context: GLESRenderContext2D): void {
-   //    this._nativeObj.render(context._nativeObj);
-   // }
-   private renderCallBack(context: GLESRenderContext2D): void {
-      // 处理后期处理
-      if (this.postProcess && this.postProcess.enabled) {
-         this.postProcess.apply();
+   updatePostProcess(): void {
+      let pp = this.postProcess;
+      if (pp?._checkEnabled()) {
+         let command = pp._context.command;
+         this._nativeObj.setPostProcess(
+            this._getRenderCMDArray(command._renderCMDs)
+         );
+         this._nativeObj.setEnablePostProcess(true);
+         this._enablePostProcess = true;
+      } else if (this._enablePostProcess) {
+         this._nativeObj.setEnablePostProcess(false);
+         this._enablePostProcess = false;
       }
    }
+
+   private _getRenderCMDArray(cmds: any[]): any[] {
+      let nativeobCMDs: any[] = [];
+      cmds.forEach(element => {
+         nativeobCMDs.push((element as any)._nativeObj);
+      });
+      return nativeobCMDs;
+   }
+
    destroy(): void {
       //lvtodo
       this._nativeObj.destroy();
@@ -186,8 +197,8 @@ export class RTRender2DPassManager implements IRender2DPassManager {
       this._nativeObj.removePass(pass._nativeObj);
    }
 
-   apply(context: GLESRenderContext2D): void {
-      this._nativeObj.apply(context._nativeObj);
+   apply(context: IRenderContext2D): void {
+      this._nativeObj.apply((context as any)._nativeObj);
    }
 
    clear(): void {

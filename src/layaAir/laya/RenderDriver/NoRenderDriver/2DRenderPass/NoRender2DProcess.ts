@@ -254,6 +254,9 @@ export class NoRenderGraphics2DBufferBlock implements IGraphics2DBufferBlock {
 }
 
 export class NoRenderRender2DPass implements IRender2DPass {
+    updatePostProcess(): void {
+       
+    }
     enable: boolean = false;
     enableBatch: boolean = false;
     isSupport: boolean = false;
