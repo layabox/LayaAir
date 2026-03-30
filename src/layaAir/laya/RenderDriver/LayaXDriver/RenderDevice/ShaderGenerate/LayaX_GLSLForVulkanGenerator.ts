@@ -286,13 +286,36 @@ ${fragmentCode}
         vertexCode = replaceTextureSampler(vertexCode, useTexArray);
         fragmentCode = replaceTextureSampler(fragmentCode, useTexArray);
 
-        // const vertexProcess = new WebGPU_GLSLProcess();
-        // vertexProcess.process(vertexCode, textureNames);
-        // vertexCode = vertexProcess.glslCode;
-
-        // const fragmentProcess = new WebGPU_GLSLProcess();
-        // fragmentProcess.process(fragmentCode, textureNames);
-        // fragmentCode = fragmentProcess.glslCode;
+        // Cull unused textures from uniformMap and renumber binding indices
+        // (before uniformString2, so GLSL has continuous bindings matching propertySetMap)
+        {
+            let texturePropertyIds: number[] = [];
+            for (const texName of useTexArray) {
+                if (texName.endsWith("_Texture")) {
+                    texturePropertyIds.push(
+                        Shader3D.propertyNameToID(texName.substring(0, texName.length - 8))
+                    );
+                }
+            }
+            uniformMap.forEach((value, key) => {
+                if (key < checkSetNumber) return;
+                let filtered: LayaXBindingInfo[] = [];
+                for (const info of value) {
+                    if (info.type === LayaXBindingInfoType.texture || info.type === LayaXBindingInfoType.sampler) {
+                        if (texturePropertyIds.includes(info.propertyId)) {
+                            filtered.push(info);
+                        }
+                    } else {
+                        filtered.push(info);
+                    }
+                }
+                // Renumber binding indices to be continuous
+                for (let i = 0; i < filtered.length; i++) {
+                    filtered[i].binding = i;
+                }
+                uniformMap.set(key, filtered);
+            });
+        }
 
         // 将所有 gl_VertexID 替换为 gl_VertexIndex
         vertexCode = vertexCode.replace(/gl_VertexID/g, "gl_VertexIndex");
@@ -707,8 +730,7 @@ function uniformString2(uniformSetMap: Map<number, LayaXBindingInfo[]>, material
                             break;
                         }
                     case LayaXBindingInfoType.texture:
-                        if (key < checkSetNumber || usedTexSet.has(uniform.name)) {
-
+                        {
                             let textureName = uniform.name.replace("_Texture", "");
                             let collectUniform = collectUniforms.get(textureName);
                             if (collectUniform) {
@@ -721,15 +743,12 @@ function uniformString2(uniformSetMap: Map<number, LayaXBindingInfo[]>, material
                             res = `${res}layout(set=${uniform.set}, binding=${binding}) uniform ${textureType} ${uniform.name};\n`
 
                             let samplerName = uniform.name.replace("_Texture", "");
-
                             samplerMap.set(samplerName, uniform);
-
                         }
-                        // binding 始终递增，与 createBindingInfoArray 保持一致
                         binding++;
                         break;
                     case LayaXBindingInfoType.sampler:
-                        if (key < checkSetNumber || usedTexSet.has(uniform.name)) {
+                        {
                             let sampler = "sampler";
                             let samplerName = uniform.name.replace("_Sampler", "");
 
@@ -742,7 +761,6 @@ function uniformString2(uniformSetMap: Map<number, LayaXBindingInfo[]>, material
 
                             res = `${res}layout(set=${uniform.set}, binding=${binding}) uniform ${sampler} ${uniform.name};\n`;
                         }
-                        // binding 始终递增，与 createBindingInfoArray 保持一致
                         binding++;
                         break;
                     default:

@@ -109,35 +109,10 @@ export class LayaXShaderInstance implements IShaderInstance {
         );
         Config.matUseUBO = useMaterial;
 
-        // 6. Cull unused textures from bindingInfoMap
-        {
-            let texturePropertyIds: number[] = [];
-            for (const texName of useTexSet) {
-                if (texName.endsWith("_Texture")) {
-                    texturePropertyIds.push(
-                        LayaXRenderEngine._instance.propertyNameToID(
-                            texName.substring(0, texName.length - 8)
-                        )
-                    );
-                }
-            }
-            for (const [setIndex, bindInfoArray] of this.bindingInfoMap) {
-                if (setIndex < cullTextureSetLayer) continue;
-                let filtered: LayaXBindingInfo[] = [];
-                for (const info of bindInfoArray) {
-                    if (info.type === LayaXBindingInfoType.texture || info.type === LayaXBindingInfoType.sampler) {
-                        if (texturePropertyIds.includes(info.propertyId)) {
-                            filtered.push(info);
-                        }
-                    } else {
-                        filtered.push(info);
-                    }
-                }
-                this.bindingInfoMap.set(setIndex, filtered);
-            }
-        }
+        // 6. Cull already done inside layax_process (after replaceTextureSampler, before uniformString2)
+        // bindingInfoMap is now culled with continuous binding indices
 
-        // 8. Compile GLSL → SPIR-V → WGSL
+        // 7. Compile GLSL → SPIR-V → WGSL
         // TODO: Extract shaderCompiler as shared service (not WebGPU-specific)
         const engine = LayaXRenderEngine._instance;
         let vs_wgsl = "";

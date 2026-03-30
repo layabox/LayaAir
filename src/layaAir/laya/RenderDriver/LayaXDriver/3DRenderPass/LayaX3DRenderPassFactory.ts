@@ -151,8 +151,9 @@ class LayaXBlitQuadCMDData extends BlitQuadCMDData {
         return this._source;
     }
     set source(value: InternalTexture) {
-        // source texture is bound via RenderElement's ShaderData, not via CMD
         this._source = value;
+        // Pass source texture to C++ → Rust for execute_blit_quad to set u_MainTex
+        this._nativeObj.setSource(value ? (value as any)._nativeObj : null);
     }
 
     get offsetScale(): Vector4 {
