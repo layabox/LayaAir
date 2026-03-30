@@ -79,6 +79,8 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @zh 颜色变换。
      */
     color: number | null;
+
+    colors: ArrayLike<number> | null;
     /**
      * @en Mesh factory for creating the mesh.
      * @zh 用于创建网格的工厂。
@@ -130,7 +132,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
         cmd.alpha = alpha ?? 1;
         cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
         cmd.blendMode = blendMode;
-        cmd._dynamic = texture._dynamic?.uv;
+        cmd._dynamic = texture?._dynamic?.uv;
         return cmd;
     }
 
@@ -170,6 +172,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
         this.indices = null;
         this.matrix = null;
         this.mesh = null;
+        this.colors = null;
         this._cacheData = null;
         this._dynamic = null;
         this._tempUVs = null;
@@ -227,7 +230,8 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
             // 直接传递顶点数据的路径
             drawTrianglesBatched(runner, this.texture, this.x + gx, this.y + gy,
                 this.vertices, this.uvs, this.indices,
-                this.matrix, this.alpha, this.blendMode, this.color, null, null);
+                this.matrix, this.alpha, this.blendMode,
+                this.color, this.colors as Float32Array, null);
         }
     }
 
