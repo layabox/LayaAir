@@ -743,12 +743,12 @@ export class Spine3DRenderer extends BaseRender {
      * @en Destroy the current object.
      */
     protected _onDestroy(): void {
-        super._onDestroy();
         if (this._templet) {
             this.clear();
         }
         this._spineRender.destroy();
         this._spineRender = null;
+        super._onDestroy();
     }
 
     /**
