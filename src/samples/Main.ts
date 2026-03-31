@@ -18,6 +18,7 @@ import { GLESRenderDeviceFactory } from "laya/RenderDriver/OpenGLESDriver/Render
 import { LayaX3DRenderPassFactory } from "laya/RenderDriver/LayaXDriver/3DRenderPass/LayaX3DRenderPassFactory";
 import { LayaXRenderDeviceFactory } from "laya/RenderDriver/LayaXDriver/RenderDevice/LayaXRenderDeviceFactory";
 import { LayaX3DRenderModuleFactory } from "laya/RenderDriver/LayaXDriver/RenderModuleData/LayaX3DRenderModuleFactory";
+import { LayaXRender2DProcess } from "laya/RenderDriver/LayaXDriver/2DRenderPass/LayaXRender2DProcess";
 import { NoRender2DProcess} from "laya/RenderDriver/NoRenderDriver/2DRenderPass/NoRender2DProcess"
 import { RT3DRenderModuleFactory } from "laya/RenderDriver/RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleFactory";
 import { RTUintRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTUintRenderModuleDataFactory";
@@ -69,7 +70,7 @@ export class Main {
             Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
             Laya3DRender.Render3DModuleDataFactory = new LayaX3DRenderModuleFactory();
             Laya3DRender.Render3DPassFactory = new LayaX3DRenderPassFactory();
-            LayaGL.render2DRenderPassFactory = new NoRender2DProcess();
+            LayaGL.render2DRenderPassFactory = new LayaXRender2DProcess();
             //LayaGL.statAgent = new RTStatisContext();
         } else if (!LayaEnv.isConch || (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() == 2)) {
             LayaGL.unitRenderModuleDataFactory = new WebUnitRenderModuleDataFactory();
