@@ -104,7 +104,7 @@ export class Bridge3DSkewTest {
 
         // 创建Bridge3D（蓝色立方体，显示在2D参考图形前面）
         const bridge = new Bridge3DSprite();
-        bridge.scale3DToPixel = 1;
+        bridge.pixelsPerUnit = 1;
         bridge.pos(x, y);
         bridge.skewX = skewX;
         bridge.skewY = skewY;
@@ -193,7 +193,7 @@ export class Bridge3DSkewTest {
         material.albedoColor = new Color(1.0, 0.5, 0.3, 0.8);
         cube.meshRenderer.material = material;
         bridge.addChild(cube);
-        bridge.scale3DToPixel = 1;
+        bridge.pixelsPerUnit = 1;
         scene.addChild(bridge);
 
         // 动画：skewX在-45到45度之间振荡

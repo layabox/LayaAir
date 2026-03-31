@@ -71,7 +71,7 @@ export class Bridge3DParticle {
 
         // === 中间3D：Bridge3DSprite ===
         const bridge = new Bridge3DSprite();
-        bridge.scale3DToPixel = 100;
+        bridge.pixelsPerUnit = 100;
         bridge.pos(150, 200);
         fusionGroup.addChild(bridge);
 

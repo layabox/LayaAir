@@ -49,7 +49,7 @@ export class Bridge3DTest {
         // Create Bridge3DSprite (auto-creates Bridge3DScene3D on first add)
         const bridge = new Bridge3DSprite();
         bridge.pos(x, y);
-        bridge.scale3DToPixel = 1;
+        bridge.pixelsPerUnit = 1;
         scene2D.addChild(bridge);
 
         // Access holder (scene3d auto-created by addChild above)

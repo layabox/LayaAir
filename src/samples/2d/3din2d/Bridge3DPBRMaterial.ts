@@ -71,7 +71,7 @@ export class Bridge3DPBRMaterial {
 
         // 创建 Bridge3DSprite：scale3DToPixel=1 表示 1 个 3D 单位对应 1 像素
         this.bridge = new Bridge3DSprite();
-        this.bridge.scale3DToPixel = 1;
+        this.bridge.pixelsPerUnit = 1;
         this.bridge.pos(Laya.stage.width / 2, Laya.stage.height / 2);
         this.scene2D.addChild(this.bridge);
 

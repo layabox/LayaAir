@@ -67,8 +67,8 @@ export class Bridge3DPostProcessTest {
         holder.initScene3D();
         holder.scene3d.ambientColor = new Color(0.4, 0.4, 0.4, 1);
 
-        const lightSprite = new Bridge3DSprite();
-        this.scene2D.addChild(lightSprite);
+        // const lightSprite = new Bridge3DSprite();
+        // this.scene2D.addChild(lightSprite);
     }
 
     // ── 测试注册 ──────────────────────────────────────────────────────────────
@@ -202,7 +202,7 @@ export class Bridge3DPostProcessTest {
     private makeBridge(x: number, y: number, colors: Color[], spacing: number = 100): Bridge3DSprite {
         const bridge = new Bridge3DSprite();
         bridge.pos(x, y);
-        bridge.scale3DToPixel = 1;
+        bridge.pixelsPerUnit = 1;
 
         colors.forEach((col, i) => {
             const sphere = new MeshSprite3D(PrimitiveMesh.createSphere(40));

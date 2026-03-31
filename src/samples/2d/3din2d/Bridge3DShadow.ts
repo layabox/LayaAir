@@ -68,7 +68,7 @@ export class Bridge3DShadow {
 
         // 创建Bridge3DSprite容器 (auto-creates Bridge3DScene3D)
         this.bridge = new Bridge3DSprite();
-        this.bridge.scale3DToPixel = 1;
+        this.bridge.pixelsPerUnit = 1;
         this.bridge.pos(Laya.stage.width / 2, Laya.stage.height / 2);
         scene2D.addChild(this.bridge);
 

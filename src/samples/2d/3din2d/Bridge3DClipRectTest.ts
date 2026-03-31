@@ -91,7 +91,7 @@ export class Bridge3DClipRectTest {
         // Bridge3DSprite 放在容器内，球体半径 50，会有一部分超出 scrollRect 左/上边界
         const bridge = new Bridge3DSprite();
         bridge.pos(0, 0);
-        bridge.scale3DToPixel = 1;
+        bridge.pixelsPerUnit = 1;
         container.addChild(bridge);
 
         const holder = scene2D.bridge3D;
@@ -128,7 +128,7 @@ export class Bridge3DClipRectTest {
         const selfClipH = 180;
         const bridgeSelf = new Bridge3DSprite();
         bridgeSelf.pos(450, 120);
-        bridgeSelf.scale3DToPixel = 1;
+        bridgeSelf.pixelsPerUnit = 1;
         // bridgeSelf.scrollRect = new Rectangle(0, 0, selfClipW, selfClipH);
         scene2D.addChild(bridgeSelf);
         bridgeSelf.graphics.drawRect(0, 0, selfClipW, selfClipH, null, "#0088ff", 2);
