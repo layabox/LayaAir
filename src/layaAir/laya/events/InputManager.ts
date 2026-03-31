@@ -623,11 +623,14 @@ export class InputManager {
             }
         }
 
-        if (sp._getBit(NodeFlags.LOCK_BY_EDITOR) || sp._getBit(NodeFlags.HIDE_BY_EDITOR) || InputManager._previewFlag && sp.hasHideFlag(HideFlags.HideInHierarchy))
+        if (InputManager._previewFlag
+            && (sp._getBit(NodeFlags.LOCK_BY_EDITOR) || sp._getBit(NodeFlags.HIDE_BY_EDITOR) || sp.hasHideFlag(HideFlags.HideInHierarchy)))
             return null;
 
         if (editing) {
-            if (!sp.hasHideFlag(HideFlags.HideInHierarchy) && this.hitTest(sp, x, y, editing))
+            if (!sp._getBit(NodeFlags.LOCK_BY_EDITOR)
+                && !sp.hasHideFlag(HideFlags.HideInHierarchy)
+                && this.hitTest(sp, x, y, editing))
                 return sp;
         }
         else if (sp != this._stage) {
