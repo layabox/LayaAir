@@ -96,7 +96,7 @@ export class Bridge3DSceneHolder implements IBridge3DSceneHolder {
 
         // Add to stage if needed
         if (!this._isAddedToStage && this._bridge3DList.length > 0) {
-            ILaya.stage.addChild(scene3d);
+            ILaya.stage.addChildAt(scene3d, 0);
             this._isAddedToStage = true;
         }
 
