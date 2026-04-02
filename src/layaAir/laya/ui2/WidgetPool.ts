@@ -72,8 +72,8 @@ export class WidgetPool {
             ret = <GWidget>this._defaultRes.create(this._createOptions);
         else
             ret = <GWidget>(<Prefab>Loader.getRes(url)).create(this._createOptions);
-        if (ret && !LayaEnv.isPlaying)
-            ret.hideFlags |= HideFlags.HideAndDontSave;
+        if (ret)
+            ret.hideFlags |= (LayaEnv.isPlaying ? HideFlags.DontSave : HideFlags.HideAndDontSave);
         return ret;
     }
 
