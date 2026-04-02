@@ -210,6 +210,7 @@ export class LayaXShaderInstance implements IShaderInstance {
                 propertyId: b.propertyId,
                 sourceMapId: b.sourceMapId,
                 hasDynamicOffset: b.buffer?.hasDynamicOffset ?? false,
+                sampler: b.sampler,
             }));
         }
         return JSON.stringify(obj);

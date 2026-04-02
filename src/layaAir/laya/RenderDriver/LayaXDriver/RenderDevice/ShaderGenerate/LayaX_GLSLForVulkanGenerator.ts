@@ -100,7 +100,6 @@ export class LayaX_GLSLForVulkanGenerator {
 #define varying out
 #define textureCube texture
 #define texture2D texture
-#define NO_NATIVE_SHADOWMAP
 
 ${defineStrs}
 
@@ -131,7 +130,6 @@ out highp vec4 pc_fragColor;
 #define texture2DGradEXT textureGrad
 #define texture2DProjGradEXT textureProjGrad
 #define textureCubeGradEXT textureGrad
-#define NO_NATIVE_SHADOWMAP
 
 ${defineStrs}
 
@@ -370,7 +368,8 @@ ${fragmentCode}
         return {
             vertex,
             fragment,
-            appendNewUniform
+            appendNewUniform,
+            hasSampler: collectionUniforms.size > 0
         };
 
     }
@@ -768,6 +767,7 @@ function uniformString2(uniformSetMap: Map<number, LayaXBindingInfo[]>, material
                             if (collectUniform) {
                                 if (collectUniform.samplerType == "depth") {
                                     uniform.sampler.type = "comparison";
+                                    sampler = "samplerShadow";
                                 }
                             }
 
@@ -1016,10 +1016,13 @@ function getShaderDataType(type: string) {
         case "mat4":
             return ShaderDataType.Matrix4x4;
         case "sampler2D":
+        case "sampler2DShadow":
             return ShaderDataType.Texture2D;
         case "samplerCube":
+        case "samplerCubeShadow":
             return ShaderDataType.TextureCube;
         case "sampler2DArray":
+        case "sampler2DArrayShadow":
             return ShaderDataType.Texture2DArray;
         case "image2D":
             return ShaderDataType.StorageTexture2D;
