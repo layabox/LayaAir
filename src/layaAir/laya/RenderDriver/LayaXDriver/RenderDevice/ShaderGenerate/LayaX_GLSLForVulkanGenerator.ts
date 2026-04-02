@@ -156,7 +156,20 @@ ${fragmentCode}
 
         const fragmentOutStrs = fragmentOutString(fragmentCode);
 
+        // 将 materialMap 中通过 regIncludeBindUnifrom 注册的 uniform 预先加入 collectionUniforms，
+        // 这些 uniform（如 u_IBLDFG）不在 GLSL 源码中声明，正则提取不到，
+        // 需要手动补充，后续 uniformString2 才能为其生成带 set/binding 的声明。
         let collectionUniforms = new Map<string, CollectUniform>();
+        if (materialMap && materialMap.size > 0) {
+            materialMap.forEach((uniform) => {
+                if (!collectionUniforms.has(uniform.propertyName)) {
+                    collectionUniforms.set(uniform.propertyName, {
+                        type: uniform.uniformtype,
+                        arrayLength: uniform.arrayLength > 0 ? uniform.arrayLength : undefined,
+                    });
+                }
+            });
+        }
 
         const uniformCollect = (match: string, precision: string, type: string, name: string, arrayDecl: string, arrayLength: string) => {
             // todo
@@ -265,10 +278,9 @@ ${fragmentCode}
                     materialMap.set(uniform.id, uniform);
                 }
             });
-            // if (!uniformMap.has(appendSet)) {
+            // if (appendNewUniform && !uniformMap.has(appendSet)) {
             //     uniformMap.set(appendSet, LayaXBindGroupHelper.createBindingInfosByUniformMap(appendSet, "Material", shaderPassName, materialMap));
-
-            //     executeUniforms(uniformMap.get(appendSet), appendSet);
+            //     executeUniforms(uniformMap.get(appendSet)!, appendSet);
             // }
         }
 

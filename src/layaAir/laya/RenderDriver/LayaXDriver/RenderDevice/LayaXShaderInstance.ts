@@ -91,10 +91,18 @@ export class LayaXShaderInstance implements IShaderInstance {
         let useTexSet = new Set<string>();
         let cullTextureSetLayer = shaderProcessInfo.is2D ? 3 : 2;
 
-        // 5. Process GLSL → Vulkan GLSL
+        // 5. Determine material set index for appending include-bound uniforms (e.g. u_IBLDFG)
+        let materialSetIndex = -1;
+        if (setMapNames) {
+            // 材质 set 是 setMapNames 中的最大 set 号
+            for (const [setIndex] of setMapNames) {
+                if (setIndex > materialSetIndex) materialSetIndex = setIndex;
+            }
+        }
+
+        // 6. Process GLSL → Vulkan GLSL
         let useMaterial = Config.matUseUBO;
         Config.matUseUBO = (!shaderProcessInfo.is2D) && Config.matUseUBO;
-        // appendSet disabled — material set already in setMapNames, no need for GLSLForVulkanGenerator to auto-create it
         const glslObj = LayaX_GLSLForVulkanGenerator.layax_process(
             shaderProcessInfo.defineString,
             [filteredAttributeMap, noUseAttributeMap],
@@ -105,7 +113,7 @@ export class LayaXShaderInstance implements IShaderInstance {
             shaderProcessInfo.ps,
             useTexSet,
             cullTextureSetLayer,
-            -1
+            materialSetIndex
         );
         Config.matUseUBO = useMaterial;
 
@@ -169,16 +177,17 @@ export class LayaXShaderInstance implements IShaderInstance {
      */
     private _ensureCommandMapPopulated(mapName: string, shaderPass: ShaderPass): void {
         let map = LayaGL.renderDeviceFactory.createGlobalUniformMap(mapName) as LayaXCommandUniformMap;
-        if (map._idata.size > 0) return;
 
         // Check if this map name corresponds to the current shader pass
-        // If so, populate from SubShader._uniformMap
+        // If so, populate/supplement from SubShader._uniformMap (includes include-bound uniforms like u_IBLDFG)
         if (mapName === shaderPass.name) {
             for (const [key, value] of shaderPass._owner._uniformMap) {
-                if (value.arrayLength > 0) {
-                    map.addShaderUniformArray(value.id, value.propertyName, value.uniformtype, value.arrayLength);
-                } else {
-                    map.addShaderUniform(value.id, value.propertyName, value.uniformtype);
+                if (!map._idata.has(key)) {
+                    if (value.arrayLength > 0) {
+                        map.addShaderUniformArray(value.id, value.propertyName, value.uniformtype, value.arrayLength);
+                    } else {
+                        map.addShaderUniform(value.id, value.propertyName, value.uniformtype);
+                    }
                 }
             }
         }
