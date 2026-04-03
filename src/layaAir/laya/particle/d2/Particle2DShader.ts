@@ -44,6 +44,8 @@ export class Particle2DShader {
     static RotationCurveMin: number;
     static RotationCurveMax: number;
 
+    static AlignToDirectionDef: ShaderDefine;
+
     static TextureSheetAnimationDef: ShaderDefine;
     static TextureSheetFrameData: number;
     static TextureSheetFrame: number;
@@ -129,6 +131,10 @@ export class Particle2DShader {
 
             Particle2DShader.RotationCurveMin = addUniformArray("u_RotationCurveMin", ShaderDataType.Vector4, 4);
             Particle2DShader.RotationCurveMax = addUniformArray("u_RotationCurveMax", ShaderDataType.Vector4, 4);
+        }
+        {
+            // AlignToDirection
+            Particle2DShader.AlignToDirectionDef = Shader3D.getDefineByName("ALIGNTODIRECTION");
         }
         {
             // TextureSheetAnimation

@@ -733,6 +733,13 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
             ps._dirtyFlags &= ~Particle2DSystemDirtyFlagBits.Rotation2DOverLifetimeBit;
         }
 
+        // AlignToDirection
+        if (ps.main.alignToDirection) {
+            shaderData.addDefine(Particle2DShader.AlignToDirectionDef);
+        } else {
+            shaderData.removeDefine(Particle2DShader.AlignToDirectionDef);
+        }
+
         // TextureSheetAnimation
         if (ps._dirtyFlags & Particle2DSystemDirtyFlagBits.TextureSheetAnimationBit) {
             this.setTextureSheetAnimation(shaderData);

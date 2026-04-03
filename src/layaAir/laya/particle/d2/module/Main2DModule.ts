@@ -63,6 +63,12 @@ export class Main2DModule implements IClone {
 
     startRotation: ParticleMinMaxCurve = new ParticleMinMaxCurve();
 
+    /**
+     * @en Whether to align particle rotation to the velocity direction.
+     * @zh 是否将粒子旋转对齐到速度方向。
+     */
+    alignToDirection: boolean = false;
+
     startColor: ParticleMinMaxGradient = new ParticleMinMaxGradient();
 
     /** @internal */
@@ -130,6 +136,7 @@ export class Main2DModule implements IClone {
         this.startSizeX.cloneTo(destObject.startSizeX);
         this.startSizeY.cloneTo(destObject.startSizeY);
         destObject.startRotation = this.startRotation;
+        destObject.alignToDirection = this.alignToDirection;
         this.startColor.cloneTo(destObject.startColor);
         destObject.gravityModifier = this.gravityModifier;
         destObject.simulationSpace = this.simulationSpace;
