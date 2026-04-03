@@ -1381,13 +1381,15 @@ export class Text extends Sprite {
         let applyLineFill = (line: ITextLine, lineWidth: number) => {
             line.gapCount = 0;
             line.appliedFillWidth = 0;
-            if (!enableLineFill || line.fillWidth <= 0)
+            if (!enableLineFill || line.fillWidth <= 0) {
                 return lineWidth;
+            }
 
             let maxFillWidth = Math.floor(Math.max(0, rectWidth - lineWidth - 1));
             let fillWidth = Math.min(Math.floor(line.fillWidth), maxFillWidth);
-            if (fillWidth <= 0)
+            if (fillWidth <= 0) {
                 return lineWidth;
+            }
 
             let cmd = line.cmd;
             let prevTextCmd: ITextCmd = null;
@@ -1409,8 +1411,9 @@ export class Text extends Sprite {
                 cmd = cmd.next;
             }
 
-            if (line.gapCount == 0)
+            if (line.gapCount == 0) {
                 return lineWidth;
+            }
 
             let base = Math.floor(fillWidth / line.gapCount);
             let rem = fillWidth % line.gapCount;
@@ -1446,6 +1449,10 @@ export class Text extends Sprite {
                 let line = this._lines[i];
                 // `addLine()` 缓存的宽度可能还是换行中间态，HTML 分段或跨 cmd 挪字后要按最终链表重算。
                 let actualWidth = getLineWidth(line);
+                if (enablePunctuationLineFill && line.softWrap) {
+                    let targetFillWidth = Math.max(0, rectWidth - actualWidth);
+                    line.fillWidth = Math.max(line.fillWidth, targetFillWidth);
+                }
                 if (actualWidth != line.width)
                     line.width = Math.round(actualWidth);
                 line.width = Math.round(applyLineFill(line, actualWidth));
@@ -1618,6 +1625,11 @@ export class Text extends Sprite {
             return true;
         };
 
+        let markCurrentLineSoftWrap = () => {
+            if (curLine)
+                curLine.softWrap = true;
+        };
+
         let addLine = (last?: boolean) => {
             lineX = 0;
             if (curLine) {
@@ -1662,6 +1674,7 @@ export class Text extends Sprite {
             curLine.fillWidth = 0;
             curLine.gapCount = 0;
             curLine.appliedFillWidth = 0;
+            curLine.softWrap = false;
             this._lines.push(curLine);
             lastCmd = null;
 
@@ -1711,8 +1724,6 @@ export class Text extends Sprite {
                                 let movedWidth = 0;
                                 if (movedText.length > 0)
                                     movedWidth += getTextWidth(movedText);
-                                if (tw != null)
-                                    movedWidth += tw;
                                 recordLineFillWidth(movedWidth);
                             }
                             j = startIndex + wb;
@@ -1744,10 +1755,11 @@ export class Text extends Sprite {
                                     }
                                     else if (isPunc && totalLen == 0) {
                                         if (textLen > 1)
-                                            recordLineFillWidth(getMovedWidthFromSplit(cmd, textLen - 1) + (tw || 0));
+                                            recordLineFillWidth(getMovedWidthFromSplit(cmd, textLen - 1));
                                         else if (cmd.x > 0)
-                                            recordLineFillWidth(getMovedWidthFromSplit(cmd, 0) + (tw || 0));
+                                            recordLineFillWidth(getMovedWidthFromSplit(cmd, 0));
                                     }
+                                    markCurrentLineSoftWrap();
                                     addLine();
                                     if (forbidLineEnd) { //再次检查禁排行尾符号不能留在上一行末尾
                                         if (splitCmd(cmd, textLen - 1)) //将最后一个字符移到下一行
@@ -1770,7 +1782,8 @@ export class Text extends Sprite {
                                 else if (cmdBoundary > 0) {
                                     if (cmdBoundary > textLen - (maxWordLength - totalLen)) { //限制字符个数，超过的不看做一个单词
                                         if (isPunc && totalLen == 0)
-                                            recordLineFillWidth(getMovedWidthFromSplit(cmd, cmdBoundary) + (tw || 0));
+                                            recordLineFillWidth(getMovedWidthFromSplit(cmd, cmdBoundary));
+                                        markCurrentLineSoftWrap();
                                         addLine();
                                         splitCmd(cmd, cmdBoundary);
                                         moveCmds(cmd.next);
@@ -1806,8 +1819,6 @@ export class Text extends Sprite {
                                 let movedWidth = 0;
                                 if (movedChar)
                                     movedWidth += getTextWidth(movedChar);
-                                if (tw != null)
-                                    movedWidth += tw;
                                 recordLineFillWidth(movedWidth);
                                 arrPartCh = arrCh.slice(startIndex, j);
                                 part = arrPartCh.join("");
@@ -1834,6 +1845,7 @@ export class Text extends Sprite {
 
                 if (part.length > 0)
                     addCmd(part, style, wordWidth);
+                markCurrentLineSoftWrap();
                 addLine();
 
                 startIndex = j;
@@ -1910,6 +1922,7 @@ export class Text extends Sprite {
                             let remainWidth = rectWidth - lineX;
                             if (htmlObj.width > 0 && remainWidth < htmlObj.width + 1) {
                                 if (lineX > 0) { //如果已经是开始位置了，就算放不下也不换行
+                                    markCurrentLineSoftWrap();
                                     addLine();
                                 }
                             }
@@ -2282,6 +2295,7 @@ export interface ITextLine {
     fillWidth: number;
     gapCount: number;
     appliedFillWidth: number;
+    softWrap: boolean;
 }
 
 const cmdPool: Array<ITextCmd> = [];
