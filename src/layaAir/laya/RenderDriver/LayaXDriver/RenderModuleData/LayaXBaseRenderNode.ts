@@ -1,5 +1,6 @@
 import { IrradianceMode } from "../../../d3/core/render/BaseRender";
 import { RenderContext3D } from "../../../d3/core/render/RenderContext3D";
+import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
 import { Bounds } from "../../../d3/math/Bounds";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector4 } from "../../../maths/Vector4";
@@ -143,6 +144,9 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
     // Lightmap / Probes
     // ------------------------------------------------------------------
 
+    lightmapScaleOffset: Vector4 = new Vector4(1, 1, 0, 0);
+    lightmapDirtyFlag: number = -1;
+
     private _lightmap: LayaXLightmapData;
     public get lightmap(): LayaXLightmapData { return this._lightmap; }
     public set lightmap(value: LayaXLightmapData) {
@@ -259,7 +263,42 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
     }
 
     setLightmapScaleOffset(value: Vector4): void {
+        value && value.cloneTo(this.lightmapScaleOffset);
         this._nativeObj.setLightmapScaleOffset(value);
+        // 始终写入 shaderData（scaleOffset 可能先于 lightmap 设置）
+        if (this._shaderData) {
+            this._shaderData.setVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET, this.lightmapScaleOffset);
+            // 验证
+            let v = this._shaderData.getVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET);
+            console.log(`[LM_SO] set=(${this.lightmapScaleOffset.x},${this.lightmapScaleOffset.y},${this.lightmapScaleOffset.z},${this.lightmapScaleOffset.w}) get=(${v?.x},${v?.y},${v?.z},${v?.w}) propID=${RenderableSprite3D.LIGHTMAPSCALEOFFSET}`);
+        }
+    }
+
+    /**
+     * @internal
+     * 将 lightmap 纹理和 define 设置到 per-object shaderData 上，
+     * Rust 侧通过 ShaderDataBlock 自动拾取。
+     */
+    _applyLightMapParams(): void {
+        let shaderValues = this._shaderData;
+        if (!shaderValues) return;
+        if (this._lightmap && this._lightmap.lightmapColor) {
+            let lightMap = this._lightmap;
+            shaderValues.setVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET, this.lightmapScaleOffset);
+            // LayaX: lightmapColor/Direction 是 InternalTexture（TS 包装器），
+            // _setInternalTexture 需要 native 对象，通过 _nativeObj 提取
+            shaderValues._setInternalTexture(RenderableSprite3D.LIGHTMAP, (lightMap.lightmapColor as any)._nativeObj);
+            shaderValues.addDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP);
+            if (lightMap.lightmapDirection) {
+                shaderValues._setInternalTexture(RenderableSprite3D.LIGHTMAP_DIRECTION, (lightMap.lightmapDirection as any)._nativeObj);
+                shaderValues.addDefine(RenderableSprite3D.SHADERDEFINE_LIGHTMAP_DIRECTIONAL);
+            } else {
+                shaderValues.removeDefine(RenderableSprite3D.SHADERDEFINE_LIGHTMAP_DIRECTIONAL);
+            }
+        } else {
+            shaderValues.removeDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP);
+            shaderValues.removeDefine(RenderableSprite3D.SHADERDEFINE_LIGHTMAP_DIRECTIONAL);
+        }
     }
 
     setCommonUniformMap(value: string[]): void {

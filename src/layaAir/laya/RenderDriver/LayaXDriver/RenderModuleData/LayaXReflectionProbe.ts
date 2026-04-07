@@ -110,6 +110,7 @@ export class LayaXReflectionProbe implements IReflectionProbeData {
         if (value) {
             value.cloneTo(this._probePosition);
             this._nativeObj.setProbePosition(value);
+            LayaXReflectionProbe._dirtySet.add(this);
         }
     }
 
@@ -118,6 +119,7 @@ export class LayaXReflectionProbe implements IReflectionProbeData {
         if (value) {
             value.cloneTo(this._ambientColor);
             this._nativeObj.setAmbientColor(value);
+            LayaXReflectionProbe._dirtySet.add(this);
         }
     }
 
@@ -126,6 +128,7 @@ export class LayaXReflectionProbe implements IReflectionProbeData {
     setAmbientSH(value: Float32Array): void {
         this._ambientSH = value;
         this._nativeObj.setAmbientSH(value);
+        LayaXReflectionProbe._dirtySet.add(this);
     }
 
     needUpdate(): boolean {

@@ -326,7 +326,7 @@ export class BaseRender extends Component {
         else {
             this._baseRenderNode.lightmap = null;
         }
-        //this._scene && this._applyLightMapParams(); todo miner
+        (this._baseRenderNode as any)._applyLightMapParams && (this._baseRenderNode as any)._applyLightMapParams();
         this._getIrradientMode();
         this._batchRender && this._batchRender.updateProperty(this, propertyChangeFlag.lightmap);
     }
