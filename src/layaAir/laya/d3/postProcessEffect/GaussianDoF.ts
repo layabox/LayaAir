@@ -154,6 +154,9 @@ export class GaussianDoF extends PostProcessEffect {
     /**@internal */
     private _dowmSampleScale: Vector4;
 
+    /**@internal */
+    private _cocParams: Vector3;
+
     /**
      * @ignore
      * @en initialization GaussianDOF effect instance.
@@ -163,7 +166,8 @@ export class GaussianDoF extends PostProcessEffect {
         super();
         this._shader = Shader3D.find("GaussianDoF");
         this._shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
-        this._shaderData.setVector3(GaussianDoF.COCPARAMS, new Vector3(10, 30, 1));
+        this._cocParams = new Vector3(10, 30, 1);
+        this._shaderData.setVector3(GaussianDoF.COCPARAMS, this._cocParams);
         this._sourceSize = new Vector4();
         this._dowmSampleScale = new Vector4();
     }
@@ -173,13 +177,12 @@ export class GaussianDoF extends PostProcessEffect {
      * @zh 开始远景模糊的深度。
      */
     get farStart(): number {
-        return this._shaderData.getVector3(GaussianDoF.COCPARAMS).x;
+        return this._cocParams.x;
     }
 
     set farStart(value: number) {
-        let cocParams: Vector3 = this._shaderData.getVector3(GaussianDoF.COCPARAMS);
-        cocParams.x = value;
-        this._shaderData.setVector3(GaussianDoF.COCPARAMS, cocParams);
+        this._cocParams.x = value;
+        this._shaderData.setVector3(GaussianDoF.COCPARAMS, this._cocParams);
     }
 
 
@@ -188,13 +191,12 @@ export class GaussianDoF extends PostProcessEffect {
      * @zh 达到最大模糊半径的远景深度。
      */
     get farEnd(): number {
-        return this._shaderData.getVector3(GaussianDoF.COCPARAMS).y;
+        return this._cocParams.y;
     }
 
     set farEnd(value: number) {
-        let cocParams: Vector3 = this._shaderData.getVector3(GaussianDoF.COCPARAMS);
-        cocParams.y = Math.max(cocParams.x, value);
-        this._shaderData.setVector3(GaussianDoF.COCPARAMS, cocParams);
+        this._cocParams.y = Math.max(this._cocParams.x, value);
+        this._shaderData.setVector3(GaussianDoF.COCPARAMS, this._cocParams);
     }
 
 
@@ -203,13 +205,12 @@ export class GaussianDoF extends PostProcessEffect {
      * @zh 最大模糊半径。
      */
     get maxRadius(): number {
-        return this._shaderData.getVector3(GaussianDoF.COCPARAMS).z;
+        return this._cocParams.z;
     }
 
     set maxRadius(value: number) {
-        let cocParams: Vector3 = this._shaderData.getVector3(GaussianDoF.COCPARAMS);
-        cocParams.z = Math.min(value, 2);
-        this._shaderData.setVector3(GaussianDoF.COCPARAMS, cocParams);
+        this._cocParams.z = Math.min(value, 2);
+        this._shaderData.setVector3(GaussianDoF.COCPARAMS, this._cocParams);
     }
 
 
