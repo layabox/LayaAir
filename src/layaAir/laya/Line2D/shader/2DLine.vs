@@ -53,12 +53,14 @@ void main(){
     vec3 yDir;
     lineMat(left,right,xDir,yDir,v_lineWidth);
  
-    transfrom(a_position.xy,xDir,yDir,v_position);
-   
-  
+    vec2 globalPos;
+    transfrom(a_position.xy,xDir,yDir,globalPos);
+    v_position = globalPos;
+
+    clip(globalPos);
+
     vec2 viewPos;
-    getViewPos(v_position,viewPos);
-    clip(viewPos);
+    getViewPos(globalPos,viewPos);
     vec4 pos;
     getProjectPos(viewPos,pos);
     gl_Position = pos;

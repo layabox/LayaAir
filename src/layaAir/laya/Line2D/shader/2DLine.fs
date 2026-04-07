@@ -22,6 +22,7 @@ vec2 dotToline(in vec2 a, vec2 b,in vec2 p){
 
 
 void main(){
+    clip();
     vec2 p = dotToline(v_linePionts.xy, v_linePionts.zw, v_position);
     float d = v_lineWidth*0.5 - length(p - v_position);
     
