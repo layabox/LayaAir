@@ -321,6 +321,8 @@ export class LayaXShaderData extends ShaderData {
                 if (value instanceof BaseTexture) {
                     destData[k] = value;
                     value._addReference();
+                    // 同步纹理到 Rust ShaderDataBlock
+                    dest.setTexture(parseInt(k), value);
                 }
             }
         }
