@@ -521,6 +521,8 @@ export class Button extends UIComponent implements ISelect {
         if (this._destroyed)
             return;
 
+        if (tex)
+            this._graphics.setState(this._state, this._stateNum);
         this._graphics.source = tex;
         if (tex)
             this.callLater(this.changeClips);
