@@ -406,12 +406,6 @@ export class Physics2DWorldManager implements IElementComponentManager {
             }
         };
         this._JSRayCastcallback.ReportFixture = callback.bind(this);
-        let scaleX = ILaya.stage.clientScaleX;
-        let scaleY = ILaya.stage.clientScaleY;
-        startPos.x *= scaleX;
-        startPos.y *= scaleY;
-        endPos.x *= scaleX;
-        endPos.y *= scaleY;
         Physics2D.I._factory.RayCast(this._box2DWorld, this._JSRayCastcallback, startPos, endPos);
     }
 
