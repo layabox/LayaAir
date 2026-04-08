@@ -95,8 +95,12 @@ export class MouseJoint extends JointBase {
             var def: physics2D_MouseJointJointDef = MouseJoint._temp || (MouseJoint._temp = new physics2D_MouseJointJointDef());
             if (this.anchor) {
                 var anchorPos: Point = this.selfBody.owner.localToGlobal(Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, this._physics2DManager.getRootSprite());
+                anchorPos.x = Physics2D.toPhysicsX(anchorPos.x);
+                anchorPos.y = Physics2D.toPhysicsY(anchorPos.y);
             } else {
                 anchorPos = this._physics2DManager.getRootSprite().globalToLocal(Point.TEMP.setTo(ILaya.InputManager.mouseX, ILaya.InputManager.mouseY));
+                anchorPos.x = Physics2D.toPhysicsX(anchorPos.x);
+                anchorPos.y = Physics2D.toPhysicsY(anchorPos.y);
             }
             if (!Physics2D.I._emptyBody) Physics2D.I._emptyBody = Physics2D.I._factory.createBody(this._physics2DManager.box2DWorld, null);
             def.bodyA = Physics2D.I._emptyBody;
@@ -136,7 +140,7 @@ export class MouseJoint extends JointBase {
 
     /**@internal */
     private _onMouseMove(): void {
-        if (this._joint) this._factory.set_MouseJoint_target(this._joint, ILaya.InputManager.mouseX, ILaya.InputManager.mouseY);
+        if (this._joint) this._factory.set_MouseJoint_target(this._joint, Physics2D.toPhysicsX(ILaya.InputManager.mouseX), Physics2D.toPhysicsY(ILaya.InputManager.mouseY));
     }
 
     /**@internal */

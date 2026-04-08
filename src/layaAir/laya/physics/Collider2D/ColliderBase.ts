@@ -10,6 +10,8 @@ import { Utils } from "../../utils/Utils";
 import { SpriteGlobalTransform } from "../../display/SpriteGlobaTransform";
 import { TransformKind } from "../../display/SpriteConst";
 
+const _tempWorldPoint: Point = new Point();
+
 /**
  * @en 2DPhysics Collider base class
  * @zh 2D物理碰撞体基类
@@ -202,7 +204,7 @@ export class ColliderBase extends Component {
         if (this._box2DBody) {
             this._isAwake = Physics2D.I._factory.get_rigidBody_IsAwake(this._box2DBody);
         }
-        return this.isAwake;
+        return this._isAwake;
     }
     public set isAwake(value: boolean) {
         this._isAwake = value;
@@ -315,7 +317,8 @@ export class ColliderBase extends Component {
      * @param y 像素坐标的 y 值。
      */
     getWorldPoint(x: number, y: number): Readonly<Point> {
-        return this.owner.globalTrans.localToGlobal(x, y);
+        let p = this.owner.globalTrans.localToGlobal(x, y);
+        return _tempWorldPoint.setTo(Physics2D.toPhysicsX(p.x), Physics2D.toPhysicsY(p.y));
     }
 
     /**@internal 通知rigidBody 更新shape 属性值 */
@@ -328,7 +331,7 @@ export class ColliderBase extends Component {
         //非dynamic类型下设置位置
         if (this._type != "dynamic" && (flag & (TransformKind.Pos | TransformKind.Rotation | TransformKind.Scale))) {
             if(flag & (TransformKind.Pos | TransformKind.Rotation | TransformKind.Scale)){
-                this._box2DBody && Physics2D.I._factory.set_RigibBody_Transform(this._box2DBody, sp.globalTrans.x, sp.globalTrans.y, Utils.toRadian(this.owner.globalTrans.rotation));
+                this._box2DBody && Physics2D.I._factory.set_RigibBody_Transform(this._box2DBody, Physics2D.toPhysicsX(sp.globalTrans.x), Physics2D.toPhysicsY(sp.globalTrans.y), Utils.toRadian(this.owner.globalTrans.rotation));
                 this._box2DBody && Physics2D.I._factory.set_rigidBody_Awake(this._box2DBody, true);
             }
         }
