@@ -47,6 +47,15 @@ export class Bridge3DScene3D extends Scene3D {
     _cameraInitialized: boolean = false;
 
     /**
+     * @en Update holder reference (used during holder replacement).
+     * @zh 更新 holder 引用（holder 替换时使用）。
+     * @internal
+     */
+    _setHolder(holder: Bridge3DSceneHolder): void {
+        this._holder = holder;
+    }
+
+    /**
      * Render object to Bridge3DSprite mapping
      * @private
      */
@@ -143,6 +152,17 @@ export class Bridge3DScene3D extends Scene3D {
             if (this._cameraInitialized) {
                 this._updateCameraPosition();
             }
+        }
+    }
+
+    /**
+     * Apply camera far plane (called by holder)
+     * @param value - Camera far clipping plane distance
+     * @internal
+     */
+    _applyCameraFarPlane(value: number): void {
+        if (this._cameraInitialized) {
+            this._sharedCamera.farPlane = value;
         }
     }
 
@@ -248,7 +268,7 @@ export class Bridge3DScene3D extends Scene3D {
         this._sharedCamera.orthographic = true;
         this._sharedCamera.orthographicVerticalSize = height;  // Use full height
         this._sharedCamera.nearPlane = 0.1;
-        this._sharedCamera.farPlane = 1000;
+        this._sharedCamera.farPlane = this._holder.cameraFarPlane;
 
         // Set camera position using the configured Z distance
         this._updateCameraPosition();
@@ -357,6 +377,7 @@ export class Bridge3DScene3D extends Scene3D {
         }
 
         // Clear references
+        this._sharedCamera.destroy();
         this._sharedCamera = null;
         this._holder = null;
 
