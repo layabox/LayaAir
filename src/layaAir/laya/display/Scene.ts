@@ -21,6 +21,7 @@ import { Camera2D } from "./Scene2DSpecial/Camera2D";
 import { BlendModeHandler } from "../webgl/canvas/BlendMode";
 import { HideFlags } from "../Const";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
+import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * @en Bridge3D scene holder interface. Manages Bridge3DScene3D lifecycle and Bridge3DSprite registration.
@@ -33,8 +34,13 @@ export interface IBridge3DSceneHolder {
     cameraZDistance: number;
     cameraFarPlane: number;
     readonly sharedCamera: any;
+    readonly bridge3DList: readonly Sprite[];
     registerBridge3D(bridge: Sprite): void;
     unregisterBridge3D(bridge: Sprite): void;
+    /** @internal */
+    _takeoverFrom(oldHolder: IBridge3DSceneHolder): void;
+    /** @internal */
+    _finalizeSetup(): void;
     destroy(): void;
 }
 
@@ -58,11 +64,12 @@ export interface ILight2DManager {
 export class Scene extends Sprite {
     static scene2DUniformMap: CommandUniformMap;
 
-    /**
-     * Factory method to create Bridge3DSceneHolder
-     * Overridden by bridge module (ModuleDef.ts) to provide real implementation
-     */
-    static createBridge3DHolder: (scene: Scene) => IBridge3DSceneHolder = function (scene: Scene) {
+    /** @internal */
+    private static _createBridge3DHolder(scene: Scene): IBridge3DSceneHolder {
+        const cls = ClassUtils.getClass('Bridge3DSceneHolder');
+        if (cls) {
+            return new cls(scene);
+        }
         // No-op stub when bridge module is not loaded
         return {
             get scene3d(): null { return null; },
@@ -70,11 +77,14 @@ export class Scene extends Sprite {
             cameraZDistance: 100,
             cameraFarPlane: 1000,
             get sharedCamera(): null { return null; },
+            get bridge3DList(): readonly Sprite[] { return []; },
             registerBridge3D(_bridge: Sprite) { },
             unregisterBridge3D(_bridge: Sprite) { },
+            _takeoverFrom(_oldHolder: IBridge3DSceneHolder) { },
+            _finalizeSetup() { },
             destroy() { }
         };
-    };
+    }
 
     /**创建后，还未被销毁的场景列表，方便查看还未被销毁的场景列表，方便内存管理，本属性只读，请不要直接修改*/
     /**
@@ -120,11 +130,40 @@ export class Scene extends Sprite {
     _scene3D: Scene3D;
     /** @internal */
     _area2Ds: Set<Area2D>;
+    /** @internal */
+    private _bridge3D: IBridge3DSceneHolder;
+    /** @internal bridge list cache when holder is set to null temporarily */
+    private _pendingBridge3DList: Sprite[];
+
     /**
      * @en Bridge3D scene holder (manages Bridge3DScene3D lifecycle and Bridge3DSprite registration)
      * @zh Bridge3D 场景持有者（管理 Bridge3DScene3D 生命周期和 Bridge3DSprite 注册）
      */
-    bridge3D: IBridge3DSceneHolder;
+    get bridge3D(): IBridge3DSceneHolder {
+        return this._bridge3D;
+    }
+
+    set bridge3D(newHolder: IBridge3DSceneHolder) {
+        const oldHolder = this._bridge3D;
+        if (oldHolder === newHolder) return;
+
+        if (oldHolder && newHolder) {
+            newHolder._takeoverFrom(oldHolder);
+        } else if (oldHolder) {
+            // Cache bridge list before destroying, so a later holder can recover them
+            this._pendingBridge3DList = oldHolder.bridge3DList.slice() as Sprite[];
+            oldHolder.destroy();
+        }
+
+        if (newHolder && this._pendingBridge3DList) {
+            for (const bridge of this._pendingBridge3DList) {
+                newHolder.registerBridge3D(bridge);
+            }
+            this._pendingBridge3DList = null;
+        }
+
+        this._bridge3D = newHolder;
+    }
 
     /**
      * @en relative layout component
@@ -153,7 +192,7 @@ export class Scene extends Sprite {
         this._timer = ILaya.timer;
         this._widget = Widget.EMPTY;
         this._area2Ds = new Set<Area2D>();
-        this.bridge3D = Scene.createBridge3DHolder(this);
+        this._bridge3D = Scene._createBridge3DHolder(this);
 
         this._scene = this;
         Scene.componentManagerMap.forEach((val, key) => {
@@ -275,6 +314,12 @@ export class Scene extends Sprite {
      */
     onClosed(type?: string): void {
         //trace("onClosed");
+    }
+
+    /** @ignore */
+    onAfterDeserialize(): void {
+        super.onAfterDeserialize();
+        this._bridge3D._finalizeSetup();
     }
 
     /**

@@ -48,6 +48,15 @@ export class Bridge3DScene3D extends Scene3D {
     _cameraInitialized: boolean = false;
 
     /**
+     * @en Update holder reference (used during holder replacement).
+     * @zh 更新 holder 引用（holder 替换时使用）。
+     * @internal
+     */
+    _setHolder(holder: Bridge3DSceneHolder): void {
+        this._holder = holder;
+    }
+
+    /**
      * Render object to Bridge3DSprite mapping
      * @private
      */
@@ -373,6 +382,7 @@ export class Bridge3DScene3D extends Scene3D {
         }
 
         // Clear references
+        this._sharedCamera.destroy();
         this._sharedCamera = null;
         this._holder = null;
 
