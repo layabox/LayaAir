@@ -33,6 +33,7 @@ import { BaseRender2DType, SpriteConst, TransformKind } from "../SpriteConst";
 import { SpriteGlobalTransform } from "../SpriteGlobaTransform";
 import { GraphicsRunner } from "./GraphicsRunner";
 import type { IGraphicsCmd } from "../IGraphics";
+import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 
 type GraphicBlockRecord = {
    index: number;
@@ -438,7 +439,8 @@ export class SubStructRender {
       subStruct.renderElements = this._renderElements;
 
       this._renderElement.owner = this._subStruct;
-      this._renderElement.type = this._subStruct.blendMode;
+      this._renderElement.typeKey = this._subStruct.blendMode;
+      this._renderElement.textureKey = 0;
    }
 
    /**
@@ -528,9 +530,9 @@ export class SubStructRender {
          return;
 
       if (destRT) {
-         this._renderElement.type = destRT._id << 6;
+         this._renderElement.textureKey = destRT._id << ShaderDefines2D.SHADER_DEFINE_BITS;
       } else {
-         this._renderElement.type = 0;
+         this._renderElement.textureKey = 0;
       }
       this._internalInfo.textureHost = destRT;
 

@@ -8,7 +8,10 @@ import { WebglRenderContext2D } from "./WebGLRenderContext2D";
 import { WebGLRenderElement2D } from "./WebGLRenderElement2D";
 
 export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implements IPrimitiveRenderElement2D {
-    private static _additionShaderData:string[] = ["Sprite2DGraphics"];
+    typeKey: number = 0;
+    textureKey: number = 0;
+
+    private static _additionShaderData: string[] = ["Sprite2DGraphics"];
     primitiveShaderData: WebGLShaderData;
 
     protected _compileShader(context: WebglRenderContext2D) {
@@ -64,6 +67,35 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
         }
     }
 
+
+    override _render(context: WebglRenderContext2D) {
+        let inss = this._shaderInstances;
+        let count = inss.length;
+
+        if (count === 1) {
+            let shaderIns = inss.elements[0];
+            let clipInfo = this.owner.getClipInfo();
+            if (this.typeKey === context._prevTypeKey
+                && this.textureKey === context._prevTextureKey
+                && clipInfo === context._prevClip
+                && shaderIns === context._prevShaderIns) {
+                // 快速路径：状态完全相同，只执行 draw
+                WebGLEngine.instance.getDrawContext().drawGeometryElement(this.geometry);
+            } else {
+                this.renderByShaderInstance(shaderIns, context);
+            }
+
+            // 更新 context 上的 prev state 供下一个元素使用
+            context._prevTypeKey = this.typeKey;
+            context._prevTextureKey = this.textureKey;
+            context._prevClip = clipInfo;
+            context._prevShaderIns = shaderIns;
+        } else {
+            for (let j = 0; j < count; j++) {
+                this.renderByShaderInstance(inss.elements[j], context);
+            }
+        }
+    }
 
     renderByShaderInstance(shader: WebGLShaderInstance, context: WebglRenderContext2D): void {
         if (!shader.complete || !this.geometry)

@@ -152,13 +152,6 @@ export class RTRender2DPass implements IRender2DPass {
       this._nativeObj.fowardRender(context._nativeObj);
    }
 
-   // /**
-   //  * 渲染
-   //  * @param context 
-   //  */
-   // render(context: GLESRenderContext2D): void {
-   //    this._nativeObj.render(context._nativeObj);
-   // }
    private renderCallBack(context: GLESRenderContext2D): void {
       // 处理后期处理
       if (this.postProcess && this.postProcess.enabled) {

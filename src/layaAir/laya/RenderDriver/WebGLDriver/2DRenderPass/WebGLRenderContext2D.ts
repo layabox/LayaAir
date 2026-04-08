@@ -24,6 +24,7 @@ import { WebGLInternalRT } from "../RenderDevice/WebGLInternalRT";
 import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryElement";
 import { WebGLVertexBuffer } from "../RenderDevice/WebGLVertexBuffer";
 import { WebGLRenderElement2D } from "./WebGLRenderElement2D";
+import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
 
 export class WebglRenderContext2D implements IRenderContext2D {
 
@@ -35,14 +36,21 @@ export class WebglRenderContext2D implements IRenderContext2D {
 
     _globalConfigShaderData: WebDefineDatas;
 
+    /** @internal 快速路径：上一个渲染元素的状态，供 Primitive 元素做状态跳过 */
+    _prevTypeKey: number = -1;
+    /** @internal */
+    _prevTextureKey: number = -1;
+    /** @internal */
+    _prevClip: any = null;
+    /** @internal */
+    _prevShaderIns: WebGLShaderInstance = null;
+
     private _offscreenWidth: number;
     private _offscreenHeight: number;
 
     constructor() {
         this._globalConfigShaderData = Shader3D._configDefineValues as WebDefineDatas;
     }
-
-
 
     drawRenderElementList(list: FastSinglelist<WebGLRenderElement2D>): number {
         let time = performance.now();
@@ -52,9 +60,12 @@ export class WebglRenderContext2D implements IRenderContext2D {
         }
         LayaGL.statAgent.recordTimeData(StatElement.T_2DContextPre, performance.now() - time);
         time = performance.now();
+        this._prevTypeKey = -1;
+        this._prevTextureKey = -1;
+        this._prevClip = null;
+        this._prevShaderIns = null;
         for (var i: number = 0, n: number = list.length; i < n; i++) {
-            let element = list.elements[i];
-            element._render(this);//render
+            list.elements[i]._render(this);
         }
         LayaGL.statAgent.recordCTData(StatElement.CT_2DDrawCall, list.length);
         LayaGL.statAgent.recordTimeData(StatElement.T_2DContextRender, performance.now() - time);

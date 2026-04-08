@@ -515,6 +515,8 @@ export class GraphicsRunner {
         this._clipRect = SaveClipRect.MAX;
         this._clip_x = 0;
         this._clip_y = 0;
+        this._clipID_Gen = 0;
+        this._clipInfoID = 0;
         this._alpha = 1.0;
         this._nBlendType = BlendMode.normal;
         this._fillStyle = this._strokeStyle = DrawStyle.DEFAULT;
@@ -705,7 +707,7 @@ export class GraphicsRunner {
         // }
 
         //clipinfo
-        sameKey && (sameKey = sameKey && this.isSameClipInfo(submit));
+        sameKey && (sameKey = sameKey && !this.isSameClipInfo(submit));
 
         if (!this.clipedOff(this._transedPoints)) {
             //if (GlUtils.fillRectImgVb(_mesh._vb, _clipRect, x, y, width, height, Texture.DEF_UV, _curMat, rgba,this)){

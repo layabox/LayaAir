@@ -15,6 +15,7 @@ import { BlendModeHandler } from "../canvas/BlendMode";
 import { Shader2D } from "../shader/d2/Shader2D";
 import { GraphicsShaderInfo } from "../shader/d2/value/GraphicsShaderInfo";
 import { GraphicsMesh, MeshBlockInfo } from "../utils/GraphicsMesh";
+import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D";
 import { SubmitKey } from "./SubmitKey";
 
 export type GraphicsRunnerCacheChunk = {
@@ -62,7 +63,8 @@ export class SubmitBase {
         element.owner = null;
         element.subShader = null;
         element.renderStateIsBySprite = false;
-        element.type = 0;
+        element.typeKey = 0;
+        element.textureKey = 0;
     });
 
     static RENDERBASE: SubmitBase;
@@ -243,10 +245,14 @@ export class SubmitBase {
         if (textureHost)
             texture = (textureHost as Texture).bitmap || textureHost as BaseTexture;
 
-        element.type = this._key.blendShader
+        let hasFillTexture = this._internalInfo.shaderData.hasDefine(ShaderDefines2D.FILLTEXTURE) ? 1 : 0;
+        element.typeKey = this._key.blendShader
             | (useCustomMaterial << 4) //16
             | (mc << 5) //32
-            | ((texture ? texture.id : 0) << 6); //64
+            | (hasFillTexture << 6); //64
+        let defineBits = ShaderDefines2D.getPerElementDefineBits(this._internalInfo.shaderData);
+        element.textureKey = defineBits
+            | ((texture ? texture.id : 0) << ShaderDefines2D.SHADER_DEFINE_BITS);
 
         if (this._cacheInfo) {
             this._cacheInfo.texture = texture;
