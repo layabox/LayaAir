@@ -300,10 +300,7 @@ export class RigidBody extends ColliderBase {
         _tempP0.x = pos.x;
         _tempP0.y = pos.y;
         let globalPos = this.owner.parent.localToGlobal(_tempP0);
-        // 处理缩放，其余设置transform时候使用的是globalTrans是正确的
-        globalPos.x = globalPos.x * ILaya.stage.clientScaleX;
-        globalPos.y = globalPos.y * ILaya.stage.clientScaleY;
-        factory.set_RigibBody_Transform(this._box2DBody, globalPos.x, globalPos.y, rotateValue);//重新给个setPos的接口
+        factory.set_RigibBody_Transform(this._box2DBody, Physics2D.toPhysicsX(globalPos.x), Physics2D.toPhysicsY(globalPos.y), rotateValue);
         factory.set_rigidBody_Awake(this._box2DBody, true);
         Physics2D.I._addRigidBody(this);
     }
@@ -320,8 +317,9 @@ export class RigidBody extends ColliderBase {
         }
         var pos = Vector2.TEMP;
         Physics2D.I._factory.get_RigidBody_Position(this._box2DBody, pos);
-        _tempP0.x = pos.x;
-        _tempP0.y = pos.y;
+        // Box2D 存储设计分辨率坐标，恢复到 globalTrans 空间后再转 local
+        _tempP0.x = Physics2D.toRenderX(pos.x);
+        _tempP0.y = Physics2D.toRenderY(pos.y);
         let localPos = this.owner.parent.globalToLocal(_tempP0);
         _tempP0.x = localPos.x;
         _tempP0.y = localPos.y;
@@ -391,7 +389,7 @@ export class RigidBody extends ColliderBase {
         if (this._type == "static") {
             // 静态刚体这样设置
             let owner: Sprite = this.owner;
-            this._bodyDef.position.setValue(owner.globalTrans.x, owner.globalTrans.y);
+            this._bodyDef.position.setValue(Physics2D.toPhysicsX(owner.globalTrans.x), Physics2D.toPhysicsY(owner.globalTrans.y));
             this._bodyDef.angle = Utils.toRadian(owner.globalTrans.rotation);
             this._bodyDef.allowSleep = false;
             this._bodyDef.angularVelocity = 0;
@@ -406,7 +404,7 @@ export class RigidBody extends ColliderBase {
         }
 
         let owner: Sprite = this.owner;
-        this._bodyDef.position.setValue(owner.globalTrans.x, owner.globalTrans.y);
+        this._bodyDef.position.setValue(Physics2D.toPhysicsX(owner.globalTrans.x), Physics2D.toPhysicsY(owner.globalTrans.y));
         this._bodyDef.angle = Utils.toRadian(owner.globalTrans.rotation);
         this._bodyDef.fixedRotation = !this._allowRotation;
         this._bodyDef.allowSleep = this._allowSleep;
@@ -469,7 +467,8 @@ export class RigidBody extends ColliderBase {
         if (Physics2D.I._factory.get_rigidBody_IsAwake(this._box2DBody)) {
             var pos = Vector2.TEMP;
             factory.get_RigidBody_Position(this._box2DBody, pos);
-            pos.setValue(pos.x, pos.y);
+            // Box2D 存储设计分辨率坐标，恢复到 globalTrans 空间
+            pos.setValue(Physics2D.toRenderX(pos.x), Physics2D.toRenderY(pos.y));
             this.owner.globalTrans.setPos(pos.x, pos.y);
             this.owner.globalTrans.rotation = Utils.toAngle(factory.get_RigidBody_Angle(this._box2DBody));
         }
@@ -631,7 +630,7 @@ export class RigidBody extends ColliderBase {
     setAngle(value: number): void {
         if (!this._box2DBody) return;
         var factory = Physics2D.I._factory;
-        factory.set_RigibBody_Transform(this._box2DBody, this.owner.globalTrans.x, this.owner.globalTrans.y, Utils.toRadian(value));
+        factory.set_RigibBody_Transform(this._box2DBody, Physics2D.toPhysicsX(this.owner.globalTrans.x), Physics2D.toPhysicsY(this.owner.globalTrans.y), Utils.toRadian(value));
         factory.set_rigidBody_Awake(this._box2DBody, true);
     }
 
@@ -684,7 +683,8 @@ export class RigidBody extends ColliderBase {
      * @param y 像素坐标的 y 值。
      */
     getWorldPoint(x: number, y: number): Readonly<Point> {
-        return this.owner.globalTrans.localToGlobal(x, y);
+        let p = this.owner.globalTrans.localToGlobal(x, y);
+        return _tempP0.setTo(Physics2D.toPhysicsX(p.x), Physics2D.toPhysicsY(p.y));
     }
 
     /**
@@ -696,6 +696,6 @@ export class RigidBody extends ColliderBase {
      * @param y 像素坐标的 y 值。
      */
     getLocalPoint(x: number, y: number): Readonly<Point> {
-        return this.owner.globalTrans.globalToLocal(x, y);
+        return this.owner.globalTrans.globalToLocal(Physics2D.toRenderX(x), Physics2D.toRenderY(y));
     }
 }
