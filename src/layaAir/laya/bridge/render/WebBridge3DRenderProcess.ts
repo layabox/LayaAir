@@ -21,6 +21,7 @@ import { WebDirCascadeShadowRP } from "../../RenderDriver/RenderModuleData/WebMo
 import { WebSpotLight } from "../../RenderDriver/RenderModuleData/WebModuleData/3D/WebSpotLight";
 import type { WebRenderStruct2D } from "../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
+import { RenderContext3D } from "../../d3/core/render/RenderContext3D";
 import { RenderTexture } from "../../resource/RenderTexture";
 import { RenderState2D } from "../../webgl/utils/RenderState2D";
 import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
@@ -75,6 +76,7 @@ export class WebBridge3DRenderProcess implements IBridge3DRenderProcess {
 
     private _projCorrected: boolean = false;
     private _hasShaderClip: boolean = false;
+    private _hasGammaCorrect: boolean = false;
 
     // ===== 静态临时对象 (避免每帧分配) =====
 
@@ -262,6 +264,16 @@ export class WebBridge3DRenderProcess implements IBridge3DRenderProcess {
 
         context3d.pipelineMode = context2d.pipelineMode;
 
+        // ===== 4b. Gamma correction: 输出到屏幕或 gamma-space RT 时启用 =====
+        this._hasGammaCorrect = false;
+        const cameraData = bridge3DContext.cameraData;
+        if (!this._rt2d || this._rt2d._textures[0].gammaCorrection !== 1) {
+            cameraData.addDefine(RenderContext3D.GammaCorrect);
+            this._hasGammaCorrect = true;
+        } else {
+            cameraData.removeDefine(RenderContext3D.GammaCorrect);
+        }
+
         // ===== 5. 设置viewport和scissor为RT尺寸 =====
         if (this._rt2d) {
             const tempVP = WebBridge3DRenderProcess._tempViewport;
@@ -380,6 +392,11 @@ export class WebBridge3DRenderProcess implements IBridge3DRenderProcess {
         }
 
         // ===== 9. 恢复状态 =====
+        // 恢复 gamma correction
+        if (this._hasGammaCorrect) {
+            bridge3DContext.cameraData.removeDefine(RenderContext3D.GammaCorrect);
+        }
+
         // 恢复shader clip
         if (this._hasShaderClip) {
             const cameraData = bridge3DContext.cameraData;
