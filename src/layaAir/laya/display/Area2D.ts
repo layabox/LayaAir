@@ -10,6 +10,7 @@ import { SpriteConst } from "./SpriteConst";
 import { Matrix } from "../maths/Matrix";
 import { Scene2DSpecialManager } from "./Scene2DSpecial/Scene2DSpecialManager";
 import { LayaEnv } from "../../LayaEnv";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 
 export class Area2D extends Sprite {
     private _mainCamera: Camera2D;
@@ -39,9 +40,9 @@ export class Area2D extends Sprite {
 
         if (camera) {
             camera._isMain = true;
-            this._globalShaderData.addDefine(Camera2D.SHADERDEFINE_CAMERA2D);
+            this._globalShaderData.addDefine(ShaderDefines2D.SHADERDEFINE_CAMERA2D);
         } else {
-            this._globalShaderData.removeDefine(Camera2D.SHADERDEFINE_CAMERA2D);
+            this._globalShaderData.removeDefine(ShaderDefines2D.SHADERDEFINE_CAMERA2D);
         }
 
         this._mainCamera = camera;
@@ -58,7 +59,7 @@ export class Area2D extends Sprite {
             if (this._globalShaderData) {
                 this._globalRenderData.renderLayerMask = this._mainCamera.visiableLayer;
                 this._globalRenderData.cullRect = this._mainCamera._rect;
-                this._globalShaderData.setMatrix3x3(Camera2D.VIEW2D, this._mainCamera._getCameraTransform());
+                this._globalShaderData.setMatrix3x3(ShaderDefines2D.VIEW2D, this._mainCamera._getCameraTransform());
             }
         }
     }

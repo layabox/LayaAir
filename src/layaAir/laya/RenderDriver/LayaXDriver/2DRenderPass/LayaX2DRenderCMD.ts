@@ -41,7 +41,7 @@ export class LayaXSetRendertarget2DCMD extends SetRendertarget2DCMD {
     get clearColorValue(): Color { return this._clearColorValue; }
     set clearColorValue(value: Color) {
         value.cloneTo(this._clearColorValue);
-        this._nativeObj.clearColorValue(this._clearColorValue);
+        this._nativeObj.clearColorValue(value.r, value.g, value.b, value.a);
     }
 
     get invertY(): boolean { return this._invertY; }

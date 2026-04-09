@@ -9,9 +9,12 @@ import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { StatElement } from "../../../layagl/StatisticsContext";
 import { Color } from "../../../maths/Color";
+import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
+import { Vector4 } from "../../../maths/Vector4";
 import { VertexElement } from "../../../renders/VertexElement";
 import { VertexElementFormat } from "../../../renders/VertexElementFormat";
+import { Stat } from "../../../utils/Stat";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
@@ -24,6 +27,7 @@ import { WebGLInternalRT } from "../RenderDevice/WebGLInternalRT";
 import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryElement";
 import { WebGLVertexBuffer } from "../RenderDevice/WebGLVertexBuffer";
 import { WebGLRenderElement2D } from "./WebGLRenderElement2D";
+import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
 
 export class WebglRenderContext2D implements IRenderContext2D {
 
@@ -35,14 +39,23 @@ export class WebglRenderContext2D implements IRenderContext2D {
 
     _globalConfigShaderData: WebDefineDatas;
 
+    /** @internal 快速路径：上一个渲染元素的状态，供 Primitive 元素做状态跳过 */
+    _prevTypeKey: number = -1;
+    /** @internal */
+    _prevTextureKey: number = -1;
+    /** @internal */
+    _prevClip: any = null;
+    /** @internal */
+    _prevShaderIns: WebGLShaderInstance = null;
+
     private _offscreenWidth: number;
     private _offscreenHeight: number;
+    private _offscreenX: number = 0;
+    private _offscreenY: number = 0;
 
     constructor() {
         this._globalConfigShaderData = Shader3D._configDefineValues as WebDefineDatas;
     }
-
-
 
     drawRenderElementList(list: FastSinglelist<WebGLRenderElement2D>): number {
         let time = performance.now();
@@ -52,9 +65,12 @@ export class WebglRenderContext2D implements IRenderContext2D {
         }
         LayaGL.statAgent.recordTimeData(StatElement.T_2DContextPre, performance.now() - time);
         time = performance.now();
+        this._prevTypeKey = -1;
+        this._prevTextureKey = -1;
+        this._prevClip = null;
+        this._prevShaderIns = null;
         for (var i: number = 0, n: number = list.length; i < n; i++) {
-            let element = list.elements[i];
-            element._render(this);//render
+            list.elements[i]._render(this);
         }
         LayaGL.statAgent.recordCTData(StatElement.CT_2DDrawCall, list.length);
         LayaGL.statAgent.recordTimeData(StatElement.T_2DContextRender, performance.now() - time);
@@ -62,9 +78,15 @@ export class WebglRenderContext2D implements IRenderContext2D {
         return 0;
     }
 
-    setOffscreenView(width: number, height: number): void {
+    setOffscreenView(width: number, height: number, x: number = 0, y: number = 0): void {
         this._offscreenWidth = width;
         this._offscreenHeight = height;
+        this._offscreenX = x;
+        this._offscreenY = y;
+    }
+
+    getOffscreenView(out: Vector4): void {
+        out.setValue(this._offscreenX, this._offscreenY, this._offscreenWidth, this._offscreenHeight);
     }
 
     setRenderTarget(value: WebGLInternalRT, clear: boolean, clearColor: Color): void {
@@ -72,10 +94,10 @@ export class WebglRenderContext2D implements IRenderContext2D {
         clearColor.cloneTo(this._clearColor);
         if (this._destRT) {
             WebGLEngine.instance.getTextureContext().bindRenderTarget(this._destRT);
-            WebGLEngine.instance.viewport(0, 0, this._destRT._textures[0].width, this._destRT._textures[0].height);
+            WebGLEngine.instance.viewport(this._offscreenX, this._offscreenY, this._destRT._textures[0].width, this._destRT._textures[0].height);
         } else {
             WebGLEngine.instance.getTextureContext().bindoutScreenTarget();
-            WebGLEngine.instance.viewport(0, 0, this._offscreenWidth, this._offscreenHeight);
+            WebGLEngine.instance.viewport(this._offscreenX, this._offscreenY, this._offscreenWidth, this._offscreenHeight);
         }
         WebGLEngine.instance.scissorTest(false);
         WebGLEngine.instance.clearRenderTexture(clear ? RenderClearFlag.Color : RenderClearFlag.Nothing, this._clearColor);

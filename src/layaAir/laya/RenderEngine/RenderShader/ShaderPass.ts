@@ -1,6 +1,6 @@
 import { SubShader } from "./SubShader";
 import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../webgl/utils/ShaderCompileDefineBase";
-import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { Shader3D, ShaderFeatureType } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderVariantCollection } from "../../RenderEngine/RenderShader/ShaderVariantCollection";
 import { IShaderCompiledObj } from "../../webgl/utils/ShaderCompile";
 import { LayaGL } from "../../layagl/LayaGL";
@@ -72,6 +72,12 @@ export class ShaderPass extends ShaderCompileDefineBase {
         this.moduleData = LayaGL.unitRenderModuleDataFactory.createShaderPass(this);
         this.moduleData.validDefine = this._validDefine;
         this.moduleData.name = this.name;
+        let shaderType = owner._owner?.shaderType;
+        if (shaderType === ShaderFeatureType.D2_TextureSV
+            || shaderType === ShaderFeatureType.D2_primitive
+            || shaderType === ShaderFeatureType.D2_BaseRenderNode2D) {
+            this.moduleData.is2D = true;
+        }
     }
 
     /**

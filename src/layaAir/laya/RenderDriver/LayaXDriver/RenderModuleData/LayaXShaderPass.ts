@@ -155,8 +155,11 @@ export class LayaXShaderPass implements IShaderPassData {
 
             // Return the C++ native object directly — C++ will call getHandle() on it
             if (shaderInstance && (shaderInstance as any)._nativeObj) {
-                return (shaderInstance as any)._nativeObj;
+                let nobj = (shaderInstance as any)._nativeObj;
+                console.log(`[LayaX-DBG] compile callback OK: shader=${this._pass._owner?._owner?.name} is2D=${this.is2D} nativeObj=${!!nobj}`);
+                return nobj;
             }
+            console.error(`[LayaX-DBG] compile callback: shaderInstance or _nativeObj is null`);
         } catch (e) {
             const shaderName = this._pass._owner?._owner?.name || "unknown";
             const passIdx = this._pass._owner?._passes?.indexOf(this._pass) ?? -1;

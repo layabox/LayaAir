@@ -19,17 +19,23 @@ import { type Scene3D } from "../d3/core/scene/Scene3D";
 import { ProgressCallback } from "../net/BatchProgress";
 import { Camera2D } from "./Scene2DSpecial/Camera2D";
 import { BlendModeHandler } from "../webgl/canvas/BlendMode";
-import { Bridge3DScene3D } from "../bridge/Bridge3DScene3D";
+import { HideFlags } from "../Const";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 
-/** @blueprintIgnore */
-export interface IBridge3DScene extends Scene3D {
-    readonly sharedCamera: any;  // Bridge3DCamera
-    readonly bridge3DShadowCamera: any;  // Bridge3DCamera
-    registerBridge3D(bridge: Sprite): void; // Bridge3DSprite
-    unregisterBridge3D(bridge: Sprite): void; // Bridge3DSprite
-    setupCamera(): void;
-    destroy(): void;
+/**
+ * @en Bridge3D scene holder interface. Manages Bridge3DScene3D lifecycle and Bridge3DSprite registration.
+ * @zh Bridge3D 场景持有者接口。管理 Bridge3DScene3D 生命周期和 Bridge3DSprite 注册。
+ * @blueprintIgnore
+ */
+export interface IBridge3DSceneHolder {
+    readonly scene3d: Scene3D | null;
+    initScene3D(): Scene3D;
     cameraZDistance: number;
+    cameraFarPlane: number;
+    readonly sharedCamera: any;
+    registerBridge3D(bridge: Sprite): void;
+    unregisterBridge3D(bridge: Sprite): void;
+    destroy(): void;
 }
 
 /** @blueprintIgnore */
@@ -53,10 +59,22 @@ export class Scene extends Sprite {
     static scene2DUniformMap: CommandUniformMap;
 
     /**
-     * Factory method to create Bridge3DScene3D
-     * Can be overridden to provide custom implementation
+     * Factory method to create Bridge3DSceneHolder
+     * Overridden by bridge module (ModuleDef.ts) to provide real implementation
      */
-    static createBridge3DScene: () => IBridge3DScene;
+    static createBridge3DHolder: (scene: Scene) => IBridge3DSceneHolder = function (scene: Scene) {
+        // No-op stub when bridge module is not loaded
+        return {
+            get scene3d(): null { return null; },
+            initScene3D(): any { return null as any; },
+            cameraZDistance: 100,
+            cameraFarPlane: 1000,
+            get sharedCamera(): null { return null; },
+            registerBridge3D(_bridge: Sprite) { },
+            unregisterBridge3D(_bridge: Sprite) { },
+            destroy() { }
+        };
+    };
 
     /**创建后，还未被销毁的场景列表，方便查看还未被销毁的场景列表，方便内存管理，本属性只读，请不要直接修改*/
     /**
@@ -85,10 +103,8 @@ export class Scene extends Sprite {
 
     /** @internal */
     static __init__() {
-        Camera2D.shaderValueInit();
-
         let scene2DUniformMap = Scene.scene2DUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal"); //名称保持一致 //兼容Light2D
-        scene2DUniformMap.addShaderUniform(Camera2D.VIEW2D, "u_view2D", ShaderDataType.Matrix3x3);
+        scene2DUniformMap.addShaderUniform(ShaderDefines2D.VIEW2D, "u_view2D", ShaderDataType.Matrix3x3);
         // scene2DUniformMap.addShaderUniform(BaseRenderNode2D.BASERENDERSIZE, "u_baseRenderSize2D", ShaderDataType.Vector2);
     }
 
@@ -105,28 +121,10 @@ export class Scene extends Sprite {
     /** @internal */
     _area2Ds: Set<Area2D>;
     /**
-     * @internal
-     * @en Bridge3D scene
-     * @zh Bridge3D场景
+     * @en Bridge3D scene holder (manages Bridge3DScene3D lifecycle and Bridge3DSprite registration)
+     * @zh Bridge3D 场景持有者（管理 Bridge3DScene3D 生命周期和 Bridge3DSprite 注册）
      */
-    _bridge3DScene: IBridge3DScene | null;
-
-    set bridge3D(bridge3D: IBridge3DScene) {
-        if (this._bridge3DScene) {
-            console.warn("Bridge3DScene already exists");
-            return
-        }
-        this._bridge3DScene = bridge3D;
-        this._bridge3DScene._scene2D = this;
-    }
-
-    get bridge3D() {
-        if (!this._bridge3DScene) {
-            this._bridge3DScene = Scene.createBridge3DScene();
-            this._bridge3DScene._scene2D = this;
-        }
-        return this._bridge3DScene;
-    }
+    bridge3D: IBridge3DSceneHolder;
 
     /**
      * @en relative layout component
@@ -155,6 +153,7 @@ export class Scene extends Sprite {
         this._timer = ILaya.timer;
         this._widget = Widget.EMPTY;
         this._area2Ds = new Set<Area2D>();
+        this.bridge3D = Scene.createBridge3DHolder(this);
 
         this._scene = this;
         Scene.componentManagerMap.forEach((val, key) => {
@@ -285,11 +284,8 @@ export class Scene extends Sprite {
      * @param destroyChild 是否删除子节点。
      */
     destroy(destroyChild: boolean = true): void {
-        // Destroy Bridge3D scene
-        if (this._bridge3DScene) {
-            this._bridge3DScene.destroy();
-            this._bridge3DScene = null;
-        }
+        // Destroy Bridge3D holder (and its scene3d)
+        this.bridge3D.destroy();
 
         super.destroy(destroyChild);
         if (this._scene3D) {

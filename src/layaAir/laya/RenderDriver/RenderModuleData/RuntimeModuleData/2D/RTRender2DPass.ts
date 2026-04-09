@@ -3,8 +3,9 @@ import { IRender2DPass, IRender2DPassManager } from "../../Design/2D/IRender2DPa
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { PostProcess2D } from "../../../../display/PostProcess2D";
 import { RTRenderStruct2D } from "./RTRenderStruct2D";
-import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
+import { GLESInternalRT } from "../../../OpenGLESDriver/RenderDevice/GLESInternalRT";
+import { GLESShaderData } from "../../../OpenGLESDriver/RenderDevice/GLESShaderData";
+import { GLESRenderContext2D } from "../../../OpenGLESDriver/2DRenderPass/GLESRenderContext2D";
 import { Matrix } from "../../../../maths/Matrix";
 
 export class RTRender2DPass implements IRender2DPass {
@@ -85,7 +86,7 @@ export class RTRender2DPass implements IRender2DPass {
    public set renderTexture(value: RenderTexture2D) {
       this._renderTexture = value;
       if (value) {
-         this._nativeObj.setRenderTexture((value._renderTarget as any)._nativeObj, value.width, value.height, value._invertY);
+         this._nativeObj.setRenderTexture((value._renderTarget as GLESInternalRT)._nativeObj, value.width, value.height, value._invertY);
       }
       else {
          this._nativeObj.setRenderTexture(null, 0, 0, false);
@@ -101,11 +102,11 @@ export class RTRender2DPass implements IRender2DPass {
       this._nativeObj.priority = value;
    }
 
-   private _shaderData: ShaderData = null;
-   set shaderData(value: ShaderData) {
+   private _shaderData: GLESShaderData = null;
+   set shaderData(value: GLESShaderData) {
       this._shaderData = value;
    }
-   get shaderData(): ShaderData {
+   get shaderData(): GLESShaderData {
       return this._shaderData;
    }
 
@@ -128,9 +129,9 @@ export class RTRender2DPass implements IRender2DPass {
    }
 
    constructor(skipNative?: boolean) {
-      this._shaderData = LayaGL.renderDeviceFactory.createShaderData(null) as ShaderData;
+      this._shaderData = LayaGL.renderDeviceFactory.createShaderData(null) as GLESShaderData;
       if (!skipNative) {
-         this._nativeObj = new (window as any).conchRTRender2DPass((this._shaderData as any)._nativeObj);
+         this._nativeObj = new (window as any).conchRTRender2DPass(this._shaderData._nativeObj);
          this.enable = true;
          this.enableBatch = true;
          this.isSupport = false;
@@ -145,12 +146,12 @@ export class RTRender2DPass implements IRender2DPass {
     * pass 2D 渲染
     * @param context 
     */
-   fowardRender(context: IRenderContext2D) {
+   fowardRender(context: GLESRenderContext2D) {
       let rt = this.renderTexture;
       if (rt) {
          context.invertY = rt._invertY;
       }
-      this._nativeObj.fowardRender((context as any)._nativeObj);
+      this._nativeObj.fowardRender(context._nativeObj);
    }
 
    updatePostProcess(): void {
@@ -197,8 +198,8 @@ export class RTRender2DPassManager implements IRender2DPassManager {
       this._nativeObj.removePass(pass._nativeObj);
    }
 
-   apply(context: IRenderContext2D): void {
-      this._nativeObj.apply((context as any)._nativeObj);
+   apply(context: GLESRenderContext2D): void {
+      this._nativeObj.apply(context._nativeObj);
    }
 
    clear(): void {

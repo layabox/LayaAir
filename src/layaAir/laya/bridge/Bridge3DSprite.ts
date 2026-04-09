@@ -5,7 +5,6 @@ import { Sprite3D } from "../d3/core/Sprite3D";
 import { Transform3D } from "../d3/core/Transform3D";
 import { Bounds } from "../d3/math/Bounds";
 import { Node } from "../display/Node";
-import { Scene } from "../display/Scene";
 import { Sprite } from "../display/Sprite";
 import { Event } from "../events/Event";
 import { LayaGL } from "../layagl/LayaGL";
@@ -16,18 +15,26 @@ import { RenderListQueue } from "../RenderDriver/DriverCommon/RenderListQueue";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IBaseRenderNode } from "../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { SingletonList } from "../utils/SingletonList";
-import { Bridge3DRenderElement } from "./Bridge3DRenderElement";
-import { Bridge3DScene3D } from "./Bridge3DScene3D";
+import { Bridge3DRenderElement } from "./render/Bridge3DRenderElement";
+import { IBridge3DRenderProcess } from "./render/IBridge3DRenderProcess";
+import { LayaXBridge3DRenderElement } from "./render/LayaXBridge3DRenderElement";
+import { RTBridge3DRenderElement } from "./render/RTBridge3DRenderElement";
+import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { Bridge3DCoordinate } from "./utils/Bridge3DCoordinate";
 
-
-export interface IBridgeRenderElement extends IRenderElement2D{
+export interface IBridgeRenderElement extends IRenderElement2D {
     addBaseRenderNode(node: IBaseRenderNode): void;
     removeBaseRenderNode(node: IBaseRenderNode): void;
-    updateRenderElements(): void;
+    getBaseRenderList(): SingletonList<any>;
     getOpaqueList(): RenderListQueue;
     getTransparentList(): RenderListQueue;
     setBridge3DContext(context: any): void;
+    setRenderProcess(process: IBridge3DRenderProcess): void;
+    /**
+     * 收集渲染元素：遍历节点 → 更新数据 → 分类到队列 → 排序
+     * @returns opaqueCount (Native) or -1 (Web, use TS queue)
+     */
+    collectElements(context3d: any): number;
 }
 
 /**
@@ -38,44 +45,45 @@ export interface IBridgeRenderElement extends IRenderElement2D{
  */
 export class Bridge3DSprite extends Sprite {
 
-    static scale3DToPixel = 10;
+    static readonly defaultPixelsPerUnit = 10;
 
     static createBridge3DRenderElement(): IBridgeRenderElement {
-        if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {//native
-            return null;
-        }else
+        if (LayaEnv.isConch) {
+            if ((window as any).conchConfig.getGraphicsAPI() == 2) {
+                return new LayaXBridge3DRenderElement();
+            } else {
+                return new RTBridge3DRenderElement();
+            }
+        } else {
             return new Bridge3DRenderElement();
+        }
     }
     /**
-     * Internal container Sprite3D, parent node for all 3D children
-     * @private
+     * Internal BridgeContainerSprite3D, parent node for all 3D children
      * @remarks
      * - Container is added to Bridge3DScene3D
      * - Automatically gets _scene reference, supports component lifecycle
      */
-    private _containerSprite3D: Sprite3D;
+    private _containerSprite3D: BridgeContainerSprite3D;
 
     /**
      * Render element
-     * @private
      */
     private _bridge3DRenderElement: IBridgeRenderElement;
 
     /**
      * Whether registered to Bridge3DScene3D
-     * @private
      */
     private _isRegistered: boolean = false;
 
     /**
-     * Scale factor from 3D units to pixels
-     * @private
+     * Pixels per unit
      * @remarks
      * - Controls how 3D content is scaled relative to 2D pixels
      * - Default: Bridge3DConfig.defaultScale3DToPixel
      * - Example: 100 means 1 3D unit = 100 pixels
      */
-    private _scale3DToPixel: number;
+    private _ppu: number;
 
     /** 缓存的3D世界空间包围盒 */
     private _bounds3D: Bounds;
@@ -94,15 +102,16 @@ export class Bridge3DSprite extends Sprite {
         super();
 
         // Initialize scale from global default
-        this._scale3DToPixel = Bridge3DSprite.scale3DToPixel;
+        this._ppu = Bridge3DSprite.defaultPixelsPerUnit;
 
         // Initialize bounds cache
         this._bounds3D = new Bounds(new Vector3(), new Vector3());
         this._bounds2DRect = new Rectangle();
 
         // 创建内部容器Sprite3D
-        this._containerSprite3D = new Sprite3D();
+        this._containerSprite3D = new BridgeContainerSprite3D();
         this._containerSprite3D.name = "Bridge3DContainer";
+        this._containerSprite3D._ownerBridge = this;
         this._setContainer(this._containerSprite3D);
         // 创建渲染元素
         this._bridge3DRenderElement = Bridge3DSprite.createBridge3DRenderElement();
@@ -110,13 +119,17 @@ export class Bridge3DSprite extends Sprite {
         //占位几何体
         this._bridge3DRenderElement.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(0, 0);
         this._struct.renderElements = [this._bridge3DRenderElement];
-        // 初始化2D变换同步到3D
-        this._syncTransform2DTo3D();
+        // 使 _handleInterData 跑通，父级 scrollRect（clipRect）可写入 spriteShaderData，供 Bridge3DRenderElement 裁剪
+        this._initShaderData();
+        const emptyHandle = LayaGL.render2DRenderPassFactory.createEmptyRenderDataHandle();
+        if (emptyHandle) {
+            this._struct.renderDataHandler = emptyHandle;
+            emptyHandle.needUseMatrix = false;
+        }
     }
 
     /**
      * Get internal container Sprite3D
-     * @internal
      * @remarks
      * - Only for internal engine use (e.g., used by Bridge3DScene3D during registration)
      * - User code should use addChild/removeChild APIs, not access container directly
@@ -144,8 +157,8 @@ export class Bridge3DSprite extends Sprite {
      * - Example: 100 means 1 3D unit = 100 pixels
      * - Affects the visual size of 3D content in the 2D scene
      */
-    get scale3DToPixel(): number {
-        return this._scale3DToPixel;
+    get pixelsPerUnit(): number {
+        return this._ppu;
     }
 
     /**
@@ -168,13 +181,13 @@ export class Bridge3DSprite extends Sprite {
      * // The cube will appear as 100x100 pixels on screen
      * ```
      */
-    set scale3DToPixel(value: number) {
+    set pixelsPerUnit(value: number) {
         if (value <= 0) {
             throw new Error("scale3DToPixel must be greater than 0");
         }
 
-        if (this._scale3DToPixel !== value) {
-            this._scale3DToPixel = value;
+        if (this._ppu !== value) {
+            this._ppu = value;
             // Trigger transform sync to apply new scale
             this._syncTransform2DTo3D();
         }
@@ -205,6 +218,22 @@ export class Bridge3DSprite extends Sprite {
     }
 
     /**
+     * @internal
+     */
+    _setBelongScene(scene: Node): void {
+        super._setBelongScene(scene);
+        this._regsiterScene();
+    }
+
+    /**
+     * @internal
+     */
+    _setUnBelongScene(): void {
+        this._removeRegister();
+        super._setUnBelongScene();
+    }
+
+    /**
      * Called when node is added to display list
      * @remarks
      * - Overrides Sprite._onAdded
@@ -212,31 +241,20 @@ export class Bridge3DSprite extends Sprite {
      * @protected
      */
     protected _onAdded(): void {
-
         this.on(Event.TRANSFORM_CHANGED, this, this._syncTransform2DTo3D);
-
         super._onAdded();
+    }
 
-        // Auto-initialize and register to Bridge3DScene3D
-        const scene3d = this._scene.bridge3D;  // Triggers lazy initialization
-        if (scene3d) {
-            scene3d.registerBridge3D(this);
-            this._isRegistered = true;
-        }
-
+    private _regsiterScene() {
+        if (!this._scene) return;
+        this._scene.bridge3D.registerBridge3D(this);
+        this._isRegistered = true;
     }
 
     private _removeRegister() {
-        // Unregister from Bridge3DScene3D
-        if (this._isRegistered) {
-            const scene3d = this._scene.bridge3D; 
-            if (scene3d) {
-                scene3d.unregisterBridge3D(this);
-            }
-            this._isRegistered = false;
-        }
-
-        this.off(Event.TRANSFORM_CHANGED, this, this._syncTransform2DTo3D);
+        if (!this._scene || !this._isRegistered) return;
+        this._scene.bridge3D.unregisterBridge3D(this);
+        this._isRegistered = false;
     }
 
     /**
@@ -247,8 +265,16 @@ export class Bridge3DSprite extends Sprite {
      * @protected
      */
     protected _onRemoved(): void {
-        this._removeRegister();
+        // this._removeRegister();
+        this.off(Event.TRANSFORM_CHANGED, this, this._syncTransform2DTo3D);
         super._onRemoved();
+    }
+
+    protected _setParent(value: Node, index?: number): void {
+        super._setParent(value, index);
+        if (value) {
+            this._syncTransform2DTo3D();
+        }
     }
 
     /**
@@ -289,11 +315,15 @@ export class Bridge3DSprite extends Sprite {
         const ty = globalMatrix.ty;
 
         // 应用单位转换缩放
-        const scale = this._scale3DToPixel;
+        const scale = this._ppu;
 
         // 获取3D位置
+        // globalMatrix的tx/ty已经是canvas像素坐标（包含了stage缩放和pixelRatio），
+        // 直接转换到3D坐标系（Y轴翻转），不能再经过logicTo3D二次缩放
         const pos3D = Vector3.TEMP;
-        Bridge3DCoordinate.logicTo3D(tx, ty, 0, pos3D);
+        pos3D.x = tx;
+        pos3D.y = RenderState2D.height - ty;
+        pos3D.z = 0;
 
         // 构建4x4矩阵
         // 矩阵布局（列主序）：
@@ -306,12 +336,12 @@ export class Bridge3DSprite extends Sprite {
 
         // 第一列（X轴基向量）
         e[0] = a * scale;
-        e[1] = b * scale;
+        e[1] = -b * scale;
         e[2] = 0;
         e[3] = 0;
 
         // 第二列（Y轴基向量）
-        e[4] = c * scale;
+        e[4] = -c * scale;
         e[5] = d * scale;
         e[6] = 0;
         e[7] = 0;
@@ -502,14 +532,25 @@ export class Bridge3DSprite extends Sprite {
 
     /**
      * 获取Bridge3D渲染元素
-     * @internal
      */
     get bridge3DRenderElement(): IBridgeRenderElement {
         return this._bridge3DRenderElement;
     }
+
+    /** @ignore */
+    _child3dChanged(child?: Node): void {
+    }
 }
 
-/** @internal 包围盒计算临时变量 */
+class BridgeContainerSprite3D extends Sprite3D {
+    _ownerBridge: Bridge3DSprite;
+
+    protected _childChanged(child?: Sprite): void {
+        super._childChanged(child);
+        this._ownerBridge._child3dChanged(child);
+    }
+}
+
 const _boundsTemp0: Vector3 = new Vector3();
 const _boundsTemp1: Vector3 = new Vector3();
 const _boundsPoint: Point = new Point();

@@ -92,11 +92,16 @@ export class LayaXShaderInstance implements IShaderInstance {
         let cullTextureSetLayer = shaderProcessInfo.is2D ? 3 : 2;
 
         // 5. Determine material set index for appending include-bound uniforms (e.g. u_IBLDFG)
+        //    Material set is identified by containing a map name matching shaderPass.name.
+        //    Do NOT use max set index — Set3 (Sprite2DGlobal) would be misidentified as material.
         let materialSetIndex = -1;
         if (setMapNames) {
-            // 材质 set 是 setMapNames 中的最大 set 号
-            for (const [setIndex] of setMapNames) {
-                if (setIndex > materialSetIndex) materialSetIndex = setIndex;
+            const passName = shaderPass.name;
+            for (const [setIndex, mapNames] of setMapNames) {
+                if (mapNames.includes(passName)) {
+                    materialSetIndex = setIndex;
+                    break;
+                }
             }
         }
 
@@ -151,6 +156,12 @@ export class LayaXShaderInstance implements IShaderInstance {
 
             vs_wgsl = engine.shaderCompiler.naga.spirv_to_wgsl(vertexSpirv, false);
             fs_wgsl = engine.shaderCompiler.naga.spirv_to_wgsl(fragmentSpv, false);
+
+            if (!vs_wgsl || !fs_wgsl) {
+                let subShader = this._shaderPass._owner;
+                let shader = subShader._owner;
+                console.error(`LayaXShaderInstance: SPIR-V→WGSL conversion failed for ${shader.name}, vs_wgsl=${vs_wgsl ? 'ok' : 'EMPTY'}, fs_wgsl=${fs_wgsl ? 'ok' : 'EMPTY'}`);
+            }
         }
 
         // 9. Compute textureExits per set
@@ -168,7 +179,11 @@ export class LayaXShaderInstance implements IShaderInstance {
         const textureExitsJson = this._serializeTextureExits();
 
         this._nativeObj = new (window as any).conchLayaXShaderInstance();
-        this._nativeObj.create(vs_wgsl, fs_wgsl, propertySetMapJson, textureExitsJson);
+        let programHandle = this._nativeObj.create(vs_wgsl, fs_wgsl, propertySetMapJson, textureExitsJson);
+        console.log(`[LayaX-DBG] create program: handle=${programHandle} vs_len=${vs_wgsl.length} fs_len=${fs_wgsl.length} sets=${Array.from(this.bindingInfoMap.keys())}`);
+        if (!programHandle) {
+            console.error(`[LayaX-DBG] create program FAILED! propertySetMap=${propertySetMapJson.substring(0, 200)}`);
+        }
     }
 
     /**

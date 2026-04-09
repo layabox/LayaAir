@@ -26,6 +26,16 @@ export interface IRenderElement2D {
  * @blueprintIgnore @blueprintIgnoreSubclasses
  */
 export interface IPrimitiveRenderElement2D extends IRenderElement2D {
+    /**
+     * @en Type key encoding blend mode and flags: blendShader | useCustomMaterial | mc | hasFillTexture.
+     * @zh 类型键编码混合模式和标志位：blendShader | useCustomMaterial | mc | hasFillTexture。
+     */
+    typeKey: number;
+    /**
+     * @en Texture key encoding per-element shader define bits and texture ID.
+     * @zh 纹理键编码逐元素着色器宏定义位和纹理ID。
+     */
+    textureKey: number;
     primitiveShaderData: ShaderData;
 }
 
