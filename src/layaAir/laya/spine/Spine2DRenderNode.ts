@@ -47,7 +47,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @zh 物理更新模式。
      * @en The physics update mode. 
      **/
-    physicsUpdate = 2;
+    physicsUpdate = 0;
 
     /** @deprecated 状态-停止 */
     static readonly STOPPED: number = 0;

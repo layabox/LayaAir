@@ -1,5 +1,6 @@
 import { Laya } from "../../Laya";
 import { Scene } from "../display/Scene";
+import { Physics2D } from "./Physics2D";
 import { CommandBuffer2D } from "../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { DrawMesh2DCMD } from "../display/Scene2DSpecial/RenderCMD2D/DrawMesh2DCMD";
 import { Color } from "../maths/Color";
@@ -55,6 +56,9 @@ export class Physics2DDebugDraw {
     }
 
     private render(): void {
+        this._matrix.identity();
+        this._matrix.scale(Physics2D.toRenderX(1), Physics2D.toRenderY(1));
+
         let area2D = this._scene._area2Ds.size > 0 ? this._scene._area2Ds.values().next().value._struct : null;
         //drawMesh cmds
         this._cmdBuffer.setRenderTarget(null, false);
