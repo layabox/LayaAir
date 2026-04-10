@@ -1506,9 +1506,10 @@ export class Animator extends Component {
         let timer = this.owner._scene.timer;
         let delta = timer.delta / 1000.0;//Laya.timer.delta已包含Laya.timer.scale
         delta = this._applyUpdateMode(delta);
+        var i:number, n:number;
         if (this._speed === 0 || delta === 0) {//delta为0无需更新,可能造成crossWeight计算值为NaN
             // speed=0或delta=0时仍需检查已完成状态的转换（用户可能在动画结束后设置了新参数）
-            for (var i = 0, n = this._controllerLayers.length; i < n; i++) {
+            for (i = 0, n = this._controllerLayers.length; i < n; i++) {
                 var controllerLayer: AnimatorControllerLayer = this._controllerLayers[i];
                 if (!controllerLayer.enable) continue;
                 var playStateInfo: AnimatorPlayState = controllerLayer._playStateInfo!;
@@ -1524,7 +1525,7 @@ export class Animator extends Component {
         if (!Stat.enableAnimatorUpdate)
             return;
         var needRender = true;//TODO:有渲染节点才可将needRender变为true
-        var i, n;
+        
         this._updateMark++;
         for (i = 0, n = this._controllerLayers.length; i < n; i++) {
             var controllerLayer: AnimatorControllerLayer = this._controllerLayers[i];
