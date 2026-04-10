@@ -61,7 +61,10 @@ export class GLESRenderContext2D implements IRenderContext2D {
     private _passDataShell: GLESShaderData = new GLESShaderData(null, false);
     public get passData(): GLESShaderData {
         this._passDataShell._nativeObj = this._nativeObj.passData;
-        return this._passDataShell;
+        if (this._passDataShell._nativeObj)
+            return this._passDataShell;
+        else 
+            return null;
     }
     public set passData(value: GLESShaderData) {
         this._passData = value;
