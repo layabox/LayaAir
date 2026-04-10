@@ -44,7 +44,9 @@ export class WebglRenderContext2D implements IRenderContext2D {
     _prevClip: any = null;
     /** @internal */
     _prevShaderIns: WebGLShaderInstance = null;
-
+    /** @internal */
+    _globalAlpha = -1;
+    
     private _offscreenWidth: number;
     private _offscreenHeight: number;
 

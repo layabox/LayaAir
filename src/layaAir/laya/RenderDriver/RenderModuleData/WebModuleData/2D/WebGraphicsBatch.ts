@@ -245,7 +245,7 @@ class BatchContext {
         }
 
         // typeKey comparison (blend+flags)
-        if (this.typeKey !== element.typeKey) {
+        if (this.typeKey !== element.typeKey || this.globalAlpha !== element.owner.globalAlpha) {
             return false;
         }
 
@@ -300,7 +300,7 @@ class BatchContext {
         }
 
         // typeKey comparison (blend+flags)
-        if (this.typeKey !== element.typeKey) {
+        if (this.typeKey !== element.typeKey || this.globalAlpha !== element.owner.globalAlpha) {
             return false;
         }
 

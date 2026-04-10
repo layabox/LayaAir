@@ -87,10 +87,13 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
         if (count === 1) {
             let shaderIns = inss[0];
             let clipInfo = this.owner.getClipInfo();
+            let globalAlpha = this.owner.globalAlpha;
             if (this.typeKey === context._prevTypeKey
                 && this.textureKey === context._prevTextureKey
                 && clipInfo === context._prevClip
-                && shaderIns === context._prevShaderIns) {
+                && shaderIns === context._prevShaderIns
+                && globalAlpha === context._globalAlpha
+            ) {
                 // 快速路径：状态完全相同，只执行 draw
                 WebGLEngine.instance.getDrawContext().drawGeometryElement(this.geometry);
             } else {
@@ -102,6 +105,7 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
             context._prevTextureKey = this.textureKey;
             context._prevClip = clipInfo;
             context._prevShaderIns = shaderIns;
+            context._globalAlpha = globalAlpha;
         } else {
             for (let j = 0; j < count; j++) {
                 this.renderByShaderInstance(inss[j], context);
