@@ -92,7 +92,10 @@ export class TrailFilter extends TrailBaseFilter {
 						Vector3.transformCoordinate(curPos, cameraMatrix, TrailGeometry._tempVector33);
 						Vector3.transformCoordinate(this._trialGeometry._lastFixedVertexPosition, cameraMatrix, TrailGeometry._tempVector34);
 						Vector3.subtract(TrailGeometry._tempVector33, TrailGeometry._tempVector34, delVector3);
-						Vector3.cross(TrailGeometry._tempVector33, delVector3, pointAtoBVector3);
+						// 在屏幕平面内旋转90°，确保偏移始终在屏幕平面，无深度分量
+						pointAtoBVector3.x = -delVector3.y;
+						pointAtoBVector3.y = delVector3.x;
+						pointAtoBVector3.z = 0;
 						break;
 					case TrailAlignment.TransformZ:
 						Vector3.subtract(curPos, this._trialGeometry._lastFixedVertexPosition, delVector3);
