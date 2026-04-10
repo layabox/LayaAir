@@ -199,6 +199,12 @@ export interface ISpineRender {
     }): void;
     
     /**
+     * @zh 渲染初始姿势（不需要播放动画即可显示骨骼的默认姿势）
+     * @en Render the setup pose (display the skeleton's default pose without playing any animation)
+     */
+    renderSetupPose?(): void;
+
+    /**
      * @zh 销毁渲染器
      */
     destroy(): void;

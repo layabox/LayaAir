@@ -526,7 +526,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     onEnable(): void {
         this.owner.on(Event.TRANSFORM_CHANGED, this, this.onTransformChanged);
 
-        if (this._spineRender && LayaEnv.isPlaying && this._animationName !== undefined)
+        if (this._spineRender && LayaEnv.isPlaying && this._animationName != null && this._templet?.hasAnimation(this._animationName))
             this.play(this._animationName, this._loop, true);
     }
 
@@ -643,9 +643,16 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (
             LayaEnv.isPlaying
             && this.enabled
-            && this._animationName !== undefined
+            && this._animationName != null
+            && this._templet.hasAnimation(this._animationName)
         ) {
             this.play(this._animationName, this._loop, true);
+        } else {
+            // Render setup pose when no valid animation is specified
+            if (this._spineRender.renderSetupPose) {
+                this._spineRender.renderSetupPose();
+                this.owner.repaint(RepaintFlag.UpdateRT);
+            }
         }
     }
 

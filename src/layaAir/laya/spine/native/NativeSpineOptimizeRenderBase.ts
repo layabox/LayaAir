@@ -142,6 +142,12 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
         // Override in subclasses if needed
     }
 
+    renderSetupPose(): void {
+        if (!this._nativeRender) return;
+        // Render setup pose through native layer
+        this._nativeRender.render(0, 2);
+    }
+
     play(animationName: string, loop: boolean = true, trackIndex: number = 0, start: number = 0, end: number = 0): void {
         if (!this._nativeRender) {
             return;

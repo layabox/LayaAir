@@ -335,6 +335,41 @@ export abstract class BaseOptimizeRender implements ISpineRender {
     }
 
     /**
+     * @en Render the setup pose without requiring an active animation.
+     * This is used to display the skeleton's default pose in the editor or when no animation is specified.
+     * @zh 渲染初始姿势，不需要播放动画。
+     * 用于在编辑器中或未指定动画时显示骨骼的默认姿势。
+     */
+    renderSetupPose(): void {
+        if (!this._skeleton || !this._optimize || !this.renderProxyMap) return;
+
+        // Set up normal render proxy for setup pose display
+        let normalProxy = this.renderProxyMap.get(ERenderProxyType.RenderNormal);
+        if (!normalProxy) return;
+
+        this.renderProxy = normalProxy;
+
+        // Ensure skin attach is set
+        if (!this._skinAttach) {
+            this._skinAttach = this._optimize.skinAttachArray[this._skinIndex];
+            this.updater.skinAttach = this._skinAttach;
+        }
+
+        normalProxy.change();
+
+        // Compute setup pose world transforms
+        this._skeleton.setToSetupPose();
+        this._skeleton.updateWorldTransform(2); // Physics.update
+
+        let offsetX = -this._skeleton.x;
+        let offsetY = -this._skeleton.y;
+        normalProxy.render(0, offsetX, offsetY);
+        if (normalProxy.afterRender) {
+            normalProxy.afterRender(this);
+        }
+    }
+
+    /**
      * @en Initialize render proxies.
      * @zh 初始化渲染代理。
      */
