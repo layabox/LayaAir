@@ -660,7 +660,19 @@ export class Animator2D extends Component {
 
         var delta = this.owner.timer.delta / 1000.0;
         delta = this._applyUpdateMode(delta);
-        if (0 == this.speed || 0 == delta) return;
+        if (0 == this.speed || 0 == delta) {
+            // speed=0或delta=0时仍需检查已完成状态的转换（用户可能在动画结束后设置了新参数）
+            for (var i = 0, n = this._controllerLayers.length; i < n; i++) {
+                var controllerLayer = this._controllerLayers[i];
+                if (!controllerLayer.enable) continue;
+                var playStateInfo = controllerLayer._playStateInfo!;
+                if (playStateInfo._finish && controllerLayer._playType == 0) {
+                    var animatorState = playStateInfo._currentState!;
+                    this._applyTransition(i, animatorState._eventtransition(playStateInfo._normalizedPlayTime, this.parameters, false));
+                }
+            }
+            return;
+        }
         var needRender = true;//TODO:有渲染节点才可将needRender变为true
 
         for (var i = 0, n = this._controllerLayers.length; i < n; i++) {
@@ -694,17 +706,24 @@ export class Animator2D extends Component {
                         dir = -1;
                     }
 
-                    finish || this._updatePlayer(animatorState, playStateInfo, delta * speed * dir, loop, i);
+                    if (finish) {
+                        // 动画已结束，但仍需检查条件触发的过渡（用户可能在动画结束后设置条件）
+                        this._applyTransition(i, animatorState._eventtransition(playStateInfo._normalizedPlayTime, this.parameters, false));
+                    } else {
+                        this._updatePlayer(animatorState, playStateInfo, delta * speed * dir, loop, i);
+                    }
                     playStateInfo = controllerLayer._playStateInfo!;
                     animatorState = playStateInfo._currentState!;
+                    // 转换后finish状态可能已变化，需要重新判断
+                    let curFinish = playStateInfo._finish;
                     if (needRender) {
                         this._updateClipDatas(animatorState, addtive, playStateInfo);
-                        if (!finish) {
+                        if (!curFinish) {
                             this._setClipDatasToNode(animatorState, addtive, controllerLayer.defaultWeight, controllerLayer);
                             this._updateEventScript(animatorState, playStateInfo);
                         }
                     }
-                    finish || this._updateStateFinish(animatorState, playStateInfo);
+                    curFinish || this._updateStateFinish(animatorState, playStateInfo);
                     break;
             }
         }

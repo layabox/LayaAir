@@ -1359,8 +1359,21 @@ export class Animator extends Component {
         let timer = this.owner._scene.timer;
         let delta = timer.delta / 1000.0;//Laya.timer.delta已包含Laya.timer.scale
         delta = this._applyUpdateMode(delta);
-        if (this._speed === 0 || delta === 0)//delta为0无需更新,可能造成crossWeight计算值为NaN
+        if (this._speed === 0 || delta === 0) {//delta为0无需更新,可能造成crossWeight计算值为NaN
+            // speed=0或delta=0时仍需检查已完成状态的转换（用户可能在动画结束后设置了新参数）
+            for (var i = 0, n = this._controllerLayers.length; i < n; i++) {
+                var controllerLayer: AnimatorControllerLayer = this._controllerLayers[i];
+                if (!controllerLayer.enable) continue;
+                var playStateInfo: AnimatorPlayState = controllerLayer._playStateInfo!;
+                if (playStateInfo._finish && controllerLayer._playType == 0) {
+                    var animatorState: AnimatorState = playStateInfo.currentState!;
+                    this._applyTransition(animatorState, i, animatorState._eventtransition(playStateInfo._normalizedPlayTime, this.animatorParams));
+                }
+            }
+            this._LateUpdateEvents.invoke();
+            this._LateUpdateEvents.clear();
             return;
+        }
         if (!Stat.enableAnimatorUpdate)
             return;
         var needRender = true;//TODO:有渲染节点才可将needRender变为true
@@ -1372,6 +1385,9 @@ export class Animator extends Component {
                 continue;
             var playStateInfo: AnimatorPlayState = controllerLayer._playStateInfo!;
             if (this.sleep && playStateInfo._finish && controllerLayer._playType == 0) {
+                // sleep模式下仍需检查已完成状态的转换（用户可能在动画结束后设置了新参数）
+                var animatorState: AnimatorState = playStateInfo.currentState!;
+                this._applyTransition(animatorState, i, animatorState._eventtransition(playStateInfo._normalizedPlayTime, this.animatorParams));
                 continue;
             }
             var crossPlayStateInfo: AnimatorPlayState = controllerLayer._crossPlayStateInfo!;
@@ -1382,7 +1398,12 @@ export class Animator extends Component {
                     var clip: AnimationClip = animatorState._clip!;
                     var speed: number = this._speed * animatorState.speed;
                     var finish: boolean = playStateInfo._finish;//提前取出finish,防止最后一帧跳过
-                    finish || this._updatePlayer(animatorState, playStateInfo, delta * speed, animatorState.islooping, i);
+                    if (finish) {
+                        // 动画已结束，但仍需检查条件触发的过渡（用户可能在动画结束后设置条件）
+                        this._applyTransition(animatorState, i, animatorState._eventtransition(playStateInfo._normalizedPlayTime, this.animatorParams));
+                    } else {
+                        this._updatePlayer(animatorState, playStateInfo, delta * speed, animatorState.islooping, i);
+                    }
                     if (needRender) {
                         var addtive: boolean = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
                         this._updateClipDatas(animatorState, addtive, playStateInfo, controllerLayer.avatarMask);//clipDatas为逐动画文件,防止两个使用同一动画文件的Animator数据错乱,即使动画停止也要updateClipDatas
