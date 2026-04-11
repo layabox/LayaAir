@@ -13,9 +13,9 @@ export class Circle2DShape extends Base2DShape {
         super(Base2DShapeType.Circle);
     }
 
-    getPositionAndDirection(): Vector4 {
+    getPositionAndDirection(randomFn: () => number = Math.random): Vector4 {
 
-        let radians = Math.random() * Math.PI * 2;
+        let radians = randomFn() * Math.PI * 2;
 
         // direction
         let xDir = Math.sin(radians);
@@ -30,18 +30,19 @@ export class Circle2DShape extends Base2DShape {
             y = yDir * this.radius;
         }
         else {
-            let length = Math.random() * this.radius;
+            let length = randomFn() * this.radius;
             x = xDir * length;
             y = yDir * length;
         }
 
         if (this.randomDirction) {
-            let radians = Math.random() * Math.PI * 2;
+            let radians = randomFn() * Math.PI * 2;
             xDir = Math.sin(radians);
             yDir = Math.cos(radians);
         }
 
         this.posAndDir.setValue(x, y, xDir, yDir);
+        this.applyTransform();
         return this.posAndDir;
     }
 
@@ -49,6 +50,7 @@ export class Circle2DShape extends Base2DShape {
         destObject.radius = this.radius;
         destObject.emitFromEdge = this.emitFromEdge;
         destObject.randomDirction = this.randomDirction;
+        this.cloneTransformTo(destObject);
     }
 
     clone() {

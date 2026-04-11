@@ -1,6 +1,7 @@
 import { Vector3 } from "../../../maths/Vector3";
 import { ClassUtils } from "../../../utils/ClassUtils";
 import { IClone } from "../../../utils/IClone";
+import { ParticleMinMaxCurve, ParticleMinMaxCurveMode } from "../ParticleMinMaxCurve";
 
 export class EmissionBurst implements IClone {
 
@@ -29,14 +30,19 @@ export class EmissionModule implements IClone {
 
     enable: boolean = true;
 
-    private _rateOverTime: number = 10;
-    public get rateOverTime(): number {
+    private _rateOverTime: ParticleMinMaxCurve = new ParticleMinMaxCurve();
+
+    public get rateOverTime(): ParticleMinMaxCurve {
         return this._rateOverTime;
     }
-    public set rateOverTime(value: number) {
-        this._rateOverTime = value;
 
-        this._emissionInterval = 1 / value;
+    public set rateOverTime(value: number | ParticleMinMaxCurve) {
+        if (typeof value === 'number') {
+            this._rateOverTime.mode = ParticleMinMaxCurveMode.Constant;
+            this._rateOverTime.constant = value;
+        } else {
+            this._rateOverTime = value;
+        }
     }
 
     /** @internal */
@@ -44,11 +50,8 @@ export class EmissionModule implements IClone {
 
     rateOverDistance: number = 0;
 
-    /**
-     * @internal
-     * 粒子发射间隔时间
-     */
-    _emissionInterval: number = 0.1;
+    /** @internal */
+    _emitAccumulator: number = 0;
 
     private _bursts: EmissionBurst[];
     public get bursts(): EmissionBurst[] {
@@ -69,7 +72,8 @@ export class EmissionModule implements IClone {
     _sortedBursts: EmissionBurst[] = [];
 
     constructor() {
-
+        this._rateOverTime.mode = ParticleMinMaxCurveMode.Constant;
+        this._rateOverTime.constant = 10;
     }
 
     destroy() {
@@ -79,7 +83,7 @@ export class EmissionModule implements IClone {
 
     cloneTo(destObject: EmissionModule): void {
         destObject.enable = this.enable;
-        destObject.rateOverTime = this.rateOverTime;
+        this.rateOverTime.cloneTo(destObject._rateOverTime);
         destObject.rateOverDistance = this.rateOverDistance;
         if (this.bursts) {
             let bursts: EmissionBurst[] = [];
