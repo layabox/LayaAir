@@ -1805,6 +1805,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @internal
      */
     protected _advanceDistance(emitTime: number, elapsedTime: number): void {
+        if (this._ownerRender.renderMode === 4 && !this._ownerRender.mesh)
+            return;
+
         let position = this._owner.transform.position;
         let offsetDistance: number = Vector3.distance(position, this._emissionLastPosition);
 
