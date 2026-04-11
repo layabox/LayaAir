@@ -13,15 +13,15 @@ export class Box2DShape extends Base2DShape {
         super(Base2DShapeType.Box);
     }
 
-    getPositionAndDirection(): Vector4 {
+    getPositionAndDirection(randomFn: () => number = Math.random): Vector4 {
 
-        let x = Math.random() * this.size.x + this.size.x * -0.5;
-        let y = Math.random() * this.size.y + this.size.y * -0.5;
+        let x = randomFn() * this.size.x + this.size.x * -0.5;
+        let y = randomFn() * this.size.y + this.size.y * -0.5;
         let xDir = 0;
         let yDir = 1;
 
         if (this.randomDirection) {
-            let radians = Math.random() * Math.PI * 2;
+            let radians = randomFn() * Math.PI * 2;
             xDir = Math.sin(radians);
             yDir = Math.cos(radians);
         }

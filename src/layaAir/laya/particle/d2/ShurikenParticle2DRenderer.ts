@@ -8,6 +8,7 @@ import { Matrix } from "../../maths/Matrix";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
 import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
+import { PlayerConfig } from "../../../Config";
 import { Physics2DOption } from "../../physics/Physics2DOption";
 import { IRenderContext2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
@@ -683,13 +684,17 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
         ps.main._spriteTranslateAndSpace.setValue(translateX, translateY, simulationSpace);
 
         // gravity
-        const Physics2DSettingPixelRatio = Physics2DOption?.pixelRatio ?? 50;
-        const Physics2DSettingGravity = Physics2DOption?.gravity ?? { x: 0, y: 9.8 };
+        const configlayer = PlayerConfig.physics2D?.defaultConfig;
+        const Physics2DSettingPixelRatio = configlayer?.pixelRatio ?? Physics2DOption.pixelRatio;
+        const Physics2DSettingGravity = {
+            x: configlayer?.gravity?.x ?? Physics2DOption.gravity.x,
+            y: configlayer?.gravity?.y ?? Physics2DOption.gravity.y
+        };
         let physicPixelRatio = ps.main.unitPixels / Physics2DSettingPixelRatio;
         let gravityX = Physics2DSettingGravity.x * physicPixelRatio;
         let gravityY = Physics2DSettingGravity.y * physicPixelRatio;
         let gravityModifier = ps.main.gravityModifier;
-        ps.main._gravity.setValue(gravityX * gravityModifier, gravityY * gravityModifier);
+        ps.main._gravity.setValue(gravityX * gravityModifier.x, gravityY * gravityModifier.y);
 
         if (ps.emission.rateOverDistance >= 0) {
 
