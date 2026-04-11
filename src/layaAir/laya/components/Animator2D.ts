@@ -714,16 +714,14 @@ export class Animator2D extends Component {
                     }
                     playStateInfo = controllerLayer._playStateInfo!;
                     animatorState = playStateInfo._currentState!;
-                    // 转换后finish状态可能已变化，需要重新判断
-                    let curFinish = playStateInfo._finish;
                     if (needRender) {
                         this._updateClipDatas(animatorState, addtive, playStateInfo);
-                        if (!curFinish) {
+                        if (!finish) {
                             this._setClipDatasToNode(animatorState, addtive, controllerLayer.defaultWeight, controllerLayer);
                             this._updateEventScript(animatorState, playStateInfo);
                         }
                     }
-                    curFinish || this._updateStateFinish(animatorState, playStateInfo);
+                    finish || this._updateStateFinish(animatorState, playStateInfo);
                     break;
             }
         }
