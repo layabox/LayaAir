@@ -180,9 +180,9 @@ export class LayaXRender3DProcess implements IRender3DProcess {
         }
 
         this._renderPass.finalize.clear();
+        this._renderPass.finalize._camera = camera;
         if (!this._renderPass.enablePostProcess && needInternalRT && camera._offScreenRenderTexture) {
             let dst = camera._offScreenRenderTexture;
-
             offsetScale.setValue(camera.normalizedViewport.x, 1.0 - camera.normalizedViewport.y, renderRT.width / dst.width, -renderRT.height / dst.height);
             this._renderPass.finalize.blitScreenQuad(renderRT, camera._offScreenRenderTexture, offsetScale);
         }

@@ -167,6 +167,10 @@ class LayaXBlitQuadCMDData extends BlitQuadCMDData {
     }
 
     apply(_context: IRenderContext3D): void {
+        // 注意：LayaX 路径下 apply() 不会被调用（LayaXForwardAddRP 用 _apply(false)
+        // 只执行 cmd.run()，然后把 _nativeObj 列表直接交给 Rust 端处理）。
+        // offsetScale / texelSize / source 的 materialShaderData 写入由 Rust 端的
+        // execute_blit_quad 负责完成。
         this._nativeObj.execute();
     }
 }
