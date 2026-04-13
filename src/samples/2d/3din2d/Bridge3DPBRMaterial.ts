@@ -6,6 +6,7 @@ description
  */
 
 import { Laya } from "Laya";
+import { Bridge3DScene3D } from "laya/bridge/Bridge3DScene3D";
 import { Bridge3DSprite } from "laya/bridge/Bridge3DSprite";
 import { Script } from "laya/components/Script";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
@@ -77,7 +78,7 @@ export class Bridge3DPBRMaterial {
 
         // 设置相机 Z 距离
         // 球体矩阵宽约 5*SPACING=325px，高约 4*SPACING=260px，需足够远才能全部入镜
-        (this.scene2D as any)._bridge3DInternal.scene3d._applyCameraZDistance(600);
+        (this.scene2D.bridge3DInternal.scene3d as any)._applyCameraZDistance(600);
 
         // 添加方向光提供基础漫反射
         this.createDirectionLight();
@@ -111,7 +112,7 @@ export class Bridge3DPBRMaterial {
         Scene3D.load(
             "res/threeDimen/scene/LayaScene_EmptyScene/Conventional/EmptyScene.ls",
             Handler.create(this, (loadedScene: Scene3D) => {
-                const scene3d = (this.scene2D as any)._bridge3DInternal.scene3d;
+                const scene3d = this.scene2D.bridge3DInternal.scene3d;
 
                 // ---- 球谐光照 ----
                 const shFromScene = loadedScene.ambientSH;
