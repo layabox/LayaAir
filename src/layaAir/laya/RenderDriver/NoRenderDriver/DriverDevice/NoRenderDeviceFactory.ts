@@ -462,8 +462,6 @@ export class NoRenderShaderData extends ShaderData {
                 return this.getVector(uniformIndex);
             case ShaderDataType.Color:
                 return this.getColor(uniformIndex);
-            case ShaderDataType.Matrix4x4:
-                return this.getMatrix4x4(uniformIndex);
             case ShaderDataType.Texture2D:
             case ShaderDataType.TextureCube:
             case ShaderDataType.Texture2DArray:
