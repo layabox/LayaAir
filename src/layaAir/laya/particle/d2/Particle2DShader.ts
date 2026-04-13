@@ -11,7 +11,7 @@ import Particle2DLifetimeSize from "./shader/Particle2DLifetimeSize.glsl";
 import Particle2DLifetimeVelocity from "./shader/Particle2DLifetimeVelocity.glsl";
 import Particle2DTextureSheetAnimation from "./shader/Particle2DTextureSheetAnimation.glsl";
 import Particle2DVertex from "./shader/Particle2DVertex.glsl";
-import Curve from "./Shader/Curve.glsl";
+import Curve from "./shader/Curve.glsl";
 
 export class Particle2DShader {
 
