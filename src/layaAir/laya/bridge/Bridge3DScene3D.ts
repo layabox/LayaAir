@@ -12,12 +12,12 @@ import { Config3D } from "../../Config3D";
 import { Utils3D } from "../d3/utils/Utils3D";
 import { Texture2D } from "../resource/Texture2D";
 import { RTBridge3DContext } from "./render/RTBridge3DContext";
-import { Bridge3DSceneHolder } from "./Bridge3DSceneHolder";
+import { Bridge3DSceneInternal } from "./Bridge3DSceneInternal";
 import { Bridge3DContext } from "./render/Bridge3DContext";
 
 /**
  * Bridge3DScene3D is a lightweight Scene3D implementation optimized for Bridge3D system.
- * Only responsible for rendering pipeline — lifecycle and list management are handled by Bridge3DSceneHolder.
+ * Only responsible for rendering pipeline — lifecycle and list management are handled by Bridge3DSceneInternal.
  *
  * Main optimizations:
  * 1. _addRenderObject/_removeRenderObject delegated to Bridge3DSprite management
@@ -32,7 +32,7 @@ export class Bridge3DScene3D extends Scene3D {
      * Reference to the owning holder
      * @internal
      */
-    private _holder: Bridge3DSceneHolder;
+    private _holder: Bridge3DSceneInternal;
 
     /**
      * Shared Bridge3D camera
@@ -45,15 +45,6 @@ export class Bridge3DScene3D extends Scene3D {
      * @internal
      */
     _cameraInitialized: boolean = false;
-
-    /**
-     * @en Update holder reference (used during holder replacement).
-     * @zh 更新 holder 引用（holder 替换时使用）。
-     * @internal
-     */
-    _setHolder(holder: Bridge3DSceneHolder): void {
-        this._holder = holder;
-    }
 
     /**
      * Render object to Bridge3DSprite mapping
@@ -105,9 +96,9 @@ export class Bridge3DScene3D extends Scene3D {
 
     /**
      * Create Bridge3DScene3D instance
-     * @param holder - The owning Bridge3DSceneHolder
+     * @param holder - The owning Bridge3DSceneInternal
      */
-    constructor(holder: Bridge3DSceneHolder) {
+    constructor(holder: Bridge3DSceneInternal) {
         super();
 
         this._holder = holder;
@@ -268,7 +259,8 @@ export class Bridge3DScene3D extends Scene3D {
         this._sharedCamera.orthographic = true;
         this._sharedCamera.orthographicVerticalSize = height;  // Use full height
         this._sharedCamera.nearPlane = 0.1;
-        this._sharedCamera.farPlane = this._holder.cameraFarPlane;
+        const holder = this._scene2D?.bridge3D;
+        if (holder) this._sharedCamera.farPlane = holder.cameraFarPlane;
 
         // Set camera position using the configured Z distance
         this._updateCameraPosition();

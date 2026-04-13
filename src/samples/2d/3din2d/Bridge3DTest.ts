@@ -52,9 +52,6 @@ export class Bridge3DTest {
         bridge.pixelsPerUnit = 1;
         scene2D.addChild(bridge);
 
-        // Access holder (scene3d auto-created by addChild above)
-        let holder = scene2D.bridge3D;
-
         let sprite = new Sprite;
         sprite.graphics.drawCircle(0, 0, 30, "#ff0000");
         scene2D.addChild(sprite);
@@ -63,7 +60,8 @@ export class Bridge3DTest {
         console.log("Bridge3D created at (400, 300)");
         console.log("2D Logic Position: (400, 300)");
 
-        holder.scene3d.ambientColor = new Color(1, 1, 1, 1);
+        // Access scene3d (auto-created by addChild above)
+        (scene2D as any)._bridge3DInternal.scene3d.ambientColor = new Color(1, 1, 1, 1);
         let lightSprite = new Bridge3DSprite;
         scene2D.addChild(lightSprite);
 

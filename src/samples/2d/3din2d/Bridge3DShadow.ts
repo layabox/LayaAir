@@ -72,11 +72,10 @@ export class Bridge3DShadow {
         this.bridge.pos(Laya.stage.width / 2, Laya.stage.height / 2);
         scene2D.addChild(this.bridge);
 
-        // Access scene3D through Scene.getBridge3D()
-        const holder = scene2D.bridge3D;
-        holder.cameraZDistance = 300;
         // 设置环境光（较暗，以突出阴影效果）
-        holder.scene3d.ambientColor = new Color(0.3, 0.3, 0.3, 1);
+        const scene3d = (scene2D as any)._bridge3DInternal.scene3d;
+        scene3d._applyCameraZDistance(300);
+        scene3d.ambientColor = new Color(0.3, 0.3, 0.3, 1);
 
         // console.log(`Bridge3D created at (${this.bridge.x}, ${this.bridge.y})`);
 

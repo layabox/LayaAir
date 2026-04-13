@@ -75,10 +75,9 @@ export class Bridge3DPBRMaterial {
         this.bridge.pos(Laya.stage.width / 2, Laya.stage.height / 2);
         this.scene2D.addChild(this.bridge);
 
-        // 设置相机 Z 距离（负值代表相机在场景正面）
+        // 设置相机 Z 距离
         // 球体矩阵宽约 5*SPACING=325px，高约 4*SPACING=260px，需足够远才能全部入镜
-        const holder = this.scene2D.bridge3D;
-        holder.cameraZDistance = 600;
+        (this.scene2D as any)._bridge3DInternal.scene3d._applyCameraZDistance(600);
 
         // 添加方向光提供基础漫反射
         this.createDirectionLight();
@@ -112,7 +111,7 @@ export class Bridge3DPBRMaterial {
         Scene3D.load(
             "res/threeDimen/scene/LayaScene_EmptyScene/Conventional/EmptyScene.ls",
             Handler.create(this, (loadedScene: Scene3D) => {
-                const scene3d = this.scene2D.bridge3D.scene3d;
+                const scene3d = (this.scene2D as any)._bridge3DInternal.scene3d;
 
                 // ---- 球谐光照 ----
                 const shFromScene = loadedScene.ambientSH;
