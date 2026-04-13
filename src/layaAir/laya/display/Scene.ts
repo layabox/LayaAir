@@ -24,24 +24,15 @@ import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { ClassUtils } from "../utils/ClassUtils";
 
 /**
- * @en Bridge3D scene holder interface. Manages Bridge3DScene3D lifecycle and Bridge3DSprite registration.
- * @zh Bridge3D 场景持有者接口。管理 Bridge3DScene3D 生命周期和 Bridge3DSprite 注册。
+ * @en Bridge3D data holder interface. Contains only serializable configuration properties.
+ * @zh Bridge3D 数据持有者接口。仅包含可序列化的配置属性。
  * @blueprintIgnore
  */
-export interface IBridge3DSceneHolder {
-    readonly scene3d: Scene3D | null;
-    initScene3D(): Scene3D;
+export interface IBridge3DData {
     cameraZDistance: number;
     cameraFarPlane: number;
-    readonly sharedCamera: any;
-    readonly bridge3DList: readonly Sprite[];
-    registerBridge3D(bridge: Sprite): void;
-    unregisterBridge3D(bridge: Sprite): void;
-    /** @internal */
-    _takeoverFrom(oldHolder: IBridge3DSceneHolder): void;
-    /** @internal */
-    _finalizeSetup(): void;
-    destroy(): void;
+    readonly scene3dSettings: Record<string, any>;
+    readonly cameraSettings: Record<string, any>;
 }
 
 /** @blueprintIgnore */
@@ -64,27 +55,6 @@ export interface ILight2DManager {
 export class Scene extends Sprite {
     static scene2DUniformMap: CommandUniformMap;
 
-    /** @internal */
-    private static _createBridge3DHolder(scene: Scene): IBridge3DSceneHolder {
-        const cls = ClassUtils.getClass('Bridge3DSceneHolder');
-        if (cls) {
-            return new cls(scene);
-        }
-        // No-op stub when bridge module is not loaded
-        return {
-            get scene3d(): null { return null; },
-            initScene3D(): any { return null as any; },
-            cameraZDistance: 100,
-            cameraFarPlane: 1000,
-            get sharedCamera(): null { return null; },
-            get bridge3DList(): readonly Sprite[] { return []; },
-            registerBridge3D(_bridge: Sprite) { },
-            unregisterBridge3D(_bridge: Sprite) { },
-            _takeoverFrom(_oldHolder: IBridge3DSceneHolder) { },
-            _finalizeSetup() { },
-            destroy() { }
-        };
-    }
 
     /**创建后，还未被销毁的场景列表，方便查看还未被销毁的场景列表，方便内存管理，本属性只读，请不要直接修改*/
     /**
@@ -131,38 +101,32 @@ export class Scene extends Sprite {
     /** @internal */
     _area2Ds: Set<Area2D>;
     /** @internal */
-    private _bridge3D: IBridge3DSceneHolder;
-    /** @internal bridge list cache when holder is set to null temporarily */
-    private _pendingBridge3DList: Sprite[];
+    private _bridge3D: IBridge3DData | null;
+    /**
+     * @en Bridge3D runtime manager. Internal use only.
+     * @zh Bridge3D 运行时管理器。仅内部使用。
+     * @internal
+     */
+    _bridge3DInternal: any;
 
     /**
-     * @en Bridge3D scene holder (manages Bridge3DScene3D lifecycle and Bridge3DSprite registration)
-     * @zh Bridge3D 场景持有者（管理 Bridge3DScene3D 生命周期和 Bridge3DSprite 注册）
+     * @en Bridge3D data holder (serializable configuration).
+     * Null when Bridge3D is not used in this scene.
+     * @zh Bridge3D 数据对象（可序列化配置）。
+     * 场景未使用 Bridge3D 时为 null。
      */
-    get bridge3D(): IBridge3DSceneHolder {
+    get bridge3D(): IBridge3DData | null {
         return this._bridge3D;
     }
 
-    set bridge3D(newHolder: IBridge3DSceneHolder) {
-        const oldHolder = this._bridge3D;
-        if (oldHolder === newHolder) return;
+    set bridge3D(data: IBridge3DData | null) {
+        if (this._bridge3D === data) return;
+        this._bridge3D = data;
 
-        if (oldHolder && newHolder) {
-            newHolder._takeoverFrom(oldHolder);
-        } else if (oldHolder) {
-            // Cache bridge list before destroying, so a later holder can recover them
-            this._pendingBridge3DList = oldHolder.bridge3DList.slice() as Sprite[];
-            oldHolder.destroy();
+        if (this._bridge3DInternal) {
+            // 有数据时按数据初始化，null 时恢复默认
+            this._bridge3DInternal.applyData(data);
         }
-
-        if (newHolder && this._pendingBridge3DList) {
-            for (const bridge of this._pendingBridge3DList) {
-                newHolder.registerBridge3D(bridge);
-            }
-            this._pendingBridge3DList = null;
-        }
-
-        this._bridge3D = newHolder;
     }
 
     /**
@@ -192,7 +156,6 @@ export class Scene extends Sprite {
         this._timer = ILaya.timer;
         this._widget = Widget.EMPTY;
         this._area2Ds = new Set<Area2D>();
-        this._bridge3D = Scene._createBridge3DHolder(this);
 
         this._scene = this;
         Scene.componentManagerMap.forEach((val, key) => {
@@ -319,7 +282,7 @@ export class Scene extends Sprite {
     /** @ignore */
     onAfterDeserialize(): void {
         super.onAfterDeserialize();
-        this._bridge3D._finalizeSetup();
+        this._bridge3DInternal?.finalizeSetup();
     }
 
     /**
@@ -329,8 +292,10 @@ export class Scene extends Sprite {
      * @param destroyChild 是否删除子节点。
      */
     destroy(destroyChild: boolean = true): void {
-        // Destroy Bridge3D holder (and its scene3d)
-        this.bridge3D.destroy();
+        // Destroy Bridge3D runtime
+        this._bridge3DInternal?.destroy();
+        this._bridge3DInternal = null;
+        this._bridge3D = null;
 
         super.destroy(destroyChild);
         if (this._scene3D) {
