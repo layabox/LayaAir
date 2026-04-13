@@ -17,11 +17,9 @@ import { I2DGlobalRenderData } from "../RenderDriver/RenderModuleData/Design/2D/
 import { LayaGL } from "../layagl/LayaGL";
 import { type Scene3D } from "../d3/core/scene/Scene3D";
 import { ProgressCallback } from "../net/BatchProgress";
-import { Camera2D } from "./Scene2DSpecial/Camera2D";
 import { BlendModeHandler } from "../webgl/canvas/BlendMode";
 import { HideFlags } from "../Const";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
-import { ClassUtils } from "../utils/ClassUtils";
 
 /**
  * @en Bridge3D data holder interface. Contains only serializable configuration properties.
@@ -34,6 +32,31 @@ export interface IBridge3DData {
     readonly scene3dSettings: Record<string, any>;
     readonly cameraSettings: Record<string, any>;
 }
+
+/**
+ * @en Bridge3D runtime manager interface. Internal use.
+ * @zh Bridge3D 运行时管理器接口。仅内部使用。
+ * @blueprintIgnore
+ */
+export interface IBridge3DSceneInternal {
+    scene3d:Scene3D;
+    applyData(data: IBridge3DData | null): void;
+    finalizeSetup(): void;
+    destroy(): void;
+    /** @internal */
+    _onAdded(): void;
+    /** @internal */
+    _onRemoved(): void;
+}
+
+const NoopBridge3DInternal: IBridge3DSceneInternal = {
+    scene3d:null,
+    applyData(_d: IBridge3DData | null) { },
+    finalizeSetup() { },
+    destroy() { },
+    _onAdded() { },
+    _onRemoved() { }
+};
 
 /** @blueprintIgnore */
 export interface ILight2DManager {
@@ -102,12 +125,24 @@ export class Scene extends Sprite {
     _area2Ds: Set<Area2D>;
     /** @internal */
     private _bridge3D: IBridge3DData | null;
+    /** @internal */
+    _bridge3DInternal: IBridge3DSceneInternal = NoopBridge3DInternal;
+
     /**
-     * @en Bridge3D runtime manager. Internal use only.
-     * @zh Bridge3D 运行时管理器。仅内部使用。
-     * @internal
+     * @en Factory for creating the Bridge3D runtime manager. Registered by the bridge module.
+     * @zh 创建 Bridge3D 运行时管理器的工厂。由 bridge 模块注册。
      */
-    _bridge3DInternal: any;
+    static bridge3DInternalHandler: ((scene: Scene) => IBridge3DSceneInternal) | null = function(){
+        return NoopBridge3DInternal;
+    };
+
+    /**
+     * @en Bridge3D runtime manager. Returns a no-op stub when the Bridge3D module is not loaded.
+     * @zh Bridge3D 运行时管理器。Bridge3D 模块未加载时返回空实现。
+     */
+    get bridge3DInternal(): IBridge3DSceneInternal {
+        return this._bridge3DInternal;
+    }
 
     /**
      * @en Bridge3D data holder (serializable configuration).
@@ -122,11 +157,7 @@ export class Scene extends Sprite {
     set bridge3D(data: IBridge3DData | null) {
         if (this._bridge3D === data) return;
         this._bridge3D = data;
-
-        if (this._bridge3DInternal) {
-            // 有数据时按数据初始化，null 时恢复默认
-            this._bridge3DInternal.applyData(data);
-        }
+        this._bridge3DInternal.applyData(data);
     }
 
     /**
@@ -167,6 +198,7 @@ export class Scene extends Sprite {
         this._struct.globalRenderData = this._globalRenderData;
         this._struct.spriteShaderData = this._shaderData;
         BlendModeHandler.initBlendMode(this._shaderData);
+        this._bridge3DInternal = Scene.bridge3DInternalHandler(this);
     }
 
     /** 
@@ -282,7 +314,7 @@ export class Scene extends Sprite {
     /** @ignore */
     onAfterDeserialize(): void {
         super.onAfterDeserialize();
-        this._bridge3DInternal?.finalizeSetup();
+        this._bridge3DInternal.finalizeSetup();
     }
 
     /**
@@ -292,12 +324,12 @@ export class Scene extends Sprite {
      * @param destroyChild 是否删除子节点。
      */
     destroy(destroyChild: boolean = true): void {
-        // Destroy Bridge3D runtime
-        this._bridge3DInternal?.destroy();
-        this._bridge3DInternal = null;
-        this._bridge3D = null;
-
         super.destroy(destroyChild);
+        
+        // Destroy Bridge3D runtime
+        this._bridge3DInternal.destroy();
+        this._bridge3DInternal = NoopBridge3DInternal;
+        this._bridge3D = null;
         if (this._scene3D) {
             this._scene3D.destroy();
             this._scene3D = null;
@@ -469,6 +501,7 @@ export class Scene extends Sprite {
         super._onAdded();
         // if (LayaEnv.isPlaying)
         ILaya.stage._scene2Ds.push(this);
+        this._bridge3DInternal._onAdded();
     }
 
     protected _onRemoved(): void {
@@ -476,6 +509,7 @@ export class Scene extends Sprite {
         // if (LayaEnv.isPlaying) {
         let index = ILaya.stage._scene2Ds.indexOf(this);
         ILaya.stage._scene2Ds.splice(index, 1);
+        this._bridge3DInternal._onRemoved();
         // }
     }
 

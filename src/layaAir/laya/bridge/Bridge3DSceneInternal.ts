@@ -1,6 +1,7 @@
 import { ILaya } from "../../ILaya";
 import { Scene } from "../display/Scene";
 import { SerializeUtil } from "../loaders/SerializeUtil";
+import { ClassUtils } from "../utils/ClassUtils";
 import { Bridge3DScene3D } from "./Bridge3DScene3D";
 import { Bridge3DSprite, IBridgeRenderElement } from "./Bridge3DSprite";
 
@@ -23,6 +24,22 @@ export class Bridge3DSceneInternal {
 
     constructor(scene: Scene) {
         this._scene2D = scene;
+    }
+
+    _onAdded(){
+        // Add to stage if needed
+        if (!this._isAddedToStage && this._bridge3DList.length > 0) {
+            ILaya.stage.addChild(this._scene3d);
+            this._isAddedToStage = true;
+        }
+
+    }
+
+    _onRemoved(){
+        if (this._isAddedToStage) {
+            ILaya.stage.removeChild(this._scene3d);
+            this._isAddedToStage = false;
+        }
     }
 
     /**
@@ -101,7 +118,7 @@ export class Bridge3DSceneInternal {
         this._bridge3DList.push(bridge);
 
         // During deserialization, only add to list; scene3d will be set up later
-        if (SerializeUtil.isDeserializing) return;
+        if (SerializeUtil.isDeserializing || !this._scene2D.displayedInStage) return;
 
         const scene3d = this.initScene3D();
 
@@ -206,12 +223,6 @@ export class Bridge3DSceneInternal {
         if (this._bridge3DList.length === 0) return;
 
         const scene3d = this._scene3d;
-
-        // Add to stage
-        if (!this._isAddedToStage) {
-            ILaya.stage.addChild(scene3d);
-            this._isAddedToStage = true;
-        }
 
         // Setup camera
         if (!scene3d._cameraInitialized) {
