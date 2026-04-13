@@ -1,17 +1,18 @@
-import { Laya } from "../../../layaAir/Laya";
-import { Bridge3DSprite } from "../../../layaAir/laya/bridge/Bridge3DSprite";
-import { Script } from "../../../layaAir/laya/components/Script";
-import { PointLightCom } from "../../../layaAir/laya/d3/core/light/PointLightCom";
-import { SpotLightCom } from "../../../layaAir/laya/d3/core/light/SpotLightCom";
-import { BlinnPhongMaterial } from "../../../layaAir/laya/d3/core/material/BlinnPhongMaterial";
-import { MeshSprite3D } from "../../../layaAir/laya/d3/core/MeshSprite3D";
-import { Sprite3D } from "../../../layaAir/laya/d3/core/Sprite3D";
-import { Transform3D } from "../../../layaAir/laya/d3/core/Transform3D";
-import { PrimitiveMesh } from "../../../layaAir/laya/d3/resource/models/PrimitiveMesh";
-import { Scene } from "../../../layaAir/laya/display/Scene";
-import { Sprite } from "../../../layaAir/laya/display/Sprite";
-import { Color } from "../../../layaAir/laya/maths/Color";
-import { Vector3 } from "../../../layaAir/laya/maths/Vector3";
+import { Laya } from "Laya";
+import { Bridge3DSprite } from "laya/bridge/Bridge3DSprite";
+import { Script } from "laya/components/Script";
+import { PointLightCom } from "laya/d3/core/light/PointLightCom";
+import { SpotLightCom } from "laya/d3/core/light/SpotLightCom";
+import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
+import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { Transform3D } from "laya/d3/core/Transform3D";
+import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
+import { Scene } from "laya/display/Scene";
+import { Sprite } from "laya/display/Sprite";
+import { Color } from "laya/maths/Color";
+import { Vector3 } from "laya/maths/Vector3";
+import { Main } from "../../Main";
 
 /**
  * 光源移动脚本
@@ -45,39 +46,26 @@ export class Bridge3DMultiLight {
     private bridge: Bridge3DSprite;
     private moveScript: LightMoveScript;
 
-    constructor() {
-        // 初始化Laya
-        Laya.init(1200, 800).then(() => {
-            this.onLoaded();
-        });
+    constructor(maincls: typeof Main) {
+        this.onLoaded(maincls);
     }
 
-    private onLoaded(): void {
-        console.log("Bridge3D MultiLight Test - Started");
+    private onLoaded(maincls: typeof Main): void {
+        // console.log("Bridge3D MultiLight Test - Started");
+        Laya.stage.bgColor = "#232628";
 
         // 创建2D场景
         const scene2D = new Scene();
-        Laya.stage.addChild(scene2D);
-        
+        maincls.box2D.addChild(scene2D);
+
         // 创建Bridge3DSprite容器 (auto-creates Bridge3DScene3D)
         this.bridge = new Bridge3DSprite();
-        this.bridge.scale3DToPixel = 1;
+        this.bridge.pixelsPerUnit = 1;
         this.bridge.pos(Laya.stage.width / 2, Laya.stage.height / 2);
         scene2D.addChild(this.bridge);
 
-        // Access scene3D through Scene.getBridge3D()
-        const scene3d = scene2D.bridge3D;
-
         // 设置环境光（较暗，以突出动态光源效果）
-        scene3d.ambientColor = new Color(0.1, 0.1, 0.1, 1);
-
-        // 添加2D标记点（红色圆圈标记Bridge3D位置）
-        const marker = new Sprite();
-        marker.graphics.drawCircle(0, 0, 5, "#ff0000");
-        scene2D.addChild(marker);
-        marker.pos(this.bridge.x, this.bridge.y);
-
-        console.log(`Bridge3D created at (${this.bridge.x}, ${this.bridge.y})`);
+        (scene2D as any)._bridge3DInternal.scene3d.ambientColor = new Color(0.1, 0.1, 0.1, 1);
 
         // 创建3D场景内容
         this.create3DScene();
@@ -87,8 +75,6 @@ export class Bridge3DMultiLight {
 
         // 创建聚光灯
         this.createSpotLight();
-
-        console.log("Bridge3D MultiLight Test - All lights created");
     }
 
     /**
@@ -102,7 +88,7 @@ export class Bridge3DMultiLight {
         groundMaterial.albedoColor = new Color(0.5, 0.5, 0.5, 1.0);
         ground.meshRenderer.material = groundMaterial;
         ground.transform.localPosition = new Vector3(0, -50, 0);
-        ground.transform.localRotationEuler = new Vector3(-90, 0, 0);
+        ground.transform.localRotationEuler = new Vector3(90, 0, 0);  // Y-up: Rx(+90°) makes normal face +Z toward camera
         this.bridge.addChild(ground);
 
         // 创建中心球体
@@ -143,7 +129,6 @@ export class Bridge3DMultiLight {
             this.bridge.addChild(box);
         }
 
-        console.log("3D scene objects created");
     }
 
     /**
@@ -199,11 +184,7 @@ export class Bridge3DMultiLight {
             );
             lightMarker.meshRenderer.material = markerMaterial;
             pointLightSprite.addChild(lightMarker);
-
-            console.log(`Point light ${i} created: color=(${pointCom.color.r.toFixed(2)}, ${pointCom.color.g.toFixed(2)}, ${pointCom.color.b.toFixed(2)}), range=${pointCom.range.toFixed(1)}, intensity=${pointCom.intensity.toFixed(2)}`);
         }
-
-        console.log(`Created ${count} point lights with dynamic movement`);
     }
 
     /**
@@ -231,7 +212,5 @@ export class Bridge3DMultiLight {
         spotMarker.meshRenderer.material = markerMaterial;
         spotMarker.transform.localRotationEuler = new Vector3(180, 0, 0);
         spotLight.addChild(spotMarker);
-
-        console.log(`Spot light created: position=(0, 150, 0), angle=${spotCom.spotAngle}, range=${spotCom.range}`);
     }
 }

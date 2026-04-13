@@ -21,6 +21,8 @@ import { LayaXBridge3DRenderElement } from "./render/LayaXBridge3DRenderElement"
 import { RTBridge3DRenderElement } from "./render/RTBridge3DRenderElement";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { Bridge3DCoordinate } from "./utils/Bridge3DCoordinate";
+import { Bridge3DData } from "./Bridge3DData";
+import { Bridge3DSceneInternal } from "./Bridge3DSceneInternal";
 
 export interface IBridgeRenderElement extends IRenderElement2D {
     addBaseRenderNode(node: IBaseRenderNode): void;
@@ -247,13 +249,17 @@ export class Bridge3DSprite extends Sprite {
 
     private _regsiterScene() {
         if (!this._scene) return;
-        this._scene.bridge3D.registerBridge3D(this);
+        // Ensure runtime internal exists
+        if (!this._scene._bridge3DInternal) {
+            this._scene._bridge3DInternal = new Bridge3DSceneInternal(this._scene);
+        }
+        this._scene._bridge3DInternal.registerBridge3D(this);
         this._isRegistered = true;
     }
 
     private _removeRegister() {
         if (!this._scene || !this._isRegistered) return;
-        this._scene.bridge3D.unregisterBridge3D(this);
+        this._scene._bridge3DInternal?.unregisterBridge3D(this);
         this._isRegistered = false;
     }
 
