@@ -65,7 +65,7 @@ export class Bridge3DMultiLight {
         scene2D.addChild(this.bridge);
 
         // 设置环境光（较暗，以突出动态光源效果）
-        (scene2D as any)._bridge3DInternal.scene3d.ambientColor = new Color(0.1, 0.1, 0.1, 1);
+        scene2D.bridge3DInternal.scene3d.ambientColor = new Color(0.1, 0.1, 0.1, 1);
 
         // 创建3D场景内容
         this.create3DScene();

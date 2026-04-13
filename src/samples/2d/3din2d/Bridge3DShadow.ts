@@ -1,5 +1,6 @@
 
 import { Laya } from "Laya";
+import { Bridge3DScene3D } from "laya/bridge/Bridge3DScene3D";
 import { Bridge3DSprite } from "laya/bridge/Bridge3DSprite";
 import { Script } from "laya/components/Script";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
@@ -73,8 +74,8 @@ export class Bridge3DShadow {
         scene2D.addChild(this.bridge);
 
         // 设置环境光（较暗，以突出阴影效果）
-        const scene3d = (scene2D as any)._bridge3DInternal.scene3d;
-        scene3d._applyCameraZDistance(300);
+        const scene3d = scene2D.bridge3DInternal.scene3d as Bridge3DScene3D;
+        (scene3d as any)._applyCameraZDistance(300);
         scene3d.ambientColor = new Color(0.3, 0.3, 0.3, 1);
 
         // console.log(`Bridge3D created at (${this.bridge.x}, ${this.bridge.y})`);

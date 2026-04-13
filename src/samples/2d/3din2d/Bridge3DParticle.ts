@@ -1,4 +1,5 @@
 import { Laya } from "Laya";
+import { Bridge3DScene3D } from "laya/bridge/Bridge3DScene3D";
 import { Bridge3DSprite } from "laya/bridge/Bridge3DSprite";
 import { Script } from "laya/components/Script";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
@@ -75,9 +76,9 @@ export class Bridge3DParticle {
         bridge.pos(150, 200);
         fusionGroup.addChild(bridge);
 
-        const scene3d = (scene2D as any)._bridge3DInternal.scene3d;
+        const scene3d = scene2D.bridge3DInternal.scene3d as Bridge3DScene3D;
         scene3d.ambientColor = new Color(0.6, 0.6, 0.6, 1);
-        scene3d._applyCameraZDistance(300);
+        (scene3d as any)._applyCameraZDistance(300);
 
         // 异步加载粒子
         Sprite3D.load("res/threeDimen/particle/lv_kuosan.lh", Handler.create(this, function (sprite: Sprite3D): void {

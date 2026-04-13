@@ -61,7 +61,7 @@ export class Bridge3DTest {
         console.log("2D Logic Position: (400, 300)");
 
         // Access scene3d (auto-created by addChild above)
-        (scene2D as any)._bridge3DInternal.scene3d.ambientColor = new Color(1, 1, 1, 1);
+        scene2D.bridge3DInternal.scene3d.ambientColor = new Color(1, 1, 1, 1);
         let lightSprite = new Bridge3DSprite;
         scene2D.addChild(lightSprite);
 

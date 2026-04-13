@@ -66,7 +66,7 @@ export class Bridge3DPostProcessTest {
         // Add a utility bridge to trigger scene3d creation
         const initBridge = new Bridge3DSprite();
         this.scene2D.addChild(initBridge);
-        (this.scene2D as any)._bridge3DInternal.scene3d.ambientColor = new Color(0.4, 0.4, 0.4, 1);
+        this.scene2D.bridge3DInternal.scene3d.ambientColor = new Color(0.4, 0.4, 0.4, 1);
     }
 
     // ── 测试注册 ──────────────────────────────────────────────────────────────
