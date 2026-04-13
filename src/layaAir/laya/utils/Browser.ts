@@ -336,13 +336,13 @@ export class Browser {
      * @en The global window object.
      * @readonly
      */
-    static window: Window & typeof globalThis = typeof window !== undefined ? window : null;
+    static window: Window & typeof globalThis = typeof window !== 'undefined' ? window : null;
     /**
      * @zh 全局 document 对象。
      * @en The global document object.
      * @readonly
      */
-    static document: Document = typeof document !== undefined ? document : null;
+    static document: Document = typeof document !== 'undefined' ? document : null;
 
     /**
      * @en Internal storage for client width.
