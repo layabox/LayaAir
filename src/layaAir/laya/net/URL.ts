@@ -57,7 +57,8 @@ export class URL {
         "lavm": "lavm.json",
         "bp": "bp.json",
         "tres": "tres.json",
-        "lensflare": "lensflare.json"
+        "lensflare": "lensflare.json",
+        "tex2darray": "tex2darray.json",
     };
 
     /**
