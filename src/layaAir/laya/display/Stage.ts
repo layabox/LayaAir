@@ -556,6 +556,9 @@ export class Stage extends Sprite {
     }
 
     set scaleMode(value: string) {
+        if (this._scaleMode == value)
+            return;
+
         this._scaleMode = value;
         this.updateCanvasSize(true);
     }
@@ -578,6 +581,9 @@ export class Stage extends Sprite {
     }
 
     set alignH(value: string) {
+        if (this._alignH == value)
+            return;
+
         this._alignH = value;
         this.updateCanvasSize(true);
     }
@@ -600,6 +606,9 @@ export class Stage extends Sprite {
     }
 
     set alignV(value: string) {
+        if (this._alignV == value)
+            return;
+
         this._alignV = value;
         this.updateCanvasSize(true);
     }
@@ -658,7 +667,6 @@ export class Stage extends Sprite {
      * @zh 当前视窗由缩放模式导致的 X 轴缩放系数。
      */
     get clientScaleX(): number {
-        this.needUpdateCanvasSize();
         return this._scaleX;
     }
 
@@ -667,7 +675,6 @@ export class Stage extends Sprite {
      * @zh 当前视窗由缩放模式导致的 Y 轴缩放系数。
      */
     get clientScaleY(): number {
-        this.needUpdateCanvasSize();
         return this._scaleY;
     }
 
