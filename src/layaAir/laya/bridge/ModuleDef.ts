@@ -5,12 +5,16 @@ import { Bridge3DCamera } from "./Bridge3DCamera";
 import { Bridge3DScene3D } from "./Bridge3DScene3D";
 import { Bridge3DData } from "./Bridge3DData";
 import { Bridge3DSprite } from "./Bridge3DSprite";
+import { Bridge3DSceneInternal } from "./Bridge3DSceneInternal";
+import { Scene } from "../display/Scene";
 
 let c = ClassUtils.regClass;
 c('Bridge3DCamera', Bridge3DCamera);
 c('Bridge3DScene3D', Bridge3DScene3D);
 c('Bridge3DSprite', Bridge3DSprite);
 c('Bridge3DData', Bridge3DData);
+
+Scene.bridge3DInternalHandler = (scene) => new Bridge3DSceneInternal(scene);
 
 
 // Bridge3D requires depth buffer for proper 3D depth testing.

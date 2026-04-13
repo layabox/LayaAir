@@ -249,17 +249,13 @@ export class Bridge3DSprite extends Sprite {
 
     private _regsiterScene() {
         if (!this._scene) return;
-        // Ensure runtime internal exists
-        if (!this._scene._bridge3DInternal) {
-            this._scene._bridge3DInternal = new Bridge3DSceneInternal(this._scene);
-        }
-        this._scene._bridge3DInternal.registerBridge3D(this);
+        (this._scene._bridge3DInternal as Bridge3DSceneInternal).registerBridge3D(this);
         this._isRegistered = true;
     }
 
     private _removeRegister() {
         if (!this._scene || !this._isRegistered) return;
-        this._scene._bridge3DInternal?.unregisterBridge3D(this);
+        (this._scene._bridge3DInternal as Bridge3DSceneInternal).unregisterBridge3D(this);
         this._isRegistered = false;
     }
 
