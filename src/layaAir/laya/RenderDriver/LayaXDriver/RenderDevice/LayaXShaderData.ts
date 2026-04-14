@@ -58,6 +58,18 @@ export class LayaXShaderData extends ShaderData {
     }
 
     clearData(): void {
+        // 对齐 WebGPU/WebGL 后端:释放 BaseTexture 引用计数,清空 TS 侧值缓存。
+        // setTexture 走 _addReference,这里必须对应 _removeReference,否则纹理
+        // 引用计数悬挂直到下次同 slot 被覆盖或 ShaderData 整体销毁。
+        for (let index in this._textureData) {
+            let tex = this._textureData[index];
+            tex && tex._removeReference();
+        }
+        this._textureData = {};
+        this._bufferData = {};
+        this._deviceBufferData = {};
+        // native 侧 clearData 只清主线程值缓存(values/gamma_colors),保留
+        // 渲染线程按 serial 回查的纹理/Buffer 版本链,避免 in-flight 白屏。
         this._nativeObj.clearData();
     }
 
@@ -335,6 +347,9 @@ export class LayaXShaderData extends ShaderData {
     }
 
     destroy(): void {
+        // 对齐 WebGPU:销毁前先 clearData 释放纹理引用计数,避免 ShaderData
+        // 被销毁时 _textureData 里还持着 BaseTexture 的 ref 导致资源延迟释放。
+        this.clearData();
         this._nativeObj.destroy();
     }
 }
