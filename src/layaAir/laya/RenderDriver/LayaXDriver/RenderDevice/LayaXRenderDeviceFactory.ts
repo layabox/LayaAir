@@ -29,6 +29,7 @@ import { LayaXShaderInstance } from "./LayaXShaderInstance";
 import { LayaXVertexBuffer } from "./LayaXVertexBuffer";
 import { LayaXComputeShaderInstance } from "./compute/LayaXComputeShaderInstance";
 import { ComputeShaderProcessInfo, IComputeShader } from "../../DriverDesign/RenderDevice/ComputeShader/IComputeShader";
+import { TextRenderConfig } from "../../../webgl/text/TextRenderConfig";
 
 export class LayaXRenderDeviceFactory implements IRenderDeviceFactory {
     createShaderData(ownerResource: Resource): ShaderData {
@@ -78,6 +79,8 @@ export class LayaXRenderDeviceFactory implements IRenderDeviceFactory {
     }
 
     async createEngine(config: Config, canvas: HTMLCanvas): Promise<void> {
+        TextRenderConfig.premultiplyAlpha = true;
+
         let engine = new LayaXRenderEngine();
         engine.initRenderEngine(canvas.source);
 

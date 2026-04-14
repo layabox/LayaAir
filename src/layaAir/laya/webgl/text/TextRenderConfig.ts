@@ -61,4 +61,10 @@ export class TextRenderConfig {
      * @zh 是否使用纹理数组进行文字渲染
      */
     static useTextureArray = true;
+
+    /**
+     * @en  Whether to use premultipAlpha
+     * @zh  是否预乘
+     */
+    static premultiplyAlpha = false;
 }

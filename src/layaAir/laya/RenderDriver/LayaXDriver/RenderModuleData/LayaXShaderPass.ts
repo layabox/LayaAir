@@ -75,7 +75,6 @@ export class LayaXShaderPass implements IShaderPassData {
 
     set renderState(value: RenderState) {
         this._renderState = value;
-        // TODO: sync render state handle to Rust when RenderState FFI is complete
     }
 
     /**
@@ -127,8 +126,59 @@ export class LayaXShaderPass implements IShaderPassData {
      * @param attributeLocationsStr - attribute locations from Rust (format: "0,1,2,5")
      * @returns LayaXShaderInstance._nativeObj (C++ LayaXShaderInstance_JS*), C++ extracts handle
      */
+    /**
+     * Sync pass renderState to Rust (仅 statefirst=true 的 pass).
+     *
+     * 与 WebGL updateRenderState 对齐：
+     * statefirst=true 时，pass 的 renderState 非 null 字段覆盖材质默认值。
+     * statefirst=false 时，不设置 pass renderState，Rust 侧直接用材质的。
+     */
+    private _syncRenderState(): void {
+        if (!this.statefirst) return;
+
+        const rs = this._renderState;
+        if (!rs) return;
+
+        // 检查是否有任何非 null 字段被设置（setNull 后全为 null）
+        if (rs.cull === null && rs.blend === null && rs.depthTest === null && rs.depthWrite === null) {
+            return;
+        }
+
+        const D = RenderState.Default;
+        const depthWrite = rs.depthWrite ?? D.depthWrite;
+        const rsHandle = this._nativeObj.registerRenderState(
+            rs.blend ?? D.blend,
+            rs.srcBlend ?? D.srcBlend,
+            rs.dstBlend ?? D.dstBlend,
+            rs.blendEquation ?? D.blendEquation,
+            rs.srcBlendRGB ?? D.srcBlendRGB,
+            rs.dstBlendRGB ?? D.dstBlendRGB,
+            rs.srcBlendAlpha ?? D.srcBlendAlpha,
+            rs.dstBlendAlpha ?? D.dstBlendAlpha,
+            rs.blendEquationRGB ?? D.blendEquationRGB,
+            rs.blendEquationAlpha ?? D.blendEquationAlpha,
+            rs.depthTest ?? D.depthTest,
+            depthWrite ? 1 : 0,
+            rs.stencilTest ?? D.stencilTest,
+            rs.stencilRef ?? D.stencilRef,
+            rs.stencilReadMask ?? 0xFF,
+            rs.stencilWriteMask ?? 0xFF,
+            rs.stencilOp ? rs.stencilOp.x : D.stencilOp.x,
+            rs.stencilOp ? rs.stencilOp.y : D.stencilOp.y,
+            rs.stencilOp ? rs.stencilOp.z : D.stencilOp.z,
+            rs.cull ?? D.cull,
+            1  // CCW default
+        );
+        if (rsHandle) {
+            this._nativeObj.setRenderState(rsHandle);
+        }
+    }
+
     private _onCompileCallback(defineNamesStr: string, setMapNamesStr: string, attributeLocationsStr: string): any {
         try {
+            // Sync pass renderState to Rust on first compile
+            this._syncRenderState();
+
             // 1. Parse define names from Rust (newline-separated → string[])
             const defineStrings = defineNamesStr
                 ? defineNamesStr.split('\n').filter(s => s.length > 0)
