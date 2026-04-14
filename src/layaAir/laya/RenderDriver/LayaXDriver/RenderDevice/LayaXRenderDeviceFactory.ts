@@ -27,6 +27,8 @@ import { LayaXRenderGeometry } from "./LayaXRenderGeometry";
 import { LayaXShaderData } from "./LayaXShaderData";
 import { LayaXShaderInstance } from "./LayaXShaderInstance";
 import { LayaXVertexBuffer } from "./LayaXVertexBuffer";
+import { LayaXComputeShaderInstance } from "./compute/LayaXComputeShaderInstance";
+import { ComputeShaderProcessInfo, IComputeShader } from "../../DriverDesign/RenderDevice/ComputeShader/IComputeShader";
 
 export class LayaXRenderDeviceFactory implements IRenderDeviceFactory {
     createShaderData(ownerResource: Resource): ShaderData {
@@ -40,6 +42,12 @@ export class LayaXRenderDeviceFactory implements IRenderDeviceFactory {
         if (!comMap)
             comMap = this.globalBlockMap[blockName] = new LayaXCommandUniformMap(blockName);
         return comMap;
+    }
+
+    createComputeShader(info: ComputeShaderProcessInfo): IComputeShader {
+        const shader = new LayaXComputeShaderInstance(info.name);
+        shader.compile(info);
+        return shader;
     }
 
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): IShaderInstance {
