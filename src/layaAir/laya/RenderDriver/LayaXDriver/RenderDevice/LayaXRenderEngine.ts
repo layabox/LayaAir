@@ -7,6 +7,7 @@ import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { RTShaderDefine } from "../../RenderModuleData/RuntimeModuleData/RTShaderDefine";
 import { WebGPUShaderCompiler } from "../../WebGPUDriver/RenderDevice/ShaderCompiler/WebGPUShaderCompiler";
+import { LayaXReadbackDispatcher } from "./LayaXReadbackDispatcher";
 import { LayaXTextureContext } from "./LayaXTextureContext";
 
 /**
@@ -104,7 +105,8 @@ export class LayaXRenderEngine implements IRenderEngine {
     }
 
     startFrame(): void {
-        // No-op: C++ main loop drives frame start
+        // 拉取底层 DeviceEvent，派发 ReadbackCompleted/Failed / DeviceLost
+        LayaXReadbackDispatcher.pump(this._nativeObj);
     }
 
     endFrame(): void {

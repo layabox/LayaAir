@@ -12,6 +12,7 @@ import { HTMLCanvas } from "../../../resource/HTMLCanvas";
 import { Resource } from "../../../resource/Resource";
 import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
+import { IDeviceBuffer, EDeviceBufferUsage } from "../../DriverDesign/RenderDevice/IDeviceBuffer";
 import { IIndexBuffer } from "../../DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderDeviceFactory } from "../../DriverDesign/RenderDevice/IRenderDeviceFactory";
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
@@ -21,6 +22,7 @@ import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { RTStatisContext } from "../../RenderModuleData/RuntimeModuleData/RTStatisticContext";
 import { LayaXBufferState } from "./LayaXBufferState";
 import { LayaXCommandUniformMap } from "./LayaXCommandUniformMap";
+import { LayaXDeviceBuffer } from "./LayaXDeviceBuffer";
 import { LayaXIndexBuffer } from "./LayaXIndexBuffer";
 import { LayaXRenderEngine } from "./LayaXRenderEngine";
 import { LayaXRenderGeometry } from "./LayaXRenderGeometry";
@@ -60,6 +62,10 @@ export class LayaXRenderDeviceFactory implements IRenderDeviceFactory {
 
     createVertexBuffer(bufferUsageType: BufferUsage): IVertexBuffer {
         return new LayaXVertexBuffer(bufferUsageType);
+    }
+
+    createDeviceBuffer(type: EDeviceBufferUsage): IDeviceBuffer {
+        return new LayaXDeviceBuffer(type);
     }
 
     createBufferState(): IBufferState {
