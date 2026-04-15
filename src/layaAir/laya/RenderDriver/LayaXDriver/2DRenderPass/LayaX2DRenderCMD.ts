@@ -49,6 +49,18 @@ export class LayaXSetRendertarget2DCMD extends SetRendertarget2DCMD {
         this._invertY = value;
         this._nativeObj.setinvertY(value);
     }
+
+    get viewportX(): number { return this._viewportX; }
+    set viewportX(value: number) {
+        this._viewportX = value;
+        this._nativeObj.setViewportX(value);
+    }
+
+    get viewportY(): number { return this._viewportY; }
+    set viewportY(value: number) {
+        this._viewportY = value;
+        this._nativeObj.setViewportY(value);
+    }
 }
 
 // ============================================

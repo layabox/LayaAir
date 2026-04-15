@@ -16,6 +16,8 @@ export class TrailShaderCommon {
     /**@internal */
     static WIDTHCURVEKEYLENGTH: number;
     /**@internal */
+    static TILINGOFFSET: number;
+    /**@internal */
     static inited: boolean = false;
     /**@internal */
     static attributeMap: { [name: string]: [number, ShaderDataType] };
@@ -31,12 +33,14 @@ export class TrailShaderCommon {
         TrailShaderCommon.LIFETIME = Shader3D.propertyNameToID("u_LifeTime");
         TrailShaderCommon.WIDTHCURVE = Shader3D.propertyNameToID("u_WidthCurve");
         TrailShaderCommon.WIDTHCURVEKEYLENGTH = Shader3D.propertyNameToID("u_WidthCurveKeyLength");
+        TrailShaderCommon.TILINGOFFSET = Shader3D.propertyNameToID("u_TilingOffset");
 
         const spriteParms = LayaGL.renderDeviceFactory.createGlobalUniformMap("TrailRender");
         spriteParms.addShaderUniform(TrailShaderCommon.CURTIME, "u_CurTime", ShaderDataType.Float);
         spriteParms.addShaderUniform(TrailShaderCommon.LIFETIME, "u_LifeTime", ShaderDataType.Float);
         spriteParms.addShaderUniformArray(TrailShaderCommon.WIDTHCURVE, "u_WidthCurve", ShaderDataType.Vector4, 10);
         spriteParms.addShaderUniform(TrailShaderCommon.WIDTHCURVEKEYLENGTH, "u_WidthCurveKeyLength", ShaderDataType.Int);
+        spriteParms.addShaderUniform(TrailShaderCommon.TILINGOFFSET, "u_TilingOffset", ShaderDataType.Vector4);
 
         TrailShaderCommon.attributeMap = {
             'a_position': [VertexTrail.TRAIL_POSITION0, ShaderDataType.Vector4],

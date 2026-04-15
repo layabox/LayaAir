@@ -1,5 +1,6 @@
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Color } from "../../../maths/Color";
+import { Vector4 } from "../../../maths/Vector4";
 import { SingletonList } from "../../../utils/SingletonList";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
@@ -12,6 +13,11 @@ export class LayaXRenderContext2D implements IRenderContext2D {
     _nativeObj: any;
 
     private _dist: InternalRenderTarget;
+
+    private _offscreenX: number = 0;
+    private _offscreenY: number = 0;
+    private _offscreenWidth: number = 0;
+    private _offscreenHeight: number = 0;
 
     constructor() {
         this._nativeObj = new (window as any).conchLayaXRenderContext2D();
@@ -52,8 +58,16 @@ export class LayaXRenderContext2D implements IRenderContext2D {
     }
 
     // ---- setOffscreenView ----
-    setOffscreenView(width: number, height: number): void {
-        this._nativeObj.setOffscreenView(width, height);
+    setOffscreenView(width: number, height: number, x: number = 0, y: number = 0): void {
+        this._offscreenWidth = width;
+        this._offscreenHeight = height;
+        this._offscreenX = x;
+        this._offscreenY = y;
+        this._nativeObj.setOffscreenView(width, height, x, y);
+    }
+
+    getOffscreenView(out: Vector4): void {
+        out.setValue(this._offscreenX, this._offscreenY, this._offscreenWidth, this._offscreenHeight);
     }
 
     // ---- draw ----
