@@ -163,7 +163,7 @@ export class ViewStack extends Box {
     set_dataSource(value: any) {
         this._dataSource = value;
         if (typeof (value) == 'number' || typeof (value) == 'string') {
-            this.selectedIndex = parseInt(value as string);
+            this._setIndexHandler.runWith(parseInt(value as string));
         } else {
             for (var prop in this._dataSource) {
                 if (prop in this) {
