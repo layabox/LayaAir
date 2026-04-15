@@ -265,12 +265,8 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
     setLightmapScaleOffset(value: Vector4): void {
         value && value.cloneTo(this.lightmapScaleOffset);
         this._nativeObj.setLightmapScaleOffset(value);
-        // 始终写入 shaderData（scaleOffset 可能先于 lightmap 设置）
         if (this._shaderData) {
             this._shaderData.setVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET, this.lightmapScaleOffset);
-            // 验证
-            let v = this._shaderData.getVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET);
-            console.log(`[LM_SO] set=(${this.lightmapScaleOffset.x},${this.lightmapScaleOffset.y},${this.lightmapScaleOffset.z},${this.lightmapScaleOffset.w}) get=(${v?.x},${v?.y},${v?.z},${v?.w}) propID=${RenderableSprite3D.LIGHTMAPSCALEOFFSET}`);
         }
     }
 

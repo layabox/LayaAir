@@ -1,4 +1,5 @@
 import { Color } from "../../../maths/Color";
+import { Vector4 } from "../../../maths/Vector4";
 import { SingletonList } from "../../../utils/SingletonList";
 import { InternalRenderTarget } from "../RenderDevice/InternalRenderTarget";
 import { IRenderCMD } from "../RenderDevice/IRenderCMD";
@@ -15,7 +16,8 @@ export interface IRenderContext2D {
     passData: ShaderData;
     setRenderTarget(value: InternalRenderTarget, clear: boolean, clearColor: Color): void;
     getRenderTarget(): InternalRenderTarget;
-    setOffscreenView(width: number, height: number): void;
+    setOffscreenView(width: number, height: number, x?: number, y?: number): void;
+    getOffscreenView(out: Vector4): void;
     drawRenderElementOne(node: IRenderElement2D): void;
     drawRenderElementList(list: SingletonList<IRenderElement2D>): number;
     runOneCMD(cmd: IRenderCMD): void

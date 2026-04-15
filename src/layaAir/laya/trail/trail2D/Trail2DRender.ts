@@ -5,6 +5,7 @@ import { FloatKeyframe } from "../../maths/FloatKeyframe";
 import { Gradient } from "../../maths/Gradient";
 import { Point } from "../../maths/Point";
 import { Vector3 } from "../../maths/Vector3";
+import { Vector4 } from "../../maths/Vector4";
 import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { ShaderFeatureType } from "../../RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "../../resource/BaseTexture";
@@ -233,6 +234,7 @@ export class Trail2DRender extends BaseRenderNode2D {
         this._widthMultiplier = 50;
         this._spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._color);
         this._spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
+        this._spriteShaderData.setVector(TrailShaderCommon.TILINGOFFSET, new Vector4(1, 1, 0, 0));
         this.texture = Texture2D.whiteTexture;
     }
     constructor() {

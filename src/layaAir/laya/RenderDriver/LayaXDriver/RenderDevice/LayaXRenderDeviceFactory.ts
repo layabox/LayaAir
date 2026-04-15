@@ -29,6 +29,8 @@ import { LayaXRenderGeometry } from "./LayaXRenderGeometry";
 import { LayaXShaderData } from "./LayaXShaderData";
 import { LayaXShaderInstance } from "./LayaXShaderInstance";
 import { LayaXVertexBuffer } from "./LayaXVertexBuffer";
+import { LayaXComputeShaderInstance } from "./compute/LayaXComputeShaderInstance";
+import { ComputeShaderProcessInfo, IComputeShader } from "../../DriverDesign/RenderDevice/ComputeShader/IComputeShader";
 import { TextRenderConfig } from "../../../webgl/text/TextRenderConfig";
 
 export class LayaXRenderDeviceFactory implements IRenderDeviceFactory {
@@ -43,6 +45,12 @@ export class LayaXRenderDeviceFactory implements IRenderDeviceFactory {
         if (!comMap)
             comMap = this.globalBlockMap[blockName] = new LayaXCommandUniformMap(blockName);
         return comMap;
+    }
+
+    createComputeShader(info: ComputeShaderProcessInfo): IComputeShader {
+        const shader = new LayaXComputeShaderInstance(info.name);
+        shader.compile(info);
+        return shader;
     }
 
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): IShaderInstance {

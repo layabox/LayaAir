@@ -12,8 +12,8 @@ export class Trail2DShaderInit {
     static init() {
         TrailShaderCommon.init();
         let shader = Shader3D.add("Trail2D", false, false);
-        shader.shaderType = ShaderFeatureType.Effect;
-        let subShader = new SubShader(TrailShaderCommon.attributeMap, { "u_TilingOffset": ShaderDataType.Vector4 }, { "u_TilingOffset": new Vector4(1, 1, 0, 0) });
+        shader.shaderType = ShaderFeatureType.D2_BaseRenderNode2D;
+        let subShader = new SubShader(TrailShaderCommon.attributeMap, {}, {});
         shader.addSubShader(subShader);
         let forwardPass = subShader.addShaderPass(TrailVS, TrailFS);
 

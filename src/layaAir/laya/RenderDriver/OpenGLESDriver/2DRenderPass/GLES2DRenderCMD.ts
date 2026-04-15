@@ -72,6 +72,32 @@ export class GLESSetRendertarget2DCMD extends SetRendertarget2DCMD {
         this._clearColor = value;
         this._nativeObj.setClearColor(value);
     }
+
+    /**
+     * @en viewport x offset
+     * @zh 视口X偏移
+     */
+    get viewportX(): number {
+        return this._viewportX;
+    }
+
+    set viewportX(value: number) {
+        this._viewportX = value;
+        this._nativeObj.setViewportX(value);
+    }
+
+    /**
+     * @en viewport y offset
+     * @zh 视口Y偏移
+     */
+    get viewportY(): number {
+        return this._viewportY;
+    }
+
+    set viewportY(value: number) {
+        this._viewportY = value;
+        this._nativeObj.setViewportY(value);
+    }
 }
 
 export class GLESDraw2DElementCMD extends Draw2DElementCMD {

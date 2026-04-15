@@ -32,6 +32,33 @@ export class SetRendertarget2DCMD implements IRender2DCMD {
 
     size = new Vector2;
 
+    protected _viewportX: number = 0;
+    protected _viewportY: number = 0;
+
+    /**
+     * @en viewport x offset
+     * @zh 视口X偏移
+     */
+    get viewportX(): number {
+        return this._viewportX;
+    }
+
+    set viewportX(value: number) {
+        this._viewportX = value;
+    }
+
+    /**
+     * @en viewport y offset
+     * @zh 视口Y偏移
+     */
+    get viewportY(): number {
+        return this._viewportY;
+    }
+
+    set viewportY(value: number) {
+        this._viewportY = value;
+    }
+
     /**
      * @en Flip Y Rendering
      * @zh 翻转Y轴渲染
