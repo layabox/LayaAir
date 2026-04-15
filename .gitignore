@@ -14,3 +14,5 @@ package-lock.json
 .rpt2_cache
 /docTool/dist
 docs
+.claude
+.planning
