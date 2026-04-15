@@ -200,8 +200,12 @@ export class RTRender3DProcess implements IRender3DProcess {
         }
         if ((depthMode & DepthTextureMode.Depth) != 0) {
             Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat);
-            this._renderPass.mainRenderpass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget;
-            Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, camera);
+            if (camera.canblitDepth) {
+                depthMode &= ~DepthTextureMode.Depth;
+            } else {
+                this._renderPass.mainRenderpass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget;
+                Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, camera);
+            }
         }
         if ((depthMode & DepthTextureMode.DepthNormals) != 0) {
             Camera.depthPass.getTarget(camera, DepthTextureMode.DepthNormals, camera.depthTextureFormat);
@@ -217,6 +221,9 @@ export class RTRender3DProcess implements IRender3DProcess {
         this.renderDepth(camera);
         this.initRenderpass(camera, context);
         this.renderFowarAddCameraPass(context, this._renderPass);
+        if (camera.canblitDepth && camera.depthTexture) {
+            Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, camera);
+        }
     }
 
     renderFowarAddCameraPass(context: IRenderContext3D, renderpass: RTForwardAddRP): void {

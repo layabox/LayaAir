@@ -884,7 +884,7 @@ export class Camera extends BaseCamera {
      * @zh 相机是否可以绘制深度纹理。
      */
     get canblitDepth() {
-        return this._canBlitDepth && this._internalRenderTexture && this._internalRenderTexture.depthStencilFormat != null;
+        return this._canBlitDepth && this._internalRenderTexture && this._internalRenderTexture.depthStencilFormat != null && this._cacheDepthTexture != null;
     }
 
     /**
