@@ -298,6 +298,18 @@ export class WebGLMeshRenderBatchAgent implements IBatchModuleAgent {
         }
         WebGLInstanceRenderElement3D._instanceBufferStateMap.clear();
 
+        //清理 render element 上指向 BatchMark 的反向引用,避免 release 后悬挂
+        const baseRenderArray = this._baseRenderList.elements;
+        for (let i = 0, n = this._baseRenderList.length; i < n; i++) {
+            const renderNode = baseRenderArray[i];
+            if (!renderNode) continue;
+            const elements = renderNode.renderelements as WebGLRenderElement3D[];
+            if (!elements) continue;
+            for (let j = 0, m = elements.length; j < m; j++) {
+                elements[j] && (elements[j].customData = null);
+            }
+        }
+
         this._list.clear();
         this._list = null;
         this._baseRenderList.clear();
