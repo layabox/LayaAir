@@ -342,6 +342,8 @@ export class Bridge3DContext {
      */
     applyToContext(context3d: IRenderContext3D): void {
         // 设置shader数据和模块数据
+        context3d.preDrawUniformMaps.add("Scene3D");
+        context3d.preDrawUniformMaps.add("Global");
         context3d.sceneData = this._sceneData;
         context3d.cameraData = this._cameraData;
         context3d.sceneModuleData = this._sceneModuleData;

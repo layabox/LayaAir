@@ -29,6 +29,9 @@ export class Bridge3DSceneInternal {
     _onAdded(){
         // Add to stage if needed
         if (!this._isAddedToStage && this._bridge3DList.length > 0) {
+            if (!this._scene3d) {
+                this.finalizeSetup();
+            }
             ILaya.stage.addChild(this._scene3d);
             this._isAddedToStage = true;
         }
@@ -36,7 +39,7 @@ export class Bridge3DSceneInternal {
     }
 
     _onRemoved(){
-        if (this._isAddedToStage) {
+        if (this._scene3d && this._isAddedToStage) {
             ILaya.stage.removeChild(this._scene3d);
             this._isAddedToStage = false;
         }
@@ -211,7 +214,6 @@ export class Bridge3DSceneInternal {
         if (!this._scene3d) {
             this.initScene3D();
         }
-        if (!this._scene3d) return;
 
         // Apply settings from the data holder
         const holder = this._scene2D.bridge3D;
