@@ -13,7 +13,7 @@ export class Trail2DShaderInit {
         TrailShaderCommon.init();
         let shader = Shader3D.add("Trail2D", false, false);
         shader.shaderType = ShaderFeatureType.D2_BaseRenderNode2D;
-        let subShader = new SubShader(TrailShaderCommon.attributeMap, {}, {});
+        let subShader = new SubShader(TrailShaderCommon.attributeMap, TrailShaderCommon.uniformMap, TrailShaderCommon.defaultValue);
         shader.addSubShader(subShader);
         let forwardPass = subShader.addShaderPass(TrailVS, TrailFS);
 
