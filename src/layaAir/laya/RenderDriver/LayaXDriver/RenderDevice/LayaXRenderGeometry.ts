@@ -3,6 +3,7 @@ import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
+import { IDeviceBuffer } from "../../DriverDesign/RenderDevice/IDeviceBuffer";
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
 
 export class LayaXRenderGeometry implements IRenderGeometryElement {
@@ -44,6 +45,16 @@ export class LayaXRenderGeometry implements IRenderGeometryElement {
     clearRenderParams() {
         this.drawParams.length = 0;
         this._nativeObj.clearRenderParams();
+    }
+
+    /**
+     * Bind an indirect draw buffer. Pass null to disable.
+     * `drawType` must also be set to DrawArrayIndirect or DrawElementIndirect
+     * for indirect execution to take effect.
+     */
+    setIndirectDrawBuffer(buffer: IDeviceBuffer, offset: number): void {
+        const nativeBuf = buffer ? (buffer as any)._nativeObj : null;
+        this._nativeObj.setIndirectDrawBuffer(nativeBuf, offset >>> 0);
     }
 
     set bufferState(value: IBufferState) {
