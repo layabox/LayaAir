@@ -47,7 +47,6 @@ import { Stat } from "../utils/Stat";
  */
 export class Graphics {
     /**
-     * @internal
      * @en Add global Uniform Data Map
      * @param propertyID The ID of the property
      * @param propertyKey The key of the property

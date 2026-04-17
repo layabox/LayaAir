@@ -1,7 +1,7 @@
 import { Laya } from "../../../../Laya";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { I2DRenderPassFactory } from "../../DriverDesign/2DRenderPass/I2DRenderPassFactory";
-import { Draw2DElementCMD, SetRendertarget2DCMD } from "../../DriverDesign/2DRenderPass/IRender2DCMD";
+import { Blit2DQuadCMD, Draw2DElementCMD, SetRendertarget2DCMD } from "../../DriverDesign/2DRenderPass/IRender2DCMD";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IPrimitiveRenderElement2D, IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
@@ -83,7 +83,7 @@ export class WebGLRender2DProcess implements I2DRenderPassFactory {
         return new WebGLSetShaderDefine();
     }
 
-    createBlit2DQuadCMDData(): WebGLBlit2DQuadCMD {
+    createBlit2DQuadCMDData(): Blit2DQuadCMD {
         return new WebGLBlit2DQuadCMD();
     }
 

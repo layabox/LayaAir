@@ -10,7 +10,7 @@ import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
 export class GLESRenderGeometryElement implements IRenderGeometryElement {
   private _bufferState: IBufferState;
 
-  /**@internal */
+  
   drawParams: FastSinglelist<number>;
 
   _nativeObj: any;

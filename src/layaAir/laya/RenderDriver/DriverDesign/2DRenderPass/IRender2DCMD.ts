@@ -191,6 +191,6 @@ export class Blit2DQuadCMD implements IRender2DCMD {
     }
 
     apply(context: IRenderContext2D): void {
-        throw new NotImplementedError();
+        
     }
 }

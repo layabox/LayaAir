@@ -1,34 +1,22 @@
-import { LayaEnv } from "../../../../LayaEnv";
-import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
-import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
-import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
-import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
-import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { StatElement } from "../../../layagl/StatisticsContext";
 import { Color } from "../../../maths/Color";
-import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
-import { VertexElement } from "../../../renders/VertexElement";
-import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
-import { ShaderData, ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
-import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { WebGLEngine } from "../RenderDevice/WebGLEngine";
 import { WebGLInternalRT } from "../RenderDevice/WebGLInternalRT";
-import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryElement";
-import { WebGLVertexBuffer } from "../RenderDevice/WebGLVertexBuffer";
+
 import { WebGLRenderElement2D } from "./WebGLRenderElement2D";
 
 export class WebglRenderContext2D implements IRenderContext2D {
 
-    private _clearColor: Color = new Color(0, 0, 0, 0);
+    _clearColor: Color = new Color(0, 0, 0, 0);
     _destRT: WebGLInternalRT;
     invertY: boolean = false;
     pipelineMode: string = "Forward";

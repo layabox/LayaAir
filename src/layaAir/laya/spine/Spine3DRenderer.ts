@@ -2,7 +2,6 @@ import { BaseRender } from "../d3/core/render/BaseRender";
 import { Sprite3D } from "../d3/core/Sprite3D";
 import { SpineTemplet } from "./SpineTemplet";
 import { ISpineRender } from "./interface/ISpineRender";
-import { SpineOptimizeRender3D } from "./web/base/3d/SpineOptimizeRender3D";
 import { ESpineRenderMode, ESpineRenderState, SpineConst } from "./SpineConst";
 import { Material } from "../resource/Material";
 import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
@@ -137,7 +136,6 @@ export class Spine3DRenderer extends BaseRender {
         return !this._templet || this._setPreAlphaFlag ? this._premultipliedAlpha : this._templet.premultipliedAlpha;
     }
 
-    /** @internal */
     set premultipliedAlpha(value: boolean) {
         this._premultipliedAlpha = value;
 

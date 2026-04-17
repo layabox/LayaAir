@@ -240,7 +240,7 @@ export class DynamicBatchTest {
 
 	//测试留 测试扩张RenderELementCOut的流程
 	test6(scene: Scene3D, camera: Camera) {
-		let batcucull = scene._sceneRenderManager._sceneManagerOBJ.batchAgentList.get(BaseRenderType.MeshRender) as any;
+		//let batcucull = scene.sceneRenderableManager._sceneManagerOBJ.batchAgentList.get(BaseRenderType.MeshRender) as any;
 		//先改_maxRenderNodeCount 为400
 		camera.transform.position = new Vector3(39.54820590529586, 14.969745756280817, 57.85090397492968);
 		camera.transform.rotation = new Quaternion(0.04542888842020109, -0.0293354336761753, 0.0013346312567456974, 0.9985358617432548);

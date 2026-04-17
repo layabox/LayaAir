@@ -20,8 +20,6 @@ import { Web3DRenderModuleFactory } from "laya/RenderDriver/RenderModuleData/Web
 import { WebUnitRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/WebUnitRenderModuleDataFactory";
 import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";
 import { LayaGL } from "laya/layagl/LayaGL";
-import { Sprite_LargeTexManager_Simple } from "./2d/Sprite_LargeTexManager_Simple";
-import { Entrance } from "./Entrance";
 
 LayaGL.unitRenderModuleDataFactory = new WebUnitRenderModuleDataFactory();
 Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
@@ -34,4 +32,4 @@ Physics2D.I._factory = new physics2DwasmFactory();
 // new Sprite_DisplayImage(Main);
 
 // new LoadGltfResource();
-new Entrance();
+
