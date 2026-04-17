@@ -60,6 +60,11 @@ export class WorkerLoader {
      * @return 返回解析后的加载图像。
      */
     static load(url: string, options?: ImageBitmapOptions): Promise<any> {
+        // Convert relative URL to absolute to avoid Worker resolving it relative to the worker script location
+        try {
+            url = new URL(url, document.baseURI).href;
+        } catch (e) {
+        }
         let callbacks = WorkerLoader._queue[url];
         if (callbacks) {
             return new Promise((resolve, reject) => {
