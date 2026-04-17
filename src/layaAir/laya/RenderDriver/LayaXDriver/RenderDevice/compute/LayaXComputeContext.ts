@@ -32,9 +32,8 @@ export class LayaXComputeContext implements IComputeContext {
     private _destroyed: boolean = false;
 
     constructor() {
-        // 传入 device 指针（全局单例，由 LayaXRenderEngine 暴露）
-        const devicePtr = (window as any).conchLayaXGetDevicePtr?.() ?? 0;
-        this._nativeObj = new (window as any).conchLayaXComputeContext(devicePtr);
+        // C++ side pulls g_layaxDevice directly — no device ptr needed from TS.
+        this._nativeObj = new (window as any).conchLayaXComputeContext();
     }
 
     clearCMDs(): void {

@@ -324,7 +324,7 @@ export class IndirectDrawDemo {
         Laya.init(0, 0).then(() => {
             Laya.stage.scaleMode = Stage.SCALE_FULL;
             Laya.stage.screenMode = Stage.SCREEN_NONE;
-            Stat.show();
+         //   Stat.show();
 
             let scene: Scene3D = Laya.stage.addChild(new Scene3D()) as Scene3D;
 
