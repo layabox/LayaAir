@@ -255,6 +255,8 @@ export class Sprite extends Node {
     /** @internal 片，代替的结构 ，真正的结构划到了rt上 */
     _subStruct: IRenderStruct2D;
     /** @internal */
+    _manualRender: boolean = false;
+    /** @internal */
     _shaderData: ShaderData;
 
     /** @ignore */
@@ -818,6 +820,7 @@ export class Sprite extends Node {
         }
 
         if (value) {
+            if (this._manualRender) this._setManualRender(false);
             if (!this._oriRenderPass) {
                 this.createSubRenderPass();
             }
@@ -848,6 +851,8 @@ export class Sprite extends Node {
         if (b === this._cacheAsBmp)
             return;
 
+        if (b && this._manualRender) this._setManualRender(false);
+
         this._cacheAsBmp = b;
 
         if (b) {
@@ -875,6 +880,8 @@ export class Sprite extends Node {
         if (value && value.isAncestorOf(this))
             throw new Error("Mask cannot be ancestor of the masked object");
 
+        if (value && this._manualRender) this._setManualRender(false);
+
         if (this._mask) {
             this._mask.cacheAs = "none";
             this._mask._maskParent = null;
@@ -893,6 +900,47 @@ export class Sprite extends Node {
         }
         this.setSubpassFlag(SubPassFlag.Mask);
         this.repaint();
+    }
+
+    /**
+     * @en Manual render mode: when enabled, child nodes are excluded from the parent pass's automatic traversal and rendering.
+     * @zh 手动渲染模式：启用后，子节点不参与父 pass 的自动遍历和渲染。
+     */
+    get manualRender(): boolean {
+        return this._manualRender;
+    }
+
+    set manualRender(value: boolean) {
+        this._setManualRender(value);
+    }
+
+    /** @internal */
+    _setManualRender(value: boolean): void {
+        if (value === this._manualRender) return;
+        this._manualRender = value;
+        value ? this._enableManualRender() : this._disableManualRender();
+    }
+
+    private _enableManualRender(): void {
+        if (this._renderType & SpriteConst.DRAW2RT) {
+            if (this._cacheAsBmp) this.cacheAs = "none";
+            if (this._mask) this.mask = null;
+        }
+
+        this._ensureSubPassBase();
+
+        this._subStruct.manualRender = true;
+        this._struct.subStruct = this._subStruct;
+        this._subStruct.enabled = true;
+        this._oriRenderPass.enable = false;
+    }
+
+    private _disableManualRender(): void {
+        if (!this._subStruct) return;
+        this._subStruct.manualRender = false;
+        this._subStruct.enabled = false;
+        this._struct.subStruct = null;
+        this._struct.setRepaint();
     }
 
     /** @ignore @blueprintIgnore */
@@ -1648,47 +1696,51 @@ export class Sprite extends Node {
             if (!sprite._struct || !sprite._struct.enabled)
                 return;
             if (sprite._subpassUpdateFlag) {
-                sprite.updateSubRenderPassState();
-                if (sprite._oriRenderPass) {
-                    let result = sprite.updateRenderTexture();
+                if (sprite._manualRender) {
+                    sprite._subpassUpdateFlag = 0;
+                } else {
+                    sprite.updateSubRenderPassState();
+                    if (sprite._oriRenderPass) {
+                        let result = sprite.updateRenderTexture();
 
-                    let destrt: RenderTexture2D = sprite._drawOriRT;
-                    if (destrt) {
-                        sprite._oriRenderPass.renderTexture = destrt;
-                        if (sprite.mask) {
-                            sprite._oriRenderPass.mask = sprite.mask._struct;
-                        } else
-                            sprite._oriRenderPass.mask = null;
-
-                        if (result) {
+                        let destrt: RenderTexture2D = sprite._drawOriRT;
+                        if (destrt) {
                             sprite._oriRenderPass.renderTexture = destrt;
-                        }
+                            if (sprite.mask) {
+                                sprite._oriRenderPass.mask = sprite.mask._struct;
+                            } else
+                                sprite._oriRenderPass.mask = null;
 
-                        let process = sprite._renderType & SpriteConst.POSTPROCESS ? sprite.postProcess : null;
-                        if (
-                            process
-                            && destrt != RenderTexture2D._empty
-                        ) {
+                            if (result) {
+                                sprite._oriRenderPass.renderTexture = destrt;
+                            }
 
+                            let process = sprite._renderType & SpriteConst.POSTPROCESS ? sprite.postProcess : null;
                             if (
-                                result ||
-                                (sprite._subpassUpdateFlag & SubPassFlag.UPDATE_POSTPROCESS)
+                                process
+                                && destrt != RenderTexture2D._empty
                             ) {
-                                process.setResource(destrt);
-                                process.clearCMD();
-                                process._render();
+
+                                if (
+                                    result ||
+                                    (sprite._subpassUpdateFlag & SubPassFlag.UPDATE_POSTPROCESS)
+                                ) {
+                                    process.setResource(destrt);
+                                    process.clearCMD();
+                                    process._render();
+                                }
+
+                                if (process.enabled) {
+                                    destrt = process._context.destination;
+                                }
                             }
 
-                            if (process.enabled) {
-                                destrt = process._context.destination;
-                            }
+                            sprite._subStructRender._updateRenderTexture(sprite._drawOriRT, destrt);
+                            sprite._subpassUpdateFlag = 0;
+
+                        } else {
+                            sprite.setSubRenderPassState(false);
                         }
-
-                        sprite._subStructRender._updateRenderTexture(sprite._drawOriRT, destrt);
-                        sprite._subpassUpdateFlag = 0;
-
-                    } else {
-                        sprite.setSubRenderPassState(false);
                     }
                 }
             }
@@ -2289,22 +2341,33 @@ export class Sprite extends Node {
         }
     }
 
-    private createSubRenderPass() {
-        let subPass = LayaGL.render2DRenderPassFactory.createRender2DPass();
+    private _ensureSubPassBase(): void {
+        if (this._oriRenderPass) return;
 
+        let subPass = LayaGL.render2DRenderPassFactory.createRender2DPass();
         subPass.root = this._struct;
         subPass.enable = false;
         subPass.setClearColor(0, 0, 0, 0);
+
         let subStruct = LayaGL.render2DRenderPassFactory.createRenderStruct2D();
         subStruct.owner = this;
         subStruct.pass = subPass;
 
-        this._subStructRender = new SubStructRender();
-        this._subStructRender.bind(this, subPass, subStruct);
         this._subStruct = subStruct;
         this._oriRenderPass = subPass;
 
         subStruct.renderMatrix = this.globalTrans.getMatrix();
+    }
+
+    private _ensureSubStructRender(): void {
+        if (this._subStructRender) return;
+        this._subStructRender = new SubStructRender();
+        this._subStructRender.bind(this, this._oriRenderPass, this._subStruct);
+    }
+
+    private createSubRenderPass() {
+        this._ensureSubPassBase();
+        this._ensureSubStructRender();
     }
 
     /** @internal */
@@ -2405,6 +2468,7 @@ export class Sprite extends Node {
         this._struct.renderMatrix = matrix;
         if (this._subStruct)
             this._subStruct.renderMatrix = matrix;
+
 
         let rect = struct.rect;
         if (this._struct.inheritedEnableCulling || this._struct.inheritedDcOptimize) {
