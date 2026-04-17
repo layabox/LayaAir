@@ -176,6 +176,22 @@ export class Mesh extends Resource implements IClone {
         return this._indexFormat;
     }
 
+    /**
+     * @en The vertex buffer of the mesh. Used for GPU-side vertex data access (e.g., VFX compute shader instancing).
+     * @zh 网格的顶点缓冲区。用于 GPU 端顶点数据访问（如 VFX 计算着色器实例化渲染）。
+     */
+    get vertexBuffer(): VertexBuffer3D {
+        return this._vertexBuffer;
+    }
+
+    /**
+     * @en The index buffer of the mesh. Used for GPU-side index data access (e.g., VFX compute shader instancing).
+     * @zh 网格的索引缓冲区。用于 GPU 端索引数据访问（如 VFX 计算着色器实例化渲染）。
+     */
+    get indexBuffer(): IndexBuffer3D {
+        return this._indexBuffer;
+    }
+
     set indexFormat(value: IndexFormat) {
         this._indexFormat = value
         this._subMeshes.forEach(element => {
