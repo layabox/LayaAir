@@ -86,16 +86,15 @@ export class LayaXComputeShaderInstance implements IComputeShader {
             return;
         }
 
-        // 5. 序列化 + 推送到 Native
+        // 5. 序列化 + 推送到 Native (constructor builds the compute program)
         const propertySetMapJson = this._serializeBindingInfoMap();
 
-        this._nativeObj = new (window as any).conchLayaXComputeShaderInstance();
-        const handle = this._nativeObj.create(wgsl, propertySetMapJson);
-        if (!handle) {
+        this._nativeObj = new (window as any).conchLayaXComputeShaderInstance(wgsl, propertySetMapJson);
+        if (!this._nativeObj || !this._nativeObj.getHandle()) {
             console.error(`[LayaX-DBG] create compute program '${info.name}' FAILED!`);
             return;
         }
-        console.log(`[LayaX-DBG] create compute program '${info.name}': handle=${handle} wgsl_len=${wgsl.length} sets=${Array.from(this.uniformSetMap.keys())}`);
+        console.log(`[LayaX-DBG] create compute program '${info.name}': wgsl_len=${wgsl.length} sets=${Array.from(this.uniformSetMap.keys())}`);
 
         this.compilete = true;
     }

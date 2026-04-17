@@ -30,7 +30,9 @@ import { LayaXShaderData } from "./LayaXShaderData";
 import { LayaXShaderInstance } from "./LayaXShaderInstance";
 import { LayaXVertexBuffer } from "./LayaXVertexBuffer";
 import { LayaXComputeShaderInstance } from "./compute/LayaXComputeShaderInstance";
+import { LayaXComputeContext } from "./compute/LayaXComputeContext";
 import { ComputeShaderProcessInfo, IComputeShader } from "../../DriverDesign/RenderDevice/ComputeShader/IComputeShader";
+import { IComputeContext } from "../../DriverDesign/RenderDevice/ComputeShader/IComputeContext";
 import { TextRenderConfig } from "../../../webgl/text/TextRenderConfig";
 
 export class LayaXRenderDeviceFactory implements IRenderDeviceFactory {
@@ -51,6 +53,10 @@ export class LayaXRenderDeviceFactory implements IRenderDeviceFactory {
         const shader = new LayaXComputeShaderInstance(info.name);
         shader.compile(info);
         return shader;
+    }
+
+    createComputeContext(): IComputeContext {
+        return new LayaXComputeContext();
     }
 
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): IShaderInstance {
