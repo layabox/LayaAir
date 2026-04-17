@@ -25,6 +25,9 @@ export interface IRenderStruct2D {
 
    subStruct: IRenderStruct2D;
 
+   /** 手动渲染模式：子节点不参与父 pass 的自动遍历和渲染 */
+   manualRender: boolean;
+
    owner: Sprite;
 
    //-----2d 渲染组织流程数据-----
