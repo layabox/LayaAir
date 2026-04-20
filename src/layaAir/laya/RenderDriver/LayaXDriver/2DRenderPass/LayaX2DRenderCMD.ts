@@ -5,6 +5,7 @@ import {
     Draw2DElementCMD,
     Blit2DQuadCMD
 } from "../../DriverDesign/2DRenderPass/IRender2DCMD";
+import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
@@ -61,6 +62,14 @@ export class LayaXSetRendertarget2DCMD extends SetRendertarget2DCMD {
         this._viewportY = value;
         this._nativeObj.setViewportY(value);
     }
+
+    apply(_context: IRenderContext2D): void {
+        // RT 切换 / clear / viewport / invertY / u_size 全部由 native 的
+        // layax_2d_set_rt_cmd_execute（Rust 权威）完成，TS 侧无需再推一遍，
+        // 否则 context.setRenderTarget 会立刻切一次 RT 并可能 clear，然后
+        // Rust 路径又切一次，造成双重切换和双重 clear。
+        this._nativeObj.execute();
+    }
 }
 
 // ============================================
@@ -80,6 +89,10 @@ export class LayaXDraw2DElementCMD extends Draw2DElementCMD {
         for (let i = 0, n = value.length; i < n; i++) {
             this._nativeObj.addOneElement((value[i] as any)._nativeObj);
         }
+    }
+
+    apply(_context: IRenderContext2D): void {
+        this._nativeObj.execute();
     }
 }
 
@@ -118,5 +131,9 @@ export class LayaXBlit2DQuadCMD extends Blit2DQuadCMD {
     set offsetScale(value: Vector4) {
         value.cloneTo(this._offsetScale);
         this._nativeObj.setOffsetScale(this._offsetScale);
+    }
+
+    apply(_context: IRenderContext2D): void {
+        this._nativeObj.execute();
     }
 }
