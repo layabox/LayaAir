@@ -3,6 +3,8 @@ bin/tsc
 bin/uploads
 bin/rollUp
 bin/jsLibs
+bin/webgl
+bin/webgpu
 node_modules
 .cache
 .vscode/chrome
