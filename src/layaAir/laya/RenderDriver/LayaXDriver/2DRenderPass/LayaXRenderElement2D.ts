@@ -4,8 +4,14 @@ import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { RTSubShader } from "../../RenderModuleData/RuntimeModuleData/RTSubShader";
+import { LayaXShaderData, IRenderStateListener } from "../RenderDevice/LayaXShaderData";
 
-export class LayaXRenderElement2D implements IRenderElement2D {
+/**
+ * 对齐 3D 的 LayaXRenderElement3D：当 material / value2D 的 blend/depth/stencil
+ * 发生变化时，通过 listener 触发 _onRenderStateChanged → _nativeObj.syncRenderState，
+ * 把状态下发到 pipeline。之前缺这套机制导致 Light2D 的 shadow 覆盖光斑。
+ */
+export class LayaXRenderElement2D implements IRenderElement2D, IRenderStateListener {
 
     /** C++ 原生对象 */
     _nativeObj: any;
@@ -16,6 +22,13 @@ export class LayaXRenderElement2D implements IRenderElement2D {
 
     constructor() {
         this.init();
+    }
+
+    /** @internal IRenderStateListener — 由 materialShaderData / value2DShaderData 回调。 */
+    _onRenderStateChanged(): void {
+        if (this._nativeObj && this._nativeObj.syncRenderState) {
+            this._nativeObj.syncRenderState();
+        }
     }
 
     // ---- type ----
@@ -31,18 +44,28 @@ export class LayaXRenderElement2D implements IRenderElement2D {
     get geometry(): IRenderGeometryElement { return this._geometry; }
 
     // ---- materialShaderData ----
-    private _materialShaderData: ShaderData;
+    private _materialShaderData: LayaXShaderData;
     set materialShaderData(data: ShaderData) {
-        this._materialShaderData = data;
+        if (this._materialShaderData) this._materialShaderData._removeRenderStateListener(this);
+        this._materialShaderData = data as LayaXShaderData;
         this._nativeObj.setMaterialShaderData(data ? (data as any)._nativeObj : null);
+        if (this._materialShaderData) {
+            this._materialShaderData._addRenderStateListener(this);
+            this._onRenderStateChanged();
+        }
     }
     get materialShaderData(): ShaderData { return this._materialShaderData; }
 
     // ---- value2DShaderData ----
-    private _value2DShaderData: ShaderData;
+    private _value2DShaderData: LayaXShaderData;
     set value2DShaderData(data: ShaderData) {
-        this._value2DShaderData = data;
+        if (this._value2DShaderData) this._value2DShaderData._removeRenderStateListener(this);
+        this._value2DShaderData = data as LayaXShaderData;
         this._nativeObj.setValue2DShaderData(data ? (data as any)._nativeObj : null);
+        if (this._value2DShaderData) {
+            this._value2DShaderData._addRenderStateListener(this);
+            this._onRenderStateChanged();
+        }
     }
     get value2DShaderData(): ShaderData { return this._value2DShaderData; }
 
@@ -91,6 +114,8 @@ export class LayaXRenderElement2D implements IRenderElement2D {
     }
 
     destroy(): void {
+        if (this._materialShaderData) this._materialShaderData._removeRenderStateListener(this);
+        if (this._value2DShaderData) this._value2DShaderData._removeRenderStateListener(this);
         this._nativeObj.destroy();
     }
 }

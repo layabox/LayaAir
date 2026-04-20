@@ -80,10 +80,21 @@ export class LayaXRenderContext2D implements IRenderContext2D {
     }
 
     // ---- CMD ----
-    // LayaX: CMD 在 C++ forwardRender 中直接处理
+    // LayaX: CommandBuffer2D.apply(true) 立即执行路径。每个 CMD 的 apply 调
+    // _nativeObj.execute() → C++ LayaX*CMD_JS::execute → layax_2d_*_cmd_execute。
+    // 遍历完后调用 _nativeObj.flushImmediate2D() 关闭尾部 immediate pass。
     runOneCMD(cmd: IRenderCMD): void {
+        if (cmd) {
+            (cmd as any).apply?.(this);
+            this._nativeObj.flushImmediate2D?.();
+        }
     }
 
     runCMDList(cmds: IRenderCMD[]): void {
+        if (!cmds || cmds.length === 0) return;
+        for (let i = 0, n = cmds.length; i < n; i++) {
+            (cmds[i] as any).apply?.(this);
+        }
+        this._nativeObj.flushImmediate2D?.();
     }
 }
