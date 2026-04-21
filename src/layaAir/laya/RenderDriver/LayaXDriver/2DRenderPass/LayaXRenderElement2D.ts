@@ -5,15 +5,17 @@ import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderG
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { RTSubShader } from "../../RenderModuleData/RuntimeModuleData/RTSubShader";
 import { LayaXShaderData, IRenderStateListener } from "../RenderDevice/LayaXShaderData";
+import { RenderState } from "../../RenderModuleData/Design/RenderState";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 
 /**
- * 对齐 3D 的 LayaXRenderElement3D：当 material / value2D 的 blend/depth/stencil
- * 发生变化时，通过 listener 触发 _onRenderStateChanged → _nativeObj.syncRenderState，
- * 把状态下发到 pipeline。之前缺这套机制导致 Light2D 的 shadow 覆盖光斑。
+ * render state 在 TS 侧按 Web `uploadRenderStateBlendDepth` 的 statefirst + fallback
+ * 语义计算出来，分别 register 到 native；由 C++ 根据 renderStateIsBySprite 选 handle
+ * 绑定到 element。value2D sd 对应 sprite 路径，material / primitive sd 对应 material
+ * 路径（primitive 子类在 _pickMaterialSD 里提供兜底）。
  */
 export class LayaXRenderElement2D implements IRenderElement2D, IRenderStateListener {
 
-    /** C++ 原生对象 */
     _nativeObj: any;
 
     protected init(): void {
@@ -24,31 +26,66 @@ export class LayaXRenderElement2D implements IRenderElement2D, IRenderStateListe
         this.init();
     }
 
-    /** @internal IRenderStateListener — 由 materialShaderData / value2DShaderData 回调。 */
+    /** @internal 由 shaderData listener / subShader / sd setter 统一触发。 */
     _onRenderStateChanged(): void {
-        if (this._nativeObj && this._nativeObj.syncRenderState) {
-            this._nativeObj.syncRenderState();
-        }
+        if (!this._nativeObj || !this._subShader) return;
+        this._registerRS();
+        // postprocess / blit 等 standalone element 不在 LayaXRender2DPass::doRender
+        // 的 syncRenderState 循环里，必须由 TS 主动触发一次 apply。主 pass element
+        // 每帧会再调一次，但 C++ 有 _cachedRSHandle 去重，不会重复下发。
+        this._nativeObj.syncRenderState?.();
     }
 
-    // ---- type ----
-    set type(value: number) { this._nativeObj.type = value; }
+    /** 子类覆盖以提供 material → primitive 兜底（对齐 Web primitive 三层选择）。 */
+    protected _pickMaterialSD(): LayaXShaderData | null {
+        return this._materialShaderData ?? null;
+    }
+
+    private _registerRS(): void {
+        const sd = this._pickMaterialSD();
+        if (!sd) return;
+        const pass = (this._subShader as any)._passes?.[0] ?? null;
+        const rs = pass?.renderState ?? null;
+        const statefirst = pass?.statefirst ?? false;
+        const D = RenderState.Default;
+
+        const p = (passVal: any, sdKey: number, def: any) => {
+            if (statefirst && passVal != null) return passVal;
+            const v = sd.getInt(sdKey);
+            return (v != null && v !== undefined) ? v : def;
+        };
+
+        this._nativeObj.registerMaterialRenderState(
+            p(rs?.blend,               Shader3D.BLEND,                D.blend),
+            p(rs?.srcBlend,            Shader3D.BLEND_SRC,            D.srcBlend),
+            p(rs?.dstBlend,            Shader3D.BLEND_DST,            D.dstBlend),
+            p(rs?.blendEquation,       Shader3D.BLEND_EQUATION,       D.blendEquation),
+            p(rs?.srcBlendRGB,         Shader3D.BLEND_SRC_RGB,        D.srcBlendRGB),
+            p(rs?.dstBlendRGB,         Shader3D.BLEND_DST_RGB,        D.dstBlendRGB),
+            p(rs?.srcBlendAlpha,       Shader3D.BLEND_SRC_ALPHA,      D.srcBlendAlpha),
+            p(rs?.dstBlendAlpha,       Shader3D.BLEND_DST_ALPHA,      D.dstBlendAlpha),
+            p(rs?.blendEquationRGB,    Shader3D.BLEND_EQUATION_RGB,   D.blendEquationRGB),
+            p(rs?.blendEquationAlpha,  Shader3D.BLEND_EQUATION_ALPHA, D.blendEquationAlpha));
+    }
+
+    // type
+    set type(v: number) { this._nativeObj.type = v; }
     get type(): number { return this._nativeObj.type; }
 
-    // ---- geometry ----
+    // geometry
     private _geometry: IRenderGeometryElement;
-    set geometry(data: IRenderGeometryElement) {
-        this._geometry = data;
-        this._nativeObj.setGeometry(data ? (data as any)._nativeObj : null);
+    set geometry(d: IRenderGeometryElement) {
+        this._geometry = d;
+        this._nativeObj.setGeometry(d ? (d as any)._nativeObj : null);
     }
     get geometry(): IRenderGeometryElement { return this._geometry; }
 
-    // ---- materialShaderData ----
-    private _materialShaderData: LayaXShaderData;
-    set materialShaderData(data: ShaderData) {
+    // materialShaderData
+    protected _materialShaderData: LayaXShaderData;
+    set materialShaderData(d: ShaderData) {
         if (this._materialShaderData) this._materialShaderData._removeRenderStateListener(this);
-        this._materialShaderData = data as LayaXShaderData;
-        this._nativeObj.setMaterialShaderData(data ? (data as any)._nativeObj : null);
+        this._materialShaderData = d as LayaXShaderData;
+        this._nativeObj.setMaterialShaderData(d ? (d as any)._nativeObj : null);
         if (this._materialShaderData) {
             this._materialShaderData._addRenderStateListener(this);
             this._onRenderStateChanged();
@@ -56,61 +93,58 @@ export class LayaXRenderElement2D implements IRenderElement2D, IRenderStateListe
     }
     get materialShaderData(): ShaderData { return this._materialShaderData; }
 
-    // ---- value2DShaderData ----
-    private _value2DShaderData: LayaXShaderData;
-    set value2DShaderData(data: ShaderData) {
+    // value2DShaderData
+    protected _value2DShaderData: LayaXShaderData;
+    set value2DShaderData(d: ShaderData) {
         if (this._value2DShaderData) this._value2DShaderData._removeRenderStateListener(this);
-        this._value2DShaderData = data as LayaXShaderData;
-        this._nativeObj.setValue2DShaderData(data ? (data as any)._nativeObj : null);
+        this._value2DShaderData = d as LayaXShaderData;
+        this._nativeObj.setValue2DShaderData(d ? (d as any)._nativeObj : null);
         if (this._value2DShaderData) {
             this._value2DShaderData._addRenderStateListener(this);
-            this._onRenderStateChanged();
         }
     }
     get value2DShaderData(): ShaderData { return this._value2DShaderData; }
 
-    // ---- globalShaderData ----
+    // globalShaderData
     private _globalShaderData: ShaderData;
-    set globalShaderData(data: ShaderData) {
-        this._globalShaderData = data;
-        this._nativeObj.setGlobalShaderData(data ? (data as any)._nativeObj : null);
+    set globalShaderData(d: ShaderData) {
+        this._globalShaderData = d;
+        this._nativeObj.setGlobalShaderData(d ? (d as any)._nativeObj : null);
     }
     get globalShaderData(): ShaderData { return this._globalShaderData; }
 
-    // ---- subShader ----
-    private _subShader: SubShader;
+    // subShader — pass.renderState / statefirst 随之变化，需要重算
+    protected _subShader: SubShader;
     get subShader(): SubShader { return this._subShader; }
-    set subShader(value: SubShader) {
-        this._subShader = value;
-        if (value) {
-            this._nativeObj.setSubShader(
-                (value.moduleData as any as RTSubShader)._nativeObj
-            );
-        }
+    set subShader(v: SubShader) {
+        this._subShader = v;
+        if (v) this._nativeObj.setSubShader((v.moduleData as any as RTSubShader)._nativeObj);
+        this._onRenderStateChanged();
     }
 
-    // ---- owner ----
+    // owner
     _owner: IRenderStruct2D;
     get owner(): IRenderStruct2D { return this._owner; }
-    set owner(value: IRenderStruct2D) {
-        this._owner = value;
-        this._nativeObj.setOwner(value ? (value as any)._nativeObj : null);
+    set owner(v: IRenderStruct2D) {
+        this._owner = v;
+        this._nativeObj.setOwner(v ? (v as any)._nativeObj : null);
     }
 
-    // ---- nodeCommonMap ----
+    // nodeCommonMap
     private _nodeCommonMap: string[];
     get nodeCommonMap(): string[] { return this._nodeCommonMap; }
-    set nodeCommonMap(value: string[]) {
-        this._nodeCommonMap = value;
-        this._nativeObj.setCommonUniformMap(value);
+    set nodeCommonMap(v: string[]) {
+        this._nodeCommonMap = v;
+        this._nativeObj.setCommonUniformMap(v);
     }
 
-    // ---- renderStateIsBySprite ----
+    // renderStateIsBySprite — C++ setter 内部自动切换 handle，无需 TS 重算
     private _renderStateIsBySprite: boolean = true;
     get renderStateIsBySprite(): boolean { return this._renderStateIsBySprite; }
-    set renderStateIsBySprite(value: boolean) {
-        this._renderStateIsBySprite = value;
-        this._nativeObj.renderStateIsBySprite = value;
+    set renderStateIsBySprite(v: boolean) {
+        if (this._renderStateIsBySprite === v) return;
+        this._renderStateIsBySprite = v;
+        this._nativeObj.renderStateIsBySprite = v;
     }
 
     destroy(): void {
