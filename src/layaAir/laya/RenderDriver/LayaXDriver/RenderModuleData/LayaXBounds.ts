@@ -44,9 +44,9 @@ export class LayaXBounds implements IClone {
     }
 
     getMin(): Vector3 {
+        // 从 native 读回（native _calculateBoundingBox 可能更新了 min 值）
         let min = this._boundBox.min;
-        // TODO(Q13): read back from native if LayaX computes bounds on Rust side
-        this._nativeObj.getMin();
+        min.setValue(this._nativeObj._minX, this._nativeObj._minY, this._nativeObj._minZ);
         return min;
     }
 
@@ -56,7 +56,7 @@ export class LayaXBounds implements IClone {
 
     getMax(): Vector3 {
         let max = this._boundBox.max;
-        this._nativeObj.getMax();
+        max.setValue(this._nativeObj._maxX, this._nativeObj._maxY, this._nativeObj._maxZ);
         return max;
     }
 
@@ -65,7 +65,10 @@ export class LayaXBounds implements IClone {
     }
 
     getCenter(): Vector3 {
-        this._nativeObj.getCenter();
+        // 从 min/max 派生，避免 native center 没同步
+        let min = this.getMin();
+        let max = this.getMax();
+        this._center.setValue((min.x + max.x) * 0.5, (min.y + max.y) * 0.5, (min.z + max.z) * 0.5);
         return this._center;
     }
 
@@ -74,7 +77,10 @@ export class LayaXBounds implements IClone {
     }
 
     getExtent(): Vector3 {
-        this._nativeObj.getExtent();
+        // 从 min/max 派生
+        let min = this.getMin();
+        let max = this.getMax();
+        this._extent.setValue((max.x - min.x) * 0.5, (max.y - min.y) * 0.5, (max.z - min.z) * 0.5);
         return this._extent;
     }
 
