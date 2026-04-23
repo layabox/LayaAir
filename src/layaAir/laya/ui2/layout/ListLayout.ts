@@ -729,7 +729,7 @@ export class ListLayout extends Layout {
             }
 
             ii.flag = this._itemInfoVer;
-            ii.obj.setLeftTop(this._offsetX + curX, curY);
+            ii.obj.setLeftTop(this._offsetX + curX, this._offsetY + curY);
             if (curIndex === newFirstIndex) //要显示多一条才不会穿帮
                 max += ii.height;
 
@@ -908,7 +908,7 @@ export class ListLayout extends Layout {
             }
 
             ii.flag = this._itemInfoVer;
-            ii.obj.setLeftTop(curX, this._offsetY + curY);
+            ii.obj.setLeftTop(this._offsetX + curX, this._offsetY + curY);
             if (curIndex === newFirstIndex) //要显示多一条才不会穿帮
                 max += ii.width;
 
