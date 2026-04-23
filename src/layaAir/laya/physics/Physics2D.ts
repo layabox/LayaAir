@@ -141,4 +141,4 @@ export class Physics2D extends EventDispatcher {
     // }
 }
 
-//Laya.addInitCallback(() => Physics2D.I.enable());
+Laya.addInitCallback(() => Physics2D.I.enable());

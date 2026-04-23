@@ -35,6 +35,7 @@ export class Physics2DDebugDraw {
 
     private _meshList: Mesh2D[] = [];
 
+
     constructor() {
         this._camera = {};
         this._camera.m_center = new Vector2(0, 0);
@@ -54,7 +55,23 @@ export class Physics2DDebugDraw {
         }
     }
 
+    // 延迟 N 帧再 destroy，确保 LayaX 渲染线程在销毁前完成命令消费
+    // 注意：不做对象池复用 —— 共享的 GPU VB/IB 被下一次 setData 覆盖时，GPU 可能还在读上一次的数据，导致顶点错位（"拉扯"）
+    private static readonly _RETAIN_FRAMES = 6;
+    private _pendingMeshCmdRing: DrawMesh2DCMD[][] = [];
+    private _pendingMeshRing: Mesh2D[][] = [];
+    private _pendingLineCmdRing: PhysicsDrawLine2DCMD[][] = [];
+
     private render(): void {
+        if (this._pendingMeshCmdRing.length >= Physics2DDebugDraw._RETAIN_FRAMES) {
+            const oldestMeshCmds = this._pendingMeshCmdRing.shift()!;
+            for (let i = 0; i < oldestMeshCmds.length; i++) oldestMeshCmds[i].recover();
+            const oldestMeshes = this._pendingMeshRing.shift()!;
+            for (let i = 0; i < oldestMeshes.length; i++) oldestMeshes[i].destroy();
+            const oldestLineCmds = this._pendingLineCmdRing.shift()!;
+            for (let i = 0; i < oldestLineCmds.length; i++) oldestLineCmds[i].recover();
+        }
+
         let area2D = this._scene._area2Ds.size > 0 ? this._scene._area2Ds.values().next().value._struct : null;
         //drawMesh cmds
         this._cmdBuffer.setRenderTarget(null, false);
@@ -76,20 +93,10 @@ export class Physics2DDebugDraw {
         this._cmdBuffer.apply(true);
         this._cmdBuffer.clear(false);
 
-        for (let i = 0; i < this._cmdDrawMeshList.length; i++) {
-            let cmd = this._cmdDrawMeshList[i];
-            cmd.recover();
-        }
-
-        for (let i = 0; i < this._meshList.length; i++) {
-            let mesh = this._meshList[i];
-            mesh.destroy();
-        }
-
-        for (let i = 0; i < this._cmdDrawLineList.length; i++) {
-            let cmd = this._cmdDrawLineList[i];
-            cmd.recover();
-        }
+        // 本帧提交的资源入队末尾；延迟 _RETAIN_FRAMES 帧后才 destroy / recover
+        this._pendingMeshCmdRing.push(this._cmdDrawMeshList.slice());
+        this._pendingMeshRing.push(this._meshList.slice());
+        this._pendingLineCmdRing.push(this._cmdDrawLineList.slice());
 
         for (let i = 0; i < this._linePointsList.length; i++) {
             this._linePointsList[i] = null;
@@ -97,6 +104,8 @@ export class Physics2DDebugDraw {
 
         this._cmdDrawLineList.length = 0;
         this._cmdDrawMeshList.length = 0;
+        this._meshList.length = 0;
+        this._linePointsList.length = 0;
     }
 
     /**
@@ -154,10 +163,7 @@ export class Physics2DDebugDraw {
             index[ibIndex++] = i + 1;  // 下一个顶点
         }
 
-        // 创建顶点声明
         const declaration = VertexMesh2D.getVertexDeclaration(["POSITION,UV"], false)[0];
-
-        // 创建Mesh2D
         let mesh2D = Mesh2D.createMesh2DByPrimitive(
             [vertexs],
             [declaration],
@@ -249,6 +255,14 @@ export class Physics2DDebugDraw {
         this._cmdBuffer && (this._cmdBuffer = null);
         this._cmdDrawLineList && (this._cmdDrawLineList.length = 0);
         this._cmdDrawMeshList && (this._cmdDrawMeshList.length = 0);
+        // 清理未来得及 destroy 的 pending mesh
+        for (let i = 0; i < this._pendingMeshRing.length; i++) {
+            const meshes = this._pendingMeshRing[i];
+            for (let j = 0; j < meshes.length; j++) meshes[j].destroy();
+        }
+        this._pendingMeshRing.length = 0;
+        this._pendingMeshCmdRing.length = 0;
+        this._pendingLineCmdRing.length = 0;
     }
 }
 
