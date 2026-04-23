@@ -13,6 +13,8 @@ import { LayaXDirCascadeShadowRP } from "../../RenderDriver/LayaXDriver/3DRender
 import { LayaXCameraNodeData } from "../../RenderDriver/LayaXDriver/RenderModuleData/LayaXCameraNodeData";
 import { LayaXDirectLight } from "../../RenderDriver/LayaXDriver/RenderModuleData/LayaXDirectLight";
 import { LayaXSpotLight } from "../../RenderDriver/LayaXDriver/RenderModuleData/LayaXSpotLight";
+import { LayaXRender3DProcess } from "../../RenderDriver/LayaXDriver/3DRenderPass/LayaXRender3DProcess";
+import { RenderContext3D } from "../../d3/core/render/RenderContext3D";
 import { RenderTexture } from "../../resource/RenderTexture";
 import { IBridgeRenderElement } from "../Bridge3DSprite";
 import { LayaXBridge3DRenderElement } from "./LayaXBridge3DRenderElement";
@@ -88,6 +90,18 @@ export class LayaXBridge3DRenderProcess implements IBridge3DRenderProcess {
 	fowardRender(context3d: IRenderContext3D, camera: Camera): void {
 		const scene = camera._scene as Bridge3DScene3D;
 		if (!scene) return;
+
+		// 0. Flush dirty probes / volumetric GI 到各自 ShaderData
+		//    （对齐 LayaXRender3DProcess.fowardRender:213 —— ambientColor 等写入生效）
+		LayaXRender3DProcess._flushDirtyProbes();
+
+		// 0b. Gamma correction：Bridge3D 输出到 2D RT / swapchain，需 GPU 做 gamma encode
+		//    （对标 WebBridge3DRenderProcess.ts:267-275；Conch 场景下 Bridge3D 几乎总是
+		//     渲染到 swapchain 或非 gamma-space RT，一次性 addDefine 即可）
+		const cameraData = camera._shaderValues;
+		if (cameraData && RenderContext3D.GammaCorrect) {
+			cameraData.addDefine(RenderContext3D.GammaCorrect);
+		}
 
 		// 1. Sync camera projection params to Rust ECS for culling
 		// (matches LayaXRender3DProcess.initRenderpass line 60)

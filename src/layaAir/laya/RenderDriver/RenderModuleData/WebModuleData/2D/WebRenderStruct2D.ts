@@ -534,6 +534,11 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       return this._clipInfo || this._currentData.clipInfo || _DefaultClipInfo;
    }
 
+   /** 是否存在有效裁剪（非默认值） */
+   hasClip(): boolean {
+      return this.getClipInfo() !== _DefaultClipInfo;
+   }
+
    private updateChildren(type: ChildrenUpdateType): void {
       if (type == ChildrenUpdateType.None) return;
       let info: IClipInfo, blendMode: BlendMode, alpha: number;

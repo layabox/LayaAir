@@ -45,6 +45,20 @@ export abstract class RTRender2DDataHandle implements IRender2DDataHandle {
     }
 }
 
+/** 空 handle，仅跑通 clip/alpha 流程；无原生实现时使用 dummy 对象 */
+export class RTEmptyRender2DDataHandle extends RTRender2DDataHandle {
+    constructor() {
+        const nativeObj = new (window as any).conchRTEmptyRender2DDataHandle();
+        super(nativeObj);
+    }
+    inheriteRenderData(_context: GLESRenderContext2D): void {
+        // no-op
+    }
+    destroy(): void {
+        // no-op
+    }
+}
+
 export class RTGraphics2DBufferBlock implements IGraphics2DBufferBlock {
     private _vertexs: RTGraphics2DVertexBlock[];
     public get vertexs(): RTGraphics2DVertexBlock[] {

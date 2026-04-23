@@ -1,6 +1,5 @@
 import { Camera } from "../../d3/core/Camera";
 import { Color } from "../../maths/Color";
-import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector4 } from "../../maths/Vector4";
 import { Viewport } from "../../maths/Viewport";
 import { IRenderContext3D, PipelineMode } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
@@ -13,7 +12,7 @@ import { RenderState2D } from "../../webgl/utils/RenderState2D";
 /**
  * LayaXBridge3DContext - LayaX (wgpu) native wrapper for Bridge3D rendering context
  *
- * Mirrors RTBridge3DContext but uses conchLayaXBridge3DContext native class.
+ * Uses conchLayaXBridge3DContext native class.
  * Each setter syncs to C++ via _nativeObj, C++ calls Rust FFI.
  */
 export class LayaXBridge3DContext {
@@ -71,10 +70,6 @@ export class LayaXBridge3DContext {
 
 	applyToContext(context: IRenderContext3D): void {
 		// Not used on LayaX native - C++ handles context application via Rust FFI
-	}
-
-	computeCorrectionMatrix(vpW: number, vpH: number, rtW: number, rtH: number, out: Matrix4x4): void {
-		// Not used on LayaX native - C++ handles projection correction internally
 	}
 
 	get clearDepthBeforeRender(): boolean {

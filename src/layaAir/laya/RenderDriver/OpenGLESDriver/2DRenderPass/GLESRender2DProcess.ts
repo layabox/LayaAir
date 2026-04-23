@@ -7,7 +7,7 @@ import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, I
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import { RTRender2DPass, RTRender2DPassManager } from "../../RenderModuleData/RuntimeModuleData/2D/RTRender2DPass";
-import { RTBaseRenderDataHandle, RTGraphics2DBufferBlock, RTGraphics2DVertexBlock, RTMesh2DRenderDataHandle, RTPrimitiveDataHandle, RTRender2DDataHandle, RTSpineRenderDataHandle } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderDataHandle";
+import { RTBaseRenderDataHandle, RTEmptyRender2DDataHandle, RTGraphics2DBufferBlock, RTGraphics2DVertexBlock, RTMesh2DRenderDataHandle, RTPrimitiveDataHandle, RTRender2DDataHandle, RTSpineRenderDataHandle } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderDataHandle";
 import { RTGlobalRenderData, RTRenderStruct2D } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderStruct2D";
 import { GLESSetRenderData, GLESSetShaderDefine } from "../RenderDevice/GLESRenderCMD";
 import { GLESBlit2DQuadCMD, GLESDraw2DElementCMD, GLESSetRendertarget2DCMD } from "./GLES2DRenderCMD";
@@ -87,6 +87,9 @@ export class GLESRender2DProcess implements I2DRenderPassFactory {
     }
     createRenderStruct2D(): IRenderStruct2D {
         return new RTRenderStruct2D();
+    }
+    createEmptyRenderDataHandle(): IRender2DDataHandle {
+        return new RTEmptyRender2DDataHandle();
     }
 }
 

@@ -11,7 +11,6 @@ import { Bridge3DSprite } from "./Bridge3DSprite";
 import { Config3D } from "../../Config3D";
 import { Utils3D } from "../d3/utils/Utils3D";
 import { Texture2D } from "../resource/Texture2D";
-import { RTBridge3DContext } from "./render/RTBridge3DContext";
 import { LayaXBridge3DContext } from "./render/LayaXBridge3DContext";
 import { Bridge3DSceneInternal } from "./Bridge3DSceneInternal";
 import { Bridge3DContext } from "./render/Bridge3DContext";
@@ -57,7 +56,7 @@ export class Bridge3DScene3D extends Scene3D {
      * Bridge3D rendering context (unified held and managed by Scene3D)
      * @private
      */
-    private _bridge3DContext: Bridge3DContext | RTBridge3DContext | LayaXBridge3DContext;
+    private _bridge3DContext: Bridge3DContext | LayaXBridge3DContext;
 
 
     /**
@@ -91,7 +90,7 @@ export class Bridge3DScene3D extends Scene3D {
     /**
      * Bridge3D渲染上下文（供process访问）
      */
-    get bridge3DContext(): Bridge3DContext | RTBridge3DContext | LayaXBridge3DContext {
+    get bridge3DContext(): Bridge3DContext | LayaXBridge3DContext {
         return this._bridge3DContext;
     }
 
@@ -112,13 +111,9 @@ export class Bridge3DScene3D extends Scene3D {
             this._bridge3DLightTexture.lock = true;
         }
 
-        // Create unified Bridge3D rendering context (platform-aware)
+        // Create unified Bridge3D rendering context: Conch 原生走 LayaX (wgpu)，浏览器走 Web
         if (LayaEnv.isConch) {
-            if ((window as any).conchConfig.getGraphicsAPI() == 2) {
-                this._bridge3DContext = new LayaXBridge3DContext();
-            } else {
-                this._bridge3DContext = new RTBridge3DContext();
-            }
+            this._bridge3DContext = new LayaXBridge3DContext();
         } else {
             this._bridge3DContext = new Bridge3DContext();
         }
@@ -183,7 +178,6 @@ export class Bridge3DScene3D extends Scene3D {
         // 找到渲染对象所属的 Bridge3DSprite
         const bridge = this._findOwnerBridge3DSprite(render.owner as Sprite3D);
         if (bridge) {
-            // 委托给 Bridge3DSprite 管理
             bridge._addRenderObject(render);
             this._renderToBridgeMap.set(render, bridge);
         }

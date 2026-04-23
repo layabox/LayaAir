@@ -4,7 +4,7 @@ import { IRenderContext2D } from "./IRenderContext2D";
 import { IPrimitiveRenderElement2D, IRenderElement2D } from "./IRenderElement2D";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
-import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, I2DGraphicWholeBuffer, I2DGraphicVertexDataView, I2DGraphicIndexDataView, IGraphics2DBufferBlock, IGraphics2DVertexBlock } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
+import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, I2DGraphicWholeBuffer, I2DGraphicVertexDataView, I2DGraphicIndexDataView, IGraphics2DBufferBlock, IGraphics2DVertexBlock, IRender2DDataHandle } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
 
 export interface I2DRenderPassFactory {
     createRenderElement2D(): IRenderElement2D;
@@ -50,4 +50,7 @@ export interface I2DRenderPassFactory {
     create2DGraphicVertexBuffer(): I2DGraphicWholeBuffer;
 
     create2DGraphicIndexBuffer(): I2DGraphicWholeBuffer;
+
+    /** 创建仅跑 clip/alpha 流程的空 handle，用于无 2D 渲染节点但需继承父级裁剪的节点 */
+    createEmptyRenderDataHandle(): IRender2DDataHandle;
 }

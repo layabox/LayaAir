@@ -13,13 +13,14 @@ import {
     IMesh2DRenderDataHandle, I2DGlobalRenderData,
     ISpineRenderDataHandle, I2DGraphicWholeBuffer,
     I2DGraphicVertexDataView, I2DGraphicIndexDataView,
-    IGraphics2DBufferBlock, IGraphics2DVertexBlock
+    IGraphics2DBufferBlock, IGraphics2DVertexBlock,
+    IRender2DDataHandle
 } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 
 // ===== RT* moduleData (复用) =====
 import { RTRender2DPass, RTRender2DPassManager } from "../../RenderModuleData/RuntimeModuleData/2D/RTRender2DPass";
 import {
-    RTBaseRenderDataHandle, RTGraphics2DBufferBlock, RTGraphics2DVertexBlock,
+    RTBaseRenderDataHandle, RTEmptyRender2DDataHandle, RTGraphics2DBufferBlock, RTGraphics2DVertexBlock,
     RTMesh2DRenderDataHandle, RTPrimitiveDataHandle,
     RTSpineRenderDataHandle
 } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderDataHandle";
@@ -168,6 +169,10 @@ export class LayaXRender2DProcess implements I2DRenderPassFactory {
 
     createGraphic2DVertexBlock(): IGraphics2DVertexBlock {
         return new RTGraphics2DVertexBlock();
+    }
+
+    createEmptyRenderDataHandle(): IRender2DDataHandle {
+        return new RTEmptyRender2DDataHandle();
     }
 }
 

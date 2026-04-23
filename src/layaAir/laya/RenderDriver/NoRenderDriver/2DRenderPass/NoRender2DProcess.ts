@@ -101,6 +101,9 @@ export class NoRender2DProcess implements I2DRenderPassFactory {
     createRenderContext2D(): IRenderContext2D {
         return new NoRenderContext2D();
     }
+    createEmptyRenderDataHandle(): IRender2DDataHandle {
+        return null;
+    }
 
 }
 

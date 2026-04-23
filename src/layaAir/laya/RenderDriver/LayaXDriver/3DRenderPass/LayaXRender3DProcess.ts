@@ -218,7 +218,8 @@ export class LayaXRender3DProcess implements IRender3DProcess {
         this.renderFowarAddCameraPass(context, this._renderPass);
     }
 
-    private static _flushDirtyProbes(): void {
+    /** @internal Bridge3DRenderProcess 也需在 fowardRender 开头调用，把 dirty ReflectionProbe/VolumetricGI 数据 flush 到 ShaderData */
+    static _flushDirtyProbes(): void {
         // ReflectionProbe
         let rpDirty = LayaXReflectionProbe._dirtySet;
         if (rpDirty.size > 0) {

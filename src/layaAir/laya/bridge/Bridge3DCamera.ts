@@ -11,7 +11,6 @@ import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefi
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { IBridge3DRenderProcess } from "./render/IBridge3DRenderProcess";
 import { LayaXBridge3DRenderProcess } from "./render/LayaXBridge3DRenderProcess";
-import { RTBridge3DRenderProcess } from "./render/RTBridge3DRenderProcess";
 import { WebBridge3DRenderProcess } from "./render/WebBridge3DRenderProcess";
 
 /**
@@ -53,13 +52,9 @@ export class Bridge3DCamera extends Camera {
     constructor() {
         super();
 
-        // 创建统一渲染流程（平台感知）
+        // 创建统一渲染流程：Conch 原生环境走 LayaX (wgpu) 渲染，浏览器走 Web (WebGL/WebGPU)
         if (LayaEnv.isConch) {
-            if ((window as any).conchConfig.getGraphicsAPI() == 2) {
-                this._bridge3DRenderProcess = new LayaXBridge3DRenderProcess();
-            } else {
-                this._bridge3DRenderProcess = new RTBridge3DRenderProcess();
-            }
+            this._bridge3DRenderProcess = new LayaXBridge3DRenderProcess();
         } else {
             this._bridge3DRenderProcess = new WebBridge3DRenderProcess();
         }
@@ -114,9 +109,9 @@ export class Bridge3DCamera extends Camera {
         context.scene = scene;
         context.camera = this;
 
-        // 2. 相机准备（无条件，对标 Camera.render 中的 _prepareCameraToRender + _applyViewProject + _contextApply）
-        // Bridge3D 相机不渲染到独立 RT，始终 invertY = false（对标 Camera.render 1378 行）
-        // context.invertY = false;
+        // Bridge3D 直接画到 2D pass 的 RT，没有后续 PostProcess blit 统一 API Y 方向；
+        // 按 _screenInvertY 翻转 projection，和 2D pass 的 INVERTY 语义对齐
+        context.invertY = LayaGL.renderEngine._screenInvertY;
         this._prepareCameraToRender();
         this._applyViewProject(this.viewMatrix, this.projectionMatrix, context.invertY);
         this._contextApply(context);

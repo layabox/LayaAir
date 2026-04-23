@@ -64,6 +64,19 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     }
 }
 
+/**
+ * 空 Render Data Handle，仅用于跑通 _handleInterData 中的 clip/alpha 上传流程。
+ * 适用于无 2D 渲染节点但需继承父级 scrollRect（clipRect）的节点，如 Bridge3DSprite。
+ */
+export class WebEmptyRender2DDataHandle extends WebRender2DDataHandle {
+    inheriteRenderData(_context: IRenderContext2D): void {
+        // no-op：不写 2D 矩阵，仅依赖 _handleInterData 上传 clip/alpha
+    }
+    destroy(): void {
+        // no-op
+    }
+}
+
 export class WebGraphics2DBufferBlock implements IGraphics2DBufferBlock {
     vertexs: IGraphics2DVertexBlock[];
     indexView: I2DGraphicIndexDataView;
