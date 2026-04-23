@@ -245,6 +245,7 @@ export class SpotLight2D extends BaseLight2D {
             this._texLight.destroy(); //可能有风险
         const tex = this._texLight = new RenderTexture(width, height, RenderTargetFormat.R8G8B8A8, null, false, this.antiAlias ? 4 : 1);
         tex.wrapModeU = tex.wrapModeV = WrapMode.Clamp;
+        tex.lock = true;
         if (!this._cmdRT)
             this._cmdRT = Set2DRTCMD.create(tex, true, Color.CLEAR, false);
         else this._cmdRT.renderTexture = tex;
