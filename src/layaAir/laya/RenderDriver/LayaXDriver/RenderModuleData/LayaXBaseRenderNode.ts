@@ -1,7 +1,9 @@
 import { IrradianceMode } from "../../../d3/core/render/BaseRender";
 import { RenderContext3D } from "../../../d3/core/render/RenderContext3D";
 import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
+import { Transform3D } from "../../../d3/core/Transform3D";
 import { Bounds } from "../../../d3/math/Bounds";
+import { Event } from "../../../events/Event";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector4 } from "../../../maths/Vector4";
 import { Material } from "../../../resource/Material";
@@ -38,8 +40,22 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
     private _transform: LayaXTransform3D;
     public get transform(): LayaXTransform3D { return this._transform; }
     public set transform(value: LayaXTransform3D) {
+        // 切换 transform 时解绑旧订阅；新 transform 订阅 scale 变化，并立刻推一次避免漏首帧
+        if (this._transform) {
+            this._transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
+        }
         this._nativeObj.setTransform(value ? value._nativeObj : null);
         this._transform = value;
+        if (value) {
+            value.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
+            this._nativeObj.invertFrontFace = value._isFrontFaceInvert;
+        }
+    }
+
+    private _onTransformChanged(flag: number): void {
+        if (flag & Transform3D.TRANSFORM_WORLDSCALE) {
+            this._nativeObj.invertFrontFace = this._transform._isFrontFaceInvert;
+        }
     }
 
     // ------------------------------------------------------------------
@@ -54,6 +70,10 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
 
     public get castShadow(): boolean { return this._nativeObj.castShadow; }
     public set castShadow(value: boolean) { this._nativeObj.castShadow = value; }
+
+    /** 负 scale 绕序位；与 pass.invertY XOR 决定 pipeline 是否翻 front_face。 */
+    public get invertFrontFace(): boolean { return this._nativeObj.invertFrontFace; }
+    public set invertFrontFace(value: boolean) { this._nativeObj.invertFrontFace = value; }
 
     public get receiveShadow(): boolean { return this._nativeObj.receiveShadow; }
     public set receiveShadow(value: boolean) { this._nativeObj.receiveShadow = value; }
