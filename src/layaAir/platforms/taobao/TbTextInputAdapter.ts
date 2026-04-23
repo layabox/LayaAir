@@ -26,7 +26,7 @@ export class TbTextInputAdapter extends TextInputAdapter {
         PAL.g.prompt({
             title: "请在提示框中输入内容",
             content: target.text,
-            placeholder: target.prompt,
+            placeholder: target.localizedPrompt,
             success: (res: any) => {
                 if (res.ok) {
                     let str = this.validateText(res.inputValue);

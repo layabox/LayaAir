@@ -114,7 +114,7 @@ export class TextInputAdapter {
         ele.readOnly = !target.editable;
         ele.maxLength = target.maxChars <= 0 ? 1E5 : target.maxChars;
         ele.value = this.target.text;
-        ele.placeholder = target.prompt;
+        ele.placeholder = target.localizedPrompt;
 
         let style = ele.style;
         style.fontFamily = target.realFont;
