@@ -178,7 +178,7 @@ export class FrameAnimation extends Component {
                 this._frame = this._count - 1;
             else {
                 this._reversed = false;
-                this._frame = 0;
+                this._frame = (this._index > 0 && this._index < this._count) ? this._index : 0;
             }
 
             if (this._stretchMode === AnimationStretchMode.ResizeToFit) {
