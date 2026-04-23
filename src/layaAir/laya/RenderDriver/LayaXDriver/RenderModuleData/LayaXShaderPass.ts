@@ -175,41 +175,37 @@ export class LayaXShaderPass implements IShaderPassData {
     }
 
     private _onCompileCallback(defineNamesStr: string, setMapNamesStr: string, attributeLocationsStr: string): any {
+        // Sync pass renderState to Rust on first compile
+        this._syncRenderState();
+
+        // 1. Parse define names from Rust (newline-separated → string[])
+        const defineStrings = defineNamesStr
+            ? defineNamesStr.split('\n').filter(s => s.length > 0)
+            : [];
+
+        // 2. Parse set→map name mapping and store for LayaXShaderInstance._create
+        this.compileSetMapNames = this._parseSetMapNames(setMapNamesStr);
+
+        // 3. Parse attribute locations
+        this.attributeLocations = this._parseAttributeLocations(attributeLocationsStr);
+
+        // 4. Build ShaderProcessInfo directly with define names from Rust
+        const shaderProcessInfo: ShaderProcessInfo = {
+            is2D: this.is2D,
+            vs: this._pass._VS,
+            ps: this._pass._PS,
+            attributeMap: this._pass._owner._attributeMap,
+            uniformMap: this._pass._owner._uniformMap,
+            defineString: defineStrings,
+        };
+
         try {
-            // Sync pass renderState to Rust on first compile
-            this._syncRenderState();
-
-            // 1. Parse define names from Rust (newline-separated → string[])
-            const defineStrings = defineNamesStr
-                ? defineNamesStr.split('\n').filter(s => s.length > 0)
-                : [];
-
-            // 2. Parse set→map name mapping and store for LayaXShaderInstance._create
-            this.compileSetMapNames = this._parseSetMapNames(setMapNamesStr);
-
-            // 3. Parse attribute locations
-            this.attributeLocations = this._parseAttributeLocations(attributeLocationsStr);
-
-            // 4. Build ShaderProcessInfo directly with define names from Rust
-            const shaderProcessInfo: ShaderProcessInfo = {
-                is2D: this.is2D,
-                vs: this._pass._VS,
-                ps: this._pass._PS,
-                attributeMap: this._pass._owner._attributeMap,
-                uniformMap: this._pass._owner._uniformMap,
-                defineString: defineStrings,
-            };
-
             // 5. Create shader instance
             const shaderInstance = LayaGL.renderDeviceFactory.createShaderInstance(shaderProcessInfo, this._pass);
-
-            // Return the C++ native object directly — C++ will call getHandle() on it
             if (shaderInstance && (shaderInstance as any)._nativeObj) {
-                let nobj = (shaderInstance as any)._nativeObj;
-                console.log(`[LayaX-DBG] compile callback OK: shader=${this._pass._owner?._owner?.name} is2D=${this.is2D} nativeObj=${!!nobj}`);
-                return nobj;
+                return (shaderInstance as any)._nativeObj;
             }
-            console.error(`[LayaX-DBG] compile callback: shaderInstance or _nativeObj is null`);
+            console.error(`LayaXShaderPass compile callback: shaderInstance or _nativeObj is null`);
         } catch (e) {
             const shaderName = this._pass._owner?._owner?.name || "unknown";
             const passIdx = this._pass._owner?._passes?.indexOf(this._pass) ?? -1;

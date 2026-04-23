@@ -180,9 +180,8 @@ export class LayaXShaderInstance implements IShaderInstance {
 
         this._nativeObj = new (window as any).conchLayaXShaderInstance();
         let programHandle = this._nativeObj.create(vs_wgsl, fs_wgsl, propertySetMapJson, textureExitsJson);
-        console.log(`[LayaX-DBG] create program: handle=${programHandle} vs_len=${vs_wgsl.length} fs_len=${fs_wgsl.length} sets=${Array.from(this.bindingInfoMap.keys())}`);
         if (!programHandle) {
-            console.error(`[LayaX-DBG] create program FAILED! propertySetMap=${propertySetMapJson.substring(0, 200)}`);
+            console.error(`LayaXShaderInstance: create program FAILED! propertySetMap=${propertySetMapJson.substring(0, 200)}`);
         }
     }
 
