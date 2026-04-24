@@ -571,6 +571,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     private _buildRenderTexture(width: number, height: number) {
         const tex = new RenderTexture(width, height, RenderTargetFormat.R8G8B8A8, null, false, this.config.multiSamples);
         tex.wrapModeU = tex.wrapModeV = WrapMode.Clamp;
+        tex.lock = true;
         return tex;
     }
 

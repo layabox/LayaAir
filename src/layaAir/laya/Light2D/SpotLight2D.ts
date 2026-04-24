@@ -246,6 +246,7 @@ export class SpotLight2D extends BaseLight2D {
         if (!this._cmdRT)
             this._cmdRT = Set2DRTCMD.create(tex, true, Color.CLEAR, false);
         else this._cmdRT.renderTexture = tex;
+        tex.lock = true;
     }
 
     /**
