@@ -15,6 +15,7 @@ import { Vector4 } from "../maths/Vector4";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { ShaderData, ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
+import { RenderParams } from "../RenderEngine/RenderEnum/RenderParams";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
@@ -50,6 +51,18 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     static DEBUG: boolean = false; //是否打印调试信息
     static SUPPORT_LIGHT_BLEND_MODE = true; //是否支持灯光之间多种模式混合
     static SUPPORT_LIGHT_SCENE_MODE = true; //是否支持灯光场景多种模式混合
+
+    /**
+     * 将光影图尺寸夹到设备 MAX_TEXTURE_SIZE，避免低端机因 outerRadius 过大创建超限 RT 导致 glTexStorage2D / framebuffer incomplete
+     */
+    static clampRTSize(size: number): number {
+        const max = LayaGL.renderEngine.getParams(RenderParams.MAX_Texture_Size);
+        if (max > 0 && size > max) {
+            console.warn(`[Light2D] RT size ${size} exceeds device MAX_TEXTURE_SIZE (${max}), clamped. Reduce light outerRadius/range to avoid visual truncation on low-end devices.`);
+            return max;
+        }
+        return size;
+    }
 
     lsTarget: RenderTexture[] = []; //渲染目标（光影图），数量等于有灯光的层数，相乘模式
     lsTargetAdd: RenderTexture[] = []; //渲染目标（光影图），数量等于有灯光的层数，相加模式
@@ -569,6 +582,8 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @param height 
      */
     private _buildRenderTexture(width: number, height: number) {
+        width = Light2DManager.clampRTSize(width);
+        height = Light2DManager.clampRTSize(height);
         const tex = new RenderTexture(width, height, RenderTargetFormat.R8G8B8A8, null, false, this.config.multiSamples);
         tex.wrapModeU = tex.wrapModeV = WrapMode.Clamp;
         tex.lock = true;
