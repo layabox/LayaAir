@@ -88,8 +88,4 @@ varying vec2 v_ParticleUV;
     uniform vec3 u_InvertMat_1;
 #endif
 
-uniform vec4 u_clipMatDir;
-uniform vec4 u_clipMatPos;
-varying vec2 v_cliped;
-
 #endif // ShruikenParticleCommon_glsl
