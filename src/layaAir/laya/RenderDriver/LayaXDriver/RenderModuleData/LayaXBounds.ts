@@ -41,23 +41,24 @@ export class LayaXBounds implements IClone {
 
     setMin(value: Vector3): void {
         this._nativeObj.setMin(value.x, value.y, value.z);
+        this._boundBox.min.setValue(value.x, value.y, value.z);
     }
 
     getMin(): Vector3 {
-        let min = this._boundBox.min;
-        // TODO(Q13): read back from native if LayaX computes bounds on Rust side
         this._nativeObj.getMin();
-        return min;
+        this._syncBoundBoxFromNative();
+        return this._boundBox.min;
     }
 
     setMax(value: Vector3): void {
         this._nativeObj.setMax(value.x, value.y, value.z);
+        this._boundBox.max.setValue(value.x, value.y, value.z);
     }
 
     getMax(): Vector3 {
-        let max = this._boundBox.max;
         this._nativeObj.getMax();
-        return max;
+        this._syncBoundBoxFromNative();
+        return this._boundBox.max;
     }
 
     setCenter(value: Vector3): void {
@@ -66,6 +67,14 @@ export class LayaXBounds implements IClone {
 
     getCenter(): Vector3 {
         this._nativeObj.getCenter();
+        this._syncBoundBoxFromNative();
+        const min = this._boundBox.min;
+        const max = this._boundBox.max;
+        this._center.setValue(
+            (min.x + max.x) * 0.5,
+            (min.y + max.y) * 0.5,
+            (min.z + max.z) * 0.5
+        );
         return this._center;
     }
 
@@ -75,6 +84,14 @@ export class LayaXBounds implements IClone {
 
     getExtent(): Vector3 {
         this._nativeObj.getExtent();
+        this._syncBoundBoxFromNative();
+        const min = this._boundBox.min;
+        const max = this._boundBox.max;
+        this._extent.setValue(
+            (max.x - min.x) * 0.5,
+            (max.y - min.y) * 0.5,
+            (max.z - min.z) * 0.5
+        );
         return this._extent;
     }
 
@@ -91,7 +108,15 @@ export class LayaXBounds implements IClone {
 
     _getBoundBox(): BoundBox {
         this._nativeObj._getBoundBox();
+        this._syncBoundBoxFromNative();
         return this._boundBox;
+    }
+
+    private _syncBoundBoxFromNative(): void {
+        const min = this._boundBox.min;
+        const max = this._boundBox.max;
+        min.setValue(this._nativeObj._minX, this._nativeObj._minY, this._nativeObj._minZ);
+        max.setValue(this._nativeObj._maxX, this._nativeObj._maxY, this._nativeObj._maxZ);
     }
 
     /**
