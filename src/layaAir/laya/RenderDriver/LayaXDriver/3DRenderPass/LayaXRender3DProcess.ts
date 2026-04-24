@@ -157,10 +157,9 @@ export class LayaXRender3DProcess implements IRender3DProcess {
             let needSpotShadow = mainSpotLight && mainSpotLight.shadowMode != ShadowMode.None;
             this._renderPass.enableSpotLightShadowPass = needSpotShadow;
             if (needSpotShadow) {
-                this._renderPass.spotShadowRenderPass.setRPData(
-                    <LayaXSpotLight>mainSpotLight._dataModule,
-                    context
-                );
+                let spotLight = <LayaXSpotLight>mainSpotLight._dataModule;
+                spotLight.syncShadow();
+                this._renderPass.spotShadowRenderPass.setRPData(spotLight, context);
                 this._renderPass.spotShadowRenderPass.setCameraCullInfo(this.render3DManager);
             }
             if (needDirectionShadow || needSpotShadow) {

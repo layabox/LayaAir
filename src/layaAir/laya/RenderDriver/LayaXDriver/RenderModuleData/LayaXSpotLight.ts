@@ -54,4 +54,23 @@ export class LayaXSpotLight implements ISpotLightData {
     constructor() {
         this._nativeObj = new (window as any).conchLayaXSpotLight();
     }
+
+    /// 每帧在 needSpotShadow 分支调：推 shadow 参数 + world matrix + angle/range 给 native
+    syncShadow(): void {
+        this._nativeObj.setShadow(
+            this._nativeObj._shadowResolution,
+            this._nativeObj._shadowStrength,
+            this._nativeObj._shadowMode,
+            this._nativeObj._shadowDepthBias,
+            this._nativeObj._shadowNormalBias,
+            this._nativeObj._shadowNearPlane,
+        );
+        if (this._transform) {
+            this._nativeObj.syncShadow(
+                this._transform.worldMatrix,
+                this._nativeObj._spotAngle,
+                this._nativeObj._spotRange,
+            );
+        }
+    }
 }
