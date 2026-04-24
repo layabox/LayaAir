@@ -185,14 +185,8 @@ export class WebRender3DProcess implements IRender3DProcess {
         if ((depthMode & DepthTextureMode.Depth) != 0) {
 
             Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat);
-            if (camera.canblitDepth) {
-                // blit depth 模式: 不需要单独的 depth pass, 也不在此时绑定深度纹理
-                // 深度来自 forward pass 的 depthStencilTexture, 在 forward pass 结束后绑定
-                depthMode &= ~DepthTextureMode.Depth;
-            } else {
-                this._renderPass.mainRenderpass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget;
-                Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, camera);
-            }
+            this._renderPass.mainRenderpass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget;
+            Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, camera);
         }
         if ((depthMode & DepthTextureMode.DepthNormals) != 0) {
             Camera.depthPass.getTarget(camera, DepthTextureMode.DepthNormals, camera.depthTextureFormat);
@@ -264,11 +258,6 @@ export class WebRender3DProcess implements IRender3DProcess {
         this._renderDepth(camera);
         this._initRenderPass(camera, context);
         this._renderForwardAddCameraPass(context, this._renderPass);
-        // blit depth 模式: forward pass 结束后再绑定深度纹理给 shader
-        // 此时深度附件不再被写入, 可安全作为 TextureBinding 采样
-        if (camera.canblitDepth && camera.depthTexture) {
-            Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, camera);
-        }
     }
 
 

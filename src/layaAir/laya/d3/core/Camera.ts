@@ -1304,10 +1304,11 @@ export class Camera extends BaseCamera {
         if (this._cacheDepth && this._internalRenderTexture) {
             if (this._cacheDepthTexture)
                 this._cacheDepthTexture._inPool ? 0 : RenderTexture.recoverToPool(this._cacheDepthTexture);
-            this._cacheDepthTexture = this._internalRenderTexture;
+            this._cacheDepthTexture = this._internalRenderTexture as RenderTexture;
+            this._internalRenderTexture = null;
         }
         else {
-            this._internalRenderTexture && RenderTexture.recoverToPool(this._internalRenderTexture);
+            this._internalRenderTexture && (!this._internalRenderTexture._inPool) && RenderTexture.recoverToPool(this._internalRenderTexture);
         }
 
         // Camera.depthPass.cleanUp();
