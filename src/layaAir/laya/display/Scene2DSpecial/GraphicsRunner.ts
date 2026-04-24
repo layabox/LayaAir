@@ -1135,13 +1135,13 @@ export class GraphicsRunner {
 
         //克隆transform,因为要应用tx，ty，这里不能修改原始的transform
         tmpMat.a = transform.a; tmpMat.b = transform.b; tmpMat.c = transform.c; tmpMat.d = transform.d; tmpMat.tx = transform.tx + tx; tmpMat.ty = transform.ty + ty;
-        tmpMat._bTransform = transform._bTransform;
+        tmpMat._checkTransform();
 
         if (transform && curMat._bTransform) {
             // 如果当前矩阵不是只有平移，则只能用mul的方式
             Matrix.mul(tmpMat, curMat, tmpMat);
+            tmpMat._checkTransform();
             transform = tmpMat;
-            transform._bTransform = true;
         } else {
             //如果curmat没有旋转。
             tmpMat.tx += curMat.tx;
@@ -1242,7 +1242,7 @@ export class GraphicsRunner {
                 tmpMat.a = matrix.a; tmpMat.b = matrix.b; tmpMat.c = matrix.c; tmpMat.d = matrix.d; tmpMat.tx = matrix.tx + x; tmpMat.ty = matrix.ty + y;
             }
             Matrix.mul(tmpMat, this._curMat, tmpMat);
-            tmpMat._bTransform = this._curMat._bTransform;
+            tmpMat._checkTransform();
             //由于2d动画部分的uvs是绝对的（例如图集的话就是相对图集的）所以最后不传uvrect了。
             positions = this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, tmpMat, null, !!tex, colors, uvRange);
         }
