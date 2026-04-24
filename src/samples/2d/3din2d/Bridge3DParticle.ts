@@ -78,7 +78,7 @@ export class Bridge3DParticle {
 
         const scene3d = scene2D.bridge3DInternal.scene3d as Bridge3DScene3D;
         scene3d.ambientColor = new Color(0.6, 0.6, 0.6, 1);
-        (scene3d as any)._applyCameraZDistance(300);
+        scene3d.applyCameraZDistance(300);
 
         // 异步加载粒子
         Sprite3D.load("res/threeDimen/particle/lv_kuosan.lh", Handler.create(this, function (sprite: Sprite3D): void {

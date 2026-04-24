@@ -99,7 +99,7 @@ export class Bridge3DAnimator {
 
         const scene3d = scene2D.bridge3DInternal.scene3d as Bridge3DScene3D;
         scene3d.ambientColor = new Color(0.5, 0.5, 0.5, 1);
-        (scene3d as any)._applyCameraZDistance(300);
+        scene3d.applyCameraZDistance(300);
 
         // 方向光
         const lightSprite = new Sprite3D();
