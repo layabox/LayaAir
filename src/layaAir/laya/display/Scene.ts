@@ -20,6 +20,7 @@ import { ProgressCallback } from "../net/BatchProgress";
 import { BlendModeHandler } from "../webgl/canvas/BlendMode";
 import { HideFlags } from "../Const";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
+import { Camera } from "../d3/core/Camera";
 
 /**
  * @en Bridge3D data holder interface. Contains only serializable configuration properties.
@@ -39,7 +40,8 @@ export interface IBridge3DData {
  * @blueprintIgnore
  */
 export interface IBridge3DSceneInternal {
-    scene3d:Scene3D;
+    scene3d: Scene3D;
+    sharedCamera: Camera;
     applyData(data: IBridge3DData | null): void;
     finalizeSetup(): void;
     destroy(): void;
@@ -51,6 +53,7 @@ export interface IBridge3DSceneInternal {
 
 const NoopBridge3DInternal: IBridge3DSceneInternal = {
     scene3d:null,
+    sharedCamera:null,
     applyData(_d: IBridge3DData | null) { },
     finalizeSetup() { },
     destroy() { },

@@ -41,12 +41,6 @@ export class Bridge3DScene3D extends Scene3D {
     private _sharedCamera: Bridge3DCamera;
 
     /**
-     * Whether camera has been initialized
-     * @internal
-     */
-    _cameraInitialized: boolean = false;
-
-    /**
      * Render object to Bridge3DSprite mapping
      * @private
      */
@@ -128,6 +122,10 @@ export class Bridge3DScene3D extends Scene3D {
         this.addChild(this._sharedCamera);
         this.updateContext();
 
+        // Output initialization: configure camera intrinsics once.
+        // Data-driven params (cameraZDistance / farPlane) are applied later via applyCamera*.
+        this.setupCamera();
+
         // Listen to stage resize
         ILaya.stage.on(Event.RESIZE, this, this.onStageResize);
     }
@@ -135,26 +133,20 @@ export class Bridge3DScene3D extends Scene3D {
     /**
      * Apply camera Z distance (called by holder)
      * @param value - Camera Z distance
-     * @internal
      */
-    _applyCameraZDistance(value: number): void {
+    applyCameraZDistance(value: number): void {
         if (this._cameraZDistance !== value) {
             this._cameraZDistance = value;
-            if (this._cameraInitialized) {
-                this._updateCameraPosition();
-            }
+            this._updateCameraPosition();
         }
     }
 
     /**
      * Apply camera far plane (called by holder)
      * @param value - Camera far clipping plane distance
-     * @internal
      */
-    _applyCameraFarPlane(value: number): void {
-        if (this._cameraInitialized) {
-            this._sharedCamera.farPlane = value;
-        }
+    applyCameraFarPlane(value: number): void {
+        this._sharedCamera.farPlane = value;
     }
 
     updateContext() {
@@ -243,24 +235,18 @@ export class Bridge3DScene3D extends Scene3D {
     }
 
     /**
-     * Setup shared camera
-     * @remarks
-     * - Configure orthographic projection parameters
-     * - Set camera position and orientation (lookAt)
-     * - Called on first bridge registration or stage resize
-     * - Uses RenderState2D's actual render size instead of stage logical size
+     * Setup shared camera intrinsics (projection / orientation / position).
+     * Called once by the constructor as part of output initialization.
+     * Data-driven parameters (cameraZDistance / farPlane) are applied via applyCamera*.
      */
     setupCamera(): void {
         // Use actual render size (considering stage scaling)
-        const width = RenderState2D.width;
-        const height = RenderState2D.height;
+        const height = RenderState2D.height || ILaya.stage.height;
 
         // Configure orthographic projection parameters
         this._sharedCamera.orthographic = true;
         this._sharedCamera.orthographicVerticalSize = height;  // Use full height
         this._sharedCamera.nearPlane = 0.1;
-        const holder = this._scene2D?.bridge3D;
-        if (holder) this._sharedCamera.farPlane = holder.cameraFarPlane;
 
         // Set camera position using the configured Z distance
         this._updateCameraPosition();
