@@ -173,7 +173,8 @@ export class AnimatorClip2D extends Animator2DBase {
     onEnable(): void {
         if (this._autoPlay && this._clip) {
             this.play();
-        }
+        } else
+            this._isPlaying = false;
     }
 
     onUpdate(): void {
