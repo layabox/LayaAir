@@ -52,6 +52,7 @@ export class LayaXCameraNodeData implements ICameraNodeData {
     }
 
     constructor() {
+        // Rust 侧 layax_create_camera 负责分配 cull_bit + 4 个 cascade shadow entity
         this._nativeObj = new (window as any).conchLayaXCameraNodeData();
     }
 
