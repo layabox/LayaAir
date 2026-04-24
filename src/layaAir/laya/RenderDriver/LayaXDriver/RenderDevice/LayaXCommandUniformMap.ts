@@ -68,10 +68,12 @@ export class LayaXCommandUniformMap extends CommandUniformMap {
         }
     }
 
-    /**
-     * Set default texture data.
-     */
     setDefaultTextureData(key: number, defaultTex: BaseTexture) {
-        // No-op for LayaX — default textures managed by Rust side
+        let rtNative: any = null;
+        if (defaultTex) {
+            let rt = (defaultTex as any)._renderTarget;
+            if (rt) rtNative = rt._nativeObj;
+        }
+        this._nativeObj.setDefaultTextureData(key, rtNative);
     }
 }
