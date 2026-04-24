@@ -93,13 +93,7 @@ export class DepthPass {
                 var near = camera.nearPlane;
                 this._zBufferParams.setValue(1.0 - far / near, far / near, (near - far) / (near * far), 1 / near);
                 camera._shaderValues.setVector(DepthPass.DEFINE_SHADOW_BIAS, DepthPass.SHADOW_BIAS);
-                // enableBlitDepth 模式: _depthTexture 是 _cacheDepthTexture (整个 RT),
-                // 需要传 depthStencilTexture (独立深度纹理) 给 shader, 避免 color 附件读写冲突
-                if (camera.canblitDepth && this._depthTexture && (this._depthTexture as any).depthStencilTexture) {
-                    camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, (this._depthTexture as any).depthStencilTexture);
-                } else {
-                    camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, this._depthTexture);
-                }
+                camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, this._depthTexture);
                 camera._shaderValues.setVector(DepthPass.DEPTHZBUFFERPARAMS, this._zBufferParams);
                 break;
             case DepthTextureMode.DepthNormals:
