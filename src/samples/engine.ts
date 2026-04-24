@@ -41,6 +41,18 @@ import { WasmAdapter } from "laya/utils/WasmAdapter";
 import "laya/Physics3D/Bullet/btPhysicsCreateUtil";
 import { Browser } from "laya/utils/Browser";
 import { Laya } from "Laya";
+import { Bridge3DCamera } from "laya/bridge/Bridge3DCamera";
+import { Scene } from "laya/display/Scene";
+import { Config, PlayerConfig } from "Config";
+import { SpineConst } from "laya/spine/SpineConst";
+import { BatchManager } from "laya/RenderDriver/RenderModuleData/WebModuleData/2D/BatchManager";
+import { BaseRender2DType } from "laya/display/SpriteConst";
+import { JSSpineFactory } from "laya/spine/web/JSSpineFactory";
+import { SpineAdapter } from "laya/spine/web/SpineAdapter";
+import { SpineInstanceBatch } from "laya/spine/web/base/2d/batch/SpineInstanceBatch";
+import { SpineNormalBatch } from "laya/spine/web/base/2d/batch/SpineNormalBatch";
+import { SpineNormalRenderUpdater } from "laya/spine/web/base/optimize/SpineNormalRenderUpdater";
+import { Bridge3DSceneInternal } from "laya/bridge/Bridge3DSceneInternal";
 
 //or Use physX physics engine
 //import "laya/Physics3D/PhysX/pxPhysicsCreateUtil";
@@ -48,6 +60,25 @@ import { Laya } from "Laya";
 (window as any).Laya = (window as any).Laya || {};
 (window as any).Laya.WasmAdapter = WasmAdapter;
 
-Laya.addBeforeInitCallback(() => {
-    return Browser.loadLib("jsLibs/laya.Box2D.wasm.js");
+// Laya.addBeforeInitCallback(() => {
+//     return Browser.loadLib("jsLibs/laya.Box2D.wasm.js");
+// });
+
+Scene.bridge3DInternalHandler = (scene) => new Bridge3DSceneInternal(scene);
+
+
+Laya.addInitCallback(() => {
+    Bridge3DCamera.__init__();
 });
+
+Laya.addAfterInitCallback(() => {
+    if (PlayerConfig.spineVersion)
+        SpineConst.VERSION = PlayerConfig.spineVersion;
+    SpineConst.factory = new JSSpineFactory();
+    SpineNormalRenderUpdater.__init__();
+    SpineAdapter.adaptJS();
+    if (SpineConst.ENABLE_WEB_BATCH) {
+        BatchManager.registerProvider(BaseRender2DType.spineSimple, SpineInstanceBatch);
+        BatchManager.registerProvider(BaseRender2DType.spinenormal, SpineNormalBatch);
+    }
+})
