@@ -8,6 +8,7 @@ import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
+import { LayaXReadbackDispatcher } from "./LayaXReadbackDispatcher";
 import { LayaXInternalRT } from "./LayaXInternalRT";
 import { LayaXInternalTex } from "./LayaXInternalTex";
 
@@ -145,15 +146,57 @@ export class LayaXTextureContext implements ITextureContext {
         return new LayaXInternalTex(this._native.createRenderTargetDepthTexture(renderTarget._nativeObj, dimension, width, height));
     }
 
-    /**
-     * @deprecated Use readRenderTargetPixelDataAsync instead
-     */
+    /** @deprecated 用 readRenderTargetPixelDataAsync */
     readRenderTargetPixelData(renderTarget: LayaXInternalRT, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView {
-        return this._native.readRenderTargetPixelData(renderTarget._nativeObj, xOffset, yOffset, width, height, out);
+        // FFI 是异步的，同步签名不再可用；保留接口防 NPE，真正读必须走 async API
+        return out;
     }
 
+    /**
+     * 异步回读 RT color attachment 像素到 `out`。
+     * 走 LayaXReadbackDispatcher 等 ReadbackCompleted 事件，不阻塞主线程。
+     * bpp 由 `out.byteLength / (w*h)` 推断；wgpu 行宽 256 对齐，回来按行 strip padding 拷贝到 `out`。
+     */
     readRenderTargetPixelDataAsync(renderTarget: LayaXInternalRT, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): Promise<ArrayBufferView> {
-        return Promise.resolve(this.readRenderTargetPixelData(renderTarget, xOffset, yOffset, width, height, out));
+        return new Promise<ArrayBufferView>((resolve, reject) => {
+            if (!renderTarget || !renderTarget._nativeObj || width <= 0 || height <= 0) {
+                reject(new Error("readRenderTargetPixelDataAsync: invalid args"));
+                return;
+            }
+            const pixelCount = width * height;
+            if (pixelCount <= 0 || out.byteLength % pixelCount !== 0) {
+                reject(new Error("readRenderTargetPixelDataAsync: out.byteLength not divisible by width*height"));
+                return;
+            }
+            const bpp = out.byteLength / pixelCount;
+            const unpaddedRow = width * bpp;
+            const paddedRow = (unpaddedRow + 255) & ~255;
+            const padded = new Uint8Array(paddedRow * height);
+
+            const id: number = this._native.readRenderTargetPixelData(
+                renderTarget._nativeObj, xOffset, yOffset, width, height, paddedRow, padded.buffer);
+            if (!id || id <= 0) {
+                reject(new Error("readRenderTargetPixelDataAsync: submit failed"));
+                return;
+            }
+
+            // 闭包持 padded/out 引用防 GC（FFI 只持裸指针）
+            LayaXReadbackDispatcher.register(
+                id,
+                () => {
+                    const dstU8 = new Uint8Array(out.buffer, out.byteOffset, out.byteLength);
+                    if (paddedRow === unpaddedRow) {
+                        dstU8.set(padded.subarray(0, unpaddedRow * height));
+                    } else {
+                        for (let row = 0; row < height; row++) {
+                            dstU8.set(padded.subarray(row * paddedRow, row * paddedRow + unpaddedRow), row * unpaddedRow);
+                        }
+                    }
+                    resolve(out);
+                },
+                (e) => reject(e),
+            );
+        });
     }
 
     updateVideoTexture(texture: LayaXInternalTex, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): void {
