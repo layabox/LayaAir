@@ -1434,7 +1434,7 @@ export class Loader extends EventDispatcher {
                     Loader.preLoadedMap[URL.formatURL(file)] = c;
                     break;
                 case 4: //url mapping
-                    URL.urlMapping[Utils.getBaseName(file)] = file;
+                    URL.urlMapping[Utils.getBaseName(file)] = c.br ? (file + ".br") : file;
                     break;
             }
         }
