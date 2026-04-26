@@ -155,7 +155,7 @@ export class MgBrowserAdapter extends BrowserAdapter {
 
         if (wasmGlobal) {
             if (!window.WebAssembly) //让WASM库以为支持WASM
-                (window as any).WebAssembly = {};
+                (window as any).WebAssembly = { Memory : wasmGlobal.Memory };
             WasmAdapter.Memory = wasmGlobal.Memory;
 
             WasmAdapter.instantiateWasm = (wasmFile: string, imports: any) => {
