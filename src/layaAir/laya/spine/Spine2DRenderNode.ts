@@ -429,8 +429,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (width < 1) width = 100;
         if (height < 1) height = 100;
 
-        this.owner.size(width, height);
-        this.owner.pivot(this._templet.offsetX, -this._templet.offsetY);
+        this.owner.size(Math.round(width), Math.round(height));
+        this.owner.pivot(Math.round(this._templet.offsetX), Math.round(-this._templet.offsetY));
     }
 
     /** @ignore @blueprintIgnore */
