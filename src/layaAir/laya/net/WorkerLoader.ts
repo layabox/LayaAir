@@ -62,6 +62,11 @@ export class WorkerLoader {
      * @return 返回解析后的加载图像。
      */
     static load(url: string, options: any): Promise<any> {
+        // Convert relative URL to absolute to avoid Worker resolving it relative to the worker script location
+        try {
+            url = new URL(url, document.baseURI).href;
+        } catch (e) {
+        }
         return new Promise((resolve, reject) => {
             WorkerLoader._worker.postMessage({ url, options });
             WorkerLoader._dispatcher.once(url, (data: any) => {
