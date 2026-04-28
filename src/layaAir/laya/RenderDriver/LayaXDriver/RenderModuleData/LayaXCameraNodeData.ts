@@ -67,4 +67,12 @@ export class LayaXCameraNodeData implements ICameraNodeData {
     syncProjection(): void {
         this._nativeObj.syncProjection();
     }
+
+    /** 释放 native camera entity（含 cascade shadow entities + cull bit slot）。 */
+    destroy(): void {
+        if (this._nativeObj) {
+            this._nativeObj.destroy();
+            this._nativeObj = null;
+        }
+    }
 }

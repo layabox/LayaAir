@@ -1518,6 +1518,10 @@ export class Camera extends BaseCamera {
         if (this._opaqueTexture) {
             RenderTexture.recoverToPool(this._opaqueTexture);
         }
+        // 释放 native cameraNode：缺这步会让 cull slot 不回收，跨场景切换 cull_bit 错位
+        if (this._renderDataModule && (this._renderDataModule as any).destroy) {
+            (this._renderDataModule as any).destroy();
+        }
         this._Render3DProcess.destroy();
         this.transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         ILaya.stage.off(Event.RESIZE, this, this._onScreenSizeChanged);
