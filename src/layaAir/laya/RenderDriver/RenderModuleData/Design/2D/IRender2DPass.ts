@@ -27,6 +27,7 @@ export interface IRender2DPass {
    needRender(): boolean;
    setClearColor(r: number, g: number, b: number, a: number): void;
    fowardRender(context: IRenderContext2D): void;
+   updatePostProcess(): void;
    destroy(): void;
 }
 

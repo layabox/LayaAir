@@ -11,6 +11,7 @@ import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderD
 import { I2DGraphicIndexDataView, I2DGraphicVertexDataView, I2DPrimitiveDataHandle, IGraphics2DBufferBlock, IGraphics2DVertexBlock } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
+import { WebRenderStruct2D } from "../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
@@ -36,6 +37,7 @@ import { BaseRender2DType, SpriteConst, TransformKind } from "../SpriteConst";
 import { SpriteGlobalTransform } from "../SpriteGlobaTransform";
 import { GraphicsRunner } from "./GraphicsRunner";
 import type { IGraphicsCmd } from "../IGraphics";
+import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 
 type GraphicBlockRecord = {
    index: number;
@@ -440,7 +442,8 @@ export class SubStructRender {
       subStruct.renderElements = this._renderElements;
 
       this._renderElement.owner = this._subStruct;
-      this._renderElement.type = this._subStruct.blendMode;
+      this._renderElement.typeKey = this._subStruct.blendMode;
+      this._renderElement.textureKey = 0;
    }
 
    /**
@@ -530,9 +533,9 @@ export class SubStructRender {
          return;
 
       if (destRT) {
-         this._renderElement.type = destRT._id << 6;
+         this._renderElement.textureKey = destRT._id << ShaderDefines2D.SHADER_DEFINE_BITS;
       } else {
-         this._renderElement.type = 0;
+         this._renderElement.textureKey = 0;
       }
       this._internalInfo.textureHost = destRT;
 

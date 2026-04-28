@@ -21,6 +21,7 @@ import { Timer } from "../utils/Timer";
 import { Tweener } from "../tween/Tweener";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Render2DProcessor } from "./Render2DProcessor";
+import { PostProcess2D } from "./PostProcess2D";
 import { Color } from "../maths/Color";
 import { PAL } from "../platform/PlatformAdapters";
 import { TextRenderConfig } from "../webgl/text/TextRenderConfig";
@@ -855,6 +856,7 @@ export class Stage extends Sprite {
         }
 
         this.passManager.apply(Render2DProcessor.rendercontext2D);
+        PostProcess2D.postRenderAll();
 
         this._graphicUpdateList.clear();
         this._subpassUpdateList.clear();

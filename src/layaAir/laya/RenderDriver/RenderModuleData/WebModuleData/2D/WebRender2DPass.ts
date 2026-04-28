@@ -493,6 +493,8 @@ export class WebRender2DPass implements IRender2DPass {
       this.shaderData.setVector3(ShaderDefines2D.UNIFORM_INVERTMAT_1, this._invertMat_1);
    }
 
+   updatePostProcess(): void { }
+
    destroy(): void {
       if (this.destroyed) {
          return;
