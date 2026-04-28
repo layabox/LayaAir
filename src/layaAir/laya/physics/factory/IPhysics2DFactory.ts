@@ -517,6 +517,12 @@ export interface IPhysics2DFactory {
 
     warpPoint(ins: any, type: Ebox2DType): any;
 
+    /**
+     * @internal
+     * 清理 Emscripten __cache__ 中指定对象的缓存条目
+     */
+    _cleanCache(obj: any): void;
+
     getContactShapeA(contact: any): any;
 
     getContactShapeB(contact: any): any;

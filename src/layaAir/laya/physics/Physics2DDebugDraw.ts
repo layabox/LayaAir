@@ -102,6 +102,8 @@ export class Physics2DDebugDraw {
 
         this._cmdDrawLineList.length = 0;
         this._cmdDrawMeshList.length = 0;
+        this._meshList.length = 0;
+        this._linePointsList.length = 0;
     }
 
     /**
@@ -250,10 +252,29 @@ export class Physics2DDebugDraw {
         Laya.timer.clear(this, this.render);
         this._cmdBuffer && this._cmdBuffer.clear(false);
         this._material && this._material.destroy();
-        this._material && (this._material = null);
-        this._cmdBuffer && (this._cmdBuffer = null);
-        this._cmdDrawLineList && (this._cmdDrawLineList.length = 0);
-        this._cmdDrawMeshList && (this._cmdDrawMeshList.length = 0);
+        this._material = null;
+        this._cmdBuffer = null;
+        // 清理未渲染的 mesh
+        if (this._meshList) {
+            for (let i = 0; i < this._meshList.length; i++) {
+                this._meshList[i].destroy();
+            }
+            this._meshList.length = 0;
+        }
+        // 回收未渲染的 CMD
+        if (this._cmdDrawMeshList) {
+            for (let i = 0; i < this._cmdDrawMeshList.length; i++) {
+                this._cmdDrawMeshList[i].recover();
+            }
+            this._cmdDrawMeshList.length = 0;
+        }
+        if (this._cmdDrawLineList) {
+            for (let i = 0; i < this._cmdDrawLineList.length; i++) {
+                this._cmdDrawLineList[i].recover();
+            }
+            this._cmdDrawLineList.length = 0;
+        }
+        this._linePointsList && (this._linePointsList.length = 0);
     }
 }
 

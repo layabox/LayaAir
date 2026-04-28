@@ -204,6 +204,11 @@ export class Physics2DShapeBase implements IClone {
         if (!this._box2DBody) return;
         if (this._box2DShape) {
             Physics2D.I._factory.destroyShape(this._physics2DManager.box2DWorld, this._box2DBody, this._box2DShape);
+            // Destroy the template b2Shape allocated in createShapeDef before destroying the b2FixtureDef
+            if (this._box2DShapeDef && this._box2DShapeDef._shape) {
+                Physics2D.I._factory.destroyData(this._box2DShapeDef._shape);
+                this._box2DShapeDef._shape = null;
+            }
             Physics2D.I._factory.destroyData(this._box2DShapeDef);
             this._box2DShape = null;
             this._box2DShapeDef = null;
@@ -275,6 +280,11 @@ export class Physics2DShapeBase implements IClone {
         if (!this._box2DBody || !this._box2DShape) return;
         Physics2D.I._factory.destroyShape(this._physics2DManager.box2DWorld, this._box2DBody, this._box2DShape);
         Physics2D.I._factory.destroyData(this._box2DFilter);
+        // Destroy the template b2Shape allocated in createShapeDef before destroying the b2FixtureDef
+        if (this._box2DShapeDef && this._box2DShapeDef._shape) {
+            Physics2D.I._factory.destroyData(this._box2DShapeDef._shape);
+            this._box2DShapeDef._shape = null;
+        }
         Physics2D.I._factory.destroyData(this._box2DShapeDef);
         this._box2DShape = null;
         this._box2DFilter = null;
