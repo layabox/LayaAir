@@ -126,9 +126,13 @@ export class Area2D extends Sprite {
 
     localToView(x: number, y: number, out?: Point): Point {
         out = out || new Point();
-        out.setTo(x, y);
-        this.localToGlobal(out);
-        this.transformPoint(out.x, out.y, out);
+        // Use globalTrans.localToGlobal (cached path) which includes Stage scale,
+        // producing pixel-space coordinates consistent with RenderState2D dimensions
+        // and the camera matrix. Sprite.localToGlobal stops before Stage, returning
+        // design-space coordinates that mismatch with the pixel-space camera transform.
+        let p = this.globalTrans.localToGlobal(x, y);
+        let px = p.x, py = p.y;
+        this.transformPoint(px, py, out);
         return out;
     }
 
