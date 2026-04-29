@@ -148,6 +148,42 @@ export enum EPhysics2DShape {
     EdgeShape,
 }
 
+/**
+ * @en Physics 2D contact object passed in collision event callbacks.
+ * @zh 碰撞事件回调中传入的 2D 物理接触对象。
+ */
+export interface IPhysics2DContact {
+    /**
+     * @en Get collision hit information including contact points, normal and separations.
+     * @zh 获取碰撞信息，包括接触点、法线和分离距离。
+     */
+    getHitInfo(): Physics2DContactHitResult;
+}
+
+/**
+ * @en Contact hit information returned by getHitInfo().
+ * @zh getHitInfo() 返回的碰撞接触信息。
+ */
+export class Physics2DContactHitResult {
+    /**
+     * @en The contact normal direction (unit vector, pointing from A to B).
+     * @zh 碰撞法线方向（单位向量，从碰撞体 A 指向碰撞体 B）。
+     */
+    normal: { x: number, y: number } = { x: 0, y: 0 };
+
+    /**
+     * @en The contact points in pixel coordinates (max 2 points for Box2D).
+     * @zh 碰撞接触点数组，像素坐标（Box2D 最多 2 个接触点）。
+     */
+    points: { x: number, y: number }[] = [];
+
+    /**
+     * @en The separation distances at each contact point (negative means overlap depth, in pixels).
+     * @zh 各接触点的分离距离（负值表示重叠深度，单位：像素）。
+     */
+    separations: number[] = [];
+}
+
 export class Physics2DHitResult {
 
     /**
@@ -526,6 +562,15 @@ export interface IPhysics2DFactory {
     getContactShapeA(contact: any): any;
 
     getContactShapeB(contact: any): any;
+
+    /**
+     * @en Get the world manifold of a contact, including contact points, normal and separations.
+     * @zh 获取碰撞的世界流形信息，包括接触点、法线和分离距离。
+     * @param contact The b2Contact object.
+     * @param result Output object to store the result.
+     * @returns The number of contact points.
+     */
+    getContactWorldManifold(contact: any, result: { normal: { x: number, y: number }, points: { x: number, y: number }[], separations: number[] }): number;
 
     createContactListener(): any;
 
