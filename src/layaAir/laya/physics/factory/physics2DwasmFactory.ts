@@ -1579,6 +1579,41 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         return contact.GetFixtureB();
     }
 
+    /** @internal 复用的 b2WorldManifold 对象 */
+    private _tempWorldManifold: any;
+
+    getContactWorldManifold(contact: any, result: { normal: { x: number, y: number }, points: { x: number, y: number }[], separations: number[] }): number {
+        if (!this._tempWorldManifold) {
+            this._tempWorldManifold = new this._box2d.b2WorldManifold();
+        }
+        let manifold = this._tempWorldManifold;
+        contact.GetWorldManifold(manifold);
+
+        let b2Manifold = contact.GetManifold();
+        let pointCount = b2Manifold.get_pointCount();
+
+        let normal = manifold.get_normal();
+        result.normal.x = normal.get_x();
+        result.normal.y = normal.get_y();
+
+        result.points.length = pointCount;
+        result.separations.length = pointCount;
+        for (let i = 0; i < pointCount; i++) {
+            let p = manifold.get_points(i);
+            if (!result.points[i]) {
+                result.points[i] = { x: 0, y: 0 };
+            }
+            result.points[i].x = p.get_x();
+            result.points[i].y = p.get_y();
+            result.separations[i] = manifold.get_separations(i);
+            this._cleanCache(p);
+        }
+
+        this._cleanCache(normal);
+        this._cleanCache(b2Manifold);
+        return pointCount;
+    }
+
     createContactListener(): any {
         let listener: any = new this._box2d.JSContactListener();
         return listener;
