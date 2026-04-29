@@ -1,7 +1,7 @@
 import { Scene } from "../display/Scene";
 import { Sprite } from "../display/Sprite";
 import { Vector2 } from "../maths/Vector2";
-import { EPhycis2DBlit, Ebox2DType, Physics2DHitResult, box2DWorldDef } from "./factory/IPhysics2DFactory";
+import { EPhycis2DBlit, Ebox2DType, Physics2DContactHitResult, Physics2DHitResult, box2DWorldDef } from "./factory/IPhysics2DFactory";
 import { Physics2D } from "./Physics2D";
 import { Physics2DDebugDraw } from "./Physics2DDebugDraw";
 import { Browser } from "../utils/Browser";
@@ -715,15 +715,17 @@ export class Physics2DWorldManager implements IElementComponentManager {
         let ownerA: any = colliderA.owner;
         let ownerB: any = colliderB.owner;
         let __this = this;
-        contact.getHitInfo = function (): any {
-            // TODO
-            // var manifold: any = __this._tempWorldManifold;
-            // this.GetWorldManifold(manifold);
-            // //第一点？
-            // let p: any = manifold.points;
-            // p.x = __this.phyToLayaValue(p.x);
-            // p.y = __this.phyToLayaValue(p.y);
-            // return manifold;
+        let _hitResult: Physics2DContactHitResult;
+        contact.getHitInfo = function (): Physics2DContactHitResult {
+            if (!_hitResult) _hitResult = new Physics2DContactHitResult();
+            let pointCount = Physics2D.I._factory.getContactWorldManifold(contact, _hitResult);
+            // 将接触点从物理坐标转换为像素坐标（法线是单位向量，不需要转换）
+            for (let i = 0; i < pointCount; i++) {
+                _hitResult.points[i].x = __this.physics2DToLaya(_hitResult.points[i].x);
+                _hitResult.points[i].y = __this.physics2DToLaya(_hitResult.points[i].y);
+                _hitResult.separations[i] = __this.physics2DToLaya(_hitResult.separations[i]);
+            }
+            return _hitResult;
         }
         if (ownerA) {
             var args: any[] = [colliderB, colliderA, contact];
