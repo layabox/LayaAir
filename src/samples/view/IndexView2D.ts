@@ -130,9 +130,6 @@ import { Config } from "Config";
 import { Line2DRenderDemo } from "../2d/Line2DRenderDemo";
 import { Camera2DDemo } from "../2d/Camera2DDemo";
 import { Light2DDemo } from "../2d/Light2DDemo";
-import { Light2DCameraFollowDemo } from "../2d/Light2DCameraFollowDemo";
-import { Light2DCameraResizeDemo } from "../2d/Light2DCameraResizeDemo";
-import { Light2DCameraSmoothDemo } from "../2d/Light2DCameraSmoothDemo";
 import { Mesh2DRenderDemo } from "../2d/Mesh2DRenderDemo";
 import { Trail2DRenderDemo } from "../2d/Trail2DRenderDemo";
 import { TileMapLayerDemo } from "../2d/TileMapLayerDemo";
@@ -281,8 +278,8 @@ export class IndexView2D extends IndexViewUI {
     /************************HitTest-end***************************/
 
     /************************Camera2D-start***************************/
-    private _comboBoxCamera2DClsArr: any[] = [Camera2DDemo, Camera2D_Layer, Light2DCameraFollowDemo, Light2DCameraResizeDemo, Light2DCameraSmoothDemo];
-    private _comboBoxCamera2DArr: any[] = ['2D相机', "2D相机层级", '2D相机-灯光跟随', '2D相机-视口Resize灯光', '2D相机-平滑灯光']
+    private _comboBoxCamera2DClsArr: any[] = [Camera2DDemo, Camera2D_Layer];
+    private _comboBoxCamera2DArr: any[] = ['2D相机', "2D相机层级"]
     /************************Camera2D-end***************************/
 
     /************************Render2D-start***************************/
