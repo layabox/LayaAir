@@ -12,8 +12,10 @@ export class CurvePath {
     private _curPt: Vector3;
     private _parPos: Vector3;
     private _parPosCatch: Vector3;
+
     /**
-    * 0或者null为不旋转，1为沿路径曲线路径旋转，2为沿运动路径旋转
+    * @en 0 or null for no rotation, 1 for rotating along the path curve, 2 for rotating along the motion path
+    * @zh 0或者null为不旋转，1为沿路径曲线路径旋转，2为沿运动路径旋转
     */
     rotationType: RotationType;
 
@@ -31,7 +33,6 @@ export class CurvePath {
     get length(): number {
         return this._fullLength;
     }
-    is2D: boolean;
 
     /**
      * @en Create a curve.
@@ -65,6 +66,7 @@ export class CurvePath {
             if (prev.curve != CurveType.CRSpline) {
                 let seg: Segment = {};
                 seg.type = prev.curve;
+                seg.smooth = prev.smooth;
                 seg.ptStart = pts.length;
                 if (prev.curve == CurveType.Straight) {
                     seg.ptCount = 2;
@@ -105,9 +107,6 @@ export class CurvePath {
 
         if (splinePoints.length > 1)
             this.createSplineSegment(splinePoints);
-
-        // 自动检测是否为2D曲线（所有点的z分量都接近0）
-        this.is2D = this._points.every(pt => Math.abs(pt.z) < 0.0001);
     }
 
     /**
@@ -168,12 +167,14 @@ export class CurvePath {
         this._segments.length = 0;
         this._points.length = 0;
     }
+
     /**
      * @en Get the rotation (tangent direction) on the curve at the specified distance.
      * Automatically detects 2D/3D data and returns appropriate rotation format.
      * For 2D data (z=0), returns Vector3(0, 0, rotationAngle).
      * For 3D data, returns Vector3(pitch, yaw, roll).
      * @param t Distance value. It should be a value between 0 and 1.
+     * @param is2D Whether the curve is 2D. If true, the method will return rotation in 2D format. If false, it will return rotation in 3D format.
      * @param out Optional output Vector3 to store the result. If not provided, a new Vector3 will be created.
      * @returns The rotation angles in degrees representing the tangent direction at the specified point.
      * @zh 获取曲线上指定距离点的旋转角度（切线方向）。
@@ -181,13 +182,14 @@ export class CurvePath {
      * 对于2D数据（z=0），返回Vector3(0, 0, 旋转角度)。
      * 对于3D数据，返回Vector3(俯仰角, 偏航角, 滚转角)。
      * @param t 距离值，它应该是0到1之间的值。
+     * @param is2D 曲线是否为2D。如果为true，方法将返回2D格式的旋转；如果为false，将返回3D格式的旋转。
      * @param out 可选的输出Vector3用于存储结果。如果未提供，将创建新的Vector3。
      * @returns 表示指定点切线方向的旋转角度（度）。
      */
-    getRotationAt(t: number, out?: Vector3): Vector3 {
+    getRotationAt(t: number, is2D?: boolean, out?: Vector3): Vector3 {
         if (!this.rotationType) return null;
         if (RotationType.RotateAlongMotionPath === this.rotationType) {
-            const ret = CurvePath.getRotation(this._parPos, this._curPt);
+            const ret = getRotation(this._parPos, this._curPt);
             if (!this._parPos) {
                 this._parPos = this._parPosCatch;
             }
@@ -233,7 +235,7 @@ export class CurvePath {
         }
 
         // 将切线向量转换为欧拉角（以度为单位），自动检测2D/3D
-        this.tangentToEulerAngles(tangent, out);
+        this.tangentToEulerAngles(tangent, out, is2D);
         return out;
     }
 
@@ -251,8 +253,8 @@ export class CurvePath {
      * @param tangent 归一化的切线向量。
      * @param out 输出Vector3存储欧拉角（x, y, z），单位为度。
      */
-    private tangentToEulerAngles(tangent: Vector3, out: Vector3): void {
-        if (this.is2D) {
+    private tangentToEulerAngles(tangent: Vector3, out: Vector3, is2D: boolean): void {
+        if (is2D) {
             // 2D情况：返回Vector3(0, 0, 旋转角度)
             // 计算XY平面的旋转角度
             let rotationAngle = Math.atan2(tangent.y, tangent.x) * 180 / Math.PI;
@@ -624,38 +626,39 @@ export class CurvePath {
 
         return out;
     }
-    static getRotation(parPos: Vector3, currPos: Vector3): Vector3 {
-        if (!parPos) return null;
-        // 计算从父位置到当前位置的方向向量
-        let direction = new Vector3();
-        Vector3.subtract(currPos, parPos, direction);
+}
 
-        // 检查是否为2D情况（z分量接近0）
-        const epsilon = 0.0001;
-        const is2D = Math.abs(direction.z) < epsilon;
+function getRotation(parPos: Vector3, currPos: Vector3): Vector3 {
+    if (!parPos) return null;
+    // 计算从父位置到当前位置的方向向量
+    let direction = new Vector3();
+    Vector3.subtract(currPos, parPos, direction);
 
-        if (is2D) {
-            // 2D情况：返回Vector3(0, 0, 旋转角度)
-            // 计算XY平面的旋转角度（以度为单位）
-            let rotationAngle = Math.atan2(direction.y, direction.x) * 180 / Math.PI;
-            return new Vector3(0, 0, rotationAngle);
-        } else {
-            // 3D情况：计算完整的欧拉角
-            // 归一化方向向量
-            Vector3.normalize(direction, direction);
+    // 检查是否为2D情况（z分量接近0）
+    const epsilon = 0.0001;
+    const is2D = Math.abs(direction.z) < epsilon;
 
-            // 计算绕Y轴的旋转（Yaw）- 水平方向
-            let yaw = Math.atan2(direction.x, direction.z) * 180 / Math.PI;
+    if (is2D) {
+        // 2D情况：返回Vector3(0, 0, 旋转角度)
+        // 计算XY平面的旋转角度（以度为单位）
+        let rotationAngle = Math.atan2(direction.y, direction.x) * 180 / Math.PI;
+        return new Vector3(0, 0, rotationAngle);
+    } else {
+        // 3D情况：计算完整的欧拉角
+        // 归一化方向向量getRotation
+        Vector3.normalize(direction, direction);
 
-            // 计算绕X轴的旋转（Pitch）- 垂直方向
-            let horizontalLength = Math.sqrt(direction.x * direction.x + direction.z * direction.z);
-            let pitch = Math.atan2(-direction.y, horizontalLength) * 180 / Math.PI;
+        // 计算绕Y轴的旋转（Yaw）- 水平方向
+        let yaw = Math.atan2(direction.x, direction.z) * 180 / Math.PI;
 
-            // Roll通常为0，因为方向向量本身不包含绕前进方向的旋转信息
-            let roll = 0;
+        // 计算绕X轴的旋转（Pitch）- 垂直方向
+        let horizontalLength = Math.sqrt(direction.x * direction.x + direction.z * direction.z);
+        let pitch = Math.atan2(-direction.y, horizontalLength) * 180 / Math.PI;
 
-            return new Vector3(pitch, yaw, roll);
-        }
+        // Roll通常为0，因为方向向量本身不包含绕前进方向的旋转信息
+        let roll = 0;
+
+        return new Vector3(pitch, yaw, roll);
     }
 }
 
@@ -669,4 +672,5 @@ interface Segment {
     length?: number;
     ptStart?: number;
     ptCount?: number;
+    smooth?: boolean;
 }

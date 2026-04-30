@@ -20,8 +20,7 @@ export class PathPointKeyframe extends Keyframe {
         if (!destObject.value) {
             destObject.value = new CurvePath();
         }
-        destObject.value.is2D = this.value.is2D;
-        console.warn("暂时不支持PathPointKeyframe的数据克隆");
+        console.warn("PathPointKeyframe.cloneTo() not implemented yet.");
         // const srcPoints = this.value.srcPoints;
         // if (srcPoints)
         //     destObject.value.create(...srcPoints);
