@@ -6,7 +6,7 @@ import { Transform3D } from "../../d3/core/Transform3D";
 import { IndexBuffer3D } from "../../d3/graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../d3/graphics/VertexBuffer3D";
 import { Bounds } from "../../d3/math/Bounds";
-import { Rand } from "../../d3/math/Rand";
+import { Rand } from "../../maths/Rand";
 import { Laya3DRender } from "../../d3/RenderObjs/Laya3DRender";
 import { Mesh } from "../../d3/resource/models/Mesh";
 import { SerializeUtil } from "../../loaders/SerializeUtil";

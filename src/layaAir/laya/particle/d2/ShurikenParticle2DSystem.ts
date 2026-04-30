@@ -1,7 +1,7 @@
 // ShurikenParticle2DSystem
 
 import { Sprite } from "../../display/Sprite";
-import { Rand } from "../../d3/math/Rand";
+import { Rand } from "../../maths/Rand";
 import { Point } from "../../maths/Point";
 import { Vector4 } from "../../maths/Vector4";
 import { ClassUtils } from "../../utils/ClassUtils";
