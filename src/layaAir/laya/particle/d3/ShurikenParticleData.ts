@@ -1,5 +1,5 @@
 
-import { Rand } from "../../d3/math/Rand";
+import { Rand } from "../../maths/Rand";
 import { MathUtil } from "../../maths/MathUtil";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";

@@ -126,7 +126,6 @@ export class StaticCollider extends ColliderBase {
         this._box2DFilter = null;
         this._box2DShape = null;
         this._box2DShapeDef = null;
-        this._shapes = null;
     }
 
     protected _onDisable(): void {
@@ -139,6 +138,7 @@ export class StaticCollider extends ColliderBase {
     protected _onDestroy(): void {
         this._shapeDef = null;
         this._removeShapeAndDestroyData();
+        this._shapes = null;
         super._onDestroy();
     }
 
