@@ -230,6 +230,7 @@ export class ComboBox extends UIComponent {
 
                 this._list.pos(p.x, py);
                 this._list.zOrder = 1001;
+                this._list.zIndex = 1001;
 
                 ILaya.stage.addChild(this._list);
                 //Laya.stage.once(Event.MOUSE_DOWN, this, removeList);
