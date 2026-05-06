@@ -1212,7 +1212,7 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @returns 生成或更新后的网格对象。
     */
     private _makeOrUpdateMesh(vertices: Float32Array, indices: Uint16Array, mesh?: Mesh2D) {
-        if (mesh) {
+        if (mesh && !mesh.destroyed) {
             const idx = mesh.getIndices();
             const ver = mesh.getVertices()[0];
             if (Light2DManager.REUSE_MESH
@@ -1226,7 +1226,9 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             } else this._needToRecover.push(mesh); //mesh不可以复用，回收
         }
         const declaration = VertexMesh2D.getVertexDeclaration(['POSITION,UV'], false)[0];
-        return Mesh2D.createMesh2DByPrimitive([vertices], [declaration], indices, IndexFormat.UInt16, [{ length: indices.length, start: 0 }], true);
+        const newMesh = Mesh2D.createMesh2DByPrimitive([vertices], [declaration], indices, IndexFormat.UInt16, [{ length: indices.length, start: 0 }], true);
+        newMesh._addReference();
+        return newMesh;
     }
 
     /**
