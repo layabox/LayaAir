@@ -96,7 +96,7 @@ export class NoRender2DProcess implements I2DRenderPassFactory {
         return new NoRenderElement2D()
     }
     createPrimitiveRenderElement2D(): IPrimitiveRenderElement2D {
-        return new NoRenderElement2D();
+        return null;
     }
     createRenderContext2D(): IRenderContext2D {
         return new NoRenderContext2D();
@@ -261,7 +261,7 @@ export class NoRenderGraphics2DBufferBlock implements IGraphics2DBufferBlock {
 
 export class NoRenderRender2DPass implements IRender2DPass {
     updatePostProcess(): void {
-       
+
     }
     enable: boolean = false;
     enableBatch: boolean = false;
@@ -298,6 +298,7 @@ export class NoRenderRender2DPassManager implements IRender2DPassManager {
 }
 
 export class NoRenderRenderStruct2D implements IRenderStruct2D {
+    manualRender: boolean;
     subStruct: IRenderStruct2D;
     owner: Sprite;
     zIndex: number = 0;

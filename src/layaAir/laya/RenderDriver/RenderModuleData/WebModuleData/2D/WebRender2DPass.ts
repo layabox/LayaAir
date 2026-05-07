@@ -173,7 +173,7 @@ export class WebRender2DPass implements IRender2DPass {
       let renderStruct = (struct.subStruct && struct !== this.root) ? struct.subStruct : struct;
 
       // manualRender 模式：完全跳过此节点及所有子节点
-      if (renderStruct.manualRender) return;
+    //  if (renderStruct.manualRender) return;
 
       renderStruct._handleInterData();
       //这里进入process2D的排序  并不帧判断

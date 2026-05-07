@@ -334,7 +334,7 @@ export class WebBridge3DRenderProcess implements IBridge3DRenderProcess {
         this._hasShaderClip = false;
         const ownerStruct = bridge3DElement.owner as WebRenderStruct2D;
         if (ownerStruct && typeof ownerStruct.getClipInfo === 'function') {
-            if (ownerStruct.hasClip()) {
+            if ((ownerStruct as any).hasClip()) {
                 const info = ownerStruct.getClipInfo();
                 const clipReuse =
                     bridge3DElement._clipCacheValid &&
