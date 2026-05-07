@@ -104,12 +104,17 @@ export class LayaXBridge3DContext {
 		// Not used on LayaX native
 	}
 
+	private _invertY: boolean = false;
+
 	get invertY(): boolean {
-		return false; // Not used on LayaX native
+		return this._invertY;
 	}
 
 	set invertY(value: boolean) {
-		// Not used on LayaX native
+		if (this._invertY !== value) {
+			this._invertY = value;
+			this._nativeObj.setInvertY(value);
+		}
 	}
 
 	get sceneModuleData(): ISceneNodeData {

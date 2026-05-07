@@ -108,7 +108,10 @@ export class LayaXBridge3DRenderProcess implements IBridge3DRenderProcess {
 		(<LayaXCameraNodeData>camera._renderDataModule).syncProjection();
 
 		// 2. Bridge3D context 准备（单次 C++ 调用）
-		(scene.bridge3DContext as LayaXBridge3DContext).prepareForRender(camera, context3d);
+		// 同步 invertY 给 Rust pipeline，使其与投影矩阵 Y=-1 翻转配对，补偿 frontFace 绕序
+		const bridge3DContext = scene.bridge3DContext as LayaXBridge3DContext;
+		bridge3DContext.invertY = context3d.invertY;
+		bridge3DContext.prepareForRender(camera, context3d);
 
 		// 3. 将 context3d 传递给每个元素的 C++ 端，供 _render 时使用
 		const nativeCtx3d = (context3d as any)._nativeObj;
