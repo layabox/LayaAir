@@ -261,6 +261,7 @@ class WebGLBatchContext extends BaseBatchContext {
         if (this.textureId === 0 && elementTexId !== 0) {
             this.textureId = elementTexId;
             this.primitiveShaderData = element.primitiveShaderData;
+            this.textureKey = element.textureKey;
         }
 
         return true;
@@ -340,6 +341,7 @@ class WebGPUBatchContext extends BaseBatchContext {
         if (this.textureId === 0 && elementTexId !== 0) {
             this.textureId = elementTexId;
             this.primitiveShaderData = (element as any)._primitiveShaderData;
+            this.textureKey = element.textureKey;
         }
 
         return true;
