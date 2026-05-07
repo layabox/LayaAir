@@ -2036,6 +2036,13 @@ export class Sprite extends Node {
         return !!(this._repaint & SpriteConst.REPAINT_CACHE);
     }
 
+    protected override _onInActive() {
+        super._onInActive();
+        if (this._getCacheStyle().renderTexture) {
+            this.repaint();
+        }
+    }
+
     /**
     * @en Callback when a child node changes.
     * @param child The child node that has changed.
