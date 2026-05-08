@@ -18,6 +18,7 @@ import { SingletonList } from "../utils/SingletonList";
 import { Bridge3DRenderElement } from "./render/Bridge3DRenderElement";
 import { IBridge3DRenderProcess } from "./render/IBridge3DRenderProcess";
 import { LayaXBridge3DRenderElement } from "./render/LayaXBridge3DRenderElement";
+import { RTBridge3DRenderElement } from "./render/RTBridge3DRenderElement";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { Bridge3DCoordinate } from "./utils/Bridge3DCoordinate";
 import { Bridge3DData } from "./Bridge3DData";
@@ -49,8 +50,10 @@ export class Bridge3DSprite extends Sprite {
     static readonly defaultPixelsPerUnit = 10;
 
     static createBridge3DRenderElement(): IBridgeRenderElement {
-        if (LayaEnv.isConch) {
+        if (LayaEnv.isLayaX) {
             return new LayaXBridge3DRenderElement();
+        } else if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {
+            return new RTBridge3DRenderElement();
         } else {
             return new Bridge3DRenderElement();
         }
