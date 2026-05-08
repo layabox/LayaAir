@@ -78,7 +78,7 @@ export class Bridge3DPBRMaterial {
 
         // 设置相机 Z 距离
         // 球体矩阵宽约 5*SPACING=325px，高约 4*SPACING=260px，需足够远才能全部入镜
-        (this.scene2D.bridge3DInternal.scene3d as any)._applyCameraZDistance(600);
+        (this.scene2D.bridge3DInternal.scene3d as Bridge3DScene3D).applyCameraZDistance(600);
 
         // 添加方向光提供基础漫反射
         this.createDirectionLight();

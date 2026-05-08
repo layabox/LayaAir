@@ -22,6 +22,7 @@ import { Event } from "laya/events/Event";
 import { Main } from "../../Main";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { Script } from "laya/components/Script";
+import { Bridge3DSceneInternal } from "laya/bridge/Bridge3DSceneInternal";
 
 class HueRotationScript extends Script {
     colorFilter: ColorFilter;
@@ -64,8 +65,9 @@ export class Bridge3DPostProcessTest {
 
     private setupGlobalLight(): void {
         // Add a utility bridge to trigger scene3d creation
-        const initBridge = new Bridge3DSprite();
-        this.scene2D.addChild(initBridge);
+        // const initBridge = new Bridge3DSprite();
+        // this.scene2D.addChild(initBridge);
+        (this.scene2D.bridge3DInternal as Bridge3DSceneInternal).initScene3D();
         this.scene2D.bridge3DInternal.scene3d.ambientColor = new Color(0.4, 0.4, 0.4, 1);
     }
 
