@@ -6,6 +6,8 @@ import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderD
 import spine3DVertex from "./files/Spine3DVertex.glsl";
 import spine3DVS from "./files/Spine3D.vs";
 import spine3DFS from "./files/Spine3D.fs";
+import spine3DDepthVS from "./files/Spine3DDepth.vs";
+import DepthFS from "../../d3/shader/depth/Depth.fs";
 import { SpineShaderInit } from "./SpineShaderInit";
 
 /**
@@ -56,5 +58,6 @@ export class Spine3DShaderInit {
         let subShader3D = new SubShader(SpineShaderInit.textureSpineAttribute, uniformMap3D);
         shader3D.addSubShader(subShader3D);
         let shadingPass3D = subShader3D.addShaderPass(spine3DVS, spine3DFS);
+        let shadowPass3D = subShader3D.addShaderPass(spine3DDepthVS, DepthFS, "ShadowCaster");
     }
 }
