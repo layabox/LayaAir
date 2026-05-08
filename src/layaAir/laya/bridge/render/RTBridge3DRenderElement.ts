@@ -20,7 +20,18 @@ import { RTBridge3DContext } from "./RTBridge3DContext";
 export class RTBridge3DRenderElement implements IBridgeRenderElement {
     // IRenderElement2D interface properties
     type: number = 0;
-    geometry: IRenderGeometryElement = null;
+
+    // geometry：需要同步到 native (C++ 基类 GLESRenderElement2D 通过 setGeometry 接收)。
+    // 普通字段赋值不会触发 FFI，导致 C++ 端 geometry 保持 nullptr，故改用 getter/setter。
+    private _geometry: IRenderGeometryElement = null;
+    set geometry(v: IRenderGeometryElement) {
+        this._geometry = v;
+        this._nativeObj.setGeometry(v ? (v as any)._nativeObj : null);
+    }
+    get geometry(): IRenderGeometryElement {
+        return this._geometry;
+    }
+
     materialShaderData: ShaderData = null;
     value2DShaderData: ShaderData = null;
     globalShaderData: ShaderData = null;
@@ -129,13 +140,13 @@ export class RTBridge3DRenderElement implements IBridgeRenderElement {
         this._transparentList = null;
         this._bridge3DContext = null;
         this._renderProcess = null; // 只清理引用，不销毁（由Bridge3DCamera管理）
-        this._nativeObj?.destroy();
-        this._nativeObj = null;
         this._owner = null;
         this.geometry = null;
         this.materialShaderData = null;
         this.value2DShaderData = null;
         this.globalShaderData = null;
         this.subShader = null;
+        this._nativeObj?.destroy();
+        this._nativeObj = null;
     }
 }
