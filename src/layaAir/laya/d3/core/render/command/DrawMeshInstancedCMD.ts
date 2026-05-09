@@ -177,7 +177,12 @@ export class DrawMeshInstancedCMD extends Command {
             for (let i = 0, n = submeshs.length; i < n; i++) {
                 let element = this._instanceRenderElementArray[i] = this._instanceRenderElementArray[i] ? this._instanceRenderElementArray[i] : new RenderElement();
 
-                let geometry = this._instanceGeometryArray[i] = this._instanceGeometryArray[i] ? this._instanceGeometryArray[i] : new MeshInstanceGeometry(submeshs[i]);
+                let geometry = this._instanceGeometryArray[i];
+                if (geometry) {
+                    geometry.subMesh = submeshs[i];
+                } else {
+                    geometry = this._instanceGeometryArray[i] = new MeshInstanceGeometry(submeshs[i]);
+                }
                 geometry.bufferState = this._instanceBufferState;
                 geometry.instanceCount = this._drawnums;
 
@@ -185,17 +190,19 @@ export class DrawMeshInstancedCMD extends Command {
 
                 element.transform = this._transform;
                 element.material = this._material;
-                // element.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
                 element._subShaderIndex = this._subShaderIndex;
                 element.render = this._render;
                 element._renderElementOBJ.owner = this._render._baseRenderNode;
-
-
             }
         } else {
             let element = this._instanceRenderElementArray[0] = this._instanceRenderElementArray[0] ? this._instanceRenderElementArray[0] : new RenderElement();
 
-            let geometry = this._instanceGeometryArray[0] = this._instanceGeometryArray[0] ? this._instanceGeometryArray[0] : new MeshInstanceGeometry(submeshs[this._subMeshIndex]);
+            let geometry = this._instanceGeometryArray[0];
+            if (geometry) {
+                geometry.subMesh = submeshs[this._subMeshIndex];
+            } else {
+                geometry = this._instanceGeometryArray[0] = new MeshInstanceGeometry(submeshs[this._subMeshIndex]);
+            }
             geometry.bufferState = this._instanceBufferState;
             geometry.instanceCount = this._drawnums;
             element.setGeometry(geometry);
@@ -203,10 +210,8 @@ export class DrawMeshInstancedCMD extends Command {
             element.transform = this._transform;
             element.material = this._material;
             element.render = this._render;
-            //element.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
 
-            element._renderElementOBJ.owner = this._render._baseRenderNode
-
+            element._renderElementOBJ.owner = this._render._baseRenderNode;
         }
     }
 
@@ -356,13 +361,8 @@ export class DrawMeshInstancedCMD extends Command {
         this._material = null;
         this._instanceBufferState.destroy();
         this._instanceBufferState = null;
-        delete this._instanceRenderElementArray;
-        this._instanceRenderElementArray = [];
-        delete this._instanceGeometryArray;
-        this._instanceGeometryArray = [];
         this._drawElementCMDData.setRenderelements([]);
         this.mesh = null;
-
     }
 
     /**
@@ -376,10 +376,21 @@ export class DrawMeshInstancedCMD extends Command {
         this._material = null;
         this._instanceBufferState.destroy();
         this._instanceBufferState = null;
-        delete this._instanceRenderElementArray;
-        this._instanceRenderElementArray = [];
-        delete this._instanceGeometryArray;
-        this._instanceGeometryArray = [];
+        for (let i = 0, n = this._instanceRenderElementArray.length; i < n; i++) {
+            let element = this._instanceRenderElementArray[i];
+            if (element) {
+                element._renderElementOBJ.destroy();
+                element.destroy();
+            }
+        }
+        this._instanceRenderElementArray.length = 0;
+        for (let i = 0, n = this._instanceGeometryArray.length; i < n; i++) {
+            let geometry = this._instanceGeometryArray[i];
+            if (geometry) {
+                geometry.destroy();
+            }
+        }
+        this._instanceGeometryArray.length = 0;
         this.mesh = null;
     }
 

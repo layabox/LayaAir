@@ -329,7 +329,14 @@ export class Sprite extends Node {
         }
 
         this.setGraphics(null);
-        this._struct = null;
+        if (this._struct) {
+            this._struct.destroy();
+            this._struct = null;
+        }
+        if (this._globalTrans) {
+            this._globalTrans.destroy();
+            this._globalTrans = null;
+        }
     }
 
     /**
