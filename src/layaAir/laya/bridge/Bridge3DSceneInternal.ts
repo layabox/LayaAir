@@ -1,5 +1,5 @@
 import { ILaya } from "../../ILaya";
-import { Scene } from "../display/Scene";
+import { IBridge3DSceneInternal, Scene } from "../display/Scene";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { ClassUtils } from "../utils/ClassUtils";
 import { Bridge3DScene3D } from "./Bridge3DScene3D";
@@ -10,9 +10,8 @@ import { Bridge3DSprite, IBridgeRenderElement } from "./Bridge3DSprite";
  * This is an internal class held by Scene._bridge3DInternal, NOT serialized.
  *
  * It reads configuration from Scene.bridge3D (the data holder).
- * @internal
  */
-export class Bridge3DSceneInternal {
+export class Bridge3DSceneInternal implements IBridge3DSceneInternal{
     /** @internal */
     _scene2D: Scene;
     /** @internal */
@@ -29,9 +28,6 @@ export class Bridge3DSceneInternal {
     _onAdded(){
         // Add to stage if needed
         if (!this._isAddedToStage && this._bridge3DList.length > 0) {
-            if (!this._scene3d) {
-                this.finalizeSetup();
-            }
             ILaya.stage.addChild(this._scene3d);
             this._isAddedToStage = true;
         }
@@ -70,16 +66,21 @@ export class Bridge3DSceneInternal {
     }
 
     /**
-     * @en Explicitly create Bridge3DScene3D (idempotent).
-     * @zh 显式创建 Bridge3DScene3D（幂等）。
+     * @en Create Bridge3DScene3D and apply initial settings from the holder (idempotent).
+     * Camera intrinsics are set inside Bridge3DScene3D's constructor; here we only
+     * forward the data-driven scene3dSettings / cameraSettings.
+     * @zh 创建 Bridge3DScene3D 并套用 holder 的初始配置（幂等）。
+     * 相机内参已在 Bridge3DScene3D 构造中完成，此处仅下发数据层的 scene3dSettings / cameraSettings。
      */
     initScene3D(): Bridge3DScene3D {
         if (!this._scene3d) {
-            const holder = this._scene2D.bridge3D;
             this._scene3d = new Bridge3DScene3D(this);
             this._scene3d._scene2D = this._scene2D;
+
+            const holder = this._scene2D.bridge3D;
             if (holder) {
-                this._scene3d._applyCameraZDistance(holder.cameraZDistance);
+                this._applySettingsTo(this._scene3d, holder.scene3dSettings);
+                this._applySettingsTo(this._scene3d.sharedCamera, holder.cameraSettings);
             }
         }
         return this._scene3d;
@@ -120,35 +121,29 @@ export class Bridge3DSceneInternal {
         }
         this._bridge3DList.push(bridge);
 
-        // During deserialization, only add to list; scene3d will be set up later
-        if (SerializeUtil.isDeserializing || !this._scene2D.displayedInStage) return;
-
+        // Ensure scene3d exists and reparent the container into it (with render element hookup).
         const scene3d = this.initScene3D();
 
-        // Add to stage if needed
+        if (bridge.containerSprite3D.parent !== scene3d) {
+            bridge.containerSprite3D.removeSelf();
+            scene3d.addChild(bridge.containerSprite3D);
+
+            // Register render element to process
+            const element = bridge.bridge3DRenderElement as IBridgeRenderElement;
+            if (element) {
+                const process = scene3d.sharedCamera.bridge3DRenderProcess;
+                element.setBridge3DContext(scene3d.bridge3DContext);
+                element.setRenderProcess(process);
+                process.addBridgeElement(element);
+            }
+        }
+
+        // Defer attaching scene3d to the stage during deserialization or before the scene is displayed;
+        // _onAdded will perform the attach once the scene is added to the stage.
+        if (SerializeUtil.isDeserializing || !this._scene2D.displayedInStage) return;
         if (!this._isAddedToStage && this._bridge3DList.length > 0) {
             ILaya.stage.addChild(scene3d);
             this._isAddedToStage = true;
-        }
-
-        // Avoid duplicate addChild
-        if (bridge.containerSprite3D.parent !== scene3d) {
-            scene3d.addChild(bridge.containerSprite3D);
-        }
-
-        // First time camera initialization
-        if (!scene3d._cameraInitialized) {
-            scene3d.setupCamera();
-            scene3d._cameraInitialized = true;
-        }
-
-        // Register render element to process
-        const element = bridge.bridge3DRenderElement as IBridgeRenderElement;
-        if (element) {
-            const process = scene3d.sharedCamera.bridge3DRenderProcess;
-            element.setBridge3DContext(scene3d.bridge3DContext);
-            element.setRenderProcess(process);
-            process.addBridgeElement(element);
         }
     }
 
@@ -186,8 +181,8 @@ export class Bridge3DSceneInternal {
     applyData(data: any): void {
         if (!this._scene3d) return;
         if (data) {
-            this._scene3d._applyCameraZDistance(data.cameraZDistance);
-            this._scene3d._applyCameraFarPlane(data.cameraFarPlane);
+            this._scene3d.applyCameraZDistance(data.cameraZDistance);
+            this._scene3d.applyCameraFarPlane(data.cameraFarPlane);
             // 编辑器的 forwarding proxy 带有 _applyCache，跳过（proxy 直接读写 scene3d）
             // 运行时原始数据 Record 没有 _applyCache，正常 apply
             const s3d = data.scene3dSettings;
@@ -199,51 +194,28 @@ export class Bridge3DSceneInternal {
                 this._applySettingsTo(this._scene3d.sharedCamera, cam);
             }
         } else {
-            this._scene3d._applyCameraZDistance(100);
-            this._scene3d._applyCameraFarPlane(1000);
+            this._scene3d.applyCameraZDistance(100);
+            this._scene3d.applyCameraFarPlane(1000);
         }
     }
 
     /**
-     * @en Finalize scene3d setup: apply settings, add to stage, setup camera, register render elements.
-     * Called by Scene.onAfterDeserialize after bridge3D data and bridges are ready.
-     * @zh 完成 scene3d 初始化：应用配置、添加到 stage、初始化相机、注册渲染元素。
+     * @en Re-apply holder settings after deserialization, once bridge3D data is fully populated.
+     * Called by Scene.onAfterDeserialize. Scene3D creation, camera intrinsics and bridge
+     * registration already happened inside registerBridge3D / initScene3D — this is only a
+     * final data-apply pass to cover the case where holder data arrives after the bridges.
+     * @zh 反序列化完成、holder 数据就绪后重新套用一次配置。
+     * scene3d 创建、相机内参、bridge 注册都已在 registerBridge3D / initScene3D 中完成，
+     * 此处仅做一次最终的数据 apply，覆盖 holder 数据晚于 bridge 到位的情况。
      * @internal
      */
     finalizeSetup(): void {
-        if (!this._scene3d) {
-            this.initScene3D();
-        }
+        if (!this._scene3d) return;
 
-        // Apply settings from the data holder
         const holder = this._scene2D.bridge3D;
         if (holder) {
             this._applySettingsTo(this._scene3d, holder.scene3dSettings);
             this._applySettingsTo(this._scene3d.sharedCamera, holder.cameraSettings);
-        }
-
-        if (this._bridge3DList.length === 0) return;
-
-        const scene3d = this._scene3d;
-
-        // Setup camera
-        if (!scene3d._cameraInitialized) {
-            scene3d.setupCamera();
-            scene3d._cameraInitialized = true;
-        }
-
-        // Ensure all bridges are fully connected
-        for (const bridge of this._bridge3DList) {
-            if (bridge.containerSprite3D.parent !== scene3d) {
-                scene3d.addChild(bridge.containerSprite3D);
-            }
-            const element = bridge.bridge3DRenderElement as IBridgeRenderElement;
-            if (element) {
-                const process = scene3d.sharedCamera.bridge3DRenderProcess;
-                element.setBridge3DContext(scene3d.bridge3DContext);
-                element.setRenderProcess(process);
-                process.addBridgeElement(element);
-            }
         }
     }
 

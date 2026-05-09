@@ -139,13 +139,13 @@ export class LayaXBridge3DRenderElement implements IBridgeRenderElement {
 		this._transparentList = null;
 		this._bridge3DContext = null;
 		this._renderProcess = null; // 只清理引用，不销毁（由Bridge3DCamera管理）
-		this._nativeObj?.destroy();
-		this._nativeObj = null;
 		this._owner = null;
 		this.geometry = null;
 		this.materialShaderData = null;
 		this.value2DShaderData = null;
 		this.globalShaderData = null;
 		this.subShader = null;
+		this._nativeObj?.destroy();
+		this._nativeObj = null;
 	}
 }

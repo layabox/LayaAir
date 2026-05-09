@@ -12,6 +12,7 @@ import { Config3D } from "../../Config3D";
 import { Utils3D } from "../d3/utils/Utils3D";
 import { Texture2D } from "../resource/Texture2D";
 import { LayaXBridge3DContext } from "./render/LayaXBridge3DContext";
+import { RTBridge3DContext } from "./render/RTBridge3DContext";
 import { Bridge3DSceneInternal } from "./Bridge3DSceneInternal";
 import { Bridge3DContext } from "./render/Bridge3DContext";
 
@@ -41,12 +42,6 @@ export class Bridge3DScene3D extends Scene3D {
     private _sharedCamera: Bridge3DCamera;
 
     /**
-     * Whether camera has been initialized
-     * @internal
-     */
-    _cameraInitialized: boolean = false;
-
-    /**
      * Render object to Bridge3DSprite mapping
      * @private
      */
@@ -56,7 +51,7 @@ export class Bridge3DScene3D extends Scene3D {
      * Bridge3D rendering context (unified held and managed by Scene3D)
      * @private
      */
-    private _bridge3DContext: Bridge3DContext | LayaXBridge3DContext;
+    private _bridge3DContext: Bridge3DContext | LayaXBridge3DContext | RTBridge3DContext;
 
 
     /**
@@ -90,7 +85,7 @@ export class Bridge3DScene3D extends Scene3D {
     /**
      * Bridge3D渲染上下文（供process访问）
      */
-    get bridge3DContext(): Bridge3DContext | LayaXBridge3DContext {
+    get bridge3DContext(): Bridge3DContext | LayaXBridge3DContext | RTBridge3DContext {
         return this._bridge3DContext;
     }
 
@@ -111,9 +106,12 @@ export class Bridge3DScene3D extends Scene3D {
             this._bridge3DLightTexture.lock = true;
         }
 
-        // Create unified Bridge3D rendering context: Conch 原生走 LayaX (wgpu)，浏览器走 Web
-        if (LayaEnv.isConch) {
+        // Create unified Bridge3D rendering context (3-way platform-aware):
+        // LayaX 原生 (wgpu) / Conch GLES 原生 / Web (浏览器或 conch graphicsAPI=2 的 WebGL 回退)
+        if (LayaEnv.isLayaX) {
             this._bridge3DContext = new LayaXBridge3DContext();
+        } else if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {
+            this._bridge3DContext = new RTBridge3DContext();
         } else {
             this._bridge3DContext = new Bridge3DContext();
         }
@@ -128,6 +126,10 @@ export class Bridge3DScene3D extends Scene3D {
         this.addChild(this._sharedCamera);
         this.updateContext();
 
+        // Output initialization: configure camera intrinsics once.
+        // Data-driven params (cameraZDistance / farPlane) are applied later via applyCamera*.
+        this.setupCamera();
+
         // Listen to stage resize
         ILaya.stage.on(Event.RESIZE, this, this.onStageResize);
     }
@@ -135,26 +137,20 @@ export class Bridge3DScene3D extends Scene3D {
     /**
      * Apply camera Z distance (called by holder)
      * @param value - Camera Z distance
-     * @internal
      */
-    _applyCameraZDistance(value: number): void {
+    applyCameraZDistance(value: number): void {
         if (this._cameraZDistance !== value) {
             this._cameraZDistance = value;
-            if (this._cameraInitialized) {
-                this._updateCameraPosition();
-            }
+            this._updateCameraPosition();
         }
     }
 
     /**
      * Apply camera far plane (called by holder)
      * @param value - Camera far clipping plane distance
-     * @internal
      */
-    _applyCameraFarPlane(value: number): void {
-        if (this._cameraInitialized) {
-            this._sharedCamera.farPlane = value;
-        }
+    applyCameraFarPlane(value: number): void {
+        this._sharedCamera.farPlane = value;
     }
 
     updateContext() {
@@ -242,24 +238,18 @@ export class Bridge3DScene3D extends Scene3D {
     }
 
     /**
-     * Setup shared camera
-     * @remarks
-     * - Configure orthographic projection parameters
-     * - Set camera position and orientation (lookAt)
-     * - Called on first bridge registration or stage resize
-     * - Uses RenderState2D's actual render size instead of stage logical size
+     * Setup shared camera intrinsics (projection / orientation / position).
+     * Called once by the constructor as part of output initialization.
+     * Data-driven parameters (cameraZDistance / farPlane) are applied via applyCamera*.
      */
     setupCamera(): void {
         // Use actual render size (considering stage scaling)
-        const width = RenderState2D.width;
-        const height = RenderState2D.height;
+        const height = RenderState2D.height || ILaya.stage.height;
 
         // Configure orthographic projection parameters
         this._sharedCamera.orthographic = true;
         this._sharedCamera.orthographicVerticalSize = height;  // Use full height
         this._sharedCamera.nearPlane = 0.1;
-        const holder = this._scene2D?.bridge3D;
-        if (holder) this._sharedCamera.farPlane = holder.cameraFarPlane;
 
         // Set camera position using the configured Z distance
         this._updateCameraPosition();

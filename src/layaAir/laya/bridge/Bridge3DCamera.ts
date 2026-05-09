@@ -11,6 +11,7 @@ import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefi
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { IBridge3DRenderProcess } from "./render/IBridge3DRenderProcess";
 import { LayaXBridge3DRenderProcess } from "./render/LayaXBridge3DRenderProcess";
+import { RTBridge3DRenderProcess } from "./render/RTBridge3DRenderProcess";
 import { WebBridge3DRenderProcess } from "./render/WebBridge3DRenderProcess";
 
 /**
@@ -52,9 +53,12 @@ export class Bridge3DCamera extends Camera {
     constructor() {
         super();
 
-        // 创建统一渲染流程：Conch 原生环境走 LayaX (wgpu) 渲染，浏览器走 Web (WebGL/WebGPU)
-        if (LayaEnv.isConch) {
+        // 创建统一渲染流程 (3-way 平台感知):
+        // LayaX 原生 (wgpu) / Conch GLES 原生 / Web (浏览器或 conch graphicsAPI=2 的 WebGL 回退)
+        if (LayaEnv.isLayaX) {
             this._bridge3DRenderProcess = new LayaXBridge3DRenderProcess();
+        } else if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {
+            this._bridge3DRenderProcess = new RTBridge3DRenderProcess();
         } else {
             this._bridge3DRenderProcess = new WebBridge3DRenderProcess();
         }

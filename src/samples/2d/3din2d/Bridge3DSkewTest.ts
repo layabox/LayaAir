@@ -89,7 +89,7 @@ export class Bridge3DSkewTest {
 
         // 创建Bridge3D（蓝色立方体）
         const bridge = new Bridge3DSprite();
-        bridge.scale3DToPixel = 1;
+        bridge.pixelsPerUnit = 1;
         bridge.pos(x, y);
         bridge.skewX = skewX;
         bridge.skewY = skewY;
