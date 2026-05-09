@@ -1083,8 +1083,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (this._templet) {
             this.clear();
         }
-        this._spineRender.destroy();
-        this._spineRender = null;
+        if (this._spineRender) {
+            this._spineRender.destroy();
+            this._spineRender = null;
+        }
         // 清理骨骼可视化
         if (this._rootBone) {
             this._rootBone.destroy();
