@@ -14,6 +14,7 @@ import { Stat } from "laya/utils/Stat";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Browser } from "laya/utils/Browser";
 import { URL } from "laya/net/URL";
+import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 export class IDESceneLoad1 {
 	constructor() {
 		var path = URL.basePath;
@@ -48,3 +49,26 @@ Laya.addAfterInitCallback(() => {
 Laya.addAfterInitCallback(() => {
 	return Browser.loadLib("sample-resource/web/js/bundle.js");
 });
+
+  Laya.addAfterInitCallback(() => {
+    console.log("add wind!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    const globalUniformMap = Scene3D.sceneUniformMap;
+    globalUniformMap.addShaderUniform(Shader3D.propertyNameToID("WindDirection"), "WindDirection", ShaderDataType.Vector3);
+    globalUniformMap.addShaderUniform(Shader3D.propertyNameToID("WindStrenghtFloat"), "WindStrenghtFloat", ShaderDataType.Float);
+    globalUniformMap.addShaderUniform(Shader3D.propertyNameToID("WindSpeedFloat"), "WindSpeedFloat", ShaderDataType.Float);
+    globalUniformMap.addShaderUniform(Shader3D.propertyNameToID("WindTurbulenceFloat"), "WindTurbulenceFloat", ShaderDataType.Float);
+    globalUniformMap.addShaderUniform(Shader3D.propertyNameToID("LeavesWiggleFloat"), "LeavesWiggleFloat", ShaderDataType.Float);
+    globalUniformMap.addShaderUniform(Shader3D.propertyNameToID("GrassWiggleFloat"), "GrassWiggleFloat", ShaderDataType.Float);
+  });
+
+    Laya.addAfterInitCallback(() => {
+    console.log("add scene");
+    const sceneUniformMap = Scene3D.sceneUniformMap;
+    sceneUniformMap.addShaderUniform(Shader3D.propertyNameToID("u_SHAr"), "u_SHAr", ShaderDataType.Vector4);
+    sceneUniformMap.addShaderUniform(Shader3D.propertyNameToID("u_SHAg"), "u_SHAg", ShaderDataType.Vector4);
+    sceneUniformMap.addShaderUniform(Shader3D.propertyNameToID("u_SHAb"), "u_SHAb", ShaderDataType.Vector4);
+    sceneUniformMap.addShaderUniform(Shader3D.propertyNameToID("u_SHBr"), "u_SHBr", ShaderDataType.Vector4);
+    sceneUniformMap.addShaderUniform(Shader3D.propertyNameToID("u_SHBg"), "u_SHBg", ShaderDataType.Vector4);
+    sceneUniformMap.addShaderUniform(Shader3D.propertyNameToID("u_SHBb"), "u_SHBb", ShaderDataType.Vector4);
+    sceneUniformMap.addShaderUniform(Shader3D.propertyNameToID("u_SHC"), "u_SHC", ShaderDataType.Vector4);
+  });
