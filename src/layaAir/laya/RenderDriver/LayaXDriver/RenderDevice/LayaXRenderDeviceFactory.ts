@@ -19,7 +19,6 @@ import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderG
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
-import { RTStatisContext } from "../../RenderModuleData/RuntimeModuleData/RTStatisticContext";
 import { LayaXBufferState } from "./LayaXBufferState";
 import { LayaXCommandUniformMap } from "./LayaXCommandUniformMap";
 import { LayaXDeviceBuffer } from "./LayaXDeviceBuffer";
@@ -34,6 +33,10 @@ import { LayaXComputeContext } from "./compute/LayaXComputeContext";
 import { ComputeShaderProcessInfo, IComputeShader } from "../../DriverDesign/RenderDevice/ComputeShader/IComputeShader";
 import { IComputeContext } from "../../DriverDesign/RenderDevice/ComputeShader/IComputeContext";
 import { TextRenderConfig } from "../../../webgl/text/TextRenderConfig";
+
+function isLayaXRuntime(): boolean {
+    return LayaEnv.isLayaX || (typeof window !== "undefined" && (window as any).conchLayaXDevice != null);
+}
 
 export class LayaXRenderDeviceFactory implements IRenderDeviceFactory {
     createShaderData(ownerResource: Resource): ShaderData {
@@ -107,10 +110,8 @@ export class LayaXRenderDeviceFactory implements IRenderDeviceFactory {
 }
 
 Laya.addBeforeInitCallback(() => {
-    if (LayaEnv.isLayaX && !LayaGL.renderDeviceFactory) {
-        LayaGL.renderDeviceFactory = new LayaXRenderDeviceFactory();
-        let statisticsContext = new RTStatisContext();
-        LayaGL.statAgent?.cloneTo(statisticsContext);
-        LayaGL.statAgent = statisticsContext;
+    if (isLayaXRuntime()) {
+        if (!LayaGL.renderDeviceFactory)
+            LayaGL.renderDeviceFactory = new LayaXRenderDeviceFactory();
     }
 })

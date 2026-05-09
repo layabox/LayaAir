@@ -1,4 +1,6 @@
 import { Config } from "../../../../Config";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { StatElement } from "../../../layagl/StatisticsContext";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { IRenderEngine } from "../../DriverDesign/RenderDevice/IRenderEngine";
@@ -21,6 +23,11 @@ export class LayaXRenderEngine implements IRenderEngine {
     _isShaderDebugMode: boolean;
     _nativeObj: any;
     private _textureContext: LayaXTextureContext;
+    private _lastTextureMemory: number = 0;
+    private _lastRenderTargetMemory: number = 0;
+    private _lastDeviceBufferMemory: number = 0;
+    private _lastGpuBufferMemory: number = 0;
+    private _lastGpuMemory: number = 0;
 
     shaderCompiler: WebGPUShaderCompiler;
 
@@ -105,12 +112,59 @@ export class LayaXRenderEngine implements IRenderEngine {
     }
 
     startFrame(): void {
+        this._syncStatistics();
         // 拉取底层 DeviceEvent，派发 ReadbackCompleted/Failed / DeviceLost
         LayaXReadbackDispatcher.pump(this._nativeObj);
     }
 
     endFrame(): void {
-        // No-op: C++ main loop drives frame end
+        // C++ main loop drives layax_post_render after JS rendering.
+    }
+
+    private _recordAbsoluteMemory(element: StatElement, bytes: number, lastBytes: number): number {
+        let delta = bytes - lastBytes;
+        if (delta !== 0) {
+            LayaGL.statAgent.recordMemoryData(element, delta);
+            return bytes;
+        }
+        return lastBytes;
+    }
+
+    private _syncStatistics(): void {
+        let nativeObj = this._nativeObj;
+        if (!nativeObj || !nativeObj.frameOpaqueDrawCall)
+            return;
+
+        let opaque = nativeObj.frameOpaqueDrawCall();
+        let transparent = nativeObj.frameTransparentDrawCall();
+        let depth = nativeObj.frameDepthDrawCall();
+        let shadow = nativeObj.frameShadowDrawCall();
+        let triangle = nativeObj.frameTriangle();
+        let cullMainTime = nativeObj.frameCullMainTime();
+        let draw2D = nativeObj.consumeFrame2DDrawCall ? nativeObj.consumeFrame2DDrawCall() : 0;
+        let draw3D = opaque + transparent;
+
+        LayaGL.statAgent.recordCTData(StatElement.CT_OpaqueDrawCall, opaque);
+        LayaGL.statAgent.recordCTData(StatElement.CT_TransDrawCall, transparent);
+        LayaGL.statAgent.recordCTData(StatElement.CT_DepthCastDrawCall, depth);
+        LayaGL.statAgent.recordCTData(StatElement.CT_ShadowDrawCall, shadow);
+        LayaGL.statAgent.recordCTData(StatElement.CT_2DDrawCall, draw2D);
+        LayaGL.statAgent.recordCTData(StatElement.CT_3DDrawCall, draw3D);
+        LayaGL.statAgent.recordCTData(StatElement.CT_DrawCall, draw2D + draw3D + depth + shadow);
+        LayaGL.statAgent.recordCTData(StatElement.CT_Triangle, triangle);
+        LayaGL.statAgent.recordTimeData(StatElement.T_CullMain, cullMainTime);
+
+        let textureMemory = nativeObj.gpuTextureTotalMemorySize();
+        let renderTargetMemory = nativeObj.gpuRenderTargetTotalMemorySize();
+        let deviceBufferMemory = nativeObj.gpuDeviceBufferTotalMemorySize();
+        let gpuBufferMemory = nativeObj.gpuBufferTotalMemorySize ? nativeObj.gpuBufferTotalMemorySize() : deviceBufferMemory;
+        let gpuMemory = textureMemory + renderTargetMemory + gpuBufferMemory;
+
+        this._lastTextureMemory = this._recordAbsoluteMemory(StatElement.M_AllTexture, textureMemory, this._lastTextureMemory);
+        this._lastRenderTargetMemory = this._recordAbsoluteMemory(StatElement.M_RenderTexture, renderTargetMemory, this._lastRenderTargetMemory);
+        this._lastDeviceBufferMemory = this._recordAbsoluteMemory(StatElement.M_DeviceBuffer, deviceBufferMemory, this._lastDeviceBufferMemory);
+        this._lastGpuBufferMemory = this._recordAbsoluteMemory(StatElement.M_GPUBuffer, gpuBufferMemory, this._lastGpuBufferMemory);
+        this._lastGpuMemory = this._recordAbsoluteMemory(StatElement.M_GPUMemory, gpuMemory, this._lastGpuMemory);
     }
 
     viewport(x: number, y: number, width: number, height: number): void {
