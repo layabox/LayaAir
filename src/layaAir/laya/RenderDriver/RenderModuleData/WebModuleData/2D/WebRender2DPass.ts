@@ -406,7 +406,7 @@ export class WebRender2DPass implements IRender2DPass {
          if (sizeX === 0 || sizeY === 0)
             return false
          context.invertY = false;
-         context.setOffscreenView(sizeX, sizeY);
+         context.setOffscreenView(sizeX, sizeY, 0, 0);
 
          context.setRenderTarget(null, this.doClearColor, this._clearColor);
 
