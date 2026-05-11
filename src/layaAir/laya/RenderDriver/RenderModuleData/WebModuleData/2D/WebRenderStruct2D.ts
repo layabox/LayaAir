@@ -787,15 +787,21 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
    destroy(): void {
+      if (this.children) {
+         this.children.length = 0;
+      }
+      this._pass = null;
       this._clipInfo = null;
-      this._currentData = null;
-      this._parentData = null;
       this._clipRect = null;
-      this.renderElements = null;
+      if (this.renderElements) {
+         for (let i = 0, n = this.renderElements.length; i < n; i++) {
+            this.renderElements[i].destroy();
+         }
+         this.renderElements.length = 0;
+         this.renderElements = null;
+      }
       this.spriteShaderData = null;
+      this.owner = null;
       this.parent = null;
-      this.children.length = 0;
-      this.children = null;
-      this.pass = null;
    }
 }
