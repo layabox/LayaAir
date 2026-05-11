@@ -51,6 +51,10 @@ export class LayaXCameraNodeData implements ICameraNodeData {
         this._nativeObj._aspectRatio = value;
     }
 
+    public get handle(): number {
+        return this._nativeObj ? this._nativeObj.getHandle() : 0;
+    }
+
     constructor() {
         // Rust 侧 layax_create_camera 负责分配 cull_bit + 4 个 cascade shadow entity
         this._nativeObj = new (window as any).conchLayaXCameraNodeData();
