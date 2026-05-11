@@ -244,14 +244,28 @@ export class GraphicsRenderer {
       }
    }
 
-   clear(): void {
+   private _clearBuckets(destroy: boolean): void {
       for (const bucket of this._cachedBuckets) {
          if (bucket) {
             bucket.mesh.clearBlocks(bucket.indexs);
          }
       }
-      this._cachedBuckets = this._blockBuckets;
-      this._blockBuckets = [];
+      if (destroy) {
+         for (const bucket of this._blockBuckets) {
+            if (bucket) {
+               bucket.mesh.clearBlocks(bucket.indexs);
+            }
+         }
+         this._cachedBuckets = null;
+         this._blockBuckets = null;
+      } else {
+         this._cachedBuckets = this._blockBuckets;
+         this._blockBuckets = [];
+      }
+   }
+
+   clear(): void {
+      this._clearBuckets(false);
 
       let len = this._submits.length;
       for (let i = 0; i < len; i++) {
@@ -261,25 +275,18 @@ export class GraphicsRenderer {
    }
 
    destroy(): void {
-      this.clear();
+      this._clearBuckets(true);
 
-      for (const bucket of this._cachedBuckets) {
-         if (bucket) {
-            bucket.mesh.clearBlocks(bucket.indexs);
-         }
-      }
-      this._cachedBuckets = null;
-      this._blockBuckets = null;
-      
       this._renderElements.length = 0;
 
-      this._submits.elements.forEach(submit => {
-         submit.destroy();
-      });
+      let len = this._submits.length;
+      for (let i = 0; i < len; i++) {
+         this._submits.elements[i].destroy();
+      }
       this._submits.destroy();
 
       this.texturesMap.forEach(inf => {
-         inf.texture.off("dispose" , this, this._resourceRepaint);
+         inf.texture.off(Event.CHANGE, this, this._resourceRepaint);
       });
       this.texturesMap.clear();
 
