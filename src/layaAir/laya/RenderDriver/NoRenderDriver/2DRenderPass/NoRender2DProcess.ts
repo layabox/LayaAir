@@ -1,3 +1,5 @@
+import { Laya } from "../../../../Laya";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
@@ -14,56 +16,64 @@ import { NoRenderSetRenderData, NoRenderSetShaderDefine } from "../DriverDevice/
 import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, I2DGraphicWholeBuffer, I2DGraphicIndexDataView, I2DGraphicVertexDataView, IGraphics2DBufferBlock, IGraphics2DVertexBlock } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
-import { NotImplementedError } from "../../../utils/Error";
+import {
+	NoRenderGraphics2DBufferBlock, NoRenderGraphics2DVertexBlock,
+	NoRenderVertexDataView, NoRenderIndexDataView,
+	NoRenderGraphicVertexBuffer, NoRenderGraphicIndexBuffer,
+	NoRenderGlobalRenderData, NoRenderEmptyDataHandle,
+	NoRenderPrimitiveDataHandle, NoRenderBaseDataHandle,
+	NoRenderMeshDataHandle, NoRenderSpineDataHandle,
+	NoRenderStruct2D, NoRender2DPass, NoRender2DPassManager
+} from "./NoRender2DModuleData";
 
 
 export class NoRender2DProcess implements I2DRenderPassFactory {
     createGraphic2DBufferBlock(): IGraphics2DBufferBlock {
-        throw new NotImplementedError();
+        return new NoRenderGraphics2DBufferBlock();
     }
-    
+
     createGraphic2DVertexBlock(): IGraphics2DVertexBlock {
-        throw new NotImplementedError();
+        return new NoRenderGraphics2DVertexBlock();
     }
 
     create2DGraphicVertexDataView(wholeBuffer: I2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicVertexDataView {
-        throw new NotImplementedError();
+        return new NoRenderVertexDataView(wholeBuffer as NoRenderGraphicVertexBuffer, elementOffset, elementSize, stride);
     }
     create2DGraphicIndexDataView(wholeBuffer: I2DGraphicWholeBuffer, elementSize: number): I2DGraphicIndexDataView {
-        throw new NotImplementedError();
+        return new NoRenderIndexDataView(wholeBuffer as NoRenderGraphicIndexBuffer, elementSize);
     }
     create2DGraphicIndexBuffer(): I2DGraphicWholeBuffer {
-        throw new NotImplementedError();
+        return new NoRenderGraphicIndexBuffer();
     }
 
     create2DGraphicVertexBuffer(): I2DGraphicWholeBuffer {
-        throw new NotImplementedError();
+        return new NoRenderGraphicVertexBuffer();
     }
 
     createRender2DPassManager(): IRender2DPassManager {
-        throw new NotImplementedError();
+        return new NoRender2DPassManager();
     }
 
     create2DGlobalRenderDataHandle(): I2DGlobalRenderData {
-        return null;
+        return new NoRenderGlobalRenderData();
     }
     createSpineRenderDataHandle(): ISpineRenderDataHandle {
-        return null;
+        return new NoRenderSpineDataHandle();
     }
     createRender2DPass(): IRender2DPass {
-        return null;
+        return new NoRender2DPass();
     }
     createRenderStruct2D(): IRenderStruct2D {
-        return null;
+        return new NoRenderStruct2D();
     }
     create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle {
-        return null;
+        return new NoRenderPrimitiveDataHandle();
     }
     create2DBaseRenderDataHandle(): I2DBaseRenderDataHandle {
-        return null;
+        return new NoRenderBaseDataHandle();
     }
     createMesh2DRenderDataHandle(): IMesh2DRenderDataHandle {
-        return null;
+        return new NoRenderMeshDataHandle();
     }
     createSetRenderDataCMD(): SetRenderDataCMD {
         return new NoRenderSetRenderData();
@@ -90,7 +100,7 @@ export class NoRender2DProcess implements I2DRenderPassFactory {
         return new NoRenderContext2D();
     }
     createEmptyRenderDataHandle(): IRender2DDataHandle {
-        return null;
+        return new NoRenderEmptyDataHandle();
     }
 }
 
@@ -161,4 +171,7 @@ export class NoRenderSetRendertarget2DCMD extends SetRendertarget2DCMD {
     }
 }
 
-
+Laya.addBeforeInitCallback(() => {
+    if (!LayaGL.render2DRenderPassFactory)
+        LayaGL.render2DRenderPassFactory = new NoRender2DProcess();
+});

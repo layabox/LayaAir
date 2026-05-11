@@ -39,7 +39,7 @@ export const allBundles = [{
         'laya/RenderEngine/*.*',
 
         'laya/RenderDriver/RenderModuleData/Design/**/*.*',
-      
+
         'laya/loaders/**/*.*',
         'laya/maths/**/*.*',
         'laya/media/**/*.*',
@@ -101,6 +101,13 @@ export const allBundles = [{
         'laya/d3/physics/PhysicsSettings.ts',
         'laya/d3/physics/Collision.ts',
         'laya/d3/physics/ContactPoint.ts',
+    ],
+},
+
+{
+    name: 'no-render',
+    input: [
+        'laya/RenderDriver/NoRenderDriver/**/*.*',
     ],
 },
 
