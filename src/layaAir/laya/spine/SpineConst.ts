@@ -74,7 +74,7 @@ export class SpineConst {
      * @zh 普通渲染中顶点的数量。
      */
     static NORMAL_VERTEX_LENGTH: number = 1024;
-    
+
     /**
      * @en Maximum number of vertices. Limited by 64K indexbuffer constraint.
      * @zh 最大顶点数。
@@ -135,7 +135,7 @@ Laya.addAfterInitCallback(() => {
     let versionString = SpineConst.VERSION.split('.');
     let versionNumber = Math.floor(Number(versionString[0]));
     let versionNumber2 = Math.floor(Number(versionString[1]));
- 
+
     SpineConst.VersionFirst = versionNumber;
     SpineConst.VersionSecond = versionNumber2;
 
@@ -144,6 +144,6 @@ Laya.addAfterInitCallback(() => {
     }
 
     // SpineConst.ENABLE_WEB_BATCH = false;
-    SpineConst.ENABLE_WEB_BATCH = !LayaEnv.isConch || (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() == 2);
+    SpineConst.ENABLE_WEB_BATCH = (window as any).Laya.BatchManager != null;//!LayaEnv.isConch || (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() == 2);
     SpineShaderInit.init();
 });
