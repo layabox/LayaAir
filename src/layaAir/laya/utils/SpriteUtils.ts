@@ -95,9 +95,9 @@ export class SpriteUtils {
         let tx: number, ty: number;
 
         if (perpendicular) {
-            // 在舞台上的坐标
-            tx = y + globalTransform.y;
-            ty = x + globalTransform.x;
+            // 在舞台上的坐标（局部偏移需乘以全局缩放）
+            tx = globalTransform.y + y * globalTransform.scaleY;
+            ty = globalTransform.x + x * globalTransform.scaleX;
 
             // 在画布上的坐标
             tx *= canvasMatrix.d;
@@ -120,9 +120,9 @@ export class SpriteUtils {
         }
         // 没有canvas旋转
         else {
-            // 在舞台上的坐标
-            tx = x + globalTransform.x;
-            ty = y + globalTransform.y;
+            // 在舞台上的坐标（局部偏移需乘以全局缩放）
+            tx = globalTransform.x + x * globalTransform.scaleX;
+            ty = globalTransform.y + y * globalTransform.scaleY;
 
             // 在画布上的坐标
             tx *= canvasMatrix.a;
