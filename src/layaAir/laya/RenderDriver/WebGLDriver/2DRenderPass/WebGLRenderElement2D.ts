@@ -265,5 +265,10 @@ export class WebGLRenderElement2D implements IRenderElement2D {
         this._value2DShaderData = null;
         this._passCache = null;
         this._curCacheEntry = null;
+        this.owner = null;
+        if ((this as any)._ownerMaterial) {
+            (this as any)._ownerMaterial._removeOwnerElement(this);
+            (this as any)._ownerMaterial = null;
+        }
     }
 }

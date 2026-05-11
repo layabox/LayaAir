@@ -118,9 +118,14 @@ export class BaseRenderNode2D extends Component {
     * @internal
     */
     static _setRenderElement2DMaterial(element: IRenderElement2D, material: Material) {
+        // 先从旧材质中移除
+        if ((element as any)._ownerMaterial) {
+            (element as any)._ownerMaterial._removeOwnerElement(element);
+        }
         element.subShader = material._shader.getSubShaderAt(0);
         material._setOwner2DElement(element);
         element.materialShaderData = material._shaderValues;
+        (element as any)._ownerMaterial = material;
     }
 
     /**
@@ -323,6 +328,12 @@ export class BaseRenderNode2D extends Component {
         for (var i = 0, n = this._materials.length; i < n; i++) {
             let m = this._materials[i];
             m && !m.destroyed && m._removeReference();
+        }
+        if (this._renderElements) {
+            for (let i = 0, n = this._renderElements.length; i < n; i++) {
+                this._renderElements[i].destroy();
+            }
+            this._renderElements.length = 0;
         }
         this._renderHandle.destroy();
     }
