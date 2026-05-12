@@ -114,6 +114,8 @@ export class Input extends Text {
     protected _multiline: boolean = false;
     protected _editable: boolean = true;
     protected _type: string;
+    public _skipNextInput: boolean = false;
+    public _prevValue: string = "";
 
     constructor() {
         super();

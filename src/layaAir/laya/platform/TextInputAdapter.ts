@@ -140,6 +140,9 @@ export class TextInputAdapter {
     protected onCanShowKeyboard(): Promise<void> {
         if (this._visEle)
             this._visEle.focus();
+        if (this.target && this._visEle) {
+            this.target._prevValue = this._visEle.value;
+        }
         return Promise.resolve();
     }
 
@@ -342,6 +345,17 @@ export class TextInputAdapter {
         PAL.browser.setStyleTransformOrigin(style, "0 0");
 
         input.addEventListener('input', ev => !(<InputEvent>ev).isComposing && this.processInputting(ev));
+        input.addEventListener('beforeinput', (e: any) => {
+            if (e.inputType === 'insertFromPaste') {
+                var data = e.data ?? '';
+                if (data.startsWith("iMatrixs://")) {
+                    e.preventDefault();
+                    if (this.target) {
+                        this.target._skipNextInput = true;
+                    }
+                }
+            }
+        }, { capture: true });
         input.addEventListener("compositionend", ev => this.processInputting(ev));
 
         input.addEventListener('mousemove', ev => this.stopEvent(ev), { passive: false });
@@ -353,11 +367,19 @@ export class TextInputAdapter {
         if (!this.target)
             return;
 
+        if (this.target._skipNextInput) {
+            this.target._skipNextInput = false;
+            this.updateTargetText(this.target._prevValue);
+            return;
+        }
+
         let ele = <HTMLInputElement | HTMLTextAreaElement>ev.target;
         let value = this.validateText(ele.value);
         ele.value = value;
-        if (this.updateTargetText(value))
+        if (this.updateTargetText(value)) {
+            this.target._prevValue = value;
             this.target.event(Event.INPUT);
+        }
     }
 
     protected stopEvent(e: any): void {
