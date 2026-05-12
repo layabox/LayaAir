@@ -584,9 +584,14 @@ export class Loader extends EventDispatcher {
         }
 
         let loadingKey = formattedUrl;
-        if (!main)
-            loadingKey += "@" + typeId;
+        if (!main) {
+            loadingKey = formattedUrl + "nl2026" + typeId;
+        }
         let task = this._loadings.get(loadingKey);
+        if (!main && !task) {
+            loadingKey = formattedUrl + "@" + typeId;
+            task = this._loadings.get(loadingKey);
+        }
         if (task) {
             //fix recursive dependency
             let p = options.initiator;

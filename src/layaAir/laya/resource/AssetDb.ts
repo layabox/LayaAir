@@ -148,9 +148,11 @@ export class AssetDb {
      * @param subAssetExt 子资源的文件扩展名。
      * @returns 子资源的 URL。
      */
-    getSubAssetURL(url: string, uuid: string, subAssetName: string, subAssetExt: string): string {
-        if (subAssetName)
-            return `${Utils.replaceFileExtension(url, "")}@${subAssetName}.${subAssetExt}`;
+    getSubAssetURL(url: string, uuid: string, subAssetName: string, subAssetExt: string, sign: string = null): string {
+        if (subAssetName) {
+            let _sign = sign ?? '@';
+            return `${Utils.replaceFileExtension(url, "")}${_sign}${subAssetName}.${subAssetExt}`;
+        }
         else
             return url;
     }

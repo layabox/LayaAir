@@ -58,7 +58,7 @@ export class Texture2DLoader implements IResourceLoader {
         let ext = task.ext;
         let url = task.url;
         if (meta) {
-            const RGBA = { format: TextureFormat.R8G8B8A8, file: null as string, ext: null as string };
+            const RGBA = { format: TextureFormat.R8G8B8A8, file: null as string, ext: null as string, sign: null as string };
             let fileInfo = RGBA;
 
             if (meta.platforms && meta.files) {
@@ -84,7 +84,7 @@ export class Texture2DLoader implements IResourceLoader {
             }
 
             if (fileInfo.file) {
-                url = AssetDb.inst.getSubAssetURL(url, task.uuid, fileInfo.file, fileInfo.ext);
+                url = AssetDb.inst.getSubAssetURL(url, task.uuid, fileInfo.file, fileInfo.ext, fileInfo.sign);
                 ext = fileInfo.ext;
             }
 
