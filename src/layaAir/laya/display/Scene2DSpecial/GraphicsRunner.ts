@@ -280,6 +280,7 @@ export class GraphicsRunner {
         if (height <= 0) return;
         //当宽高小于一定程度的时候,面积就是0了,这里不好判断什么时候是0,直接采用下面的当起始角度>终止角度时不画就行.
         this.beginPath(true);
+        var miniNum = 20;
         var tPath = this._getPath();
         if (0 >= lt) {
             tPath.addPoint(x, y);
@@ -308,7 +309,7 @@ export class GraphicsRunner {
             if (st > ed) {
                 //tPath.addPoint(x, y);
             } else {
-                this.arc(x + lt, y + lt, lt, lt, st, ed, false, true, 5);
+                this.arc(x + lt, y + lt, lt, lt, st, ed, false, true, miniNum);
             }
         }
         let startX = x + width - rt;
@@ -339,7 +340,7 @@ export class GraphicsRunner {
             if (st > ed) {
                 //tPath.addPoint(startX, y);
             } else {
-                this.arc(startX, y + rt, rt, rt, st, ed, false, true, 5);
+                this.arc(startX, y + rt, rt, rt, st, ed, false, true, miniNum);
             }
         }
         startX = x + width - rb;
@@ -371,7 +372,7 @@ export class GraphicsRunner {
             if (st > ed) {
                 //tPath.addPoint(startX, startY);
             } else {
-                this.arc(startX, startY, rb, rb, st, ed, false, true, 5);
+                this.arc(startX, startY, rb, rb, st, ed, false, true, miniNum);
             }
         }
         startX = x + lb;
@@ -402,7 +403,7 @@ export class GraphicsRunner {
             if (st > ed) {
                 //tPath.addPoint(startX, startY);
             } else {
-                this.arc(startX, startY, lb, lb, st, ed, false, true, 5);
+                this.arc(startX, startY, lb, lb, st, ed, false, true, miniNum);
             }
         }
         //tPath.addPoint(x, y + lt);  这个是干什么的,不要了
