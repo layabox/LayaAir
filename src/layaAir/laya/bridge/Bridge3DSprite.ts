@@ -8,6 +8,7 @@ import { Node } from "../display/Node";
 import { Sprite } from "../display/Sprite";
 import { Event } from "../events/Event";
 import { LayaGL } from "../layagl/LayaGL";
+import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
 import { Vector3 } from "../maths/Vector3";
@@ -19,7 +20,6 @@ import { Bridge3DRenderElement } from "./render/Bridge3DRenderElement";
 import { IBridge3DRenderProcess } from "./render/IBridge3DRenderProcess";
 import { RTBridge3DRenderElement } from "./render/RTBridge3DRenderElement";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
-import { Bridge3DCoordinate } from "./utils/Bridge3DCoordinate";
 import { Bridge3DData } from "./Bridge3DData";
 import { Bridge3DSceneInternal } from "./Bridge3DSceneInternal";
 
@@ -47,6 +47,11 @@ export interface IBridgeRenderElement extends IRenderElement2D {
 export class Bridge3DSprite extends Sprite {
 
     static readonly defaultPixelsPerUnit = 10;
+
+    /** @internal sceneLocal 矩阵计算用的临时对象 */
+    private static _tmpSceneLocal: Matrix = new Matrix();
+    /** @internal Scene 全局逆矩阵的临时对象 */
+    private static _tmpSceneInv: Matrix = new Matrix();
 
     static createBridge3DRenderElement(): IBridgeRenderElement {
         if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {//native
@@ -290,35 +295,67 @@ export class Bridge3DSprite extends Sprite {
     }
 
     /**
+     * 计算 sceneLocal 2D 矩阵：等价于沿 parent 链累乘到（不含）Scene 节点。
+     * 数学上：sceneLocal = sceneGlobal⁻¹ · selfGlobal
+     *
+     * 没有 _scene 时退化为 selfGlobal，保持向后兼容。
+     * @private
+     */
+    private _computeSceneLocalMatrix(out: Matrix): Matrix {
+        const selfGlobal = this.globalTrans.getMatrix();
+        const scene = this._scene as Sprite;
+        if (!scene) {
+            selfGlobal.copyTo(out);
+            return out;
+        }
+        const sceneInv = Bridge3DSprite._tmpSceneInv;
+        scene.globalTrans.getMatrixInv(sceneInv);
+        // Matrix.mul(A, B, out) → out = B · A  (column-vector 约定)
+        // 这里得到 sceneInv · selfGlobal，正好是 sceneLocal
+        Matrix.mul(selfGlobal, sceneInv, out);
+        return out;
+    }
+
+    /**
+     * @internal
+     */
+    private _getSceneHeight(): number {
+        const scene = this._scene as Sprite;
+        return scene && scene.height ? scene.height : RenderState2D.height;
+    }
+
+    /**
      * 同步2D变换到3D容器
      * @private
      * @remarks
-     * 使用Bridge3DCoordinate工具类进行坐标转换，确保2D逻辑坐标正确映射到3D世界坐标
-     * 使用全局变换矩阵，确保正确处理父节点的变换（包括倾斜）
+     * 使用 sceneLocal 矩阵进行变换提取：3D 容器只表达 "Bridge 在 Scene 内的局部变换"。
+     * Scene 自身的偏移/缩放由 Bridge3DCamera 的 sceneOffsetMatrix 在 view 矩阵阶段补偿。
      */
     private _syncTransform2DTo3D(): void {
         const transform = this._containerSprite3D.transform;
 
-        // 获取全局变换矩阵
-        const globalMatrix = this.globalTrans.getMatrix();
+        // 获取 sceneLocal 矩阵：仅包含 Scene 内部父链的累积变换，
+        // 不含 Scene 自身的偏移/缩放（Scene 自身变换由 Bridge3DCamera 的 sceneOffsetMatrix 在 view 层补偿）
+        const sceneLocalMatrix = this._computeSceneLocalMatrix(Bridge3DSprite._tmpSceneLocal);
 
-        // 从全局矩阵中提取2D变换参数
-        const a = globalMatrix.a;
-        const b = globalMatrix.b;
-        const c = globalMatrix.c;
-        const d = globalMatrix.d;
-        const tx = globalMatrix.tx;
-        const ty = globalMatrix.ty;
+        // 从 sceneLocal 矩阵中提取2D变换参数
+        const a = sceneLocalMatrix.a;
+        const b = sceneLocalMatrix.b;
+        const c = sceneLocalMatrix.c;
+        const d = sceneLocalMatrix.d;
+        const tx = sceneLocalMatrix.tx;
+        const ty = sceneLocalMatrix.ty;
 
         // 应用单位转换缩放
         const scale = this._ppu;
 
         // 获取3D位置
-        // globalMatrix的tx/ty已经是canvas像素坐标（包含了stage缩放和pixelRatio），
-        // 直接转换到3D坐标系（Y轴翻转），不能再经过logicTo3D二次缩放
+        // tx/ty 现在是 sceneLocal 像素坐标（相对 Scene 原点），Y 翻转以 Scene 逻辑高度为基准；
+        // Scene 自身的偏移/缩放在 Bridge3DCamera 的 view 矩阵阶段统一补偿。
         const pos3D = Vector3.TEMP;
+        const sceneH = this._getSceneHeight();
         pos3D.x = tx;
-        pos3D.y = RenderState2D.height - ty;
+        pos3D.y = sceneH - ty;
         pos3D.z = 0;
 
         // 构建4x4矩阵
@@ -358,6 +395,11 @@ export class Bridge3DSprite extends Sprite {
         transform.localMatrix = matrix;
 
         this._markBoundsDirty();
+    }
+
+    /** @internal */
+    _onScene2DResize(): void {
+        this._syncTransform2DTo3D();
     }
 
     /**
@@ -443,41 +485,54 @@ export class Bridge3DSprite extends Sprite {
     /**
      * 将3D包围盒投影到2D本地坐标空间
      * @private
+     *
+     * @remarks
+     * 3D 世界坐标的语义：
+     *   pos3D = (sceneLocal.x, scene.height - sceneLocal.y, 0)
+     * 所以反推：
+     *   sceneLocal_2D = (world.x, scene.height - world.y)
+     * 然后 sceneLocal → stage 通过 scene.localToGlobal 完成；
+     * stage → bridge_local 复用 this.globalToLocal。
+     *
+     * 没有 _scene 时 sceneLocal == selfGlobal，跳过 scene.localToGlobal，直接走 globalToLocal。
      */
     private _project3DTo2D(): void {
         const min3D = this._bounds3D.min;
         const max3D = this._bounds3D.max;
+        const sceneH = this._getSceneHeight();
+        const scene = this._scene as Sprite;
 
-        // 3D世界坐标 → 2D全局坐标（stage坐标）
-        const min2D = Bridge3DCoordinate.worldTo2D(min3D);
-        const max2D = Bridge3DCoordinate.worldTo2D(max3D);
+        const projectCorner = (wx: number, wy: number, p: Point): void => {
+            // 3D world → sceneLocal 2D（反 Y 翻转）
+            // 当 _scene 为 null 时 sceneLocal == selfGlobal（canvas 像素），
+            // 此时 globalToLocal 直接处理 canvas 像素也能得到正确的 bridge 局部坐标。
+            p.setTo(wx, sceneH - wy);
+            if (scene) {
+                // sceneLocal 2D → stage 2D（应用 scene.globalMatrix）
+                scene.localToGlobal(p);
+            }
+            // stage 2D（或 canvas 像素退化时直接是 global）→ bridge local 2D
+            this.globalToLocal(p);
+        };
 
-        // 取4个角点并转换为本地坐标
         const p = _boundsPoint;
         let minX = Infinity, minY = Infinity;
         let maxX = -Infinity, maxY = -Infinity;
 
-        // (minX, minY)
-        p.setTo(min2D.x, min2D.y);
-        this.globalToLocal(p);
+        // 4 个角点
+        projectCorner(min3D.x, min3D.y, p);
         if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x;
         if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y;
 
-        // (maxX, minY)
-        p.setTo(max2D.x, min2D.y);
-        this.globalToLocal(p);
+        projectCorner(max3D.x, min3D.y, p);
         if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x;
         if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y;
 
-        // (minX, maxY)
-        p.setTo(min2D.x, max2D.y);
-        this.globalToLocal(p);
+        projectCorner(min3D.x, max3D.y, p);
         if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x;
         if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y;
 
-        // (maxX, maxY)
-        p.setTo(max2D.x, max2D.y);
-        this.globalToLocal(p);
+        projectCorner(max3D.x, max3D.y, p);
         if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x;
         if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y;
 

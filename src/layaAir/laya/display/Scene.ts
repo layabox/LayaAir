@@ -30,6 +30,7 @@ import { Camera } from "../d3/core/Camera";
 export interface IBridge3DData {
     cameraZDistance: number;
     cameraFarPlane: number;
+    orthographicCamera?: boolean;
     readonly scene3dSettings: Record<string, any>;
     readonly cameraSettings: Record<string, any>;
 }

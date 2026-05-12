@@ -1,87 +1,55 @@
 import { ILaya } from "../../../ILaya";
 import { Camera } from "../../d3/core/Camera";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
 import { RenderState2D } from "../../webgl/utils/RenderState2D";
-
+import { Bridge3DCamera } from "../Bridge3DCamera";
 
 /**
- * Bridge3D坐标转换工具类
- * 处理2D逻辑坐标与3D世界坐标之间的转换
+ * Bridge3D coordinate conversion helpers.
  *
- * @remarks
- * LayaAir的坐标系统：
- * - Stage逻辑坐标：stage.width × stage.height（用户设置的逻辑尺寸）
- * - Canvas渲染坐标：RenderState2D.width × RenderState2D.height（实际渲染尺寸，可能经过缩放）
- * - 3D世界坐标：与Canvas渲染坐标对齐
- *
- * 当stage被缩放时（如适配不同屏幕），逻辑坐标与渲染坐标会不一致，需要转换。
+ * 2D logic coordinates are local to the owning Scene (Y-down).
+ * 3D world coordinates are Bridge3D scene-local coordinates (Y-up).
+ * Scene-to-stage offset/scale is handled by Bridge3DCamera.sceneOffsetMatrix.
  */
 export class Bridge3DCoordinate {
+    /** @internal */
+    private static _tmpInvOffset: Matrix4x4 = new Matrix4x4();
+    /** @internal */
+    private static _tmpScreenPoint: Vector3 = new Vector3();
+
     /**
-     * 将2D逻辑坐标转换为3D世界坐标
-     * @param x - 2D逻辑X坐标（相对于stage）
-     * @param y - 2D逻辑Y坐标（相对于stage）
-     * @param z - 3D世界Z坐标（默认0）
-     * @param out - 输出向量（可选，不提供则创建新向量）
-     * @returns 3D世界坐标
-     *
-     * @example
-     * ```typescript
-     * // Bridge3D在2D逻辑坐标(400, 300)
-     * const worldPos = Bridge3DCoordinate.logicTo3D(400, 300, 0);
-     * // worldPos现在是3D世界坐标，考虑了stage缩放
-     * ```
+     * Convert Scene-local 2D coordinates to Bridge3D scene-local world coordinates.
+     * @param x Scene-local 2D X.
+     * @param y Scene-local 2D Y.
+     * @param z 3D world Z.
+     * @param out Output vector.
+     * @param sceneHeight Scene logic height used as the Y-flip baseline.
      */
-    static logicTo3D(x: number, y: number, z: number = 0, out?: Vector3): Vector3 {
+    static logicTo3D(x: number, y: number, z: number = 0, out?: Vector3, sceneHeight: number = RenderState2D.height): Vector3 {
         if (!out) {
             out = new Vector3();
         }
-
-        const stage = ILaya.stage;
-        const scaleX = stage.scaleX;
-        const scaleY = stage.scaleY;
-
-        // 2D逻辑坐标 → Canvas渲染坐标（3D世界坐标，Y-up）
-        // 3D Y 轴朝上，2D Y 轴朝下，需将 Y 翻转
-        out.x = x * scaleX;
-        out.y = RenderState2D.height - y * scaleY;
+        out.x = x;
+        out.y = sceneHeight - y;
         out.z = z;
-
         return out;
     }
 
     /**
-     * 将3D世界坐标转换为2D逻辑坐标
-     * @param worldPos - 3D世界坐标
-     * @returns {x: number, y: number} 2D逻辑坐标
-     *
-     * @example
-     * ```typescript
-     * const worldPos = new Vector3(800, 600, 0);
-     * const logicPos = Bridge3DCoordinate.worldTo2D(worldPos);
-     * // logicPos.x, logicPos.y 是2D逻辑坐标
-     * ```
+     * Convert Bridge3D scene-local world coordinates to Scene-local 2D coordinates.
+     * @param worldPos Bridge3D scene-local world position.
+     * @param sceneHeight Scene logic height used as the Y-flip baseline.
      */
-    static worldTo2D(worldPos: Vector3): { x: number, y: number } {
-        const stage = ILaya.stage;
-        const scaleX = stage.scaleX;
-        const scaleY = stage.scaleY;
-
-        // 3D世界坐标（Canvas渲染坐标，Y-up） → 2D逻辑坐标（Y-down）
+    static worldTo2D(worldPos: Vector3, sceneHeight: number = RenderState2D.height): { x: number, y: number } {
         return {
-            x: worldPos.x / scaleX,
-            y: (RenderState2D.height - worldPos.y) / scaleY
+            x: worldPos.x,
+            y: sceneHeight - worldPos.y
         };
     }
 
     /**
-     * 获取当前的坐标缩放比例
-     * @returns {scaleX: number, scaleY: number} X和Y方向的缩放比例
-     *
-     * @remarks
-     * - scaleX = RenderState2D.width / stage.width
-     * - scaleY = RenderState2D.height / stage.height
-     * - 当stage适配屏幕时，这些值可能不为1
+     * Get current Stage scale. This is informational; Bridge3D conversion itself uses sceneOffsetMatrix.
      */
     static getScale(): { scaleX: number, scaleY: number } {
         const stage = ILaya.stage;
@@ -92,8 +60,7 @@ export class Bridge3DCoordinate {
     }
 
     /**
-     * 获取当前的渲染尺寸信息
-     * @returns 包含逻辑尺寸、渲染尺寸和缩放比例的对象
+     * Get current render and scale information for debugging.
      */
     static getRenderInfo(): {
         logicWidth: number,
@@ -115,56 +82,71 @@ export class Bridge3DCoordinate {
     }
 
     /**
-     * 将2D屏幕坐标转换为3D世界坐标（考虑相机投影）
-     * @param screenX - 屏幕X坐标（像素）
-     * @param screenY - 屏幕Y坐标（像素）
-     * @param camera - Bridge3D相机
-     * @param depth - 深度值（默认0，表示Z=0平面）
-     * @param out - 输出向量（可选）
-     * @returns 3D世界坐标
+     * Convert canvas screen coordinates to Bridge3D scene-local world coordinates.
      *
-     * @remarks
-     * 此方法用于将鼠标点击等屏幕坐标转换为3D世界坐标
+     * For orthographic cameras this maps directly through the orthographic size.
+     * For perspective Bridge3D cameras this intersects the camera ray with the target Z plane.
+     *
+     * @param screenX Canvas pixel X, origin at top-left.
+     * @param screenY Canvas pixel Y, origin at top-left.
+     * @param camera Bridge3D camera.
+     * @param depth Target world Z plane.
+     * @param out Output vector.
      */
     static screenTo3D(screenX: number, screenY: number, camera: Camera, depth: number = 0, out?: Vector3): Vector3 {
         if (!out) {
             out = new Vector3();
         }
 
-        // 屏幕坐标 → NDC坐标
         const renderWidth = RenderState2D.width;
         const renderHeight = RenderState2D.height;
         const ndcX = (screenX / renderWidth) * 2 - 1;
-        const ndcY = 1 - (screenY / renderHeight) * 2;  // Y轴翻转
+        const ndcY = 1 - (screenY / renderHeight) * 2;
+        const cameraPos = camera.transform.position;
 
-        // 对于正交投影，直接计算世界坐标
         if (camera.orthographic) {
             const halfHeight = camera.orthographicVerticalSize * 0.5;
             const halfWidth = halfHeight * camera.aspectRatio;
 
-            // NDC → View Space
-            const viewX = ndcX * halfWidth;
-            const viewY = ndcY * halfHeight;
-
-            // View Space → World Space（需要相机的变换矩阵）
-            const camPos = camera.transform.position;
-            out.x = camPos.x + viewX;
-            out.y = camPos.y + viewY;
+            out.x = cameraPos.x + ndcX * halfWidth;
+            out.y = cameraPos.y + ndcY * halfHeight;
             out.z = depth;
+        } else {
+            const distance = cameraPos.z - depth;
+            if (distance <= 0) {
+                return out;
+            }
+
+            const halfFov = camera.fieldOfView * Math.PI / 180 * 0.5;
+            const halfHeight = Math.tan(halfFov) * distance;
+            const halfWidth = halfHeight * camera.aspectRatio;
+
+            out.x = cameraPos.x + ndcX * halfWidth;
+            out.y = cameraPos.y + ndcY * halfHeight;
+            out.z = depth;
+        }
+
+        const bridgeCamera = camera as Bridge3DCamera;
+        if (bridgeCamera.sceneOffsetMatrix && !bridgeCamera.sceneOffsetIsIdentity) {
+            bridgeCamera.sceneOffsetMatrix.invert(Bridge3DCoordinate._tmpInvOffset);
+            Bridge3DCoordinate._tmpScreenPoint.x = out.x;
+            Bridge3DCoordinate._tmpScreenPoint.y = out.y;
+            Bridge3DCoordinate._tmpScreenPoint.z = out.z;
+            Vector3.transformCoordinate(Bridge3DCoordinate._tmpScreenPoint, Bridge3DCoordinate._tmpInvOffset, out);
         }
 
         return out;
     }
 
     /**
-     * 调试输出当前坐标系统信息
+     * Print current coordinate system information.
      */
     static debugInfo(): void {
         const info = Bridge3DCoordinate.getRenderInfo();
         console.log("=== Bridge3D Coordinate System Info ===");
-        console.log(`Logic Size: ${info.logicWidth} × ${info.logicHeight}`);
-        console.log(`Render Size: ${info.renderWidth} × ${info.renderHeight}`);
-        console.log(`Scale: ${info.scaleX.toFixed(3)} × ${info.scaleY.toFixed(3)}`);
+        console.log(`Logic Size: ${info.logicWidth} x ${info.logicHeight}`);
+        console.log(`Render Size: ${info.renderWidth} x ${info.renderHeight}`);
+        console.log(`Scale: ${info.scaleX.toFixed(3)} x ${info.scaleY.toFixed(3)}`);
         console.log("=======================================");
     }
 }

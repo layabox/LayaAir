@@ -10,6 +10,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 export class Bridge3DData {
     private _cameraZDistance: number = 100;
     private _cameraFarPlane: number = 1000;
+    private _orthographicCamera: boolean = true;
 
     /** @internal 反序列化时存储 Scene3D 属性数据，initScene3D 后 apply */
     private _scene3dSettingsData: Record<string, any> = { skyRenderer: {} };
@@ -38,6 +39,18 @@ export class Bridge3DData {
 
     set cameraFarPlane(value: number) {
         this._cameraFarPlane = value;
+    }
+
+    /**
+     * @en Whether Bridge3D uses an orthographic camera. When false, Bridge3D uses a perspective camera and derives camera Z from fieldOfView to keep the Z=0 plane aligned with 2D pixels.
+     * @zh Bridge3D 是否使用正交相机。为 false 时使用透视相机，并根据 fieldOfView 反推相机 Z，使 Z=0 平面继续与 2D 像素对齐。
+     */
+    get orthographicCamera(): boolean {
+        return this._orthographicCamera;
+    }
+
+    set orthographicCamera(value: boolean) {
+        this._orthographicCamera = value;
     }
 
     /**

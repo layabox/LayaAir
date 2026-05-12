@@ -1,7 +1,9 @@
 import { ILaya } from "../../ILaya";
 import { IBridge3DSceneInternal, Scene } from "../display/Scene";
+import { Event } from "../events/Event";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { ClassUtils } from "../utils/ClassUtils";
+import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { Bridge3DScene3D } from "./Bridge3DScene3D";
 import { Bridge3DSprite, IBridgeRenderElement } from "./Bridge3DSprite";
 
@@ -20,9 +22,57 @@ export class Bridge3DSceneInternal implements IBridge3DSceneInternal{
     _bridge3DList: Bridge3DSprite[] = [];
     /** @internal */
     _isAddedToStage: boolean = false;
+    /** @internal sceneOffset 监听是否已挂上 */
+    private _offsetListenersHooked: boolean = false;
 
     constructor(scene: Scene) {
         this._scene2D = scene;
+    }
+
+    /**
+     * 根据 Scene 当前的 globalTrans + stage 高度，更新 Bridge3DCamera 的 sceneOffsetMatrix。
+     * 触发时机：Scene transform 改变、stage resize、scene3d 首次创建。
+     * @private
+     */
+    private _updateSceneOffset = (): void => {
+        if (!this._scene3d || !this._scene2D) return;
+        const cam = this._scene3d.sharedCamera;
+        if (!cam) return;
+        const m = this._scene2D.globalTrans.getMatrix();
+        const renderH = RenderState2D.height || ILaya.stage.height;
+        const sceneH = this._scene2D.height || renderH;
+        cam.setSceneOffsetFrom2DMatrix(m.a, m.b, m.c, m.d, m.tx, m.ty, renderH, sceneH);
+    };
+
+    private _onScene2DResize = (): void => {
+        this._updateSceneOffset();
+        for (let i = 0, len = this._bridge3DList.length; i < len; i++) {
+            this._bridge3DList[i]._onScene2DResize();
+        }
+    };
+
+    /**
+     * 挂载 sceneOffset 相关事件监听（idempotent）。
+     * @private
+     */
+    private _hookOffsetListeners(): void {
+        if (this._offsetListenersHooked) return;
+        this._scene2D.on(Event.TRANSFORM_CHANGED, this, this._updateSceneOffset);
+        this._scene2D.on(Event.RESIZE, this, this._onScene2DResize);
+        ILaya.stage.on(Event.RESIZE, this, this._updateSceneOffset);
+        this._offsetListenersHooked = true;
+    }
+
+    /**
+     * 卸载 sceneOffset 相关事件监听。
+     * @private
+     */
+    private _unhookOffsetListeners(): void {
+        if (!this._offsetListenersHooked) return;
+        this._scene2D && this._scene2D.off(Event.TRANSFORM_CHANGED, this, this._updateSceneOffset);
+        this._scene2D && this._scene2D.off(Event.RESIZE, this, this._onScene2DResize);
+        ILaya.stage && ILaya.stage.off(Event.RESIZE, this, this._updateSceneOffset);
+        this._offsetListenersHooked = false;
     }
 
     _onAdded(){
@@ -79,9 +129,16 @@ export class Bridge3DSceneInternal implements IBridge3DSceneInternal{
 
             const holder = this._scene2D.bridge3D;
             if (holder) {
+                this._scene3d.applyCameraZDistance(holder.cameraZDistance);
+                this._scene3d.applyCameraFarPlane(holder.cameraFarPlane);
                 this._applySettingsTo(this._scene3d, holder.scene3dSettings);
                 this._applySettingsTo(this._scene3d.sharedCamera, holder.cameraSettings);
+                this._scene3d.applyOrthographicCamera(holder.orthographicCamera);
             }
+
+            // 创建相机后立即推送一次 sceneOffsetMatrix，并挂上监听
+            this._hookOffsetListeners();
+            this._updateSceneOffset();
         }
         return this._scene3d;
     }
@@ -183,6 +240,7 @@ export class Bridge3DSceneInternal implements IBridge3DSceneInternal{
         if (data) {
             this._scene3d.applyCameraZDistance(data.cameraZDistance);
             this._scene3d.applyCameraFarPlane(data.cameraFarPlane);
+            this._scene3d.applyOrthographicCamera(data.orthographicCamera);
             // 编辑器的 forwarding proxy 带有 _applyCache，跳过（proxy 直接读写 scene3d）
             // 运行时原始数据 Record 没有 _applyCache，正常 apply
             const s3d = data.scene3dSettings;
@@ -193,9 +251,11 @@ export class Bridge3DSceneInternal implements IBridge3DSceneInternal{
             if (cam && !cam._applyCache) {
                 this._applySettingsTo(this._scene3d.sharedCamera, cam);
             }
+            this._scene3d.applyOrthographicCamera(data.orthographicCamera);
         } else {
             this._scene3d.applyCameraZDistance(100);
             this._scene3d.applyCameraFarPlane(1000);
+            this._scene3d.applyOrthographicCamera(true);
         }
     }
 
@@ -214,8 +274,11 @@ export class Bridge3DSceneInternal implements IBridge3DSceneInternal{
 
         const holder = this._scene2D.bridge3D;
         if (holder) {
+            this._scene3d.applyCameraZDistance(holder.cameraZDistance);
+            this._scene3d.applyCameraFarPlane(holder.cameraFarPlane);
             this._applySettingsTo(this._scene3d, holder.scene3dSettings);
             this._applySettingsTo(this._scene3d.sharedCamera, holder.cameraSettings);
+            this._scene3d.applyOrthographicCamera(holder.orthographicCamera);
         }
     }
 
@@ -224,6 +287,7 @@ export class Bridge3DSceneInternal implements IBridge3DSceneInternal{
      * @zh 销毁 scene3d 并清空列表。
      */
     destroy(): void {
+        this._unhookOffsetListeners();
         if (this._scene3d) {
             if (this._isAddedToStage) {
                 ILaya.stage.removeChild(this._scene3d);
