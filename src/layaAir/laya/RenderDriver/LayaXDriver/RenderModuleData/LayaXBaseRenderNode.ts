@@ -48,14 +48,28 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
         this._transform = value;
         if (value) {
             value.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
-            this._nativeObj.invertFrontFace = value._isFrontFaceInvert;
+            this._syncWorldInvertFront();
+        } else {
+            this._syncWorldInvertFront();
         }
     }
 
     private _onTransformChanged(flag: number): void {
         if (flag & Transform3D.TRANSFORM_WORLDSCALE) {
-            this._nativeObj.invertFrontFace = this._transform._isFrontFaceInvert;
+            this._syncWorldInvertFront();
         }
+    }
+
+    private _syncWorldInvertFront(): void {
+        if (!this._transform) {
+            this._worldParams.x = 1;
+            this._nativeObj.worldParams = this._worldParams;
+            this._nativeObj.invertFrontFace = false;
+            return;
+        }
+        this._worldParams.x = this._transform.getFrontFaceValue();
+        this._nativeObj.worldParams = this._worldParams;
+        this._nativeObj.invertFrontFace = this._transform._isFrontFaceInvert;
     }
 
     // ------------------------------------------------------------------
@@ -73,7 +87,11 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
 
     /** 负 scale 绕序位；与 pass.invertY XOR 决定 pipeline 是否翻 front_face。 */
     public get invertFrontFace(): boolean { return this._nativeObj.invertFrontFace; }
-    public set invertFrontFace(value: boolean) { this._nativeObj.invertFrontFace = value; }
+    public set invertFrontFace(value: boolean) {
+        this._worldParams.x = value ? -1 : 1;
+        this._nativeObj.worldParams = this._worldParams;
+        this._nativeObj.invertFrontFace = value;
+    }
 
     public get receiveShadow(): boolean { return this._nativeObj.receiveShadow; }
     public set receiveShadow(value: boolean) { this._nativeObj.receiveShadow = value; }
@@ -243,13 +261,14 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
         this._defaultBaseGeometryBounds = new Bounds();
         this.baseGeometryBounds = this._defaultBaseGeometryBounds;
         this.renderelements = [];
+        this._nativeObj.worldParams = this._worldParams;
     }
 
     // ------------------------------------------------------------------
     // Custom data
     // ------------------------------------------------------------------
 
-    private _worldParams: Vector4 = new Vector4();
+    private _worldParams: Vector4 = new Vector4(1, 0, 0, 0);
     setNodeCustomData(dataSlot: ENodeCustomData, data: number): void {
         switch (dataSlot) {
             case 0:
