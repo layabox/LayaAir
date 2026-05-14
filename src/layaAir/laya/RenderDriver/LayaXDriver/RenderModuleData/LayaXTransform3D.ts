@@ -71,6 +71,12 @@ export class LayaXTransform3D extends Transform3D {
     /** @internal */
     _nativeObj: any;
 
+    /**@internal RTAnimatorFactory._notifyJsTransformChanged 的帧去重标记，整数比对替代 Set 去重 */
+    _notifyFrame: number = 0;
+
+    /**@internal 是否挂了 TRANSFORM_CHANGED 监听者，由 onStartListeningToType 维护；无监听者时 _dispatchTransformEvent 跳过 event 调用 */
+    _hasTransformChangedListener: boolean = false;
+
     constructor(owner: Sprite3D) {
         super(owner);
     }
@@ -92,6 +98,16 @@ export class LayaXTransform3D extends Transform3D {
         this.localScale = this._localScale;
         this.setWorldLossyScale(this._scale);
         this.localRotation = this._localRotation;
+    }
+
+    /**
+     * @internal
+     * EventDispatcher hook：首次注册某 type 监听时触发。记下是否挂了 TRANSFORM_CHANGED，
+     * 让 RTAnimatorFactory._dispatchTransformEvent 跳过无监听者的 transform（不调 event）。
+     */
+    protected onStartListeningToType(type: string): void {
+        super.onStartListeningToType(type);
+        if (type === Event.TRANSFORM_CHANGED) this._hasTransformChangedListener = true;
     }
 
     /**
