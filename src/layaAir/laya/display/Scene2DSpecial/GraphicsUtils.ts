@@ -279,7 +279,7 @@ export class GraphicsRenderer {
       this._submits.destroy();
 
       this.texturesMap.forEach(inf => {
-         inf.texture.off("dispose" , this, this._resourceRepaint);
+         inf.texture.off(Event.CHANGE, this, this._resourceRepaint);
       });
       this.texturesMap.clear();
 

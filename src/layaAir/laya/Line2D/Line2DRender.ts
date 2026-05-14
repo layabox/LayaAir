@@ -240,7 +240,12 @@ export class Line2DRender extends BaseRenderNode2D {
 
     set sharedMaterial(value: Material) {
         super.sharedMaterial = value;
-        BaseRenderNode2D._setRenderElement2DMaterial(this._renderElements[0], this._materials[0] ? this._materials[0] : Line2DRender.defaultLine2DMaterial);
+        BaseRenderNode2D._setRenderElement2DMaterial(this._renderElements[0], this._getElementMaterial(0));
+    }
+
+    /** @internal */
+    protected _getElementMaterial(index: number): Material {
+        return this._materials[index] || Line2DRender.defaultLine2DMaterial;
     }
 
 
@@ -377,7 +382,7 @@ export class Line2DRender extends BaseRenderNode2D {
         renderElement.renderStateIsBySprite = false;
         renderElement.nodeCommonMap = this._getcommonUniformMap();
         renderElement.owner = this._struct;
-        BaseRenderNode2D._setRenderElement2DMaterial(renderElement, this._materials[0] ? this._materials[0] : Line2DRender.defaultLine2DMaterial);
+        BaseRenderNode2D._setRenderElement2DMaterial(renderElement, this._getElementMaterial(0));
         this._renderElements[0] = renderElement;
         this._struct.renderElements = this._renderElements;
 

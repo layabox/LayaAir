@@ -263,6 +263,11 @@ export class Mesh2DRender extends BaseRenderNode2D {
         return this._materials[0];
     }
 
+    /** @internal */
+    protected _getElementMaterial(index: number): Material {
+        return this._materials[index] || Mesh2DRender.mesh2DDefaultMaterial;
+    }
+
     private _applyUnitQuad(value: boolean) {
         this._useUnitQuad = value;
         if (value) {
@@ -296,6 +301,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
         if (submeshNum < this._renderElements.length) {
             for (var i = this._renderElements.length, n = submeshNum; n < i; i--) {
                 let element = this._renderElements[i - 1];
+                BaseRenderNode2D._removeRenderElement2DMaterial(element, this._getElementMaterial(i - 1));
                 element.destroy();
             }
             this._renderElements.length = submeshNum;
@@ -306,7 +312,7 @@ export class Mesh2DRender extends BaseRenderNode2D {
                 element = this._renderElements[i] = LayaGL.render2DRenderPassFactory.createRenderElement2D();
             element.geometry = mesh.getSubMesh(i);
             element.value2DShaderData = this._spriteShaderData;
-            BaseRenderNode2D._setRenderElement2DMaterial(element, this._materials[i] ? this._materials[i] : Mesh2DRender.mesh2DDefaultMaterial);
+            BaseRenderNode2D._setRenderElement2DMaterial(element, this._getElementMaterial(i));
             element.renderStateIsBySprite = false;
             element.nodeCommonMap = this._getcommonUniformMap();
             element.owner = this._struct;
