@@ -64,7 +64,9 @@ export class Spine3DRenderer extends BaseRender {
 
     private _enableCache: boolean = false;
 
-    /** 
+    private _customRenderQueue: number = -1;
+
+    /**
      * @zh 渲染尺寸 (宽度, 高度)
      * @en Render size (width, height)
      */
@@ -100,6 +102,21 @@ export class Spine3DRenderer extends BaseRender {
             this._baseRenderNode.shaderData.addDefine(Spine3DShaderInit.SPINE_BILLBOARD);
         } else {
             this._baseRenderNode.shaderData.removeDefine(Spine3DShaderInit.SPINE_BILLBOARD);
+        }
+    }
+
+    /**
+     * @zh 设置渲染队列。可以用于控制 Spine 动画与场景物件的渲染顺序。-1 表示使用默认值（3000，即透明队列）。
+     * @en Set the render queue. Can be used to control the rendering order of Spine animation relative to scene objects. -1 means use default value (3000, transparent queue).
+     */
+    get renderQueue(): number {
+        return this._customRenderQueue;
+    }
+
+    set renderQueue(value: number) {
+        this._customRenderQueue = value;
+        if (this._spineRender) {
+            this._spineRender.customRenderQueue = value;
         }
     }
 
@@ -430,6 +447,7 @@ export class Spine3DRenderer extends BaseRender {
         this._spineRender = SpineConst.factory.createSpineRender3D(this._baseRenderNode);
         this._spineRender.init(templet);
         this._spineRender.mode = this._useFastRender ? ESpineRenderMode.Optimize : ESpineRenderMode.Normal;
+        this._spineRender.customRenderQueue = this._customRenderQueue;
         this._spineRender.premultipliedAlpha = this._setPreAlphaFlag ? this._premultipliedAlpha : this._templet.premultipliedAlpha;
         
         // 设置缓存状态

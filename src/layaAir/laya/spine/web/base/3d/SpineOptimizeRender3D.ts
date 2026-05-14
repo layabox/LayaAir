@@ -149,10 +149,12 @@ export class SpineOptimizeRender3D extends BaseOptimizeRender {
                     this._renderElements[i] = element;
                     needUpdate = true;
                 } else {
-                    if (element.geometry !== subMesh || 
+                    let expectedRenderQueue = this.customRenderQueue >= 0 ? this.customRenderQueue : material.renderQueue;
+                    if (element.geometry !== subMesh ||
                         element.materialShaderData !== material.shaderData ||
                         element.renderShaderData !== shaderData ||
-                        element.owner !== this._owner
+                        element.owner !== this._owner ||
+                        element.materialRenderQueue !== expectedRenderQueue
                     ) {
                         needUpdate = true;
                     }
@@ -164,7 +166,7 @@ export class SpineOptimizeRender3D extends BaseOptimizeRender {
                     element.subShader = material._shader.getSubShaderAt(0);
                     element.renderShaderData = shaderData;
                     element.owner = this._owner;
-                    element.materialRenderQueue = material.renderQueue;
+                    element.materialRenderQueue = this.customRenderQueue >= 0 ? this.customRenderQueue : material.renderQueue;
                     need = true;
                 }
             } else {

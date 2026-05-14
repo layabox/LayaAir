@@ -24,6 +24,12 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
     protected _premultipliedAlpha: boolean = true;
     protected _mode: ESpineRenderMode = ESpineRenderMode.Optimize;
 
+    /**
+     * @en Custom render queue. -1 means use material default.
+     * @zh 自定义渲染队列，-1表示使用材质默认值。
+     */
+    customRenderQueue: number = -1;
+
     state: ESpineRenderState = ESpineRenderState.Stopped;
     currentTime: number = 0;
     trackEntry: ITrackEntry = {

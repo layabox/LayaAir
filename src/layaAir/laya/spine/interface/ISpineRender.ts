@@ -55,7 +55,10 @@ export interface ISpineRender {
     state: ESpineRenderState;
     /** 当前播放时间（秒） */
     currentTime: number;
-    
+
+    /** 自定义渲染队列，-1表示使用材质默认值 */
+    customRenderQueue: number;
+
     trackEntry: ITrackEntry;
 
     getSkeleton(): spine.Skeleton;

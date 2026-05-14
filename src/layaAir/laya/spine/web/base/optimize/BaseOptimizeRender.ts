@@ -86,7 +86,13 @@ export abstract class BaseOptimizeRender implements ISpineRender {
     /** @internal */
     _enableCache: boolean = false;
 
-    /** 
+    /**
+     * @en Custom render queue. -1 means use material default.
+     * @zh 自定义渲染队列，-1表示使用材质默认值。
+     */
+    customRenderQueue: number = -1;
+
+    /**
      * @en Current render mode.
      * @zh 当前渲染模式。
      */
