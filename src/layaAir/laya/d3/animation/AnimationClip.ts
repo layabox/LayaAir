@@ -1,6 +1,7 @@
 import { AnimationClipParser03 } from "./AnimationClipParser03";
 import { AnimationClipParser04 } from "./AnimationClipParser04";
 import { KeyframeNodeList } from "./KeyframeNodeList";
+import { KeyframeNode } from "./KeyframeNode";
 import { AnimationEvent } from "./AnimationEvent";
 import { Utils3D } from "../utils/Utils3D"
 import { Resource } from "../../resource/Resource"
@@ -14,6 +15,7 @@ import { Quaternion } from "../../maths/Quaternion";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
+import { Keyframe } from "../../maths/Keyframe";
 import { FloatKeyframe } from "../../maths/FloatKeyframe";
 import { WeightedMode } from "../../maths/Keyframe";
 import { QuaternionKeyframe } from "../../maths/QuaternionKeyframe";
@@ -22,6 +24,7 @@ import { Vector3Keyframe } from "../../maths/Vector3Keyframe";
 import { Vector4Keyframe } from "../../maths/Vector4Keyframe";
 import { BooleanKeyframe } from "../../maths/BooleanKeyframe";
 import { PathPointKeyframe } from "../../maths/PathPointKeyframe";
+import { notifyClipDestroyed } from "../component/Animator/factory/data/IAnimatorData";
 
 /**
  * @en The AnimationClip class is used for animation clip resources.
@@ -431,7 +434,7 @@ export class AnimationClip extends Resource {
 	 * @param frontPlay 是否是前向播放。
 	 * @param outDatas 计算好的动画数据。
 	 */
-	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<boolean | number | Vector3 | Quaternion | Vector4 | Vector2 | { pos: Vector3, rotation: Vector3 }>, avatarMask: AvatarMask): void {
+	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<boolean | number | Vector3 | Quaternion | Vector4 | Vector2 | { pos: Vector3, rotation: Vector3 }>, avatarMask: AvatarMask, skipTransform: boolean = false): void {
 		for (var i = 0, n = nodes.count; i < n; i++) {
 			var node = nodes.getNodeByIndex(i);
 			var type = node.type;
@@ -440,6 +443,9 @@ export class AnimationClip extends Resource {
 			var keyFramesCount = keyFrames.length;
 			var frameIndex = realTimeCurrentFrameIndexes[i];
 			if (avatarMask && (!avatarMask.getTransformActive(node.nodePath))) {
+				continue;
+			}
+			if (skipTransform && (type === KeyFrameValueType.Position || type === KeyFrameValueType.Rotation || type === KeyFrameValueType.Scale || type === KeyFrameValueType.RotationEuler)) {
 				continue;
 			}
 			if (frontPlay) {
@@ -737,6 +743,8 @@ export class AnimationClip extends Resource {
 	 * @zh 销毁资源。
 	 */
 	protected _disposeResource(): void {
+		// 通知工厂层（RT 路径释放 native ClipTable；Web 路径无回调注册即 no-op）
+		notifyClipDestroyed(this._id);
 		this._nodes = null;
 		this._nodesMap = null;
 	}
