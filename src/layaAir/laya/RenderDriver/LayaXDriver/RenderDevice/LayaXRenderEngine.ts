@@ -8,8 +8,8 @@ import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { RTShaderDefine } from "../../RenderModuleData/RuntimeModuleData/RTShaderDefine";
-import { WebGPUShaderCompiler } from "../../WebGPUDriver/RenderDevice/ShaderCompiler/WebGPUShaderCompiler";
 import { LayaXReadbackDispatcher } from "./LayaXReadbackDispatcher";
+import { LayaXShaderCompiler } from "./ShaderCompiler/LayaXShaderCompiler";
 import { LayaXTextureContext } from "./LayaXTextureContext";
 
 /**
@@ -29,11 +29,11 @@ export class LayaXRenderEngine implements IRenderEngine {
     private _lastGpuBufferMemory: number = 0;
     private _lastGpuMemory: number = 0;
 
-    shaderCompiler: WebGPUShaderCompiler;
+    shaderCompiler: LayaXShaderCompiler;
 
     constructor() {
         this._nativeObj = new (window as any).conchLayaXDevice();
-        this.shaderCompiler = new WebGPUShaderCompiler();
+        this.shaderCompiler = new LayaXShaderCompiler();
         LayaXRenderEngine._instance = this;
     }
 
