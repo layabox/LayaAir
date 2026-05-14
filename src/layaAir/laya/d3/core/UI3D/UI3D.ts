@@ -28,7 +28,6 @@ import { Camera } from "../Camera";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Utils } from "../../../utils/Utils";
 import { Rectangle } from "../../../maths/Rectangle";
-import { SpriteUtils } from "../../../utils/SpriteUtils";
 import { RepaintFlag } from "../../../display/SpriteConst";
 import { ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
 
@@ -41,6 +40,10 @@ class UI3DShellSprite extends Sprite {
     _invertY: boolean;
 
     updateRT: boolean = false;
+
+    /** @internal 内容渲染偏移量 */
+    _contentOffsetX: number = 0;
+    _contentOffsetY: number = 0;
 
     _genMipMap: boolean = false;
 
@@ -78,34 +81,18 @@ class UI3DShellSprite extends Sprite {
     }
 
     updateRenderTexture() {
-        //计算方式调整
         let rect = Rectangle.TEMP;
-        if (this.mask) {
-            SpriteUtils.getRect(this.mask, false, rect);
-            rect.x += this.mask._pivotX;
-            rect.y += this.mask._pivotY;
-        }
-        else {
-            SpriteUtils.getRect(this, false, rect);
-            rect.x += this._pivotX;
-            rect.y += this._pivotY;
-        }
-
-        // if (rect.width === 0 || rect.height === 0)
-        //     return false;
+        rect.setTo(this._contentOffsetX, this._contentOffsetY, this._rtWidth, this._rtHeight);
+        this._subStructRender._updateRenderOffset(rect, rect, 1, 1);
 
         let oldRT = this._drawOriRT;
-        let maskRect = this._subStructRender._rtRect;
-        //判断待考虑
         if (oldRT) {
-            if (maskRect.width === rect.width && maskRect.height === rect.height) {
-                // this._subStructRender._updateRenderOffset(rect);
+            if (this._rtWidth === oldRT.width && this._rtHeight === oldRT.height) {
                 return false;
             }
             oldRT.destroy();
         }
 
-        // this._subStructRender._updateRenderOffset(rect);
         let renderTexture: RenderTexture2D;
         if (this._genMipMap) {
             renderTexture = new RenderTexture2D(this._rtWidth, this._rtHeight, RenderTargetFormat.R8G8B8A8);
@@ -200,11 +187,33 @@ export class UI3D extends BaseRender {
             return;
         this._uisprite = value;
         this._shellSprite.removeChildren(0, this._shellSprite.numChildren - 1);
-        if (value)
+        if (value) {
             this._shellSprite.addChild(value);
+            this._updateContentOffset(value);
+        } else {
+            this._shellSprite._contentOffsetX = 0;
+            this._shellSprite._contentOffsetY = 0;
+        }
         this._resizeRT();
         this._shellSprite.repaint();
         this.boundsChange = true;
+    }
+
+    /**
+     * @internal
+     * 计算子节点内容的位置偏移
+     */
+    private _updateContentOffset(sp: Sprite): void {
+        let offsetX = sp.x;
+        let offsetY = sp.y;
+        // 根节点在原点且仅有一个子节点时，检查下一层（处理嵌套容器）
+        if (offsetX === 0 && offsetY === 0 && sp.numChildren === 1) {
+            let child = sp.getChildAt(0) as Sprite;
+            offsetX = child.x;
+            offsetY = child.y;
+        }
+        this._shellSprite._contentOffsetX = offsetX;
+        this._shellSprite._contentOffsetY = offsetY;
     }
 
     /**
@@ -376,6 +385,8 @@ export class UI3D extends BaseRender {
         this._shellSprite._setBit(NodeFlags.DISPLAYED_INSTAGE, true);
         this._shellSprite._setBit(NodeFlags.ACTIVE_INHIERARCHY, true);
         this._shellSprite.cacheAs = "bitmap";
+        // shellSprite 不在渲染树，_updateStruct 不会被调用，手动初始化确保 root.trans 有效
+        this._shellSprite._struct.renderMatrix = this._shellSprite.globalTrans.getMatrix();
         this._baseRenderNode.shaderData.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0);
 
         this._matrix = new Matrix4x4();
@@ -453,8 +464,9 @@ export class UI3D extends BaseRender {
         let cx = normalizeHitWidth * this._rendertexure2D.width;
         let cy = (1.0 - normalizeHitHeight) * this._rendertexure2D.height;
 
-        // drawCircle to test
-        // UI3D.DEBUG && this._uisprite && this._shellSprite.graphics.drawCircle(cx, cy, 10, "#e53d30");
+        // RT 像素坐标 → shellSprite 空间 → _uisprite 局部坐标
+        cx += this._shellSprite._contentOffsetX - this._uisprite.x;
+        cy += this._shellSprite._contentOffsetY - this._uisprite.y;
 
         let target = InputManager.inst.getSpriteUnderPoint(this._uisprite, cx, cy);
         if (target)
@@ -512,7 +524,12 @@ export class UI3D extends BaseRender {
             if (this.billboard) {
                 this._sizeChange = false;
                 let camera = this.owner.scene.cullInfoCamera;
-                Matrix4x4.createAffineTransformation(this._transform.position, camera.transform.rotation, this._scale, this._matrix);
+                let e = this._transform.worldMatrix.elements;
+                let sx = Math.sqrt(e[0] * e[0] + e[1] * e[1] + e[2] * e[2]);
+                let sy = Math.sqrt(e[4] * e[4] + e[5] * e[5] + e[6] * e[6]);
+                let finalScale = tempVec3;
+                finalScale.setValue(this._scale.x * sx, this._scale.y * sy, 1);
+                Matrix4x4.createAffineTransformation(this._transform.position, camera.transform.rotation, finalScale, this._matrix);
             } else if (this._sizeChange) {
                 this._sizeChange = false;
                 this.boundsChange = true;
