@@ -922,7 +922,7 @@ export class NoRenderStruct2D implements IRenderStruct2D {
         this.parent = null;
         this.children.length = 0;
         this.children = null;
-        this.pass = null;
+        this._pass = null;
     }
 }
 
