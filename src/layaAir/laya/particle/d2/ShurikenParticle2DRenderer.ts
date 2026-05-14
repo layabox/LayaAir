@@ -786,7 +786,9 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
     }
 
     private _createRenderElements() {
+        let mat = this._materials[0];
         this._renderElements.forEach(element => {
+            BaseRenderNode2D._removeRenderElement2DMaterial(element, mat);
             element.destroy();
         });
         this._renderElements.length = 0;
