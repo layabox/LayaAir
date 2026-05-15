@@ -419,10 +419,6 @@ export class Animator extends Component {
         } else {
             console.warn("Invalid layerIndex " + layerIndex + ".");
         }
-        if (this.owner._scene) {
-            this._resolveManager();
-            if (this._manager) this._manager.tickImmediately(this);
-        }
     }
 
     /**

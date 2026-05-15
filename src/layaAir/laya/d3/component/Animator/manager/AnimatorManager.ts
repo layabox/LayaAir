@@ -91,19 +91,6 @@ export class AnimatorManager implements IElementComponentManager {
         this._pendingSwitches.length = 0;
     }
 
-    /** play() 内部用：立即把一个 animator 推到位（tick + flush 两阶段同步走完）。 */
-    tickImmediately(animator: Animator): void {
-        this.tickOne(animator);
-        this._factory.flushEvaluate();
-        this._factory.flushApply();
-        this._drainPendingSwitches();
-        animator._LateUpdateEvents.invoke();
-        animator._LateUpdateEvents.clear();
-    }
-
-    /**
-     * 单个 Animator 的逐帧推进：只推状态机 + 提交本帧 layer 任务到工厂 slot。
-     */
     /**
      * 单个 Animator 的逐帧推进。
      * 步骤：
