@@ -9,6 +9,7 @@ import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData
 import { SpriteConst } from "./SpriteConst";
 import { Matrix } from "../maths/Matrix";
 import { LayaEnv } from "../../LayaEnv";
+import { ILaya } from "../../ILaya";
 
 export class Area2D extends Sprite {
     private _mainCamera: Camera2D;
@@ -104,6 +105,8 @@ export class Area2D extends Sprite {
             // 如果没有主相机，屏幕坐标就是相对于Area2D的UI坐标
             return out;
         }
+        x *= ILaya.stage.scaleX;
+        y *= ILaya.stage.scaleY;
 
         let halfWidth = RenderState2D.width * 0.5;
         let halfHeight = RenderState2D.height * 0.5;
