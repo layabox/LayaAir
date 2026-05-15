@@ -121,7 +121,6 @@ export class Shader3D {
     /**@internal 是否支持动态中断贴图采样 */
     static SHADERDEFINE_BREAK_TEXTURE_SAMPLE: ShaderDefine;
 
-    /**@internal 是否支持动态中断贴图采样 */
     static SHADERDEFINE_STORAGEBUFFER: ShaderDefine;
 
     /**@internal */

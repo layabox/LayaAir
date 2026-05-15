@@ -189,14 +189,30 @@ export class ShaderParser {
                 if (entry.default != null)
                     defaultmap[k] = ShaderParser.getDefaultData(dataType, entry.default);
 
+                let format: string | undefined;
+                let access: 'readonly' | 'writeonly' | 'readwrite' | undefined;
+                if (dataType == ShaderDataType.StorageTexture2D) {
+                    format = entry.format ?? "rgba8";
+                    access = entry.access ?? "writeonly";
+                }
+                else if (dataType == ShaderDataType.DeviceBuffer) {
+                    access = entry.access ?? "readwrite";
+                    if (access == "readonly")
+                        dataType = ShaderDataType.ReadOnlyDeviceBuffer;
+                }
+
+                let value: any = (format !== undefined || access !== undefined)
+                    ? { type: dataType, format, access }
+                    : dataType;
+
                 if (entry.block) {
-                    let block: Record<string, ShaderDataType> = newUniformMap[entry.block];
+                    let block: Record<string, any> = newUniformMap[entry.block];
                     if (!block)
                         newUniformMap[entry.block] = block = {};
-                    block[k] = dataType;
+                    block[k] = value;
                 }
                 else
-                    newUniformMap[k] = dataType;
+                    newUniformMap[k] = value;
             }
         }
     }
