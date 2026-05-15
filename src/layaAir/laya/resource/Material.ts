@@ -16,6 +16,7 @@ import { Resource } from "./Resource";
 import { Event } from "../events/Event";
 import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { ShaderData, ShaderDataDefaultValue, ShaderDataItem, ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { IDeviceBuffer } from "../RenderDriver/DriverDesign/RenderDevice/IDeviceBuffer";
 import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
 import { IDefineDatas } from "../RenderDriver/RenderModuleData/Design/IDefineDatas";
 import { IRenderElement3D } from "../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
@@ -1288,6 +1289,56 @@ export class Material extends Resource implements IClone {
     getTexture(name: string): BaseTexture {
         let uniformIndex = Shader3D.propertyNameToID(name);
         return this.getTextureByIndex(uniformIndex);
+    }
+
+    /**
+     * @en Sets a storage buffer (SSBO) by its uniform index.
+     * @param uniformIndex The index of the property.
+     * @param buffer The storage buffer to bind, or null to clear.
+     * @zh 通过属性索引设置 storage buffer (SSBO)。
+     * @param uniformIndex 属性索引。
+     * @param buffer 要绑定的 storage buffer,传 null 解绑。
+     */
+    setDeviceBufferByIndex(uniformIndex: number, buffer: IDeviceBuffer) {
+        this.shaderData.setDeviceBuffer(uniformIndex, buffer);
+    }
+
+    /**
+     * @en Retrieves a storage buffer (SSBO) by its uniform index.
+     * @param uniformIndex The index of the property.
+     * @returns The bound storage buffer, or null if none.
+     * @zh 通过属性索引获取 storage buffer (SSBO)。
+     * @param uniformIndex 属性索引。
+     * @returns 已绑定的 storage buffer,未绑定返回 null。
+     */
+    getDeviceBufferByIndex(uniformIndex: number): IDeviceBuffer {
+        return this.shaderData.getStorageBuffer(uniformIndex);
+    }
+
+    /**
+     * @en Sets a storage buffer (SSBO) by property name.
+     * @param name The name of the property.
+     * @param buffer The storage buffer to bind, or null to clear.
+     * @zh 根据属性名称设置 storage buffer (SSBO)。
+     * @param name 属性名称。
+     * @param buffer 要绑定的 storage buffer,传 null 解绑。
+     */
+    setDeviceBuffer(name: string, buffer: IDeviceBuffer) {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        this.setDeviceBufferByIndex(uniformIndex, buffer);
+    }
+
+    /**
+     * @en Retrieves a storage buffer (SSBO) by property name.
+     * @param name The name of the property.
+     * @returns The bound storage buffer, or null if none.
+     * @zh 根据属性名称获取 storage buffer (SSBO)。
+     * @param name 属性名称。
+     * @returns 已绑定的 storage buffer,未绑定返回 null。
+     */
+    getDeviceBuffer(name: string): IDeviceBuffer {
+        let uniformIndex = Shader3D.propertyNameToID(name);
+        return this.getDeviceBufferByIndex(uniformIndex);
     }
 
     /**
