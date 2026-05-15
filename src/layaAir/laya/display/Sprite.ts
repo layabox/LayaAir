@@ -1799,6 +1799,91 @@ export class Sprite extends Node {
     }
 
     /**
+     * @en Prepare for off-screen rendering. This method will update the render texture of the current Sprite and its child nodes, and return the root node and sub-pass information for the current Sprite. This method is used internally when rendering to a texture, and generally does not need to be called externally.
+     * @returns An object containing the root node and an array of sub-pass information.
+     * @zh 准备离屏渲染。此方法会更新当前 Sprite 及其子节点的渲染纹理，并返回当前 Sprite 的根节点和子通道信息。此方法在渲染到纹理时内部使用，一般不需要外部调用。
+     * @return 包含根节点和子通道信息的对象。
+     */
+    prepareOSR(): { root: IRenderStruct2D, subPasses: Array<IRender2DPass> } {
+        let runner = Render2DProcessor.runner;
+        let passSet = new Set<IRender2DPass>();
+
+        const updateSprites = function (sprite: Sprite): void {
+            if (!sprite._struct || !sprite._struct.enabled)
+                return;
+            if (sprite._subpassUpdateFlag) {
+                if (sprite._manualRender) {
+                    sprite._subpassUpdateFlag = 0;
+                } else {
+                    sprite.updateSubRenderPassState();
+                    if (sprite._oriRenderPass) {
+                        let result = sprite.updateRenderTexture();
+
+                        let destrt = sprite._drawOriRT;
+                        if (destrt) {
+                            sprite._oriRenderPass.renderTexture = destrt;
+                            if (sprite.mask) {
+                                sprite._oriRenderPass.mask = sprite.mask._struct;
+                            } else
+                                sprite._oriRenderPass.mask = null;
+
+                            if (result) {
+                                sprite._oriRenderPass.renderTexture = destrt;
+                            }
+
+                            let process = sprite._renderType & SpriteConst.POSTPROCESS ? sprite.postProcess : null;
+                            if (
+                                process
+                                && destrt != RenderTexture2D._empty
+                            ) {
+
+                                if (
+                                    result ||
+                                    (sprite._subpassUpdateFlag & SubPassFlag.UPDATE_POSTPROCESS)
+                                ) {
+                                    process.setResource(destrt);
+                                    process.clearCMD();
+                                    process._render();
+                                }
+
+                                if (process.enabled) {
+                                    destrt = process._context.destination;
+                                }
+                            }
+
+                            sprite._subStructRender._updateRenderTexture(sprite._drawOriRT, destrt);
+                            sprite._subpassUpdateFlag = 0;
+
+                        } else {
+                            sprite.setSubRenderPassState(false);
+                        }
+                    }
+                }
+            }
+
+            if (sprite._struct) {
+                sprite._updateStruct();
+                if (sprite._struct.pass)
+                    passSet.add(sprite._struct.pass);
+            }
+
+            if (sprite._graphics) {
+                sprite._graphicsRenderer._render(runner, 0, 0);
+            }
+
+            for (let i = 0, len = sprite._children.length; i < len; i++)
+                updateSprites(sprite._children[i]);
+        }
+
+        updateSprites(this);
+
+        let root = this._oriRenderPass && this._oriRenderPass.enable ? this._subStruct : this._struct;
+        let subPasses = Array.from(passSet).filter(pass => pass.priority > 0);
+
+        return { root, subPasses };
+    }
+
+    /**
      * @en Checks whether a point is within this object.
      * @param x Global x-coordinate.
      * @param y Global y-coordinate.
