@@ -345,6 +345,12 @@ export class Resource extends EventDispatcher {
     protected _disposeResource(): void {
     }
 
+    unmanaged() {
+        this.lock = true;
+        delete Resource._idResourcesMap[this._id];
+        return this;
+    }
+
     /**
      * @en Destroys the resource, the resource cannot be recovered.
      * @zh 销毁资源,销毁后资源不能恢复。
