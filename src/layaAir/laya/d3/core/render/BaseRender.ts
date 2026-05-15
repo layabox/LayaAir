@@ -785,7 +785,10 @@ export class BaseRender extends Component {
      */
     _addReflectionProbeUpdate() {
         //TODO目前暂时不支持混合以及与天空盒模式，只支持simple和off
-        this._scene && this._scene._volumeManager.addMotionObject(this);
+        let volumeManager = this._scene && this._scene._volumeManager;
+        if (volumeManager && volumeManager.needUpdateMotionObject(this)) {
+            volumeManager.addMotionObject(this);
+        }
     }
 
     /**

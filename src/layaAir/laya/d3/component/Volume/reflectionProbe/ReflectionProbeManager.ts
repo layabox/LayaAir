@@ -36,6 +36,10 @@ export class ReflectionProbeManager implements IVolumeManager {
         return this._sceneReflectionProbe;
     }
 
+    hasUserProbe(): boolean {
+        return this._reflectionProbes.length > 0;
+    }
+
     set sceneReflectionProbe(value: ReflectionProbe) {
         this._sceneReflectionProbe = value;
         this._needUpdateAllRender = true;//update Reflection

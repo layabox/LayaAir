@@ -117,6 +117,23 @@ export class VolumeManager implements IVolumeManager {
         this._motionObjects.add(renderObj);
     }
 
+    needUpdateMotionObject(renderObj: BaseRender): boolean {
+        if (this._volumeList.length > 0) {
+            return true;
+        }
+
+        if (renderObj._surportReflectionProbe && renderObj.reflectionMode == 1
+            && (this._reflectionProbeManager.hasUserProbe() || !renderObj.probReflection)) {
+            return true;
+        }
+
+        if (renderObj._supportVolumetricGI) {
+            return this._volumetricGIManager.hasVolume();
+        }
+
+        return false;
+    }
+
     /**
      * @en Remove a motion object from the handle list.
      * @zh 从处理列表中移除运动对象。
@@ -132,11 +149,16 @@ export class VolumeManager implements IVolumeManager {
      * @param baseRender 要更新的BaseRender对象
      */
     _updateRenderObject(baseRender: BaseRender): void {
+        if (this._volumeList.length == 0) {
+            baseRender.volume = null;
+            return;
+        }
+
         let elements: Volume[] = this._volumeList.elements;
 
         let renderBounds: Bounds = baseRender.bounds;
         let center = renderBounds.getCenter();
-        let mainVolume: Volume;
+        let mainVolume: Volume = null;
         for (var i: number = 0, n: number = this._volumeList.length; i < n; i++) {
             let volume = elements[i];
             let bounds = volume.bounds;
@@ -156,9 +178,15 @@ export class VolumeManager implements IVolumeManager {
      * 此方法更新渲染对象，处理反射探针，并处理运动物体的体积全局光照。
      */
     handleMotionlist(): void {
+        if (this._motionObjects.length == 0) {
+            return;
+        }
+
         var elements: BaseRender[] = this._motionObjects.elements;
-        for (var i: number = 0, n: number = this._motionObjects.length; i < n; i++) {
-            this._updateRenderObject(elements[i]);
+        if (this._volumeList.length > 0) {
+            for (var i: number = 0, n: number = this._motionObjects.length; i < n; i++) {
+                this._updateRenderObject(elements[i]);
+            }
         }
 
         if (!this.reflectionProbeManager._needUpdateAllRender)
