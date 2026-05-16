@@ -441,8 +441,8 @@ export class VBBoneCreator extends VBCreator {
 
         if (attachmentParse.stride == 2) {
             for (let j = 0, n = slotVertex.length; j < n; j += attachmentParse.stride) {
-                out[offset + 6] = deform[j];
-                out[offset + 7] = deform[j + 1];
+                out[offset + 6] = slotVertex[j] + deform[j];
+                out[offset + 7] = slotVertex[j + 1] + deform[j + 1];
                 offset += vside;
             }
         }
@@ -568,8 +568,8 @@ export class VBRigBodyCreator extends VBCreator {
 
         if (attachmentParse.stride == 2) {
             for (let j = 0, n = slotVertex.length; j < n; j += attachmentParse.stride) {
-                out[offset + 6] = deform[j];
-                out[offset + 7] = deform[j + 1];
+                out[offset + 6] = slotVertex[j] + deform[j];
+                out[offset + 7] = slotVertex[j + 1] + deform[j + 1];
                 offset += vside;
             }
         }
