@@ -4,6 +4,7 @@ import { NodeFlags } from "../../../../Const";
 import { Stat } from "../../../../utils/Stat";
 import { AnimationEvent } from "../../../animation/AnimationEvent";
 import { Scene3D } from "../../../core/scene/Scene3D";
+import { Transform3D } from "../../../core/Transform3D";
 import { Animator } from "../Animator";
 import { AnimatorControllerLayer } from "../AnimatorControllerLayer";
 import { AnimatorPlayState } from "../AnimatorPlayState";
@@ -66,7 +67,11 @@ export class AnimatorManager implements IElementComponentManager {
             this.tickOne(list[i]);
         }
         this._factory.flushEvaluate();
+        // 开 batch mode：同一 transform 同帧多次 set 时跳过重复 walk children
+        Transform3D._currentAnimatorFrame++;
+        Transform3D._inAnimatorBatch = true;
         this._factory.flushApply();
+        Transform3D._inAnimatorBatch = false;
         this._drainPendingSwitches();
         this._drainLateUpdates(list);
     }
