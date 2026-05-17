@@ -37,6 +37,25 @@ export class Transform3D extends EventDispatcher {
     /**@internal */
     static _angleToRandin: number = 180 / Math.PI;
 
+    /**
+     * @internal
+     * Animator 批量回写期间为 true。结合 _currentAnimatorFrame 实现同 transform 同帧多次 set 时
+     * 只 walk children 一次（同帧二次以后只更新本节点 flag，跳过递归子树脏标记）。
+     */
+    static _inAnimatorBatch: boolean = false;
+    /**
+     * @internal
+     * Animator 批次帧计数器；每个 flushApply 开始时自增 1。
+     */
+    static _currentAnimatorFrame: number = 0;
+
+    /**
+     * @internal
+     * 本 transform 最近一次在 batch 模式被 walk 过的帧号；与 _currentAnimatorFrame 相等表示本帧子树已脏，
+     * 后续同帧 set 跳过 walk children。
+     */
+    _lastAnimatorFrame: number = -1;
+
     /** @internal */
     protected _owner: Sprite3D;
     /** @internal */
@@ -611,7 +630,8 @@ export class Transform3D extends EventDispatcher {
     protected _onWorldPositionRotationTransform(): void {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER, true);
-            this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+            if (this.hasListener(Event.TRANSFORM_CHANGED))
+                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
         }
         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
             this._children![i]._onWorldPositionRotationTransform();
@@ -623,7 +643,8 @@ export class Transform3D extends EventDispatcher {
     protected _onWorldPositionScaleTransform(): void {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDSCALE, true);
-            this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+            if (this.hasListener(Event.TRANSFORM_CHANGED))
+                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
         }
         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
             this._children![i]._onWorldPositionScaleTransform();
@@ -635,10 +656,18 @@ export class Transform3D extends EventDispatcher {
     protected _onWorldPositionTransform(): void {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION, true);
-            this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+            if (this.hasListener(Event.TRANSFORM_CHANGED))
+                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
         }
-        for (var i: number = 0, n: number = this._children!.length; i < n; i++)
-            this._children![i]._onWorldPositionTransform();
+        if (Transform3D._inAnimatorBatch) {
+            if (this._lastAnimatorFrame === Transform3D._currentAnimatorFrame) return;
+            this._lastAnimatorFrame = Transform3D._currentAnimatorFrame;
+            for (var i: number = 0, n: number = this._children!.length; i < n; i++)
+                this._children![i]._onWorldTransform();
+            return;
+        }
+        for (var j: number = 0, m: number = this._children!.length; j < m; j++)
+            this._children![j]._onWorldPositionTransform();
     }
 
     /**
@@ -647,10 +676,18 @@ export class Transform3D extends EventDispatcher {
     protected _onWorldRotationTransform(): void {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER, true);
-            this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+            if (this.hasListener(Event.TRANSFORM_CHANGED))
+                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
         }
-        for (var i: number = 0, n: number = this._children!.length; i < n; i++)
-            this._children![i]._onWorldPositionRotationTransform();//父节点旋转发生变化，子节点的世界位置和旋转都需要更新
+        if (Transform3D._inAnimatorBatch) {
+            if (this._lastAnimatorFrame === Transform3D._currentAnimatorFrame) return;
+            this._lastAnimatorFrame = Transform3D._currentAnimatorFrame;
+            for (var i: number = 0, n: number = this._children!.length; i < n; i++)
+                this._children![i]._onWorldTransform();
+            return;
+        }
+        for (var j: number = 0, m: number = this._children!.length; j < m; j++)
+            this._children![j]._onWorldPositionRotationTransform();//父节点旋转发生变化，子节点的世界位置和旋转都需要更新
     }
 
     /**
@@ -659,10 +696,18 @@ export class Transform3D extends EventDispatcher {
     protected _onWorldScaleTransform(): void {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDSCALE, true);
-            this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+            if (this.hasListener(Event.TRANSFORM_CHANGED))
+                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
         }
-        for (var i: number = 0, n: number = this._children!.length; i < n; i++)
-            this._children![i]._onWorldPositionScaleTransform();//父节点缩放发生变化，子节点的世界位置和缩放都需要更新
+        if (Transform3D._inAnimatorBatch) {
+            if (this._lastAnimatorFrame === Transform3D._currentAnimatorFrame) return;
+            this._lastAnimatorFrame = Transform3D._currentAnimatorFrame;
+            for (var i: number = 0, n: number = this._children!.length; i < n; i++)
+                this._children![i]._onWorldTransform();
+            return;
+        }
+        for (var j: number = 0, m: number = this._children!.length; j < m; j++)
+            this._children![j]._onWorldPositionScaleTransform();//父节点缩放发生变化，子节点的世界位置和缩放都需要更新
     }
 
     /**
@@ -671,10 +716,72 @@ export class Transform3D extends EventDispatcher {
     _onWorldTransform(): void {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER | Transform3D.TRANSFORM_WORLDSCALE, true);
-            this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+            if (this.hasListener(Event.TRANSFORM_CHANGED))
+                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+        }
+        if (Transform3D._inAnimatorBatch) {
+            if (this._lastAnimatorFrame === Transform3D._currentAnimatorFrame) return;
+            this._lastAnimatorFrame = Transform3D._currentAnimatorFrame;
         }
         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
             this._children![i]._onWorldTransform();
+    }
+
+    /**
+     * @internal
+     * Animator hot-path 专用：直接写 _localPosition 字段、置 LOCALMATRIX dirty 并触发 worldPositionTransform。
+     * 跳过 set localPosition setter 里的 cloneTo + _setTransformFlag 方法调用。
+     */
+    _setLocalPositionFast(x: number, y: number, z: number): void {
+        const lp = this._localPosition;
+        lp.x = x;
+        lp.y = y;
+        lp.z = z;
+        this._transformFlag |= Transform3D.TRANSFORM_LOCALMATRIX;
+        this._onWorldPositionTransform();
+    }
+
+    /**
+     * @internal
+     * Animator hot-path 专用：直接写 _localRotation 字段（含 normalize）、置 LOCALEULER/LOCALMATRIX dirty，
+     * 清 LOCALQUATERNION dirty（_localRotation 即时已写入正确值），触发 worldRotationTransform。
+     */
+    _setLocalRotationFast(x: number, y: number, z: number, w: number): void {
+        const lr = this._localRotation;
+        lr.x = x;
+        lr.y = y;
+        lr.z = z;
+        lr.w = w;
+        lr.normalize(lr);
+        this._transformFlag = (this._transformFlag | (Transform3D.TRANSFORM_LOCALEULER | Transform3D.TRANSFORM_LOCALMATRIX)) & ~Transform3D.TRANSFORM_LOCALQUATERNION;
+        this._onWorldRotationTransform();
+    }
+
+    /**
+     * @internal
+     * Animator hot-path 专用：直接写 _localScale 字段、置 LOCALMATRIX dirty，触发 worldScaleTransform。
+     */
+    _setLocalScaleFast(x: number, y: number, z: number): void {
+        const ls = this._localScale;
+        ls.x = x;
+        ls.y = y;
+        ls.z = z;
+        this._transformFlag |= Transform3D.TRANSFORM_LOCALMATRIX;
+        this._onWorldScaleTransform();
+    }
+
+    /**
+     * @internal
+     * Animator hot-path 专用：直接写 _localRotationEuler 字段、置 LOCALQUATERNION/LOCALMATRIX dirty，
+     * 清 LOCALEULER dirty（_localRotationEuler 即时已写入正确值），触发 worldRotationTransform。
+     */
+    _setLocalRotationEulerFast(x: number, y: number, z: number): void {
+        const lre = this._localRotationEuler;
+        lre.x = x;
+        lre.y = y;
+        lre.z = z;
+        this._transformFlag = (this._transformFlag | (Transform3D.TRANSFORM_LOCALQUATERNION | Transform3D.TRANSFORM_LOCALMATRIX)) & ~Transform3D.TRANSFORM_LOCALEULER;
+        this._onWorldRotationTransform();
     }
 
     /**
