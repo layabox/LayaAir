@@ -1,6 +1,7 @@
 import { AnimationClipParser03 } from "./AnimationClipParser03";
 import { AnimationClipParser04 } from "./AnimationClipParser04";
 import { KeyframeNodeList } from "./KeyframeNodeList";
+import { KeyframeNode } from "./KeyframeNode";
 import { AnimationEvent } from "./AnimationEvent";
 import { Utils3D } from "../utils/Utils3D"
 import { Resource } from "../../resource/Resource"
@@ -14,6 +15,7 @@ import { Quaternion } from "../../maths/Quaternion";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
+import { Keyframe } from "../../maths/Keyframe";
 import { FloatKeyframe } from "../../maths/FloatKeyframe";
 import { WeightedMode } from "../../maths/Keyframe";
 import { QuaternionKeyframe } from "../../maths/QuaternionKeyframe";
@@ -22,6 +24,7 @@ import { Vector3Keyframe } from "../../maths/Vector3Keyframe";
 import { Vector4Keyframe } from "../../maths/Vector4Keyframe";
 import { BooleanKeyframe } from "../../maths/BooleanKeyframe";
 import { PathPointKeyframe } from "../../maths/PathPointKeyframe";
+import { notifyClipDestroyed } from "../component/Animator/factory/data/IAnimatorData";
 
 /**
  * @en The AnimationClip class is used for animation clip resources.
@@ -122,6 +125,88 @@ export class AnimationClip extends Resource {
 	 */
 	private _weightModeHermite(weightMode: number, nextweightMode: number): boolean {
 		return (((weightMode & WeightedMode.Out) == 0) && ((nextweightMode & WeightedMode.In) == 0));
+	}
+
+	/**
+	 * @internal
+	 * Hermite fast-path 嗅探。整条 KeyframeNode 全部 frame 满足：weightedMode 未启用 + tangent 分量全有限，
+	 * 则缓存 _isPlainHermite=true，hot path 跳 per-component 分支。只跑一次后缓存，幂等。
+	 * Boolean / PathPoint 类型没有 tangent，直接 true（这些路径根本不进 hermite kernel）。
+	 */
+	private static _resolvePlainHermite(node: KeyframeNode): void {
+		if (node._isPlainHermiteResolved) return;
+		node._isPlainHermiteResolved = true;
+		const type = node.type;
+		// 没 tangent 的类型直接判定为 plain（hot path 也不会调 hermite，仅为防御性）
+		if (type === KeyFrameValueType.Boolean || type === KeyFrameValueType.PathPoint) {
+			node._isPlainHermite = true;
+			return;
+		}
+		const frames = node._keyFrames;
+		let plain = true;
+		for (let i = 0, n = frames.length; i < n && plain; i++) {
+			const f: any = frames[i];
+			// weightedMode 检查（标量类型是 number，向量类型是 Vector2/3/4 对象）
+			const wm = f.weightedMode;
+			if (wm != null) {
+				if (typeof wm === "number") {
+					if (wm !== 0 /*WeightedMode.None*/) { plain = false; break; }
+				} else {
+					if ((wm.x | 0) !== 0 || (wm.y | 0) !== 0
+						|| (wm.z !== undefined && (wm.z | 0) !== 0)
+						|| (wm.w !== undefined && (wm.w | 0) !== 0)) {
+						plain = false; break;
+					}
+				}
+			}
+			// tangent 有限性检查
+			const it: any = f.inTangent, ot: any = f.outTangent;
+			if (typeof it === "number") {
+				if (!Number.isFinite(it) || !Number.isFinite(ot)) { plain = false; break; }
+			} else if (it) {
+				if (!Number.isFinite(it.x) || !Number.isFinite(ot.x)) { plain = false; break; }
+				if (it.y !== undefined && (!Number.isFinite(it.y) || !Number.isFinite(ot.y))) { plain = false; break; }
+				if (it.z !== undefined && (!Number.isFinite(it.z) || !Number.isFinite(ot.z))) { plain = false; break; }
+				if (it.w !== undefined && (!Number.isFinite(it.w) || !Number.isFinite(ot.w))) { plain = false; break; }
+			}
+		}
+		node._isPlainHermite = plain;
+	}
+
+	/**
+	 * @internal
+	 * Plain hermite kernel（Vector3）：调用方已经保证 weightedMode 未启用、tangent 全有限，
+	 * 内层去掉 per-component 的 weightedMode/isFinite 分支，纯 madd。
+	 */
+	private _hermiteInterpolateV3Plain(frame: Vector3Keyframe, nextFrame: Vector3Keyframe, t: number, dur: number, out: Vector3): void {
+		const p0 = frame.value, p1 = nextFrame.value;
+		const tan0 = frame.outTangent, tan1 = nextFrame.inTangent;
+		const t2 = t * t, t3 = t2 * t;
+		const a = 2.0 * t3 - 3.0 * t2 + 1.0;
+		const b = t3 - 2.0 * t2 + t;
+		const c = t3 - t2;
+		const d = -2.0 * t3 + 3.0 * t2;
+		out.x = a * p0.x + b * tan0.x * dur + c * tan1.x * dur + d * p1.x;
+		out.y = a * p0.y + b * tan0.y * dur + c * tan1.y * dur + d * p1.y;
+		out.z = a * p0.z + b * tan0.z * dur + c * tan1.z * dur + d * p1.z;
+	}
+
+	/**
+	 * @internal
+	 * Plain hermite kernel（Quaternion / Vector4）：同 V3，4 分量。
+	 */
+	private _hermiteInterpolateQuaternionPlain(frame: QuaternionKeyframe, nextFrame: QuaternionKeyframe, t: number, dur: number, out: Quaternion): void {
+		const p0 = frame.value, p1 = nextFrame.value;
+		const tan0 = frame.outTangent, tan1 = nextFrame.inTangent;
+		const t2 = t * t, t3 = t2 * t;
+		const a = 2.0 * t3 - 3.0 * t2 + 1.0;
+		const b = t3 - 2.0 * t2 + t;
+		const c = t3 - t2;
+		const d = -2.0 * t3 + 3.0 * t2;
+		out.x = a * p0.x + b * tan0.x * dur + c * tan1.x * dur + d * p1.x;
+		out.y = a * p0.y + b * tan0.y * dur + c * tan1.y * dur + d * p1.y;
+		out.z = a * p0.z + b * tan0.z * dur + c * tan1.z * dur + d * p1.z;
+		out.w = a * p0.w + b * tan0.w * dur + c * tan1.w * dur + d * p1.w;
 	}
 
 
@@ -431,7 +516,7 @@ export class AnimationClip extends Resource {
 	 * @param frontPlay 是否是前向播放。
 	 * @param outDatas 计算好的动画数据。
 	 */
-	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<boolean | number | Vector3 | Quaternion | Vector4 | Vector2 | { pos: Vector3, rotation: Vector3 }>, avatarMask: AvatarMask): void {
+	_evaluateClipDatasRealTime(nodes: KeyframeNodeList, playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<boolean | number | Vector3 | Quaternion | Vector4 | Vector2 | { pos: Vector3, rotation: Vector3 }>, avatarMask: AvatarMask, skipTransform: boolean = false): void {
 		for (var i = 0, n = nodes.count; i < n; i++) {
 			var node = nodes.getNodeByIndex(i);
 			var type = node.type;
@@ -440,6 +525,9 @@ export class AnimationClip extends Resource {
 			var keyFramesCount = keyFrames.length;
 			var frameIndex = realTimeCurrentFrameIndexes[i];
 			if (avatarMask && (!avatarMask.getTransformActive(node.nodePath))) {
+				continue;
+			}
+			if (skipTransform && (type === KeyFrameValueType.Position || type === KeyFrameValueType.Rotation || type === KeyFrameValueType.Scale || type === KeyFrameValueType.RotationEuler)) {
 				continue;
 			}
 			if (frontPlay) {
@@ -529,7 +617,8 @@ export class AnimationClip extends Resource {
 				case KeyFrameValueType.RotationEuler:
 				case KeyFrameValueType.Vector3:
 					var clipData = <Vector3>outDatas[i];
-					this._evaluateFrameNodeVector3DatasRealTime(keyFrames as Vector3Keyframe[], frameIndex, isEnd, playCurTime, clipData);
+					if (!node._isPlainHermiteResolved) AnimationClip._resolvePlainHermite(node);
+					this._evaluateFrameNodeVector3DatasRealTime(keyFrames as Vector3Keyframe[], frameIndex, isEnd, playCurTime, clipData, node._isPlainHermite);
 					if (addtive) {
 						var firstFrameValue = ((<Vector3Keyframe>keyFrames[0])).value;
 						clipData.x -= firstFrameValue.x;
@@ -539,7 +628,8 @@ export class AnimationClip extends Resource {
 					break;
 				case KeyFrameValueType.Rotation:
 					var clipQuat = <Quaternion>outDatas[i];
-					this._evaluateFrameNodeQuaternionDatasRealTime(keyFrames as QuaternionKeyframe[], frameIndex, isEnd, playCurTime, clipQuat);
+					if (!node._isPlainHermiteResolved) AnimationClip._resolvePlainHermite(node);
+					this._evaluateFrameNodeQuaternionDatasRealTime(keyFrames as QuaternionKeyframe[], frameIndex, isEnd, playCurTime, clipQuat, node._isPlainHermite);
 					if (addtive) {
 						var tempQuat = AnimationClip._tempQuaternion0;
 						var firstFrameValueQua = ((<QuaternionKeyframe>keyFrames[0])).value;
@@ -550,7 +640,8 @@ export class AnimationClip extends Resource {
 					break;
 				case KeyFrameValueType.Scale:
 					clipData = <Vector3>outDatas[i];
-					this._evaluateFrameNodeVector3DatasRealTime(keyFrames as Vector3Keyframe[], frameIndex, isEnd, playCurTime, clipData);
+					if (!node._isPlainHermiteResolved) AnimationClip._resolvePlainHermite(node);
+					this._evaluateFrameNodeVector3DatasRealTime(keyFrames as Vector3Keyframe[], frameIndex, isEnd, playCurTime, clipData, node._isPlainHermite);
 					if (addtive) {
 						firstFrameValue = ((<Vector3Keyframe>keyFrames[0])).value;
 						clipData.x /= firstFrameValue.x;
@@ -585,7 +676,7 @@ export class AnimationClip extends Resource {
 		}
 	}
 
-	private _evaluateFrameNodeVector3DatasRealTime(keyFrames: Vector3Keyframe[], frameIndex: number, isEnd: boolean, playCurTime: number, outDatas: Vector3): void {
+	private _evaluateFrameNodeVector3DatasRealTime(keyFrames: Vector3Keyframe[], frameIndex: number, isEnd: boolean, playCurTime: number, outDatas: Vector3, isPlain: boolean): void {
 		if (frameIndex !== -1) {
 			var frame = keyFrames[frameIndex];
 			if (isEnd) {
@@ -603,7 +694,10 @@ export class AnimationClip extends Resource {
 				else
 					t = 0;
 
-				this._hermiteInterpolateVector3(frame, nextKeyFrame, t, d, outDatas);
+				if (isPlain)
+					this._hermiteInterpolateV3Plain(frame, nextKeyFrame, t, d, outDatas);
+				else
+					this._hermiteInterpolateVector3(frame, nextKeyFrame, t, d, outDatas);
 			}
 
 		} else {
@@ -673,7 +767,7 @@ export class AnimationClip extends Resource {
 	}
 
 
-	private _evaluateFrameNodeQuaternionDatasRealTime(keyFrames: QuaternionKeyframe[], frameIndex: number, isEnd: boolean, playCurTime: number, outDatas: Quaternion): void {
+	private _evaluateFrameNodeQuaternionDatasRealTime(keyFrames: QuaternionKeyframe[], frameIndex: number, isEnd: boolean, playCurTime: number, outDatas: Quaternion, isPlain: boolean): void {
 		if (frameIndex !== -1) {
 			var frame = keyFrames[frameIndex];
 			if (isEnd) {
@@ -692,7 +786,10 @@ export class AnimationClip extends Resource {
 				else
 					t = 0;
 
-				this._hermiteInterpolateQuaternion(frame, nextKeyFrame, t, d, outDatas);
+				if (isPlain)
+					this._hermiteInterpolateQuaternionPlain(frame, nextKeyFrame, t, d, outDatas);
+				else
+					this._hermiteInterpolateQuaternion(frame, nextKeyFrame, t, d, outDatas);
 			}
 
 		} else {
@@ -737,6 +834,8 @@ export class AnimationClip extends Resource {
 	 * @zh 销毁资源。
 	 */
 	protected _disposeResource(): void {
+		// 通知工厂层（RT 路径释放 native ClipTable；Web 路径无回调注册即 no-op）
+		notifyClipDestroyed(this._id);
 		this._nodes = null;
 		this._nodesMap = null;
 	}

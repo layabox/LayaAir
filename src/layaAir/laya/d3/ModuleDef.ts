@@ -43,6 +43,7 @@ import { Animator } from "./component/Animator/Animator";
 import { AnimatorControllerLayer } from "./component/Animator/AnimatorControllerLayer";
 import { AnimatorState } from "./component/Animator/AnimatorState";
 import { AvatarMask } from "./component/Animator/AvatarMask";
+import { AnimatorManager } from "./component/Animator/manager/AnimatorManager";
 import { PostProcess } from "./core/render/postProcessBase/PostProcess";
 import { PostProcessEffect } from "./core/render/postProcessBase/PostProcessEffect";
 
@@ -125,3 +126,7 @@ c("SkyRenderer", SkyRenderer);
 
 c("PostProcess", PostProcess);
 c("PostProcessEffect", PostProcessEffect);
+
+// 工厂创建器默认值挂在 AnimatorManager.factoryCreator；Manager 实例化时按 per-Scene3D new 一份。
+// AnimatorManager 仅 import 即可触发 Scene.regManager（在 AnimatorManager.ts 末尾）；显式引用一次避免 dead-code 剪除。
+void AnimatorManager.__managerName;
