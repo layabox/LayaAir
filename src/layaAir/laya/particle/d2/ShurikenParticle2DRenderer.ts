@@ -908,7 +908,9 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
                 this._renderElements.forEach(element => {
                     element.geometry.clearRenderParams();
                     let drawCount = particleCount * meshIndexCount;
-                    element.geometry.setDrawElemenParams(drawCount, startActive * meshIndexCount * 2);
+                    if (drawCount > 0) {
+                        element.geometry.setDrawElemenParams(drawCount, startActive * meshIndexCount * 2);
+                    }
                 });
             }
             else {
