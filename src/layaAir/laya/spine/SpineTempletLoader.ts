@@ -7,7 +7,6 @@ import { Utils } from "../utils/Utils";
 import { SpineTemplet } from "./SpineTemplet";
 import { SpineTexture } from "./SpineTexture";
 
-const _premultipliedAlpha = false;
 const _srgb = true;
 /**
  * @en SpineTempletLoader class used for loading Spine skeleton data and atlas.
@@ -54,9 +53,9 @@ class SpineTempletLoader implements IResourceLoader {
             atlasPages.push({
                 url, type: Loader.TEXTURE2D,
                 propertyParams: {
-                    premultiplyAlpha: _premultipliedAlpha
+                    premultiplyAlpha: true
                 },
-                constructParams: [0, 0, TextureFormat.R8G8B8A8, false, false, _srgb, _premultipliedAlpha]
+                constructParams: [0, 0, TextureFormat.R8G8B8A8, false, false, _srgb, true]
             });
             return new SpineTexture(null);
         });
@@ -108,13 +107,14 @@ class SpineTempletLoader implements IResourceLoader {
         let atlas = new spine.TextureAtlas(atlasText);
         let basePath = URL.getPath(task.url);
         return Laya.loader.load(atlas.pages.map((page: spine.TextureAtlasPage) => {
+            let pma = page.pma;
             return {
                 url: basePath + page.name,
                 type: Loader.TEXTURE2D,
                 propertyParams: {
-                    premultiplyAlpha: _premultipliedAlpha
+                    premultiplyAlpha: pma
                 },
-                constructParams: [0, 0, TextureFormat.R8G8B8A8, false, false, _srgb, _premultipliedAlpha]
+                constructParams: [0, 0, TextureFormat.R8G8B8A8, false, false, _srgb, pma]
             }
         }),
             null, task.progress?.createCallback()).then((res: Array<Texture2D>) => {
