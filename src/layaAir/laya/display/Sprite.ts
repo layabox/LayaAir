@@ -1852,8 +1852,22 @@ export class Sprite extends Node {
         if (this._graphics != null)
             out.union(this._graphics.getBounds(), out);
 
-        if (this._texture != null)
-            out.union(tmpRect.setTo(0, 0, this._width || this._texture.width, this._height || this._texture.height), out);
+        if (this._texture != null) {
+            let tex = this._texture;
+            let sw = this._isWidthSet ? this._width : tex.sourceWidth;
+            let sh = this._isHeightSet ? this._height : tex.sourceHeight;
+            let wRate = tex.sourceWidth > 0 ? sw / tex.sourceWidth : 1;
+            let hRate = tex.sourceHeight > 0 ? sh / tex.sourceHeight : 1;
+            let drawX = tex.offsetX * wRate;
+            let drawY = tex.offsetY * hRate;
+            let drawW = tex.width * wRate;
+            let drawH = tex.height * hRate;
+            let x0 = Math.min(0, drawX);
+            let y0 = Math.min(0, drawY);
+            let x1 = Math.max(sw, drawX + drawW);
+            let y1 = Math.max(sh, drawY + drawH);
+            out.union(tmpRect.setTo(x0, y0, x1 - x0, y1 - y0), out);
+        }
 
         if (this._renderNode != null) {
             let rect = this._renderNode.rect;
