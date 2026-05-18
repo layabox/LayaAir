@@ -86,7 +86,7 @@ vec4 getSpinePos(){
         
         #ifdef SPINE_RB
             vec2 pos;
-            transfrom(a_position,u_sBone0,u_sBone1,pos);
+            transfrom(a_position,vec4(u_sBone0,0.0),vec4(u_sBone1,0.0),pos);
             return vec4(pos,0.,1.);
             // return getBonePos(a_BoneId,1.0,a_position);
         #endif
