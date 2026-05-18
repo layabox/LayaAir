@@ -7,7 +7,7 @@ import { Utils } from "../utils/Utils";
 import { SpineTemplet } from "./SpineTemplet";
 import { SpineTexture } from "./SpineTexture";
 
-const _premultipliedAlpha = false;
+const _premultipliedAlpha = true;
 const _srgb = true;
 /**
  * @en SpineTempletLoader class used for loading Spine skeleton data and atlas.
