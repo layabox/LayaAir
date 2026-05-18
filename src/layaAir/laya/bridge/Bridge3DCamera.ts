@@ -14,6 +14,8 @@ import { IBridge3DRenderProcess } from "./render/IBridge3DRenderProcess";
 import { RTBridge3DRenderProcess } from "./render/RTBridge3DRenderProcess";
 import { WebBridge3DRenderProcess } from "./render/WebBridge3DRenderProcess";
 
+import { LayaXBridge3DRenderProcess } from "./render/LayaXBridge3DRenderProcess";
+
 /**
  * Bridge3D专用相机，用于2D场景中3D节点的渲染
  *
@@ -80,8 +82,11 @@ export class Bridge3DCamera extends Camera {
     constructor() {
         super();
 
-        // 创建统一渲染流程（平台感知）
-        if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {
+        // 创建统一渲染流程 (3-way 平台感知):
+        // LayaX 原生 (wgpu) / Conch GLES 原生 / Web (浏览器或 conch graphicsAPI=2 的 WebGL 回退)
+        if (LayaEnv.isLayaX) {
+            this._bridge3DRenderProcess = new LayaXBridge3DRenderProcess();
+        } else if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {
             this._bridge3DRenderProcess = new RTBridge3DRenderProcess();
         } else {
             this._bridge3DRenderProcess = new WebBridge3DRenderProcess();

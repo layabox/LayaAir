@@ -48,9 +48,7 @@ export abstract class RTRender2DDataHandle implements IRender2DDataHandle {
 /** 空 handle，仅跑通 clip/alpha 流程；无原生实现时使用 dummy 对象 */
 export class RTEmptyRender2DDataHandle extends RTRender2DDataHandle {
     constructor() {
-        const nativeObj = (typeof (window as any).conchRTEmptyRender2DDataHandle === 'function')
-            ? new (window as any).conchRTEmptyRender2DDataHandle()
-            : { setOwner: () => {}, needUseMatrix: false, inheriteRenderData: () => {}, destroy: () => {} };
+        const nativeObj = new (window as any).conchRTEmptyRender2DDataHandle();
         super(nativeObj);
     }
     inheriteRenderData(_context: GLESRenderContext2D): void {

@@ -128,16 +128,18 @@ export class RTRender2DPass implements IRender2DPass {
       this._nativeObj.setClearColor(r, g, b, a);
    }
 
-   constructor() {
+   constructor(skipNative?: boolean) {
       this._shaderData = LayaGL.renderDeviceFactory.createShaderData(null) as GLESShaderData;
-      this._nativeObj = new (window as any).conchRTRender2DPass(this._shaderData._nativeObj);
-      this.enable = true;
-      this.enableBatch = true;
-      this.isSupport = false;
-      this.doClearColor = true;
-      this.repaint = true;
-      this.priority = 0;
-      this.offsetMatrix = new Matrix();
+      if (!skipNative) {
+         this._nativeObj = new (window as any).conchRTRender2DPass(this._shaderData._nativeObj);
+         this.enable = true;
+         this.enableBatch = true;
+         this.isSupport = false;
+         this.doClearColor = true;
+         this.repaint = true;
+         this.priority = 0;
+         this.offsetMatrix = new Matrix();
+      }
    }
 
    /**
@@ -156,11 +158,6 @@ export class RTRender2DPass implements IRender2DPass {
       let pp = this.postProcess;
       if (pp?._checkEnabled()) {
          let command = pp._context.command;
-         // 把 CommandBuffer2D 的 shaderData 同步给 native：
-         // native fowardRender 在跑 _postProcessCMDs 前会缓存 context.passData，
-         // 把它克隆到这块 shaderData 后切换 passData，再在结束时还原。
-         // 等价于 TS CommandBuffer2D.apply() 的 passData 切换逻辑。
-         this._nativeObj.setPostProcessShaderData((command.shaderData as GLESShaderData)._nativeObj);
          this._nativeObj.setPostProcess(
             this._getRenderCMDArray(command._renderCMDs)
          );

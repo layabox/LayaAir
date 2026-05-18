@@ -13,7 +13,7 @@ import { IBridgeRenderElement } from "../Bridge3DSprite";
  *   render (元素级：前向渲染，由每个 element 的 _render 调用)
  *
  * Web 实现: WebBridge3DRenderProcess (纯TS逻辑)
- * Native 实现: RTBridge3DRenderProcess (委托C++ conchGLESBridge3DRenderProcess)
+ * Native 实现: LayaXBridge3DRenderProcess (委托 C++ conchLayaXBridge3DProcess → Rust wgpu)
  */
 export interface IBridge3DRenderProcess {
 

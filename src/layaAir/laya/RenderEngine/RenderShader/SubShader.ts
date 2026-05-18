@@ -1,4 +1,4 @@
-import { UniformProperty } from "../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
+import { UniformOptions, UniformProperty } from "../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType, ShaderDataItem } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { ISubshaderData } from "../../RenderDriver/RenderModuleData/Design/ISubShaderData";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
@@ -10,7 +10,11 @@ import { VertexMesh } from "./VertexMesh";
 // todo 初始化 uniformMap 提取出来 供 Scene, Camera, Sprite3D 生成 uniform shader代码 ?
 // export type UniformItem = { [uniformName: string]: ShaderDataType } | { type: ShaderDataType, value?: ShaderDataItem };
 
-export type UniformMapType = { [blockName: string]: { [uniformName: string]: ShaderDataType } | ShaderDataType };
+export type UniformMeta = { type: ShaderDataType, format?: string, access?: 'readonly' | 'writeonly' | 'readwrite' };
+
+export type UniformMapEntry = ShaderDataType | UniformMeta | { [uniformName: string]: ShaderDataType | UniformMeta };
+
+export type UniformMapType = { [blockName: string]: UniformMapEntry };
 
 export type AttributeMapType = { [name: string]: [number, ShaderDataType] };
 
@@ -85,15 +89,33 @@ export class SubShader {
         this._uniformDefaultValue = uniformDefaultValue;
         this._uniformMap = new Map();
         for (const key in uniformMap) {
-            if (typeof uniformMap[key] == "object") {
-                let block = <{ [uniformName: string]: ShaderDataType }>(uniformMap[key]);
-                for (const uniformName in block) {
-                    let uniformType = block[uniformName];
-                    this.addUniform(uniformName, uniformType);
+            const entry = uniformMap[key];
+            if (typeof entry == "object" && entry !== null) {
+                if (isUniformMeta(entry)) {
+                    let meta = entry as UniformMeta;
+                    this.addUniform(key, meta.type, { format: meta.format, access: meta.access });
+                    if (meta.type == ShaderDataType.Texture2D || meta.type == ShaderDataType.TextureCube || meta.type == ShaderDataType.Texture3D || meta.type == ShaderDataType.Texture2DArray) {
+                        let textureGammaDefine = Shader3D.getDefineByName(`Gamma_${key}`);
+                        let uniformIndex = Shader3D.propertyNameToID(key);
+                        LayaGL.renderEngine.addTexGammaDefine(uniformIndex, textureGammaDefine);
+                    }
+                }
+                else {
+                    let block = entry as { [uniformName: string]: ShaderDataType | UniformMeta };
+                    for (const uniformName in block) {
+                        let item = block[uniformName];
+                        if (typeof item == "object" && isUniformMeta(item)) {
+                            let meta = item as UniformMeta;
+                            this.addUniform(uniformName, meta.type, { format: meta.format, access: meta.access });
+                        }
+                        else {
+                            this.addUniform(uniformName, item as ShaderDataType);
+                        }
+                    }
                 }
             }
             else {
-                let unifromType = <ShaderDataType>uniformMap[key];
+                let unifromType = entry as ShaderDataType;
                 this.addUniform(key, unifromType);
                 if (unifromType == ShaderDataType.Texture2D || unifromType == ShaderDataType.TextureCube || unifromType == ShaderDataType.Texture3D || unifromType == ShaderDataType.Texture2DArray) {
                     let textureGammaDefine = Shader3D.getDefineByName(`Gamma_${key}`);
@@ -106,7 +128,7 @@ export class SubShader {
         this.moduleData.setUniformMap(this._uniformMap);
     }
 
-    private addUniform(name: string, type: ShaderDataType) {
+    private addUniform(name: string, type: ShaderDataType, options?: UniformOptions) {
         let uniformName = name;
         let arrayLength = getArrayLength(name);
 
@@ -118,7 +140,9 @@ export class SubShader {
             id: Shader3D.propertyNameToID(uniformName),
             propertyName: uniformName,
             uniformtype: type,
-            arrayLength: arrayLength
+            arrayLength: arrayLength,
+            format: options?.format,
+            access: options?.access
         };
 
         this._uniformMap.set(uniform.id, uniform);
@@ -184,4 +208,14 @@ function getArrayLength(name: string): number {
         }
     }
     return 0;
+}
+
+function isUniformMeta(o: any): boolean {
+    if (o === null || typeof o !== "object" || typeof o.type !== "number")
+        return false;
+    for (const k in o) {
+        if (k !== "type" && k !== "format" && k !== "access")
+            return false;
+    }
+    return true;
 }

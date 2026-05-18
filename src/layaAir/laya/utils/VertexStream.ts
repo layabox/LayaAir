@@ -260,7 +260,7 @@ export class VertexStream {
      * @en Get the indices typed array.
      * @returns The indices typed array.
      * @zh 获取索引的类型化数组。
-     * @returns 索引的类型化数组。 
+     * @returns 索引的类型化数组。
      */
     getIndices(): Uint16Array {
         return new Uint16Array(this._indices.buffer, 0, this._ip);

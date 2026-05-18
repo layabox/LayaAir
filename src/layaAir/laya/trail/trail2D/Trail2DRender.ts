@@ -5,6 +5,7 @@ import { FloatKeyframe } from "../../maths/FloatKeyframe";
 import { Gradient } from "../../maths/Gradient";
 import { Point } from "../../maths/Point";
 import { Vector3 } from "../../maths/Vector3";
+import { Vector4 } from "../../maths/Vector4";
 import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { ShaderFeatureType } from "../../RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "../../resource/BaseTexture";

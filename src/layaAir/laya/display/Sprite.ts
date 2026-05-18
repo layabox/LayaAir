@@ -2466,6 +2466,7 @@ export class Sprite extends Node {
 
         this._subStructRender._updateRenderOffset(rect, oriRect, scaleX, scaleY);
 
+        
         if (rect.width === 0 || rect.height === 0) {
             this._drawOriRT = RenderTexture2D._empty;
         } else {
@@ -2474,7 +2475,6 @@ export class Sprite extends Node {
             renderTexture._invertY = LayaGL.renderEngine._screenInvertY;
             this._drawOriRT = renderTexture;
         }
-
         rect.recover();
         oriRect.recover();
 
@@ -2497,6 +2497,7 @@ export class Sprite extends Node {
         this._struct.renderMatrix = matrix;
         if (this._subStruct)
             this._subStruct.renderMatrix = matrix;
+
 
         let rect = struct.rect;
         if (this._struct.inheritedEnableCulling || this._struct.inheritedDcOptimize) {

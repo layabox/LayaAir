@@ -58,25 +58,25 @@ export class TextureDemo {
 			box.transform.position = new Vector3(0.0, 1.0, 2.5);
 			box.transform.rotate(new Vector3(0, 0, 0), false, false);
 			var mat1: BlinnPhongMaterial = new BlinnPhongMaterial();
-			//漫反射贴图
-			Texture2D.load("res/threeDimen/texture/layabox.png", Handler.create(this, function (texture: Texture2D): void {
-				//在U方向上使用WRAPMODE_CLAMP
-				texture.wrapModeU = WrapMode.Clamp;
-				//在V方向使用WRAPMODE_REPEAT
-				texture.wrapModeV = WrapMode.Repeat;
-				//设置过滤方式
-				texture.filterMode = FilterMode.Bilinear;
-				//设置各向异性等级
-				texture.anisoLevel = 2;
+			// //漫反射贴图
+			// Texture2D.load("res/threeDimen/texture/layabox.png", Handler.create(this, function (texture: Texture2D): void {
+			// 	//在U方向上使用WRAPMODE_CLAMP
+			// 	texture.wrapModeU = WrapMode.Clamp;
+			// 	//在V方向使用WRAPMODE_REPEAT
+			// 	texture.wrapModeV = WrapMode.Repeat;
+			// 	//设置过滤方式
+			// 	texture.filterMode = FilterMode.Bilinear;
+			// 	//设置各向异性等级
+			// 	texture.anisoLevel = 2;
 
-				mat1.albedoTexture = texture;
-				//修改材质贴图的平铺和偏移
-				var tilingOffset: Vector4 = mat1.tilingOffset;
-				tilingOffset.setValue(3, 3, 0.0, 0.0);
-				mat1.tilingOffset = tilingOffset;
+			// 	mat1.albedoTexture = texture;
+			// 	//修改材质贴图的平铺和偏移
+			// 	var tilingOffset: Vector4 = mat1.tilingOffset;
+			// 	tilingOffset.setValue(3, 3, 0.0, 0.0);
+			// 	mat1.tilingOffset = tilingOffset;
 
-				box.meshRenderer.material = mat1 as Material;
-			}));
+			// 	box.meshRenderer.material = mat1 as Material;
+			// }));
 		});
 
 	}

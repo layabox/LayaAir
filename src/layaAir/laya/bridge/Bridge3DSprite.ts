@@ -18,8 +18,10 @@ import { IBaseRenderNode } from "../RenderDriver/RenderModuleData/Design/3D/I3DR
 import { SingletonList } from "../utils/SingletonList";
 import { Bridge3DRenderElement } from "./render/Bridge3DRenderElement";
 import { IBridge3DRenderProcess } from "./render/IBridge3DRenderProcess";
+import { LayaXBridge3DRenderElement } from "./render/LayaXBridge3DRenderElement";
 import { RTBridge3DRenderElement } from "./render/RTBridge3DRenderElement";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
+import { Bridge3DCoordinate } from "./utils/Bridge3DCoordinate";
 import { Bridge3DData } from "./Bridge3DData";
 import { Bridge3DSceneInternal } from "./Bridge3DSceneInternal";
 
@@ -54,10 +56,13 @@ export class Bridge3DSprite extends Sprite {
     private static _tmpSceneInv: Matrix = new Matrix();
 
     static createBridge3DRenderElement(): IBridgeRenderElement {
-        if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {//native
+        if (LayaEnv.isLayaX) {
+            return new LayaXBridge3DRenderElement();
+        } else if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {
             return new RTBridge3DRenderElement();
-        } else
+        } else {
             return new Bridge3DRenderElement();
+        }
     }
     /**
      * Internal BridgeContainerSprite3D, parent node for all 3D children
