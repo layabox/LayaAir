@@ -22,6 +22,9 @@ export class HTMLVideoTexture extends VideoTexture {
         ele.addEventListener("loadedmetadata", () =>
             this.setLoaded(this.element.videoWidth, this.element.videoHeight, Browser.onLayaRuntime));
         ele.addEventListener("canplay", () => {
+            //如果loadedmetadata未触发，在canplay时补充初始化
+            if (!this._loaded && this.element.videoWidth > 0 && this.element.videoHeight > 0)
+                this.setLoaded(this.element.videoWidth, this.element.videoHeight, Browser.onLayaRuntime);
             //让画面显示出来，而不是黑色
             if (!this._playing)
                 this.render(true);
