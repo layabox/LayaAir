@@ -140,6 +140,7 @@ export class Sprite extends Node {
      * @param destroyChild 是否删除子节点。默认为 true。
      */
     destroy(destroyChild: boolean = true): void {
+        this._filterArr && (this.filters = []);
         super.destroy(destroyChild);
         this._style && this._style.recover();
         this._cacheStyle && this._cacheStyle.recover();
