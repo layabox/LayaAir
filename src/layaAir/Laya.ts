@@ -18,6 +18,7 @@ import { Camera2D } from "./laya/display/Scene2DSpecial/Camera2D";
 import { BaseRenderNode2D } from "./laya/NodeRender2D/BaseRenderNode2D";
 import { Texture2D } from "./laya/resource/Texture2D";
 import { Texture2DArray } from "./laya/resource/Texture2DArray";
+import { Texture3D } from "./laya/resource/Texture3D";
 import { TextureCube } from "./laya/resource/TextureCube";
 import { HalfFloatUtils } from "./laya/utils/HalfFloatUtils";
 import { BlendModeHandler } from "./laya/webgl/canvas/BlendMode";
@@ -210,6 +211,7 @@ export class Laya {
         RenderTexture2D.__init__();
         TextureCube.__init__();
         Texture2DArray.__init__();
+        Texture3D.__init__();
         HalfFloatUtils.__init__();
 
         Scene.__init__();
