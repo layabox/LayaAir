@@ -158,6 +158,11 @@ export class RTRender2DPass implements IRender2DPass {
       let pp = this.postProcess;
       if (pp?._checkEnabled()) {
          let command = pp._context.command;
+         // 把 CommandBuffer2D 的 shaderData 同步给 native：
+         // native fowardRender 在跑 _postProcessCMDs 前会缓存 context.passData，
+         // 把它克隆到这块 shaderData 后切换 passData，再在结束时还原。
+         // 等价于 TS CommandBuffer2D.apply() 的 passData 切换逻辑。
+         this._nativeObj.setPostProcessShaderData((command.shaderData as GLESShaderData)._nativeObj);
          this._nativeObj.setPostProcess(
             this._getRenderCMDArray(command._renderCMDs)
          );
@@ -168,6 +173,7 @@ export class RTRender2DPass implements IRender2DPass {
          this._enablePostProcess = false;
       }
    }
+
 
    private _getRenderCMDArray(cmds: any[]): any[] {
       let nativeobCMDs: any[] = [];

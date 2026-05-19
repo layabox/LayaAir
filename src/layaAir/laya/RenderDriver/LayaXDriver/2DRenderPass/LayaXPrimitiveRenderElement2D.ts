@@ -5,16 +5,39 @@ import { LayaXRenderElement2D } from "./LayaXRenderElement2D";
 
 export class LayaXPrimitiveRenderElement2D extends LayaXRenderElement2D
     implements IPrimitiveRenderElement2D {
-
+    private _typeKey:number;
+    private _textureKey:number;
+    
     protected init(): void {
         this._nativeObj = new (window as any).conchLayaXPrimitiveRenderElement2D();
     }
 
-    set typeKey(value: number) { this._nativeObj.type = value; }
-    get typeKey(): number { return this._nativeObj.type; }
+    
+    /**
+     * @en Type key proxied to native object's type field.
+     * @zh 类型键代理到原生对象的 type 字段。
+     */
+    set typeKey(value: number) {
+        this._nativeObj.typeKey = value;
+        this._typeKey = value
+    }
 
-    set textureKey(value: number) { this._nativeObj.textureKey = value; }
-    get textureKey(): number { return this._nativeObj.textureKey; }
+    get typeKey(): number {
+        return this._typeKey;
+    }
+
+    /**
+     * @en Texture key encoding shader define bits + texture ID. Proxied to native.
+     * @zh 纹理键编码着色器宏定义位和纹理ID。代理到原生对象。
+     */
+    set textureKey(value: number) {
+        this._nativeObj.textureKey = value;
+        this._textureKey = value
+    }
+
+    get textureKey(): number {
+        return this._textureKey;
+    }
 
     // Web primitive 第 1 层选择：!material && primitive → primitive sd
     protected _pickMaterialSD(): LayaXShaderData | null {
