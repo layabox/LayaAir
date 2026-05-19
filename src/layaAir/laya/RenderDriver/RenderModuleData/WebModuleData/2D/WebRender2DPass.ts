@@ -17,6 +17,7 @@ import { PostProcess2D } from "../../../../display/PostProcess2D";
 import { Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBuffer";
 import { BatchManager, IBatch2DProvider } from "./BatchManager";
 import { LayaEnv } from "../../../../../LayaEnv";
+import { ILaya } from "../../../../../ILaya";
 import { BaseRender2DType } from "../../../../display/SpriteConst";
 import { Pool } from "../../../../utils/Pool";
 import { NodeFlags } from "../../../../Const";
@@ -415,6 +416,7 @@ export class WebRender2DPass implements IRender2DPass {
       }
 
       context.passData = this.shaderData;
+      this.shaderData.setNumber(ShaderDefines2D.UNIFORM_TIME, (ILaya.timer?.currTimer || 0) * 0.001);
 
       if (sizeX !== this._rtsize.x || sizeY !== this._rtsize.y) {
          this._rtsize.setValue(sizeX, sizeY);
