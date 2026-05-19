@@ -75,7 +75,7 @@ export class AnimatorState extends EventDispatcher implements IClone {
      * @zh 实时数据数组，用于避免数据混淆。必须将实时数据存储在animatorState中，而不是animationClip中。
      * 这对于像crossFade()这样的操作是必要的，因为可能使用不同的animatorState但相同的片段源。
      */
-    _realtimeDatas: Array<boolean | number | Vector2 | Vector3 | string `| Vector4 | Quaternion | { pos: Vector3, rotation: Vector3 }> = [];
+    _realtimeDatas: Array<boolean | number | Vector2 | Vector3 | string | Vector4 | Quaternion | { pos: Vector3, rotation: Vector3 }> = [];
 
     /** @internal */
     _scripts: AnimatorStateScript[] | null = null;

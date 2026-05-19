@@ -132,6 +132,9 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
     public get lightProbUpdateMark(): number { return this._nativeObj.lightProbUpdateMark; }
     public set lightProbUpdateMark(value: number) { this._nativeObj.lightProbUpdateMark = value; }
 
+    public get perCameraUpdate(): boolean { return this._nativeObj.perCameraUpdate; }
+    public set perCameraUpdate(value: boolean) { this._nativeObj.perCameraUpdate = value; }
+
     // ------------------------------------------------------------------
     // Bounds
     // ------------------------------------------------------------------
