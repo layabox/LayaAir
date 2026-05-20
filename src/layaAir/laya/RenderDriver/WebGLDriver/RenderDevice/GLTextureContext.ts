@@ -807,13 +807,13 @@ export class GLTextureContext extends GLObject implements ITextureContext {
                 let dataLength = (((Math.max(4, mipmapWidth) / 4) * Math.max(4, mipmapHeight)) / 4) * blockBytes;
                 let sourceData = new Uint8Array(source, dataOffset, dataLength);
                 gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
-                memory += sourceData.length;
+                memory += sourceData.byteLength;
                 dataOffset += bpp ? (mipmapWidth * mipmapHeight * (bpp / 8)) : dataLength;
             }
             else {
                 let dataLength = mipmapWidth * mipmapHeight * formatParams.channels;
                 let sourceData = new dataTypeConstur(source, dataOffset, dataLength);
-                memory += sourceData.length;
+                memory += sourceData.byteLength;
                 gl.texImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, format, type, sourceData);
 
                 dataOffset += dataLength * channelsByte;
@@ -872,7 +872,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
             if (compressed) {
                 let sourceData = new Uint8Array(source, dataOffset, imageSize);
                 gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
-                memory += sourceData.length;
+                memory += sourceData.byteLength;
             }
             else {
                 let pixelParams = this.getFormatPixelsParams(ktxInfo.format);
