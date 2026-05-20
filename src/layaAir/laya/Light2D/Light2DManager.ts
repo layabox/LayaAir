@@ -166,7 +166,29 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
         ];
     }
     destroy(): void {
-        //throw new NotImplementedError();
+        ILaya.stage.off(Event.RESIZE, this, this._onScreenResize);
+        if (this._scene && this._scene._light2DManager === this)
+            this._scene._light2DManager = null;
+
+        for (let i = this._lightRenderRes.length - 1; i > -1; i--) {
+            if (this._lightRenderRes[i])
+                this._lightRenderRes[i].destroy();
+        }
+        this._lightRenderRes.length = 0;
+
+        const destroyTargets = (targets: RenderTexture[]) => {
+            for (let i = targets.length - 1; i > -1; i--) {
+                if (targets[i] && !targets[i].destroyed)
+                    targets[i].destroy();
+                targets[i] = null;
+            }
+            targets.length = 0;
+        };
+        destroyTargets(this.lsTarget);
+        destroyTargets(this.lsTargetAdd);
+        destroyTargets(this.lsTargetSub);
+
+        this._recoverResource(true);
     }
 
     /**
@@ -780,9 +802,9 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     /**
      * 回收资源
      */
-    private _recoverResource() {
+    private _recoverResource(force: boolean = false) {
         //回收资源（每10帧回收一次）
-        if (ILaya.timer.currFrame > this._recoverFC) {
+        if (force || ILaya.timer.currFrame > this._recoverFC) {
             if (this._needToRecover.length > 0) {
                 for (let i = this._needToRecover.length - 1; i > -1; i--)
                     this._needToRecover[i].destroy();
@@ -1226,7 +1248,9 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
             } else this._needToRecover.push(mesh); //mesh不可以复用，回收
         }
         const declaration = VertexMesh2D.getVertexDeclaration(['POSITION,UV'], false)[0];
-        return Mesh2D.createMesh2DByPrimitive([vertices], [declaration], indices, IndexFormat.UInt16, [{ length: indices.length, start: 0 }], true);
+        const newMesh = Mesh2D.createMesh2DByPrimitive([vertices], [declaration], indices, IndexFormat.UInt16, [{ length: indices.length, start: 0 }], true);
+        newMesh._addReference();
+        return newMesh;
     }
 
     /**

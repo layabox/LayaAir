@@ -450,12 +450,16 @@ export class SubStructRender {
     * @param scaleY
     */
    _updateRenderOffset(rect: Rectangle, oriRect: Rectangle, scaleX: number, scaleY: number) {
-      rect.cloneTo(this._rtRect);
-
-      if (!oriRect.equals(this._oriRect)) {
+      if (
+         !rect.equals(this._rtRect)
+         || !oriRect.equals(this._oriRect)
+         || scaleX !== this._scaleX
+         || scaleY !== this._scaleY
+      ) {
          this._needUpdateVertexSize = true;
       }
 
+      rect.cloneTo(this._rtRect);
       oriRect.cloneTo(this._oriRect);
 
       this._scaleX = scaleX;
@@ -537,18 +541,19 @@ export class SubStructRender {
       this._internalInfo.textureHost = destRT;
 
       let oriRect = this._oriRect;
+      let rtRect = this._rtRect;
       let vSize = Vector4.TEMP;
-      vSize.x = oriRect.x;
-      vSize.y = oriRect.y;
+      vSize.x = rtRect.x / this._scaleX;
+      vSize.y = rtRect.y / this._scaleY;
 
       let width = destRT.sourceWidth;
       let height = destRT.sourceHeight;
       if (width > 0 && height > 0) {
-         vSize.z = Math.round(width / this._scaleX);
-         vSize.w = Math.round(height / this._scaleY);
-         vSize.x -= (vSize.z - oriRect.width) / 2;
-         vSize.y -= (vSize.w - oriRect.height) / 2;
+         vSize.z = width / this._scaleX;
+         vSize.w = height / this._scaleY;
       } else {
+         vSize.x = oriRect.x;
+         vSize.y = oriRect.y;
          vSize.z = oriRect.width;
          vSize.w = oriRect.height;
       }

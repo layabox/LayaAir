@@ -441,4 +441,57 @@ export class Light2DRenderRes {
             }
         }
     }
+
+    destroy() {
+        for (let i = this._cmdLightMeshs.length - 1; i > -1; i--) {
+            const cmds = this._cmdLightMeshs[i];
+            if (!cmds)
+                continue;
+            for (let j = cmds.length - 1; j > -1; j--)
+                cmds[j].recover();
+            cmds.length = 0;
+        }
+        this._cmdLightMeshs.length = 0;
+
+        for (let i = this._cmdShadowMeshs.length - 1; i > -1; i--) {
+            if (this._cmdShadowMeshs[i])
+                this._cmdShadowMeshs[i].recover();
+        }
+        this._cmdShadowMeshs.length = 0;
+
+        this._cmdRT?.recover();
+        this._cmdRTAdd?.recover();
+        this._cmdRTSub?.recover();
+        this._cmdRT = null;
+        this._cmdRTAdd = null;
+        this._cmdRTSub = null;
+        this._cmdBuffer.clear(true);
+
+        for (let i = this.lightMeshs.length - 1; i > -1; i--) {
+            const meshs = this.lightMeshs[i];
+            if (!meshs)
+                continue;
+            for (let j = meshs.length - 1; j > -1; j--) {
+                const mesh = meshs[j];
+                if (mesh && !mesh.destroyed)
+                    mesh.destroy();
+                meshs[j] = null;
+            }
+            meshs.length = 0;
+        }
+        this.lightMeshs.length = 0;
+
+        for (let i = this.shadowMeshs.length - 1; i > -1; i--) {
+            const mesh = this.shadowMeshs[i];
+            if (mesh && !mesh.destroyed)
+                mesh.destroy();
+            this.shadowMeshs[i] = null;
+        }
+        this.shadowMeshs.length = 0;
+
+        this.lights.length = 0;
+        this.textures.length = 0;
+        this.needShadowMesh.length = 0;
+        this.sceneModeList.length = 0;
+    }
 }
