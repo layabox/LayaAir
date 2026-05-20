@@ -387,7 +387,13 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     _create() {
         // todo  mipmap
         this._renderTarget = LayaGL.textureContext.createRenderTargetInternal(this.width, this.height, this._colorFormat, this.depthStencilFormat, false, false, this._multiSamples, false);
-        this._texture = this._renderTarget._textures[0];
+        if (this._renderTarget._texturesResolve) {
+            this._texture = this._renderTarget._texturesResolve[0];
+            // MSAA 纹理也需同步 gammaCorrection，否则渲染时 GAMMASPACE 宏分支与采样端不一致，导致颜色偏暗
+            this._renderTarget._textures[0].gammaCorrection = 2.2;
+        } else {
+            this._texture = this._renderTarget._textures[0];
+        }
         this._texture.gammaCorrection = 2.2;
     }
 
