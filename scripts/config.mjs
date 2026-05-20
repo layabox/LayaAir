@@ -488,4 +488,10 @@ export const allBundles = [{
         'laya/bridge/**/*.ts'
     ]
 },
+{
+    name: 'vfx',
+    input: [
+        'laya/vfx/**/*.*'
+    ]
+},
 ];
