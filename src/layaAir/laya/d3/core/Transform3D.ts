@@ -75,6 +75,20 @@ export class Transform3D extends EventDispatcher {
     /**@internal */
     private _transformFlag: number = 0;
 
+    /**
+     * @internal
+     * Event.TRANSFORM_CHANGED 监听器是否曾经注册过的缓存。
+     */
+    _hasTransformChangedListener: boolean = false;
+
+    /**
+     * @internal
+     * EventDispatcher 钩子：首次注册某 type 的监听器时调用一次。Transform3D 只关心 TRANSFORM_CHANGED。
+     */
+    protected onStartListeningToType(type: string): void {
+        if (type === Event.TRANSFORM_CHANGED) this._hasTransformChangedListener = true;
+    }
+
 
     /**
      * @en Whether it is the default matrix. If `true`, it indicates that there is no change relative to the parent node, and calculations will be skipped based on this parameter.
@@ -611,7 +625,8 @@ export class Transform3D extends EventDispatcher {
     protected _onWorldPositionRotationTransform(): void {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER, true);
-            this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+            if (this._hasTransformChangedListener)
+                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
         }
         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
             this._children![i]._onWorldPositionRotationTransform();
@@ -623,7 +638,8 @@ export class Transform3D extends EventDispatcher {
     protected _onWorldPositionScaleTransform(): void {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDSCALE, true);
-            this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+            if (this._hasTransformChangedListener)
+                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
         }
         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
             this._children![i]._onWorldPositionScaleTransform();
@@ -635,7 +651,8 @@ export class Transform3D extends EventDispatcher {
     protected _onWorldPositionTransform(): void {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION, true);
-            this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+            if (this._hasTransformChangedListener)
+                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
         }
         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
             this._children![i]._onWorldPositionTransform();
@@ -647,7 +664,8 @@ export class Transform3D extends EventDispatcher {
     protected _onWorldRotationTransform(): void {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER, true);
-            this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+            if (this._hasTransformChangedListener)
+                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
         }
         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
             this._children![i]._onWorldPositionRotationTransform();//父节点旋转发生变化，子节点的世界位置和旋转都需要更新
@@ -659,7 +677,8 @@ export class Transform3D extends EventDispatcher {
     protected _onWorldScaleTransform(): void {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDSCALE, true);
-            this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+            if (this._hasTransformChangedListener)
+                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
         }
         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
             this._children![i]._onWorldPositionScaleTransform();//父节点缩放发生变化，子节点的世界位置和缩放都需要更新
@@ -671,7 +690,8 @@ export class Transform3D extends EventDispatcher {
     _onWorldTransform(): void {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER | Transform3D.TRANSFORM_WORLDSCALE, true);
-            this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+            if (this._hasTransformChangedListener)
+                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
         }
         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
             this._children![i]._onWorldTransform();

@@ -29,6 +29,7 @@ import { PAL } from "./laya/platform/PlatformAdapters";
 import { SoundManager } from "./laya/media/SoundManager";
 import { GraphicsMesh } from "./laya/webgl/utils/GraphicsMesh";
 import { Mesh2DRender } from "./laya/display/Scene2DSpecial/Mesh2DRender";
+import { SequenceFrame2DRender } from "./laya/display/Scene2DSpecial/SequenceFrame2D/SequenceFrame2DRender";
 import { PostProcess2D } from "./laya/display/PostProcess2D";
 import { Render2DProcessor } from "./laya/display/Render2DProcessor";
 import { GraphicsRunner } from "./laya/display/Scene2DSpecial/GraphicsRunner";
@@ -221,6 +222,7 @@ export class Laya {
         PostProcess2D.init();
         Material.__initDefine__();
         Mesh2DRender.__init__();
+        SequenceFrame2DRender.__init__();
 
         InputManager.__init__();
         SoundManager.__init__();
