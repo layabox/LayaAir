@@ -619,14 +619,14 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
             if (compressed) {
                 let sourceData = new Uint8Array(source, dataOffset, imageSize);
                 gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
-                memory += sourceData.length;
+                memory += sourceData.byteLength;
             }
             else {
                 let pixelParams = this.getFormatPixelsParams(ktxInfo.format);
                 let typedSize = imageSize / pixelParams.typedSize;
                 let sourceData = new pixelParams.dataTypedCons(source, dataOffset, typedSize);
                 gl.texSubImage2D(target, index, 0, 0, mipmapWidth, mipmapHeight, format, type, sourceData);
-                memory += sourceData.length;
+                memory += sourceData.byteLength;
             }
 
             dataOffset += imageSize;
