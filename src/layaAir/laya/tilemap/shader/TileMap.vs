@@ -3,8 +3,6 @@
 
 #include "TileMapVertex.glsl"
 
-uniform vec2 u_TileSize;
-
 void main(){
     vertexInfo info;
     getVertexInfoTileMap(info);

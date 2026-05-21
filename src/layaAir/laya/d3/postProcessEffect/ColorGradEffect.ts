@@ -68,6 +68,22 @@ export class ColorGradEffect extends PostProcessEffect {
         Shader3D.addInclude("ColorGrading.glsl", ColorGradingGLSL);
         Shader3D.addInclude("Tonemapping.glsl", TonemappingGLSL);
         Shader3D.addInclude("LUT.glsl", LUTGLSL);
+        // ColorGrading.glsl 中 colorGrade() 用到的 uniform，统一在此注册。
+        // 凡 include 该文件的 SubShader 会自动并入这些 uniform，glsl 内无需再声明。
+        SubShader.regIncludeBindUnifrom("ColorGrading.glsl", {
+            "u_ColorBalance": ShaderDataType.Vector3,
+            "u_SplitShadows": ShaderDataType.Vector4,
+            "u_Splithighlights": ShaderDataType.Vector3,
+            "u_Shadows": ShaderDataType.Vector3,
+            "u_Midtones": ShaderDataType.Vector3,
+            "u_Highlights": ShaderDataType.Vector3,
+            "u_Limits": ShaderDataType.Vector4,
+            "u_Lift": ShaderDataType.Vector3,
+            "u_Gamma": ShaderDataType.Vector3,
+            "u_Gain": ShaderDataType.Vector3,
+            "u_ColorFilter": ShaderDataType.Color,
+            "u_HueSatCon": ShaderDataType.Vector4,
+        }, {});
         let attributeMap: { [name: string]: [number, ShaderDataType] } = {
             "a_PositionTexcoord": [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4]
         };
@@ -76,6 +92,10 @@ export class ColorGradEffect extends PostProcessEffect {
             "u_OffsetScale": ShaderDataType.Vector4,
             "u_MainTex": ShaderDataType.Texture2D,
             "u_MainTex_TexelSize": ShaderDataType.Vector4, //x:width,y:height,z:1/width,w:1/height
+            "u_Lut": ShaderDataType.Texture2D,
+            "u_LutParams": ShaderDataType.Vector4, //w:postExposure
+            "u_CustomLut": ShaderDataType.Texture2D, //#ifdef CUSTOMLUT 下使用
+            "u_CustomLutParams": ShaderDataType.Vector4, //#ifdef CUSTOMLUT 下使用
         };
         let shader = Shader3D.add("blitLUTShader");
         shader.shaderType = ShaderFeatureType.PostProcess;
@@ -94,7 +114,7 @@ export class ColorGradEffect extends PostProcessEffect {
         let uniformMap = {
             "u_OffsetScale": ShaderDataType.Vector4,
             "u_Lut": ShaderDataType.Texture2D,
-            "u_LutParams": ShaderDataType.Vector4
+            "u_LutParams": ShaderDataType.Vector4,
         };
 
         let attributeMap: { [name: string]: [number, ShaderDataType] } = {
