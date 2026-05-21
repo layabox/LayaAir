@@ -2,16 +2,11 @@
 
 #include "Color.glsl";
 
-uniform sampler2D u_Lut;
-uniform vec4 u_LutParams; // w postExposure
+// u_Lut / u_LutParams / u_CustomLut / u_CustomLutParams 已在 blitLUTShader 的
+// uniformMap 中注册，由引擎自动生成声明，此处不再声明。
 
 #include "ColorGrading.glsl";
 #include "LUT.glsl";
-
-#ifdef CUSTOMLUT
-uniform sampler2D u_CustomLut;
-uniform vec4 u_CustomLutParams;
-#endif // CUSTOMLUT
 
 varying vec2 v_Texcoord0;
 
