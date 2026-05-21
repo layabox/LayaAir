@@ -111,6 +111,8 @@ export class GList extends GPanel {
      */
     addItemFromPool(url?: string): GWidget {
         let child = this.getFromPool(url);
+        if (child == null)
+            return null;
         if (child instanceof GButton)
             child.selected = false;
         return this.addChild(child);
