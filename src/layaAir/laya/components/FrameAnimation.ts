@@ -12,6 +12,7 @@ import { Point } from "../maths/Point";
 import { Loader } from "../net/Loader";
 import { AtlasResource } from "../resource/AtlasResource";
 import { Texture } from "../resource/Texture";
+import { RepaintFlag } from "../display/SpriteConst";
 import { Component } from "./Component";
 
 export enum AnimationWrapMode {
@@ -544,6 +545,7 @@ export class FrameAnimation extends Component {
         let textures = urls.map(url => Loader.getRes(url));
         if (textures.indexOf(null) === -1) {
             this.frames = textures;
+            this.owner.repaint(RepaintFlag.UpdateRT);
             this.owner.event(Event.LOADED);
         }
         else {
@@ -552,6 +554,7 @@ export class FrameAnimation extends Component {
                     return;
 
                 this.frames = textures;
+                this.owner.repaint(RepaintFlag.UpdateRT);
                 this.owner.event(Event.LOADED);
             });
         }
@@ -603,6 +606,7 @@ export class FrameAnimation extends Component {
         }
         else
             this.frames = null;
+        this.owner.repaint(RepaintFlag.UpdateRT);
         this.owner.event(Event.LOADED);
     }
 
