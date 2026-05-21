@@ -23,6 +23,7 @@ import { Material } from "../../../resource/Material";
 import { Texture } from "../../../resource/Texture";
 import { Texture2D } from "../../../resource/Texture2D";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
+import { Render2DProcessor } from "../../Render2DProcessor";
 import { SequenceFrame2DInstanceBatch } from "./SequenceFrame2DInstanceBatch";
 import { SequenceFrame2DShader } from "./SequenceFrame2DShader";
 
@@ -554,7 +555,7 @@ export class SequenceFrame2DRender extends BaseRenderNode2D {
     }
 
     private _getCurrentTime(): number {
-        return (ILaya.timer?.currTimer || 0) * 0.001;
+        return Render2DProcessor.renderTime;
     }
 
     private _getPlaybackAge(now: number = this._getCurrentTime()): number {

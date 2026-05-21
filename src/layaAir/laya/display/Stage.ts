@@ -741,7 +741,7 @@ export class Stage extends Sprite {
 
         Timer.callLaters._update(timestamp);
         Stat.loopCount++;
-        Render2DProcessor.renderTime = (ILaya.timer?.currTimer || 0) * 0.001;
+        Render2DProcessor.renderTime += (ILaya.timer?.delta || 0) * 0.001;
         LayaGL.renderEngine.startFrame();
 
         if (this.renderingEnabled) {
