@@ -53,7 +53,15 @@ function drawTestChar(ctx: CanvasRenderingContext2D, char: string, fontSize: num
 }
 
 function updateBbx(data: ImageData, curbbx: number[], onlyH: boolean): void {
-    let bmpData32 = new Uint32Array(data.data.buffer);
+    let u8 = data.data;
+
+    let alignedLength = u8.length - (u8.length % 4);
+
+    let bmpData32 = new Uint32Array(
+        u8.buffer,
+        u8.byteOffset,
+        alignedLength / 4
+    );
 
     function checkBmpLine(data: ImageData, l: number, sx: number, ex: number): boolean {
         let stpos = data.width * l + sx;
