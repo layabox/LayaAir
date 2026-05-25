@@ -192,6 +192,36 @@ export class VFXAssetParser {
                             )
                         );
                     }
+                    // ShaderGraph property binding (VFX exposed prop name → shader uniform name) — runtime setTexture 时按 binding 把 exposed name 转 shader uniform name
+                    if (sys.shaderPropertyBindings && typeof sys.shaderPropertyBindings === "object") {
+                        (desc as any).shaderPropertyBindings = sys.shaderPropertyBindings;
+                    }
+                    // ShaderGraph property inline defaults (shader uniform name → res://uuid) — wall mesh 等 outputCtx 给 shader 属性写的 inline 资源 default
+                    // .bps 编译时丢了这种 inline default，runtime 必须显式 setTexture 让 wall mesh 等用 uni_ring_warped 而非 .bps 内 white texture
+                    if (sys.shaderPropertyDefaults && typeof sys.shaderPropertyDefaults === "object") {
+                        const entries: { [uniformName: string]: { url: string, texture: any } } = {};
+                        for (const uniformName in sys.shaderPropertyDefaults) {
+                            const url: string = sys.shaderPropertyDefaults[uniformName];
+                            if (typeof url !== "string" || !url) continue;
+                            const entry = { url, texture: null as any };
+                            entries[uniformName] = entry;
+                            loadPromises.push(
+                                (Laya.loader.load(url) as Promise<any>).then(
+                                    // Laya.loader.load 返回 Texture / Texture2D / BaseTexture, setTexture 期望 Laya Texture 不是 unwrap .bitmap (ImageBitmap).
+                                    // 之前 .bitmap unwrap 让 setTexture 拿 ImageBitmap 实例 binding fail, MaskTexture sample 拿 default white.
+                                    (tex: any) => { if (tex) entry.texture = tex; },
+                                    (err: any) => { console.warn(`[VFX] shaderPropertyDefault '${uniformName}' load failed: ${url}`, err); }
+                                )
+                            );
+                        }
+                        (desc as any).shaderPropertyDefaults = entries;
+                    }
+                    // ShaderGraph property expression chain（VFX operator chain → shader uniform 每帧求值）
+                    // 转换器把上游不是 VFXParameter 的 operator chain 序列化到 shaderPropertyExpressions，
+                    // 让 ShaderExpressionEvaluator 每帧 evaluate → setVector/setNumber 到 material
+                    if (sys.shaderPropertyExpressions && typeof sys.shaderPropertyExpressions === "object") {
+                        (desc as any).shaderPropertyExpressions = sys.shaderPropertyExpressions;
+                    }
 
                     // Strip 专属字段（对齐 Unity Output Trail）
                     if (typeof sys.colorMapping === "string") desc.stripColorMapping = sys.colorMapping;
@@ -306,6 +336,7 @@ export class VFXAssetParser {
                             case "Capsule":  return PrimitiveMesh.createCapsule(0.5, 2, 12, 12);
                             case "Plane":    return PrimitiveMesh.createPlane(10, 10, 1, 1);
                             case "Quad":     return PrimitiveMesh.createQuad(1, 1);
+                            case "Triangle": return PrimitiveMesh.createTriangle(1, 1);
                             default: return null;
                         }
                     };
@@ -541,6 +572,7 @@ export class VFXAssetParser {
                             case "Capsule":  return PrimitiveMesh.createCapsule(0.5, 2, 12, 12);
                             case "Plane":    return PrimitiveMesh.createPlane(10, 10, 1, 1);
                             case "Quad":     return PrimitiveMesh.createQuad(1, 1);
+                            case "Triangle": return PrimitiveMesh.createTriangle(1, 1);
                             default: return null;
                         }
                     };
@@ -619,6 +651,30 @@ export class VFXAssetParser {
                             ];
                         }
                         desc.default = [];
+                        break;
+                    }
+                    case VFXPropertyType.Texture2D: {
+                        // Texture2D property: d 是 string "res://uuid" 或 array ["res://uuid"] (转换器统一输出后者)
+                        // Unity VFX exposed prop 跟 ShaderGraph 内 shader uniform 是双命名空间，OutputContext 含 binding；
+                        // 这里只 load 资源存到 desc.texture，setTexture 绑定 shader uniform 在 VisualEffect.onStart 用 binding 名做
+                        let url: string | null = null;
+                        if (Array.isArray(d) && typeof d[0] === "string") url = d[0];
+                        else if (typeof d === "string") url = d;
+                        desc.default = url ? [url] : [];
+                        desc.texture = null;
+                        if (url) {
+                            const loadTex = Laya.loader.load(url).then((tex: any) => {
+                                if (tex) {
+                                    // loader 对 PNG 返回 Texture wrapper，取其 bitmap (Texture2D) 用来 bind shader sampler
+                                    desc.texture = tex.bitmap || tex._image || tex._source || tex;
+                                } else {
+                                    console.warn(`[VFX] Texture2D property '${prop.name}' load returned null: ${url}`);
+                                }
+                            }, (err: any) => {
+                                console.warn(`[VFX] Texture2D property '${prop.name}' load failed: ${url}`, err);
+                            });
+                            loadPromises.push(loadTex);
+                        }
                         break;
                     }
                 }
@@ -1160,6 +1216,7 @@ function normalizePropertyType(raw: string): VFXPropertyType {
     if (s === "vec4" || s === "vector4") return VFXPropertyType.Vec4;
     if (s === "color") return VFXPropertyType.Color;
     if (s === "gradient") return VFXPropertyType.Gradient;
+    if (s === "texture2d") return VFXPropertyType.Texture2D;
     return VFXPropertyType.Float;
 }
 

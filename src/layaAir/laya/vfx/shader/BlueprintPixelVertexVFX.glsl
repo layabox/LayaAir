@@ -31,6 +31,12 @@
     //   不加 #ifdef 包裹时函数定义体保留 attribute 引用，依赖编译器 DCE 行为不可靠。
     #ifdef VFX_INSTANCED
 
+// Per-particle data 通过 varying 传 fragment shader,
+// 让 ShaderGraph 内部用 uniform Float (如 MaskFlipbookIndex) 的 property 能改成 per-particle value.
+// ShaderBuild post-process 把 FS 内 uniform name `MaskFlipbookIndex` 等替换成 `v_TexIndex`.
+// 转换器 init context 加 setAttribute(texIndex, Random(0, range)) 让 GPU 每粒子写 unique value 到 a_AttrScale.w.
+varying float v_TexIndex;
+
 struct VFXParticle {
     vec3 position;
     float normalizedAge;
@@ -68,6 +74,9 @@ VFXParticle vfxGetParticle()
 VFXParticle vfxTransformVertex(inout Vertex vertex)
 {
     VFXParticle p = vfxGetParticle();
+
+    // per-particle texIndex 通过 varying 传 fragment, 让 SG shader 内部 uniform 引用 (MaskFlipbookIndex 等) 被 ShaderBuild 替换成 per-particle 路径.
+    v_TexIndex = p.texIndex;
 
     // 1. position
     vec3 vp = vertex.positionOS - p.pivot;
