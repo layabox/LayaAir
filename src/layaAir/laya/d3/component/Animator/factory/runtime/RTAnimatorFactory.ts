@@ -11,6 +11,8 @@ import { isTransformType } from "../isTransformType";
 import { IOwnerData, PlainOwnerData, registerOwnerDataCreator, registerClipDestroyCallback } from "../data/IAnimatorData";
 import { RTBatchSyncBuffer } from "./RTBatchSyncBuffer";
 import { Event } from "../../../../../events/Event";
+import { Laya } from "../../../../../../Laya";
+import { AnimatorManager } from "../../manager/AnimatorManager";
 
 /**
  * Native 句柄分配器：连续整数 ID + LIFO free-list 回收。
@@ -624,3 +626,11 @@ export class RTAnimatorFactory implements IAnimatorFactory {
         this._web.revertDefaultKeyframeNodes(state);
     }
 }
+
+Laya.addBeforeInitCallback(() => {
+    if ((window as any).conchRTAnimatorPreparer
+        || (window as any).conchRTAnimatorEvaluator
+        || (window as any).conchRTAnimatorApplier) {
+        AnimatorManager.factoryCreator = () => new RTAnimatorFactory();
+    }
+});
