@@ -140,6 +140,9 @@ export const allBundles = [{
         'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXShaderPass.ts',
         'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXSubShader.ts',
         'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXUnitRenderModuleDataFactory.ts',
+        //引擎核心
+        'laya/RenderDriver/RenderModuleData/RuntimeModuleData/*.*',
+        'laya/RenderDriver/RenderModuleData/RuntimeModuleData/2D/*.*',
     ],
 },
 {
@@ -162,6 +165,9 @@ export const allBundles = [{
         'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXSpotLight.ts',
         'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXTransform3D.ts',
         'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXVolumetricGI.ts',
+		//引擎核心
+        'laya/RenderDriver/RenderModuleData/RuntimeModuleData/3D/*.*',
+        'laya/RenderDriver/RenderModuleData/RuntimeModuleData/3D/3DRenderProcess/*.*',
     ],
 },
 {
