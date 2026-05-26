@@ -45,6 +45,9 @@ export class Bridge3DSceneInternal implements IBridge3DSceneInternal{
     };
 
     private _onScene2DResize = (): void => {
+        if (this._scene3d) {
+            this._scene3d.onStageResize();
+        }
         this._updateSceneOffset();
         for (let i = 0, len = this._bridge3DList.length; i < len; i++) {
             this._bridge3DList[i]._onScene2DResize();

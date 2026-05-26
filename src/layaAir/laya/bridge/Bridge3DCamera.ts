@@ -227,11 +227,10 @@ export class Bridge3DCamera extends Camera {
         // context.invertY = false;
         this._prepareCameraToRender();
 
-        // 把 Scene→stage 偏移矩阵左乘到 viewMatrix：
-        //   clip = proj · (view · M_sceneOffset) · model
-        // sceneLocal 模型坐标经过 M_sceneOffset 后变成 stage 像素坐标，再走标准相机流程。
         let viewMat = this.viewMatrix;
-        if (!this._sceneOffsetIsIdentity) {
+        if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2 && !this._sceneOffsetIsIdentity) {
+            // Native Bridge3D currently applies scene placement through the view matrix in C++.
+            // Web applies scene placement later as a projection-space correction uniform.
             Matrix4x4.multiply(viewMat, this._sceneOffsetMatrix, this._composedViewMatrix);
             viewMat = this._composedViewMatrix;
         }
