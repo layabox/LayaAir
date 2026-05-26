@@ -95,7 +95,6 @@ export class RTAnimatorFactory implements IAnimatorFactory {
         const evaluatorCtor: any = (window as any).conchRTAnimatorEvaluator;
         if (typeof evaluatorCtor === "function") {
             this._nativeEvaluator = new evaluatorCtor();
-            this._web._evaluator._scope = 'non-transform-only';
         } else {
             console.warn("[RTAnimatorFactory] window.conchRTAnimatorEvaluator not implemented; falling back to Web.");
             this._nativeEvaluator = null;
@@ -104,7 +103,6 @@ export class RTAnimatorFactory implements IAnimatorFactory {
         const applierCtor: any = (window as any).conchRTAnimatorApplier;
         if (typeof applierCtor === "function") {
             this._nativeApplier = new applierCtor();
-            this._web._applier._scope = 'non-transform-only';
         } else {
             console.warn("[RTAnimatorFactory] window.conchRTAnimatorApplier not implemented; falling back to Web.");
             this._nativeApplier = null;
@@ -120,6 +118,9 @@ export class RTAnimatorFactory implements IAnimatorFactory {
         if ((window as any).conchLayaXTransform) this._transformBackend = 'layax';
         else if ((window as any).conchRTTransform) this._transformBackend = 'jsrt';
         else this._transformBackend = null;
+
+        if (this._nativeEvaluator) this._web._evaluator._scope = 'non-transform-only';
+        if (this._nativeApplier) this._web._applier._scope = 'non-transform-only';
 
         registerClipDestroyCallback((clipId) => {
             const clipHandle = this._clipHandleMap.get(clipId);
@@ -628,9 +629,15 @@ export class RTAnimatorFactory implements IAnimatorFactory {
 }
 
 Laya.addBeforeInitCallback(() => {
-    if ((window as any).conchRTAnimatorPreparer
-        || (window as any).conchRTAnimatorEvaluator
-        || (window as any).conchRTAnimatorApplier) {
+    // RTAnimatorFactory 仅在有 native transform backend 时才有意义：
+    // C++ 路径只处理 Transform 类型，没有 native Transform（如 native WebGL）则零贡献，直接走 WebAnimatorFactory。
+    const hasNativeTransform = !!(window as any).conchLayaXTransform || !!(window as any).conchRTTransform;
+    const hasNativeAnimator = !!(window as any).conchRTAnimatorPreparer
+        || !!(window as any).conchRTAnimatorEvaluator
+        || !!(window as any).conchRTAnimatorApplier;
+    if (hasNativeAnimator && hasNativeTransform) {
         AnimatorManager.factoryCreator = () => new RTAnimatorFactory();
+    } else if (hasNativeAnimator && !hasNativeTransform) {
+        console.log("[RTAnimatorFactory] Native animator components detected but no native transform backend; using WebAnimatorFactory for full JS evaluation.");
     }
 });
