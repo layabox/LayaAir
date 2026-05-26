@@ -5,17 +5,32 @@ import { Texture2D } from "../resource/Texture2D";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { ISkeletonOptimise, ISpineTempletParser } from "./interface/ISpineParse";
 import { Texture } from "../resource/Texture";
+import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
+
+export type TSpineMaterialMap = Record<string, Material | null>;
+export type TSpineMaterialTextureMap = Record<string, string>;
+export type TSpineMaterialDimension = "2D" | "3D";
+type TSpineCreateURLAlias = { url: string, uuid?: string };
 
 /**
  * @en Base class for Spine animation template
  * @zh Spine动画模板基类
  */
 export class SpineTemplet extends Resource {
+    /** @internal */
+    static readonly EVENT_SPINE_MATERIAL_CHANGE: string = "spineMaterialChange";
+
     /**
      * @en Map of materials used in the Spine animation
      * @zh Spine动画中使用的材质映射
      */
     materialMap: Map<string, Material> = new Map();
+
+    private _spineMaterials2D: TSpineMaterialMap = {};
+    private _spineMaterials3D: TSpineMaterialMap = {};
+    private _spineMaterialTextures: TSpineMaterialTextureMap = {};
+    private _spineMaterialTextureKeys: Record<number, string[]> = {};
+    private _createURLAliases: TSpineCreateURLAlias[] = [];
 
     /** @internal */
     _textures: Record<string, Texture2D>;
@@ -72,6 +87,112 @@ export class SpineTemplet extends Resource {
     }
 
     /**
+     * @en External material remaps for Spine 2D render slots.
+     * @zh Spine 2D 渲染槽位的外部材质映射。未设置或无效时回退到内部默认材质。
+     */
+    get spineMaterials2D(): TSpineMaterialMap {
+        return this._spineMaterials2D;
+    }
+
+    set spineMaterials2D(value: TSpineMaterialMap) {
+        this._spineMaterials2D = value || {};
+        this.onSpineMaterialsChanged();
+    }
+
+    /**
+     * @en External material remaps for Spine 3D render slots.
+     * @zh Spine 3D 渲染槽位的外部材质映射。未设置或无效时回退到内部默认材质。
+     */
+    get spineMaterials3D(): TSpineMaterialMap {
+        return this._spineMaterials3D;
+    }
+
+    set spineMaterials3D(value: TSpineMaterialMap) {
+        this._spineMaterials3D = value || {};
+        this.onSpineMaterialsChanged();
+    }
+
+    /**
+     * @en Stable texture key to Spine texture name map used by external material remaps.
+     * @zh 外部材质映射使用的稳定贴图 id 到 Spine 贴图名称映射。
+     */
+    get spineMaterialTextures(): TSpineMaterialTextureMap {
+        return this._spineMaterialTextures;
+    }
+
+    set spineMaterialTextures(value: TSpineMaterialTextureMap) {
+        this._spineMaterialTextures = value || {};
+        this._refreshSpineMaterialTextureKeys();
+        this.onSpineMaterialsChanged();
+    }
+
+    /**
+     * @en Notify renderers that external Spine material remaps changed.
+     * @zh 通知渲染器外部 Spine 材质映射发生变化。
+     */
+    onSpineMaterialsChanged(): void {
+        this.event(SpineTemplet.EVENT_SPINE_MATERIAL_CHANGE);
+    }
+
+    /** @internal */
+    _addCreateURLAlias(url: string, uuid?: string): void {
+        if (!url && !uuid)
+            return;
+
+        for (let alias of this._createURLAliases) {
+            if (alias.url === url && alias.uuid === uuid)
+                return;
+        }
+        this._createURLAliases.push({ url, uuid });
+    }
+
+    isCreateFromURL(url: string): boolean {
+        if (super.isCreateFromURL(url))
+            return true;
+
+        for (let alias of this._createURLAliases) {
+            if (alias.uuid && url.length === alias.uuid.length + 6 && url.endsWith(alias.uuid) || alias.url === url)
+                return true;
+        }
+        return false;
+    }
+
+    /** @internal */
+    private _getSpineMaterial(texture: Texture2D, blendMode: number, premultipliedAlpha: boolean, is3D: boolean): Material {
+        if (!texture)
+            return null;
+
+        let dimension: TSpineMaterialDimension = is3D ? "3D" : "2D";
+        let materials = is3D ? this._spineMaterials3D : this._spineMaterials2D;
+        let material = this._getSpineMaterialByKey(materials, this._getSpineMaterialKey(texture, blendMode, premultipliedAlpha, dimension), is3D);
+        if (material)
+            return material;
+
+        let keys = this._spineMaterialTextureKeys[texture.id];
+        if (keys) {
+            for (let key of keys) {
+                material = this._getSpineMaterialByKey(materials, `${key}_${blendMode}_${premultipliedAlpha}_${dimension}`, is3D);
+                if (material)
+                    return material;
+            }
+        }
+
+        return null;
+    }
+
+    private _getSpineMaterialByKey(materials: TSpineMaterialMap, key: string, is3D: boolean): Material {
+        let material = materials[key];
+        if (material instanceof Material && material.checkType(is3D ? ShaderFeatureType.D3 : ShaderFeatureType.D2_BaseRenderNode2D))
+            return material;
+
+        return null;
+    }
+
+    private _getSpineMaterialKey(texture: Texture2D, blendMode: number, premultipliedAlpha: boolean, dimension: TSpineMaterialDimension): string {
+        return `${texture.id}_${blendMode}_${premultipliedAlpha}_${dimension}`;
+    }
+
+    /**
      * @en Get or create a material for the given texture and blend mode
      * @param texture The texture to use
      * @param blendMode The blend mode to use
@@ -89,7 +210,11 @@ export class SpineTemplet extends Resource {
             texture = Texture2D.whiteTexture;
         }
 
-        let key = texture.id + "_" + blendMode + "_" + premultipliedAlpha + "_"+ (is3D ? "3D" : "2D");
+        let remapMaterial = this._getSpineMaterial(texture, blendMode, premultipliedAlpha, is3D);
+        if (remapMaterial)
+            return remapMaterial;
+
+        let key = this._getSpineMaterialKey(texture, blendMode, premultipliedAlpha, is3D ? "3D" : "2D");
         let mat = this.materialMap.get(key);
         if (!mat) {
             mat = new Material();
@@ -129,9 +254,13 @@ export class SpineTemplet extends Resource {
     }
 
     setTexture(name: string, tex: Texture2D) {
-        this._textures[name] = tex;
-    }
+        if (!this._textures)
+            this._textures = {};
 
+        this._textures[name] = tex;
+        this._registerSpineMaterialTexture(name, tex);
+        this.onSpineMaterialsChanged();
+    }
 
     /**
      * @zh 注册纹理，将 Texture 对象与 Spine 的 TextureRegion 和 AtlasPage 建立对应关系
@@ -145,9 +274,39 @@ export class SpineTemplet extends Resource {
         let tex2d = texture.bitmap as Texture2D;
         if (!tex2d) return;
 
-        if (!this._textures[texture.url]) {
-            this._textures[texture.url] = tex2d;
+        this.setTexture(texture.url, tex2d);
+    }
+
+    private _refreshSpineMaterialTextureKeys(): void {
+        this._spineMaterialTextureKeys = {};
+        if (!this._textures)
+            return;
+
+        for (let name in this._textures)
+            this._registerSpineMaterialTexture(name, this._textures[name]);
+    }
+
+    private _registerSpineMaterialTexture(name: string, texture: Texture2D): void {
+        if (!texture)
+            return;
+
+        let keys = this._spineMaterialTextureKeys[texture.id];
+        if (!keys)
+            keys = this._spineMaterialTextureKeys[texture.id] = [];
+
+        this._addSpineMaterialTextureKey(keys, name);
+        this._addSpineMaterialTextureKey(keys, texture.uuid);
+        this._addSpineMaterialTextureKey(keys, texture.url);
+
+        for (let id in this._spineMaterialTextures) {
+            if (this._spineMaterialTextures[id] === name)
+                this._addSpineMaterialTextureKey(keys, id);
         }
+    }
+
+    private _addSpineMaterialTextureKey(keys: string[], key: string): void {
+        if (key && keys.indexOf(key) === -1)
+            keys.push(key);
     }
 
     /**

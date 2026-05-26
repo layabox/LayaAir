@@ -216,6 +216,12 @@ export interface ISpineRender {
     disableCache(): void;
 
     /**
+     * @zh 清理渲染器内部缓存的材质列表。
+     * @en Clear the renderer's cached material lists.
+     */
+    clearCacheMaterials(): void;
+
+    /**
      * 设置插槽纹理
      * @param slotName 
      * @param texture 

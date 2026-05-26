@@ -129,7 +129,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
 
     set premultipliedAlpha(value: boolean) {
         if (this._premultipliedAlpha === value) return;
-        this.updater._clearCacheMaterials();
+        this.clearCacheMaterials();
         this._premultipliedAlpha = value;
     }
 
@@ -704,6 +704,10 @@ export abstract class BaseOptimizeRender implements ISpineRender {
             }
         }
         this._enableCache = false;
+    }
+
+    clearCacheMaterials(): void {
+        this.updater._clearCacheMaterials();
     }
     
     setSlotTexture(slotName: string, texture: Texture, createAttachment: boolean): void {
