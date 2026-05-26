@@ -92,8 +92,17 @@ export class VFXSpawnerSingleBurst extends VFXSpawnerTask {
         this.sampledCount = 0;
     }
 
-    internalInit(rand: Rand): void {
+    play(): void {
+        // VFX onPlay (stop → play / asset re-import) 应该让 SingleBurst 重新 fire 一次
+        // (跟 Unity 行为一致：每次 onPlay 视为一次新 VFX 生命周期)
         this.sleeping = false;
+    }
+
+    internalInit(rand: Rand): void {
+        // ⚠ 不要 reset sleeping — Unity SingleBurst 整个 VFX 生命周期只 fire 一次 (含 Infinite loop 模式).
+        // 之前每个 newLoop 重置 sleeping=false 让 durationMode=Infinite + SingleBurst 每个 loop 重新 fire
+        // → 看起来 "粒子播放 2 次" (实际是无限次重 fire). UNI VFX1/2/3 都受影响.
+        // 只在 VFX 完整重置 (init / play) 时才重置 sleeping.
         this.nextTriggerTime = sampleRange(this.delay, rand);
         this.sampledCount = Math.round(sampleRange(this.count, rand));
     }

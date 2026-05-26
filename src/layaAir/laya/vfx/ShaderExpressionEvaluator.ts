@@ -63,24 +63,26 @@ export class ShaderExpressionEvaluator {
                 break;
             case "VFXParameter": {
                 // 优先从 runtime _propertyValues 取（含 Prefab/Inspector override 的最终值）
+                // 关键: 拿不到 override 时 return undefined → caller (caller 在 outer eval / setUniform 调用方) 跳过
+                // setUniform 让 ShaderGraph 编译期 default 生效 (e.g. 金色 SecondaryGradient).
+                // 之前 fallback 到 n.defaultValue (.vfx VFXParameter 端的内置 default 通常是灰白占位) →
+                // 覆盖 ShaderGraph default 让 UNI VFX1 wisps 颜色丢失 (原本金色变灰白).
                 const pv: any = ctx.propertyValues && n.exposedName ? ctx.propertyValues.get(n.exposedName) : null;
                 if (pv) {
-                    // Gradient 类：cached 是 baked Texture（不可 CPU sample），用 rawGradientStops 给 SampleGradient lerp
                     if (pv.rawGradientStops && pv.rawGradientStops.length > 0) {
                         result = { __layaGradientStops: pv.rawGradientStops };
                     } else if (pv.rawCurveFrames && pv.rawCurveFrames.length > 0) {
                         result = { __layaCurveFrames: pv.rawCurveFrames };
                     } else if (pv.value && pv.value.length > 0) {
-                        // Vector / Color / Float 走 value[] 拼 Vector4
                         const v = pv.value;
                         result = pv.value.length === 1 ? Number(v[0]) || 0 : { r: v[0] ?? 0, g: v[1] ?? 0, b: v[2] ?? 0, a: v[3] ?? 0 };
                     } else if (pv.cached != null) {
                         result = pv.cached;
                     } else {
-                        result = n.defaultValue;
+                        result = undefined;   // 没真值 — 让上游 SampleGradient/CombineVec 等返回 undefined → 整个 expression 跳过
                     }
                 } else {
-                    result = n.defaultValue;
+                    result = undefined;   // 同上
                 }
                 break;
             }
@@ -95,8 +97,11 @@ export class ShaderExpressionEvaluator {
                 result = Math.floor(ctx.totalTime * 60);   // assume 60fps frame index
                 break;
             case "GlobalTimeRatio":
-                // AgeOverLifetime 的近似：vfx 总时间 mod 1
-                result = ctx.totalTime - Math.floor(ctx.totalTime);
+                // AgeOverLifetime 的近似 — material uniform 不能 per-particle，用 system 全局时间
+                // ⚠ 不要 mod 1: lifetime > 1s 的 sample (UNI VFX2 lifetime=1.4s) 让 curve fade 多次循环
+                // (user 看到 ring "出现→消失→又出现→消失" = 2 圈). 改 min(totalTime, 1) 让 ratio 单次 0→1
+                // 之后保持 1 (粒子已 fade-out 完不再脉冲). 接近 per-particle ageOverLifetime 在 lifetime≥1s 的语义.
+                result = Math.min(ctx.totalTime, 1);
                 break;
             case "Random": {
                 // Unity 端 Random(min, max, seed) 是 per-particle random, Laya material uniform 是 per-system 一份不能 per-particle.
@@ -154,6 +159,29 @@ export class ShaderExpressionEvaluator {
                 result = Math.max(0, Math.min(1, x));
                 break;
             }
+            // 子分量 combine: 转换器 walkSlotTree 检测 vec2/3/4 master slot 的子 slot link 时 emit
+            // (e.g. _MainTextureOffset.y 接 Random output → CombineVec2(0, Random))
+            case "CombineVec2": {
+                const x = Number(this._evalNode(n.inputs![0], nodes, cache, ctx)) || 0;
+                const y = Number(this._evalNode(n.inputs![1], nodes, cache, ctx)) || 0;
+                result = { x, y };
+                break;
+            }
+            case "CombineVec3": {
+                const x = Number(this._evalNode(n.inputs![0], nodes, cache, ctx)) || 0;
+                const y = Number(this._evalNode(n.inputs![1], nodes, cache, ctx)) || 0;
+                const z = Number(this._evalNode(n.inputs![2], nodes, cache, ctx)) || 0;
+                result = { x, y, z };
+                break;
+            }
+            case "CombineVec4": {
+                const x = Number(this._evalNode(n.inputs![0], nodes, cache, ctx)) || 0;
+                const y = Number(this._evalNode(n.inputs![1], nodes, cache, ctx)) || 0;
+                const z = Number(this._evalNode(n.inputs![2], nodes, cache, ctx)) || 0;
+                const w = Number(this._evalNode(n.inputs![3], nodes, cache, ctx)) || 0;
+                result = { x, y, z, w };
+                break;
+            }
             default:
                 result = null;
         }
@@ -165,8 +193,10 @@ export class ShaderExpressionEvaluator {
      *  Unity {colorKeys:[{color,time}], alphaKeys:[{alpha,time}]}
      *  Laya  {__layaGradientStops:[{time,r,g,b,a}]} (color+alpha 同 stop)
      */
-    private static _sampleGradient(g: any, t: number): { r: number; g: number; b: number; a: number } {
-        if (!g) return { r: 1, g: 1, b: 1, a: 1 };
+    private static _sampleGradient(g: any, t: number): { r: number; g: number; b: number; a: number } | null {
+        // grad 未提供 (VFXParameter 无 propertyValues override) → return null 让 caller skip setUniform
+        // 让 ShaderGraph 编译期 default 生效 (e.g. UNI VFX1 金色 SecondaryGradient)
+        if (!g) return null as any;
         const clamp = Math.max(0, Math.min(1, t));
         // Laya VFXGradientStop 格式：[{t, color:[r,g,b,a]}]
         if (g.__layaGradientStops && Array.isArray(g.__layaGradientStops) && g.__layaGradientStops.length > 0) {
@@ -218,7 +248,9 @@ export class ShaderExpressionEvaluator {
 
     /** Unity AnimationCurve sample — 简化 linear lerp（不算 Hermite tangent，足够多数 material uniform 用例） */
     private static _sampleCurve(c: CurveData, t: number): number {
-        if (!c || !c.frames || c.frames.length === 0) return 0;
+        // curve 未提供 → return null 让 caller skip setUniform 让 ShaderGraph default 生效
+        if (!c) return null as any;
+        if (!c.frames || c.frames.length === 0) return 0;
         if (c.frames.length === 1) return c.frames[0].value;
         const clamp = Math.max(c.frames[0].time, Math.min(c.frames[c.frames.length - 1].time, t));
         let f0 = c.frames[0], f1 = c.frames[c.frames.length - 1];
