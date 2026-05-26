@@ -42,8 +42,8 @@ export class Bridge3DData {
     }
 
     /**
-     * @en Whether Bridge3D uses an orthographic camera. When false, Bridge3D uses a perspective camera and derives camera Z from fieldOfView to keep the Z=0 plane aligned with 2D pixels.
-     * @zh Bridge3D 是否使用正交相机。为 false 时使用透视相机，并根据 fieldOfView 反推相机 Z，使 Z=0 平面继续与 2D 像素对齐。
+     * @en Whether Bridge3D uses an orthographic camera. When false, Bridge3D uses a perspective camera and derives fieldOfView from cameraZDistance to keep the Z=0 plane aligned with 2D pixels. Very small distances are clamped by the runtime maximum FOV.
+     * @zh Bridge3D 是否使用正交相机。为 false 时使用透视相机，并根据 cameraZDistance 反推 fieldOfView，使 Z=0 平面继续与 2D 像素对齐。过小的距离会被运行时最大视角限制保护。
      */
     get orthographicCamera(): boolean {
         return this._orthographicCamera;

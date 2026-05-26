@@ -2,10 +2,8 @@
     #define SpineVertex_lib
 
 void transfrom_spine(vec2 pos,vec3 xDir,vec3 yDir,out vec2 outPos){
-    // outPos.x = xDir.x*pos.x+xDir.y*pos.y + xDir.z;
-    // outPos.y = - (yDir.x*pos.x+yDir.y*pos.y -yDir.z);
-    outPos.x =  xDir.x * pos.x + xDir.y * pos.y + xDir.z;
-    outPos.y = - yDir.x * pos.x - yDir.y * pos.y + yDir.z;
+    outPos.x = xDir.x * pos.x - xDir.y * pos.y + xDir.z;
+    outPos.y = yDir.x * pos.x - yDir.y * pos.y + yDir.z;
 }
 
 void getGlobalPos(vec4 pos, out vec2 globalPos){

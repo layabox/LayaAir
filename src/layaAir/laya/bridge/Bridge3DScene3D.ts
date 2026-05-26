@@ -62,10 +62,23 @@ export class Bridge3DScene3D extends Scene3D {
 
     /**
      * Whether Bridge3D uses orthographic projection.
-     * When false, camera Z is derived from fieldOfView so the Z=0 plane maps 1:1 to 2D pixels.
+     * When false, fieldOfView is derived from camera Z so the Z=0 plane maps 1:1 to 2D pixels.
      * @private
      */
     private _orthographicCamera: boolean = true;
+
+    /**
+     * Guards against re-entering projection updates from camera setters.
+     * @private
+     */
+    private _updatingCameraProjection: boolean = false;
+
+    /**
+     * Maximum perspective FOV used by Bridge3D's 2D anchored projection.
+     * Prevents very small cameraZDistance values from creating extreme fish-eye distortion.
+     * @private
+     */
+    private static readonly _maxPerspectiveFieldOfView: number = 90;
 
     /**
      * Bridge3D独立的灯光贴图
@@ -129,7 +142,11 @@ export class Bridge3DScene3D extends Scene3D {
 
         // Create shared Bridge3D camera and add to Scene3D
         this._sharedCamera = new Bridge3DCamera();
-        this._sharedCamera.setProjectionChangeHandler(() => this._updateCameraProjectionAndPosition());
+        this._sharedCamera.setProjectionChangeHandler(() => {
+            if (!this._updatingCameraProjection) {
+                this._updateCameraProjectionAndPosition();
+            }
+        });
         this._sharedCamera.orthographic = this._orthographicCamera;
         this.addChild(this._sharedCamera);
         this.updateContext();
@@ -149,7 +166,7 @@ export class Bridge3DScene3D extends Scene3D {
     applyCameraZDistance(value: number): void {
         if (this._cameraZDistance !== value) {
             this._cameraZDistance = value;
-            this._updateCameraPosition();
+            this._updateCameraProjectionAndPosition();
         }
     }
 
@@ -238,47 +255,82 @@ export class Bridge3DScene3D extends Scene3D {
     }
 
     private _getRenderHeight(): number {
-        return RenderState2D.height || ILaya.stage.height;
+        return this._scene2D && this._scene2D.height ? this._scene2D.height : (RenderState2D.height || ILaya.stage.height);
     }
 
     private _getRenderWidth(): number {
-        return RenderState2D.width || ILaya.stage.width;
+        return this._scene2D && this._scene2D.width ? this._scene2D.width : (RenderState2D.width || ILaya.stage.width);
     }
 
-    private _getPerspectiveCameraZ(height: number): number {
-        const fov = this._sharedCamera.fieldOfView || 60;
-        const halfFov = fov * Math.PI / 180 * 0.5;
+    /**
+     * @internal
+     */
+    _getBridgePlaneWidth(): number {
+        return this._getRenderWidth();
+    }
+
+    /**
+     * @internal
+     */
+    _getBridgePlaneHeight(): number {
+        return this._getRenderHeight();
+    }
+
+    private _getMinPerspectiveCameraZ(height: number): number {
+        const halfFov = Bridge3DScene3D._maxPerspectiveFieldOfView * Math.PI / 180 * 0.5;
         const tanHalfFov = Math.tan(halfFov);
-        return tanHalfFov > 0 ? height * 0.5 / tanHalfFov : this._cameraZDistance;
+        return tanHalfFov > 0 ? height * 0.5 / tanHalfFov : height;
     }
 
     private _getEffectiveCameraZ(height: number): number {
-        return this._orthographicCamera ? this._cameraZDistance : this._getPerspectiveCameraZ(height);
+        if (this._orthographicCamera) {
+            return this._cameraZDistance;
+        }
+
+        return Math.max(this._cameraZDistance, this._getMinPerspectiveCameraZ(height), this._sharedCamera.nearPlane + 0.0001);
+    }
+
+    private _getPerspectiveFieldOfView(height: number, cameraZ: number): number {
+        return Math.atan(height * 0.5 / cameraZ) * 2 * 180 / Math.PI;
     }
 
     private _updateCameraProjectionAndPosition(): void {
-        const height = this._getRenderHeight();
+        if (this._updatingCameraProjection) return;
 
-        this._sharedCamera.orthographic = this._orthographicCamera;
-        if (this._orthographicCamera) {
-            this._sharedCamera.orthographicVerticalSize = height;
+        this._updatingCameraProjection = true;
+        try {
+            const height = this._getRenderHeight();
+            const width = this._getRenderWidth();
+            const aspect = height > 0 ? width / height : 1;
+
+            this._sharedCamera.aspectRatio = aspect;
+
+            this._sharedCamera.orthographic = this._orthographicCamera;
+            if (this._orthographicCamera) {
+                this._sharedCamera.orthographicVerticalSize = height;
+            } else {
+                const cameraZ = this._getEffectiveCameraZ(height);
+                const fieldOfView = this._getPerspectiveFieldOfView(height, cameraZ);
+                if (Math.abs(this._sharedCamera.fieldOfView - fieldOfView) > 0.0001) {
+                    this._sharedCamera.fieldOfView = fieldOfView;
+                }
+            }
+
+            this._updateCameraPosition(width, height);
+            this._bridge3DContext.updateFromCamera(this._sharedCamera);
+        } finally {
+            this._updatingCameraProjection = false;
         }
-
-        this._updateCameraPosition();
-        this._bridge3DContext.updateFromCamera(this._sharedCamera);
     }
 
     /**
      * Update camera position based on current render size and projection mode.
-     * In perspective mode, cameraZDistance is ignored: camera Z is derived from fieldOfView
-     * so the Z=0 plane keeps the same size as the 2D render surface.
+     * In perspective mode, cameraZDistance drives camera Z and the FOV is derived from it.
+     * This keeps the Z=0 plane aligned with 2D pixels across the whole render surface.
      * @private
      */
-    private _updateCameraPosition(): void {
+    private _updateCameraPosition(width: number = this._getRenderWidth(), height: number = this._getRenderHeight()): void {
         // Use actual render size (considering stage scaling)
-        const width = this._getRenderWidth();
-        const height = this._getRenderHeight();
-
         const centerX = width / 2;
         const centerY = height / 2;
 

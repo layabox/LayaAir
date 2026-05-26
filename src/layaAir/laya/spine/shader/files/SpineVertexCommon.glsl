@@ -4,8 +4,8 @@
 uniform vec4 u_color;
 
 #ifdef SPINE_RB
-    uniform vec3 u_sBone0;
-    uniform vec3 u_sBone1;
+    uniform vec4 u_sBone0;
+    uniform vec4 u_sBone1;
 #endif
 
 void transfrom(vec2 pos,vec4 xDir,vec4 yDir,out vec2 outPos){

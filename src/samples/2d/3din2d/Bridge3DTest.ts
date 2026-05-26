@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Bridge3DSprite } from "laya/bridge/Bridge3DSprite";
-import { Bridge3DCoordinate } from "laya/bridge/utils/Bridge3DCoordinate";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
@@ -36,9 +35,6 @@ export class Bridge3DTest {
         // console.log("Bridge3D Test - Started");
 
         Laya.stage.bgColor = "#232628";
-
-        // Output coordinate system debug info
-        // Bridge3DCoordinate.debugInfo();
 
         // Create 2D scene (Scene now has built-in Bridge3DScene3D support via auto-initialization)
         const scene2D = new Scene();

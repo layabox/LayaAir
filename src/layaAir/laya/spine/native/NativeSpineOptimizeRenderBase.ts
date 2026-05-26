@@ -508,4 +508,10 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
             this._nativeRender.disableCache();
         }
     }
+
+    clearCacheMaterials(): void {
+        if (this._nativeRender && this._nativeRender.clearCacheMaterials) {
+            this._nativeRender.clearCacheMaterials();
+        }
+    }
 }
