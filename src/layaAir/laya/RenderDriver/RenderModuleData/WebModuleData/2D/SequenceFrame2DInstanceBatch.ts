@@ -1,17 +1,17 @@
-import { BaseRender2DType } from "../../SpriteConst";
-import { LayaGL } from "../../../layagl/LayaGL";
-import { IRenderElement2D } from "../../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
-import { IBufferState } from "../../../RenderDriver/DriverDesign/RenderDevice/IBufferState";
-import { IRenderGeometryElement } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
-import { IVertexBuffer } from "../../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
-import { BatchManager, IBatch2DProvider } from "../../../RenderDriver/RenderModuleData/WebModuleData/2D/BatchManager";
-import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
-import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
-import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
-import { FastSinglelist } from "../../../utils/SingletonList";
-import type { SequenceFrame2DRender } from "./SequenceFrame2DRender";
-import { SequenceFrame2DShader } from "./SequenceFrame2DShader";
+import { BaseRender2DType } from "../../../../display/SpriteConst";
+import { LayaGL } from "../../../../layagl/LayaGL";
+import { IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
+import { IBufferState } from "../../../DriverDesign/RenderDevice/IBufferState";
+import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
+import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
+import { BatchManager, IBatch2DProvider } from "./BatchManager";
+import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
+import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
+import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
+import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
+import { FastSinglelist } from "../../../../utils/SingletonList";
+import type { SequenceFrame2DRender } from "../../../../display/Scene2DSpecial/SequenceFrame2D/SequenceFrame2DRender";
+import { SequenceFrame2DShader } from "../../../../display/Scene2DSpecial/SequenceFrame2D/SequenceFrame2DShader";
 type SequenceFrame2DElement = IRenderElement2D & {
     _sequenceFrame2DRender?: SequenceFrame2DRender;
 };
@@ -395,3 +395,5 @@ export class SequenceFrame2DInstanceBatchTool {
         array.push(float32);
     }
 }
+
+SequenceFrame2DInstanceBatch.__init__();

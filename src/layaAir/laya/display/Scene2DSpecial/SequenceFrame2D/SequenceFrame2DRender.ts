@@ -24,7 +24,6 @@ import { Texture } from "../../../resource/Texture";
 import { Texture2D } from "../../../resource/Texture2D";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { Render2DProcessor } from "../../Render2DProcessor";
-import { SequenceFrame2DInstanceBatch } from "./SequenceFrame2DInstanceBatch";
 import { SequenceFrame2DShader } from "./SequenceFrame2DShader";
 
 type SequenceFrame2DElement = IRenderElement2D & {
@@ -52,7 +51,6 @@ export class SequenceFrame2DRender extends BaseRenderNode2D {
             return;
 
         SequenceFrame2DShader.__init__();
-        SequenceFrame2DInstanceBatch.__init__();
 
         const mat = SequenceFrame2DRender.defaultMaterial = new Material();
         mat.lock = true;
