@@ -97,7 +97,7 @@ export class NoRender2DProcess implements I2DRenderPassFactory {
         return new NoRenderElement2D()
     }
     createPrimitiveRenderElement2D(): IPrimitiveRenderElement2D {
-        return null;
+        return new NoRenderPrimitiveRenderElement2D();
     }
     createRenderContext2D(): IRenderContext2D {
         return new NoRenderContext2D();
@@ -125,6 +125,12 @@ export class NoRenderElement2D implements IRenderElement2D {
 
     }
 
+}
+
+export class NoRenderPrimitiveRenderElement2D extends NoRenderElement2D implements IPrimitiveRenderElement2D {
+    typeKey: number = 0;
+    textureKey: number = 0;
+    primitiveShaderData: ShaderData = null;
 }
 
 export class NoRenderContext2D implements IRenderContext2D {
