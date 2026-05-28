@@ -48,7 +48,17 @@ export class LayaXBindGroupHelper {
     private static _cache: Map<string, LayaXBindingInfo[]> = new Map();
 
     private static _getCacheKey(groupID: number, mapNames: string[]): string {
-        return `${groupID}_` + [...mapNames].sort().join("_");
+        return `${groupID}_` + mapNames.join("_");
+    }
+
+    private static _cloneBindingInfoArray(bindings: LayaXBindingInfo[]): LayaXBindingInfo[] {
+        return bindings.map(binding => ({
+            ...binding,
+            texture: binding.texture ? { ...binding.texture } : undefined,
+            sampler: binding.sampler ? { ...binding.sampler } : undefined,
+            buffer: binding.buffer ? { ...binding.buffer } : undefined,
+            storageTexture: binding.storageTexture ? { ...binding.storageTexture } : undefined,
+        }));
     }
 
     private static _getTextureViewDimension(uniformType: ShaderDataType): string {
@@ -69,7 +79,7 @@ export class LayaXBindGroupHelper {
     static createBindingInfoArray(groupID: number, mapNames: string[]): LayaXBindingInfo[] {
         const cacheKey = this._getCacheKey(groupID, mapNames);
         const cached = this._cache.get(cacheKey);
-        if (cached) return cached;
+        if (cached) return this._cloneBindingInfoArray(cached);
 
         let bindings: LayaXBindingInfo[] = [];
         let bindingIndex = 0;
@@ -201,7 +211,7 @@ export class LayaXBindGroupHelper {
         }
 
         this._cache.set(cacheKey, bindings);
-        return bindings;
+        return this._cloneBindingInfoArray(bindings);
     }
 
     /**
@@ -211,7 +221,7 @@ export class LayaXBindGroupHelper {
     static createBindingInfosByUniformMap(groupID: number, name: string, cacheName: string, uniformMap: Map<number, UniformProperty>): LayaXBindingInfo[] {
         const cacheKey = this._getCacheKey(groupID, [cacheName]);
         const cached = this._cache.get(cacheKey);
-        if (cached) return cached;
+        if (cached) return this._cloneBindingInfoArray(cached);
 
         let bindings: LayaXBindingInfo[] = [];
         let bindingIndex = 0;
@@ -335,7 +345,7 @@ export class LayaXBindGroupHelper {
         }
 
         this._cache.set(cacheKey, bindings);
-        return bindings;
+        return this._cloneBindingInfoArray(bindings);
     }
 
     /**

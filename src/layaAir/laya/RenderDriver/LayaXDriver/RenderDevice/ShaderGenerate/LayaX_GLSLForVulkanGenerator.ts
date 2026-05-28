@@ -395,26 +395,25 @@ ${fragmentCode}
         const getUniformDeclaration = (uniformMaps: Map<number, LayaXBindingInfo[]>, usedTex?: Map<string, { type: string, format?: string, access?: "readonly" | "writeonly" | "readwrite" }>) => {
             let res = "";
             uniformMaps.forEach((value, set) => {
-                let binding = 0;
                 for (let uniform of value) {
                     switch (uniform.type) {
                         case LayaXBindingInfoType.storageBuffer: {
                             let setIndex = set;
-                            let bindingIndex = binding++;
+                            let bindingIndex = uniform.binding;
                             ssboBindingMap.set(uniform.name, { set: setIndex, binding: bindingIndex });
                             break;
                         }
                         case LayaXBindingInfoType.storageTexture:
                             {
                                 let access = wgslAccessToGlsl(uniform.storageTexture.access);
-                                res = `${res}layout(${uniform.format ? uniform.format : "rgba8"}, set=${set}, binding=${binding++}) uniform ${access} image2D ${uniform.name};\n`;
+                                res = `${res}layout(${uniform.format ? uniform.format : "rgba8"}, set=${set}, binding=${uniform.binding}) uniform ${access} image2D ${uniform.name};\n`;
                                 break;
                             }
                         case LayaXBindingInfoType.buffer: {
                             let commandMap = (LayaGL.renderDeviceFactory.createGlobalUniformMap(uniform.name) as LayaXCommandUniformMap)
                             if (commandMap._hasUniformBuffer) {
                                 let uniformMap = commandMap._idata;
-                                res = `${res}${uniformMapString(uniformMap, uniform.name, uniform.set, binding++, true, new Map()).code}\n`;
+                                res = `${res}${uniformMapString(uniformMap, uniform.name, uniform.set, uniform.binding, true, new Map()).code}\n`;
                             }
                             break;
                         }
@@ -423,9 +422,8 @@ ${fragmentCode}
 
                             if (!usedTex || usedTex.has(textureName)) {
                                 const textureType = getSamplerTextureType(uniform.texture.sampleType, uniform.texture.viewDimension);
-                                res = `${res}layout(set=${set}, binding=${binding}) uniform ${textureType} ${textureName};\n`;
+                                res = `${res}layout(set=${set}, binding=${uniform.binding}) uniform ${textureType} ${textureName};\n`;
                             }
-                            binding += 2;
                             break;
                         }
                         default:
@@ -718,16 +716,13 @@ function uniformString2(uniformSetMap: Map<number, LayaXBindingInfo[]>, material
     let samplerMap = new Map<string, LayaXBindingInfo>();
 
     uniformSetMap.forEach((value, key) => {
-        let binding = 0;
         if (value.length > 0) {
             for (let uniform of value) {
                 switch (uniform.type) {
                     case LayaXBindingInfoType.storageBuffer:
-                        binding++;
                         //TODO
                         break;
                     case LayaXBindingInfoType.storageTexture:
-                        binding++;
                         //TODO
                         break;
                     case LayaXBindingInfoType.buffer:
@@ -737,7 +732,7 @@ function uniformString2(uniformSetMap: Map<number, LayaXBindingInfo[]>, material
                                 uniformMap = materialMap;
                             }
 
-                            res = `${res}${uniformMapString(uniformMap, uniform.name, uniform.set, binding++, true, collectUniforms).code}\n`;
+                            res = `${res}${uniformMapString(uniformMap, uniform.name, uniform.set, uniform.binding, true, collectUniforms).code}\n`;
                             break;
                         }
                     case LayaXBindingInfoType.texture:
@@ -751,12 +746,11 @@ function uniformString2(uniformSetMap: Map<number, LayaXBindingInfo[]>, material
 
                             let textureType = getDimensionTextureType(uniform.texture?.viewDimension);
 
-                            res = `${res}layout(set=${uniform.set}, binding=${binding}) uniform ${textureType} ${uniform.name};\n`
+                            res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform ${textureType} ${uniform.name};\n`
 
                             let samplerName = uniform.name.replace("_Texture", "");
                             samplerMap.set(samplerName, uniform);
                         }
-                        binding++;
                         break;
                     case LayaXBindingInfoType.sampler:
                         {
@@ -771,9 +765,8 @@ function uniformString2(uniformSetMap: Map<number, LayaXBindingInfo[]>, material
                                 }
                             }
 
-                            res = `${res}layout(set=${uniform.set}, binding=${binding}) uniform ${sampler} ${uniform.name};\n`;
+                            res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform ${sampler} ${uniform.name};\n`;
                         }
-                        binding++;
                         break;
                     default:
                         break;
