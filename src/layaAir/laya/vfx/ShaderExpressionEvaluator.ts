@@ -42,6 +42,10 @@ export interface ExprEvalContext {
     deltaTime: number;
     /** runtime VFXParameter 实际值 map: exposedName → cached value (含 Prefab/Inspector override 后的 Gradient/Curve/Vector 等) */
     propertyValues?: Map<string, { cached: any, value?: number[] }>;
+    /** 当前 effect 是否含 ConstantRate/PeriodicBurst/VariableRate 持续 spawn (区别于纯 SingleBurst).
+     *  决定 GlobalTimeRatio 行为: SingleBurst-only 用 cap min(t,1) 跟首批粒子 age 偶然同步,
+     *  持续 spawn 用 mod 1 让 cycle 持续 (避免 t>1 后 Disappear=1 让所有粒子永远不可见). */
+    hasContinuousSpawn?: boolean;
 }
 
 export class ShaderExpressionEvaluator {
@@ -98,10 +102,14 @@ export class ShaderExpressionEvaluator {
                 break;
             case "GlobalTimeRatio":
                 // AgeOverLifetime 的近似 — material uniform 不能 per-particle，用 system 全局时间
-                // ⚠ 不要 mod 1: lifetime > 1s 的 sample (UNI VFX2 lifetime=1.4s) 让 curve fade 多次循环
-                // (user 看到 ring "出现→消失→又出现→消失" = 2 圈). 改 min(totalTime, 1) 让 ratio 单次 0→1
-                // 之后保持 1 (粒子已 fade-out 完不再脉冲). 接近 per-particle ageOverLifetime 在 lifetime≥1s 的语义.
-                result = Math.min(ctx.totalTime, 1);
+                // 行为依赖 spawner 类型 (ctx.hasContinuousSpawn 由 VisualEffect 注入):
+                //   SingleBurst-only: cap min(totalTime, 1) — 跟 per-particle ageOverLifetime 偶然吻合 (system 跟首批粒子同步)
+                //     避免 lifetime>1s 的 sample (UNI VFX2 1.4s) 让 curve fade 循环 ("ring 2 圈")
+                //   ConstantRate/PeriodicBurst: mod(totalTime, 1) — 让 cycle 持续循环
+                //     避免 cap 后 totalTime>1 让 Disappear=curve(1)=1 让所有粒子永远不可见 (UNI VFX6 不显示)
+                result = ctx.hasContinuousSpawn
+                    ? (ctx.totalTime - Math.floor(ctx.totalTime))
+                    : Math.min(ctx.totalTime, 1);
                 break;
             case "Random": {
                 // Unity 端 Random(min, max, seed) 是 per-particle random, Laya material uniform 是 per-system 一份不能 per-particle.

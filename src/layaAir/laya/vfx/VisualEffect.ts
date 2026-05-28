@@ -939,6 +939,21 @@ export class VisualEffect extends Script {
         const totalTime = this.state.totalTime;
         const deltaTime = this.frameTime.deltaTime;
         const propertyValues = this._propertyValues;
+        // 检测当前 effect 是否含 ConstantRate/PeriodicBurst 持续 spawn (区别于纯 SingleBurst)
+        // 决定 GlobalTimeRatio 行为：
+        //   SingleBurst-only: cap(totalTime, 1) — 跟 per-particle ageOverLifetime 近似 (system 时间 ~= 粒子 age)
+        //   持续 spawn: mod(totalTime, 1) — 让 fade cycle 持续循环 (避免 t>1 后 Disappear=1 让所有粒子永远不可见)
+        let hasContinuousSpawn = false;
+        for (const sys of this.systems) {
+            if (!(sys instanceof VFXSpawnerSystem)) continue;
+            for (const task of sys.tasks) {
+                const cn = (task as any).constructor?.name || "";
+                if (cn === "VFXSpawnerConstantRate" || cn === "VFXSpawnerPeriodicBurst" || cn === "VFXSpawnerVariableRate") {
+                    hasContinuousSpawn = true; break;
+                }
+            }
+            if (hasContinuousSpawn) break;
+        }
         for (const sys of this.systems) {
             if (!(sys instanceof VFXParticleSystem)) continue;
             const expressions = (sys as any).shaderPropertyExpressions as { [uniformName: string]: ExprGraph } | null;
@@ -955,7 +970,7 @@ export class VisualEffect extends Script {
             }
             for (const uniformName in expressions) {
                 const graph = expressions[uniformName];
-                const result = ShaderExpressionEvaluator.evaluate(graph, { totalTime, deltaTime, propertyValues });
+                const result = ShaderExpressionEvaluator.evaluate(graph, { totalTime, deltaTime, propertyValues, hasContinuousSpawn });
                 if (result == null) continue;
                 // alias IDs：VFX 端 uniform name (_MainTextureColor) 跟 shader 端实际 uniform name 可能去掉 _ 前缀 (MainTextureColor)
                 // 同时 set 两个 ID 让 shader 不管哪个名字都能拿到
