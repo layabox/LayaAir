@@ -120,7 +120,7 @@ export class Main {
         // 加载fileConfig.json配置内容
         await Laya.loader.loadPackage("", null, null)
         //加载引擎需要的资源
-        await Laya.loader.load([{ url: "atlas/comp.atlas", type: Loader.ATLAS }]);
+        await Laya.loader.load([{ url: "res/atlas/comp.atlas", type: Loader.ATLAS }]);
         this.onLoaded();
     }
 
