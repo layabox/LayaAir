@@ -352,7 +352,8 @@ export class Relation {
                 if (isAncestor) {
                     tmp = ow.left;
                     ow.size(tw + v, ow._rawHeight);
-                    ow.left = tmp;
+                    if (!this._hasType(RelationType.Center_Center))
+                        ow.left = tmp;
                 }
                 else
                     ow.width = tw + v;
@@ -371,7 +372,8 @@ export class Relation {
                 if (isAncestor) {
                     tmp = ow.top;
                     ow.size(ow._rawWidth, th + v);
-                    ow.top = tmp;
+                    if (!this._hasType(RelationType.Middle_Middle))
+                        ow.top = tmp;
                 }
                 else
                     ow.height = th + v;
@@ -500,6 +502,14 @@ export class Relation {
 
         this._tx = this._target.x;
         this._ty = this._target.y;
+    }
+
+    private _hasType(type: RelationType): boolean {
+        for (let i = 0, n = this._data.length; i < n; i += 2) {
+            if (this._data[i] == type)
+                return true;
+        }
+        return false;
     }
 
     private sizeChanged(): void {
