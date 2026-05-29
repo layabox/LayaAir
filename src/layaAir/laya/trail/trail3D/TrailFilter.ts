@@ -88,6 +88,8 @@ export class TrailFilter extends TrailBaseFilter {
 				var pointAtoBVector3: Vector3 = TrailGeometry._tempVector35;
 				switch (this.alignment) {
 					case TrailAlignment.View:
+						if (!state.camera)
+							return;
 						var cameraMatrix = state.camera.viewMatrix;
 						Vector3.transformCoordinate(curPos, cameraMatrix, TrailGeometry._tempVector33);
 						Vector3.transformCoordinate(this._trialGeometry._lastFixedVertexPosition, cameraMatrix, TrailGeometry._tempVector34);
