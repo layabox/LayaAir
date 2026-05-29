@@ -1,5 +1,6 @@
 import { Camera } from "../../d3/core/Camera";
 import { Color } from "../../maths/Color";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector4 } from "../../maths/Vector4";
 import { Viewport } from "../../maths/Viewport";
 import { IRenderContext3D, PipelineMode } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
@@ -40,6 +41,10 @@ export class LayaXBridge3DContext {
 
 	setGlobalShaderData(data: ShaderData): void {
 		this._nativeObj.setGlobalShaderData(data ? (data as any)._nativeObj : null);
+	}
+
+	setBridgeProjectionData(sceneOffsetMatrix: Matrix4x4, bridgePlaneWidth: number, bridgePlaneHeight: number): void {
+		this._nativeObj.setBridgeProjectionData(sceneOffsetMatrix, bridgePlaneWidth, bridgePlaneHeight);
 	}
 
 	setRenderTarget2D(rt: InternalRenderTarget): void {

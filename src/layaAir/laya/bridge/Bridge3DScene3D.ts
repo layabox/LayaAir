@@ -197,6 +197,11 @@ export class Bridge3DScene3D extends Scene3D {
         this._bridge3DContext.setSceneModuleData(this._sceneModuleData);
         this._bridge3DContext.setCameraModuleData(this._sharedCamera._renderDataModule);
         this._bridge3DContext.updateFromCamera(this._sharedCamera);
+        this._bridge3DContext.setBridgeProjectionData(
+            this._sharedCamera.sceneOffsetMatrix,
+            this._getBridgePlaneWidth(),
+            this._getBridgePlaneHeight()
+        );
     }
 
     /**
@@ -318,6 +323,11 @@ export class Bridge3DScene3D extends Scene3D {
 
             this._updateCameraPosition(width, height);
             this._bridge3DContext.updateFromCamera(this._sharedCamera);
+            this._bridge3DContext.setBridgeProjectionData(
+                this._sharedCamera.sceneOffsetMatrix,
+                this._getBridgePlaneWidth(),
+                this._getBridgePlaneHeight()
+            );
         } finally {
             this._updatingCameraProjection = false;
         }

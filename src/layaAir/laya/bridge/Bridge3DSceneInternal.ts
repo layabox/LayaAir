@@ -42,6 +42,7 @@ export class Bridge3DSceneInternal implements IBridge3DSceneInternal{
         const renderH = RenderState2D.height || ILaya.stage.height;
         const sceneH = this._scene2D.height || renderH;
         cam.setSceneOffsetFrom2DMatrix(m.a, m.b, m.c, m.d, m.tx, m.ty, renderH, sceneH);
+        this._scene3d.updateContext();
     };
 
     private _onScene2DResize = (): void => {

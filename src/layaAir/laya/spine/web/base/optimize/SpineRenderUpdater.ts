@@ -349,13 +349,17 @@ export class SpineRenderUpdater {
 
         resetSlots.forEach(slotId => {
             let slot = slots[slotId];
-            if (slot && slot.attachment) {
-                let attach = map.get(slotId)?.get(slot.attachment.name);
-                if (attach) {
-                    skindata.vb.resetVB(attach.attachment);
+            if (slot) {
+                let posMap = map.get(slotId)
+                if (posMap) {
+                    posMap.forEach((pos , attachment)=>{
+                        skindata.vb.resetVB(pos.attachment);
+                    });
                 }
             }
         });
+
+        
     }
 
     /**
