@@ -39,8 +39,9 @@ export function measureFont(ctx: CanvasRenderingContext2D, font: string, bold: b
 
 function drawTestChar(ctx: CanvasRenderingContext2D, char: string, fontSize: number, margin: number, pixelBBX: number[], onlyH?: boolean): void {
     let charWidth = ctx.measureText(char).width;
-    let width = charWidth + margin * 2;
-    let height = fontSize + margin * 2;
+    //取整处理，"g"在华为小游戏measureText后有一个小数的宽度，最终getImageData之后会导致data.buffer对于Uint32Array的不匹配
+    let width = Math.floor(charWidth + margin * 2);
+    let height = Math.floor(fontSize + margin * 2);
 
     ctx.clearRect(0, 0, width, height);
     ctx.fillText(char, margin, margin + fontSize / 2);
@@ -53,15 +54,7 @@ function drawTestChar(ctx: CanvasRenderingContext2D, char: string, fontSize: num
 }
 
 function updateBbx(data: ImageData, curbbx: number[], onlyH: boolean): void {
-    let u8 = data.data;
-
-    let alignedLength = u8.length - (u8.length % 4);
-
-    let bmpData32 = new Uint32Array(
-        u8.buffer,
-        u8.byteOffset,
-        alignedLength / 4
-    );
+    let bmpData32 = new Uint32Array(data.data.buffer);
 
     function checkBmpLine(data: ImageData, l: number, sx: number, ex: number): boolean {
         let stpos = data.width * l + sx;
