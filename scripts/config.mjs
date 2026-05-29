@@ -428,4 +428,11 @@ export const allBundles = [{
         'platforms/minigame/**/*.*',
         'platforms/xiaomi/**/*.*'
     ],
+},
+{
+    name: 'adapter-bilibili',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/bilibili/**/*.*'
+    ],
 }];
