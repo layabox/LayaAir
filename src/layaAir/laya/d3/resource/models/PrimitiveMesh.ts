@@ -676,13 +676,40 @@ export class PrimitiveMesh {
 	 * @return 创建的网格实例。
 	 */
 	static createQuad(long: number = 1, width: number = 1): Mesh {
-		//定义顶点数据结构
-		var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
+		// POSITION,NORMAL,UV,TANGENT — 加 TANGENT 让 ShaderGraph shader (e.g. UNI-Masked) 走 mask distortion 路径
+		// 之前只 POSITION,NORMAL,UV; VFX outputShaderGraphQuad 用 builtin:Quad 时 shader 拿不到 a_Tangent0 让 mask 算空
+		var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV,TANGENT");
 		var halfLong: number = long / 2;
 		var halfWidth: number = width / 2;
-
-		var vertices: Float32Array = new Float32Array([-halfLong, halfWidth, 0, 0, 0, 1, 0, 0, halfLong, halfWidth, 0, 0, 0, 1, 1, 0, -halfLong, -halfWidth, 0, 0, 0, 1, 0, 1, halfLong, -halfWidth, 0, 0, 0, 1, 1, 1]);
+		// per vertex: pos(3) + normal(3) + uv(2) + tangent(4) = 12 floats
+		// tangent = (1, 0, 0, 1) — UV.x dir, w=1 right-handed bitangent (跟 fbx 标准 quad 一致)
+		var vertices: Float32Array = new Float32Array([
+			-halfLong,  halfWidth, 0,   0, 0, 1,   0, 0,   1, 0, 0, 1,
+			 halfLong,  halfWidth, 0,   0, 0, 1,   1, 0,   1, 0, 0, 1,
+			-halfLong, -halfWidth, 0,   0, 0, 1,   0, 1,   1, 0, 0, 1,
+			 halfLong, -halfWidth, 0,   0, 0, 1,   1, 1,   1, 0, 0, 1,
+		]);
 		var indices: Uint16Array = new Uint16Array([0, 1, 2, 3, 2, 1]);
+
+		return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);
+	}
+
+	static createTriangle(long: number = 1, width: number = 1): Mesh {
+		// Unity VFX Graph VFXPlanarPrimitive Triangle: 顶点 circumscribe unit square (顶点在 quad 外, 让 inside triangle 完全覆盖 [0,1]² UV)
+		// 这样 mask 纹理 sample 完整 wisp shape, mask alpha cut 让 triangle 边透明 → 可见 wisp turbulence 细节
+		// UV 跟 vertex pos affine 一致: pos (x, y) in mesh space ↔ UV (x/long + 0.5, -y/width + 0.5)
+		// 即 quad corner pos (-halfLong, halfWidth) → UV (0, 0) (top-left)
+		// 验证: 单位 quad 4 corner UV 精准 (0,0)/(1,0)/(0,1)/(1,1)，triangle 顶点 UV 在 [-0.5, 1.5]
+		// inscribed Triangle (vertex 跟 quad 同 size) 让 mask 只 sample partial wisp UV, wisp 看着细窄 — circumscribe 更接近 Unity wisp 形态
+		var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV,TANGENT");
+		var halfLong: number = long / 2;
+		var halfWidth: number = width / 2;
+		var vertices: Float32Array = new Float32Array([
+			0,             halfWidth * 3, 0,   0, 0, 1,    0.5, -1,   1, 0, 0, 1,
+			-halfLong * 2, -halfWidth,    0,   0, 0, 1,   -0.5,  1,   1, 0, 0, 1,
+			 halfLong * 2, -halfWidth,    0,   0, 0, 1,    1.5,  1,   1, 0, 0, 1,
+		]);
+		var indices: Uint16Array = new Uint16Array([0, 1, 2]);
 
 		return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);
 	}

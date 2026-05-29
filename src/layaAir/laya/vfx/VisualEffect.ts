@@ -9,10 +9,11 @@ import { VFXAsset, VFXUpdateMode, VFXSystemType, VFXSpawnerSystemDesc, VFXPartic
 import { VFXEventAttribute } from "./VFXEventAttribute";
 import { bakeSkinnedMeshVertexTexture, bakeSkinnedMeshBonesTexture } from "./VFXAssetParser";
 import { VFXFrameTime } from "./VFXFrameTime";
+import { ShaderExpressionEvaluator, ExprGraph } from "./ShaderExpressionEvaluator";
+import { VFXRenderer } from "./VFXRenderer";
 import { VFXGeometry, VFXGeometryParams } from "./VFXGeometry";
 import { VFXBillboardGeometry, VFXBillboardGeometryParams } from "./VFXBillboardGeometry";
 import { VFXStripGeometry, VFXStripGeometryParams } from "./VFXStripGeometry";
-import { VFXRenderer } from "./VFXRenderer";
 import { VFXState } from "./VFXState";
 import { Script } from "../components/Script";
 import { Camera } from "../d3/core/Camera";
@@ -74,6 +75,16 @@ export class VisualEffect extends Script {
     }
 
     randomSeed: number = 0;
+
+    /**
+     * @en Property override values from Inspector. Stored as JSON string (LayaPro 序列化层不识别 plain object dynamic key map，必须 string 序列化).
+     *     Decoded shape: { [name: string]: number[] } per type Float [v] / Vec2 [x,y] / Vec3 [x,y,z] / Vec4 / Color [x,y,z,w].
+     *     Gradient override not supported in MVP. Applied after initAssetData when _propertyValues is ready.
+     * @zh Inspector 设置的 property override 值，存为 JSON string（LayaPro 序列化层 type=object 不识别会 fallback null，必须用 string 类型字段）。
+     *     解码后 shape：{ name: number[] }，对应 Float/Vec2/Vec3/Vec4/Color 类型。
+     *     Gradient override 暂不支持。在 initAssetData 完成后由 _applyPropertyOverrides 解码应用。
+     */
+    propertyOverrides: string = "{}";
 
     private currentSeed: number = 0;
 
@@ -326,6 +337,12 @@ export class VisualEffect extends Script {
                     particleSystem.mainTexture = (particleDesc as any).mainTexture || "";
                     particleSystem.subpixelAA = particleDesc.subpixelAA;
                     particleSystem.customShaderName = particleDesc.customShaderName;
+                    // ShaderGraph property binding/defaults — VFX exposed name → shader uniform name 映射 + shader uniform inline default texture
+                    // instance 不含 .desc 字段，必须显式 copy 让 onStart 时能拿到（同 customShaderName 这种 pattern）
+                    (particleSystem as any).shaderPropertyBindings = (particleDesc as any).shaderPropertyBindings || null;
+                    (particleSystem as any).shaderPropertyDefaults = (particleDesc as any).shaderPropertyDefaults || null;
+                    // ShaderGraph property expression chains（每帧 evaluate 写 shader uniform，参 ShaderExpressionEvaluator）
+                    (particleSystem as any).shaderPropertyExpressions = (particleDesc as any).shaderPropertyExpressions || null;
                     // Billboard procedural 配置（对齐 Unity VFXPlanarPrimitiveOutput）
                     particleSystem.billboardPrimitive = particleDesc.billboardPrimitive;
                     particleSystem.billboardVertexCount = particleDesc.billboardVertexCount;
@@ -438,13 +455,15 @@ export class VisualEffect extends Script {
         this.globalEventAttribute = this.createEmptyEventAttribute();
         this.globalEventAttribute.setFloat("spawnCount", 1);
         this.globalEventAttribute.setVector4("color", 1, 1, 1, 1);
-        this.globalEventAttribute.setVector3("velocity", 1.5, 0, 0);
+        // velocity 默认 (0,0,0): 事件触发没显式 attribute 时粒子初始速度为零, 由 init blocks 显式 setAttribute 覆盖.
+        // 之前 (1.5, 0, 0) 像测试残留, 让没初始化 velocity 的 sample 粒子默认朝 +X 飞.
+        this.globalEventAttribute.setVector3("velocity", 0, 0, 0);
 
         // 初始化 property 默认值并创建缓存对象
         this._propertyValues.clear();
         for (const prop of this.asset.properties) {
             const id = Shader3D.propertyNameToID(prop.uniform);
-            const v = prop.default;
+            const v = prop.default as any;
             let cached: any = null;
             switch (prop.type) {
                 case VFXPropertyType.Vec2:
@@ -463,27 +482,105 @@ export class VisualEffect extends Script {
                     // 烘焙 256×1 Texture2D；sampleGradient 走 textureLod(uniform, vec2(t, 0.5), 0)
                     cached = bakeGradientTexture(prop.gradientStops || []);
                     break;
+                case VFXPropertyType.Texture2D:
+                    // 已在 VFXAssetParser 异步加载到 desc.texture（await loadPromises 完才进 onStart）
+                    cached = (prop as any).texture;
+                    break;
             }
             this._propertyValues.set(prop.name, {
                 id,
                 type: prop.type,
-                value: [...v],
-                cached
-            });
-            // Gradient 属性直接绑到所有粒子系统的 shaderData（texture uniform）
-            if (prop.type === VFXPropertyType.Gradient && cached) {
+                value: Array.isArray(v) ? [...v] : [],
+                cached,
+                // raw 字段：Gradient 的 baked Texture 不可 CPU sample，evaluator 用这里的 stops/curve 数据
+                // gradientStops 格式：[{ time, r, g, b, a }]（已 normalize 到 0-1 time）
+                // 期望：随后 _applyPropertyOverrides / setPropertyXxx 时若 override 也更新这里
+                rawGradientStops: prop.type === VFXPropertyType.Gradient ? (prop.gradientStops || []) : undefined,
+                rawCurveFrames: prop.type === VFXPropertyType.Curve ? ((prop as any).curveFrames || []) : undefined,
+            } as any);
+            // Gradient / Texture2D 属性直接绑到所有粒子系统的 shaderData（texture uniform）
+            // Texture2D: VFX exposed name 跟 ShaderGraph 内 shader uniform name 常不一致 (e.g. RingMaskTexture → _MaskTexture)，
+            // 每个 system 实例的 shaderPropertyBindings 含正向 binding，按 binding 拿 shader uniform name 再 setTexture
+            if ((prop.type === VFXPropertyType.Gradient || prop.type === VFXPropertyType.Texture2D) && cached) {
                 for (const sys of this.systems) {
                     if (sys instanceof VFXParticleSystem) {
+                        const bindings = (sys as any).shaderPropertyBindings;
+                        const shaderUniformName = bindings ? bindings[prop.name] : null;
+                        const aliasIds = shaderUniformName
+                            ? [id, Shader3D.propertyNameToID(shaderUniformName)]
+                            : [id];
                         for (const sd of sys.getAllShaderDatas()) {
-                            sd.setTexture(id, cached);
+                            for (const aid of aliasIds) sd.setTexture(aid, cached);
                         }
                     }
                 }
             }
         }
 
+        // ── apply shaderPropertyDefaults per system ──
+        // wall mesh 等 outputShaderGraph ctx 的 inline default texture (e.g. _MaskTexture=uni_ring_warped)
+        // .bps 编译时丢了，runtime 必须显式 setTexture 让 wall mesh 用 uni_ring_warped 而非 .bps 内 white
+        // ⚠ 必须 include material shaderData (fragment shader sample 用) — getAllShaderDatas() 只返回 compute shader ShaderDatas
+        // 不含 material.shaderData，导致 mask 纹理只 set 到 compute shader uniform 不影响 fragment sample → mask 不生效
+        for (const sys of this.systems) {
+            if (!(sys instanceof VFXParticleSystem)) continue;
+            const defaults = (sys as any).shaderPropertyDefaults;
+            if (!defaults) continue;
+            const allDatas = sys.getAllShaderDatas().slice();
+            const customShaderName = (sys as any).customShaderName as string;
+            const blendMode = (sys as any).blendMode as string || "Alpha";
+            if (customShaderName) {
+                const mat = VFXRenderer.getCustomShaderMaterial(customShaderName, blendMode);
+                if (mat && mat.shaderData && allDatas.indexOf(mat.shaderData) === -1) allDatas.push(mat.shaderData);
+            }
+            for (const uniformName in defaults) {
+                const entry = defaults[uniformName];
+                if (!entry || !entry.texture) continue;
+                // Unity 端 shader uniform 用 _MainTexture 带下划线, 但 Laya .bps 编译后 uniform name 不带下划线 (MainTexture).
+                // 同时 set 带 / 不带 _ 两个 ID, 让两种命名都能命中真实 shader uniform.
+                const ids = [Shader3D.propertyNameToID(uniformName)];
+                if (uniformName.startsWith("_")) ids.push(Shader3D.propertyNameToID(uniformName.substring(1)));
+                for (const sd of allDatas) {
+                    for (const aid of ids) sd.setTexture(aid, entry.texture);
+                }
+            }
+        }
+
         // 将 curveUniforms 和 bakedTexture 设置到所有粒子系统的 shaderData
         this.applyCurveUniforms();
+
+        // 应用 Inspector 序列化的 property override
+        this._applyPropertyOverrides();
+    }
+
+    /**
+     * 应用 Inspector 序列化的 property override 值（在 initAssetData 完成、_propertyValues 准备好后调用）
+     * propertyOverrides 字段是 JSON string，需要先 parse 成 object 再遍历应用。
+     * @internal
+     */
+    private _applyPropertyOverrides(): void {
+        if (!this.propertyOverrides) return;
+        let overrides: { [name: string]: number[] };
+        try {
+            // 兼容老版本场景里 propertyOverrides 可能是 object 不是 string
+            overrides = typeof this.propertyOverrides === "string"
+                ? JSON.parse(this.propertyOverrides)
+                : (this.propertyOverrides as any);
+        } catch (e) {
+            console.warn("[VFX] failed to parse propertyOverrides JSON:", e);
+            return;
+        }
+        if (!overrides || typeof overrides !== "object") return;
+        for (const name in overrides) {
+            const value = overrides[name];
+            if (!Array.isArray(value)) continue;
+            switch (value.length) {
+                case 1: this.setPropertyFloat(name, value[0]); break;
+                case 2: this.setPropertyVec2(name, value[0], value[1]); break;
+                case 3: this.setPropertyVec3(name, value[0], value[1], value[2]); break;
+                case 4: this.setPropertyVec4(name, value[0], value[1], value[2], value[3]); break;
+            }
+        }
     }
 
     private releaseAssetData(): void {
@@ -823,6 +920,72 @@ export class VisualEffect extends Script {
     updateVFX() {
         this.simulateVFX();
         // this.outputVFX();
+        this._evaluateShaderExpressions();   // 每帧 evaluate shader uniform expression chain → setVector
+    }
+
+    /**
+     * 每帧执行：evaluate shader property expression chains，写到 material shaderData
+     * VFX operator chain（SampleGradient/SampleCurve/Math 等）连到 shader uniform 的真正实施
+     * 参 ShaderExpressionEvaluator
+     */
+    private _tmpExprVec4 = new Vector4();
+    /**
+     * 每帧 evaluate VFX OutputContext 的 shader uniform expression chains（如 SampleGradient(time)）
+     * → setVector/setNumber 到 cache material 的 shaderData
+     * 转换器把 operator chain 序列化到 sys.shaderPropertyExpressions
+     * 参 ShaderExpressionEvaluator
+     */
+    private _evaluateShaderExpressions(): void {
+        const totalTime = this.state.totalTime;
+        const deltaTime = this.frameTime.deltaTime;
+        const propertyValues = this._propertyValues;
+        // 检测当前 effect 是否含 ConstantRate/PeriodicBurst 持续 spawn (区别于纯 SingleBurst)
+        // 决定 GlobalTimeRatio 行为：
+        //   SingleBurst-only: cap(totalTime, 1) — 跟 per-particle ageOverLifetime 近似 (system 时间 ~= 粒子 age)
+        //   持续 spawn: mod(totalTime, 1) — 让 fade cycle 持续循环 (避免 t>1 后 Disappear=1 让所有粒子永远不可见)
+        let hasContinuousSpawn = false;
+        for (const sys of this.systems) {
+            if (!(sys instanceof VFXSpawnerSystem)) continue;
+            for (const task of sys.tasks) {
+                const cn = (task as any).constructor?.name || "";
+                if (cn === "VFXSpawnerConstantRate" || cn === "VFXSpawnerPeriodicBurst" || cn === "VFXSpawnerVariableRate") {
+                    hasContinuousSpawn = true; break;
+                }
+            }
+            if (hasContinuousSpawn) break;
+        }
+        for (const sys of this.systems) {
+            if (!(sys instanceof VFXParticleSystem)) continue;
+            const expressions = (sys as any).shaderPropertyExpressions as { [uniformName: string]: ExprGraph } | null;
+            if (!expressions) continue;
+            // VFX render 用 VFXRenderer._customShaderMaterialCache 缓存的 mat（按 shaderName + blendMode key），
+            // 跟 outputDatas[0]（compute shader 用的）是两份独立 ShaderData。
+            // evaluator 必须写到 mat.shaderData 而不是 outputDatas — 否则 fragment 拿不到 uniform 值。
+            const allDatas = sys.getAllShaderDatas().slice();
+            const customShaderName = (sys as any).customShaderName as string;
+            const blendMode = (sys as any).blendMode as string || "Alpha";
+            if (customShaderName) {
+                const mat = VFXRenderer.getCustomShaderMaterial(customShaderName, blendMode);
+                if (mat && mat.shaderData && allDatas.indexOf(mat.shaderData) === -1) allDatas.push(mat.shaderData);
+            }
+            for (const uniformName in expressions) {
+                const graph = expressions[uniformName];
+                const result = ShaderExpressionEvaluator.evaluate(graph, { totalTime, deltaTime, propertyValues, hasContinuousSpawn });
+                if (result == null) continue;
+                // alias IDs：VFX 端 uniform name (_MainTextureColor) 跟 shader 端实际 uniform name 可能去掉 _ 前缀 (MainTextureColor)
+                // 同时 set 两个 ID 让 shader 不管哪个名字都能拿到
+                const ids = [Shader3D.propertyNameToID(uniformName)];
+                if (uniformName.startsWith("_")) ids.push(Shader3D.propertyNameToID(uniformName.substring(1)));
+                if (graph.outputType === "float") {
+                    const v = Number(result) || 0;
+                    for (const sd of allDatas) for (const id of ids) sd.setNumber(id, v);
+                } else {
+                    // vec2/vec3/vec4 / Gradient sample 输出都按 Vector4 写（shader 端 vec3 取 .xyz）
+                    ShaderExpressionEvaluator.toVector4(result, this._tmpExprVec4);
+                    for (const sd of allDatas) for (const id of ids) sd.setVector(id, this._tmpExprVec4);
+                }
+            }
+        }
     }
 
     /**
@@ -968,6 +1131,9 @@ export class VisualEffect extends Script {
                 }
             }
         }
+
+        // 每帧 evaluate shader expression chains（VFX operator chain → shader uniform）
+        this._evaluateShaderExpressions();
     }
 
     /** Output Event 派发入口 — 由各系统 readback 完成后调用 */

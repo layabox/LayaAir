@@ -1,3 +1,4 @@
+import { Loader } from "../net/Loader";
 import { VFXGeometry } from "./VFXGeometry";
 import { VFXStripGeometry } from "./VFXStripGeometry";
 import { VisualEffect } from "./VisualEffect";
@@ -229,6 +230,10 @@ export class VFXRenderer extends BaseRender {
             const colors: Color[] = [];
             mesh.getColors(colors);
             if (!colors.length) return;
+            // Laya Mesh.getColors 先扩 length=vertexCount 再 if(element) 填，mesh 缺 color
+            // 顶点元素时 colors.length>0 但 colors[i] 全 undefined，直接 .r 访问会崩。
+            // 检查首个元素确认真有 color 数据；UNI VFX 的 mesh 多数没 vertex color
+            if (colors[0] == null) return;
 
             // mesh 的 vertex 通常 split for UV/normal seams: 同物理位置不同 index 不互连
             // 直接 indices 算 adj 在 per-triangle independent vertices mesh 上 smooth 永不 propagate.
@@ -350,18 +355,21 @@ export class VFXRenderer extends BaseRender {
         VFXRenderer._patchedTextureUrls.add(url);
         console.log("[VFX alpha] start url=", url);
         try {
-            const realUrl = (Laya as any).URL?.formatURL ? (Laya as any).URL.formatURL(url) : url;
-            console.log("[VFX alpha] realUrl=", realUrl);
-            const resp = await fetch(realUrl);
-            console.log("[VFX alpha] fetch ok=", resp.ok, "type=", resp.headers.get("content-type"));
-            if (!resp.ok) return;
-            const blob = await resp.blob();
+            // 不能直接 fetch(res://...)，浏览器不认 res: scheme。
+            // 改走 Laya.loader.load(url, BUFFER) 拿 ArrayBuffer：
+            //   - Loader 内部把 res:// 解析成实际 IDE preview server URL (http://localhost:xxx/library/...)
+            //   - 同一 url 加载有 cache，不会触发二次实际下载
+            const buffer = await Laya.loader.load(url, Loader.BUFFER);
+            if (!buffer || !(buffer instanceof ArrayBuffer)) {
+                console.warn("[VFX alpha] loader returned non-ArrayBuffer:", typeof buffer);
+                return;
+            }
             // 只处理 PNG (其它格式如 KTX/DDS 通常带正确 alpha)
-            console.log("[VFX alpha] blob.type=", blob.type, "blob.size=", blob.size);
-            if (!blob.type.includes("png") && !url.toLowerCase().endsWith(".png") && !blob.type.includes("image")) {
+            if (!url.toLowerCase().endsWith(".png")) {
                 console.log("[VFX alpha] skip - not png");
                 return;
             }
+            const blob = new Blob([buffer], { type: "image/png" });
             const imgBitmap = await createImageBitmap(blob);
             const canvas = document.createElement("canvas");
             canvas.width = imgBitmap.width;
