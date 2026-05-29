@@ -564,6 +564,7 @@ export class LayaXTransform3D extends Transform3D {
         this._nativeFloat32Buffer[idx + 1] = value.y;
         this._nativeFloat32Buffer[idx + 2] = value.z;
         this._nativeObj.setWorldLossyScale();
+        this._onWorldScaleTransform();
     }
 }
 
