@@ -76,6 +76,15 @@ export class WebAudioChannel extends SoundChannel {
 
     private startPlay(isResuming: boolean) {
         let ctx = PAL.media.audioCtx;
+
+        // On iOS, calling sourceNode.start() while AudioContext is suspended
+        // can permanently break the AudioContext. Check state before creating source.
+        if (ctx.state != null && ctx.state !== "running") {
+            this._startTime = 0;
+            PAL.media.resumeUntilGotFocus(this);
+            return;
+        }
+
         this._gainNode = WebAudioChannel.gainNodePool.take();
 
         let sourceNode = this._sourceNode = ctx.createBufferSource();
@@ -93,12 +102,7 @@ export class WebAudioChannel extends SoundChannel {
         sourceNode.loopEnd = this._buffer.duration;
         this._gainNode.gain.value = this._muted ? 0 : this._volume;
         sourceNode.start(0, isResuming ? this._pauseTime : this.startTime);
-        if (ctx.state != null && ctx.state !== "running") {
-            this._startTime = 0;
-            PAL.media.resumeUntilGotFocus(this);
-        }
-        else
-            this._startTime = performance.now();
+        this._startTime = performance.now();
     }
 
     private reset(): void {
