@@ -1,6 +1,5 @@
 import { Sprite3D } from "../../../d3/core/Sprite3D";
 import { Mesh, skinnedMatrixCache } from "../../../d3/resource/models/Mesh";
-import { Stat } from "../../../utils/Stat";
 import { ISkinRenderNode } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { LayaXBaseRenderNode } from "./LayaXBaseRenderNode";
 import { LayaXTransform3D } from "./LayaXTransform3D";
@@ -15,6 +14,9 @@ export class LayaXSkinRenderNode extends LayaXBaseRenderNode implements ISkinRen
 
     private boneNums: number = 0;
 
+    /** 方案 B：骨骼 entity id 是否已注册给 native（一次性）。setBones 重新绑定时置 false。 */
+    private _bonesRegistered: boolean = false;
+
     /** @internal */
     protected _getNativeObj(): void {
         this._nativeObj = new (window as any).conchLayaXSkinRenderNode();
@@ -25,8 +27,13 @@ export class LayaXSkinRenderNode extends LayaXBaseRenderNode implements ISkinRen
     }
 
     computeSkinnedData(): void {
-        if (this.boneNums !== 0) {
-            this._nativeObj.computeSkinnedData(Stat.loopCount);
+        // 方案 B：骨骼矩阵计算已下沉 Rust（在 cull 之后对可见节点计算），此处不再触发计算。
+        // 仅做一次性的骨骼 entity id 注册——骨骼节点入场景后其 native handle 才有效，
+        // 故延迟到首帧 renderUpdate 重试，成功后不再触发（boneNums===0 时直接视为完成）。
+        if (this._bonesRegistered) return;
+        if (this.boneNums === 0) { this._bonesRegistered = true; return; }
+        if (this._nativeObj.tryCommitBoneEntities()) {
+            this._bonesRegistered = true;
         }
     }
 
@@ -61,16 +68,22 @@ export class LayaXSkinRenderNode extends LayaXBaseRenderNode implements ISkinRen
         for (let i = 0, n = cacheMesh.subMeshCount; i < n; i++) {
             this._nativeObj.setBoneIndicesList(i, cacheMesh.getSubMesh(i)._boneIndicesList);
         }
+
+        // 方案 B：上面把原料交给 native 后，一次性注册给 Rust（submesh 数 / invBindPose / 逐 batch index）。
+        this._nativeObj.commitCacheMeshSkinData();
     }
 
     setBones(value: Sprite3D[]): void {
         this._nativeObj.clearBoneTransform();
+        this.boneNums = 0;
         for (let i = 0, n = value.length; i < n; i++) {
             if (value[i]) {
                 this._nativeObj.addBoneTransform((value[i].transform as LayaXTransform3D)._nativeObj);
                 this.boneNums++;
             }
         }
+        // 骨骼重新绑定：entity id 需重新注册（延迟到下次 computeSkinnedData 重试）。
+        this._bonesRegistered = false;
     }
 
     setSkinnedData(value: Array<Float32Array[]>): void {
