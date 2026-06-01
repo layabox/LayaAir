@@ -65,12 +65,6 @@ export class Bridge3DCamera extends Camera {
     private _sceneOffsetIsIdentity: boolean = true;
 
     /**
-     * view × sceneOffset 的合成结果，避免每帧分配。
-     * @private
-     */
-    private _composedViewMatrix: Matrix4x4 = new Matrix4x4();
-
-    /**
      * Called when projection parameters that affect Bridge3D camera placement change.
      * @private
      */
@@ -189,14 +183,6 @@ export class Bridge3DCamera extends Camera {
     }
 
     /**
-     * 直接设置 4x4 偏移矩阵（用于编辑器/动画系统注入）
-     */
-    setSceneOffsetMatrix(m: Matrix4x4): void {
-        m.cloneTo(this._sceneOffsetMatrix);
-        this._sceneOffsetIsIdentity = false;
-    }
-
-    /**
      * 读取当前的 Scene→stage 偏移矩阵（只读引用，不要在外部修改）。
      * 用于把 sceneLocal 3D 世界坐标映射回 stage 像素空间，或反向。
      */
@@ -228,17 +214,10 @@ export class Bridge3DCamera extends Camera {
         context.camera = this;
 
         // 2. 相机准备（无条件，对标 Camera.render 中的 _prepareCameraToRender + _applyViewProject + _contextApply）
-        // Bridge3D 相机不渲染到独立 RT，始终 invertY = false（对标 Camera.render 1378 行）
-        // context.invertY = false;
+        context.invertY = LayaEnv.isLayaX;
         this._prepareCameraToRender();
 
         let viewMat = this.viewMatrix;
-        if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2 && !this._sceneOffsetIsIdentity) {
-            // Native Bridge3D currently applies scene placement through the view matrix in C++.
-            // Web applies scene placement later as a projection-space correction uniform.
-            Matrix4x4.multiply(viewMat, this._sceneOffsetMatrix, this._composedViewMatrix);
-            viewMat = this._composedViewMatrix;
-        }
         this._applyViewProject(viewMat, this.projectionMatrix, context.invertY);
         this._contextApply(context);
 
