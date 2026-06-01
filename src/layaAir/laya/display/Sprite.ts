@@ -2333,7 +2333,6 @@ export class Sprite extends Node {
     updateRenderTexture() {
         //计算方式调整
         let rect = Rectangle.create();
-        let oriRect = Rectangle.create();
 
         if (this._mask) {
             SpriteUtils.getRect(this._mask, false, rect);
@@ -2363,7 +2362,6 @@ export class Sprite extends Node {
 
         rect.width = MathUtil.roundTo(rect.width);
         rect.height = MathUtil.roundTo(rect.height);
-        rect.cloneTo(oriRect);
 
         if (Config.useRetinalCanvas) {
             scaleX = ILaya.stage._scaleX;
@@ -2384,9 +2382,8 @@ export class Sprite extends Node {
         //判断待考虑
         if (oldRT) {
             if (maskRect.width === rect.width && maskRect.height === rect.height) {
-                this._subStructRender._updateRenderOffset(rect, oriRect, scaleX, scaleY);
+                this._subStructRender._updateRenderOffset(rect, scaleX, scaleY);
                 rect.recover();
-                oriRect.recover();
                 return false;
             }
 
@@ -2394,7 +2391,7 @@ export class Sprite extends Node {
                 RenderTexture2D.recoverToPool(oldRT);
         }
 
-        this._subStructRender._updateRenderOffset(rect, oriRect, scaleX, scaleY);
+        this._subStructRender._updateRenderOffset(rect, scaleX, scaleY);
 
         if (rect.width === 0 || rect.height === 0) {
             this._drawOriRT = RenderTexture2D._empty;
@@ -2406,7 +2403,6 @@ export class Sprite extends Node {
         }
 
         rect.recover();
-        oriRect.recover();
 
         return true;
     }
