@@ -136,10 +136,9 @@ export class LayaXRenderElement3D implements IRenderElement3D, IRenderStateListe
     get subShader(): SubShader { return this._subShader; }
     set subShader(value: SubShader) {
         this._subShader = value;
-        if (this._nativeObj && value) {
-            // 传 SubShader handle 给 Rust，用于查找 ShaderPass 并触发编译回调
-            
-            this._nativeObj.setSubShader((value.moduleData as LayaXSubShader)._nativeObj);
+        if (this._nativeObj) {
+            // 传 SubShader handle 给 Rust，用于查找 ShaderPass 并触发编译回调；null 时也要清掉 native 旧状态。
+            this._nativeObj.setSubShader(value ? (value.moduleData as LayaXSubShader)._nativeObj : null);
         }
     }
 
