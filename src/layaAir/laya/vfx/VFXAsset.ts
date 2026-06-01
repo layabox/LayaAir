@@ -294,6 +294,8 @@ export enum VFXPropertyType {
     Vec4 = "vec4",
     Color = "color",
     Gradient = "gradient",
+    Texture2D = "texture2D",
+    Curve = "curve",
 }
 
 export interface VFXGradientStop {
@@ -305,8 +307,14 @@ export class VFXPropertyDesc {
     name: string;           // 面向用户的属性名
     uniform: string;        // shader uniform 名
     type: VFXPropertyType;
-    default: number[];      // 标量 / 向量默认值（非 Gradient 用）
+    default: number[] | string[];      // 标量/向量数字数组 (Float/Vec2/3/4/Color) 或资源 res:// 字符串数组 (Texture2D)
     gradientStops?: VFXGradientStop[];  // Gradient 类型：关键帧列表
+    /** Texture2D 类型异步加载后存放的纹理实例 */
+    texture?: any;
+    /** 分组名，用于 Inspector 把同组属性折叠在一起展示；空/未设视为 "Default" 组 */
+    group?: string;
+    /** Inspector 显示的友好名称；未设回退到 name */
+    displayName?: string;
 }
 
 export class VFXCurveUniformDesc {

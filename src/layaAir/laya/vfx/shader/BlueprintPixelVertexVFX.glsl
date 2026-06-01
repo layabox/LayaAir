@@ -31,6 +31,18 @@
     //   不加 #ifdef 包裹时函数定义体保留 attribute 引用，依赖编译器 DCE 行为不可靠。
     #ifdef VFX_INSTANCED
 
+// Per-particle data 通过 varying 传 fragment shader,
+// 让 ShaderGraph 内部用 uniform Float (如 MaskFlipbookIndex) 的 property 能改成 per-particle value.
+// ShaderBuild post-process 把 FS 内 uniform name `MaskFlipbookIndex` 等替换成 `v_TexIndex`.
+// 转换器 init context 加 setAttribute(texIndex, Random(0, range)) 让 GPU 每粒子写 unique value 到 a_AttrScale.w.
+varying float v_TexIndex;
+
+// per-particle ageOverLifetime: 让 SG Disappear/Lifetime/Age 等 uniform 走 per-particle 路径
+// (ShaderBuild 把 FS 内 `Disappear` 等 uniform 替换成 v_NormalizedAge varying)
+// 直接 0→1 linear 跟随粒子 age, 不是 sampleCurve V 形 (粒子生 visible/老化 fade-out, 没 fade-in 阶段)
+// 完整 curve sample 路径后续优化 (vertex 端 sample 256x1 curve texture)
+varying float v_NormalizedAge;
+
 struct VFXParticle {
     vec3 position;
     float normalizedAge;
@@ -68,6 +80,11 @@ VFXParticle vfxGetParticle()
 VFXParticle vfxTransformVertex(inout Vertex vertex)
 {
     VFXParticle p = vfxGetParticle();
+
+    // per-particle texIndex 通过 varying 传 fragment, 让 SG shader 内部 uniform 引用 (MaskFlipbookIndex 等) 被 ShaderBuild 替换成 per-particle 路径.
+    v_TexIndex = p.texIndex;
+    // per-particle normalizedAge: SG Disappear/Lifetime/Age 等 uniform 走 v_NormalizedAge per-particle 异步
+    v_NormalizedAge = p.normalizedAge;
 
     // 1. position
     vec3 vp = vertex.positionOS - p.pivot;
