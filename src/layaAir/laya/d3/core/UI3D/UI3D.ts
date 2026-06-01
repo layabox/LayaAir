@@ -83,7 +83,7 @@ class UI3DShellSprite extends Sprite {
     updateRenderTexture() {
         let rect = Rectangle.TEMP;
         rect.setTo(this._contentOffsetX, this._contentOffsetY, this._rtWidth, this._rtHeight);
-        this._subStructRender._updateRenderOffset(rect, rect, 1, 1);
+        this._subStructRender._updateRenderOffset(rect, 1, 1);
 
         let oldRT = this._drawOriRT;
         if (oldRT) {

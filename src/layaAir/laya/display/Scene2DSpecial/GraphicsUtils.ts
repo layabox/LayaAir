@@ -404,7 +404,6 @@ export class SubStructRender {
    private _internalInfo: GraphicsShaderInfo = null;
    /** @internal 渲染区域 */
    _rtRect: Rectangle = new Rectangle();
-   _oriRect: Rectangle = new Rectangle();
    _logicMatrix: Matrix;
 
    private _needUpdateVertexSize: boolean = true;
@@ -452,14 +451,12 @@ export class SubStructRender {
     * @param scaleX
     * @param scaleY
     */
-   _updateRenderOffset(rect: Rectangle, oriRect: Rectangle, scaleX: number, scaleY: number) {
-      rect.cloneTo(this._rtRect);
-
-      if (!oriRect.equals(this._oriRect)) {
+   _updateRenderOffset(rect: Rectangle, scaleX: number, scaleY: number) {
+      if (!rect.equals(this._rtRect) || scaleX !== this._scaleX || scaleY !== this._scaleY) {
          this._needUpdateVertexSize = true;
       }
 
-      oriRect.cloneTo(this._oriRect);
+      rect.cloneTo(this._rtRect);
 
       this._scaleX = scaleX;
       this._scaleY = scaleY;
@@ -539,21 +536,21 @@ export class SubStructRender {
       }
       this._internalInfo.textureHost = destRT;
 
-      let oriRect = this._oriRect;
+      let rtRect = this._rtRect;
       let vSize = Vector4.TEMP;
-      vSize.x = oriRect.x;
-      vSize.y = oriRect.y;
 
       let width = destRT.sourceWidth;
       let height = destRT.sourceHeight;
       if (width > 0 && height > 0) {
-         vSize.z = Math.round(width / this._scaleX);
-         vSize.w = Math.round(height / this._scaleY);
-         vSize.x -= (vSize.z - oriRect.width) / 2;
-         vSize.y -= (vSize.w - oriRect.height) / 2;
+         vSize.x = (rtRect.x - (width - rtRect.width) / 2) / this._scaleX;
+         vSize.y = (rtRect.y - (height - rtRect.height) / 2) / this._scaleY;
+         vSize.z = width / this._scaleX;
+         vSize.w = height / this._scaleY;
       } else {
-         vSize.z = oriRect.width;
-         vSize.w = oriRect.height;
+         vSize.x = rtRect.x / this._scaleX;
+         vSize.y = rtRect.y / this._scaleY;
+         vSize.z = rtRect.width / this._scaleX;
+         vSize.w = rtRect.height / this._scaleY;
       }
       this._internalInfo.vertexSize = vSize;
       this._needUpdateVertexSize = false;
