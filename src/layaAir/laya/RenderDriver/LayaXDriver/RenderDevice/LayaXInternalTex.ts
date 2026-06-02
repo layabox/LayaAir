@@ -16,6 +16,7 @@ export class LayaXInternalTex implements InternalTexture {
     }
     public set wrapU(value: WrapMode) {
         this._nativeObj.wrapU = value;
+        this._nativeObj.syncSamplerParams?.();
     }
 
     public get wrapV(): WrapMode {
@@ -23,6 +24,7 @@ export class LayaXInternalTex implements InternalTexture {
     }
     public set wrapV(value: WrapMode) {
         this._nativeObj.wrapV = value;
+        this._nativeObj.syncSamplerParams?.();
     }
 
     public get wrapW(): WrapMode {
@@ -30,6 +32,7 @@ export class LayaXInternalTex implements InternalTexture {
     }
     public set wrapW(value: WrapMode) {
         this._nativeObj.wrapW = value;
+        this._nativeObj.syncSamplerParams?.();
     }
 
     public set baseMipmapLevel(value: number) {
@@ -51,6 +54,7 @@ export class LayaXInternalTex implements InternalTexture {
     }
     public set compareMode(value: TextureCompareMode) {
         this._nativeObj.compareMode = value;
+        this._nativeObj.syncSamplerParams?.();
     }
 
     public get anisoLevel(): number {
@@ -58,6 +62,7 @@ export class LayaXInternalTex implements InternalTexture {
     }
     public set anisoLevel(value: number) {
         this._nativeObj.anisoLevel = value;
+        this._nativeObj.syncSamplerParams?.();
     }
 
     public get filterMode(): FilterMode {
@@ -65,6 +70,7 @@ export class LayaXInternalTex implements InternalTexture {
     }
     public set filterMode(value: FilterMode) {
         this._nativeObj.filterMode = value;
+        this._nativeObj.syncSamplerParams?.();
     }
 
     public get mipmapCount(): number {
