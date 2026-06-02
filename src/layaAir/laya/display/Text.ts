@@ -224,6 +224,7 @@ export class Text extends Sprite {
         this._lines = [];
         this._padding = [0, 0, 0, 0];
         this._fontSizeScale = 1;
+        this.graphics._useSpriteRect = false;
     }
 
     /**
