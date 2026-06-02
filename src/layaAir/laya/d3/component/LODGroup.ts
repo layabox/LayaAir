@@ -480,10 +480,6 @@ export class LODGroup extends Component {
             preLODLength = (this._size / lod.mincullRate) / maxYDistance * cameraFarLength;
             preLODLength *= preLODLength;
             lod.maxVisibalDistance = preLODLength;
-
-            if (i == this.lods.length - 1) {
-                lod.maxVisibalDistance = cameraFarLength * cameraFarLength;
-            }
             preLOD = lod;
         }
     }
