@@ -454,9 +454,25 @@ void main()
 	    velocity = rotationByQuaternions(u_SizeScale * startVelocity, worldRotation) + gravityVelocity;
     #endif
 
-	    vec3 cameraUpVector = normalize(velocity);
+	    float speed = length(velocity);
+	    vec3 cameraUpVector;
+	    if (speed > 0.000001)
+		cameraUpVector = velocity / speed;
+	    else
+		cameraUpVector = vec3(0.0, 1.0, 0.0);
+
 	    vec3 direction = normalize(center - u_CameraPos);
-	    vec3 sideVector = normalize(cross(direction, normalize(velocity)));
+	    vec3 sideVector = cross(direction, cameraUpVector);
+	    float sideLength = length(sideVector);
+	    if (sideLength < 0.000001) {
+		sideVector = cross(vec3(0.0, 1.0, 0.0), cameraUpVector);
+		sideLength = length(sideVector);
+		if (sideLength < 0.000001) {
+		    sideVector = cross(vec3(1.0, 0.0, 0.0), cameraUpVector);
+		    sideLength = length(sideVector);
+		}
+	    }
+	    sideVector = sideVector / max(sideLength, 0.000001);
 
 	    sideVector = u_SizeScale.xzy * sideVector;
 	    cameraUpVector = length(vec3(u_SizeScale.x, 0.0, 0.0)) * cameraUpVector;
@@ -467,7 +483,6 @@ void main()
 	    corner = rotaionZHalfPI * corner;
 	    corner.y = corner.y - abs(corner.y);
 
-	    float speed = length(velocity); // TODO:
 	    center += sign(u_SizeScale.x) * (sign(u_StretchedBillboardLengthScale) * size.x * (corner.x - u_Pivot.x) * sideVector + (speed * u_StretchedBillboardSpeedScale + size.y * u_StretchedBillboardLengthScale) * (corner.y + u_Pivot.y) * cameraUpVector);
 #endif
 
