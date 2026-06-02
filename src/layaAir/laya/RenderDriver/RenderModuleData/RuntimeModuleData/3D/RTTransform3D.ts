@@ -476,7 +476,8 @@ export class RTTransform3D extends Transform3D {
     protected _onWorldPositionRotationTransform(): void {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER, true);
-            this.event(Event.TRANSFORM_CHANGED, this._RTtransformFlag);
+            if (this._hasTransformChangedListener)
+                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
         }
         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
             (this._children[i] as RTTransform3D)._onWorldPositionRotationTransform();
@@ -488,7 +489,8 @@ export class RTTransform3D extends Transform3D {
     protected _onWorldPositionScaleTransform(): void {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDSCALE, true);
-            this.event(Event.TRANSFORM_CHANGED, this._RTtransformFlag);
+            if (this._hasTransformChangedListener)
+                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
         }
         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
             (this._children[i] as RTTransform3D)._onWorldPositionScaleTransform();
@@ -500,7 +502,8 @@ export class RTTransform3D extends Transform3D {
     protected _onWorldPositionTransform(): void {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION, true);
-            this.event(Event.TRANSFORM_CHANGED, this._RTtransformFlag);
+            if (this._hasTransformChangedListener)
+                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
         }
         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
             (this._children[i] as RTTransform3D)._onWorldPositionTransform();
@@ -512,7 +515,8 @@ export class RTTransform3D extends Transform3D {
     protected _onWorldRotationTransform(): void {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER, true);
-            this.event(Event.TRANSFORM_CHANGED, this._RTtransformFlag);
+            if (this._hasTransformChangedListener)
+                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
         }
         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
             (this._children[i] as RTTransform3D)._onWorldPositionRotationTransform();//父节点旋转发生变化，子节点的世界位置和旋转都需要更新
@@ -524,7 +528,8 @@ export class RTTransform3D extends Transform3D {
     protected _onWorldScaleTransform(): void {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDSCALE, true);
-            this.event(Event.TRANSFORM_CHANGED, this._RTtransformFlag);
+            if (this._hasTransformChangedListener)
+                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
         }
         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
             (this._children[i] as RTTransform3D)._onWorldPositionScaleTransform();//父节点缩放发生变化，子节点的世界位置和缩放都需要更新
@@ -536,7 +541,8 @@ export class RTTransform3D extends Transform3D {
     _onWorldTransform(): void {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER | Transform3D.TRANSFORM_WORLDSCALE, true);
-            this.event(Event.TRANSFORM_CHANGED, this._RTtransformFlag);
+            if (this._hasTransformChangedListener)
+                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
         }
         for (var i: number = 0, n: number = this._children!.length; i < n; i++)
             this._children![i]._onWorldTransform();
