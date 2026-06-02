@@ -128,7 +128,11 @@ export class LayaXShaderData extends ShaderData {
             || index === Shader3D.STENCIL_WRITE_MASK
             || index === Shader3D.STENCIL_READ_MASK
             || index === Shader3D.STENCIL_Ref
-            || index === Shader3D.STENCIL_Op;
+            || index === Shader3D.STENCIL_Op
+            || index === Shader3D.DEPTH_BIAS
+            || index === Shader3D.DEPTH_BIAS_CONSTANT
+            || index === Shader3D.DEPTH_BIAS_SLOPESCALE
+            || index === Shader3D.DEPTH_BIAS_CLAMP;
     }
 
     /** @internal 通知所有监听者 RenderState 变化 */

@@ -170,6 +170,7 @@ export class LayaXRenderElement3D implements IRenderElement3D, IRenderStateListe
         let depthTest = sd.getInt(Shader3D.DEPTH_TEST) ?? D.depthTest;
         let depthWrite = sd.getBool(Shader3D.DEPTH_WRITE) ?? D.depthWrite;
         let stencilTest = sd.getInt(Shader3D.STENCIL_TEST) ?? D.stencilTest;
+        let stencilWrite = sd.getBool(Shader3D.STENCIL_WRITE) ?? D.stencilWrite;
         let stencilRef = sd.getInt(Shader3D.STENCIL_Ref) ?? D.stencilRef;
         let stencilReadMask = sd.getInt(Shader3D.STENCIL_READ_MASK) ?? D.stencilReadMask;
         let stencilWriteMask = sd.getInt(Shader3D.STENCIL_WRITE_MASK) ?? D.stencilWriteMask;
@@ -177,6 +178,10 @@ export class LayaXRenderElement3D implements IRenderElement3D, IRenderStateListe
         let stencilFail = stencilOp ? stencilOp.x : D.stencilOp.x;
         let stencilZFail = stencilOp ? stencilOp.y : D.stencilOp.y;
         let stencilPass = stencilOp ? stencilOp.z : D.stencilOp.z;
+        let depthBias = sd.getBool(Shader3D.DEPTH_BIAS) ?? D.depthBias;
+        let depthBiasConstant = sd.getNumber(Shader3D.DEPTH_BIAS_CONSTANT) ?? D.depthBiasConstant;
+        let depthBiasSlopeScale = sd.getNumber(Shader3D.DEPTH_BIAS_SLOPESCALE) ?? D.depthBiasSlopeScale;
+        let depthBiasClamp = sd.getNumber(Shader3D.DEPTH_BIAS_CLAMP) ?? D.depthBiasClamp;
         let cull = sd.getInt(Shader3D.CULL) ?? D.cull;
 
         this._nativeObj.registerAndSetRenderState(
@@ -184,8 +189,9 @@ export class LayaXRenderElement3D implements IRenderElement3D, IRenderStateListe
             srcBlendRGB, dstBlendRGB, srcBlendAlpha, dstBlendAlpha,
             blendEqRGB, blendEqAlpha,
             depthTest, depthWrite ? 1 : 0,
-            stencilTest, stencilRef, stencilReadMask, stencilWriteMask,
+            stencilTest, stencilWrite ? 1 : 0, stencilRef, stencilReadMask, stencilWriteMask,
             stencilFail, stencilZFail, stencilPass,
+            depthBias ? 1 : 0, depthBiasConstant, depthBiasSlopeScale, depthBiasClamp,
             cull, LayaXRenderElement3D._defaultFrontFace
         );
     }
