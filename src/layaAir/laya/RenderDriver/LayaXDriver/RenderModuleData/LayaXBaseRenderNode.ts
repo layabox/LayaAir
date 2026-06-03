@@ -197,7 +197,6 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
     }
     public set ismoved(value: Vector2) {
         this._ismoved.setValue(value.x, value.y);
-        this._nativeObj.ismoved = this._ismoved;
     }
 
     // ------------------------------------------------------------------
