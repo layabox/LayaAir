@@ -60,16 +60,20 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
         }
     }
 
+    private _lastFrontFace: number = NaN;
+    private _lastInvertFront: boolean = undefined;
     private _syncWorldInvertFront(): void {
-        if (!this._transform) {
-            this._worldParams.x = 1;
-            this._nativeObj.worldParams = this._worldParams;
-            this._nativeObj.invertFrontFace = false;
-            return;
-        }
-        this._worldParams.x = this._transform.getFrontFaceValue();
+        let x = this._transform ? this._transform.getFrontFaceValue() : 1;
+        let inv = this._transform ? this._transform._isFrontFaceInvert : false;
+        // 值未变则跳过：frontface 只在 scale 符号翻转时改变。骨骼动画每帧改 rootBone 的 local TRS
+        // （flag 含 WORLDSCALE）会让 _onTransformChanged 反复进来，但 worldParams 对蒙皮恒定，
+        // 短路掉每帧跨 FFI 的 layax_render_node_set_world_params（tracy 里的 span 热点）。
+        if (x === this._lastFrontFace && inv === this._lastInvertFront) return;
+        this._lastFrontFace = x;
+        this._lastInvertFront = inv;
+        this._worldParams.x = x;
         this._nativeObj.worldParams = this._worldParams;
-        this._nativeObj.invertFrontFace = this._transform._isFrontFaceInvert;
+        this._nativeObj.invertFrontFace = inv;
     }
 
     // ------------------------------------------------------------------
@@ -222,16 +226,13 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
 
     private _ismoved: Vector2 = new Vector2();
     public get ismoved(): Vector2 {
-        let value: any = this._nativeObj.ismoved;
-        if (value) {
-            this._ismoved.x = value.x;
-            this._ismoved.y = value.y;
-        }
+        // LayaX：culling 在 Rust 侧自成一套，native 不消费 ismoved（C++ setIsmoved 的 FFI 已注释）。
+        // 纯 TS 字段即可，避免每帧每对象 3 次 V8↔C++ Vector2 marshalling —— 1000 个原地播放骨骼
+        // 动画的对象时，MeshRenderer._onWorldMatNeedChange 的 ismoved get/get/set 是 10ms 热点之一。
         return this._ismoved;
     }
     public set ismoved(value: Vector2) {
         this._ismoved = value;
-        this._nativeObj.ismoved = value;
     }
 
     // ------------------------------------------------------------------
