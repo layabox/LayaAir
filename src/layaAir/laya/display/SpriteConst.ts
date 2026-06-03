@@ -49,6 +49,7 @@ export enum BaseRender2DType {
     spineSimple = 3,
     graphics = 4,
     spinenormal = 5,
+    sequenceFrame2D = 6,
 }
 
 export enum SubPassFlag {

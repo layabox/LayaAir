@@ -965,7 +965,7 @@ export class NoRender2DPass implements IRender2DPass {
         return this.enable && !this.isSupport && (this.repaint || !this.renderTexture);
     }
 
-    fowardRender(context: IRenderContext2D): void {
+    fowardRender(context: IRenderContext2D, renderTime: number): void {
         if (!this.root || this.root.globalAlpha < 0.01) return;
 
         if (this.renderTexture) {
@@ -1029,13 +1029,13 @@ export class NoRender2DPassManager implements IRender2DPassManager {
         this._modify = true;
     }
 
-    apply(context: IRenderContext2D): void {
+    apply(context: IRenderContext2D, renderTime: number): void {
         if (this._modify) {
             this._modify = false;
             this._passes.sort((a, b) => b._priority - a._priority);
         }
         for (const pass of this._passes) {
-            if (pass.needRender()) pass.fowardRender(context);
+            if (pass.needRender()) pass.fowardRender(context, renderTime);
         }
     }
 

@@ -63,6 +63,7 @@ import { SoundPlayer } from "./media/SoundPlayer";
 import { VideoPlayer } from "./media/VideoPlayer";
 import { ComputeShader } from "./RenderDriver/DriverDesign/RenderDevice/ComputeShader/ComputeShader";
 import { AnimatorClip2D } from "./components/AnimatorClip2D";
+import { SequenceFrame2DRender } from "./display/Scene2DSpecial/SequenceFrame2D/SequenceFrame2DRender";
 
 let c = ClassUtils.regClass;
 c("Record", Object);
@@ -121,4 +122,5 @@ c("Curve", Curve);
 c("PostProcess2D", PostProcess2D);
 c("PostProcess2DEffect", PostProcess2DEffect);
 
+c("SequenceFrame2DRender", SequenceFrame2DRender);
 c("COMPUTESHADER", ComputeShader);

@@ -94,7 +94,7 @@ export class GraphicsRenderer {
    /** @internal */
    private _onOwnerTransformChanged(type : number) {
       //缩放重绘
-      if (type & TransformKind.Layout && this._display) {
+      if (type & TransformKind.Layout && this._display && this.owner._struct.enabled) {
          // 如果graphics中有需要响应布局变化的cmd，则重绘
          if (this.graphics && this.graphics.getLayoutRepaintCount() > 0) {
             this.graphics.repaint();
@@ -404,6 +404,7 @@ export class SubStructRender {
    private _internalInfo: GraphicsShaderInfo = null;
    /** @internal 渲染区域 */
    _rtRect: Rectangle = new Rectangle();
+   _oriRect: Rectangle = new Rectangle();
    _logicMatrix: Matrix;
 
    private _needUpdateVertexSize: boolean = true;
@@ -451,12 +452,13 @@ export class SubStructRender {
     * @param scaleX
     * @param scaleY
     */
-   _updateRenderOffset(rect: Rectangle, scaleX: number, scaleY: number) {
-      if (!rect.equals(this._rtRect) || scaleX !== this._scaleX || scaleY !== this._scaleY) {
+   _updateRenderOffset(rect: Rectangle, oriRect: Rectangle, scaleX: number, scaleY: number) {
+      if (!rect.equals(this._rtRect) || !oriRect.equals(this._oriRect) || scaleX !== this._scaleX || scaleY !== this._scaleY) {
          this._needUpdateVertexSize = true;
       }
 
       rect.cloneTo(this._rtRect);
+      oriRect.cloneTo(this._oriRect);
 
       this._scaleX = scaleX;
       this._scaleY = scaleY;
@@ -523,6 +525,7 @@ export class SubStructRender {
 
       if (this._submit._key.blendShader !== this._subStruct.blendMode) {
          this._submit._key.blendShader = this._subStruct.blendMode;
+         BlendModeHandler.setShaderData(this._subStruct.blendMode, this._shaderData);
          BlendModeHandler.setShaderData(this._subStruct.blendMode, this._internalInfo.shaderData);
       }
 
@@ -538,17 +541,15 @@ export class SubStructRender {
 
       let rtRect = this._rtRect;
       let vSize = Vector4.TEMP;
+      vSize.x = rtRect.x / this._scaleX;
+      vSize.y = rtRect.y / this._scaleY;
 
       let width = destRT.sourceWidth;
       let height = destRT.sourceHeight;
       if (width > 0 && height > 0) {
-         vSize.x = (rtRect.x - (width - rtRect.width) / 2) / this._scaleX;
-         vSize.y = (rtRect.y - (height - rtRect.height) / 2) / this._scaleY;
          vSize.z = width / this._scaleX;
          vSize.w = height / this._scaleY;
       } else {
-         vSize.x = rtRect.x / this._scaleX;
-         vSize.y = rtRect.y / this._scaleY;
          vSize.z = rtRect.width / this._scaleX;
          vSize.w = rtRect.height / this._scaleY;
       }

@@ -138,7 +138,7 @@ export class StatUI {
     }
 
     render() {
-        this._pass && this._pass.fowardRender(Render2DProcessor.rendercontext2D);
+        this._pass && this._pass.fowardRender(Render2DProcessor.rendercontext2D, Render2DProcessor.renderTime);
     }
 }
 
