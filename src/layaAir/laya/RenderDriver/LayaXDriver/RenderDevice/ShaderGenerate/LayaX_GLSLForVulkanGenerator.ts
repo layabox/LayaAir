@@ -23,6 +23,8 @@ interface CollectUniform {
     demision?: string,
     type: ShaderDataType
     set?: number
+    declaredInGlsl?: boolean
+    registeredInMaterialMap?: boolean
 }
 
 /**
@@ -159,12 +161,15 @@ ${fragmentCode}
         // 这些 uniform（如 u_IBLDFG）不在 GLSL 源码中声明，正则提取不到，
         // 需要手动补充，后续 uniformString2 才能为其生成带 set/binding 的声明。
         let collectionUniforms = new Map<string, CollectUniform>();
+        const materialUniformNames = new Set<string>();
         if (materialMap && materialMap.size > 0) {
             materialMap.forEach((uniform) => {
+                materialUniformNames.add(uniform.propertyName);
                 if (!collectionUniforms.has(uniform.propertyName)) {
                     collectionUniforms.set(uniform.propertyName, {
                         type: uniform.uniformtype,
                         arrayLength: uniform.arrayLength > 0 ? uniform.arrayLength : undefined,
+                        registeredInMaterialMap: true,
                     });
                 }
             });
@@ -172,8 +177,11 @@ ${fragmentCode}
 
         const uniformCollect = (match: string, precision: string, type: string, name: string, arrayDecl: string, arrayLength: string) => {
             // todo
+            const oldUniform = collectionUniforms.get(name);
             let u: CollectUniform = {
                 type: getShaderDataType(type),
+                declaredInGlsl: true,
+                registeredInMaterialMap: oldUniform?.registeredInMaterialMap || materialUniformNames.has(name),
             };
 
             if (u.type != ShaderDataType.None) {
@@ -262,25 +270,22 @@ ${fragmentCode}
         uniformMap.forEach(executeUniforms);
 
         // 添加 新检出的 uniform（appendSet < 0 表示禁用，跳过）
-        let appendNewUniform = false;
         if (appendSet >= 0) {
+            let wildUniforms: string[] = [];
             collectionUniforms.forEach((value, name) => {
                 if (value.set == undefined) {
-                    appendNewUniform = true;
-                    let uniform: UniformProperty = {
-                        id: Shader3D.propertyNameToID(name),
-                        propertyName: name,
-                        uniformtype: value.type,
-                        arrayLength: value.arrayLength || 0
-                    };
-
-                    materialMap.set(uniform.id, uniform);
+                    if (value.declaredInGlsl && !value.registeredInMaterialMap) {
+                        const arrayInfo = value.arrayLength ? `[${value.arrayLength}]` : "";
+                        wildUniforms.push(`${name}${arrayInfo}:${ShaderDataType[value.type]}`);
+                    }
                 }
             });
-            // if (appendNewUniform && !uniformMap.has(appendSet)) {
-            //     uniformMap.set(appendSet, LayaXBindGroupHelper.createBindingInfosByUniformMap(appendSet, "Material", shaderPassName, materialMap));
-            //     executeUniforms(uniformMap.get(appendSet)!, appendSet);
-            // }
+            if (wildUniforms.length > 0) {
+                console.error(
+                    `[LayaX] Shader "${shaderPassName}" declares uniforms in GLSL that are not registered in the material uniformMap. ` +
+                    `LayaX does not auto-append wild uniforms. Missing: ${wildUniforms.join(", ")}`
+                );
+            }
         }
 
         // remove original uniform blocks
@@ -369,7 +374,6 @@ ${fragmentCode}
         return {
             vertex,
             fragment,
-            appendNewUniform,
             hasSampler: collectionUniforms.size > 0
         };
 
