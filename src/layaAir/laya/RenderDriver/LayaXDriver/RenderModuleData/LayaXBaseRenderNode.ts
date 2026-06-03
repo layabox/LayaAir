@@ -121,8 +121,14 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
     public get renderNodeType(): number { return this._nativeObj.renderNodeType; }
     public set renderNodeType(value: number) { this._nativeObj.renderNodeType = value; }
 
-    public get boundsChange(): boolean { return this._nativeObj.boundsChange; }
-    public set boundsChange(value: boolean) { this._nativeObj.boundsChange = value; }
+    // LayaX：culling / AABB 在 Rust 侧自走 transform 同步那一套，native 不消费此 boundsChange flag
+    // （与 ismoved 同理）。骨骼动画每帧由 AnimatorApplier 改写 rootBone local TRS、派发
+    // TRANSFORM_CHANGED，驱动 BaseRender._onWorldMatNeedChange 每帧 `boundsChange = true`——
+    // 若此处写 native 就是每帧每对象一次纯冗余 FFI（被误判成"对象移动"）。改为纯 TS 字段后该 setter
+    // 零跨界；native _calculateBoundingBox 仅在 JS 端真正读 bounds 时按需触发一次（见 bounds getter）。
+    private _boundsChange: boolean = false;
+    public get boundsChange(): boolean { return this._boundsChange; }
+    public set boundsChange(value: boolean) { this._boundsChange = value; }
 
     public get staticMask(): number { return this._nativeObj.staticMask; }
     public set staticMask(value: number) { this._nativeObj.staticMask = value; }
