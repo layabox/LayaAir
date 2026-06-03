@@ -296,7 +296,7 @@ export class LargeTex extends RenderTexture {
             }
         }
         //采用实时渲染方式将小贴图绘制到大贴图上
-        let cmd = Blit2DCMD.create(smallTex, this, offsetScale, this._shader, sd);
+        let cmd = Blit2DCMD.create(smallTex, this, offsetScale, this._shader, sd , LayaGL.renderEngine._screenInvertY);
         this.commands.add(cmd);
         
         //立即执行绘制

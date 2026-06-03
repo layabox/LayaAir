@@ -21,6 +21,7 @@ export class LayaXRenderContext2D implements IRenderContext2D {
 
     constructor() {
         this._nativeObj = new (window as any).conchLayaXRenderContext2D();
+
         this._nativeObj.setGlobalConfigShaderData(
             (Shader3D._configDefineValues as any)._nativeObj
         );
@@ -80,21 +81,18 @@ export class LayaXRenderContext2D implements IRenderContext2D {
     }
 
     // ---- CMD ----
-    // LayaX: CommandBuffer2D.apply(true) 立即执行路径。每个 CMD 的 apply 调
-    // _nativeObj.execute() → C++ LayaX*CMD_JS::execute → layax_2d_*_cmd_execute。
-    // 遍历完后调用 _nativeObj.flushImmediate2D() 关闭尾部 immediate pass。
     runOneCMD(cmd: IRenderCMD): void {
         if (cmd) {
-            (cmd as any).apply?.(this);
-            this._nativeObj.flushImmediate2D?.();
+            this._nativeObj.runOneCMD((cmd as any)._nativeObj);
         }
     }
 
     runCMDList(cmds: IRenderCMD[]): void {
         if (!cmds || cmds.length === 0) return;
+        let nativeobCMDs: any[] = [];
         for (let i = 0, n = cmds.length; i < n; i++) {
-            (cmds[i] as any).apply?.(this);
+            nativeobCMDs.push((cmds[i] as any)._nativeObj);
         }
-        this._nativeObj.flushImmediate2D?.();
+        this._nativeObj.runCMDList(nativeobCMDs);
     }
 }

@@ -8,6 +8,7 @@ import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
+import { LayaGL } from "../layagl/LayaGL";
 import { Texture2D } from "../resource/Texture2D";
 import { Utils } from "../utils/Utils";
 import { LargeTex } from "./LargeTex";
@@ -821,7 +822,7 @@ export class LargeTexBase {
      * @param sRGB 大图是否sRGB格式
      */
     createLargeTex(largeTextureIndex: number, sRGB?: boolean, gammaCorrection?: number) {
-        const mipMap = this.mipMap;
+        const mipMap = this.mipMap && !!(LayaGL.renderEngine as any).gl;
         const texMode = this.texMode;
         const anisoLevel = this.texAnisoLevel;
         sRGB = sRGB ? sRGB : this.sRGB;
