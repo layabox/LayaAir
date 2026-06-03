@@ -125,6 +125,7 @@ export class RTTransform3D extends Transform3D {
      */
     protected _setTransformFlag(type: number, value: boolean): void {
 
+        super._setTransformFlag(type, value);
         this._nativeObj.setTransformFlag(type, value);
     }
     /**

@@ -19,7 +19,7 @@ import { LayaX3DRenderPassFactory } from "laya/RenderDriver/LayaXDriver/3DRender
 import { LayaXRenderDeviceFactory } from "laya/RenderDriver/LayaXDriver/RenderDevice/LayaXRenderDeviceFactory";
 import { LayaX3DRenderModuleFactory } from "laya/RenderDriver/LayaXDriver/RenderModuleData/LayaX3DRenderModuleFactory";
 import { LayaXRender2DProcess } from "laya/RenderDriver/LayaXDriver/2DRenderPass/LayaXRender2DProcess";
-import { NoRender2DProcess} from "laya/RenderDriver/NoRenderDriver/2DRenderPass/NoRender2DProcess"
+import { NoRender2DProcess } from "laya/RenderDriver/NoRenderDriver/2DRenderPass/NoRender2DProcess"
 import { RT3DRenderModuleFactory } from "laya/RenderDriver/RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleFactory";
 import { RTUintRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTUintRenderModuleDataFactory";
 import { LayaXUnitRenderModuleDataFactory } from "laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXUnitRenderModuleDataFactory";
@@ -28,6 +28,7 @@ import { WebUnitRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleDa
 import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";
 import { LayaGL } from "laya/layagl/LayaGL";
 import { RTStatisContext } from "laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTStatisticContext";
+import { createConchAnimatorFactory } from "laya/d3/component/Animator/factory/runtime/RTAnimatorFactory"
 
 export class Main {
     static useWebGPU: boolean = false;
@@ -65,12 +66,14 @@ export class Main {
         this._singleDemo = singleDemo;
         if (LayaEnv.isLayaX) {
             // LayaX rendering backend (Rust/wgpu)
+            console.log("=============LayaX=================")
             LayaGL.unitRenderModuleDataFactory = new LayaXUnitRenderModuleDataFactory();
             LayaGL.renderDeviceFactory = new LayaXRenderDeviceFactory();
             Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
             Laya3DRender.Render3DModuleDataFactory = new LayaX3DRenderModuleFactory();
             Laya3DRender.Render3DPassFactory = new LayaX3DRenderPassFactory();
             LayaGL.render2DRenderPassFactory = new LayaXRender2DProcess();
+            createConchAnimatorFactory();
             //LayaGL.statAgent = new RTStatisContext();
         } else if (!LayaEnv.isConch || (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() == 2)) {
             LayaGL.unitRenderModuleDataFactory = new WebUnitRenderModuleDataFactory();
@@ -78,6 +81,8 @@ export class Main {
             Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
         } else {
             // Native GLES rendering backend
+            console.log("=============Old=================")
+            createConchAnimatorFactory();
             LayaGL.unitRenderModuleDataFactory = new RTUintRenderModuleDataFactory();
             LayaGL.renderDeviceFactory = new GLESRenderDeviceFactory();
             Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();

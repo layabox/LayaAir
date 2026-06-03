@@ -230,9 +230,10 @@ export class CommandBuffer2D {
      * @param offsetScale offset&scale of copy
      * @param shader copy use shader
      * @param shaderData copy use data for shader
+     * @param invert copy use geomerty invert uv
      */
-    blitTextureQuad(source: BaseTexture, dest: IRenderTarget, offsetScale?: Vector4, shader?: Shader3D, shaderData?: ShaderData): void {
-        let cmd = Blit2DCMD.create(source, dest, offsetScale, shader, shaderData);
+    blitTextureQuad(source: BaseTexture, dest: IRenderTarget, offsetScale?: Vector4, shader?: Shader3D, shaderData?: ShaderData , invert?:boolean): void {
+        let cmd = Blit2DCMD.create(source, dest, offsetScale, shader, shaderData , invert);
         this._commands.push(cmd);
         cmd._commandBuffer = this;
         cmd.getRenderCMD && this._renderCMDs.push(cmd.getRenderCMD());
@@ -252,7 +253,7 @@ export class CommandBuffer2D {
      * @param viewportX viewport x offset
      * @param viewportY viewport y offset
      */
-    setRenderTarget(renderTexture: IRenderTarget, clearColor: boolean, colorValue: Color = Color.BLACK, invertY: boolean = true, viewportX: number = 0, viewportY: number = 0): void {
+    setRenderTarget(renderTexture: IRenderTarget, clearColor: boolean, colorValue: Color = Color.BLACK, invertY: boolean = !LayaGL.renderEngine._screenInvertY, viewportX: number = 0, viewportY: number = 0): void {
         let cmd = Set2DRTCMD.create(renderTexture, clearColor, colorValue, invertY, viewportX, viewportY);
         this._commands.push(cmd);
         cmd._commandBuffer = this;

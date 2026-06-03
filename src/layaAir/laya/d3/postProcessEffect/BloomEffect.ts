@@ -238,6 +238,9 @@ export class BloomEffect extends PostProcessEffect {
     /**是否开启快速模式。该模式通过降低质量来提升性能。*/
     private _fastMode: boolean = false;
 
+    /**泛光金字塔的相对质量系数,1.0 = 与旧版一致(半分辨率起步),0.5 = 1/4 分辨率(省带宽),2.0 = 全分辨率(高质量)。*/
+    private _resolutionScale: number = 1.0;
+
     /**镜头污渍纹路,用于为泛光特效增加污渍灰尘效果*/
     private _dirtTexture: BaseTexture = null;
 
@@ -362,6 +365,18 @@ export class BloomEffect extends PostProcessEffect {
     set dirtIntensity(value: number) {
         this._dirtIntensity = Math.max(value, 0.0);
     }
+
+    /**
+     * @en Relative quality scale of the bloom pyramid. 1.0 (default) matches the legacy half-resolution behavior. Set to 0.5 to start the pyramid at quarter resolution, saving approximately 3/4 of bloom processing bandwidth at the cost of more visible blur and aliasing. Set to 2.0 to start at full resolution (highest quality, highest cost). Clamped to [0.125, 2.0]. The actual pyramid base size is approximately `viewport * scale / 2`.
+     * @zh 泛光金字塔的相对质量系数。1.0（默认）等价于旧版半分辨率行为。设为 0.5 时金字塔从 1/4 分辨率开始构建,约可节省 3/4 的泛光处理带宽,代价是模糊更明显、可能出现更多锯齿。设为 2.0 时从全分辨率起步(质量最高、开销最大)。取值范围 [0.125, 2.0]。金字塔起始尺寸约为 `viewport × scale / 2`。
+     */
+    get resolutionScale(): number {
+        return this._resolutionScale;
+    }
+
+    set resolutionScale(value: number) {
+        this._resolutionScale = Math.min(Math.max(value, 0.125), 2.0);
+    }
     /**
      * @en initializate the bloom effect instance.
      * @zh 初始化泛光效果实例。
@@ -438,9 +453,10 @@ export class BloomEffect extends PostProcessEffect {
         var rw: number = ratio < 0 ? -ratio : 0;
         var rh: number = ratio > 0 ? ratio : 0;
 
-        //半分辨率模糊,性效比较高
-        var tw: number = Math.floor(viewport.width / (2 - rw));
-        var th: number = Math.floor(viewport.height / (2 - rh));
+        //_resolutionScale 以旧版半分辨率为 1.0 基准:除数 = 2 / scale。scale=1 → 除2(旧默认),scale=0.5 → 除4(省3/4带宽),scale=2 → 除1(全分辨率)。除数下限 1 保证起始尺寸不超过 viewport。
+        var invScale: number = 2 / this._resolutionScale;
+        var tw: number = Math.floor(viewport.width / Math.max(invScale - rw, 1));
+        var th: number = Math.floor(viewport.height / Math.max(invScale - rh, 1));
 
         //计算迭代次数
         var s: number = Math.max(tw, th);

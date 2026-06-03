@@ -669,6 +669,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @param playAudio		Whether to play audio.
      */
     play(nameOrIndex: string | number, loop: boolean, force: boolean = true, start: number = 0, end: number = 0, freshSkin: boolean = true, playAudio: boolean = true) {
+        if (!this._templet) {
+            console.warn("Spine2DRenderNode.play: templet is not ready, animation:", nameOrIndex);
+            return;
+        }
         this._playAudio = playAudio;
         start /= 1000;
         end /= 1000;

@@ -102,7 +102,7 @@ export class MgBrowserAdapter extends BrowserAdapter {
 
     start(): Promise<void> {
         let downloader = Loader.downloader = new MgDownloader(
-            PAL.hasAPI("getFileSystemManager") && PAL.hasAPI(PAL.g.getFileSystemManager(), "writeFile")
+            PAL.hasAPI("getFileSystemManager") && PAL.hasAPI(PAL.g.getFileSystemManager(), "writeFile") && PAL.hasAPI(PAL.g.getFileSystemManager(), "readdir")
         );
         this.setupWasmSupport();
 
