@@ -89,6 +89,10 @@ export class LayaXShaderPass implements IShaderPassData {
         }
     }
 
+    syncOwnerUniformMap(): void {
+        this._pass._owner.moduleData.setUniformMap(this._pass._owner._uniformMap);
+    }
+
     /**
      * Parse set→map name mapping string from Rust.
      * Format: "0:Scene3D,Global,Shadow;1:BaseCamera;2:Sprite3D"

@@ -39,38 +39,49 @@ export class LayaXSubShader implements ISubshaderData {
     }
 
     setUniformMap(_uniformMap: Map<number, UniformProperty>): void {
-        _uniformMap.forEach((value, key) => {
+        this._syncUniformProperties(_uniformMap);
+        this._pendingUniformMap = _uniformMap;
+        this._ensureMaterialMap();
+    }
+
+    private _pendingUniformMap: Map<number, UniformProperty> | null = null;
+    private _uniformPropertyIds: Set<number> = new Set();
+
+    private _syncUniformProperties(uniformMap: Map<number, UniformProperty>): void {
+        uniformMap.forEach((value) => {
+            if (this._uniformPropertyIds.has(value.id)) {
+                return;
+            }
             this._nativeObj.addUniformProperty(
                 value.id,
                 value.propertyName,
                 value.uniformtype,
                 value.arrayLength
             );
+            this._uniformPropertyIds.add(value.id);
         });
-        this._pendingUniformMap = _uniformMap;
-        this._ensureMaterialMap();
     }
-
-    private _pendingUniformMap: Map<number, UniformProperty> | null = null;
 
     /** Create global CommandUniformMap for material Set3 using SubShader's uniform properties */
     private _ensureMaterialMap(): void {
         if (!this._pendingUniformMap || !this._shaderName) return;
         let map = LayaGL.renderDeviceFactory.createGlobalUniformMap(this._shaderName) as LayaXCommandUniformMap;
-        if (map._idata.size == 0) {
-            this._pendingUniformMap.forEach((value) => {
-                if (value.arrayLength > 0) {
-                    map.addShaderUniformArray(value.id, value.propertyName, value.uniformtype, value.arrayLength);
-                } else {
-                    map.addShaderUniform(value.id, value.propertyName, value.uniformtype);
-                }
-            });
-        }
+        this._pendingUniformMap.forEach((value) => {
+            if (map._idata.has(value.id)) {
+                return;
+            }
+            if (value.arrayLength > 0) {
+                map.addShaderUniformArray(value.id, value.propertyName, value.uniformtype, value.arrayLength);
+            } else {
+                map.addShaderUniform(value.id, value.propertyName, value.uniformtype);
+            }
+        });
         this._pendingUniformMap = null;
     }
 
     addShaderPass(pass: IShaderPassData): void {
         const layaxPass = pass as LayaXShaderPass;
+        layaxPass.syncOwnerUniformMap();
         this._nativeObj.addShaderPass(layaxPass._nativeObj);
     }
 
