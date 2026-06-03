@@ -480,6 +480,13 @@ export class LayaXTransform3D extends Transform3D {
             if (this._hasTransformChangedListener)
                 this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
         }
+        if (Transform3D._inAnimatorBatch) {
+            if (this._lastAnimatorFrame === Transform3D._currentAnimatorFrame) return;
+            this._lastAnimatorFrame = Transform3D._currentAnimatorFrame;
+            for (let i = 0, n = this._children!.length; i < n; i++)
+                (this._children[i] as LayaXTransform3D)._onWorldTransform();
+            return;
+        }
         for (let i = 0, n = this._children!.length; i < n; i++)
             (this._children[i] as LayaXTransform3D)._onWorldPositionTransform();
     }
@@ -489,6 +496,13 @@ export class LayaXTransform3D extends Transform3D {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER, true);
             if (this._hasTransformChangedListener)
                 this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+        }
+        if (Transform3D._inAnimatorBatch) {
+            if (this._lastAnimatorFrame === Transform3D._currentAnimatorFrame) return;
+            this._lastAnimatorFrame = Transform3D._currentAnimatorFrame;
+            for (let i = 0, n = this._children!.length; i < n; i++)
+                (this._children[i] as LayaXTransform3D)._onWorldTransform();
+            return;
         }
         for (let i = 0, n = this._children!.length; i < n; i++)
             (this._children[i] as LayaXTransform3D)._onWorldPositionRotationTransform();
@@ -500,6 +514,13 @@ export class LayaXTransform3D extends Transform3D {
             if (this._hasTransformChangedListener)
                 this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
         }
+        if (Transform3D._inAnimatorBatch) {
+            if (this._lastAnimatorFrame === Transform3D._currentAnimatorFrame) return;
+            this._lastAnimatorFrame = Transform3D._currentAnimatorFrame;
+            for (let i = 0, n = this._children!.length; i < n; i++)
+                (this._children[i] as LayaXTransform3D)._onWorldTransform();
+            return;
+        }
         for (let i = 0, n = this._children!.length; i < n; i++)
             (this._children[i] as LayaXTransform3D)._onWorldPositionScaleTransform();
     }
@@ -509,6 +530,10 @@ export class LayaXTransform3D extends Transform3D {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER | Transform3D.TRANSFORM_WORLDSCALE, true);
             if (this._hasTransformChangedListener)
                 this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+        }
+        if (Transform3D._inAnimatorBatch) {
+            if (this._lastAnimatorFrame === Transform3D._currentAnimatorFrame) return;
+            this._lastAnimatorFrame = Transform3D._currentAnimatorFrame;
         }
         for (let i = 0, n = this._children!.length; i < n; i++)
             this._children![i]._onWorldTransform();

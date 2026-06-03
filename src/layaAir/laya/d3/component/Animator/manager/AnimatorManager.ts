@@ -62,16 +62,22 @@ export class AnimatorManager implements IElementComponentManager {
     Init(_data: any): void { }
 
     update(_dt: number): void {
+        // ── 阶段1：状态机更新（tickOne 循环）──
         const list = this._activeAnimators;
         for (let i = 0, n = list.length; i < n; i++) {
             this.tickOne(list[i]);
         }
+
+        // ── 阶段2：曲线解析（采样）──
         this._factory.flushEvaluate();
-        // 开 batch mode：同一 transform 同帧多次 set 时跳过重复 walk children
+
+        // ── 阶段3：数据回写 ──（开 batch mode：同一 transform 同帧多次 set 时跳过重复 walk children）
         Transform3D._currentAnimatorFrame++;
         Transform3D._inAnimatorBatch = true;
         this._factory.flushApply();
         Transform3D._inAnimatorBatch = false;
+
+        // 收尾（crossFade 切换 / LateUpdate 事件）归入状态机阶段
         this._drainPendingSwitches();
         this._drainLateUpdates(list);
     }

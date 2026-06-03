@@ -92,7 +92,7 @@ export class Transform3D extends EventDispatcher {
     /** @internal */
     _parent: Transform3D | null = null;
     /**@internal */
-    private _transformFlag: number = 0;
+    protected _transformFlag: number = 0;
 
     /**
      * @internal

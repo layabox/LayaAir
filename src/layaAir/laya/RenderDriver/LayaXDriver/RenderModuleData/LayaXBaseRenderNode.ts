@@ -1,9 +1,7 @@
 import { IrradianceMode } from "../../../d3/core/render/BaseRender";
 import { RenderContext3D } from "../../../d3/core/render/RenderContext3D";
 import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
-import { Transform3D } from "../../../d3/core/Transform3D";
 import { Bounds } from "../../../d3/math/Bounds";
-import { Event } from "../../../events/Event";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector4 } from "../../../maths/Vector4";
 import { Material } from "../../../resource/Material";
@@ -40,36 +38,9 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
     private _transform: LayaXTransform3D;
     public get transform(): LayaXTransform3D { return this._transform; }
     public set transform(value: LayaXTransform3D) {
-        // 切换 transform 时解绑旧订阅；新 transform 订阅 scale 变化，并立刻推一次避免漏首帧
-        if (this._transform) {
-            this._transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
-        }
+        // frontFace / invertFrontFace 由 Rust 在写 WorldMat 时自算（对齐 RT），不再从 JS 推送。
         this._nativeObj.setTransform(value ? value._nativeObj : null);
         this._transform = value;
-        if (value) {
-            value.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
-            this._syncWorldInvertFront();
-        } else {
-            this._syncWorldInvertFront();
-        }
-    }
-
-    private _onTransformChanged(flag: number): void {
-        if (flag & Transform3D.TRANSFORM_WORLDSCALE) {
-            this._syncWorldInvertFront();
-        }
-    }
-
-    private _syncWorldInvertFront(): void {
-        if (!this._transform) {
-            this._worldParams.x = 1;
-            this._nativeObj.worldParams = this._worldParams;
-            this._nativeObj.invertFrontFace = false;
-            return;
-        }
-        this._worldParams.x = this._transform.getFrontFaceValue();
-        this._nativeObj.worldParams = this._worldParams;
-        this._nativeObj.invertFrontFace = this._transform._isFrontFaceInvert;
     }
 
     // ------------------------------------------------------------------
@@ -85,13 +56,7 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
     public get castShadow(): boolean { return this._nativeObj.castShadow; }
     public set castShadow(value: boolean) { this._nativeObj.castShadow = value; }
 
-    /** 负 scale 绕序位；与 pass.invertY XOR 决定 pipeline 是否翻 front_face。 */
-    public get invertFrontFace(): boolean { return this._nativeObj.invertFrontFace; }
-    public set invertFrontFace(value: boolean) {
-        this._worldParams.x = value ? -1 : 1;
-        this._nativeObj.worldParams = this._worldParams;
-        this._nativeObj.invertFrontFace = value;
-    }
+    // invertFrontFace / worldParams.x 由 Rust 自算，不再提供 JS setter。
 
     public get receiveShadow(): boolean { return this._nativeObj.receiveShadow; }
     public set receiveShadow(value: boolean) { this._nativeObj.receiveShadow = value; }
@@ -222,16 +187,11 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
 
     private _ismoved: Vector2 = new Vector2();
     public get ismoved(): Vector2 {
-        let value: any = this._nativeObj.ismoved;
-        if (value) {
-            this._ismoved.x = value.x;
-            this._ismoved.y = value.y;
-        }
         return this._ismoved;
     }
     public set ismoved(value: Vector2) {
-        this._ismoved = value;
-        this._nativeObj.ismoved = value;
+        this._ismoved.setValue(value.x, value.y);
+        this._nativeObj.ismoved = this._ismoved;
     }
 
     // ------------------------------------------------------------------

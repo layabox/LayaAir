@@ -525,6 +525,7 @@ export class RTAnimatorFactory implements IAnimatorFactory {
     flushApply(): void {
         if (this._nativeApplier) {
             this._nativeApplier.flush();
+            // C++ 回写后 JS 侧补派发 TRANSFORM_CHANGED（Native 化后唯一留在 JS 的逐帧事件开销）。
             this._notifyJsTransformChanged();
         }
         this._web.flushApply();
@@ -629,6 +630,10 @@ export class RTAnimatorFactory implements IAnimatorFactory {
 }
 
 Laya.addBeforeInitCallback(() => {
+    createConchAnimatorFactory();
+});
+
+export function createConchAnimatorFactory(): void {
     // RTAnimatorFactory 仅在有 native transform backend 时才有意义：
     // C++ 路径只处理 Transform 类型，没有 native Transform（如 native WebGL）则零贡献，直接走 WebAnimatorFactory。
     const hasNativeTransform = !!(window as any).conchLayaXTransform || !!(window as any).conchRTTransform;
@@ -640,4 +645,4 @@ Laya.addBeforeInitCallback(() => {
     } else if (hasNativeAnimator && !hasNativeTransform) {
         console.log("[RTAnimatorFactory] Native animator components detected but no native transform backend; using WebAnimatorFactory for full JS evaluation.");
     }
-});
+}
