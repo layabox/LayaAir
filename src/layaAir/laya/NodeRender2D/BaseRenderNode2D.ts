@@ -342,6 +342,7 @@ export class BaseRenderNode2D extends Component {
                 BaseRenderNode2D._removeRenderElement2DMaterial(element, this._getElementMaterial(i));
             }
         }
+        this._struct.renderElements = [];
         for (var i = 0, n = this._materials.length; i < n; i++) {
             let m = this._materials[i];
             m && !m.destroyed && m._removeReference();
