@@ -393,6 +393,9 @@ export class Bridge3DScene3D extends Scene3D {
         if (this._renderByEditor) return;
 
         Scene3D._updateMark++;
+        if (LayaEnv.isLayaX) {
+            this._prepareLayaXActiveCameras();
+        }
 
         // 1. Prepare scene rendering (lights)
         this._prepareSceneToRender();
@@ -421,6 +424,10 @@ export class Bridge3DScene3D extends Scene3D {
             this._volumeManager.reCaculateAllRenderObjects(this._sceneRenderManager.list);
         else
             this._volumeManager.handleMotionlist();
+
+        this.componentElementMap.forEach((value) => {
+            value.update(delta);
+        });
 
         // 只更新根级 Bridge3DSprite 的 renderUpdate
         const bridge3DList = this._holder.bridge3DList;

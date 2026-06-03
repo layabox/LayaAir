@@ -1270,7 +1270,7 @@ export class Scene3D extends Sprite {
         RenderTexture.clearPool();
     }
 
-    private _prepareLayaXActiveCameras(): void {
+    protected _prepareLayaXActiveCameras(): void {
         const nativeCamera = (window as any).conchLayaXCameraNodeData;
         if (!nativeCamera || !nativeCamera.prepareActiveCameras)
             return;
