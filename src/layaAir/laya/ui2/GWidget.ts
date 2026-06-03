@@ -689,8 +689,8 @@ export class GWidget extends Sprite {
     }
 
     /** @ignore */
-    _processVisible(): boolean {
-        if (super._processVisible()) {
+    _processVisible(parentVisible?: boolean): boolean {
+        if (super._processVisible(parentVisible)) {
             if (this.parent?._nodeType == 2)
                 (<GWidget>this.parent).setLayoutChangedFlag?.(LayoutChangedReason.Visible);
             return true;
