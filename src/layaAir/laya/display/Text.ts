@@ -2347,7 +2347,7 @@ function getWordBoundaryIndex(text: string, nextChar?: string): number | null {
     return testResult.index < text.length ? testResult.index : null;
 }
 
-const emojiRegex = createEmojiRegex();
+let emojiRegex: RegExp = null; // 安卓微信小程序不支持emoji-regex-xs，延迟生成。主要靠应用层覆盖 Text.splitStr
 const normalizeCR = /\r\n/g;
 const escapeCharsPattern = /\\(\w)/g;
 const escapeSequence: any = { "\\n": "\n", "\\t": "\t" };
@@ -2376,6 +2376,9 @@ function defaultSplitStr(text: string): string[] {
     //     const result = Array.from(segments).map(s => s.segment);
     //     return result;
     // }
+    if (emojiRegex == null) {
+        emojiRegex = createEmojiRegex();
+    }
     const arrCh: string[] = [];
     let pos = 0;
     text.replace(emojiRegex, function (match, offset) {
