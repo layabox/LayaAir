@@ -139,15 +139,13 @@ export class LayaXShaderPass implements IShaderPassData {
      * @returns LayaXShaderInstance._nativeObj (C++ LayaXShaderInstance_JS*), C++ extracts handle
      */
     /**
-     * Sync pass renderState to Rust (仅 statefirst=true 的 pass).
+     * Sync pass renderState to Rust.
      *
-     * 与 WebGL updateRenderState 对齐：
-     * statefirst=true 时，pass 的 renderState 非 null 字段覆盖材质默认值。
-     * statefirst=false 时，不设置 pass renderState，Rust 侧直接用材质的。
+     * 普通 3D 元素仍由 Rust 按 statefirst 决定是否使用 pass state；
+     * CommandBuffer blit / postprocess 的 standalone element 需要 pass state
+     * 作为屏幕 quad 的渲染状态来源。
      */
     private _syncRenderState(): void {
-        if (!this.statefirst) return;
-
         const rs = this._renderState;
         if (!rs) return;
 

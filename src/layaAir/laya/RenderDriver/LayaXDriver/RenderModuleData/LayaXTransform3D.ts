@@ -157,6 +157,7 @@ export class LayaXTransform3D extends Transform3D {
 
     /** @internal */
     protected _setTransformFlag(type: number, value: boolean): void {
+        super._setTransformFlag(type, value);
         // Write to shared memory, then tell C++ to sync
         let flag = this._nativeUInt32Buffer[LayaXTransform3D.TRANSFORM_CHANGEFLAG_DATAOFFSET];
         if (value)
