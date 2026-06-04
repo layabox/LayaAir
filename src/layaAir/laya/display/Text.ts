@@ -1237,7 +1237,7 @@ export class Text extends Sprite {
                 charWidth = bfont.getMaxWidth(fontSize);
                 charHeight = bfont.getMaxHeight(fontSize);
             } else {
-                Browser.context.font = ctxFont = (style.bold ? "bold " : "") + fontSize + "px " + this._realFont;
+                Browser.context.font = ctxFont = (style.italic ? "italic " : "") + (style.bold ? "bold " : "") + fontSize + "px " + this._realFont;
                 charWidth = fontSize;
                 charHeight = textRender.getFontHeight(this._realFont, fontSize, style.bold);
             }
