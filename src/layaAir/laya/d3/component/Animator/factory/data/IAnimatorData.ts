@@ -51,14 +51,17 @@ export class PlainOwnerData implements IOwnerData {
 
 export type ClipDestroyCallback = (clipHandle: number) => void;
 
-let _clipDestroyCallback: ClipDestroyCallback | null = null;
+const _clipDestroyCallbacks: Set<ClipDestroyCallback> = new Set();
 
-/** 注册 clip 销毁回调（RT 工厂 ctor 内注册以释放 native ClipTable）。 */
-export function registerClipDestroyCallback(fn: ClipDestroyCallback | null): void {
-    _clipDestroyCallback = fn;
+/** 注册 clip 销毁回调（RT 工厂 ctor 内注册以释放 native ClipTable），返回取消注册函数。 */
+export function registerClipDestroyCallback(fn: ClipDestroyCallback): () => void {
+    _clipDestroyCallbacks.add(fn);
+    return () => {
+        _clipDestroyCallbacks.delete(fn);
+    };
 }
 
 /** AnimationClip._disposeResource 调用以通知所有注册方释放对应 native 资源。 */
 export function notifyClipDestroyed(clipHandle: number): void {
-    _clipDestroyCallback?.(clipHandle);
+    _clipDestroyCallbacks.forEach(callback => callback(clipHandle));
 }

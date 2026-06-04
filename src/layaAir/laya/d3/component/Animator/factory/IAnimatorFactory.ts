@@ -68,4 +68,7 @@ export interface IAnimatorFactory {
 
     /** 还原 state 涉及的节点到 defaultValue（state 切走时调用）。 */
     revertDefaultKeyframeNodes(state: AnimatorState): void;
+
+    /** Scene/AnimatorManager 销毁：释放该工厂持有的所有 native 资源与运行时回调。 */
+    destroy(): void;
 }
