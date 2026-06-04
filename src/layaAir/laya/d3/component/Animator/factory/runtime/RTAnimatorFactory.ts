@@ -29,6 +29,38 @@ class IdPool {
     }
 }
 
+type RTHandleKind = "slot" | "owner" | "binding" | "clip";
+const rtSlotPool = new IdPool();
+const rtOwnerPool = new IdPool();
+const rtBindingPool = new IdPool();
+const rtClipPool = new IdPool();
+
+const rtLiveHandles: Record<RTHandleKind, Map<number, number>> = {
+    slot: new Map(),
+    owner: new Map(),
+    binding: new Map(),
+    clip: new Map()
+};
+let rtFactoryIdSeed = 0;
+
+function markRTHandle(kind: RTHandleKind, handle: number, factoryId: number): void {
+    const owners = rtLiveHandles[kind];
+    const current = owners.get(handle);
+    if (current !== undefined && current !== factoryId) {
+        console.warn(`[RTAnimatorFactory] ${kind} handle collision: handle=${handle}, ownerFactory=${current}, newFactory=${factoryId}`);
+    }
+    owners.set(handle, factoryId);
+}
+
+function unmarkRTHandle(kind: RTHandleKind, handle: number, factoryId: number): void {
+    const owners = rtLiveHandles[kind];
+    const current = owners.get(handle);
+    if (current !== undefined && current !== factoryId) {
+        console.warn(`[RTAnimatorFactory] ${kind} handle release mismatch: handle=${handle}, ownerFactory=${current}, releaseFactory=${factoryId}`);
+    }
+    owners.delete(handle);
+}
+
 /**
  * IAnimatorFactory 的 Native 后端。每 Scene3D 一个实例。
  * Native 启动时通过 `AnimatorManager.factoryCreator = () => new RTAnimatorFactory()` 接管默认工厂。
@@ -37,16 +69,22 @@ class IdPool {
  * 每帧热路径：flushEvaluate 把 active slot × layer 状态写入预分配 ArrayBuffer，单次 syncBatch 跨界。
  */
 export class RTAnimatorFactory implements IAnimatorFactory {
+    private readonly _factoryId: number = ++rtFactoryIdSeed;
     private readonly _web: WebAnimatorFactory;
     private readonly _nativePreparer: any;
     private readonly _nativeEvaluator: any;
     private readonly _nativeApplier: any;
 
     /** Native 句柄分配器（连续 ID + LIFO 回收）；ID 即 native 侧 vector 下标，0 保留作"未分配"。 */
-    private readonly _slotPool = new IdPool();
-    private readonly _ownerPool = new IdPool();
-    private readonly _bindingPool = new IdPool();
-    private readonly _clipPool = new IdPool();
+    private readonly _slotPool = rtSlotPool;
+    private readonly _ownerPool = rtOwnerPool;
+    private readonly _bindingPool = rtBindingPool;
+    private readonly _clipPool = rtClipPool;
+
+    private readonly _slotHandles: Set<number> = new Set();
+    private readonly _ownerHandleSet: Set<number> = new Set();
+    private readonly _bindingHandles: Set<number> = new Set();
+    private readonly _clipHandles: Set<number> = new Set();
 
     /** ctx → slotHandle，unbind 时 release 用。 */
     private readonly _ctxToSlotHandle: WeakMap<AnimatorBindContext, number> = new WeakMap();
@@ -69,6 +107,8 @@ export class RTAnimatorFactory implements IAnimatorFactory {
 
     /** 批量同步 buffer，仅在 _nativeEvaluator 存在时初始化。 */
     private _syncBuffer: RTBatchSyncBuffer | null = null;
+    private _unregisterClipDestroyCallback: (() => void) | null = null;
+    private _destroyed: boolean = false;
 
     /**
      * 初始化 RT 工厂。
@@ -119,15 +159,10 @@ export class RTAnimatorFactory implements IAnimatorFactory {
         else if ((window as any).conchRTTransform) this._transformBackend = 'jsrt';
         else this._transformBackend = null;
 
-        if (this._nativeEvaluator) this._web._evaluator._scope = 'non-transform-only';
-        if (this._nativeApplier) this._web._applier._scope = 'non-transform-only';
+        this._setWebScopes(!!this._nativeEvaluator, !!this._nativeApplier);
 
-        registerClipDestroyCallback((clipId) => {
-            const clipHandle = this._clipHandleMap.get(clipId);
-            if (clipHandle === undefined) return;
-            this._clipHandleMap.delete(clipId);
-            this._nativePreparer?.releaseClip(clipHandle);
-            this._clipPool.free(clipHandle);
+        this._unregisterClipDestroyCallback = registerClipDestroyCallback((clipId) => {
+            this._releaseClipById(clipId);
         });
 
         if (this._nativeEvaluator) {
@@ -151,6 +186,8 @@ export class RTAnimatorFactory implements IAnimatorFactory {
         if (this._nativePreparer && !this._ctxToSlotHandle.has(ctx)) {
             const slotHandle = this._slotPool.alloc();
             this._ctxToSlotHandle.set(ctx, slotHandle);
+            this._slotHandles.add(slotHandle);
+            markRTHandle("slot", slotHandle, this._factoryId);
             slot._slotHandle = slotHandle;
             this._nativePreparer.uploadSlot(slotHandle);
             this._nativePreparer.resizeSlot(slotHandle, ctx.layers.length);
@@ -163,8 +200,7 @@ export class RTAnimatorFactory implements IAnimatorFactory {
 
     /**
      * Animator 销毁时清理 native 资源 + Web slot。
-     * 步骤：释放 (ctx, *) 下所有 binding 并清反向索引 → release native slot → web 解绑 → 清 ctx 注册。
-     * Owner release 走 removeKeyframeNodeOwner 链路，不在这里处理。
+     * 步骤：释放 (ctx, *) 下所有 binding/owner → release native slot → web 解绑 → 清 ctx 注册。
      */
     unbindAnimator(ctx: AnimatorBindContext): void {
         const slotHandle = this._ctxToSlotHandle.get(ctx);
@@ -172,18 +208,16 @@ export class RTAnimatorFactory implements IAnimatorFactory {
             const stateMap = this._bindingMap.get(ctx);
             if (stateMap) {
                 for (const [state, bindingId] of stateMap) {
-                    this._nativePreparer.releaseBinding(bindingId);
-                    this._bindingPool.free(bindingId);
-                    const stateBindings = this._stateBindings.get(state);
-                    if (stateBindings) {
-                        stateBindings.delete(bindingId);
-                        if (stateBindings.size === 0) this._stateBindings.delete(state);
-                    }
+                    this._releaseBinding(bindingId, state);
                 }
                 this._bindingMap.delete(ctx);
             }
-            this._nativePreparer.releaseSlot(slotHandle);
-            this._slotPool.free(slotHandle);
+
+            for (const owner of ctx.owners.slice()) this._releaseOwner(owner);
+            ctx.owners.length = 0;
+            for (const key in ctx.ownerMap) delete ctx.ownerMap[key];
+
+            this._releaseSlot(slotHandle);
             this._ctxToSlotHandle.delete(ctx);
         }
         this._web.unbindAnimator(ctx);
@@ -225,6 +259,8 @@ export class RTAnimatorFactory implements IAnimatorFactory {
 
             const ownerHandle = this._ownerPool.alloc();
             this._ownerHandles.set(owner, ownerHandle);
+            this._ownerHandleSet.add(ownerHandle);
+            markRTHandle("owner", ownerHandle, this._factoryId);
             this._uploadOwner(ownerHandle, owner, owner.propertyOwner);
         }
     }
@@ -244,6 +280,8 @@ export class RTAnimatorFactory implements IAnimatorFactory {
 
         const bindingId = this._bindingPool.alloc();
         stateMap.set(state, bindingId);
+        this._bindingHandles.add(bindingId);
+        markRTHandle("binding", bindingId, this._factoryId);
 
         let stateBindings = this._stateBindings.get(state);
         if (!stateBindings) { stateBindings = new Set(); this._stateBindings.set(state, stateBindings); }
@@ -267,6 +305,8 @@ export class RTAnimatorFactory implements IAnimatorFactory {
 
         const clipHandle = this._clipPool.alloc();
         this._clipHandleMap.set(clip._id, clipHandle);
+        this._clipHandles.add(clipHandle);
+        markRTHandle("clip", clipHandle, this._factoryId);
 
         const np = this._nativePreparer;
         const nodes = clip._nodes;
@@ -437,6 +477,8 @@ export class RTAnimatorFactory implements IAnimatorFactory {
 
         const ownerHandle = this._ownerPool.alloc();
         this._ownerHandles.set(owner, ownerHandle);
+        this._ownerHandleSet.add(ownerHandle);
+        markRTHandle("owner", ownerHandle, this._factoryId);
         this._uploadOwner(ownerHandle, owner, propertyOwner);
     }
 
@@ -488,12 +530,61 @@ export class RTAnimatorFactory implements IAnimatorFactory {
         if (ownerBefore.referenceCount !== 0) return;
 
         const handle = this._ownerHandles.get(ownerBefore);
-        if (handle !== undefined) {
-            this._nativePreparer.unbindOwnerTransform(handle);
-            this._nativePreparer.releaseOwner(handle);
-            this._ownerPool.free(handle);
-            this._ownerHandles.delete(ownerBefore);
+        if (handle !== undefined) this._releaseOwner(ownerBefore);
+    }
+
+    private _releaseSlot(slotHandle: number): void {
+        if (!this._slotHandles.has(slotHandle)) return;
+        this._nativePreparer?.releaseSlot(slotHandle);
+        this._slotHandles.delete(slotHandle);
+        unmarkRTHandle("slot", slotHandle, this._factoryId);
+        this._slotPool.free(slotHandle);
+    }
+
+    private _releaseBinding(bindingId: number, state?: AnimatorState): void {
+        if (!this._bindingHandles.has(bindingId)) return;
+        this._nativePreparer?.releaseBinding(bindingId);
+        this._bindingHandles.delete(bindingId);
+        unmarkRTHandle("binding", bindingId, this._factoryId);
+        this._bindingPool.free(bindingId);
+        if (state) {
+            const stateBindings = this._stateBindings.get(state);
+            if (stateBindings) {
+                stateBindings.delete(bindingId);
+                if (stateBindings.size === 0) this._stateBindings.delete(state);
+            }
         }
+    }
+
+    private _releaseOwner(owner: KeyframeNodeOwner): void {
+        const handle = this._ownerHandles.get(owner);
+        if (handle === undefined) return;
+        this._ownerHandles.delete(owner);
+        this._releaseOwnerHandle(handle);
+    }
+
+    private _releaseOwnerHandle(ownerHandle: number): void {
+        if (!this._ownerHandleSet.has(ownerHandle)) return;
+        this._nativePreparer?.unbindOwnerTransform(ownerHandle);
+        this._nativePreparer?.releaseOwner(ownerHandle);
+        this._ownerHandleSet.delete(ownerHandle);
+        unmarkRTHandle("owner", ownerHandle, this._factoryId);
+        this._ownerPool.free(ownerHandle);
+    }
+
+    private _releaseClipById(clipId: number): void {
+        const clipHandle = this._clipHandleMap.get(clipId);
+        if (clipHandle === undefined) return;
+        this._clipHandleMap.delete(clipId);
+        this._releaseClipHandle(clipHandle);
+    }
+
+    private _releaseClipHandle(clipHandle: number): void {
+        if (!this._clipHandles.has(clipHandle)) return;
+        this._nativePreparer?.releaseClip(clipHandle);
+        this._clipHandles.delete(clipHandle);
+        unmarkRTHandle("clip", clipHandle, this._factoryId);
+        this._clipPool.free(clipHandle);
     }
 
     // ==================== 一帧两阶段批处理 ====================
@@ -504,9 +595,15 @@ export class RTAnimatorFactory implements IAnimatorFactory {
      * Web 端 flushEvaluate 处理 non-transform 类型（scope='non-transform-only' 限定）。
      */
     flushEvaluate(): void {
-        if (this._nativeEvaluator && this._syncBuffer) {
-            this._syncBuffer.sync((this._web as any)._activeList, this._bindingMap);
+        const activeList = (this._web as any)._activeList;
+        const hasActiveAvatarMask = this._hasActiveAvatarMask();
+        const useNativeTransform = !!this._nativeEvaluator && !!this._syncBuffer && !hasActiveAvatarMask;
+        this._web._evaluator._scope = useNativeTransform ? 'non-transform-only' : 'all';
+        if (useNativeTransform) {
+            this._syncBuffer.sync(activeList, this._bindingMap);
             this._nativeEvaluator.flush();
+        } else if (this._nativeEvaluator && this._syncBuffer && hasActiveAvatarMask) {
+            this._syncBuffer.syncInactive(activeList);
         }
         this._web.flushEvaluate();
     }
@@ -523,7 +620,9 @@ export class RTAnimatorFactory implements IAnimatorFactory {
      * C++ 那边 Transform3D listener 为 null 发不出来，所以必须留在 JS。
      */
     flushApply(): void {
-        if (this._nativeApplier) {
+        const useNativeTransform = !!this._nativeApplier && !this._hasActiveAvatarMask();
+        this._web._applier._scope = useNativeTransform ? 'non-transform-only' : 'all';
+        if (useNativeTransform) {
             this._nativeApplier.flush();
             // C++ 回写后 JS 侧补派发 TRANSFORM_CHANGED（Native 化后唯一留在 JS 的逐帧事件开销）。
             this._notifyJsTransformChanged();
@@ -579,6 +678,26 @@ export class RTAnimatorFactory implements IAnimatorFactory {
         }
     }
 
+    /** Native TransformAnimator 目前只有 owner 级 mask，遇到 layer avatarMask 时退回 Web 以保留逐层遮罩语义。 */
+    private _hasActiveAvatarMask(): boolean {
+        const active = (this._web as any)._activeList as { length: number; elements: TaskSlot[] };
+        for (let i = 0, n = active.length; i < n; i++) {
+            const slot = active.elements[i];
+            const layers = slot._layers;
+            const ctlLayers = slot._ctx.layers;
+            for (let j = 0, m = layers.length; j < m; j++) {
+                if (layers[j].type !== LayerTaskType.Idle && ctlLayers[j]?.avatarMask) return true;
+            }
+        }
+        return false;
+    }
+
+    /** 根据 native Transform 是否接管，切换 Web 兜底范围。 */
+    private _setWebScopes(useNativeEvaluator: boolean, useNativeApplier: boolean): void {
+        this._web._evaluator._scope = useNativeEvaluator ? 'non-transform-only' : 'all';
+        this._web._applier._scope = useNativeApplier ? 'non-transform-only' : 'all';
+    }
+
     /** 重建一个 state 的 Transform-typed propertyOwner 去重列表到 _statePropertyOwnersCache（冷路径）。 */
     private _rebuildStateTransformPropertyOwners(state: AnimatorState): void {
         const owners = (state as any)._nodeOwners as KeyframeNodeOwner[] | undefined;
@@ -626,6 +745,24 @@ export class RTAnimatorFactory implements IAnimatorFactory {
             }
         }
         this._web.revertDefaultKeyframeNodes(state);
+    }
+
+    destroy(): void {
+        if (this._destroyed) return;
+        this._destroyed = true;
+
+        this._unregisterClipDestroyCallback?.();
+        this._unregisterClipDestroyCallback = null;
+
+        for (const bindingId of Array.from(this._bindingHandles)) this._releaseBinding(bindingId);
+        for (const slotHandle of Array.from(this._slotHandles)) this._releaseSlot(slotHandle);
+        for (const ownerHandle of Array.from(this._ownerHandleSet)) this._releaseOwnerHandle(ownerHandle);
+        for (const clipId of Array.from(this._clipHandleMap.keys())) this._releaseClipById(clipId);
+        for (const clipHandle of Array.from(this._clipHandles)) this._releaseClipHandle(clipHandle);
+
+        this._clipHandleMap.clear();
+        this._syncBuffer = null;
+        this._web.destroy();
     }
 }
 

@@ -100,6 +100,7 @@ export class AnimatorManager implements IElementComponentManager {
     destroy(): void {
         this._activeAnimators.length = 0;
         this._pendingSwitches.length = 0;
+        this._factory.destroy();
     }
 
     /**
