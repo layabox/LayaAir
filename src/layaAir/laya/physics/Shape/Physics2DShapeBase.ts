@@ -227,6 +227,7 @@ export class Physics2DShapeBase implements IClone {
     private _initShape(): void {
         if (!LayaEnv.isPlaying) return;
         this._createShape();
+        if (!this._box2DShape) return;
         Physics2D.I._factory.set_shape_collider(this._box2DShape, this._body);
         this._updateFilterData();
         this.x = this._x;

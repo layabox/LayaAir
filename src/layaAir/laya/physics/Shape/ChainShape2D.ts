@@ -58,8 +58,7 @@ export class ChainShape2D extends Physics2DShapeBase {
      * @override
      */
     protected _createShape(): void {
-        this._box2DShape = Physics2D.I._factory.createShape(this._physics2DManager.box2DWorld, this._box2DBody, EPhysics2DShape.ChainShape, this._box2DShapeDef);
-        this._updateShapeData();
+        // fixture 创建统一由 _updateShapeData 处理，避免数据不足时 CreateFixture 崩溃
     }
 
     /**
@@ -71,10 +70,21 @@ export class ChainShape2D extends Physics2DShapeBase {
         var len: number = this._datas.length;
         if (len % 2 == 1) throw "ChainCollider datas lenth must a multiplier of 2";
         var pointCount: number = len >> 1;
-        // Box2D CreateChain requires >= 2 vertices, CreateLoop requires >= 3
         if (pointCount < 2 || (this._loop && pointCount < 3)) return;
-        let shape: any = this._box2DShape ? Physics2D.I._factory.getShape(this._box2DShape, this._shapeDef.shapeType) : Physics2D.I._factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType);
-        Physics2D.I._factory.set_ChainShape_data(shape, this.pivotoffx, this.pivotoffy, this._datas, this._loop, this.scaleX, this.scaleY);
+        if (this._box2DShape) {
+            Physics2D.I._factory.destroyShape(this._physics2DManager.box2DWorld, this._box2DBody, this._box2DShape);
+            this._box2DShape = null;
+        }
+        let defShape = Physics2D.I._factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType);
+        Physics2D.I._factory.set_ChainShape_data(defShape, this.pivotoffx, this.pivotoffy, this._datas, this._loop, this.scaleX, this.scaleY);
+        this._box2DShape = Physics2D.I._factory.createShape(this._physics2DManager.box2DWorld, this._box2DBody, EPhysics2DShape.ChainShape, this._box2DShapeDef);
+        Physics2D.I._factory.set_shape_collider(this._box2DShape, this._body);
+        this.filterData = this.filterData;
+        this.density = this.density;
+        this.friction = this.friction;
+        this.isSensor = this.isSensor;
+        this.restitution = this.restitution;
+        this.restitutionThreshold = this.restitutionThreshold;
     }
 
     clone(): ChainShape2D {
