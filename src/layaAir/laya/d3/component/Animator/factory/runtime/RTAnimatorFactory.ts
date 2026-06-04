@@ -159,7 +159,8 @@ export class RTAnimatorFactory implements IAnimatorFactory {
         else if ((window as any).conchRTTransform) this._transformBackend = 'jsrt';
         else this._transformBackend = null;
 
-        this._setWebScopes(!!this._nativeEvaluator, !!this._nativeApplier);
+        if (this._nativeEvaluator) this._web._evaluator._scope = 'non-transform-only';
+        if (this._nativeApplier) this._web._applier._scope = 'non-transform-only';
 
         this._unregisterClipDestroyCallback = registerClipDestroyCallback((clipId) => {
             this._releaseClipById(clipId);
@@ -595,15 +596,9 @@ export class RTAnimatorFactory implements IAnimatorFactory {
      * Web 端 flushEvaluate 处理 non-transform 类型（scope='non-transform-only' 限定）。
      */
     flushEvaluate(): void {
-        const activeList = (this._web as any)._activeList;
-        const hasActiveAvatarMask = this._hasActiveAvatarMask();
-        const useNativeTransform = !!this._nativeEvaluator && !!this._syncBuffer && !hasActiveAvatarMask;
-        this._web._evaluator._scope = useNativeTransform ? 'non-transform-only' : 'all';
-        if (useNativeTransform) {
-            this._syncBuffer.sync(activeList, this._bindingMap);
+        if (this._nativeEvaluator && this._syncBuffer) {
+            this._syncBuffer.sync((this._web as any)._activeList, this._bindingMap);
             this._nativeEvaluator.flush();
-        } else if (this._nativeEvaluator && this._syncBuffer && hasActiveAvatarMask) {
-            this._syncBuffer.syncInactive(activeList);
         }
         this._web.flushEvaluate();
     }
@@ -620,9 +615,7 @@ export class RTAnimatorFactory implements IAnimatorFactory {
      * C++ 那边 Transform3D listener 为 null 发不出来，所以必须留在 JS。
      */
     flushApply(): void {
-        const useNativeTransform = !!this._nativeApplier && !this._hasActiveAvatarMask();
-        this._web._applier._scope = useNativeTransform ? 'non-transform-only' : 'all';
-        if (useNativeTransform) {
+        if (this._nativeApplier) {
             this._nativeApplier.flush();
             // C++ 回写后 JS 侧补派发 TRANSFORM_CHANGED（Native 化后唯一留在 JS 的逐帧事件开销）。
             this._notifyJsTransformChanged();
@@ -676,26 +669,6 @@ export class RTAnimatorFactory implements IAnimatorFactory {
         if (children) for (let i = 0, n = children.length; i < n; i++) {
             this._dispatchTransformEvent(children[i], frame);
         }
-    }
-
-    /** Native TransformAnimator 目前只有 owner 级 mask，遇到 layer avatarMask 时退回 Web 以保留逐层遮罩语义。 */
-    private _hasActiveAvatarMask(): boolean {
-        const active = (this._web as any)._activeList as { length: number; elements: TaskSlot[] };
-        for (let i = 0, n = active.length; i < n; i++) {
-            const slot = active.elements[i];
-            const layers = slot._layers;
-            const ctlLayers = slot._ctx.layers;
-            for (let j = 0, m = layers.length; j < m; j++) {
-                if (layers[j].type !== LayerTaskType.Idle && ctlLayers[j]?.avatarMask) return true;
-            }
-        }
-        return false;
-    }
-
-    /** 根据 native Transform 是否接管，切换 Web 兜底范围。 */
-    private _setWebScopes(useNativeEvaluator: boolean, useNativeApplier: boolean): void {
-        this._web._evaluator._scope = useNativeEvaluator ? 'non-transform-only' : 'all';
-        this._web._applier._scope = useNativeApplier ? 'non-transform-only' : 'all';
     }
 
     /** 重建一个 state 的 Transform-typed propertyOwner 去重列表到 _statePropertyOwnersCache（冷路径）。 */

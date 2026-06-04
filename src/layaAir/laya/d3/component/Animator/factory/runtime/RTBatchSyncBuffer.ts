@@ -146,33 +146,6 @@ export class RTBatchSyncBuffer {
         this._nativeEvaluator.syncBatch(i32, recOff / STRIDE, slotI32, slotOff / SLOT_STRIDE);
     }
 
-    /** 当前帧 Transform 退回 Web 时，把 active slot 在 native 侧标记为 inactive，避免复用旧 layer 状态。 */
-    syncInactive(active: ActiveSlotList): void {
-        const slotCount = active.length;
-        if (slotCount === 0) {
-            this._nativeEvaluator.syncBatch(this._layerBufferI32, 0, this._slotBufferI32, 0);
-            return;
-        }
-        if (slotCount > this._slotBufferCapRecords) {
-            const newCap = Math.max(slotCount, this._slotBufferCapRecords * 2);
-            const buf = this._allocSlotBuffer(newCap);
-            this._slotBufferI32 = buf.i32;
-            this._slotBufferCapRecords = buf.cap;
-        }
-
-        const slotI32 = this._slotBufferI32;
-        const SLOT_STRIDE = RTBatchSyncBuffer.SLOT_RECORD_WORDS;
-        let slotOff = 0;
-        for (let i = 0; i < slotCount; i++) {
-            const slotHandle = active.elements[i]._slotHandle;
-            if (!slotHandle) continue;
-            slotI32[slotOff + 0] = slotHandle;
-            slotI32[slotOff + 1] = 0;
-            slotOff += SLOT_STRIDE;
-        }
-        this._nativeEvaluator.syncBatch(this._layerBufferI32, 0, slotI32, slotOff / SLOT_STRIDE);
-    }
-
     /** 按 web evaluator 同公式算 (curPlayTime, frontPlay) 写入 _ptTime/_ptFront；缺失输入回退 (0, true)。 */
     private _computePlayTime(state: AnimatorState | null, playState: any): void {
         if (!state || !playState) {
