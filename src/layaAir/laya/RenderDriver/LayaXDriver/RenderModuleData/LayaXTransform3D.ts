@@ -157,20 +157,22 @@ export class LayaXTransform3D extends Transform3D {
 
     /** @internal */
     protected _setTransformFlag(type: number, value: boolean): void {
-        super._setTransformFlag(type, value);
-        // Write to shared memory, then tell C++ to sync
         let flag = this._nativeUInt32Buffer[LayaXTransform3D.TRANSFORM_CHANGEFLAG_DATAOFFSET];
         if (value)
             flag |= type;
         else
             flag &= ~type;
         this._nativeUInt32Buffer[LayaXTransform3D.TRANSFORM_CHANGEFLAG_DATAOFFSET] = flag;
-        this._nativeObj.setTransformFlag();
     }
 
     /** @internal */
     protected _getTransformFlag(type: number): boolean {
-        return (this._nativeUInt32Buffer[LayaXTransform3D.TRANSFORM_CHANGEFLAG_DATAOFFSET] & type) != 0;
+        return (this._getTransformChangeFlag() & type) != 0;
+    }
+
+    /** @internal */
+    protected _getTransformChangeFlag(): number {
+        return this._nativeUInt32Buffer[LayaXTransform3D.TRANSFORM_CHANGEFLAG_DATAOFFSET];
     }
 
     /** @internal */
@@ -189,7 +191,7 @@ export class LayaXTransform3D extends Transform3D {
     }
 
     get _RTtransformFlag() {
-        return this._nativeUInt32Buffer[LayaXTransform3D.TRANSFORM_CHANGEFLAG_DATAOFFSET];
+        return this._getTransformChangeFlag();
     }
 
     // ------------------------------------------------------------------
@@ -459,7 +461,7 @@ export class LayaXTransform3D extends Transform3D {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER, true);
             if (this._hasTransformChangedListener)
-                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+                this.event(Event.TRANSFORM_CHANGED, this._getTransformChangeFlag());
         }
         for (let i = 0, n = this._children!.length; i < n; i++)
             (this._children[i] as LayaXTransform3D)._onWorldPositionRotationTransform();
@@ -469,7 +471,7 @@ export class LayaXTransform3D extends Transform3D {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDSCALE, true);
             if (this._hasTransformChangedListener)
-                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+                this.event(Event.TRANSFORM_CHANGED, this._getTransformChangeFlag());
         }
         for (let i = 0, n = this._children!.length; i < n; i++)
             (this._children[i] as LayaXTransform3D)._onWorldPositionScaleTransform();
@@ -479,7 +481,7 @@ export class LayaXTransform3D extends Transform3D {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION, true);
             if (this._hasTransformChangedListener)
-                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+                this.event(Event.TRANSFORM_CHANGED, this._getTransformChangeFlag());
         }
         if (Transform3D._inAnimatorBatch) {
             if (this._lastAnimatorFrame === Transform3D._currentAnimatorFrame) return;
@@ -496,7 +498,7 @@ export class LayaXTransform3D extends Transform3D {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER, true);
             if (this._hasTransformChangedListener)
-                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+                this.event(Event.TRANSFORM_CHANGED, this._getTransformChangeFlag());
         }
         if (Transform3D._inAnimatorBatch) {
             if (this._lastAnimatorFrame === Transform3D._currentAnimatorFrame) return;
@@ -513,7 +515,7 @@ export class LayaXTransform3D extends Transform3D {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDSCALE, true);
             if (this._hasTransformChangedListener)
-                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+                this.event(Event.TRANSFORM_CHANGED, this._getTransformChangeFlag());
         }
         if (Transform3D._inAnimatorBatch) {
             if (this._lastAnimatorFrame === Transform3D._currentAnimatorFrame) return;
@@ -530,7 +532,7 @@ export class LayaXTransform3D extends Transform3D {
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER | Transform3D.TRANSFORM_WORLDSCALE, true);
             if (this._hasTransformChangedListener)
-                this.event(Event.TRANSFORM_CHANGED, this._transformFlag);
+                this.event(Event.TRANSFORM_CHANGED, this._getTransformChangeFlag());
         }
         if (Transform3D._inAnimatorBatch) {
             if (this._lastAnimatorFrame === Transform3D._currentAnimatorFrame) return;
