@@ -1748,6 +1748,13 @@ export class Text extends Sprite {
         rectWidth -= (padding[3] + padding[1]);
         rectHeight -= (padding[0] + padding[2]);
 
+        if (clipped && (padding[0] > 0 || padding[1] > 0 || padding[2] > 0 || padding[3] > 0)) {
+            let clipW = this._isWidthSet ? this._width - padding[1] : this._textWidth;
+            let clipH = this._isHeightSet ? this._height - padding[2] : this._textHeight;
+            graphics.save();
+            graphics.clipRect(padding[3], padding[0], clipW - padding[3], clipH - padding[0]);
+        }
+
         let x = 0, y = 0;
         let lines = this._lines;
         let lineCnt = lines.length;
@@ -1830,6 +1837,10 @@ export class Text extends Sprite {
                 curLink.addRect(linkStartX, y, rectWidth - linkStartX + paddingLeft, line.height);
                 linkStartX = paddingLeft;
             }
+        }
+
+        if (clipped && (padding[0] > 0 || padding[1] > 0 || padding[2] > 0 || padding[3] > 0)) {
+            graphics.restore();
         }
 
         if (clipped) {
