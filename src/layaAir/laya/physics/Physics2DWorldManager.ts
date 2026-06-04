@@ -7,7 +7,6 @@ import { Physics2DDebugDraw } from "./Physics2DDebugDraw";
 import { Browser } from "../utils/Browser";
 import { IElementComponentManager } from "../components/IScenceComponentManager";
 import { Physics2DOption } from "./Physics2DOption";
-import { Laya } from "../../Laya";
 import { ColliderBase } from "./Collider2D/ColliderBase";
 import { LayaEnv } from "../../LayaEnv";
 import { Color } from "../maths/Color";
@@ -414,18 +413,21 @@ export class Physics2DWorldManager implements IElementComponentManager {
      * @en Destroy the physics world.
      */
     destroy(): void {
-        Physics2D.I._factory.removeBody(this._box2DWorld, Physics2D.I._emptyBody);
-        Physics2D.I._emptyBody = null;
-        let box2DWorld = this._box2DWorld;
-        Laya.timer.callLater(this, () => {
-            Physics2D.I._factory.destroyWorld(box2DWorld);
-        })
+        if (!this._box2DWorld) return;
+
+        if (Physics2D.I._emptyBody) {
+            Physics2D.I._factory.removeBody(this._box2DWorld, Physics2D.I._emptyBody);
+            Physics2D.I._emptyBody = null;
+        }
+
         if (this._debugDraw) {
             this._debugDraw.destroy();
             this._debugDraw = null;
             this._jsDraw = null;
         }
+
         Physics2D.I._factory.worldMap.delete(this._box2DWorld._indexInMap);
+        Physics2D.I._factory.destroyWorld(this._box2DWorld);
         this._box2DWorld = null;
         this._eventList = null;
     }
