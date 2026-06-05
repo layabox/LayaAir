@@ -302,7 +302,7 @@ export class Browser {
                 miniGame = ["ttMiniGame", "TTMiniAdapter", "tt"];
             } else if ("bl" in Browser.window) {
                 //手机B站小游戏
-                miniGame = ["biliMiniGame", "BLMiniAdapter", null];
+                miniGame = ["biliMiniGame", "BLMiniAdapter", "bl"];
             }
             else if ("qq" in Browser.window) {
                 //手机QQ小游戏
