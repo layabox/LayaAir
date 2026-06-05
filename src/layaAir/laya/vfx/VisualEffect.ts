@@ -49,6 +49,28 @@ const _tempCamForward = new Vector3();
 
 export class VisualEffect extends Script {
 
+    // ---- per-particle 年龄曲线约定（与转换器 unity-shader-to-laya.js + render shader 三端共用，改这里要同步另两端）----
+    /**
+     * 需要走「真·per-particle 随年龄曲线」的 shader uniform 名集合。
+     * 这些 uniform 的 age 曲线会拆成 times/vals 两个 vec4 传给 render shader 做分段采样，
+     * 而非用全局常量近似。新增 age 驱动属性时往这里加名字即可，不必改下面的求值逻辑。
+     * ⚠ 必须与转换器 unity-shader-to-laya.js 的 `_injectPerParticleAgeCurve` 中
+     *   `PER_PARTICLE_AGE_PROPS` 列表保持一致：转换器据此在 .bps 注入曲线节点，运行时据此填
+     *   times/vals uniform。只改一边 → 节点生成了但 uniform 不填（或反之），曲线不生效。
+     */
+    static readonly PER_PARTICLE_AGE_CURVE_UNIFORMS: ReadonlySet<string> = new Set(["Alpha_Multiplier"]);
+    /**
+     * 曲线采样的归一化时间点。长度必须为 4 且与 render shader 里 vec4 分段采样的点位一一对应，
+     * times/vals 都按此数组生成。
+     */
+    static readonly AGE_CURVE_SAMPLE_TIMES: ReadonlyArray<number> = [0, 1 / 3, 2 / 3, 1];
+    /** 派生 uniform 名的前缀，与转换器 _injectPerParticleAgeCurve 生成的命名一致：u + Base + 后缀。 */
+    static readonly AGE_CURVE_UNIFORM_PREFIX = "u";
+    /** 采样时间点 uniform 名后缀。 */
+    static readonly AGE_CURVE_TIMES_SUFFIX = "CurveTimes";
+    /** 采样值 uniform 名后缀。 */
+    static readonly AGE_CURVE_VALS_SUFFIX = "CurveVals";
+
     declare owner: Sprite3D;
     private _asset: VFXAsset;
     public get asset(): VFXAsset {
@@ -540,6 +562,10 @@ export class VisualEffect extends Script {
                 // 同时 set 带 / 不带 _ 两个 ID, 让两种命名都能命中真实 shader uniform.
                 const ids = [Shader3D.propertyNameToID(uniformName)];
                 if (uniformName.startsWith("_")) ids.push(Shader3D.propertyNameToID(uniformName.substring(1)));
+                // 同 _evaluateShaderExpressions：IDE 编译时剥掉全部下划线，补无下划线变体兜底
+                const noUnderscoreTex = uniformName.replace(/_/g, "");
+                if (noUnderscoreTex !== uniformName && noUnderscoreTex !== uniformName.substring(1))
+                    ids.push(Shader3D.propertyNameToID(noUnderscoreTex));
                 for (const sd of allDatas) {
                     for (const aid of ids) sd.setTexture(aid, entry.texture);
                 }
@@ -970,12 +996,44 @@ export class VisualEffect extends Script {
             }
             for (const uniformName in expressions) {
                 const graph = expressions[uniformName];
+                // per-particle: PER_PARTICLE_AGE_CURVE_UNIFORMS 里的 age 曲线传成 uXxxCurveTimes/Vals 两个 vec4 uniform，
+                // render shader 在 v_NormalizedAge（_Disappear uniform 经 PER_PARTICLE_UNIFORMS 映射）处做分段采样，
+                // 还原 Unity 每粒子随年龄的 alpha 淡入（年轻 dim→年老 bright），而非全局常量（会让中心年轻粒子也亮、环变厚）。
+                // 转换器 unity-shader-to-laya.js 的 _injectPerParticleAgeCurve 生成对应曲线节点；uniform 名按同规则派生。
+                if (VisualEffect.PER_PARTICLE_AGE_CURVE_UNIFORMS.has(uniformName)) {
+                    let curveNode: any = null, mult = 1;
+                    const g: any = graph;
+                    for (const nid in g.nodes) {
+                        const nd = g.nodes[nid];
+                        if (nd.kind === "Constant" && nd.outputType === "Curve") curveNode = nd;
+                        else if (nd.kind === "VFXParameter") {
+                            const pv = (propertyValues && (propertyValues as any).get) ? (propertyValues as any).get(nd.exposedName) : undefined;
+                            mult = (typeof pv === "number") ? pv : (typeof nd.defaultValue === "number" ? nd.defaultValue : 1);
+                        }
+                    }
+                    if (curveNode && curveNode.value) {
+                        const c = curveNode.value;
+                        const s = (t: number) => mult * (ShaderExpressionEvaluator._sampleCurve(c, t) || 0);
+                        const _base = uniformName.replace(/[^A-Za-z0-9]/g, "");
+                        const tId = Shader3D.propertyNameToID(VisualEffect.AGE_CURVE_UNIFORM_PREFIX + _base + VisualEffect.AGE_CURVE_TIMES_SUFFIX);
+                        const vId = Shader3D.propertyNameToID(VisualEffect.AGE_CURVE_UNIFORM_PREFIX + _base + VisualEffect.AGE_CURVE_VALS_SUFFIX);
+                        const ts = VisualEffect.AGE_CURVE_SAMPLE_TIMES;
+                        const tv = new Vector4(ts[0], ts[1], ts[2], ts[3]);
+                        const vv = new Vector4(s(ts[0]), s(ts[1]), s(ts[2]), s(ts[3]));
+                        for (const sd of allDatas) { sd.setVector(tId, tv); sd.setVector(vId, vv); }
+                    }
+                }
                 const result = ShaderExpressionEvaluator.evaluate(graph, { totalTime, deltaTime, propertyValues, hasContinuousSpawn });
                 if (result == null) continue;
                 // alias IDs：VFX 端 uniform name (_MainTextureColor) 跟 shader 端实际 uniform name 可能去掉 _ 前缀 (MainTextureColor)
                 // 同时 set 两个 ID 让 shader 不管哪个名字都能拿到
                 const ids = [Shader3D.propertyNameToID(uniformName)];
                 if (uniformName.startsWith("_")) ids.push(Shader3D.propertyNameToID(uniformName.substring(1)));
+                // IDE 编译 shader 时会剥掉 uniform 名里【全部】下划线（_MainTextureColor→MainTextureColor，
+                // Alpha_Multiplier→AlphaMultiplier 中间的也剥）。补一个去掉所有下划线的变体兜底，否则带中间下划线的属性对不上编译名。
+                const noUnderscore = uniformName.replace(/_/g, "");
+                if (noUnderscore !== uniformName && noUnderscore !== uniformName.substring(1))
+                    ids.push(Shader3D.propertyNameToID(noUnderscore));
                 if (graph.outputType === "float") {
                     const v = Number(result) || 0;
                     for (const sd of allDatas) for (const id of ids) sd.setNumber(id, v);

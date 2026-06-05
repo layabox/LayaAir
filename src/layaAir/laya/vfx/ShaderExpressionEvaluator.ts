@@ -49,6 +49,16 @@ export interface ExprEvalContext {
 }
 
 export class ShaderExpressionEvaluator {
+    /**
+     * 转换器 unity-shader-to-laya.js 注入的“年龄中位数”全局常量 slot 名。
+     * SampleCurve(time = 该常量) 表示按 age 驱动 → 无法在全局表达式里 per-particle 采样，
+     * 走 {@link _sampleCurveAverage} 的时间平均近似。两端约定共用，改名需同步转换器。
+     */
+    static readonly AGE_MEDIAN_SLOT_NAME = "ageMedian";
+
+    /** {@link _sampleCurveAverage} 在 [0,1] 区间的中点采样点数，越大越精确、开销越高。 */
+    static readonly CURVE_AVERAGE_SAMPLE_COUNT = 32;
+
     /** evaluate 单个 expression graph，返回 root 节点的求值结果 */
     static evaluate(graph: ExprGraph, ctx: ExprEvalContext): any {
         if (!graph || !graph.nodes || !graph.rootNodeId) return null;
@@ -132,8 +142,18 @@ export class ShaderExpressionEvaluator {
             }
             case "SampleCurve": {
                 const curve = this._evalNode(n.inputs![0], nodes, cache, ctx) as CurveData;
-                const t = Number(this._evalNode(n.inputs![1], nodes, cache, ctx)) || 0;
-                result = this._sampleCurve(curve, t);
+                const timeNode = nodes[n.inputs![1]] as any;
+                // age 驱动的 SampleCurve(time=ageMedian 全局常量)在全局表达式里无法 per-particle 采样。
+                // 用曲线在 [0,1] 的【时间平均值】—— 数学上等于 Unity per-particle 随年龄采样后所有粒子的平均
+                // (粒子年龄在常 spawn 下均匀分布 [0,1])→ 整体亮度与 Unity 对齐。
+                // 注:Alpha_Multiplier 已在 VisualEffect._evaluateShaderExpressions 走真·per-particle 曲线 uniform,
+                // 此平均仅作其它 age 驱动属性 / per-particle 未注入时的兜底近似。
+                if (timeNode && timeNode.kind === "Constant" && timeNode.slotName === ShaderExpressionEvaluator.AGE_MEDIAN_SLOT_NAME) {
+                    result = this._sampleCurveAverage(curve);
+                } else {
+                    const t = Number(this._evalNode(n.inputs![1], nodes, cache, ctx)) || 0;
+                    result = this._sampleCurve(curve, t);
+                }
                 break;
             }
             case "Add":
@@ -255,7 +275,7 @@ export class ShaderExpressionEvaluator {
     }
 
     /** Unity AnimationCurve sample — 简化 linear lerp（不算 Hermite tangent，足够多数 material uniform 用例） */
-    private static _sampleCurve(c: CurveData, t: number): number {
+    static _sampleCurve(c: CurveData, t: number): number {
         // curve 未提供 → return null 让 caller skip setUniform 让 ShaderGraph default 生效
         if (!c) return null as any;
         if (!c.frames || c.frames.length === 0) return 0;
@@ -270,6 +290,16 @@ export class ShaderExpressionEvaluator {
         const denom = (f1.time - f0.time) || 1;
         const u = (clamp - f0.time) / denom;
         return f0.value + (f1.value - f0.value) * u;
+    }
+
+    /** 曲线在 [0,1] 的时间平均值（中点采样，点数见 {@link CURVE_AVERAGE_SAMPLE_COUNT}）— 见 SampleCurve 的 ageMedian 分支 */
+    static _sampleCurveAverage(c: CurveData): number {
+        if (!c || !c.frames || c.frames.length === 0) return 0;
+        if (c.frames.length === 1) return c.frames[0].value;
+        const N = this.CURVE_AVERAGE_SAMPLE_COUNT;
+        let sum = 0;
+        for (let i = 0; i < N; i++) sum += this._sampleCurve(c, (i + 0.5) / N);
+        return sum / N;
     }
 
     private static _binOp(kind: string, a: any, b: any): any {
