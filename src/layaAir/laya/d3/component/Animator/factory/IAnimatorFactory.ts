@@ -73,6 +73,9 @@ export interface IAnimatorFactory {
     /** layer.avatarMask 运行时变更后刷新遮罩（可选，仅 RT 需要；Web 每帧直接读 mask）。 */
     refreshLayerMask?(ctx: AnimatorBindContext, layer: AnimatorControllerLayer): void;
 
+    /** 进入 FixedCross 时把前 count 个 owner 的当前值快照为 crossFixedValue（可选，仅 RT 需要）。 */
+    saveCrossFixedValues?(owners: KeyframeNodeOwner[], count: number): void;
+
     /** Scene/AnimatorManager 销毁：释放该工厂持有的所有 native 资源与运行时回调。 */
     destroy(): void;
 }

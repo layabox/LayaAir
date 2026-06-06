@@ -204,6 +204,11 @@ export class Animator extends Component {
         this._manager?._factory.refreshLayerMask?.(this._bindContext, layer);
     }
 
+    /** @internal 进入 FixedCross 时把这批 cross owner 的 native 值快照为 crossFixedValue（RT 后端生效）。 */
+    _saveCrossFixedValues(owners: KeyframeNodeOwner[], count: number): void {
+        this._manager?._factory.saveCrossFixedValues?.(owners, count);
+    }
+
     private _updateDefaultValues(): void {
         this._manager?._factory.updateDefaultValues(this._keyframeNodeOwners);
     }
@@ -545,6 +550,9 @@ export class Animator extends Component {
                                 }
                             }
                         }
+                        // RT 后端：上面的 saveCrossFixedValue 只写了 JS 端 PlainOwnerData，native 的
+                        // crossFixedValue 需从 native value 单独快照（主线程、flush 并行区外，多线程安全）。
+                        this._saveCrossFixedValues(crossNodeOwners, crossCount);
                         break;
                     default:
                 }

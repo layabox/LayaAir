@@ -733,6 +733,22 @@ export class RTAnimatorFactory implements IAnimatorFactory {
         }
     }
 
+    /**
+     * 进入 FixedCross 时把前 count 个 owner 的 native value 快照为 crossFixedValue（FixedCross 的 src）。
+     * JS 的 saveCrossFixedValue 只写 JS 端 PlainOwnerData，native 看不到，故这里单独同步。
+     * 冷路径，主线程、flush 并行区外调用 —— 与 mask 同写时序，多线程安全。
+     */
+    saveCrossFixedValues(owners: KeyframeNodeOwner[], count: number): void {
+        if (!this._nativePreparer) return;
+        const handles = new Uint32Array(count);
+        let n = 0;
+        for (let i = 0; i < count; i++) {
+            const h = this._ownerHandles.get(owners[i]);
+            if (h !== undefined) handles[n++] = h;
+        }
+        if (n > 0) this._nativePreparer.saveCrossFixedValue(handles.subarray(0, n));
+    }
+
     /** 把 owners 里已注册 native 的 handle 收成 Uint32Array 推给 native applier，再调 web 兜底。 */
     updateDefaultValues(owners: KeyframeNodeOwner[]): void {
         if (this._nativeApplier) {
