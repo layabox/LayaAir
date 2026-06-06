@@ -330,7 +330,11 @@ export class AnimatorManager implements IElementComponentManager {
                 const loopNum = Math.floor(elapsedPlaybackTime / clipDuration);
                 const pLoopNum = Math.floor(lastElapsedTime / clipDuration);
                 if (pLoopNum != loopNum) {
-                    this._factory.updateDefaultValues(animator._keyframeNodeOwners);
+                    // 仅 additive layer 需要按圈刷新叠加基准；override（单层/多层）回写时不读 defaultValue，
+                    // 跳过可省下大量 owner 遍历与 native 跨界（大量循环动画时尤为明显）。
+                    if (animator._controllerLayers[layerIndex].blendingMode === AnimatorControllerLayer.BLENDINGMODE_ADDTIVE) {
+                        this._factory.updateDefaultValues(animator._keyframeNodeOwners);
+                    }
                     animatorState._eventLoop();
                 }
             }
