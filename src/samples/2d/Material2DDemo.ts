@@ -9,12 +9,12 @@ import { Stat } from "laya/utils/Stat";
 import { Main } from "../Main";
 import { Scene } from "laya/display/Scene";
 import { Material } from "laya/resource/Material";
-import { Graphics } from "laya/display/Graphics";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Color } from "laya/maths/Color";
 import { BlendModeHandler } from "laya/webgl/canvas/BlendMode";
 import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
+import { Graphics } from "laya/display/Graphics";
 
 export class Material2DDemo {
     Main: typeof Main = null;

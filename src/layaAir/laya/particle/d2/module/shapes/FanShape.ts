@@ -25,12 +25,12 @@ export class FanShape extends Base2DShape {
         super(Base2DShapeType.Fan);
     }
 
-    getPositionAndDirection(): Readonly<Vector4> {
+    getPositionAndDirection(randomFn: () => number = Math.random): Readonly<Vector4> {
 
         // get radius
         let radius = this.radius;
-        // radius *= 1.0 - Math.random() * this.radiusThickness;
-        let randomRadius = (Math.random() * 2 - 1);
+        // radius *= 1.0 - randomFn() * this.radiusThickness;
+        let randomRadius = (randomFn() * 2 - 1);
 
         // direction
         let radians = this.angle * randomRadius * Angle2Radian;
@@ -43,7 +43,7 @@ export class FanShape extends Base2DShape {
         switch (this.emitType) {
             case FanShapeEmitType.Area:
                 {
-                    y = this.length * Math.random();
+                    y = this.length * randomFn();
                     x += y * Math.tan(radians);
                     break;
                 }

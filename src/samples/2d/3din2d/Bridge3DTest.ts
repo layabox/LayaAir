@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Bridge3DSprite } from "laya/bridge/Bridge3DSprite";
-import { Bridge3DCoordinate } from "laya/bridge/utils/Bridge3DCoordinate";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
@@ -37,9 +36,6 @@ export class Bridge3DTest {
 
         Laya.stage.bgColor = "#232628";
 
-        // Output coordinate system debug info
-        // Bridge3DCoordinate.debugInfo();
-
         // Create 2D scene (Scene now has built-in Bridge3DScene3D support via auto-initialization)
         const scene2D = new Scene();
         maincls.box2D.addChild(scene2D);
@@ -52,9 +48,6 @@ export class Bridge3DTest {
         bridge.pixelsPerUnit = 1;
         scene2D.addChild(bridge);
 
-        // Access holder (scene3d auto-created by addChild above)
-        let holder = scene2D.bridge3D;
-
         let sprite = new Sprite;
         sprite.graphics.drawCircle(0, 0, 30, "#ff0000");
         scene2D.addChild(sprite);
@@ -63,7 +56,8 @@ export class Bridge3DTest {
         console.log("Bridge3D created at (400, 300)");
         console.log("2D Logic Position: (400, 300)");
 
-        holder.scene3d.ambientColor = new Color(1, 1, 1, 1);
+        // Access scene3d (auto-created by addChild above)
+        scene2D.bridge3DInternal.scene3d.ambientColor = new Color(1, 1, 1, 1);
         let lightSprite = new Bridge3DSprite;
         scene2D.addChild(lightSprite);
 

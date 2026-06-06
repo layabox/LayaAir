@@ -214,11 +214,17 @@ export class Input extends Text {
         if (value == null)
             value = "";
 
-        value = Text.langPacks?.[value] || value;
         if (this._prompt != value) {
             this._prompt = value;
             this.markChanged();
         }
+    }
+
+    get localizedPrompt(): string {
+        let text = Text.langPacks?.[this._prompt] || this._prompt;
+        if (this._onTranslate)
+            text = this._onTranslate(text, null, 1);
+        return text;
     }
 
     /**

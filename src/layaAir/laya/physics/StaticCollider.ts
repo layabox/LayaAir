@@ -57,7 +57,7 @@ export class StaticCollider extends ColliderBase {
     private _setBodyDefValue(): void {
         // 静态刚体这样设置
         let owner: Sprite = this.owner;
-        this._bodyDef.position.setValue(owner.globalTrans.x, owner.globalTrans.y);
+        this._bodyDef.position.setValue(Physics2D.toPhysicsX(owner.globalTrans.x), Physics2D.toPhysicsY(owner.globalTrans.y));
         this._bodyDef.angle = Utils.toRadian(owner.globalTrans.rotation);
         this._bodyDef.allowSleep = false;
         this._bodyDef.angularVelocity = 0;
@@ -126,7 +126,6 @@ export class StaticCollider extends ColliderBase {
         this._box2DFilter = null;
         this._box2DShape = null;
         this._box2DShapeDef = null;
-        this._shapes = null;
     }
 
     protected _onDisable(): void {
@@ -139,6 +138,7 @@ export class StaticCollider extends ColliderBase {
     protected _onDestroy(): void {
         this._shapeDef = null;
         this._removeShapeAndDestroyData();
+        this._shapes = null;
         super._onDestroy();
     }
 

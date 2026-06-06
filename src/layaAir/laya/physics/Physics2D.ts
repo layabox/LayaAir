@@ -128,6 +128,20 @@ export class Physics2D extends EventDispatcher {
     }
 
 
+    /**
+     * @en Convert a value from globalTrans space to design resolution (physics) space by removing stage scale.
+     * @zh 将 globalTrans 空间的值转换为设计分辨率（物理空间），剥离 Stage 缩放。
+     */
+    static toPhysicsX(v: number): number { return v / ILaya.stage.clientScaleX; }
+    static toPhysicsY(v: number): number { return v / ILaya.stage.clientScaleY; }
+
+    /**
+     * @en Convert a value from design resolution (physics) space to globalTrans space by restoring stage scale.
+     * @zh 将设计分辨率（物理空间）的值转换回 globalTrans 空间，恢复 Stage 缩放。
+     */
+    static toRenderX(v: number): number { return v * ILaya.stage.clientScaleX; }
+    static toRenderY(v: number): number { return v * ILaya.stage.clientScaleY; }
+
     // 下面考虑也放到ISceneComponentManager里面去处理，在update里面设置重设根节点之后再更新这个方法
     /**
      * @en Manually triggers an update of the physics world after setting the `worldRoot`.

@@ -124,6 +124,15 @@ export class BaseRenderNode2D extends Component {
     }
 
     /**
+    * @internal
+    */
+    static _removeRenderElement2DMaterial(element: IRenderElement2D, material: Material) {
+        if (material && !material.destroyed) {
+            material._removeOwnerElement(element);
+        }
+    }
+
+    /**
      * @internal
      * 渲染节点 
      */
@@ -317,9 +326,23 @@ export class BaseRenderNode2D extends Component {
     }
 
     /**
+     * @internal
+     */
+    protected _getElementMaterial(index: number): Material {
+        return this._materials[index] || this._materials[0];
+    }
+
+    /**
      * override it
      */
     protected _onDestroy() {
+        for (let i = 0, n = this._renderElements.length; i < n; i++) {
+            let element = this._renderElements[i];
+            if (element) {
+                BaseRenderNode2D._removeRenderElement2DMaterial(element, this._getElementMaterial(i));
+            }
+        }
+        this._struct.renderElements = [];
         for (var i = 0, n = this._materials.length; i < n; i++) {
             let m = this._materials[i];
             m && !m.destroyed && m._removeReference();
@@ -439,6 +462,9 @@ export class BaseRenderNode2D extends Component {
             return;
         const lastValue: Material = this._materials[0];
         if (lastValue !== value) {
+            if (this._renderElements[0]) {
+                BaseRenderNode2D._removeRenderElement2DMaterial(this._renderElements[0], this._getElementMaterial(0));
+            }
             this._materials[0] = value;
             this._changeMaterialReference(lastValue, value);
             this._renderElements[0] && BaseRenderNode2D._setRenderElement2DMaterial(this._renderElements[0], value);

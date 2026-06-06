@@ -7,7 +7,6 @@ import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
 import { Texture2D } from "laya/resource/Texture2D";
-import { Vector4 } from "laya/maths/Vector4";
 import { Main } from "./../Main";
 import { LargeTexManager } from "../../layaAir/laya/large/LargeTexManager";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
@@ -15,11 +14,8 @@ import { Box } from "laya/ui/Box";
 import { Label } from "laya/ui/Label";
 import { Texture } from "laya/resource/Texture";
 import { Event } from "laya/events/Event";
-import { Stat } from "laya/utils/Stat";
 import { LayaGL } from "laya/layagl/LayaGL";
 import { StatElement } from "laya/layagl/StatisticsContext";
-import { Button } from "laya/ui/Button";
-import { LargeTexProcessor } from "laya/large/LargeTexProcessor";
 
 export class Sprite_LargeTexManager_Simple {
     Main: typeof Main = null;

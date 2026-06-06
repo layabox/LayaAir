@@ -1,6 +1,6 @@
 #if !defined(ShurikenParticleVertex_glsl)
 #define ShurikenParticleVertex_glsl
-
+#include "ClipVertex.glsl"
 #include "Particle2DCommon.glsl"
 
 #include "Curve.glsl"
@@ -110,32 +110,6 @@ vec4 transPosition(vec2 position, vec3 nMatrix0, vec3 nMatrix1)
 
     pos.xy = vec2(x, y);
     return pos;
-}
-
-vec2 clip(in vec2 globalPos)
-{
-    vec4 clipMatDir;
-    vec4 clipMatPos;
-
-    clipMatDir = u_clipMatDir;
-    clipMatPos = u_clipMatPos;
-
-    vec2 cliped;
-    float clipw = length(clipMatDir.xy);
-    float cliph = length(clipMatDir.zw);
-    vec2 clippos = globalPos - clipMatPos.xy;	//pos已经应用矩阵了，为了减的有意义，clip的位置也要缩放
-    if(clipw > 20000. && cliph > 20000.)
-        cliped = vec2(0.5, 0.5);
-    else
-    {
-        //clipdir是带缩放的方向，由于上面clippos是在缩放后的空间计算的，所以需要把方向先normalize一下
-        cliped = vec2(dot(clippos, clipMatDir.xy) / clipw / clipw, dot(clippos, clipMatDir.zw) / cliph / cliph);
-    }
-
-    globalPos = clippos + clipMatPos.zw;
-    v_cliped = cliped;
-
-    return globalPos;
 }
 
 void getViewPos(in vec2 globalPos, out vec2 viewPos)

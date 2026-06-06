@@ -1,3 +1,5 @@
+import { Laya } from "../../../../Laya";
+import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Camera } from "../../../d3/core/Camera";
@@ -6,7 +8,6 @@ import { BaseRender } from "../../../d3/core/render/BaseRender";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
-import { NotImplementedError } from "../../../utils/Error";
 import { FastSinglelist, SingletonList } from "../../../utils/SingletonList";
 import { IRender3DProcess, IRenderContext3D, IRenderElement3D, ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
@@ -24,11 +25,8 @@ import { NoRenderSetRenderData, NoRenderSetShaderDefine, NoRenderShaderData } fr
 import { NoInternalRT } from "../DriverDevice/NoRenderEngineFactory";
 
 export class NoRender3DRenderPassFactory implements I3DRenderPassFactory {
-    createMeshRenderBatchModule(): IBatchModuleAgent {
-        throw new NotImplementedError();
-    }
     createComputeCommandAppatchCMD?(): ComputeCommandAppatchCMD {
-        throw new NotImplementedError();
+        return new NoRenderComputeCommandAppatchCMD();
     }
     createRender3DProcess(): IRender3DProcess {
         return new NoRenderRender3DProcess();
@@ -65,6 +63,15 @@ export class NoRender3DRenderPassFactory implements I3DRenderPassFactory {
     }
     createSetShaderDefineCMD(): SetShaderDefineCMD {
         return new NoRenderSetShaderDefine();
+    }
+}
+
+class NoRenderComputeCommandAppatchCMD extends ComputeCommandAppatchCMD {
+    constructor() {
+        super();
+        this.type = RenderCMDType.ComputeCommandAppatch;
+    }
+    apply(_context: any): void {
     }
 }
 
@@ -397,3 +404,8 @@ export class NoRenderSetRenderTargetCMD extends SetRenderTargetCMD {
     apply(context: NoRenderRenderContext3D): void {
     }
 }
+
+Laya.addBeforeInitCallback(() => {
+    if (!Laya3DRender.Render3DPassFactory)
+        Laya3DRender.Render3DPassFactory = new NoRender3DRenderPassFactory();
+});

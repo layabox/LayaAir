@@ -39,7 +39,8 @@ export class CommandBuffer2D {
 
     private _commands: Command2D[];
 
-    private _renderCMDs: any[] = [];
+    /** @internal */
+    _renderCMDs: any[] = [];
 
     /**
      * @internal

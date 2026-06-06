@@ -62,9 +62,9 @@ Laya.addBeforeInitCallback(() => {
     return Browser.loadLib("jsLibs/laya.Box2D.wasm.js");
 });
 
-Scene.createBridge3DScene = function () {
-    return new Bridge3DScene3D();
-}
+// Scene.createBridge3DScene = function () {
+//     return new Bridge3DScene3D();
+// }
 
 Laya.addInitCallback(() => {
     Bridge3DCamera.__init__();

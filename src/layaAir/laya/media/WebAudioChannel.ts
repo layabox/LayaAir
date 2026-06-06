@@ -110,7 +110,7 @@ export class WebAudioChannel extends SoundChannel {
             sourceNode.stop(0);
         else
             (sourceNode as any).noteOff(0);
-        sourceNode.disconnect(0);
+        sourceNode.disconnect();
         sourceNode.onended = null;
         this._sourceNode = null;
 
@@ -133,5 +133,5 @@ function initGainNode(node: GainNode) {
 }
 
 function resetGainNode(node: GainNode) {
-    node.disconnect(0);
+    node.disconnect();
 }

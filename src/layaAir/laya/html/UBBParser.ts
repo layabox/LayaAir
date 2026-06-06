@@ -56,6 +56,7 @@ export class UBBParser {
         this._handlers["color"] = this.onTag_COLOR;
         this._handlers["font"] = this.onTag_FONT;
         this._handlers["size"] = this.onTag_SIZE;
+        this._handlers["stroke"] = this.onTag_STROKE;
     }
 
     protected onTag_URL(tagName: string, end: boolean, attr: string): string {
@@ -122,6 +123,24 @@ export class UBBParser {
         if (!end) {
             this.lastSize = attr;
             return "<font size=\"" + attr + "\">";
+        }
+        else
+            return "</font>";
+    }
+
+    protected onTag_STROKE(tagName: string, end: boolean, attr: string): string {
+        if (!end) {
+            if (attr != null) {
+                let parts = attr.split(",");
+                let stroke = parts[0];
+                let strokeColor = parts.length > 1 ? parts[1] : null;
+                let result = "<font stroke=\"" + stroke + "\"";
+                if (strokeColor)
+                    result += " strokeColor=\"" + strokeColor + "\"";
+                result += ">";
+                return result;
+            }
+            return "<font stroke=\"1\">";
         }
         else
             return "</font>";

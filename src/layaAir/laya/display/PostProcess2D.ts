@@ -16,6 +16,15 @@ import { RepaintFlag, SpriteConst, SubPassFlag } from "./SpriteConst";
  */
 export class PostProcess2D extends EventDispatcher {
 
+   /** @internal 待回收的 PostProcess2D 集合 */
+   static _pendingPostRender: Set<PostProcess2D> = new Set();
+
+   /** @internal 全局统一回收后处理中间 RT */
+   static postRenderAll(): void {
+      PostProcess2D._pendingPostRender.forEach(pp => pp._afterRender());
+      PostProcess2D._pendingPostRender.clear();
+   }
+
    private _effects: PostProcess2DEffect[] = [];
    private _enabled: boolean = true;
    /**@internal */
@@ -194,6 +203,17 @@ export class PostProcess2D extends EventDispatcher {
          }
       }
       this._hasCleanRT = false;
+      this._owner?._oriRenderPass?.updatePostProcess();
+      PostProcess2D._pendingPostRender.add(this);
+   }
+
+   /** @internal 渲染完成后回收中间RT，保留 destination */
+   _afterRender(): void {
+      if (this._hasCleanRT) return;
+      for (let i = 0, n = this._effects.length; i < n; i++) {
+         this._effects[i].clearRT(this._context);
+      }
+      this._hasCleanRT = true;
    }
 
    /**
@@ -225,20 +245,14 @@ export class PostProcess2D extends EventDispatcher {
     * @zh 回收后处理效果中使用的所有RT。
     */
    recoverAllRTS(): void {
-      
       this._context.destination = null;
       // 回收所有效果中的RT
       for (let effect of this._effects) {
          effect.clearRT(this._context);
       }
       this._hasCleanRT = true;
-      // 回收deferredReleaseTextures中的RT
-      // for (let rt of this._context.deferredReleaseTextures) {
-      //    if (rt && !rt.destroyed) {
-      //       RenderTexture2D.recoverToPool(rt);
-      //    }
-      // }
-      // this._context.deferredReleaseTextures.length = 0;
+      this._context.command.clear(true);
+      PostProcess2D._pendingPostRender.delete(this);
    }
 
    apply() {

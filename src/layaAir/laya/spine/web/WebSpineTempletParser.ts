@@ -35,6 +35,12 @@ export class WebSpineTempletParser implements ISpineTempletParser {
         
         let skeleton = new spine.Skeleton(skeletonData);
 
+        templet._textures = textures;
+        templet._premultipliedAlpha = this._premultipliedAlpha;
+        skeletonOptimise.hasPhysics = this._premultipliedAlpha && skeletonData.physicsConstraints.length > 0;
+        skeletonOptimise.canCache = SpineConst.cacheSwitch && !skeletonOptimise.hasPhysics;
+        skeletonOptimise.checkMainAttach(skeleton, skeletonData);
+        
         // 有效值
         if (
             skeletonData.x == undefined 
@@ -58,11 +64,6 @@ export class WebSpineTempletParser implements ISpineTempletParser {
             templet.offsetY = -((skeletonData.y || 0) + templet.height);
         }
 
-        templet._textures = textures;
-        templet._premultipliedAlpha = this._premultipliedAlpha;
-        skeletonOptimise.hasPhysics = this._premultipliedAlpha && skeletonData.physicsConstraints.length > 0;
-        skeletonOptimise.canCache = SpineConst.cacheSwitch && !skeletonOptimise.hasPhysics;
-        skeletonOptimise.checkMainAttach(skeleton, skeletonData);
         templet.optimize = skeletonOptimise;
         templet._parser = this;
 

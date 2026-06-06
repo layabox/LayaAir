@@ -147,7 +147,7 @@ export class AnimationClip2D extends Resource {
                 var frame = keyFrames[frameIndex];
                 if (isEnd) {//如果nextFarme为空，不修改数据，保持上一帧
                     if (frame.data.val instanceof CurvePath) {
-                        outDatas[i] = { pos: frame.data.val.getPointAt(0), rotation: frame.data.val.getRotationAt(0) }
+                        outDatas[i] = { pos: frame.data.val.getPointAt(0), rotation: frame.data.val.getRotationAt(0, true) }
                     } else {
                         outDatas[i] = frame.data.val;
                     }
@@ -164,7 +164,7 @@ export class AnimationClip2D extends Resource {
                 }
             } else {
                 if (keyFrames[0].data.val instanceof CurvePath) {
-                    outDatas[i] = { pos: keyFrames[0].data.val.getPointAt(0), rotation: keyFrames[0].data.val.getRotationAt(0) }
+                    outDatas[i] = { pos: keyFrames[0].data.val.getPointAt(0), rotation: keyFrames[0].data.val.getRotationAt(0, true) }
                 } else {
                     outDatas[i] = keyFrames[0].data.val;
                 }
@@ -190,7 +190,7 @@ export class AnimationClip2D extends Resource {
         var end = nextFrame.data;
         if (start.val instanceof CurvePath) {
             return {
-                pos: start.val.getPointAt(t), rotation: start.val.getRotationAt(t)
+                pos: start.val.getPointAt(t), rotation: start.val.getRotationAt(t, true)
             }
         }
 

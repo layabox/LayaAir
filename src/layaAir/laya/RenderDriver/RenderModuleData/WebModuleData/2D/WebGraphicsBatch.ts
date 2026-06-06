@@ -175,8 +175,8 @@ abstract class BaseBatchContext {
     bufferState: any = null;
     primitiveShaderData: any = null;
     materialShaderData: any = null;
-    type: number = 0;
-    lowType: number = 0;
+    typeKey: number = 0;
+    textureKey: number = 0;
     globalRenderData: any = null;
 
     fillTexture: boolean = false;
@@ -204,74 +204,64 @@ class WebGLBatchContext extends BaseBatchContext {
         this.subShader = element.subShader;
         this.bufferState = element.geometry.bufferState;
 
-        this.textureId = element.type & (~63);
+        this.typeKey = element.typeKey;
+        this.textureKey = element.textureKey;
+        this.textureId = element.textureKey & (~((1 << ShaderDefines2D.SHADER_DEFINE_BITS) - 1)); // texture portion
         this.globalAlpha = element.owner.globalAlpha;
         this.clipInfo = (element.owner as WebRenderStruct2D).getClipInfo();
-        this.type = element.type;
-        this.lowType = element.type & 63;
         this.globalRenderData = element.owner.globalRenderData;
-        this.fillTexture = this.primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
+        this.fillTexture = !!(element.typeKey & 64); // bit 6 = hasFillTexture
         this.texRange = this.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE) as Vector4;
     }
 
     isCompatible(element: IPrimitiveRenderElement2D): boolean {
-        if (this.type & 32)
+        // mc/materialClip bit (bit 5) breaks batch
+        if (this.typeKey & 32)
             return false;
 
-        // 快速检查：最容易变化的属性先检查
-        let elementType = element.type;
-
-        // clip检查：如果元素有clip标记，立即返回false
-        if (elementType & 32) {
+        if (element.typeKey & 32) {
             return false;
         }
 
-        let elementLowType = elementType & 63;
-        let elementTexId = elementType & (~63);
-        // 纹理检查放最前，因为这是文字的图片的差别
+        // typeKey comparison (blend+flags)
+        if (this.typeKey !== element.typeKey) {
+            return false;
+        }
+
+        // textureKey comparison: check define bits first, then texture portion
+        let defineMask = (1 << ShaderDefines2D.SHADER_DEFINE_BITS) - 1;
+        if ((this.textureKey & defineMask) !== (element.textureKey & defineMask)) {
+            return false;
+        }
+
+        let elementTexId = element.textureKey & (~defineMask);
         if (elementTexId !== 0 && elementTexId !== this.textureId && this.textureId !== 0)
             return false;
 
-        // 检查低位类型（最常见的不匹配）
-        if (this.lowType !== elementLowType) {
-            return false;
-        }
-
-        let elementOwner = element.owner as WebRenderStruct2D;
-
-        // // 检查透明度（数值比较，较快）
-        // if (this.globalAlpha !== elementOwner.globalAlpha) {
-        //     return false;
-        // }
-
-        // 检查对象引用（指针比较，较快）
+        // clipInfo 比较（允许不同 owner 但相同 clip 状态的元素合批）
         if (this.subShader !== element.subShader ||
             this.bufferState !== element.geometry.bufferState ||
-            this.clipInfo !== elementOwner.getClipInfo() ||
-            elementOwner.globalRenderData !== this.globalRenderData) {
+            this.clipInfo !== (element.owner as WebRenderStruct2D).getClipInfo() ||
+            element.owner.globalRenderData !== this.globalRenderData) {
             return false;
         }
 
         // 检查材质 自定义材质直接比对 shaderdata
-        if ((this.lowType & 16) !== 0 && element.materialShaderData !== this.materialShaderData) {
+        if ((this.typeKey & 16) !== 0 && element.materialShaderData !== this.materialShaderData) {
             return false;
         }
 
-        let fillTexture = element.primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
-        if (fillTexture) {
-            if (!this.fillTexture)
-                return false;
-
-            // 如果元素存在texRange，则不能批次化
+        // fillTexture 已通过 typeKey bit 6 检查，相同才到这里
+        // 但仍需检查 texRange 是否一致
+        if (this.fillTexture) {
             if (!element.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE).equal(this.texRange))
                 return false;
         }
-        else if (this.fillTexture)
-            return false;
 
         if (this.textureId === 0 && elementTexId !== 0) {
             this.textureId = elementTexId;
             this.primitiveShaderData = element.primitiveShaderData;
+            this.textureKey = element.textureKey;
         }
 
         return true;
@@ -293,76 +283,65 @@ class WebGPUBatchContext extends BaseBatchContext {
         //@ts-ignore
         this.bufferState = element.geometry._bufferState;
 
-        this.textureId = element.type & (~63);
+        this.typeKey = element.typeKey;
+        this.textureKey = element.textureKey;
+        this.textureId = element.textureKey & (~((1 << ShaderDefines2D.SHADER_DEFINE_BITS) - 1)); // texture portion
         this.globalAlpha = element.owner.globalAlpha;
         this.clipInfo = (element.owner as WebRenderStruct2D).getClipInfo();
-        this.type = element.type;
-        this.lowType = element.type & 63;
         this.globalRenderData = element.owner.globalRenderData;
-        this.fillTexture = this.primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
+        this.fillTexture = !!(element.typeKey & 64); // bit 6 = hasFillTexture
         this.texRange = this.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE) as Vector4;
     }
 
     isCompatible(element: IPrimitiveRenderElement2D): boolean {
-        if (this.type & 32)
+        // mc/materialClip bit (bit 5) breaks batch
+        if (this.typeKey & 32)
             return false;
 
-        // 快速检查：最容易变化的属性先检查
-        let elementType = element.type;
-
-        // clip检查：如果元素有clip标记，立即返回false
-        if (elementType & 32) {
+        if (element.typeKey & 32) {
             return false;
         }
 
-        let elementLowType = elementType & 63;
-        let elementTexId = elementType & (~63);
-        // 纹理检查放最前，因为这是文字的图片的差别
+        // typeKey comparison (blend+flags)
+        if (this.typeKey !== element.typeKey) {
+            return false;
+        }
+
+        // textureKey comparison: check define bits first, then texture portion
+        let defineMask = (1 << ShaderDefines2D.SHADER_DEFINE_BITS) - 1;
+        if ((this.textureKey & defineMask) !== (element.textureKey & defineMask)) {
+            return false;
+        }
+
+        let elementTexId = element.textureKey & (~defineMask);
         if (elementTexId !== 0 && elementTexId !== this.textureId && this.textureId !== 0)
             return false;
 
-        // 检查低位类型（最常见的不匹配）
-        if (this.lowType !== elementLowType) {
-            return false;
-        }
-
-        let elementOwner = element.owner as WebRenderStruct2D;
-
-        // // 检查透明度（数值比较，较快）
-        // if (this.globalAlpha !== elementOwner.globalAlpha) {
-        //     return false;
-        // }
-
-        // 检查对象引用（指针比较，较快）
+        // clipInfo 比较（允许不同 owner 但相同 clip 状态的元素合批）
         if (this.subShader !== element.subShader ||
             this.bufferState !== element.geometry.bufferState ||
-            this.clipInfo !== elementOwner.getClipInfo() ||
-            elementOwner.globalRenderData !== this.globalRenderData) {
+            this.clipInfo !== (element.owner as WebRenderStruct2D).getClipInfo() ||
+            element.owner.globalRenderData !== this.globalRenderData) {
             return false;
         }
 
         // 检查材质 自定义材质直接比对 shaderdata
-        if (this.lowType & 16 && (element as any)._materialShaderData !== this.materialShaderData) {
+        if ((this.typeKey & 16) !== 0 && (element as any)._materialShaderData !== this.materialShaderData) {
             return false;
         }
 
-        
-        let primitiveShaderData = (element as any)._primitiveShaderData;
-        let fillTexture = primitiveShaderData.hasDefine(ShaderDefines2D.FILLTEXTURE);
-        if (fillTexture) {
-            if (!this.fillTexture)
-                return false;
-
-            // 如果元素存在texRange，则不能批次化
+        // fillTexture 已通过 typeKey bit 6 检查，相同才到这里
+        // 但仍需检查 texRange 是否一致
+        if (this.fillTexture) {
+            let primitiveShaderData = (element as any)._primitiveShaderData;
             if (!primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE).equal(this.texRange))
                 return false;
         }
-        else if (this.fillTexture)
-            return false;
 
         if (this.textureId === 0 && elementTexId !== 0) {
             this.textureId = elementTexId;
-            this.primitiveShaderData = primitiveShaderData;
+            this.primitiveShaderData = (element as any)._primitiveShaderData;
+            this.textureKey = element.textureKey;
         }
 
         return true;
@@ -397,6 +376,8 @@ export class WebGraphicsBatch implements IBatch2DProvider {
             element.owner = null;
             element.renderStateIsBySprite = false;
             element.globalShaderData = null;
+            element.typeKey = 0;
+            element.textureKey = 0;
         });
 
     constructor() {
@@ -547,6 +528,8 @@ export class WebGraphicsBatch implements IBatch2DProvider {
                 staticBatchRenderElement.renderStateIsBySprite = element.renderStateIsBySprite;
                 staticBatchRenderElement.primitiveShaderData = batchContext.primitiveShaderData;
                 staticBatchRenderElement.owner = element.owner;
+                staticBatchRenderElement.typeKey = batchContext.typeKey;
+                staticBatchRenderElement.textureKey = batchContext.textureKey;
             }
 
             let drawParam = geometry.drawParams.elements;

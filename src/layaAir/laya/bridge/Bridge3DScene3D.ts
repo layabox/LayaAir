@@ -12,12 +12,12 @@ import { Config3D } from "../../Config3D";
 import { Utils3D } from "../d3/utils/Utils3D";
 import { Texture2D } from "../resource/Texture2D";
 import { RTBridge3DContext } from "./render/RTBridge3DContext";
-import { Bridge3DSceneHolder } from "./Bridge3DSceneHolder";
+import { Bridge3DSceneInternal } from "./Bridge3DSceneInternal";
 import { Bridge3DContext } from "./render/Bridge3DContext";
 
 /**
  * Bridge3DScene3D is a lightweight Scene3D implementation optimized for Bridge3D system.
- * Only responsible for rendering pipeline — lifecycle and list management are handled by Bridge3DSceneHolder.
+ * Only responsible for rendering pipeline — lifecycle and list management are handled by Bridge3DSceneInternal.
  *
  * Main optimizations:
  * 1. _addRenderObject/_removeRenderObject delegated to Bridge3DSprite management
@@ -32,19 +32,13 @@ export class Bridge3DScene3D extends Scene3D {
      * Reference to the owning holder
      * @internal
      */
-    private _holder: Bridge3DSceneHolder;
+    private _holder: Bridge3DSceneInternal;
 
     /**
      * Shared Bridge3D camera
      * @private
      */
     private _sharedCamera: Bridge3DCamera;
-
-    /**
-     * Whether camera has been initialized
-     * @internal
-     */
-    _cameraInitialized: boolean = false;
 
     /**
      * Render object to Bridge3DSprite mapping
@@ -64,6 +58,26 @@ export class Bridge3DScene3D extends Scene3D {
      * @private
      */
     private _cameraZDistance: number = 100;
+
+    /**
+     * Whether Bridge3D uses orthographic projection.
+     * When false, fieldOfView is derived from camera Z so the Z=0 plane maps 1:1 to 2D pixels.
+     * @private
+     */
+    private _orthographicCamera: boolean = true;
+
+    /**
+     * Guards against re-entering projection updates from camera setters.
+     * @private
+     */
+    private _updatingCameraProjection: boolean = false;
+
+    /**
+     * Maximum perspective FOV used by Bridge3D's 2D anchored projection.
+     * Prevents very small cameraZDistance values from creating extreme fish-eye distortion.
+     * @private
+     */
+    private static readonly _maxPerspectiveFieldOfView: number = 90;
 
     /**
      * Bridge3D独立的灯光贴图
@@ -96,9 +110,9 @@ export class Bridge3DScene3D extends Scene3D {
 
     /**
      * Create Bridge3DScene3D instance
-     * @param holder - The owning Bridge3DSceneHolder
+     * @param holder - The owning Bridge3DSceneInternal
      */
-    constructor(holder: Bridge3DSceneHolder) {
+    constructor(holder: Bridge3DSceneInternal) {
         super();
 
         this._holder = holder;
@@ -124,9 +138,18 @@ export class Bridge3DScene3D extends Scene3D {
 
         // Create shared Bridge3D camera and add to Scene3D
         this._sharedCamera = new Bridge3DCamera();
-        this._sharedCamera.orthographic = true;
+        this._sharedCamera.setProjectionChangeHandler(() => {
+            if (!this._updatingCameraProjection) {
+                this._updateCameraProjectionAndPosition();
+            }
+        });
+        this._sharedCamera.orthographic = this._orthographicCamera;
         this.addChild(this._sharedCamera);
         this.updateContext();
+
+        // Output initialization: configure camera intrinsics once.
+        // Data-driven params (cameraZDistance / farPlane) are applied later via applyCamera*.
+        this.setupCamera();
 
         // Listen to stage resize
         ILaya.stage.on(Event.RESIZE, this, this.onStageResize);
@@ -135,15 +158,32 @@ export class Bridge3DScene3D extends Scene3D {
     /**
      * Apply camera Z distance (called by holder)
      * @param value - Camera Z distance
-     * @internal
      */
-    _applyCameraZDistance(value: number): void {
+    applyCameraZDistance(value: number): void {
         if (this._cameraZDistance !== value) {
             this._cameraZDistance = value;
-            if (this._cameraInitialized) {
-                this._updateCameraPosition();
-            }
+            this._updateCameraProjectionAndPosition();
         }
+    }
+
+    /**
+     * Apply Bridge3D camera projection mode (called by holder).
+     * @param value - True for orthographic camera, false for perspective camera.
+     */
+    applyOrthographicCamera(value: boolean): void {
+        value = value !== false;
+        if (this._orthographicCamera !== value) {
+            this._orthographicCamera = value;
+        }
+        this._updateCameraProjectionAndPosition();
+    }
+
+    /**
+     * Apply camera far plane (called by holder)
+     * @param value - Camera far clipping plane distance
+     */
+    applyCameraFarPlane(value: number): void {
+        this._sharedCamera.farPlane = value;
     }
 
     updateContext() {
@@ -211,47 +251,103 @@ export class Bridge3DScene3D extends Scene3D {
         }
     }
 
+    private _getRenderHeight(): number {
+        return this._scene2D && this._scene2D.height ? this._scene2D.height : (RenderState2D.height || ILaya.stage.height);
+    }
+
+    private _getRenderWidth(): number {
+        return this._scene2D && this._scene2D.width ? this._scene2D.width : (RenderState2D.width || ILaya.stage.width);
+    }
+
     /**
-     * Update camera position based on current stage size and camera Z distance
+     * @internal
+     */
+    _getBridgePlaneWidth(): number {
+        return this._getRenderWidth();
+    }
+
+    /**
+     * @internal
+     */
+    _getBridgePlaneHeight(): number {
+        return this._getRenderHeight();
+    }
+
+    private _getMinPerspectiveCameraZ(height: number): number {
+        const halfFov = Bridge3DScene3D._maxPerspectiveFieldOfView * Math.PI / 180 * 0.5;
+        const tanHalfFov = Math.tan(halfFov);
+        return tanHalfFov > 0 ? height * 0.5 / tanHalfFov : height;
+    }
+
+    private _getEffectiveCameraZ(height: number): number {
+        if (this._orthographicCamera) {
+            return this._cameraZDistance;
+        }
+
+        return Math.max(this._cameraZDistance, this._getMinPerspectiveCameraZ(height), this._sharedCamera.nearPlane + 0.0001);
+    }
+
+    private _getPerspectiveFieldOfView(height: number, cameraZ: number): number {
+        return Math.atan(height * 0.5 / cameraZ) * 2 * 180 / Math.PI;
+    }
+
+    private _updateCameraProjectionAndPosition(): void {
+        if (this._updatingCameraProjection) return;
+
+        this._updatingCameraProjection = true;
+        try {
+            const height = this._getRenderHeight();
+            const width = this._getRenderWidth();
+            const aspect = height > 0 ? width / height : 1;
+
+            this._sharedCamera.aspectRatio = aspect;
+
+            this._sharedCamera.orthographic = this._orthographicCamera;
+            if (this._orthographicCamera) {
+                this._sharedCamera.orthographicVerticalSize = height;
+            } else {
+                const cameraZ = this._getEffectiveCameraZ(height);
+                const fieldOfView = this._getPerspectiveFieldOfView(height, cameraZ);
+                if (Math.abs(this._sharedCamera.fieldOfView - fieldOfView) > 0.0001) {
+                    this._sharedCamera.fieldOfView = fieldOfView;
+                }
+            }
+
+            this._updateCameraPosition(width, height);
+            this._bridge3DContext.updateFromCamera(this._sharedCamera);
+        } finally {
+            this._updatingCameraProjection = false;
+        }
+    }
+
+    /**
+     * Update camera position based on current render size and projection mode.
+     * In perspective mode, cameraZDistance drives camera Z and the FOV is derived from it.
+     * This keeps the Z=0 plane aligned with 2D pixels across the whole render surface.
      * @private
      */
-    private _updateCameraPosition(): void {
+    private _updateCameraPosition(width: number = this._getRenderWidth(), height: number = this._getRenderHeight()): void {
         // Use actual render size (considering stage scaling)
-        const width = RenderState2D.width || ILaya.stage.width;
-        const height = RenderState2D.height || ILaya.stage.height;
-
-        // Set camera position (stage center, at configured Z distance)
         const centerX = width / 2;
         const centerY = height / 2;
 
         let localPosition = this._sharedCamera.transform.localPosition;
         localPosition.x = centerX;
         localPosition.y = centerY;
-        localPosition.z = this._cameraZDistance;
+        localPosition.z = this._getEffectiveCameraZ(height);
         this._sharedCamera.transform.localPosition = localPosition;
     }
 
     /**
-     * Setup shared camera
-     * @remarks
-     * - Configure orthographic projection parameters
-     * - Set camera position and orientation (lookAt)
-     * - Called on first bridge registration or stage resize
-     * - Uses RenderState2D's actual render size instead of stage logical size
+     * Setup shared camera intrinsics (projection / orientation / position).
+     * Called once by the constructor as part of output initialization.
+     * Data-driven parameters (cameraZDistance / farPlane) are applied via applyCamera*.
      */
     setupCamera(): void {
-        // Use actual render size (considering stage scaling)
-        const width = RenderState2D.width;
-        const height = RenderState2D.height;
-
-        // Configure orthographic projection parameters
-        this._sharedCamera.orthographic = true;
-        this._sharedCamera.orthographicVerticalSize = height;  // Use full height
         this._sharedCamera.nearPlane = 0.1;
-        this._sharedCamera.farPlane = 1000;
 
-        // Set camera position using the configured Z distance
-        this._updateCameraPosition();
+        // Configure projection and position.
+        this._updateCameraProjectionAndPosition();
 
         // Set camera orientation: look from positive Z towards negative Z (standard 3D convention)
         // Use up=(0,+1,0) so that Y points up in 3D world space
@@ -270,15 +366,7 @@ export class Bridge3DScene3D extends Scene3D {
      * - Uses RenderState2D's actual render size instead of stage logical size
      */
     onStageResize(): void {
-        // Use actual render size (considering stage scaling)
-        const width = RenderState2D.width || ILaya.stage.width;
-        const height = RenderState2D.height || ILaya.stage.height;
-
-        // Reconfigure camera
-        this._sharedCamera.orthographicVerticalSize = height;  // Use full height
-
-        // Update camera position using the configured Z distance
-        this._updateCameraPosition();
+        this._updateCameraProjectionAndPosition();
     }
 
     /**
@@ -357,6 +445,7 @@ export class Bridge3DScene3D extends Scene3D {
         }
 
         // Clear references
+        this._sharedCamera.destroy();
         this._sharedCamera = null;
         this._holder = null;
 

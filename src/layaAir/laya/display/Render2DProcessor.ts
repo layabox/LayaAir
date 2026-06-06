@@ -11,6 +11,7 @@ export class Render2DProcessor {
 
     static rendercontext2D: IRenderContext2D;
     static runner: GraphicsRunner;
+    static renderTime: number = 0;
 
     static __init__() {
         Render2DProcessor.runner = new GraphicsRunner();
@@ -52,9 +53,9 @@ export class Render2DProcessor {
      * 渲染所有 Pass
      * @param context2D 2D 渲染上下文
      */
-    apply(context2D: IRenderContext2D): void {
+    apply(context2D: IRenderContext2D, renderTime: number = Render2DProcessor.renderTime): void {
         let t = performance.now();
-        this._manager.apply(context2D);
+        this._manager.apply(context2D, renderTime);
         LayaGL.statAgent.recordTimeData(StatElement.T_2DPass, performance.now() - t);
     }
 

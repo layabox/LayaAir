@@ -57,7 +57,8 @@ export class URL {
         "lavm": "lavm.json",
         "bp": "bp.json",
         "tres": "tres.json",
-        "lensflare": "lensflare.json"
+        "lensflare": "lensflare.json",
+        "tex2darray": "tex2darray.json",
     };
 
     /**
@@ -139,8 +140,14 @@ export class URL {
 
         if (url.indexOf(":") == -1 && url.charCodeAt(0) !== 47) { //已经format过
             let url2 = URL.urlMapping[url];
-            if (url2)
+            let isBr: boolean;
+            if (url2) {
+                if (url2.endsWith("wasm.br")) {
+                    url2 = url2.substring(0, url2.length - 3);
+                    isBr = true;
+                }
                 url = url2;
+            }
 
             if (URL.customFormat != null)
                 url = URL.customFormat(url);
@@ -154,6 +161,9 @@ export class URL {
                     url = url.substring(0, i) + "-" + ver + url.substring(i);
                 }
             }
+
+            if (isBr)
+                url += ".br";
 
             if (base == null) {
                 base = URL.basePath;

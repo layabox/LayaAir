@@ -2,7 +2,6 @@ import { BaseRender } from "../d3/core/render/BaseRender";
 import { Sprite3D } from "../d3/core/Sprite3D";
 import { SpineTemplet } from "./SpineTemplet";
 import { ISpineRender } from "./interface/ISpineRender";
-import { SpineOptimizeRender3D } from "./web/base/3d/SpineOptimizeRender3D";
 import { ESpineRenderMode, ESpineRenderState, SpineConst } from "./SpineConst";
 import { Material } from "../resource/Material";
 import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
@@ -33,6 +32,12 @@ export class Spine3DRenderer extends BaseRender {
     private static _tempCameraForward: Vector3 = new Vector3();
 
     protected _spineRender: ISpineRender;
+
+    /** 
+     * @zh 物理更新模式。
+     * @en The physics update mode.
+     **/
+    physicsUpdate = 0;
     
     protected _source: string;
     protected _templet: SpineTemplet;
@@ -75,6 +80,9 @@ export class Spine3DRenderer extends BaseRender {
     private _cacheMoved: Vector2 = new Vector2(-1, -1);
     private _worldParams: Vector4 = new Vector4();
     private _playAudio: boolean = false;
+    private _skeletonPosition: Vector2 = new Vector2();
+    private _lastSkeletonWorldPosition: Vector3 = new Vector3();
+    private _hasSkeletonWorldPosition: boolean = false;
 
     get renderSize(): Vector2 {
         return this._renderSize;
@@ -137,7 +145,6 @@ export class Spine3DRenderer extends BaseRender {
         return !this._templet || this._setPreAlphaFlag ? this._premultipliedAlpha : this._templet.premultipliedAlpha;
     }
 
-    /** @internal */
     set premultipliedAlpha(value: boolean) {
         this._premultipliedAlpha = value;
 
@@ -424,6 +431,7 @@ export class Spine3DRenderer extends BaseRender {
             return;
 
         this._templet._addReference();
+        this._templet.on(SpineTemplet.EVENT_SPINE_MATERIAL_CHANGE, this, this.onSpineMaterialChange);
 
         if (this._spineRender) {
             this._spineRender.destroy();
@@ -433,6 +441,7 @@ export class Spine3DRenderer extends BaseRender {
         this._spineRender.init(templet);
         this._spineRender.mode = this._useFastRender ? ESpineRenderMode.Optimize : ESpineRenderMode.Normal;
         this._spineRender.premultipliedAlpha = this._setPreAlphaFlag ? this._premultipliedAlpha : this._templet.premultipliedAlpha;
+        this._resetSkeletonPosition();
         
         // 设置缓存状态
         if (this._enableCache) {
@@ -584,13 +593,15 @@ export class Spine3DRenderer extends BaseRender {
 
         let currentPlayTime = this._spineRender.currentTime;
 
+        this._syncSkeletonPosition();
+
         this._spineRender.update(delta);
 
         if (this.destroyed) {
             return;
         }
 
-        this._spineRender.render(currentPlayTime, 2);
+        this._spineRender.render(currentPlayTime, this.physicsUpdate);
     }
 
     /**
@@ -699,12 +710,72 @@ export class Spine3DRenderer extends BaseRender {
      * @en Transform changed, update the skeleton position.
      */
     private onTransformChanged() {
-        if (!this._spineRender) return
+        this._syncSkeletonPosition();
+    }
+
+    private _resetSkeletonPosition(): void {
+        this._skeletonPosition.setValue(0, 0);
+        this._lastSkeletonWorldPosition.setValue(0, 0, 0);
+        this._hasSkeletonWorldPosition = false;
+    }
+
+    private _syncSkeletonPosition(): void {
+        if (!this._spineRender) return;
         let matrix = this.owner.transform.worldMatrix;
+        let elements = matrix.elements;
+        let worldX = elements[12];
+        let worldY = elements[13];
+        let worldZ = elements[14];
+
+        if (!this._isPhysicsSyncEnabled()) {
+            this._lastSkeletonWorldPosition.setValue(worldX, worldY, worldZ);
+            this._hasSkeletonWorldPosition = true;
+            return;
+        }
+
+        if (!this._hasSkeletonWorldPosition) {
+            this._lastSkeletonWorldPosition.setValue(worldX, worldY, worldZ);
+            this._hasSkeletonWorldPosition = true;
+            this._spineRender.setSkeletonPosition(this._skeletonPosition.x, this._skeletonPosition.y);
+            return;
+        }
+
+        let deltaX = worldX - this._lastSkeletonWorldPosition.x;
+        let deltaY = worldY - this._lastSkeletonWorldPosition.y;
+        let deltaZ = worldZ - this._lastSkeletonWorldPosition.z;
+        if (deltaX !== 0 || deltaY !== 0 || deltaZ !== 0) {
+            let skeletonDeltaX = 0;
+            let skeletonDeltaY = 0;
+            let xAxisX = elements[0];
+            let xAxisY = elements[1];
+            let xAxisZ = elements[2];
+            let yAxisX = elements[4];
+            let yAxisY = elements[5];
+            let yAxisZ = elements[6];
+            let xAxisLengthSq = xAxisX * xAxisX + xAxisY * xAxisY + xAxisZ * xAxisZ;
+            let yAxisLengthSq = yAxisX * yAxisX + yAxisY * yAxisY + yAxisZ * yAxisZ;
+
+            if (xAxisLengthSq > 0)
+                skeletonDeltaX = (deltaX * xAxisX + deltaY * xAxisY + deltaZ * xAxisZ) / xAxisLengthSq;
+            if (yAxisLengthSq > 0)
+                skeletonDeltaY = (deltaX * yAxisX + deltaY * yAxisY + deltaZ * yAxisZ) / yAxisLengthSq;
+
+            if (skeletonDeltaX !== 0 || skeletonDeltaY !== 0) {
+                this._skeletonPosition.x += skeletonDeltaX;
+                this._skeletonPosition.y += skeletonDeltaY;
+                this._spineRender.physicsTranslate(skeletonDeltaX, skeletonDeltaY);
+            }
+        }
+
+        this._lastSkeletonWorldPosition.setValue(worldX, worldY, worldZ);
         this._spineRender.setSkeletonPosition(
-            matrix.elements[12],
-            matrix.elements[13]
+            this._skeletonPosition.x,
+            this._skeletonPosition.y
         );
+    }
+
+    private _isPhysicsSyncEnabled(): boolean {
+        return this.physicsUpdate === 1 || this.physicsUpdate === 2;
     }
 
     /**
@@ -728,11 +799,18 @@ export class Spine3DRenderer extends BaseRender {
         this.reset();
     }
 
+    private onSpineMaterialChange(): void {
+        if (this._spineRender)
+            this._spineRender.clearCacheMaterials();
+    }
+
     /** @internal */
     reset() {
         this._spineRender.reset();
+        this._templet.off(SpineTemplet.EVENT_SPINE_MATERIAL_CHANGE, this, this.onSpineMaterialChange);
         this._templet._removeReference(1);
         this._templet = null;
+        this._resetSkeletonPosition();
         this._pause = true;
         this._needUpdate = false;
     }

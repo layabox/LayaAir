@@ -421,6 +421,14 @@ export class SpriteGlobalTransform {
             return this._sp.globalToLocal(tmpPoint.setTo(x, y));
         }
     }
+
+    /**
+     * @internal
+     */
+    destroy(): void {
+        this._sp = null;
+        this._matrix = null;
+    }
 }
 
 const tmpPoint = new Point();

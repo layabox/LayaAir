@@ -164,6 +164,7 @@ export class GLBuffer extends GLObject {
 
         this.bindBuffer();
         const gl = this._gl;
+        this._memorychange(dataLength);
         this._byteLength = dataLength;
         gl.bufferData(this._glTarget, this._byteLength, this._glUsage);
     }

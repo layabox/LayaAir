@@ -47,7 +47,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @zh 物理更新模式。
      * @en The physics update mode. 
      **/
-    physicsUpdate = 2;
+    physicsUpdate = 0;
 
     /** @deprecated 状态-停止 */
     static readonly STOPPED: number = 0;
@@ -518,8 +518,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (width < 1) width = 100;
         if (height < 1) height = 100;
 
-        this.owner.size(width, height);
-        this.owner.pivot(this._templet.offsetX, -this._templet.offsetY);
+        this.owner.size(Math.round(width), Math.round(height));
+        this.owner.pivot(Math.round(this._templet.offsetX), Math.round(-this._templet.offsetY));
     }
 
     /** @ignore @blueprintIgnore */
@@ -552,6 +552,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             return;
 
         this._templet._addReference();
+        this._templet.on(SpineTemplet.EVENT_SPINE_MATERIAL_CHANGE, this, this.onSpineMaterialChange);
 
         if (this._spineRender) {
             this._spineRender.destroy();
@@ -907,9 +908,15 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         }
     }
 
+    private onSpineMaterialChange(): void {
+        if (this._spineRender)
+            this._spineRender.clearCacheMaterials();
+    }
+
     /** @internal */
     reset() {
         this._spineRender.reset();
+        this._templet.off(SpineTemplet.EVENT_SPINE_MATERIAL_CHANGE, this, this.onSpineMaterialChange);
         this._templet._removeReference(1);
         this._templet = null;
         this._pause = true;
@@ -1083,8 +1090,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (this._templet) {
             this.clear();
         }
-        this._spineRender.destroy();
-        this._spineRender = null;
+        if (this._spineRender) {
+            this._spineRender.destroy();
+            this._spineRender = null;
+        }
         // 清理骨骼可视化
         if (this._rootBone) {
             this._rootBone.destroy();

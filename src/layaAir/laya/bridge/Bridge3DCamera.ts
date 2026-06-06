@@ -6,6 +6,7 @@ import { RenderContext3D } from "../d3/core/render/RenderContext3D";
 import { Scene3D } from "../d3/core/scene/Scene3D";
 import { LayaGL } from "../layagl/LayaGL";
 import { Color } from "../maths/Color";
+import { Matrix4x4 } from "../maths/Matrix4x4";
 import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
@@ -45,6 +46,33 @@ export class Bridge3DCamera extends Camera {
      * @private
      */
     private _bridge3DRenderProcess: IBridge3DRenderProcess;
+
+    /**
+     * Scene → stage 的 4x4 偏移矩阵。
+     * 由 Bridge3DSceneInternal 监听 Scene2D 的 TRANSFORM_CHANGED 事件后推送进来。
+     * render() 时会左乘到 viewMatrix，从而把 sceneLocal 模型坐标补偿成 stage 像素坐标。
+     * 未设置时使用单位矩阵（行为等价于 sceneLocal == globalTrans 的情况，即 Scene 在 stage 原点）。
+     * @private
+     */
+    private _sceneOffsetMatrix: Matrix4x4 = new Matrix4x4();
+
+    /**
+     * sceneOffsetMatrix 是否为单位矩阵的标志。单位时 render() 可跳过额外矩阵乘法。
+     * @private
+     */
+    private _sceneOffsetIsIdentity: boolean = true;
+
+    /**
+     * view × sceneOffset 的合成结果，避免每帧分配。
+     * @private
+     */
+    private _composedViewMatrix: Matrix4x4 = new Matrix4x4();
+
+    /**
+     * Called when projection parameters that affect Bridge3D camera placement change.
+     * @private
+     */
+    private _projectionChangeHandler: (() => void) = null;
 
     /**
      * 构造函数
@@ -94,6 +122,91 @@ export class Bridge3DCamera extends Camera {
     }
 
     /**
+     * @internal
+     */
+    setProjectionChangeHandler(handler: () => void): void {
+        this._projectionChangeHandler = handler;
+    }
+
+    override get fieldOfView(): number {
+        return super.fieldOfView;
+    }
+
+    override set fieldOfView(value: number) {
+        super.fieldOfView = value;
+        if (this._projectionChangeHandler) {
+            this._projectionChangeHandler();
+        }
+    }
+
+    /**
+     * 设置 Scene → stage 的偏移矩阵。
+     *
+     * 矩阵推导（设 Scene 2D 全局矩阵为 (a, b, c, d, tx, ty)，stage 高度为 H）：
+     * ```
+     * | a   -c   0   c*H + tx        |
+     * | -b   d   0   H*(1-d) - ty    |
+     * | 0    0   1   0               |
+     * | 0    0   0   1               |
+     * ```
+     * 注意：H 来自 RenderState2D.height，stage resize 时也需要重算。
+     *
+     * @param a/b/c/d/tx/ty Scene 2D 全局矩阵分量
+     * @param renderHeight 当前渲染高度（用于最终 stage/canvas Y-up 空间）
+     * @param sceneHeight Scene 逻辑高度（用于 sceneLocal 自身的 Y 翻转）
+     */
+    setSceneOffsetFrom2DMatrix(a: number, b: number, c: number, d: number, tx: number, ty: number, renderHeight: number, sceneHeight: number = renderHeight): void {
+        const e = this._sceneOffsetMatrix.elements;
+        // 列 0: X 基向量
+        e[0] = a;
+        e[1] = -b;
+        e[2] = 0;
+        e[3] = 0;
+        // 列 1: Y 基向量（注意 c 取负，d 不变；2D Y-down → 3D Y-up 翻转）
+        e[4] = -c;
+        e[5] = d;
+        e[6] = 0;
+        e[7] = 0;
+        // 列 2: Z 基向量
+        e[8] = 0;
+        e[9] = 0;
+        e[10] = 1;
+        e[11] = 0;
+        // 列 3: 平移
+        e[12] = c * sceneHeight + tx;
+        e[13] = renderHeight - d * sceneHeight - ty;
+        e[14] = 0;
+        e[15] = 1;
+
+        // 标记是否为单位矩阵（Scene 在 stage 原点且无缩放/旋转时）
+        this._sceneOffsetIsIdentity =
+            a === 1 && b === 0 && c === 0 && d === 1 && tx === 0 && ty === 0;
+    }
+
+    /**
+     * 直接设置 4x4 偏移矩阵（用于编辑器/动画系统注入）
+     */
+    setSceneOffsetMatrix(m: Matrix4x4): void {
+        m.cloneTo(this._sceneOffsetMatrix);
+        this._sceneOffsetIsIdentity = false;
+    }
+
+    /**
+     * 读取当前的 Scene→stage 偏移矩阵（只读引用，不要在外部修改）。
+     * 用于把 sceneLocal 3D 世界坐标映射回 stage 像素空间，或反向。
+     */
+    get sceneOffsetMatrix(): Matrix4x4 {
+        return this._sceneOffsetMatrix;
+    }
+
+    /**
+     * 偏移矩阵是否为单位矩阵（Scene 位于 stage 原点且无缩放/旋转）。
+     */
+    get sceneOffsetIsIdentity(): boolean {
+        return this._sceneOffsetIsIdentity;
+    }
+
+    /**
      * 重写Camera.render()，匹配Scene3D Camera.render()的流程：
      *   1. 上下文设置
      *   2. 相机准备（无条件，保证UBO始终有效）
@@ -113,7 +226,15 @@ export class Bridge3DCamera extends Camera {
         // Bridge3D 相机不渲染到独立 RT，始终 invertY = false（对标 Camera.render 1378 行）
         // context.invertY = false;
         this._prepareCameraToRender();
-        this._applyViewProject(this.viewMatrix, this.projectionMatrix, context.invertY);
+
+        let viewMat = this.viewMatrix;
+        if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2 && !this._sceneOffsetIsIdentity) {
+            // Native Bridge3D currently applies scene placement through the view matrix in C++.
+            // Web applies scene placement later as a projection-space correction uniform.
+            Matrix4x4.multiply(viewMat, this._sceneOffsetMatrix, this._composedViewMatrix);
+            viewMat = this._composedViewMatrix;
+        }
+        this._applyViewProject(viewMat, this.projectionMatrix, context.invertY);
         this._contextApply(context);
 
         // 3. 委托 process 处理完整流程（对标 Camera.render → _Render3DProcess.fowardRender）

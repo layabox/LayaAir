@@ -236,8 +236,8 @@ export class WebRender2DPass implements IRender2DPass {
     * pass 2D 渲染
     * @param context 
     */
-   fowardRender(context: IRenderContext2D) {
-      let success = this._initRenderProcess(context);
+   fowardRender(context: IRenderContext2D, renderTime: number) {
+      let success = this._initRenderProcess(context, renderTime);
       if (!success) return;
 
       if (this.repaint) {
@@ -378,7 +378,7 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    //预留
-   private _initRenderProcess(context: IRenderContext2D): boolean {
+   private _initRenderProcess(context: IRenderContext2D, renderTime: number): boolean {
       if (!this.root || this.root.globalAlpha < 0.01) {
          return false;
       }
@@ -415,6 +415,7 @@ export class WebRender2DPass implements IRender2DPass {
       }
 
       context.passData = this.shaderData;
+      this.shaderData.setNumber(ShaderDefines2D.UNIFORM_TIME, renderTime);
 
       if (sizeX !== this._rtsize.x || sizeY !== this._rtsize.y) {
          this._rtsize.setValue(sizeX, sizeY);
@@ -493,6 +494,8 @@ export class WebRender2DPass implements IRender2DPass {
       this.shaderData.setVector3(ShaderDefines2D.UNIFORM_INVERTMAT_1, this._invertMat_1);
    }
 
+   updatePostProcess(): void { }
+
    destroy(): void {
       if (this.destroyed) {
          return;
@@ -525,7 +528,7 @@ export class WebRender2DPassManager implements IRender2DPassManager {
       this._modify = true;
    }
 
-   apply(context: IRenderContext2D): void {
+   apply(context: IRenderContext2D, renderTime: number): void {
       if (this._modify) {
          this._modify = false;
          this._passes.sort((a, b) => b._priority - a._priority); // 按 priority 从大到小排序
@@ -533,7 +536,7 @@ export class WebRender2DPassManager implements IRender2DPassManager {
 
       for (const pass of this._passes) {
          if (pass.needRender()) {
-            pass.fowardRender(context);
+            pass.fowardRender(context, renderTime);
          }
       }
    }

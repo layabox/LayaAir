@@ -102,7 +102,7 @@ export class MgBrowserAdapter extends BrowserAdapter {
 
     start(): Promise<void> {
         let downloader = Loader.downloader = new MgDownloader(
-            PAL.hasAPI("getFileSystemManager") && PAL.hasAPI(PAL.g.getFileSystemManager(), "writeFile")
+            PAL.hasAPI("getFileSystemManager") && PAL.hasAPI(PAL.g.getFileSystemManager(), "writeFile") && PAL.hasAPI(PAL.g.getFileSystemManager(), "readdir")
         );
         this.setupWasmSupport();
 
@@ -154,8 +154,13 @@ export class MgBrowserAdapter extends BrowserAdapter {
             wasmGlobal = (window as any).qg;
 
         if (wasmGlobal) {
-            if (!window.WebAssembly) //让WASM库以为支持WASM
-                (window as any).WebAssembly = {};
+            if (!window.WebAssembly) { //让WASM库以为支持WASM
+                try {
+                    (window as any).WebAssembly = { Memory: wasmGlobal.Memory };
+                } catch (e) {
+                    //抖音iOS等平台window.WebAssembly虽undefined但slot只读，赋值会抛错；wasm库走WasmAdapter钩子不依赖此stub，忽略
+                }
+            }
             WasmAdapter.Memory = wasmGlobal.Memory;
 
             WasmAdapter.instantiateWasm = (wasmFile: string, imports: any) => {

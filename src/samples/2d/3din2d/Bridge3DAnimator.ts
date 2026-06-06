@@ -1,4 +1,5 @@
 import { Laya } from "Laya";
+import { Bridge3DScene3D } from "laya/bridge/Bridge3DScene3D";
 import { Bridge3DSprite } from "laya/bridge/Bridge3DSprite";
 import { Script } from "laya/components/Script";
 import { Animator } from "laya/d3/component/Animator/Animator";
@@ -96,9 +97,9 @@ export class Bridge3DAnimator {
         bridge.pos(150, 200);
         fusionGroup.addChild(bridge);
 
-        const holder = scene2D.bridge3D;
-        holder.scene3d.ambientColor = new Color(0.5, 0.5, 0.5, 1);
-        holder.cameraZDistance = 300;
+        const scene3d = scene2D.bridge3DInternal.scene3d as Bridge3DScene3D;
+        scene3d.ambientColor = new Color(0.5, 0.5, 0.5, 1);
+        scene3d.applyCameraZDistance(300);
 
         // 方向光
         const lightSprite = new Sprite3D();

@@ -13,8 +13,8 @@ export class SemicircleShap extends Base2DShape {
         super(Base2DShapeType.Semicircle);
     }
 
-    getPositionAndDirection(): Vector4 {
-        let radians = Math.random() * Math.PI - Math.PI * 0.5;
+    getPositionAndDirection(randomFn: () => number = Math.random): Vector4 {
+        let radians = randomFn() * Math.PI - Math.PI * 0.5;
 
         // direction
         let xDir = Math.sin(radians);
@@ -29,13 +29,13 @@ export class SemicircleShap extends Base2DShape {
             y = yDir * this.radius;
         }
         else {
-            let length = Math.random() * this.radius;
+            let length = randomFn() * this.radius;
             x = xDir * length;
             y = yDir * length;
         }
 
         if (this.randomDirction) {
-            let radians = Math.random() * Math.PI - Math.PI * 0.5;
+            let radians = randomFn() * Math.PI - Math.PI * 0.5;
             xDir = Math.sin(radians);
             yDir = Math.cos(radians);
         }

@@ -1,7 +1,7 @@
 import { Scene } from "../display/Scene";
 import { Sprite } from "../display/Sprite";
 import { Vector2 } from "../maths/Vector2";
-import { EPhycis2DBlit, Ebox2DType, Physics2DHitResult, box2DWorldDef } from "./factory/IPhysics2DFactory";
+import { EPhycis2DBlit, Ebox2DType, Physics2DContactHitResult, Physics2DHitResult, box2DWorldDef } from "./factory/IPhysics2DFactory";
 import { Physics2D } from "./Physics2D";
 import { Physics2DDebugDraw } from "./Physics2DDebugDraw";
 import { Browser } from "../utils/Browser";
@@ -406,12 +406,6 @@ export class Physics2DWorldManager implements IElementComponentManager {
             }
         };
         this._JSRayCastcallback.ReportFixture = callback.bind(this);
-        let scaleX = ILaya.stage.clientScaleX;
-        let scaleY = ILaya.stage.clientScaleY;
-        startPos.x *= scaleX;
-        startPos.y *= scaleY;
-        endPos.x *= scaleX;
-        endPos.y *= scaleY;
         Physics2D.I._factory.RayCast(this._box2DWorld, this._JSRayCastcallback, startPos, endPos);
     }
 
@@ -479,16 +473,15 @@ export class Physics2DWorldManager implements IElementComponentManager {
         return contactListener;
     }
 
-    private _makeStyleString(color: any, alpha: number = -1): Color {
-        let outColor = new Color();
-        let colorData = Physics2D.I._factory.warpPoint(color, Ebox2DType.b2Color);
-        let r = colorData.r;
-        let g = colorData.g;
-        let b = colorData.b;
+    private _tempColor: Color = new Color();
+    private _tempPoints: number[] = [];
 
-        outColor.r = r;
-        outColor.g = g;
-        outColor.b = b;
+    private _makeStyleString(color: any, alpha: number = -1): Color {
+        let colorData = Physics2D.I._factory.warpPoint(color, Ebox2DType.b2Color);
+        let outColor = this._tempColor;
+        outColor.r = colorData.r;
+        outColor.g = colorData.g;
+        outColor.b = colorData.b;
         outColor.a = alpha;
         return outColor;
     }
@@ -531,40 +524,31 @@ export class Physics2DWorldManager implements IElementComponentManager {
         v = Physics2D.I._factory.warpPoint(p2, Ebox2DType.b2Vec2);
         let p2x = this.physics2DToLaya(v.x);
         let p2y = this.physics2DToLaya(v.y);
-        let points: any[] = [];
-        points.push(p1x);
-        points.push(p1y);
-        points.push(p2x);
-        points.push(p2y);
         let outColor = this._makeStyleString(color, 1);
-        this._debugDraw.addLineDebugDrawCMD(points, outColor);
+        this._debugDraw.appendLineSegment(p1x, p1y, p2x, p2y, outColor);
     }
 
     private _debugDrawPolygon(vertices: any, vertexCount: any, color: any): void {
-        let points: any[] = [];
+        let points = this._tempPoints;
+        points.length = 0;
         for (let i = 0; i < vertexCount; i++) {
             let vert = Physics2D.I._factory.warpPoint(vertices + (i * 8), Ebox2DType.b2Vec2);
-            vert.x = this.physics2DToLaya(vert.x);
-            vert.y = this.physics2DToLaya(vert.y);
-            points.push(vert.x, vert.y);
+            points.push(this.physics2DToLaya(vert.x), this.physics2DToLaya(vert.y));
         }
         let outColor = this._makeStyleString(color, 1);
-        let mesh2d = this._debugDraw.createMesh2DByVertices(points);
-        this._debugDraw.addMeshDebugDrawCMD(mesh2d, outColor);
+        this._debugDraw.appendPolygon(points, vertexCount, outColor);
     }
 
 
     private _debugDrawSolidPolygon(vertices: any, vertexCount: any, color: any): void {
-        let points: any[] = [];
+        let points = this._tempPoints;
+        points.length = 0;
         for (let i = 0; i < vertexCount; i++) {
             let vert = Physics2D.I._factory.warpPoint(vertices + (i * 8), Ebox2DType.b2Vec2);
-            vert.x = this.physics2DToLaya(vert.x);
-            vert.y = this.physics2DToLaya(vert.y);
-            points.push(vert.x, vert.y);
+            points.push(this.physics2DToLaya(vert.x), this.physics2DToLaya(vert.y));
         }
         let outColor = this._makeStyleString(color, 0.5);
-        let mesh2D = this._debugDraw.createMesh2DByVertices(points);
-        this._debugDraw.addMeshDebugDrawCMD(mesh2D, outColor);
+        this._debugDraw.appendPolygon(points, vertexCount, outColor);
     }
 
     private _debugDrawCircle(center: any, radius: any, color: any): void {
@@ -573,8 +557,7 @@ export class Physics2DWorldManager implements IElementComponentManager {
         let y = this.physics2DToLaya(centerV.y);
         radius = this.physics2DToLaya(radius);
         let outColor = this._makeStyleString(color, 1);
-        let mesh2D = this._debugDraw.createCircleMeshByVertices({ x: x, y: y }, radius, 100);
-        this._debugDraw.addMeshDebugDrawCMD(mesh2D, outColor);
+        this._debugDraw.appendCircle(x, y, radius, outColor);
     }
 
     private _debugDrawSolidCircle(center: any, radius: any, axis: any, color: any): void {
@@ -584,8 +567,7 @@ export class Physics2DWorldManager implements IElementComponentManager {
         // axis 值当前未使用，无需再读
         radius = this.physics2DToLaya(radius);
         let outColor = this._makeStyleString(color, 0.5);
-        let mesh2d = this._debugDraw.createCircleMeshByVertices({ x: cx, y: cy }, radius, 100);
-        this._debugDraw.addMeshDebugDrawCMD(mesh2d, outColor);
+        this._debugDraw.appendCircle(cx, cy, radius, outColor);
     }
 
     private _debugDrawTransform(xf: any): void {
@@ -595,33 +577,17 @@ export class Physics2DWorldManager implements IElementComponentManager {
         let x = this.physics2DToLaya(xf.x);
         let y = this.physics2DToLaya(xf.y);
 
-        // 计算旋转后的坐标轴方向
         let cosAngle = Math.cos(xf.angle);
         let sinAngle = Math.sin(xf.angle);
 
-        // X轴方向 (红色) - 旋转后的右方向
         let xAxisEndX = x + this.physics2DToLaya(length * cosAngle);
         let xAxisEndY = y + this.physics2DToLaya(length * sinAngle);
 
-        // Y轴方向 (绿色) - 旋转后的上方向 (垂直于X轴)
         let yAxisEndX = x + this.physics2DToLaya(length * (-sinAngle));
         let yAxisEndY = y + this.physics2DToLaya(length * cosAngle);
 
-        // 绘制旋转后的X轴 (红色)
-        let point0: any[] = [];
-        point0.push(x);
-        point0.push(y);
-        point0.push(xAxisEndX);
-        point0.push(xAxisEndY);
-        this._debugDraw.addLineDebugDrawCMD(point0, Color.RED);
-
-        // 绘制旋转后的Y轴 (绿色)
-        let point1: any[] = [];
-        point1.push(x);
-        point1.push(y);
-        point1.push(yAxisEndX);
-        point1.push(yAxisEndY);
-        this._debugDraw.addLineDebugDrawCMD(point1, Color.GREEN);
+        this._debugDraw.appendLineSegment(x, y, xAxisEndX, xAxisEndY, Color.RED);
+        this._debugDraw.appendLineSegment(x, y, yAxisEndX, yAxisEndY, Color.GREEN);
     }
 
     private _debugDrawPoint(p: any, size: any, color: any): void {
@@ -630,33 +596,16 @@ export class Physics2DWorldManager implements IElementComponentManager {
         size /= this._debugDraw._camera.m_extent;
         var hsize: number = size / 2;
 
-        let outColor = this._makeStyleString(color, 1)
-        let point: any[] = [];
+        let outColor = this._makeStyleString(color, 1);
+        let lx = this.physics2DToLaya(p.x - hsize);
+        let rx = this.physics2DToLaya(p.x + hsize);
+        let ty = this.physics2DToLaya(p.y - hsize);
+        let by = this.physics2DToLaya(p.y + hsize);
 
-        point.push(this.physics2DToLaya(p.x - hsize));
-        point.push(this.physics2DToLaya(p.y - hsize));
-        point.push(this.physics2DToLaya(p.x + hsize));
-        point.push(this.physics2DToLaya(p.y - hsize));
-
-        point.push(this.physics2DToLaya(p.x + hsize));
-        point.push(this.physics2DToLaya(p.y - hsize));
-        point.push(this.physics2DToLaya(p.x + hsize));
-        point.push(this.physics2DToLaya(p.y + hsize));
-
-        point.push(this.physics2DToLaya(p.x + hsize));
-        point.push(this.physics2DToLaya(p.y + hsize));
-        point.push(this.physics2DToLaya(p.x - hsize));
-        point.push(this.physics2DToLaya(p.y + hsize));
-
-        point.push(this.physics2DToLaya(p.x - hsize));
-        point.push(this.physics2DToLaya(p.y + hsize));
-        point.push(this.physics2DToLaya(p.x - hsize));
-        point.push(this.physics2DToLaya(p.y - hsize));
-
-        this._debugDraw.addLineDebugDrawCMD(point, outColor);
-
-        // 备用的直接绘制方法（使用drawRect）
-        // this._debugDraw.mG.drawRect(p.x - hsize, p.y - hsize, size, size, this._makeStyleString(color, 1), null);
+        this._debugDraw.appendLineSegment(lx, ty, rx, ty, outColor);
+        this._debugDraw.appendLineSegment(rx, ty, rx, by, outColor);
+        this._debugDraw.appendLineSegment(rx, by, lx, by, outColor);
+        this._debugDraw.appendLineSegment(lx, by, lx, ty, outColor);
     }
 
     private _debugDrawAABB(min: any, max: any, color: any): void {
@@ -669,33 +618,15 @@ export class Physics2DWorldManager implements IElementComponentManager {
         var hw: number = (maxX - minX) * 0.5;
         var hh: number = (maxY - minY) * 0.5;
         let outColor = this._makeStyleString(color, 1);
-        let point0: any[] = [];
-        point0.push(this.physics2DToLaya(cx - hw));
-        point0.push(this.physics2DToLaya(cy - hh));
-        point0.push(this.physics2DToLaya(cx + hw));
-        point0.push(this.physics2DToLaya(cy - hh));
-        this._debugDraw.addLineDebugDrawCMD(point0, outColor);
+        let lx = this.physics2DToLaya(cx - hw);
+        let rx = this.physics2DToLaya(cx + hw);
+        let ty = this.physics2DToLaya(cy - hh);
+        let by = this.physics2DToLaya(cy + hh);
 
-        let point1: any[] = [];
-        point1.push(this.physics2DToLaya(cx - hw));
-        point1.push(this.physics2DToLaya(cy + hh));
-        point1.push(this.physics2DToLaya(cx + hw));
-        point1.push(this.physics2DToLaya(cy + hh));
-        this._debugDraw.addLineDebugDrawCMD(point1, outColor);
-
-        let point2: any[] = [];
-        point2.push(this.physics2DToLaya(cx - hw));
-        point2.push(this.physics2DToLaya(cy - hh));
-        point2.push(this.physics2DToLaya(cx - hw));
-        point2.push(this.physics2DToLaya(cy + hh));
-        this._debugDraw.addLineDebugDrawCMD(point2, outColor);
-
-        let point3: any[] = [];
-        point3.push(this.physics2DToLaya(cx + hw));
-        point3.push(this.physics2DToLaya(cy - hh));
-        point3.push(this.physics2DToLaya(cx + hw));
-        point3.push(this.physics2DToLaya(cy + hh));
-        this._debugDraw.addLineDebugDrawCMD(point3, outColor);
+        this._debugDraw.appendLineSegment(lx, ty, rx, ty, outColor);
+        this._debugDraw.appendLineSegment(lx, by, rx, by, outColor);
+        this._debugDraw.appendLineSegment(lx, ty, lx, by, outColor);
+        this._debugDraw.appendLineSegment(rx, ty, rx, by, outColor);
 
         // this._debugDraw.mG.drawLine(cx - hw, cy - hh, cx + hw, cy - hh, cs, linew);
         // this._debugDraw.mG.drawLine(cx - hw, cy + hh, cx + hw, cy + hh, cs, linew);
@@ -721,15 +652,17 @@ export class Physics2DWorldManager implements IElementComponentManager {
         let ownerA: any = colliderA.owner;
         let ownerB: any = colliderB.owner;
         let __this = this;
-        contact.getHitInfo = function (): any {
-            // TODO
-            // var manifold: any = __this._tempWorldManifold;
-            // this.GetWorldManifold(manifold);
-            // //第一点？
-            // let p: any = manifold.points;
-            // p.x = __this.phyToLayaValue(p.x);
-            // p.y = __this.phyToLayaValue(p.y);
-            // return manifold;
+        let _hitResult: Physics2DContactHitResult;
+        contact.getHitInfo = function (): Physics2DContactHitResult {
+            if (!_hitResult) _hitResult = new Physics2DContactHitResult();
+            let pointCount = Physics2D.I._factory.getContactWorldManifold(contact, _hitResult);
+            // 将接触点从物理坐标转换为像素坐标（法线是单位向量，不需要转换）
+            for (let i = 0; i < pointCount; i++) {
+                _hitResult.points[i].x = __this.physics2DToLaya(_hitResult.points[i].x);
+                _hitResult.points[i].y = __this.physics2DToLaya(_hitResult.points[i].y);
+                _hitResult.separations[i] = __this.physics2DToLaya(_hitResult.separations[i]);
+            }
+            return _hitResult;
         }
         if (ownerA) {
             var args: any[] = [colliderB, colliderA, contact];

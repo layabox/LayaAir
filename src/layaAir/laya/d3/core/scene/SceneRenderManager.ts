@@ -114,7 +114,6 @@ export class SceneRenderManager {
      */
     destroy(): void {
         this._list.clear();
-        this.list = null;
         this._sceneManagerOBJ.destroy();
     }
 

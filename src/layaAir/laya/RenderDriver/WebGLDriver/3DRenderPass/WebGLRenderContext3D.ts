@@ -24,9 +24,7 @@ import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
 export class WebGLRenderContext3D implements IRenderContext3D {
     //单例
     static _instance: WebGLRenderContext3D;
-    /**
-     * @internal 
-    */
+
     preDrawUniformMaps: Set<string>;
 
     /** @internal */

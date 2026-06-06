@@ -15,6 +15,7 @@ import { Vector4 } from "../maths/Vector4";
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { ShaderData, ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
+import { RenderParams } from "../RenderEngine/RenderEnum/RenderParams";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
@@ -50,6 +51,18 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
     static DEBUG: boolean = false; //是否打印调试信息
     static SUPPORT_LIGHT_BLEND_MODE = true; //是否支持灯光之间多种模式混合
     static SUPPORT_LIGHT_SCENE_MODE = true; //是否支持灯光场景多种模式混合
+
+    /**
+     * 将光影图尺寸夹到设备 MAX_TEXTURE_SIZE，避免低端机因 outerRadius 过大创建超限 RT 导致 glTexStorage2D / framebuffer incomplete
+     */
+    static clampRTSize(size: number): number {
+        const max = LayaGL.renderEngine.getParams(RenderParams.MAX_Texture_Size);
+        if (max > 0 && size > max) {
+            console.warn(`[Light2D] RT size ${size} exceeds device MAX_TEXTURE_SIZE (${max}), clamped. Reduce light outerRadius/range to avoid visual truncation on low-end devices.`);
+            return max;
+        }
+        return size;
+    }
 
     lsTarget: RenderTexture[] = []; //渲染目标（光影图），数量等于有灯光的层数，相乘模式
     lsTargetAdd: RenderTexture[] = []; //渲染目标（光影图），数量等于有灯光的层数，相加模式
@@ -569,8 +582,11 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
      * @param height 
      */
     private _buildRenderTexture(width: number, height: number) {
+        width = Light2DManager.clampRTSize(width);
+        height = Light2DManager.clampRTSize(height);
         const tex = new RenderTexture(width, height, RenderTargetFormat.R8G8B8A8, null, false, this.config.multiSamples);
         tex.wrapModeU = tex.wrapModeV = WrapMode.Clamp;
+        tex.lock = true;
         return tex;
     }
 
@@ -1043,50 +1059,37 @@ export class Light2DManager implements IElementComponentManager, ILight2DManager
 
     /**
      * 更新屏幕尺寸和偏移参数
+     * 单 Area2D + Camera2D 时跟随主相机视野；其余情况退化为屏幕像素空间。
+     * 多 Area2D 仍然只跟随第一个有 mainCamera 的 area，配合 layer 查询（不区分 area2d）。
      */
     private _updateScreen() {
-        // if (this._scene._area2Ds.size > 0) {
-        //     let xL = 10000000;
-        //     let xR = -10000000;
-        //     let yB = 10000000;
-        //     let yT = -10000000;
-        // TODO::因为现在sprite 找灯光数据只是layer查找，还要区分 area2d ，暂时先做全局。可以尝试设置个对应的 Area2D GlobalShaderData.
-        //     for (let i = 0 , n = this._lights.length; i < n; i++) {
-        //         let sprite = this._lights[i].owner;
-        //         if (sprite) { 
-        //             let renderData = sprite._struct.globalRenderData;
-        //             // 相机
-        //             let cameraRect = renderData ? renderData.cullRect : null;
-        //             if (cameraRect) {
-        //                 xL = Math.min(xL, cameraRect.x);
-        //                 xR = Math.max(xR, cameraRect.y);
-        //                 yB = Math.min(yB, cameraRect.z);
-        //                 yT = Math.max(yT, cameraRect.w);
-        //             } else {
-        //                 xR = -1 , yT = -1;
-        //                 break;
-        //             }
-        //         }else{
-        //             xR = -1 , yT = -1;
-        //             break;
-        //         }
-        //     }
-        //     this._screen.x = xL;
-        //     this._screen.y = yB;
-        //     this._screen.width = xR - xL;
-        //     this._screen.height = yT - yB;
-        //     if (this._screen.width < 0 || this._screen.height < 0) {
-        //         this._screen.x = 0;
-        //         this._screen.y = 0;
-        //         this._screen.width = RenderState2D.width | 0;
-        //         this._screen.height = RenderState2D.height | 0;
-        //     }
-        // } else {
+        //_rect 由 Area2D 渲染路径每帧调用 mainCamera._getCameraTransform() 时刷新（Area2D.ts:107、161），
+        //这里只读不触发，避免与 positionSmooth 平滑插值产生双步进。首帧 _rect=(0,0,0,0) 会因 r.y>r.x 检查失败而退化到屏幕空间。
+        let cameraRect: Vector4 = null;
+        if (this._scene && this._scene._area2Ds && this._scene._area2Ds.size > 0) {
+            for (const area of this._scene._area2Ds) {
+                const cam = area.mainCamera;
+                if (cam) {
+                    const r = cam._rect;
+                    //_rect = (min_x, max_x, min_y, max_y)
+                    if (r && r.y > r.x && r.w > r.z) {
+                        cameraRect = r;
+                        break; //只跟随第一个有效相机；多 Area2D 多相机场景需在 sprite 端按 area2d 区分光影 RT，超出本次改动范围
+                    }
+                }
+            }
+        }
+        if (cameraRect) {
+            this._screen.x = cameraRect.x | 0;
+            this._screen.y = cameraRect.z | 0;
+            this._screen.width = (cameraRect.y - cameraRect.x) | 0;
+            this._screen.height = (cameraRect.w - cameraRect.z) | 0;
+        } else {
             this._screen.x = 0;
             this._screen.y = 0;
             this._screen.width = RenderState2D.width | 0;
             this._screen.height = RenderState2D.height | 0;
-        // }
+        }
 
         if (this._screen.width <= 0 || this._screen.height <= 0)
             return false; //屏幕尺寸不合理

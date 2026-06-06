@@ -74,7 +74,19 @@ export class Main2DModule implements IClone {
     /** @internal */
     _gravity: Vector2 = new Vector2();
 
-    gravityModifier: number = 0;
+    private _gravityModifier: Vector2 = new Vector2(0, 0);
+
+    get gravityModifier(): Vector2 {
+        return this._gravityModifier;
+    }
+
+    set gravityModifier(value: number | Vector2) {
+        if (typeof value === 'number') {
+            this._gravityModifier.setValue(value, value);
+        } else {
+            value.cloneTo(this._gravityModifier);
+        }
+    }
 
     /** @internal */
     _spriteRotAndScale: Vector4 = new Vector4();
@@ -138,7 +150,7 @@ export class Main2DModule implements IClone {
         destObject.startRotation = this.startRotation;
         destObject.alignToDirection = this.alignToDirection;
         this.startColor.cloneTo(destObject.startColor);
-        destObject.gravityModifier = this.gravityModifier;
+        this.gravityModifier.cloneTo(destObject._gravityModifier);
         destObject.simulationSpace = this.simulationSpace;
         destObject.simulationSpeed = this.simulationSpeed;
         destObject.scaleMode = this.scaleMode;

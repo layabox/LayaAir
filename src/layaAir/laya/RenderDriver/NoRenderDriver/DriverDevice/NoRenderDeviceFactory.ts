@@ -15,8 +15,10 @@ import { Vector4 } from "../../../maths/Vector4";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { HTMLCanvas } from "../../../resource/HTMLCanvas";
 import { Resource } from "../../../resource/Resource";
-import { NotImplementedError } from "../../../utils/Error";
+import { Laya } from "../../../../Laya";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { FastSinglelist } from "../../../utils/SingletonList";
+import { NoRenderEngine } from "./NoRenderEngineFactory";
 import { ShaderProcessInfo, ShaderCompileDefineBase } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { CommandUniformMap, UniformOptions, UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
@@ -31,7 +33,119 @@ import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture
 import { ShaderData, ShaderDataItem, ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
-import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
+
+export class NoRenderDefineDatas implements IDefineDatas {
+    _mask: Array<number> = [];
+    _length: number = 0;
+
+    _intersectionDefineDatas(define: IDefineDatas): void {
+        var unionMask: Array<number> = define._mask;
+        var mask: Array<number> = this._mask;
+        for (var i: number = this._length - 1; i >= 0; i--) {
+            var value: number = mask[i] & unionMask[i];
+            if (value === 0 && i === this._length - 1)
+                this._length--;
+            else
+                mask[i] = value;
+        }
+    }
+
+    add(define: ShaderDefine): boolean {
+        var index: number = define._index;
+        var size: number = index + 1;
+        var mask: Array<number> = this._mask;
+        var maskStart: number = this._length;
+        if (maskStart < size) {
+            (mask.length < size) && (mask.length = size);
+            for (; maskStart < index; maskStart++)
+                mask[maskStart] = 0;
+            mask[index] = define._value;
+            this._length = size;
+            return true;
+        }
+        let last = mask[index];
+        mask[index] |= define._value;
+        return last !== mask[index];
+    }
+
+    remove(define: ShaderDefine): boolean {
+        var index: number = define._index;
+        var mask: Array<number> = this._mask;
+        var endIndex: number = this._length - 1;
+        if (index > endIndex) return false;
+        let lastValue = mask[index];
+        var newValue = mask[index] & ~define._value;
+        if (index == endIndex && newValue === 0)
+            this._length--;
+        else
+            mask[index] = newValue;
+        return lastValue !== newValue;
+    }
+
+    addDefineDatas(define: IDefineDatas): void {
+        var addMask: Array<number> = define._mask;
+        var size: number = define._length;
+        var mask: Array<number> = this._mask;
+        var maskStart: number = this._length;
+        if (maskStart < size) {
+            mask.length = size;
+            for (var i: number = 0; i < maskStart; i++)
+                mask[i] |= addMask[i];
+            for (; i < size; i++)
+                mask[i] = addMask[i];
+            this._length = size;
+        } else {
+            for (var i: number = 0; i < size; i++)
+                mask[i] |= addMask[i];
+        }
+    }
+
+    removeDefineDatas(define: IDefineDatas): void {
+        var removeMask: Array<number> = define._mask;
+        var mask: Array<number> = this._mask;
+        var endIndex: number = this._length - 1;
+        var i = Math.min(define._length, endIndex);
+        for (; i >= 0; i--) {
+            var newValue = mask[i] & ~removeMask[i];
+            if (i == endIndex && newValue === 0) {
+                endIndex--;
+                this._length--;
+            } else {
+                mask[i] = newValue;
+            }
+        }
+    }
+
+    has(define: ShaderDefine): boolean {
+        var index: number = define._index;
+        if (index >= this._length) return false;
+        return (this._mask[index] & define._value) !== 0;
+    }
+
+    clear(): void {
+        this._length = 0;
+    }
+
+    cloneTo(destObject: IDefineDatas): void {
+        var destMask: Array<number> = destObject._mask;
+        var mask: Array<number> = this._mask;
+        var count: number = this._length;
+        destMask.length = count;
+        for (var i: number = 0; i < count; i++)
+            destMask[i] = mask[i];
+        destObject._length = count;
+    }
+
+    clone(): IDefineDatas {
+        var dest: NoRenderDefineDatas = new NoRenderDefineDatas();
+        this.cloneTo(dest);
+        return dest;
+    }
+
+    destroy(): void {
+        delete this._mask;
+    }
+}
 
 export class NoRenderDeviceFactory implements IRenderDeviceFactory {
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): IShaderInstance {
@@ -50,6 +164,10 @@ export class NoRenderDeviceFactory implements IRenderDeviceFactory {
         return new NoRenderGeometryElement();
     }
     createEngine(config: Config, canvas: HTMLCanvas): Promise<void> {
+        let engine = new NoRenderEngine();
+        engine.initRenderEngine(null);
+        LayaGL.renderEngine = engine;
+        LayaGL.textureContext = engine.getTextureContext();
         return Promise.resolve();
     }
     createGlobalUniformMap(blockName: string): CommandUniformMap {
@@ -84,10 +202,10 @@ export class NoRenderCommandUnifojrmMap extends CommandUniformMap {
 
 export class NoRenderShaderInstance implements IShaderInstance {
     _serializeShader(): ArrayBuffer {
-        throw new NotImplementedError();
+        return null;
     }
     _deserialize(buffer: ArrayBuffer): boolean {
-        throw new NotImplementedError();
+        return false;
     }
     _create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
     }
@@ -161,9 +279,9 @@ export class NoRenderShaderData extends ShaderData {
     /**@internal */
     _data: any = {};
     /** @internal */
-    _defineDatas: WebDefineDatas = new WebDefineDatas();
+    _defineDatas: NoRenderDefineDatas = new NoRenderDefineDatas();
 
-    getDefineData(): WebDefineDatas {
+    getDefineData(): NoRenderDefineDatas {
         return this._defineDatas;
     }
 
@@ -185,7 +303,7 @@ export class NoRenderShaderData extends ShaderData {
      * @ignore
      */
     addDefines(define: IDefineDatas): void {
-        this._defineDatas.addDefineDatas(define as WebDefineDatas);
+        this._defineDatas.addDefineDatas(define as NoRenderDefineDatas);
     }
 
     /**
@@ -203,10 +321,16 @@ export class NoRenderShaderData extends ShaderData {
     }
 
     clearDefine(): void {
-
+        this._defineDatas.clear();
     }
     clearData(): void {
-
+        for (const k in this._data) {
+            const value: any = this._data[k];
+            if (value instanceof Resource) {
+                value._removeReference();
+            }
+        }
+        this._data = {};
     }
 
     /**
@@ -654,4 +778,9 @@ export class NoRenderSetShaderDefine extends SetShaderDefineCMD {
     apply(context: any): void {
     }
 }
+
+Laya.addBeforeInitCallback(() => {
+    if (!LayaGL.renderDeviceFactory)
+        LayaGL.renderDeviceFactory = new NoRenderDeviceFactory();
+});
 

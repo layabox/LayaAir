@@ -1,10 +1,10 @@
 import { Laya } from "../../../../Laya";
 import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
 import { NotImplementedError } from "../../../utils/Error";
-import { IRender3DProcess } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRender3DProcess, IRenderContext3D, IRenderElement3D, ISkinRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
 import { IBatchModuleAgent } from "../../DriverDesign/3DRenderPass/IBatchModuleAgent";
-import { ComputeCommandAppatchCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
+import { ComputeCommandAppatchCMD, SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebRender3DProcess } from "../../RenderModuleData/WebModuleData/3D/WebForwardAddRP/WebRender3DProcess";
 import { WebForwardAddClusterRP } from "../../RenderModuleData/WebModuleData/3D/WebForwardAddRP/WebForwardAddClusterRP";
@@ -18,6 +18,8 @@ import { WebGLBlitQuadCMDData, WebGLDrawElementCMDData, WebGLDrawNodeCMDData, We
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
 import { WebGLSkinRenderElement3D } from "./WebGLSkinRenderElement3D";
+import { BlitQuadCMDData, DrawElementCMDData, DrawNodeCMDData, SetRenderTargetCMD, SetViewportCMD } from "../../DriverDesign/3DRenderPass/IRender3DCMD";
+import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
 WebBaseRenderNode.BaseRenderNodeClass = WebBaseRenderNode;
 export class WebGL3DRenderPassFactory implements I3DRenderPassFactory {
     createMeshRenderBatchModule(): IBatchModuleAgent {
@@ -32,48 +34,48 @@ export class WebGL3DRenderPassFactory implements I3DRenderPassFactory {
     //     throw new NotImplementedError();
     // }
 
-    createSetRenderDataCMD(): WebGLSetRenderData {
+    createSetRenderDataCMD(): SetRenderDataCMD {
         return new WebGLSetRenderData();
     }
 
-    createSetShaderDefineCMD(): WebGLSetShaderDefine {
+    createSetShaderDefineCMD(): SetShaderDefineCMD {
         return new WebGLSetShaderDefine();
     }
 
-    createDrawNodeCMDData(): WebGLDrawNodeCMDData {
+    createDrawNodeCMDData(): DrawNodeCMDData {
         return new WebGLDrawNodeCMDData();
     }
 
-    createBlitQuadCMDData(): WebGLBlitQuadCMDData {
+    createBlitQuadCMDData(): BlitQuadCMDData {
         return new WebGLBlitQuadCMDData();
     }
 
-    createDrawElementCMDData(): WebGLDrawElementCMDData {
+    createDrawElementCMDData(): DrawElementCMDData {
         return new WebGLDrawElementCMDData();
     }
 
-    createSetViewportCMD(): WebGLSetViewportCMD {
+    createSetViewportCMD(): SetViewportCMD {
         return new WebGLSetViewportCMD();
     }
 
-    createSetRenderTargetCMD(): WebGLSetRenderTargetCMD {
+    createSetRenderTargetCMD(): SetRenderTargetCMD {
         return new WebGLSetRenderTargetCMD();
     }
 
-    createSceneRenderManager(): WebSceneRenderManager {
+    createSceneRenderManager(): ISceneRenderManager {
         return new WebSceneRenderManager();
     }
 
-    createSkinRenderElement(): WebGLSkinRenderElement3D {
+    createSkinRenderElement(): ISkinRenderElement3D {
         return new WebGLSkinRenderElement3D();
     }
 
-    createRenderContext3D(): WebGLRenderContext3D {
+    createRenderContext3D(): IRenderContext3D {
         let context = new WebGLRenderContext3D();
         return context;
     }
 
-    createRenderElement3D(): WebGLRenderElement3D {
+    createRenderElement3D(): IRenderElement3D {
         return new WebGLRenderElement3D();
     }
 

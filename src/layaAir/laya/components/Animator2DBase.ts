@@ -10,6 +10,7 @@ import { AnimatorUpdateMode } from "./AnimatorUpdateMode";
 import { Loader } from "../net/Loader";
 import { ILaya } from "../../ILaya";
 import { Vector3 } from "../maths/Vector3";
+import { Material } from "../resource/Material";
 
 /**
  * @en Base class for 2D animator components, provides shared clip playback logic.
@@ -26,7 +27,7 @@ export class Animator2DBase extends Component {
     /**@internal */
     protected _isPlaying = true;
     /**@internal */
-    protected _ownerMap: Map<KeyframeNode2D, { ower: Node, pro?: { ower: any, key: string, defVal: any, parentOwer?: any, parentKey?: string } }>;
+    protected _ownerMap: Map<KeyframeNode2D, { ower: Node, pro?: { ower: any, key: string, defVal: any, parentOwer?: any, parentKey?: string, isMat?: boolean, matComp?: string } }>;
     /**@internal */
     protected _isPlayBack: boolean = false;
 
@@ -73,27 +74,27 @@ export class Animator2DBase extends Component {
     /**
      * @internal
      */
-    protected _applyAniData(o: { ower: Node, pro?: { ower: any, key: string, defVal: any, parentOwer?: any, parentKey?: string } }, additive: boolean, weight: number, data: string | number | boolean | { pos: Vector3, rotation: Vector3 }): void {
+    protected _applyAniData(o: { ower: Node, pro?: { ower: any, key: string, defVal: any, parentOwer?: any, parentKey?: string, isMat?: boolean, matComp?: string } }, additive: boolean, weight: number, data: string | number | boolean | { pos: Vector3, rotation: Vector3 }): void {
         var pro = o.pro;
         if (pro && pro.ower) {
+            var isMat = pro.isMat;
+            var mat = isMat ? pro.ower as Material : null;
+            if (isMat) {
+                this._applyMatData(mat, pro, additive, weight, data);
+                return;
+            }
             if (additive && "number" === typeof data) {
                 pro.ower[pro.key] = pro.defVal + weight * data;
-                if (pro.parentOwer && pro.parentKey != null) {
-                    pro.parentOwer[pro.parentKey] = pro.ower;
-                }
+                if (pro.parentOwer && pro.parentKey != null) pro.parentOwer[pro.parentKey] = pro.ower;
             } else if ("number" === typeof data) {
                 pro.ower[pro.key] = weight * data;
-                if (pro.parentOwer && pro.parentKey != null) {
-                    pro.parentOwer[pro.parentKey] = pro.ower;
-                }
+                if (pro.parentOwer && pro.parentKey != null) pro.parentOwer[pro.parentKey] = pro.ower;
             } else if ("object" === typeof data) {
                 if (data.pos) {
                     pro.ower.x = data.pos.x;
                     pro.ower.y = data.pos.y;
                 }
-                if (null != data.rotation) {
-                    pro.ower.rotation = data.rotation.z;
-                }
+                if (null != data.rotation) pro.ower.rotation = data.rotation.z;
             } else {
                 if ("string" === typeof data) {
                     if (data.startsWith("tres://")) {
@@ -105,9 +106,7 @@ export class Animator2DBase extends Component {
                             ILaya.loader.load(url, { type: Loader.IMAGE }).then(tex => {
                                 if (!this.destroyed) {
                                     pro.ower[pro.key] = tex;
-                                    if (pro.parentOwer && pro.parentKey != null) {
-                                        pro.parentOwer[pro.parentKey] = pro.ower;
-                                    }
+                                    if (pro.parentOwer && pro.parentKey != null) pro.parentOwer[pro.parentKey] = pro.ower;
                                 }
                             });
                             return;
@@ -115,9 +114,46 @@ export class Animator2DBase extends Component {
                     }
                 }
                 pro.ower[pro.key] = data;
-                if (pro.parentOwer && pro.parentKey != null) {
-                    pro.parentOwer[pro.parentKey] = pro.ower;
+                if (pro.parentOwer && pro.parentKey != null) pro.parentOwer[pro.parentKey] = pro.ower;
+            }
+        }
+    }
+
+    /**
+     * @internal 针对 Material 的写入:若有分量则读当前 Color/Vector 修改分量后回写;否则走 setFloat/setBool/setTexture。
+     */
+    protected _applyMatData(mat: Material, pro: { key: string, defVal: any, matComp?: string }, additive: boolean, weight: number, data: string | number | boolean | { pos: Vector3, rotation: Vector3 }): void {
+        var key = pro.key;
+        var comp = pro.matComp;
+        if (comp && "number" === typeof data) {
+            var nv = additive ? (pro.defVal || 0) + weight * data : weight * data;
+            var isColorComp = comp === "r" || comp === "g" || comp === "b" || comp === "a";
+            if (isColorComp) {
+                var c = mat.getColor(key);
+                if (c) { (c as any)[comp] = nv; mat.setColor(key, c); }
+            } else {
+                var v = mat.getVector4(key);
+                if (v) { (v as any)[comp] = nv; mat.setVector4(key, v); }
+            }
+            return;
+        }
+        if ("number" === typeof data) {
+            var fv = additive ? (pro.defVal || 0) + weight * data : weight * data;
+            mat.setFloat(key, fv);
+        } else if ("boolean" === typeof data) {
+            mat.setBool(key, data);
+        } else if ("string" === typeof data) {
+            if (data.startsWith("tres://")) {
+                let url = data.replace("tres://", "");
+                let source = Loader.getRes(url, Loader.IMAGE);
+                if (source) mat.setTexture(key, source);
+                else {
+                    ILaya.loader.load(url, { type: Loader.IMAGE }).then(tex => {
+                        if (!this.destroyed) mat.setTexture(key, tex);
+                    });
                 }
+            } else {
+                mat.setTexture(key, data as any);
             }
         }
     }
@@ -128,12 +164,25 @@ export class Animator2DBase extends Component {
     protected _updateDefVal(): void {
         if (!this._ownerMap) return;
         this._ownerMap.forEach((ownerData) => {
-            if (ownerData.pro && ownerData.pro.ower) {
-                if (ownerData.pro.parentOwer && ownerData.pro.parentKey != null) {
-                    ownerData.pro.ower = ownerData.pro.parentOwer[ownerData.pro.parentKey];
-                    ownerData.pro.defVal = ownerData.pro.ower ? ownerData.pro.ower[ownerData.pro.key] : null;
+            var pro = ownerData.pro;
+            if (pro && pro.ower) {
+                if (pro.isMat) {
+                    var m = pro.ower as Material;
+                    if (pro.matComp) {
+                        var c = m.getColor(pro.key);
+                        if (c) pro.defVal = (c as any)[pro.matComp];
+                        else {
+                            var v = m.getVector4(pro.key);
+                            if (v) pro.defVal = (v as any)[pro.matComp];
+                        }
+                    } else {
+                        pro.defVal = m.getFloat(pro.key);
+                    }
+                } else if (pro.parentOwer && pro.parentKey != null) {
+                    pro.ower = pro.parentOwer[pro.parentKey];
+                    pro.defVal = pro.ower ? pro.ower[pro.key] : null;
                 } else {
-                    ownerData.pro.defVal = ownerData.pro.ower[ownerData.pro.key];
+                    pro.defVal = pro.ower[pro.key];
                 }
             }
         });
@@ -143,7 +192,7 @@ export class Animator2DBase extends Component {
      * @internal
      */
     protected getOwner(node: KeyframeNode2D) {
-        var ret: { ower: Node, pro?: { ower: any, key: string, defVal: any, parentOwer?: any, parentKey?: string } };
+        var ret: { ower: Node, pro?: { ower: any, key: string, defVal: any, parentOwer?: any, parentKey?: string, isMat?: boolean, matComp?: string } };
         if (this._ownerMap) {
             ret = this._ownerMap.get(node);
             if (ret) return ret;
@@ -170,6 +219,27 @@ export class Animator2DBase extends Component {
                 var prevPname: string = undefined;
                 for (var i = 0; i < propertyCount; i++) {
                     var pname = node.getPropertyByIndex(i);
+                    if (pobj instanceof Material) {
+                        var matKey = pname;
+                        var matComp = (i + 1 < propertyCount) ? node.getPropertyByIndex(i + 1) : undefined;
+                        var matDef: any = null;
+                        if (matComp) {
+                            var curColor = (pobj as Material).getColor(matKey);
+                            if (curColor) matDef = (curColor as any)[matComp];
+                            else {
+                                var curVec = (pobj as Material).getVector4(matKey);
+                                if (curVec) matDef = (curVec as any)[matComp];
+                            }
+                        } else {
+                            matDef = (pobj as Material).getFloat(matKey);
+                        }
+                        ret.pro = {
+                            ower: pobj, key: matKey, defVal: matDef,
+                            parentOwer: prevPobj, parentKey: prevPname,
+                            isMat: true, matComp,
+                        };
+                        break;
+                    }
                     if (i == propertyCount - 1 || null == pobj) {
                         ret.pro = { ower: pobj, key: pname, defVal: pobj ? pobj[pname] : null, parentOwer: prevPobj, parentKey: prevPname };
                         break;

@@ -26,7 +26,8 @@ export interface IRender2DPass {
 
    needRender(): boolean;
    setClearColor(r: number, g: number, b: number, a: number): void;
-   fowardRender(context: IRenderContext2D): void;
+   fowardRender(context: IRenderContext2D, renderTime: number): void;
+   updatePostProcess(): void;
    destroy(): void;
 }
 
@@ -34,6 +35,6 @@ export interface IRender2DPass {
 export interface IRender2DPassManager {
    addPass(pass: IRender2DPass): void;
    removePass(pass: IRender2DPass): void;
-   apply(context: IRenderContext2D): void;
+   apply(context: IRenderContext2D, renderTime: number): void;
    clear(): void;
 }

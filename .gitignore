@@ -3,6 +3,7 @@ bin/tsc
 bin/uploads
 bin/rollUp
 bin/jsLibs
+bin/webgl
 node_modules
 .cache
 .vscode/chrome
@@ -13,4 +14,4 @@ build
 package-lock.json
 .rpt2_cache
 /docTool/dist
-docs
+docs.planning/

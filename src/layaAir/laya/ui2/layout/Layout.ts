@@ -619,7 +619,7 @@ export class Layout implements ILayout {
         }
 
         cx = 0;
-        if (this._stretchX === StretchMode.ResizeToFit && cw < vw) { //要将居中或居右的偏移回退
+        if (this._stretchX === StretchMode.ResizeToFit) { //要将居中或居右的偏移回退
             if (align === 1)
                 cx = Math.floor((cw - vw) / 2);
             else if (align === 2)
@@ -795,7 +795,7 @@ export class Layout implements ILayout {
         }
 
         cy = 0;
-        if (this._stretchY === StretchMode.ResizeToFit && ch < vh) {
+        if (this._stretchY === StretchMode.ResizeToFit) { //要将居中或居底的偏移回退
             if (valign === 1)
                 cy = Math.floor((ch - vh) / 2);
             else if (valign === 2)

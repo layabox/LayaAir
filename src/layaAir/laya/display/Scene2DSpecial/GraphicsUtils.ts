@@ -11,6 +11,7 @@ import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderD
 import { I2DGraphicIndexDataView, I2DGraphicVertexDataView, I2DPrimitiveDataHandle, IGraphics2DBufferBlock, IGraphics2DVertexBlock } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
+import { WebRenderStruct2D } from "../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
@@ -36,6 +37,7 @@ import { BaseRender2DType, SpriteConst, TransformKind } from "../SpriteConst";
 import { SpriteGlobalTransform } from "../SpriteGlobaTransform";
 import { GraphicsRunner } from "./GraphicsRunner";
 import type { IGraphicsCmd } from "../IGraphics";
+import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 
 type GraphicBlockRecord = {
    index: number;
@@ -92,7 +94,7 @@ export class GraphicsRenderer {
    /** @internal */
    private _onOwnerTransformChanged(type : number) {
       //缩放重绘
-      if (type & TransformKind.Layout && this._display) {
+      if (type & TransformKind.Layout && this._display && this.owner._struct.enabled) {
          // 如果graphics中有需要响应布局变化的cmd，则重绘
          if (this.graphics && this.graphics.getLayoutRepaintCount() > 0) {
             this.graphics.repaint();
@@ -277,7 +279,7 @@ export class GraphicsRenderer {
       this._submits.destroy();
 
       this.texturesMap.forEach(inf => {
-         inf.texture.off("dispose" , this, this._resourceRepaint);
+         inf.texture.off(Event.CHANGE, this, this._resourceRepaint);
       });
       this.texturesMap.clear();
 
@@ -440,7 +442,8 @@ export class SubStructRender {
       subStruct.renderElements = this._renderElements;
 
       this._renderElement.owner = this._subStruct;
-      this._renderElement.type = this._subStruct.blendMode;
+      this._renderElement.typeKey = this._subStruct.blendMode;
+      this._renderElement.textureKey = 0;
    }
 
    /**
@@ -450,12 +453,11 @@ export class SubStructRender {
     * @param scaleY
     */
    _updateRenderOffset(rect: Rectangle, oriRect: Rectangle, scaleX: number, scaleY: number) {
-      rect.cloneTo(this._rtRect);
-
-      if (!oriRect.equals(this._oriRect)) {
+      if (!rect.equals(this._rtRect) || !oriRect.equals(this._oriRect) || scaleX !== this._scaleX || scaleY !== this._scaleY) {
          this._needUpdateVertexSize = true;
       }
 
+      rect.cloneTo(this._rtRect);
       oriRect.cloneTo(this._oriRect);
 
       this._scaleX = scaleX;
@@ -523,6 +525,7 @@ export class SubStructRender {
 
       if (this._submit._key.blendShader !== this._subStruct.blendMode) {
          this._submit._key.blendShader = this._subStruct.blendMode;
+         BlendModeHandler.setShaderData(this._subStruct.blendMode, this._shaderData);
          BlendModeHandler.setShaderData(this._subStruct.blendMode, this._internalInfo.shaderData);
       }
 
@@ -530,27 +533,25 @@ export class SubStructRender {
          return;
 
       if (destRT) {
-         this._renderElement.type = destRT._id << 6;
+         this._renderElement.textureKey = destRT._id << ShaderDefines2D.SHADER_DEFINE_BITS;
       } else {
-         this._renderElement.type = 0;
+         this._renderElement.textureKey = 0;
       }
       this._internalInfo.textureHost = destRT;
 
-      let oriRect = this._oriRect;
+      let rtRect = this._rtRect;
       let vSize = Vector4.TEMP;
-      vSize.x = oriRect.x;
-      vSize.y = oriRect.y;
+      vSize.x = rtRect.x / this._scaleX;
+      vSize.y = rtRect.y / this._scaleY;
 
       let width = destRT.sourceWidth;
       let height = destRT.sourceHeight;
       if (width > 0 && height > 0) {
-         vSize.z = Math.round(width / this._scaleX);
-         vSize.w = Math.round(height / this._scaleY);
-         vSize.x -= (vSize.z - oriRect.width) / 2;
-         vSize.y -= (vSize.w - oriRect.height) / 2;
+         vSize.z = width / this._scaleX;
+         vSize.w = height / this._scaleY;
       } else {
-         vSize.z = oriRect.width;
-         vSize.w = oriRect.height;
+         vSize.z = rtRect.width / this._scaleX;
+         vSize.w = rtRect.height / this._scaleY;
       }
       this._internalInfo.vertexSize = vSize;
       this._needUpdateVertexSize = false;

@@ -49,9 +49,13 @@ export class TileMapShaderInit {
         Shader3D.addInclude("TileMapCommon.glsl", TileMapCommonGLSL);
         Shader3D.addInclude("TileMapVertex.glsl", TileMapVertexGLSL);
         Shader3D.addInclude("TileMapFragment.glsl", TileMapFragmentGLSL);
+        let uniformMap: { [name: string]: ShaderDataType } = {
+            'u_render2DTexture': ShaderDataType.Texture2D,
+            'u_TileSize': ShaderDataType.Vector2,
+        };
         let shader = Shader3D.add("TileMapLayer", false, false);
-        shader.shaderType = ShaderFeatureType.Effect;
-        let subShader = new SubShader(attributeMap, {}, {});
+        shader.shaderType = ShaderFeatureType.D2_BaseRenderNode2D;
+        let subShader = new SubShader(attributeMap, uniformMap, {});
         shader.addSubShader(subShader);
         let forwardPass = subShader.addShaderPass(TileMapVS, TileMapFS);
 
