@@ -199,6 +199,11 @@ export class Animator extends Component {
         this._manager?._factory.handleSpriteOwnersBySprite(this._bindContext, isLink, path, sprite);
     }
 
+    /** @internal layer.avatarMask 变更时转发给 factory 刷新（RT 后端生效，Web 可选链跳过）。 */
+    _refreshLayerAvatarMask(layer: AnimatorControllerLayer): void {
+        this._manager?._factory.refreshLayerMask?.(this._bindContext, layer);
+    }
+
     private _updateDefaultValues(): void {
         this._manager?._factory.updateDefaultValues(this._keyframeNodeOwners);
     }

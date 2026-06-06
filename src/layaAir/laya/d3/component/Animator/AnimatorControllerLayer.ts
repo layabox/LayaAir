@@ -109,6 +109,7 @@ export class AnimatorControllerLayer implements IClone {
 
     set avatarMask(value: AvatarMask) {
         this._avatarMask = value;
+        this._animator?._refreshLayerAvatarMask(this); // 运行时变更下发给 native（RT）
     }
 
     /**

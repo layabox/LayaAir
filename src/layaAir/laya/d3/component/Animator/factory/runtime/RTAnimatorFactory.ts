@@ -4,6 +4,8 @@ import { AnimationClip } from "../../../../animation/AnimationClip";
 import { IAnimatorFactory } from "../IAnimatorFactory";
 import { AnimatorBindContext } from "../AnimatorBindContext";
 import { AnimatorState } from "../../AnimatorState";
+import { AnimatorControllerLayer } from "../../AnimatorControllerLayer";
+import { AvatarMask } from "../../AvatarMask";
 import { KeyFrameValueType, KeyframeNodeOwner } from "../../KeyframeNodeOwner";
 import { ITaskSlot, LayerTaskType, TaskSlot } from "../TaskSlot";
 import { WebAnimatorFactory } from "../web/WebAnimatorFactory";
@@ -294,6 +296,30 @@ export class RTAnimatorFactory implements IAnimatorFactory {
             handles[i] = (o && this._ownerHandles.get(o)) ?? 0;
         }
         this._nativePreparer.uploadBinding(bindingId, clipHandle, handles);
+
+        // per-layer AvatarMask 绑定时一次性下发（不进逐帧同步），运行时变更走 refreshLayerMask。
+        const avatarMask = this._findLayerAvatarMask(ctx, state);
+        this._nativePreparer.uploadBindingMask(bindingId, this._buildBindingMaskBytes(owners, avatarMask));
+    }
+
+    /** 按 layer.avatarMask 算 per-curve mask 字节（与 ownerHandles 同序，1=激活 0=遮罩，无 mask 全 1）。 */
+    private _buildBindingMaskBytes(owners: (KeyframeNodeOwner | null)[], avatarMask: AvatarMask | null): Uint8Array {
+        const mask = new Uint8Array(owners.length);
+        for (let i = 0; i < owners.length; i++) {
+            if (!avatarMask) { mask[i] = 1; continue; }
+            const o = owners[i];
+            mask[i] = (o && o.nodePath != null && avatarMask.getTransformActive(o.nodePath)) ? 1 : 0;
+        }
+        return mask;
+    }
+
+    /** 反查 state 所属 layer 的 avatarMask（无则 null）。 */
+    private _findLayerAvatarMask(ctx: AnimatorBindContext, state: AnimatorState): AvatarMask | null {
+        const layers = ctx.layers;
+        for (let i = 0, n = layers.length; i < n; i++) {
+            if (layers[i]._states.indexOf(state) >= 0) return layers[i].avatarMask ?? null;
+        }
+        return null;
     }
 
     /**
@@ -690,6 +716,22 @@ export class RTAnimatorFactory implements IAnimatorFactory {
     }
 
     // ==================== 冷路径 ====================
+
+    /** layer.avatarMask 运行时变更后，重算该 layer 各 binding 的 mask 并重传 native（冷路径）。 */
+    refreshLayerMask(ctx: AnimatorBindContext, layer: AnimatorControllerLayer): void {
+        if (!this._nativePreparer) return;
+        const stateMap = this._bindingMap.get(ctx);
+        if (!stateMap) return;
+        const avatarMask = layer.avatarMask ?? null;
+        const states = layer._states;
+        for (let i = 0, n = states.length; i < n; i++) {
+            const bindingId = stateMap.get(states[i]);
+            if (bindingId === undefined) continue;
+            const owners = (states[i] as any)._nodeOwners as (KeyframeNodeOwner | null)[] | undefined;
+            if (!owners) continue;
+            this._nativePreparer.uploadBindingMask(bindingId, this._buildBindingMaskBytes(owners, avatarMask));
+        }
+    }
 
     /** 把 owners 里已注册 native 的 handle 收成 Uint32Array 推给 native applier，再调 web 兜底。 */
     updateDefaultValues(owners: KeyframeNodeOwner[]): void {

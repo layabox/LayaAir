@@ -1,6 +1,7 @@
 import { Sprite3D } from "../../../core/Sprite3D";
 import { KeyframeNode } from "../../../animation/KeyframeNode";
 import { AnimatorState } from "../AnimatorState";
+import { AnimatorControllerLayer } from "../AnimatorControllerLayer";
 import { KeyframeNodeOwner } from "../KeyframeNodeOwner";
 import { AnimatorBindContext } from "./AnimatorBindContext";
 import { ITaskSlot } from "./TaskSlot";
@@ -68,6 +69,9 @@ export interface IAnimatorFactory {
 
     /** 还原 state 涉及的节点到 defaultValue（state 切走时调用）。 */
     revertDefaultKeyframeNodes(state: AnimatorState): void;
+
+    /** layer.avatarMask 运行时变更后刷新遮罩（可选，仅 RT 需要；Web 每帧直接读 mask）。 */
+    refreshLayerMask?(ctx: AnimatorBindContext, layer: AnimatorControllerLayer): void;
 
     /** Scene/AnimatorManager 销毁：释放该工厂持有的所有 native 资源与运行时回调。 */
     destroy(): void;
