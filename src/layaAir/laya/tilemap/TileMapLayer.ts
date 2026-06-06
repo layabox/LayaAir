@@ -187,11 +187,14 @@ export class TileMapLayer extends BaseRenderNode2D {
         if (this._tileSet == value) {
             return;
         }
-        if (this._tileSet)
+        if (this._tileSet) { 
             this._tileSet._removeOwner(this);
+            this._tileSet._removeReference();
+        }
         this._tileSet = value;
         if (value) {
             this.tileSet._addOwner(this);
+            this._tileSet._addReference();
             this._initialTileSet();
         }
     }
