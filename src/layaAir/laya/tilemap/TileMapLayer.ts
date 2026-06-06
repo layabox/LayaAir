@@ -193,7 +193,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         }
         this._tileSet = value;
         if (value) {
-            this.tileSet._addOwner(this);
+            this._tileSet._addOwner(this);
             this._tileSet._addReference();
             this._initialTileSet();
         }
@@ -399,6 +399,7 @@ export class TileMapLayer extends BaseRenderNode2D {
         super.onDestroy();
         this._tileMapPhysics.destroy();
         this._tileMapOccluder.destroy();
+        this.tileSet = null;
     }
 
     _globalChangeHandler() {
