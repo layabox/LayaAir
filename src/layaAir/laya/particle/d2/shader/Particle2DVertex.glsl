@@ -163,17 +163,6 @@ vec4 updateParticlePosition(Particle particle)
     float cosAngle = particle.rot.x;
     float sinAngle = particle.rot.y;
 
-#ifdef ALIGNTODIRECTION
-    // Align particle rotation to current velocity direction
-    vec2 currentVelocity = startVelocity + particle.gravity * particle.age;
-    float speed = length(currentVelocity);
-    if (speed > 0.001) {
-        vec2 dir = currentVelocity / speed;
-        cosAngle = dir.x;
-        sinAngle = dir.y;
-    }
-#endif // ALIGNTODIRECTION
-
     mat2 particleRot = mat2(cosAngle, -sinAngle, sinAngle, cosAngle);
 
 #ifdef ROTATIONOVERLIFETIME

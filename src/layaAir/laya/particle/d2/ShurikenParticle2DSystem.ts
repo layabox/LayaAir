@@ -206,7 +206,42 @@ export class ShurikenParticle2DSystem extends ParticleControler implements IClon
         particle.setSize(startSizeX, startSizeY);
         particle.setSpeed(startSpeed);
         particle.setGravity(main._gravity.x, main._gravity.y);
-        particle.setRot(Math.cos(startRadians), Math.sin(startRadians));
+
+        let rotCos = Math.cos(startRadians);
+        let rotSin = Math.sin(startRadians);
+
+        // AlignToDirection（= Unity ShapeModule.alignToDirection）：出生时按初始运动方向定向，叠加在 startRotation 上
+        if (this.shape && this.shape.enable && this.shape.alignToDirection) {
+            let dirX = startPosAndDir.z;
+            let dirY = startPosAndDir.w;
+            let dirLen = Math.sqrt(dirX * dirX + dirY * dirY);
+            if (dirLen > 1e-6) {
+                // 基础旋转：mesh -y 对齐运动方向
+                let baseCos = dirY / dirLen;
+                let baseSin = -dirX / dirLen;
+
+                // 补偿发射器旋转 φ（取世界旋转，未初始化时跳过）
+                let cosPhi = main._spriteRotAndScale.x;
+                let sinPhi = main._spriteRotAndScale.y;
+                let phiLen = Math.sqrt(cosPhi * cosPhi + sinPhi * sinPhi);
+                if (phiLen > 1e-6) {
+                    cosPhi /= phiLen;
+                    sinPhi /= phiLen;
+                } else {
+                    cosPhi = 1;
+                    sinPhi = 0;
+                }
+                let cosDir = cosPhi * baseCos + sinPhi * baseSin;
+                let sinDir = -sinPhi * baseCos + cosPhi * baseSin;
+
+                // 复合 startRotation
+                let cosTotal = rotCos * cosDir - rotSin * sinDir;
+                let sinTotal = rotSin * cosDir + rotCos * sinDir;
+                rotCos = cosTotal;
+                rotSin = sinTotal;
+            }
+        }
+        particle.setRot(rotCos, rotSin);
 
         let colorOverLifetimeRandom = 0;
         if (this.colorOverLifetime && this.colorOverLifetime.enable) {
