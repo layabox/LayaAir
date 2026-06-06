@@ -150,10 +150,16 @@ ${fragmentCode}
 
         const attributeStrs = attributeString(attributeMap[0], attributeMap[1]);
 
-        const varyings = executeVaryings(fragmentCode, vertexCode);
+        const { varyings, vsOnlyVaryings } = executeVaryings(fragmentCode, vertexCode);
 
         const vertexVaryingStrs = varyingString(varyings, "out");
         const fragmentVaryingStrs = varyingString(varyings, "in");
+
+        // 将只在 VS 中出现的 varying 声明为全局变量，避免赋值语句报错
+        let vsOnlyGlobalStrs = "";
+        for (const v of vsOnlyVaryings) {
+            vsOnlyGlobalStrs += `${v}\n`;
+        }
 
         const fragmentOutStrs = fragmentOutString(fragmentCode);
 
@@ -351,6 +357,8 @@ ${attributeStrs}
 ${uniformStrs}
 
 ${vertexVaryingStrs}
+
+${vsOnlyGlobalStrs}
 
 ${vertexCode}
 `;
@@ -833,8 +841,9 @@ function executeVaryings(fsSource: string, vsSource: string) {
     let fragmentVaryings = findVaryings(fsSource, fragmentVaryingRegex);
 
     let varyings = vertexVaryings.filter(item => fragmentVaryings.includes(item));
+    let vsOnlyVaryings = vertexVaryings.filter(item => !fragmentVaryings.includes(item));
 
-    return varyings;
+    return { varyings, vsOnlyVaryings };
 
 }
 
