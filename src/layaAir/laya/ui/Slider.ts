@@ -72,6 +72,7 @@ export class Slider extends UIComponent {
     protected _ty: number;
     protected _maxMove: number;
     protected _globalSacle: Point;
+    private _startValue: number;
 
     /**
      * @en Creates an instance of Slider.
@@ -126,6 +127,7 @@ export class Slider extends UIComponent {
         this._maxMove = this.isVertical ? (this.height - this._bar.height) : (this.width - this._bar.width);
         this._tx = stage.mouseX;
         this._ty = stage.mouseY;
+        this._startValue = this._value;
         stage.on(Event.MOUSE_MOVE, this, this.mouseMove);
         stage.once(Event.MOUSE_UP, this, this.mouseUp);
         stage.once(Event.MOUSE_OUT, this, this.mouseUp);
@@ -158,7 +160,8 @@ export class Slider extends UIComponent {
         stage.off(Event.MOUSE_MOVE, this, this.mouseMove);
         stage.off(Event.MOUSE_UP, this, this.mouseUp);
         stage.off(Event.MOUSE_OUT, this, this.mouseUp);
-        this.sendChangeEvent(Event.CHANGED);
+        if (this._value != this._startValue)
+            this.sendChangeEvent(Event.CHANGED);
         this.hideValueText();
     }
 
