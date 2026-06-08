@@ -78,7 +78,7 @@ export class Bridge3DCamera extends Camera {
 
         // 创建统一渲染流程 (3-way 平台感知):
         // LayaX 原生 (wgpu) / Conch GLES 原生 / Web (浏览器或 conch graphicsAPI=2 的 WebGL 回退)
-        if (LayaEnv.isLayaX) {
+        if (LayaEnv.isModernAPIs) {
             this._bridge3DRenderProcess = new LayaXBridge3DRenderProcess();
         } else if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {
             this._bridge3DRenderProcess = new RTBridge3DRenderProcess();
@@ -214,7 +214,7 @@ export class Bridge3DCamera extends Camera {
         context.camera = this;
 
         // 2. 相机准备（无条件，对标 Camera.render 中的 _prepareCameraToRender + _applyViewProject + _contextApply）
-        context.invertY = LayaEnv.isLayaX;
+        context.invertY = LayaEnv.isModernAPIs;
         this._prepareCameraToRender();
 
         let viewMat = this.viewMatrix;

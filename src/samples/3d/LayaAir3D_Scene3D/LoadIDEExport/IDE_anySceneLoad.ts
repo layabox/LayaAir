@@ -34,7 +34,7 @@ export class IDE_anySceneLoad {
             /**
              * renderEngineFactiry 的初始化
             */
-            if (LayaEnv.isLayaX) {
+            if (LayaEnv.isModernAPIs) {
                 // LayaX rendering backend (Rust/wgpu)
                 LayaGL.unitRenderModuleDataFactory = new LayaXUnitRenderModuleDataFactory();
                 LayaGL.renderDeviceFactory = new LayaXRenderDeviceFactory();

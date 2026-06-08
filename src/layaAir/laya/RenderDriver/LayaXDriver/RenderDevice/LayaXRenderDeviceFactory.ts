@@ -34,8 +34,8 @@ import { ComputeShaderProcessInfo, IComputeShader } from "../../DriverDesign/Ren
 import { IComputeContext } from "../../DriverDesign/RenderDevice/ComputeShader/IComputeContext";
 import { TextRenderConfig } from "../../../webgl/text/TextRenderConfig";
 
-function isLayaXRuntime(): boolean {
-    return LayaEnv.isLayaX || (typeof window !== "undefined" && (window as any).conchLayaXDevice != null);
+function isModernAPIsRuntime(): boolean {
+    return LayaEnv.isModernAPIs || (typeof window !== "undefined" && (window as any).conchLayaXDevice != null);
 }
 
 export class LayaXRenderDeviceFactory implements IRenderDeviceFactory {
@@ -110,7 +110,7 @@ export class LayaXRenderDeviceFactory implements IRenderDeviceFactory {
 }
 
 Laya.addBeforeInitCallback(() => {
-    if (isLayaXRuntime()) {
+    if (isModernAPIsRuntime()) {
         if (!LayaGL.renderDeviceFactory)
             LayaGL.renderDeviceFactory = new LayaXRenderDeviceFactory();
     }

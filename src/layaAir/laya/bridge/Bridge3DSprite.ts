@@ -56,7 +56,7 @@ export class Bridge3DSprite extends Sprite {
     private static _tmpSceneInv: Matrix = new Matrix();
 
     static createBridge3DRenderElement(): IBridgeRenderElement {
-        if (LayaEnv.isLayaX) {
+        if (LayaEnv.isModernAPIs) {
             return new LayaXBridge3DRenderElement();
         } else if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {
             return new RTBridge3DRenderElement();

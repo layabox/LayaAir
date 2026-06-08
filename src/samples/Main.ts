@@ -64,7 +64,7 @@ export class Main {
     }
     async startTest(is3D: boolean = true, isReadNetWorkRes: boolean = false, singleDemo?: any) {
         this._singleDemo = singleDemo;
-        if (LayaEnv.isLayaX) {
+        if (LayaEnv.isModernAPIs) {
             // LayaX rendering backend (Rust/wgpu)
             console.log("=============LayaX=================")
             LayaGL.unitRenderModuleDataFactory = new LayaXUnitRenderModuleDataFactory();

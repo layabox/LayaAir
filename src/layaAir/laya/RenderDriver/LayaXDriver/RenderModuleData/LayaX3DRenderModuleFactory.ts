@@ -87,6 +87,6 @@ export class LayaX3DRenderModuleFactory implements I3DRenderModuleFactory {
 }
 
 Laya.addBeforeInitCallback(() => {
-    if (LayaEnv.isLayaX && !Laya3DRender.Render3DModuleDataFactory)
+    if (LayaEnv.isModernAPIs && !Laya3DRender.Render3DModuleDataFactory)
         Laya3DRender.Render3DModuleDataFactory = new LayaX3DRenderModuleFactory();
 });

@@ -1236,7 +1236,7 @@ export class Scene3D extends Sprite {
         this._prepareSceneToRender();
         var i: number, n: number, n1: number;
         Scene3D._updateMark++;
-        if (LayaEnv.isLayaX) {
+        if (LayaEnv.isModernAPIs) {
             // LayaX builds visibility once per frame; active cameras must be known
             // before the first camera pass can trigger ECS cull.
             this._prepareLayaXActiveCameras();
