@@ -127,7 +127,7 @@ export class Bridge3DScene3D extends Scene3D {
         }
 
         // Create unified Bridge3D rendering context (3-way platform-aware):
-        // LayaX 原生 (wgpu) / Conch GLES 原生 / Web (浏览器或 conch graphicsAPI=2 的 WebGL 回退)
+        // 现代图形API 原生 (wgpu) / Conch GLES 原生 / Web (浏览器或 conch graphicsAPI=2 的 WebGL 回退)
         if (LayaEnv.isModernAPIs) {
             this._bridge3DContext = new LayaXBridge3DContext();
         } else if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {

@@ -31,8 +31,8 @@ export class LayaEnv {
     static isConch: boolean = window ? ((<any>window).conch != null) : false;
 
     /**
-     * @en Whether the engine is running on the LayaX rendering backend (wgpu-based).
-     * @zh 引擎是否正在使用 LayaX 渲染后端（基于 wgpu）。
+     * @en Whether the engine is running on the modernAPIs rendering backend (wgpu-based).
+     * @zh 引擎是否正在使用 现代图形API 渲染后端（基于 wgpu）。
      * @readonly
      */
     static isModernAPIs: boolean = window ? ((<any>window).conchLayaXDevice != null) : false;

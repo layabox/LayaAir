@@ -23,7 +23,7 @@ import type { Bridge3DScene3D } from "../Bridge3DScene3D";
 import { LayaXBridge3DContext } from "./LayaXBridge3DContext";
 
 /**
- * LayaXBridge3DRenderProcess - LayaX (wgpu) native Bridge3D统一渲染流程
+ * LayaXBridge3DRenderProcess - modernAPIs (wgpu) native Bridge3D统一渲染流程
  *
  * 遵循 LayaXRender3DProcess 的模式：声明式属性配置 → 单次C++执行调用
  * 阴影阶段使用 LayaXDirCascadeShadowRP/LayaXBaseSpotRP (LayaX variants)
