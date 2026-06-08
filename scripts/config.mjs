@@ -129,7 +129,7 @@ export const allBundles = [{
     ],
 },
 {
-    name: 'LayaX_2D',
+    name: 'modernAPIs_2D',
     input: [
         'laya/RenderDriver/LayaXDriver/RenderDevice/**/*.*',
         'laya/RenderDriver/LayaXDriver/ShaderCompile/**/*.*',
@@ -146,7 +146,7 @@ export const allBundles = [{
     ],
 },
 {
-    name: 'LayaX_3D',
+    name: 'modernAPIs_3D',
     input: [
         'laya/RenderDriver/LayaXDriver/3DRenderPass/**/*.*',
         // 3D 节点数据（不含上面已放入 LayaX_2D 的共用 shader 类）
