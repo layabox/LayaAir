@@ -71,6 +71,7 @@ let ID: {
     u_VfxInvViewProjection: number;
     u_OrientCameraPos: number;
     u_OrientCameraDir: number;
+    u_OrientCameraUp: number;
     u_ParticlePerStrip: number;
     u_StripCapacity: number;
     StripDataBuffer: number;
@@ -113,6 +114,7 @@ export function ensureIDs(): void {
         u_VfxInvViewProjection: Shader3D.propertyNameToID("u_VfxInvViewProjection"),
         u_OrientCameraPos: Shader3D.propertyNameToID("u_OrientCameraPos"),
         u_OrientCameraDir: Shader3D.propertyNameToID("u_OrientCameraDir"),
+        u_OrientCameraUp: Shader3D.propertyNameToID("u_OrientCameraUp"),
         u_ParticlePerStrip: Shader3D.propertyNameToID("u_ParticlePerStrip"),
         u_StripCapacity: Shader3D.propertyNameToID("u_StripCapacity"),
         // SpawnState
@@ -628,10 +630,11 @@ export class VFXParticleSystem extends VFXSystem {
     /**
      * 通过 cmd 设置当前渲染相机的位置和朝向到 output shader
      */
-    setOrientCamera(cmd: ComputeCommandBuffer, cameraWorldPos: Vector3, cameraForward: Vector3): void {
+    setOrientCamera(cmd: ComputeCommandBuffer, cameraWorldPos: Vector3, cameraForward: Vector3, cameraUp: Vector3): void {
         for (const sd of this.outputDatas) {
             cmd.addSetShaderDataCommand(sd, ID.u_OrientCameraPos, ShaderDataType.Vector3, cameraWorldPos);
             cmd.addSetShaderDataCommand(sd, ID.u_OrientCameraDir, ShaderDataType.Vector3, cameraForward);
+            cmd.addSetShaderDataCommand(sd, ID.u_OrientCameraUp, ShaderDataType.Vector3, cameraUp);
         }
         // Multi-Output: extra outputDatas 也需要 orient camera 数据,
         // 不然 extra orient block 算出 (0,0,0) 假相机位置 → quaternion 错 → 粒子 quad 朝怪方向 / size collapse → 不可见
@@ -640,6 +643,7 @@ export class VFXParticleSystem extends VFXSystem {
             if (esd) {
                 cmd.addSetShaderDataCommand(esd, ID.u_OrientCameraPos, ShaderDataType.Vector3, cameraWorldPos);
                 cmd.addSetShaderDataCommand(esd, ID.u_OrientCameraDir, ShaderDataType.Vector3, cameraForward);
+                cmd.addSetShaderDataCommand(esd, ID.u_OrientCameraUp, ShaderDataType.Vector3, cameraUp);
             }
         }
     }

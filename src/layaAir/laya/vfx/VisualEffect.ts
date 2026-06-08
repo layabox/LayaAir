@@ -46,6 +46,7 @@ import { Laya } from "../../Laya";
 
 const globalRand = new Rand((Math.random() * 0xFFFFFFFF) >>> 0);
 const _tempCamForward = new Vector3();
+const _tempCamUp = new Vector3();
 
 export class VisualEffect extends Script {
 
@@ -1149,9 +1150,10 @@ export class VisualEffect extends Script {
             const camTransform = cameraModuleData.transform;
             const cameraWorldPos = camTransform.position;
             camTransform.getForward(_tempCamForward);
+            camTransform.getUp(_tempCamUp);   // 相机 up 轴(世界空间)→ LookAtPosition/Line orient 用它做 twist(对齐 Unity GetVFXToViewRotMatrix()[1])
             for (let system of this.systems) {
                 if (system instanceof VFXParticleSystem) {
-                    system.setOrientCamera(this.cmd, cameraWorldPos, _tempCamForward);
+                    system.setOrientCamera(this.cmd, cameraWorldPos, _tempCamForward, _tempCamUp);
                 }
             }
         }
