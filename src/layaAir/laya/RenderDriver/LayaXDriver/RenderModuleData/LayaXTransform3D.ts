@@ -52,6 +52,11 @@ export class LayaXTransform3D extends Transform3D {
     static TRANSFORM_RT_SYNC_FLAG_DATAOFFSET: number = 59;
     static TRANSFORM_SHARE_MEMORY_SIZE: number = 60;
 
+    // ---- flag 独立共享内存（不进 pool）：[0]=ChangeFlag 脏标记，[1]=SyncFlag（native 改 pool 后置位）----
+    static FLAG_CHANGE_IDX: number = 0;
+    static FLAG_SYNC_IDX: number = 1;
+    static FLAG_MEMORY_SIZE: number = 2;
+
     /** 进程级一次性探测：V8 平台 external ArrayBuffer 可用 = true；OHOS = false。 */
     private static _zeroCopyProbed: boolean = false;
     private static _hasZeroCopy: boolean = false;
@@ -72,6 +77,12 @@ export class LayaXTransform3D extends Transform3D {
      * 导致后续 fallback 写 `f[7]` 崩 "Cannot set property of null"。
      */
     private _nativeFloat32Buffer: Float32Array;
+
+    /**
+     * @internal flag 独立共享内存（不进 pool），C++/JS 共维护。⚠ 不能带初值（_initProperty 里赋值）。
+     */
+    private _flagMemory: NativeMemory;
+    private _flagU32: Uint32Array;
 
     /** @internal */
     _nativeObj: any;
@@ -106,7 +117,11 @@ export class LayaXTransform3D extends Transform3D {
                 new NativeMemory(LayaXTransform3D.TRANSFORM_SHARE_MEMORY_SIZE * 4, false);
         this._nativeFloat32Buffer = mem.float32Array;
         this._nativeObj = new (window as any).conchLayaXTransform(mem._buffer);
-        // flag 初值（与基类一致：local 干净、world 脏），全程纯 JS，不下发 C++。
+        // flag 独立共享内存：须在任何 _setTransformFlag 之前建好，并交给 C++（缺接口则仅 JS 自用）。
+        this._flagMemory = new NativeMemory(LayaXTransform3D.FLAG_MEMORY_SIZE * 4, false);
+        this._flagU32 = this._flagMemory.Uint32Array;
+        if (this._nativeObj.bindChangeFlagBuffer) this._nativeObj.bindChangeFlagBuffer(this._flagMemory._buffer);
+        // flag 初值（与基类一致：local 干净、world 脏）。
         this._setTransformFlag(
             Transform3D.TRANSFORM_LOCALQUATERNION | Transform3D.TRANSFORM_LOCALEULER | Transform3D.TRANSFORM_LOCALMATRIX,
             false
@@ -213,7 +228,35 @@ export class LayaXTransform3D extends Transform3D {
      * RTAnimatorFactory 派发 TRANSFORM_CHANGED 时读取的脏标志。plan A 下 flag 在 JS 内（基类字段）。
      */
     get _RTtransformFlag(): number {
-        return this._getTransformChangeFlag(); // 基类已把 _transformFlag 私有化，经此 protected 访问器读
+        return this._getTransformChangeFlag();
+    }
+
+    // flag 改读写独立共享内存（C++/JS 共维护一份），取代基类 JS 私有 _transformFlag。
+    protected _setTransformFlag(type: number, value: boolean): void {
+        let flag = this._flagU32[LayaXTransform3D.FLAG_CHANGE_IDX];
+        if (value) flag |= type; else flag &= ~type;
+        this._flagU32[LayaXTransform3D.FLAG_CHANGE_IDX] = flag;
+    }
+
+    protected _getTransformFlag(type: number): boolean {
+        return (this._flagU32[LayaXTransform3D.FLAG_CHANGE_IDX] & type) != 0;
+    }
+
+    protected _getTransformChangeFlag(): number {
+        return this._flagU32[LayaXTransform3D.FLAG_CHANGE_IDX];
+    }
+
+    /** SyncFlag 置位时把 pool 的整组 local 拉回 JS 镜像并清 SyncFlag（共享内存读，0 跨界）。 */
+    private _pullLocalFromPool(): void {
+        if (this._poolBound) {
+            this._localPosition.setValue(this._posView[0], this._posView[1], this._posView[2]);
+            this._localRotation.setValue(this._rotView[0], this._rotView[1], this._rotView[2], this._rotView[3]);
+            this._localScale.setValue(this._scaleView[0], this._scaleView[1], this._scaleView[2]);
+            // 拉回的 quat 是 source，euler 待重算
+            this._setTransformFlag(Transform3D.TRANSFORM_LOCALEULER, true);
+            this._setTransformFlag(Transform3D.TRANSFORM_LOCALQUATERNION, false);
+        }
+        this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX] = 0; // OHOS（未绑定 pool）数据拉取走 C++，待补
     }
 
     // ------------------------------------------------------------------
@@ -225,7 +268,8 @@ export class LayaXTransform3D extends Transform3D {
         this._pushLocalPos();            // 落自己 slot（V8 零拷贝直写 / OHOS C++ 推）
     }
     get localPosition(): Vector3 {
-        return super.localPosition;      // 基类返回 _localPosition 字段（由本类 setter 维护，恒最新）
+        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        return super.localPosition;
     }
 
     set localRotation(value: Quaternion) {
@@ -233,6 +277,7 @@ export class LayaXTransform3D extends Transform3D {
         this._pushLocalRot();
     }
     get localRotation(): Quaternion {
+        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
         return super.localRotation;      // 基类懒求值（euler→quat）
     }
 
@@ -241,6 +286,7 @@ export class LayaXTransform3D extends Transform3D {
         this._pushLocalScale();
     }
     get localScale(): Vector3 {
+        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
         return super.localScale;
     }
 
@@ -249,6 +295,7 @@ export class LayaXTransform3D extends Transform3D {
         this._pushLocalRot();             // _pushLocalRot 经 localRotation getter 触发 euler→quat
     }
     get localRotationEuler(): Vector3 {
+        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
         return super.localRotationEuler;
     }
 
@@ -259,13 +306,63 @@ export class LayaXTransform3D extends Transform3D {
         this._pushLocalScale();
     }
     get localMatrix(): Matrix4x4 {
+        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
         return super.localMatrix;
     }
 
-    // world position/rotation/rotationEuler/worldMatrix/getWorldLossyScale/setWorldLossyScale、
-    // _onWorldXxxTransform、translate/rotate、localXxxX/Y/Z、isDefaultMatrix、_get/_setTransformFlag
-    // 全部回落基类纯 TS——基类 world setter 内部最终调本类 local setter（落 pool），
-    // 基类 world getter 沿 _parent 链用 _localXxx 字段即时算，0 跨边界。
+    // 基类「位置/缩放分量」「position/getWorldLossyScale 无父分支」直读字段、不经已挂 getter，
+    // 故在此补挂 SyncFlag 同步；旋转/欧拉分量、rotation、worldMatrix 等经已挂 getter 自动覆盖。
+
+    get localPositionX(): number {
+        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        return super.localPositionX;
+    }
+    set localPositionX(x: number) { super.localPositionX = x; }
+
+    get localPositionY(): number {
+        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        return super.localPositionY;
+    }
+    set localPositionY(y: number) { super.localPositionY = y; }
+
+    get localPositionZ(): number {
+        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        return super.localPositionZ;
+    }
+    set localPositionZ(z: number) { super.localPositionZ = z; }
+
+    get localScaleX(): number {
+        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        return super.localScaleX;
+    }
+    set localScaleX(value: number) { super.localScaleX = value; }
+
+    get localScaleY(): number {
+        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        return super.localScaleY;
+    }
+    set localScaleY(value: number) { super.localScaleY = value; }
+
+    get localScaleZ(): number {
+        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        return super.localScaleZ;
+    }
+    set localScaleZ(value: number) { super.localScaleZ = value; }
+
+    get position(): Vector3 {
+        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        return super.position;
+    }
+    set position(value: Vector3) { super.position = value; }
+
+    getWorldLossyScale(): Vector3 {
+        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        return super.getWorldLossyScale();
+    }
+
+    // world rotation/rotationEuler/worldMatrix/setWorldLossyScale、_onWorldXxxTransform、
+    // translate/rotate、isDefaultMatrix 全部回落基类纯 TS——基类 world setter 内部最终调本类
+    // local setter（落 pool），基类 world getter 沿 _parent 链用 _localXxx 字段即时算，0 跨边界。
 
     // ---- local→自己 slot 落库（V8 零拷贝直写 + 标自己 dirty bit；未绑定/OHOS 经 C++ 推）----
 
