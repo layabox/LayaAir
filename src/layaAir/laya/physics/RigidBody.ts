@@ -300,7 +300,8 @@ export class RigidBody extends ColliderBase {
         _tempP0.x = pos.x;
         _tempP0.y = pos.y;
         let globalPos = this.owner.parent.localToGlobal(_tempP0);
-        factory.set_RigibBody_Transform(this._box2DBody, Physics2D.toPhysicsX(globalPos.x), Physics2D.toPhysicsY(globalPos.y), rotateValue);
+        // globalPos 已是 stage 设计坐标系（localToGlobal 在 stage 处停止，不含 stage.clientScale），即等同 box2D 物理空间，无需再 toPhysics 缩放
+        factory.set_RigibBody_Transform(this._box2DBody, globalPos.x, globalPos.y, rotateValue);
         factory.set_rigidBody_Awake(this._box2DBody, true);
         Physics2D.I._addRigidBody(this);
     }
@@ -311,15 +312,16 @@ export class RigidBody extends ColliderBase {
      */
     get position(): Point {
         if (!this._box2DBody) {
-            _tempP0.x = this.owner.globalTrans.x;
-            _tempP0.y = this.owner.globalTrans.y;
+            // 未创建 body 时返回 owner 在父容器中的局部坐标，与下方有 body 分支保持同一坐标系（局部、不含 clientScale）
+            _tempP0.x = this.owner.x;
+            _tempP0.y = this.owner.y;
             return _tempP0;
         }
         var pos = Vector2.TEMP;
         Physics2D.I._factory.get_RigidBody_Position(this._box2DBody, pos);
-        // Box2D 存储设计分辨率坐标，恢复到 globalTrans 空间后再转 local
-        _tempP0.x = Physics2D.toRenderX(pos.x);
-        _tempP0.y = Physics2D.toRenderY(pos.y);
+        // box2D 物理空间坐标即 stage 设计坐标系（不含 clientScale），直接做 global->local，无需 toRender 缩放
+        _tempP0.x = pos.x;
+        _tempP0.y = pos.y;
         let localPos = this.owner.parent.globalToLocal(_tempP0);
         _tempP0.x = localPos.x;
         _tempP0.y = localPos.y;
