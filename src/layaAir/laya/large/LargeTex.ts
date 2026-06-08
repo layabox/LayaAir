@@ -1,6 +1,7 @@
 
 import { Config } from "../../Config";
 import { Laya } from "../../Laya";
+import { Render2DProcessor } from "../display/Render2DProcessor";
 import { Blit2DCMD } from "../display/Scene2DSpecial/RenderCMD2D/Blit2DCMD";
 import { CommandBuffer2D } from "../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
 import { LayaGL } from "../layagl/LayaGL";
@@ -79,6 +80,7 @@ export class LargeTex extends RenderTexture {
         let values = this.commands.values();
         let cmd = values.next().value;
         let ids = [];
+        let cacheInvertY = Render2DProcessor.rendercontext2D.invertY;
         while (cmd && (force || Laya.stage.getTimeFromFrameStart() < 30)) {
             this.cmdBuffer.addCacheCommand(cmd);
             this.cmdBuffer.applyOne(true);
@@ -89,7 +91,7 @@ export class LargeTex extends RenderTexture {
 
             cmd = values.next().value;
         }
-
+        Render2DProcessor.rendercontext2D.invertY = cacheInvertY;
         this.commands.size || this._doDestoryTex();
         return ids;
     }
@@ -272,11 +274,7 @@ export class LargeTex extends RenderTexture {
         const offsetScale = new Vector4(); //偏移和放缩系数
         offsetScale.x = Math.max(0, x - expand) / width;
 
-        if (LayaGL.renderEngine._screenInvertY) {
-            offsetScale.y = Math.max(0, y - expand) / height;
-        } else {
-            offsetScale.y = Math.max(0, height - y - h - expand) / height;
-        }
+        offsetScale.y = Math.max(0, height - y - h - expand) / height;
         offsetScale.z = (w + expand * 2) / width;
         offsetScale.w = (h + expand * 2) / height;
 
@@ -296,7 +294,7 @@ export class LargeTex extends RenderTexture {
             }
         }
         //采用实时渲染方式将小贴图绘制到大贴图上
-        let cmd = Blit2DCMD.create(smallTex, this, offsetScale, this._shader, sd , LayaGL.renderEngine._screenInvertY);
+        let cmd = Blit2DCMD.create(smallTex, this, offsetScale, this._shader, sd , false);
         this.commands.add(cmd);
         
         //立即执行绘制
