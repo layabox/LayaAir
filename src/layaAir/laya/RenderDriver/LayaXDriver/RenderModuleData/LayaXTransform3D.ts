@@ -18,6 +18,8 @@ import { NativeMemory } from "../../RenderModuleData/RuntimeModuleData/NativeMem
  *     local setter 在写 pool 的同时一并维护，故基类 world 计算取到的恒是最新 local。
  *     **JS↔C++ 读写 world 0 跨边界。**（故本类不再 override world get/set、_onWorldXxx、
  *     translate/rotate、flag 读写——全部回落基类纯 TS。）
+ *   - world **结果零拷贝落 pool**：`_bindPool` 把 `_worldMatrix.elements` 绑到 `pool.world_mat`，
+ *     基类 getter 算的 world 直接写 pool，三端共用一份（非零拷贝设备不绑、保持堆走纯 TS）。
  *   - 路②（高频只读）：`getWorldPositionLastFrame` 直读 Rust 上帧已算的 `pool.world_mat`，
  *     免 JS 矩阵自算、0 跨边界，容忍 1 帧延迟。
  *   - Rust 仍独立从 pool.local 算 world_mat 给 GPU（渲染链路不变）。
@@ -165,6 +167,9 @@ export class LayaXTransform3D extends Transform3D {
     destroyEntity(): void {
         this._nativeObj.destroyEntity();
         this._poolBound = false;
+        // world 矩阵脱离 pool：slot 被 Rust 回收后视图禁止再写，换回独立堆并标脏，待下次入场景重算。
+        this._worldMatrix.elements = new Float32Array(16);
+        this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX, true);
         this._posView = this._rotView = this._scaleView = this._worldView = null;
         this._dirtyWordView = null;
     }
@@ -197,6 +202,11 @@ export class LayaXTransform3D extends Transform3D {
         this._dirtyWordView = new Uint32Array(this._nativeObj.getOwnDirtyWord());
         this._dirtyMask = (1 << (idx & 31)) >>> 0; // slot 在脏字内的位 = idx 低 5 位
         this._poolBound = true;
+        // world 零拷贝同源：_worldMatrix 存储后端换成 pool.world_mat 视图，基类 getter 算的 world 直接落 pool。
+        // pool 当前内容非最新，标脏强制下次重算填入。
+        this._worldView = new Float32Array(this._nativeObj.getOwnWorldMat());
+        this._worldMatrix.elements = this._worldView;
+        this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX, true);
         if (LayaXTransform3D._diagN < 5) {
             LayaXTransform3D._diagN++;
             console.warn("[LayaXTransform] bind OK: idx=" + idx + " mask=" + this._dirtyMask +

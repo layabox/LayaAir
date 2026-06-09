@@ -570,33 +570,6 @@ export class Transform3D extends EventDispatcher {
     }
 
     /**
-     * @en Read the world position allowing a value up to one frame stale.
-     * Entry point for high-frequency read-only callers that tolerate one-frame latency (e.g. avoidance / AI).
-     * Base default computes immediately (same as `position`); the LayaX subclass overrides this to read the
-     * world matrix Rust computed last frame directly from the pool (no JS matrix walk, zero JS↔C++ crossing).
-     * @param out Output world position.
-     * @zh 读世界位置，允许返回最多上一帧的值。容忍 1 帧延迟的高频只读入口（如避障 / AI）。
-     * 基类默认即时自算（与 `position` 一致）；LayaX 子类覆盖为直读 Rust 上帧已算的 pool.world_mat
-     * （免 JS 矩阵自算、0 跨边界）。
-     * @param out 输出世界位置。
-     */
-    getWorldPositionLastFrame(out: Vector3): Vector3 {
-        this.position.cloneTo(out);
-        return out;
-    }
-
-    /**
-     * @en Read the world matrix allowing a value up to one frame stale. See {@link getWorldPositionLastFrame}.
-     * @param out Output world matrix.
-     * @zh 读世界矩阵，允许返回最多上一帧的值。语义见 {@link getWorldPositionLastFrame}。
-     * @param out 输出世界矩阵。
-     */
-    getWorldMatrixLastFrame(out: Matrix4x4): Matrix4x4 {
-        this.worldMatrix.cloneTo(out);
-        return out;
-    }
-
-    /**
      * @internal
      * @en Creates an instance of Transform3D.
      * @param owner The sprite of the owner.
