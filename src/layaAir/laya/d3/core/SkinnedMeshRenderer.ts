@@ -282,10 +282,10 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      * @param context 3D渲染上下文。
      */
     renderUpdate(context: RenderContext3D): void {
-        let t = performance.now();
+      //  let t = performance.now();
         super.renderUpdate(context);
         this._isISkinRenderNode() && this._ownerSkinRenderNode.computeSkinnedData();
-        LayaGL.statAgent.recordTimeData(StatElement.T_SkinBoneUpdate, performance.now() - t);
+       // LayaGL.statAgent.recordTimeData(StatElement.T_SkinBoneUpdate, performance.now() - t);
     }
     _cloneTo(dest: SkinnedMeshRenderer): void {
         //get common parent

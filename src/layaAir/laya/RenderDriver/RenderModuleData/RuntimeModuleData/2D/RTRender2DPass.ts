@@ -146,12 +146,12 @@ export class RTRender2DPass implements IRender2DPass {
     * pass 2D 渲染
     * @param context 
     */
-   fowardRender(context: GLESRenderContext2D) {
+   fowardRender(context: GLESRenderContext2D, renderTime: number) {
       let rt = this.renderTexture;
       if (rt) {
          context.invertY = rt._invertY;
       }
-      this._nativeObj.fowardRender(context._nativeObj);
+      this._nativeObj.fowardRender(context._nativeObj, renderTime);
    }
 
    updatePostProcess(): void {
@@ -204,8 +204,8 @@ export class RTRender2DPassManager implements IRender2DPassManager {
       this._nativeObj.removePass(pass._nativeObj);
    }
 
-   apply(context: GLESRenderContext2D): void {
-      this._nativeObj.apply(context._nativeObj);
+   apply(context: GLESRenderContext2D, renderTime: number): void {
+      this._nativeObj.apply(context._nativeObj, renderTime);
    }
 
    clear(): void {

@@ -87,7 +87,8 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
         if (count === 1) {
             let shaderIns = inss[0];
             let clipInfo = this.owner.getClipInfo();
-            if (this.typeKey === context._prevTypeKey
+            if (this.owner.renderType === context._prevRenderType
+                && this.typeKey === context._prevTypeKey
                 && this.textureKey === context._prevTextureKey
                 && clipInfo === context._prevClip
                 && shaderIns === context._prevShaderIns) {

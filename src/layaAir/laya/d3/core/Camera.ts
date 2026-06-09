@@ -1148,9 +1148,9 @@ export class Camera extends BaseCamera {
         }
         else {
             Matrix4x4.multiply(proMat, viewMat, this._projectionViewMatrix);
-            this._renderDataModule.setProjectionViewMatrix(this._projectionViewMatrix);
             projectView = this._projectionViewMatrix;
         }
+        this._renderDataModule.setProjectionViewMatrix(projectView);
         this._shaderValues.setMatrix4x4(BaseCamera.VIEWMATRIX, viewMat);
         this._shaderValues.setMatrix4x4(BaseCamera.PROJECTMATRIX, proMat);
         this._shaderValues.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, projectView);

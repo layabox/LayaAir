@@ -253,14 +253,11 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
 
     public get ismoved(): Vector2 {
-        let value: any = this._nativeObj.ismoved;
-        this._ismoved.x = value.x;
-        this._ismoved.y = value.y;
         return this._ismoved;
     }
 
     public set ismoved(value: Vector2) {
-        this._ismoved = value;
+        this._ismoved.setValue(value.x, value.y);
         this._nativeObj.ismoved = value;
     }
 

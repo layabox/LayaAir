@@ -246,7 +246,8 @@ export class Gradient implements IClone {
     evaluateColorRGB(lerpFactor: number, out: Color, startSearchIndex: number = 0, reverseSearch: boolean = false): number {
         lerpFactor = Math.min(Math.max(lerpFactor, 0.0), 1.0);
 
-        var rgbElements: Float32Array = this._rgbElements;
+        var rgbElements: Float32Array = this._rgbElementDatas;
+        !rgbElements && (rgbElements = this._rgbElementDatas = new Float32Array(0));
         var curIndex: number = startSearchIndex;
 
         if (reverseSearch) {
@@ -357,7 +358,8 @@ export class Gradient implements IClone {
      */
     evaluateColorAlpha(lerpFactor: number, outColor: Color, startSearchIndex: number = 0, reverseSearch: boolean = false): number {
         lerpFactor = Math.min(Math.max(lerpFactor, 0.0), 1.0);
-        var alphaElements: Float32Array = this._alphaElements;
+        var alphaElements: Float32Array = this._alphaElementDatas;
+        !alphaElements && (alphaElements = this._alphaElementDatas = new Float32Array(0));
         var curIndex: number = startSearchIndex;
 
         if (reverseSearch) {

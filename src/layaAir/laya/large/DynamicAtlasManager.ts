@@ -27,7 +27,7 @@ type _$TextureData = {
 export class TextureInfo implements DynamicTexInfo{
 
     recover(){
-        this.owner.removeTexture(this.source.id, -1, false);
+        this.owner.removeByTexture2DId(this.textureId, -1, false);
     }
 
     owner: DynamicAtlasManager;
@@ -83,7 +83,7 @@ export interface DynamicAtlasConfig {
  */
 export class DynamicAtlasManager {
     private _largeTexManager: LargeTexManager;
-    private _textureMap: Map<number, TextureInfo> = new Map();
+    private _textureMap: Map<number, TextureInfo> = new Map(); // texture2D.id -> info
     private _textureIdMap: Map<number, number> = new Map(); // texture.id -> texture2d.id mapping
     private _config: DynamicAtlasConfig;
     private _isDestroyed: boolean = false;
@@ -391,24 +391,29 @@ export class DynamicAtlasManager {
 
     /**
      * @en Remove texture from atlas
-     * @param textureId textureId to remove
+     * @param texture texture to remove or textureId to remove
      * @param largeTextureIndex largeTextureIndex to remove
      * @param event event to remove
      * @returns boolean whether remove texture from atlas successfully
      * @zh 从图集中移除纹理
-     * @param textureId 纹理ID
+     * @param texture 纹理或纹理ID
      * @param largeTextureIndex 大纹理索引，-1表示从所有大纹理中移除
      * @param event 是否触发事件，默认true
      * @returns 是否移除成功
      */
-    public removeTexture(textureId: number, largeTextureIndex: number = -1 , event: boolean = true): boolean {
+    public removeTexture(texture: Texture | number, largeTextureIndex: number = -1 , event: boolean = true): boolean {
+        if (this._isDestroyed) return false;
+        return this.removeByTexture2DId(this._getTexture2DId(typeof texture === 'number' ? texture : texture.id), largeTextureIndex);
+    }
+    
+    public removeByTexture2DId(texture2DId: number, largeTextureIndex: number = -1 , event: boolean = true): boolean {
         if (this._isDestroyed) return false;
 
-        let textureInfo = this._textureMap.get(textureId);
+        let textureInfo = this._textureMap.get(texture2DId);
         if (!textureInfo) return false;
 
-        this._largeTexManager.removeTexture(textureId, largeTextureIndex);
-        this._textureMap.delete(textureId);
+        this._largeTexManager.removeTexture(texture2DId, largeTextureIndex);
+        this._textureMap.delete(texture2DId);
 
         // Restore original texture - prioritize source over URL loading
         let otexture2d = textureInfo.source;
@@ -434,9 +439,9 @@ export class DynamicAtlasManager {
                 texture.event(Event.CHANGE);
             }
         })
+
         return true;
     }
-
     /**
      * @en Remove texture from atlas by url
      * @param url url of texture to remove
@@ -455,13 +460,13 @@ export class DynamicAtlasManager {
         if (texture && texture._dynamic) {
             // Texture is already in atlas, use the stored textureId
             let textureInfo = texture._dynamic as TextureInfo;
-            return this.removeTexture(textureInfo.textureId, largeTextureIndex);
+            return this.removeByTexture2DId(textureInfo.textureId, largeTextureIndex);
         }
 
         // Fallback: search through _textureMap to find matching URL
         for (let [textureId, textureInfo] of this._textureMap) {
             if (textureInfo.url === url) {
-                return this.removeTexture(textureId, largeTextureIndex);
+                return this.removeByTexture2DId(textureId, largeTextureIndex);
             }
         }
 
@@ -713,7 +718,7 @@ export class DynamicAtlasManager {
         }
         
         for (const textureId of textureIdsToRemove) {
-            if (this.removeTexture(textureId)) {
+            if (this.removeByTexture2DId(textureId)) {
                 cleanedCount++;
             }
         }

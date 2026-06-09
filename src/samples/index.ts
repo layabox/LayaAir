@@ -14,6 +14,9 @@ import "laya/platform/PlatformAdapters";
 import "laya/platform/StorageAdapter";
 import "laya/platform/TextInputAdapter";
 import { TextureDemo } from "./3d/LayaAir3D_Texture/TextureDemo";
+import { IDESceneLoad } from "./3d/LayaAir3D_Scene3D/IDESceneLoad";
+import { IDE_entrySceneLoad } from "./3d/LayaAir3D_Scene3D/LoadIDEExport/IDE_entrySceneLoad";
+import { IDE_anySceneLoad } from "./3d/LayaAir3D_Scene3D/LoadIDEExport/IDE_anySceneLoad";
 
 Resource.DEBUG = false;
 Physics2D.I._factory = new physics2DwasmFactory();
@@ -28,9 +31,11 @@ async function start() {
         await import("./importWebGL")
     }
     //初始化入口，如果需要默认访问某个指定DEMO，填入第三个参数
-    new Main(true, false,TextureDemo);
+    new Main(true, false, TextureDemo);
 }
 
 start();
 //启动后，可以在bin目录下启动anywhere等web服务访问
 //
+// new IDE_entrySceneLoad();
+// new IDE_anySceneLoad();

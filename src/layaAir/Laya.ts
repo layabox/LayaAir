@@ -18,6 +18,8 @@ import { Camera2D } from "./laya/display/Scene2DSpecial/Camera2D";
 import { BaseRenderNode2D } from "./laya/NodeRender2D/BaseRenderNode2D";
 import { Texture2D } from "./laya/resource/Texture2D";
 import { Texture2DArray } from "./laya/resource/Texture2DArray";
+import { Texture3D } from "./laya/resource/Texture3D";
+import { SequenceFrame2DRender } from "./laya/display/Scene2DSpecial/SequenceFrame2D/SequenceFrame2DRender";
 import { TextureCube } from "./laya/resource/TextureCube";
 import { HalfFloatUtils } from "./laya/utils/HalfFloatUtils";
 import { BlendModeHandler } from "./laya/webgl/canvas/BlendMode";
@@ -210,6 +212,7 @@ export class Laya {
         RenderTexture2D.__init__();
         TextureCube.__init__();
         Texture2DArray.__init__();
+        Texture3D.__init__();
         HalfFloatUtils.__init__();
 
         Scene.__init__();
@@ -219,6 +222,7 @@ export class Laya {
         PostProcess2D.init();
         Material.__initDefine__();
         Mesh2DRender.__init__();
+        SequenceFrame2DRender.__init__();
 
         InputManager.__init__();
         SoundManager.__init__();

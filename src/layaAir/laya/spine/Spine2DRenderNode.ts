@@ -552,6 +552,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             return;
 
         this._templet._addReference();
+        this._templet.on(SpineTemplet.EVENT_SPINE_MATERIAL_CHANGE, this, this.onSpineMaterialChange);
 
         if (this._spineRender) {
             this._spineRender.destroy();
@@ -668,6 +669,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @param playAudio		Whether to play audio.
      */
     play(nameOrIndex: string | number, loop: boolean, force: boolean = true, start: number = 0, end: number = 0, freshSkin: boolean = true, playAudio: boolean = true) {
+        if (!this._templet) {
+            console.warn("Spine2DRenderNode.play: templet is not ready, animation:", nameOrIndex);
+            return;
+        }
         this._playAudio = playAudio;
         start /= 1000;
         end /= 1000;
@@ -907,9 +912,15 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         }
     }
 
+    private onSpineMaterialChange(): void {
+        if (this._spineRender)
+            this._spineRender.clearCacheMaterials();
+    }
+
     /** @internal */
     reset() {
         this._spineRender.reset();
+        this._templet.off(SpineTemplet.EVENT_SPINE_MATERIAL_CHANGE, this, this.onSpineMaterialChange);
         this._templet._removeReference(1);
         this._templet = null;
         this._pause = true;
@@ -1083,8 +1094,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (this._templet) {
             this.clear();
         }
-        this._spineRender.destroy();
-        this._spineRender = null;
+        if (this._spineRender) {
+            this._spineRender.destroy();
+            this._spineRender = null;
+        }
         // 清理骨骼可视化
         if (this._rootBone) {
             this._rootBone.destroy();

@@ -68,7 +68,7 @@ export class LayaXSetRendertarget2DCMD extends SetRendertarget2DCMD {
         // layax_2d_set_rt_cmd_execute（Rust 权威）完成，TS 侧无需再推一遍，
         // 否则 context.setRenderTarget 会立刻切一次 RT 并可能 clear，然后
         // Rust 路径又切一次，造成双重切换和双重 clear。
-        this._nativeObj.execute();
+        // this._nativeObj.execute();
     }
 }
 
@@ -92,7 +92,7 @@ export class LayaXDraw2DElementCMD extends Draw2DElementCMD {
     }
 
     apply(_context: IRenderContext2D): void {
-        this._nativeObj.execute();
+        // this._nativeObj.execute();
     }
 }
 
@@ -134,6 +134,6 @@ export class LayaXBlit2DQuadCMD extends Blit2DQuadCMD {
     }
 
     apply(_context: IRenderContext2D): void {
-        this._nativeObj.execute();
+        // this._nativeObj.execute();
     }
 }

@@ -82,6 +82,17 @@ export class Bridge3DContext {
      */
     private _globalShaderData: ShaderData = null;
 
+    /**
+     * Scene-to-stage correction matrix pushed by Bridge3DScene3D.
+     */
+    private _sceneOffsetMatrix: Matrix4x4 = new Matrix4x4();
+
+    /**
+     * Bridge3D logical render plane size.
+     */
+    private _bridgePlaneWidth: number = 1;
+    private _bridgePlaneHeight: number = 1;
+
 
     private _color: Color = null;
 
@@ -171,6 +182,19 @@ export class Bridge3DContext {
      */
     setGlobalShaderData(data: ShaderData): void {
         this._globalShaderData = data;
+    }
+
+    /**
+     * Set projection-space data required by Bridge3D render passes.
+     */
+    setBridgeProjectionData(sceneOffsetMatrix: Matrix4x4, bridgePlaneWidth: number, bridgePlaneHeight: number): void {
+        if (sceneOffsetMatrix) {
+            sceneOffsetMatrix.cloneTo(this._sceneOffsetMatrix);
+        } else {
+            this._sceneOffsetMatrix.identity();
+        }
+        this._bridgePlaneWidth = bridgePlaneWidth || 1;
+        this._bridgePlaneHeight = bridgePlaneHeight || 1;
     }
 
     /**
@@ -467,6 +491,27 @@ export class Bridge3DContext {
      */
     get globalShaderData(): ShaderData {
         return this._globalShaderData;
+    }
+
+    /**
+     * Scene-to-stage matrix used by WebBridge3DRenderProcess.
+     */
+    get sceneOffsetMatrix(): Matrix4x4 {
+        return this._sceneOffsetMatrix;
+    }
+
+    /**
+     * Logical Bridge3D render plane width.
+     */
+    get bridgePlaneWidth(): number {
+        return this._bridgePlaneWidth;
+    }
+
+    /**
+     * Logical Bridge3D render plane height.
+     */
+    get bridgePlaneHeight(): number {
+        return this._bridgePlaneHeight;
     }
 
     /**

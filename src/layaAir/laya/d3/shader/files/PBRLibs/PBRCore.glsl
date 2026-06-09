@@ -177,7 +177,7 @@ void fragmentForward()
 		#ifdef SPOTLIGHT
 			shadowAttenuation = 1.0;
 			#if defined(CALCULATE_SPOTSHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
-				vec4 spotShadowcoord = v_SpotShadowCoord;
+				vec4 spotShadowcoord = getSpotShadowCoord(posworld);
 				shadowAttenuation = sampleSpotShadowmap(spotShadowcoord);
 			#endif
 		    LayaLight spoLight = layaSpotLightToLight(posworld,normalWorld,u_SpotLight,shadowAttenuation);
@@ -228,7 +228,7 @@ void fragmentForward()
 					#if defined(CALCULATE_SPOTSHADOWS)//shader中自定义的宏不可用ifdef 必须改成if defined
 						if(i == 0)
 						{
-							vec4 spotShadowcoord = v_SpotShadowCoord;
+							vec4 spotShadowcoord = getSpotShadowCoord(posworld);
 							shadowAttenuation= sampleSpotShadowmap(spotShadowcoord);
 						}
 					#endif

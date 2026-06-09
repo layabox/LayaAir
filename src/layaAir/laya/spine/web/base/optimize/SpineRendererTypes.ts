@@ -99,8 +99,8 @@ export abstract class SpineBaseRenderer implements IRender {
  */
 export class RigidBodySpineRenderer extends SpineBaseRenderer {
 
-    private _matrix_0 = new Vector3(1,0,0);
-    private _matrix_1 = new Vector3(0,1,0);
+    private _matrix_0 = new Vector4(1,0,0);
+    private _matrix_1 = new Vector4(0,1,0);
 
     leave(): void {
         this._shaderData.removeDefine(SpineShaderInit.SPINE_RB);
@@ -109,8 +109,8 @@ export class RigidBodySpineRenderer extends SpineBaseRenderer {
     change() {
         this._shaderData.addDefine(SpineShaderInit.SPINE_RB);
         this.updater.needUpdate = true;
-        this._shaderData.setVector3(SpineShaderInit.BONEMAT_0, this._matrix_0);
-        this._shaderData.setVector3(SpineShaderInit.BONEMAT_1, this._matrix_1);
+        this._shaderData.setVector(SpineShaderInit.BONEMAT_0, this._matrix_0);
+        this._shaderData.setVector(SpineShaderInit.BONEMAT_1, this._matrix_1);
     }
 
     render(curTime: number, offsetX: number = 0, offsetY: number = 0) {
@@ -141,8 +141,8 @@ export class RigidBodySpineRenderer extends SpineBaseRenderer {
         this._matrix_1.y = bone.d;
         this._matrix_1.z = y;
        
-        this._shaderData.setVector3(SpineShaderInit.BONEMAT_0, this._matrix_0);
-        this._shaderData.setVector3(SpineShaderInit.BONEMAT_1, this._matrix_1);
+        this._shaderData.setVector(SpineShaderInit.BONEMAT_0, this._matrix_0);
+        this._shaderData.setVector(SpineShaderInit.BONEMAT_1, this._matrix_1);
     }
 
     /**

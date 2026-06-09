@@ -1481,6 +1481,8 @@ export class Sprite extends Node {
         if (this._oriRenderPass)
             this._oriRenderPass.repaint = true;
 
+        const parentPassRepaint = this._struct.inheritedEnableCulling || this._struct.inheritedDcOptimize;
+
         if (kind !== TransformKind.Pos && kind !== TransformKind.Anchor) {
             this._tfChanged = true;
             if ((kind & TransformKind.Size) !== 0 && this._graphics)
@@ -1488,11 +1490,11 @@ export class Sprite extends Node {
             else if ((this._renderType & SpriteConst.DRAW2RT) !== 0)
                 this.repaint();
             else {
-                this.parentRepaint();
+                this.parentRepaint(parentPassRepaint);
             }
         }
         else {
-            this.parentRepaint();
+            this.parentRepaint(parentPassRepaint);
         }
 
         this._maskParent?.repaint(RepaintFlag.ChildChange);
@@ -1922,8 +1924,19 @@ export class Sprite extends Node {
         if (this._graphics != null)
             out.union(this._graphics.getBounds(), out);
 
-        if (this._texture != null)
-            out.union(tmpRect.setTo(0, 0, this._width || this._texture.width, this._height || this._texture.height), out);
+        if (this._texture != null) {
+            let tex = this._texture;
+            let width = this._isWidthSet ? this._width : tex.sourceWidth;
+            let height = this._isHeightSet ? this._height : tex.sourceHeight;
+            if (tex.sourceWidth !== 0 && tex.sourceHeight !== 0) {
+                let wRate = width / tex.sourceWidth;
+                let hRate = height / tex.sourceHeight;
+                out.union(tmpRect.setTo(tex.offsetX * wRate, tex.offsetY * hRate, tex.width * wRate, tex.height * hRate), out);
+            }
+            else {
+                out.union(tmpRect.setTo(0, 0, width, height), out);
+            }
+        }
 
         if (this._renderNode != null) {
             let rect = this._renderNode.rect;
@@ -2186,7 +2199,7 @@ export class Sprite extends Node {
      * @en Repaint the parent node. When `cacheAs` is enabled, set all parent object caches to invalid.
      * @zh 重新绘制父节点。启用 `cacheAs` 时，设置所有父对象缓存失效。
      */
-    parentRepaint(): void {
+    parentRepaint(repaintPass: boolean = true): void {
         let p: Sprite = this._parent;
         if (!p)
             return;
@@ -2202,7 +2215,8 @@ export class Sprite extends Node {
                     pStruct.setRepaint();
                 }
             }
-            else pStruct.setRepaint();
+            else if (repaintPass)
+                pStruct.setRepaint();
 
         }
     }
@@ -2308,12 +2322,17 @@ export class Sprite extends Node {
      * @zh 这个方法在所有可变状态决定因子改变时都应调用，典型的如visible属性。
      * @return 可见状态是否真正改变了。
      */
-    _processVisible(): boolean {
-        let b = this._visible && !this._getBit(hiddenBits);
+    _processVisible(parentVisible?: boolean): boolean {
+        if (parentVisible == null)
+            parentVisible = !(this._parent instanceof Sprite) || this._parent._struct.enabled;
+
+        let b = parentVisible && this._visible && !this._getBit(hiddenBits);
+        let changed = false;
         if (this._struct && this._struct.enabled !== b) {
+            changed = true;
             this._struct.enabled = b;
             if (b) {
-                //visible = false 会清理 rt 
+                //visible = false 会清理 rt
                 this.repaint();
             } else {
                 this._struct.setRepaint();
@@ -2321,9 +2340,16 @@ export class Sprite extends Node {
             this.parentRepaint();
             this._checkSubRenderPass();
             this._refreshRenderPass();
-            return true;
+            this._processChildrenVisible(b);
         }
-        return false;
+        return changed;
+    }
+
+    private _processChildrenVisible(parentVisible: boolean): void {
+        for (let child of this._children) {
+            if (child instanceof Sprite)
+                child._processVisible(parentVisible);
+        }
     }
 
     /**
@@ -2466,7 +2492,6 @@ export class Sprite extends Node {
 
         this._subStructRender._updateRenderOffset(rect, oriRect, scaleX, scaleY);
 
-        
         if (rect.width === 0 || rect.height === 0) {
             this._drawOriRT = RenderTexture2D._empty;
         } else {
@@ -2558,6 +2583,7 @@ export class Sprite extends Node {
         super._setParent(value, index);
 
         this._setStructParent(value as Sprite, index);
+        this._processVisible();
 
         if (value && (this._mouseState === 2 || this._mouseState === 0 && this._getBit(NodeFlags.CHECK_INPUT))
             && !value._getBit(NodeFlags.CHECK_INPUT)) {

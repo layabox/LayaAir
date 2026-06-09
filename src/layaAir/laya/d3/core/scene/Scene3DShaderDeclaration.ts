@@ -1,7 +1,6 @@
 import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 
 /**
- * @internal
  * @en The collection of scene shader macros.
  * @zh 场景宏集合
  */

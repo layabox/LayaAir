@@ -96,27 +96,10 @@ const mat3 LMS_to_Linear_MAT = mat3(
     vec3(-1.62879e+0, 1.15820e+0, -1.18169e-1),
     vec3(-2.48910e-2, 3.24281e-4, 1.06867e+0));
 
-// white balance
-uniform vec3 u_ColorBalance;
-
-// split toning
-uniform vec4 u_SplitShadows;
-uniform vec3 u_Splithighlights;
-
-// shadows, midtones, highlights
-uniform vec3 u_Shadows;
-uniform vec3 u_Midtones;
-uniform vec3 u_Highlights;
-uniform vec4 u_Limits;
-
-// lift, gamma, gain
-uniform vec3 u_Lift;
-uniform vec3 u_Gamma;
-uniform vec3 u_Gain;
-
-//color adjusted
-uniform vec4 u_ColorFilter;
-uniform vec4 u_HueSatCon;
+// 以下 uniform（u_ColorBalance / u_SplitShadows / u_Splithighlights /
+// u_Shadows / u_Midtones / u_Highlights / u_Limits / u_Lift / u_Gamma /
+// u_Gain / u_ColorFilter / u_HueSatCon）通过 SubShader.regIncludeBindUnifrom
+// 在 ColorGradEffect 中注册，由引擎按 uniformMap 自动生成声明，此处不再声明。
 
 float luminance(in vec3 color)
 {

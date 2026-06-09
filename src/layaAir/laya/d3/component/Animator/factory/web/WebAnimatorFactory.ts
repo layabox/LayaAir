@@ -146,4 +146,9 @@ export class WebAnimatorFactory implements IAnimatorFactory {
     revertDefaultKeyframeNodes(state: AnimatorState): void {
         this._applier.revertDefaultKeyframeNodes(state);
     }
+
+    destroy(): void {
+        this._activeList.clear();
+        this._dirtyList.clear();
+    }
 }

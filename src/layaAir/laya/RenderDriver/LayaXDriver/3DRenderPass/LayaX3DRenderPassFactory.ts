@@ -369,6 +369,6 @@ export class LayaX3DRenderPassFactory implements I3DRenderPassFactory {
 }
 
 Laya.addBeforeInitCallback(() => {
-    if (LayaEnv.isLayaX && !Laya3DRender.Render3DPassFactory)
+    if (LayaEnv.isModernAPIs && !Laya3DRender.Render3DPassFactory)
         Laya3DRender.Render3DPassFactory = new LayaX3DRenderPassFactory();
 })

@@ -65,12 +65,6 @@ export class Bridge3DCamera extends Camera {
     private _sceneOffsetIsIdentity: boolean = true;
 
     /**
-     * view × sceneOffset 的合成结果，避免每帧分配。
-     * @private
-     */
-    private _composedViewMatrix: Matrix4x4 = new Matrix4x4();
-
-    /**
      * Called when projection parameters that affect Bridge3D camera placement change.
      * @private
      */
@@ -83,8 +77,8 @@ export class Bridge3DCamera extends Camera {
         super();
 
         // 创建统一渲染流程 (3-way 平台感知):
-        // LayaX 原生 (wgpu) / Conch GLES 原生 / Web (浏览器或 conch graphicsAPI=2 的 WebGL 回退)
-        if (LayaEnv.isLayaX) {
+        // 现代图形API 原生 (wgpu) / Conch GLES 原生 / Web (浏览器或 conch graphicsAPI=2 的 WebGL 回退)
+        if (LayaEnv.isModernAPIs) {
             this._bridge3DRenderProcess = new LayaXBridge3DRenderProcess();
         } else if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {
             this._bridge3DRenderProcess = new RTBridge3DRenderProcess();
@@ -189,14 +183,6 @@ export class Bridge3DCamera extends Camera {
     }
 
     /**
-     * 直接设置 4x4 偏移矩阵（用于编辑器/动画系统注入）
-     */
-    setSceneOffsetMatrix(m: Matrix4x4): void {
-        m.cloneTo(this._sceneOffsetMatrix);
-        this._sceneOffsetIsIdentity = false;
-    }
-
-    /**
      * 读取当前的 Scene→stage 偏移矩阵（只读引用，不要在外部修改）。
      * 用于把 sceneLocal 3D 世界坐标映射回 stage 像素空间，或反向。
      */
@@ -228,18 +214,10 @@ export class Bridge3DCamera extends Camera {
         context.camera = this;
 
         // 2. 相机准备（无条件，对标 Camera.render 中的 _prepareCameraToRender + _applyViewProject + _contextApply）
-        // Bridge3D 相机不渲染到独立 RT，始终 invertY = false（对标 Camera.render 1378 行）
-        // context.invertY = false;
+        context.invertY = LayaEnv.isModernAPIs;
         this._prepareCameraToRender();
 
-        // 把 Scene→stage 偏移矩阵左乘到 viewMatrix：
-        //   clip = proj · (view · M_sceneOffset) · model
-        // sceneLocal 模型坐标经过 M_sceneOffset 后变成 stage 像素坐标，再走标准相机流程。
         let viewMat = this.viewMatrix;
-        if (!this._sceneOffsetIsIdentity) {
-            Matrix4x4.multiply(viewMat, this._sceneOffsetMatrix, this._composedViewMatrix);
-            viewMat = this._composedViewMatrix;
-        }
         this._applyViewProject(viewMat, this.projectionMatrix, context.invertY);
         this._contextApply(context);
 

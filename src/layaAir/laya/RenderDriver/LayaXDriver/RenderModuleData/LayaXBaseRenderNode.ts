@@ -1,9 +1,7 @@
 import { IrradianceMode } from "../../../d3/core/render/BaseRender";
 import { RenderContext3D } from "../../../d3/core/render/RenderContext3D";
 import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
-import { Transform3D } from "../../../d3/core/Transform3D";
 import { Bounds } from "../../../d3/math/Bounds";
-import { Event } from "../../../events/Event";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector4 } from "../../../maths/Vector4";
 import { Material } from "../../../resource/Material";
@@ -40,36 +38,9 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
     private _transform: LayaXTransform3D;
     public get transform(): LayaXTransform3D { return this._transform; }
     public set transform(value: LayaXTransform3D) {
-        // 切换 transform 时解绑旧订阅；新 transform 订阅 scale 变化，并立刻推一次避免漏首帧
-        if (this._transform) {
-            this._transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
-        }
+        // frontFace / invertFrontFace 由 Rust 在写 WorldMat 时自算（对齐 RT），不再从 JS 推送。
         this._nativeObj.setTransform(value ? value._nativeObj : null);
         this._transform = value;
-        if (value) {
-            value.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
-            this._syncWorldInvertFront();
-        } else {
-            this._syncWorldInvertFront();
-        }
-    }
-
-    private _onTransformChanged(flag: number): void {
-        if (flag & Transform3D.TRANSFORM_WORLDSCALE) {
-            this._syncWorldInvertFront();
-        }
-    }
-
-    private _syncWorldInvertFront(): void {
-        if (!this._transform) {
-            this._worldParams.x = 1;
-            this._nativeObj.worldParams = this._worldParams;
-            this._nativeObj.invertFrontFace = false;
-            return;
-        }
-        this._worldParams.x = this._transform.getFrontFaceValue();
-        this._nativeObj.worldParams = this._worldParams;
-        this._nativeObj.invertFrontFace = this._transform._isFrontFaceInvert;
     }
 
     // ------------------------------------------------------------------
@@ -85,13 +56,7 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
     public get castShadow(): boolean { return this._nativeObj.castShadow; }
     public set castShadow(value: boolean) { this._nativeObj.castShadow = value; }
 
-    /** 负 scale 绕序位；与 pass.invertY XOR 决定 pipeline 是否翻 front_face。 */
-    public get invertFrontFace(): boolean { return this._nativeObj.invertFrontFace; }
-    public set invertFrontFace(value: boolean) {
-        this._worldParams.x = value ? -1 : 1;
-        this._nativeObj.worldParams = this._worldParams;
-        this._nativeObj.invertFrontFace = value;
-    }
+    // invertFrontFace / worldParams.x 由 Rust 自算，不再提供 JS setter。
 
     public get receiveShadow(): boolean { return this._nativeObj.receiveShadow; }
     public set receiveShadow(value: boolean) { this._nativeObj.receiveShadow = value; }
@@ -117,8 +82,14 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
     public get renderNodeType(): number { return this._nativeObj.renderNodeType; }
     public set renderNodeType(value: number) { this._nativeObj.renderNodeType = value; }
 
-    public get boundsChange(): boolean { return this._nativeObj.boundsChange; }
-    public set boundsChange(value: boolean) { this._nativeObj.boundsChange = value; }
+    // LayaX：culling / AABB 在 Rust 侧自走 transform 同步那一套，native 不消费此 boundsChange flag
+    // （与 ismoved 同理）。骨骼动画每帧由 AnimatorApplier 改写 rootBone local TRS、派发
+    // TRANSFORM_CHANGED，驱动 BaseRender._onWorldMatNeedChange 每帧 `boundsChange = true`——
+    // 若此处写 native 就是每帧每对象一次纯冗余 FFI（被误判成"对象移动"）。改为纯 TS 字段后该 setter
+    // 零跨界；native _calculateBoundingBox 仅在 JS 端真正读 bounds 时按需触发一次（见 bounds getter）。
+    private _boundsChange: boolean = false;
+    public get boundsChange(): boolean { return this._boundsChange; }
+    public set boundsChange(value: boolean) { this._boundsChange = value; }
 
     public get staticMask(): number { return this._nativeObj.staticMask; }
     public set staticMask(value: number) { this._nativeObj.staticMask = value; }
@@ -222,16 +193,10 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
 
     private _ismoved: Vector2 = new Vector2();
     public get ismoved(): Vector2 {
-        let value: any = this._nativeObj.ismoved;
-        if (value) {
-            this._ismoved.x = value.x;
-            this._ismoved.y = value.y;
-        }
         return this._ismoved;
     }
     public set ismoved(value: Vector2) {
-        this._ismoved = value;
-        this._nativeObj.ismoved = value;
+        this._ismoved.setValue(value.x, value.y);
     }
 
     // ------------------------------------------------------------------

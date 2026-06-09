@@ -8,6 +8,8 @@ import { LayaXDefineDatas } from "./LayaXDefineDatas";
 import { LayaXRenderState } from "./LayaXRenderState";
 import { LayaXShaderPass } from "./LayaXShaderPass";
 import { LayaXSubShader } from "./LayaXSubShader";
+import { Laya } from "../../../../Laya";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 /**
  * LayaX UnitRenderModuleDataFactory
@@ -33,3 +35,8 @@ export class LayaXUnitRenderModuleDataFactory implements IUnitRenderModuleDataFa
         return new LayaXShaderPass(pass);
     }
 }
+
+Laya.addBeforeInitCallback(() => {
+    if (!LayaGL.unitRenderModuleDataFactory)
+        LayaGL.unitRenderModuleDataFactory = new LayaXUnitRenderModuleDataFactory();
+})

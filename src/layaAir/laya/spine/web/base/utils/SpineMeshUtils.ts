@@ -129,6 +129,7 @@ export class SpineMeshUtils {
         indexbuffer._byteLength = 0;
         let state = mesh._bufferState;
         state.applyState(vertexBuffers, indexbuffer);
+        mesh.lock = true;
         return mesh;
     }
 

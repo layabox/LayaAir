@@ -23,6 +23,8 @@ interface CollectUniform {
     demision?: string,
     type: ShaderDataType
     set?: number
+    declaredInGlsl?: boolean
+    registeredInMaterialMap?: boolean
 }
 
 /**
@@ -70,6 +72,7 @@ export class LayaX_GLSLForVulkanGenerator {
         // particle uniform 
         defMap["COLORKEYCOUNT_8"] = true;
         defMap["COLOROVERLIFETIME_COLORKEY_8"] = true;
+        defMap["GRADIENTKEYCOUNT_8"] = true;
 
         let vs = VS.toscript(defMap, []);
         let fs = FS.toscript(defMap, []);
@@ -147,10 +150,16 @@ ${fragmentCode}
 
         const attributeStrs = attributeString(attributeMap[0], attributeMap[1]);
 
-        const varyings = executeVaryings(fragmentCode, vertexCode);
+        const { varyings, vsOnlyVaryings } = executeVaryings(fragmentCode, vertexCode);
 
         const vertexVaryingStrs = varyingString(varyings, "out");
         const fragmentVaryingStrs = varyingString(varyings, "in");
+
+        // 将只在 VS 中出现的 varying 声明为全局变量，避免赋值语句报错
+        let vsOnlyGlobalStrs = "";
+        for (const v of vsOnlyVaryings) {
+            vsOnlyGlobalStrs += `${v}\n`;
+        }
 
         const fragmentOutStrs = fragmentOutString(fragmentCode);
 
@@ -158,12 +167,15 @@ ${fragmentCode}
         // 这些 uniform（如 u_IBLDFG）不在 GLSL 源码中声明，正则提取不到，
         // 需要手动补充，后续 uniformString2 才能为其生成带 set/binding 的声明。
         let collectionUniforms = new Map<string, CollectUniform>();
+        const materialUniformNames = new Set<string>();
         if (materialMap && materialMap.size > 0) {
             materialMap.forEach((uniform) => {
+                materialUniformNames.add(uniform.propertyName);
                 if (!collectionUniforms.has(uniform.propertyName)) {
                     collectionUniforms.set(uniform.propertyName, {
                         type: uniform.uniformtype,
                         arrayLength: uniform.arrayLength > 0 ? uniform.arrayLength : undefined,
+                        registeredInMaterialMap: true,
                     });
                 }
             });
@@ -171,8 +183,11 @@ ${fragmentCode}
 
         const uniformCollect = (match: string, precision: string, type: string, name: string, arrayDecl: string, arrayLength: string) => {
             // todo
+            const oldUniform = collectionUniforms.get(name);
             let u: CollectUniform = {
                 type: getShaderDataType(type),
+                declaredInGlsl: true,
+                registeredInMaterialMap: oldUniform?.registeredInMaterialMap || materialUniformNames.has(name),
             };
 
             if (u.type != ShaderDataType.None) {
@@ -261,25 +276,22 @@ ${fragmentCode}
         uniformMap.forEach(executeUniforms);
 
         // 添加 新检出的 uniform（appendSet < 0 表示禁用，跳过）
-        let appendNewUniform = false;
         if (appendSet >= 0) {
+            let wildUniforms: string[] = [];
             collectionUniforms.forEach((value, name) => {
                 if (value.set == undefined) {
-                    appendNewUniform = true;
-                    let uniform: UniformProperty = {
-                        id: Shader3D.propertyNameToID(name),
-                        propertyName: name,
-                        uniformtype: value.type,
-                        arrayLength: value.arrayLength || 0
-                    };
-
-                    materialMap.set(uniform.id, uniform);
+                    if (value.declaredInGlsl && !value.registeredInMaterialMap) {
+                        const arrayInfo = value.arrayLength ? `[${value.arrayLength}]` : "";
+                        wildUniforms.push(`${name}${arrayInfo}:${ShaderDataType[value.type]}`);
+                    }
                 }
             });
-            // if (appendNewUniform && !uniformMap.has(appendSet)) {
-            //     uniformMap.set(appendSet, LayaXBindGroupHelper.createBindingInfosByUniformMap(appendSet, "Material", shaderPassName, materialMap));
-            //     executeUniforms(uniformMap.get(appendSet)!, appendSet);
-            // }
+            if (wildUniforms.length > 0) {
+                console.error(
+                    `[LayaX] Shader "${shaderPassName}" declares uniforms in GLSL that are not registered in the material uniformMap. ` +
+                    `LayaX does not auto-append wild uniforms. Missing: ${wildUniforms.join(", ")}`
+                );
+            }
         }
 
         // remove original uniform blocks
@@ -346,6 +358,8 @@ ${uniformStrs}
 
 ${vertexVaryingStrs}
 
+${vsOnlyGlobalStrs}
+
 ${vertexCode}
 `;
 
@@ -368,7 +382,6 @@ ${fragmentCode}
         return {
             vertex,
             fragment,
-            appendNewUniform,
             hasSampler: collectionUniforms.size > 0
         };
 
@@ -395,26 +408,25 @@ ${fragmentCode}
         const getUniformDeclaration = (uniformMaps: Map<number, LayaXBindingInfo[]>, usedTex?: Map<string, { type: string, format?: string, access?: "readonly" | "writeonly" | "readwrite" }>) => {
             let res = "";
             uniformMaps.forEach((value, set) => {
-                let binding = 0;
                 for (let uniform of value) {
                     switch (uniform.type) {
                         case LayaXBindingInfoType.storageBuffer: {
                             let setIndex = set;
-                            let bindingIndex = binding++;
+                            let bindingIndex = uniform.binding;
                             ssboBindingMap.set(uniform.name, { set: setIndex, binding: bindingIndex });
                             break;
                         }
                         case LayaXBindingInfoType.storageTexture:
                             {
                                 let access = wgslAccessToGlsl(uniform.storageTexture.access);
-                                res = `${res}layout(${uniform.format ? uniform.format : "rgba8"}, set=${set}, binding=${binding++}) uniform ${access} image2D ${uniform.name};\n`;
+                                res = `${res}layout(${uniform.format ? uniform.format : "rgba8"}, set=${set}, binding=${uniform.binding}) uniform ${access} image2D ${uniform.name};\n`;
                                 break;
                             }
                         case LayaXBindingInfoType.buffer: {
                             let commandMap = (LayaGL.renderDeviceFactory.createGlobalUniformMap(uniform.name) as LayaXCommandUniformMap)
                             if (commandMap._hasUniformBuffer) {
                                 let uniformMap = commandMap._idata;
-                                res = `${res}${uniformMapString(uniformMap, uniform.name, uniform.set, binding++, true, new Map()).code}\n`;
+                                res = `${res}${uniformMapString(uniformMap, uniform.name, uniform.set, uniform.binding, true, new Map()).code}\n`;
                             }
                             break;
                         }
@@ -423,9 +435,8 @@ ${fragmentCode}
 
                             if (!usedTex || usedTex.has(textureName)) {
                                 const textureType = getSamplerTextureType(uniform.texture.sampleType, uniform.texture.viewDimension);
-                                res = `${res}layout(set=${set}, binding=${binding}) uniform ${textureType} ${textureName};\n`;
+                                res = `${res}layout(set=${set}, binding=${uniform.binding}) uniform ${textureType} ${textureName};\n`;
                             }
-                            binding += 2;
                             break;
                         }
                         default:
@@ -718,16 +729,13 @@ function uniformString2(uniformSetMap: Map<number, LayaXBindingInfo[]>, material
     let samplerMap = new Map<string, LayaXBindingInfo>();
 
     uniformSetMap.forEach((value, key) => {
-        let binding = 0;
         if (value.length > 0) {
             for (let uniform of value) {
                 switch (uniform.type) {
                     case LayaXBindingInfoType.storageBuffer:
-                        binding++;
                         //TODO
                         break;
                     case LayaXBindingInfoType.storageTexture:
-                        binding++;
                         //TODO
                         break;
                     case LayaXBindingInfoType.buffer:
@@ -737,7 +745,7 @@ function uniformString2(uniformSetMap: Map<number, LayaXBindingInfo[]>, material
                                 uniformMap = materialMap;
                             }
 
-                            res = `${res}${uniformMapString(uniformMap, uniform.name, uniform.set, binding++, true, collectUniforms).code}\n`;
+                            res = `${res}${uniformMapString(uniformMap, uniform.name, uniform.set, uniform.binding, true, collectUniforms).code}\n`;
                             break;
                         }
                     case LayaXBindingInfoType.texture:
@@ -751,12 +759,11 @@ function uniformString2(uniformSetMap: Map<number, LayaXBindingInfo[]>, material
 
                             let textureType = getDimensionTextureType(uniform.texture?.viewDimension);
 
-                            res = `${res}layout(set=${uniform.set}, binding=${binding}) uniform ${textureType} ${uniform.name};\n`
+                            res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform ${textureType} ${uniform.name};\n`
 
                             let samplerName = uniform.name.replace("_Texture", "");
                             samplerMap.set(samplerName, uniform);
                         }
-                        binding++;
                         break;
                     case LayaXBindingInfoType.sampler:
                         {
@@ -771,9 +778,8 @@ function uniformString2(uniformSetMap: Map<number, LayaXBindingInfo[]>, material
                                 }
                             }
 
-                            res = `${res}layout(set=${uniform.set}, binding=${binding}) uniform ${sampler} ${uniform.name};\n`;
+                            res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform ${sampler} ${uniform.name};\n`;
                         }
-                        binding++;
                         break;
                     default:
                         break;
@@ -835,8 +841,9 @@ function executeVaryings(fsSource: string, vsSource: string) {
     let fragmentVaryings = findVaryings(fsSource, fragmentVaryingRegex);
 
     let varyings = vertexVaryings.filter(item => fragmentVaryings.includes(item));
+    let vsOnlyVaryings = vertexVaryings.filter(item => !fragmentVaryings.includes(item));
 
-    return varyings;
+    return { varyings, vsOnlyVaryings };
 
 }
 

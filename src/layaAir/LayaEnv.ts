@@ -7,7 +7,7 @@ export class LayaEnv {
      * @zh 引擎的版本。
      * @readonly
      */
-    static version: string = "3.4.0-beta.3";
+    static version: string = "3.4.0";
 
     /**
      * @en Whether the engine is running in the editor. If it is false, it indicates that the engine is running in the scene view of the IDE, otherwise it is true.
@@ -31,11 +31,11 @@ export class LayaEnv {
     static isConch: boolean = window ? ((<any>window).conch != null) : false;
 
     /**
-     * @en Whether the engine is running on the LayaX rendering backend (wgpu-based).
-     * @zh 引擎是否正在使用 LayaX 渲染后端（基于 wgpu）。
+     * @en Whether the engine is running on the modernAPIs rendering backend (wgpu-based).
+     * @zh 引擎是否正在使用 现代图形API 渲染后端（基于 wgpu）。
      * @readonly
      */
-    static isLayaX: boolean = window ? ((<any>window).conchLayaXDevice != null) : false;
+    static isModernAPIs: boolean = window ? ((<any>window).conchLayaXDevice != null) : false;
 
     /**
      * @en Whether the engine is running in the editor. The engine may have two states in the editor, one is running in the scene view of the editor, and the other is running in the game view of the editor. Please distinguish these two states through isPlaying.

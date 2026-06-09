@@ -129,7 +129,7 @@ export const allBundles = [{
     ],
 },
 {
-    name: 'LayaX_2D',
+    name: 'modernAPIs_2D',
     input: [
         'laya/RenderDriver/LayaXDriver/RenderDevice/**/*.*',
         'laya/RenderDriver/LayaXDriver/ShaderCompile/**/*.*',
@@ -140,10 +140,13 @@ export const allBundles = [{
         'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXShaderPass.ts',
         'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXSubShader.ts',
         'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXUnitRenderModuleDataFactory.ts',
+        //引擎核心
+        'laya/RenderDriver/RenderModuleData/RuntimeModuleData/*.*',
+        'laya/RenderDriver/RenderModuleData/RuntimeModuleData/2D/*.*',
     ],
 },
 {
-    name: 'LayaX_3D',
+    name: 'modernAPIs_3D',
     input: [
         'laya/RenderDriver/LayaXDriver/3DRenderPass/**/*.*',
         // 3D 节点数据（不含上面已放入 LayaX_2D 的共用 shader 类）
@@ -162,6 +165,9 @@ export const allBundles = [{
         'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXSpotLight.ts',
         'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXTransform3D.ts',
         'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXVolumetricGI.ts',
+		//引擎核心
+        'laya/RenderDriver/RenderModuleData/RuntimeModuleData/3D/*.*',
+        'laya/RenderDriver/RenderModuleData/RuntimeModuleData/3D/3DRenderProcess/*.*',
     ],
 },
 {
@@ -471,6 +477,13 @@ export const allBundles = [{
     ],
 },
 {
+    name: 'adapter-bilibili',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/bilibili/**/*.*'
+    ],
+},
+{
     name: 'adapter-bytedance',
     input: [
         'platforms/minigame/**/*.*',
@@ -522,6 +535,12 @@ export const allBundles = [{
     name: 'bridge',
     input: [
         'laya/bridge/**/*.ts'
+    ]
+},
+{
+    name: 'vfx',
+    input: [
+        'laya/vfx/**/*.*'
     ]
 },
 ];

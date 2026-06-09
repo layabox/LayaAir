@@ -168,8 +168,8 @@ export class SubShader {
         var shaderPass: ShaderPass = new ShaderPass(this, compiledObj);
         shaderPass.pipelineMode = pipelineMode;
         this._passes.push(shaderPass);
-        this.moduleData.addShaderPass(shaderPass.moduleData);
         this._addIncludeUniform(compiledObj.includeNames);
+        this.moduleData.addShaderPass(shaderPass.moduleData);
         return shaderPass;
     }
 

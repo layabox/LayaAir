@@ -84,6 +84,8 @@ export class WebBridge3DRenderProcess implements IBridge3DRenderProcess {
     private static _tempScissor: Vector4 = new Vector4(0, 0, 0, 0);
     private static _savedProjMatrix: Matrix4x4 = new Matrix4x4();
     private static _savedProjViewMatrix: Matrix4x4 = new Matrix4x4();
+    private static _sceneCorrectionMatrix: Matrix4x4 = new Matrix4x4();
+    private static _combinedCorrectionMatrix: Matrix4x4 = new Matrix4x4();
 
     constructor() {
         this._defaultShadowMap = ShadowUtils.getTemporaryShadowTexture(1, 1, ShadowMapFormat.bit16);
@@ -296,38 +298,48 @@ export class WebBridge3DRenderProcess implements IBridge3DRenderProcess {
         const bridge3DElement = element as Bridge3DRenderElement;
         const bridge3DContext = bridge3DElement.bridge3DContext;
 
-        // ===== 6. 投影校正（逆矩阵影响3D投影）=====
+        // ===== 6. 投影校正 =====
+        // Bridge3D camera works in Scene-local pixels. A clip-space correction matrix maps
+        // Scene NDC to the current 2D render target NDC, so Scene global transform is applied
+        // at the final projection/uniform stage instead of being baked into the 3D view matrix.
         this._projCorrected = false;
-        if (this._hasInvertMatrix) {
-            const cameraData = bridge3DContext.cameraData;
+        const cameraData = bridge3DContext.cameraData;
 
-            // 保存原始投影矩阵
-            const origProj = cameraData.getMatrix4x4(BaseCamera.PROJECTMATRIX);
-            const origProjView = cameraData.getMatrix4x4(BaseCamera.VIEWPROJECTMATRIX);
+        // 保存原始投影矩阵
+        const origProj = cameraData.getMatrix4x4(BaseCamera.PROJECTMATRIX);
+        const origProjView = cameraData.getMatrix4x4(BaseCamera.VIEWPROJECTMATRIX);
 
-            if (origProj && origProjView) {
-                origProj.cloneTo(WebBridge3DRenderProcess._savedProjMatrix);
-                origProjView.cloneTo(WebBridge3DRenderProcess._savedProjViewMatrix);
+        if (origProj && origProjView) {
+            origProj.cloneTo(WebBridge3DRenderProcess._savedProjMatrix);
+            origProjView.cloneTo(WebBridge3DRenderProcess._savedProjViewMatrix);
 
+            const sceneCorrection = WebBridge3DRenderProcess._sceneCorrectionMatrix;
+            this._computeSceneCorrectionMatrix(bridge3DContext, sceneCorrection);
+
+            let correctionMatrix = sceneCorrection;
+            if (this._hasInvertMatrix) {
                 // 设置逆矩阵到context并计算校正矩阵
                 bridge3DContext.setInvertMatrix(this._invA, this._invB, this._invC, this._invD, this._invTx, this._invTy);
                 const corrMat = Bridge3DContext._correctionMatrix;
                 bridge3DContext.computeCorrectionMatrix(this._vpW, this._vpH, this._rtW, this._rtH, corrMat);
 
-                // correctedProj = M_corr × projectionMatrix
-                const correctedProj = Bridge3DContext._tempCorrectedProj;
-                Matrix4x4.multiply(corrMat, origProj, correctedProj);
-
-                // correctedProjView = M_corr × projectionViewMatrix
-                const correctedProjView = Bridge3DContext._tempCorrectedProjView;
-                Matrix4x4.multiply(corrMat, origProjView, correctedProjView);
-
-                // 临时修改camera shader data
-                cameraData.setMatrix4x4(BaseCamera.PROJECTMATRIX, correctedProj);
-                cameraData.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, correctedProjView);
-
-                this._projCorrected = true;
+                correctionMatrix = WebBridge3DRenderProcess._combinedCorrectionMatrix;
+                Matrix4x4.multiply(corrMat, sceneCorrection, correctionMatrix);
             }
+
+            // correctedProj = M_corr × projectionMatrix
+            const correctedProj = Bridge3DContext._tempCorrectedProj;
+            Matrix4x4.multiply(correctionMatrix, origProj, correctedProj);
+
+            // correctedProjView = M_corr × projectionViewMatrix
+            const correctedProjView = Bridge3DContext._tempCorrectedProjView;
+            Matrix4x4.multiply(correctionMatrix, origProjView, correctedProjView);
+
+            // 临时修改camera shader data
+            cameraData.setMatrix4x4(BaseCamera.PROJECTMATRIX, correctedProj);
+            cameraData.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, correctedProjView);
+
+            this._projCorrected = true;
         }
 
         // ===== 7. Fragment shader clip =====
@@ -370,6 +382,34 @@ export class WebBridge3DRenderProcess implements IBridge3DRenderProcess {
         } else {
             bridge3DElement._clipCacheValid = false;
         }
+    }
+
+    private _computeSceneCorrectionMatrix(bridge3DContext: Bridge3DContext, out: Matrix4x4): void {
+        const sceneW = bridge3DContext.bridgePlaneWidth;
+        const sceneH = bridge3DContext.bridgePlaneHeight;
+        const stageW = this._vpW || this._rtW || 1;
+        const stageH = this._vpH || this._rtH || 1;
+        const src = bridge3DContext.sceneOffsetMatrix.elements;
+        const e = out.elements;
+
+        const a = src[0], b = src[1], c = src[4], d = src[5], tx = src[12], ty = src[13];
+
+        e[0] = a * sceneW / stageW;
+        e[1] = b * sceneW / stageH;
+        e[2] = 0;
+        e[3] = 0;
+        e[4] = c * sceneH / stageW;
+        e[5] = d * sceneH / stageH;
+        e[6] = 0;
+        e[7] = 0;
+        e[8] = 0;
+        e[9] = 0;
+        e[10] = 1;
+        e[11] = 0;
+        e[12] = (a * sceneW + c * sceneH + 2 * tx) / stageW - 1;
+        e[13] = (b * sceneW + d * sceneH + 2 * ty) / stageH - 1;
+        e[14] = 0;
+        e[15] = 1;
     }
 
     /**

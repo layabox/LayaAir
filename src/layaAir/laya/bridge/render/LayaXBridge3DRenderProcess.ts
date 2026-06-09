@@ -23,7 +23,7 @@ import type { Bridge3DScene3D } from "../Bridge3DScene3D";
 import { LayaXBridge3DContext } from "./LayaXBridge3DContext";
 
 /**
- * LayaXBridge3DRenderProcess - LayaX (wgpu) native Bridge3D统一渲染流程
+ * LayaXBridge3DRenderProcess - modernAPIs (wgpu) native Bridge3D统一渲染流程
  *
  * 遵循 LayaXRender3DProcess 的模式：声明式属性配置 → 单次C++执行调用
  * 阴影阶段使用 LayaXDirCascadeShadowRP/LayaXBaseSpotRP (LayaX variants)
@@ -108,7 +108,6 @@ export class LayaXBridge3DRenderProcess implements IBridge3DRenderProcess {
 		(<LayaXCameraNodeData>camera._renderDataModule).syncProjection();
 
 		// 2. Bridge3D context 准备（单次 C++ 调用）
-		// 同步 invertY 给 Rust pipeline，使其与投影矩阵 Y=-1 翻转配对，补偿 frontFace 绕序
 		const bridge3DContext = scene.bridge3DContext as LayaXBridge3DContext;
 		bridge3DContext.invertY = context3d.invertY;
 		bridge3DContext.prepareForRender(camera, context3d);

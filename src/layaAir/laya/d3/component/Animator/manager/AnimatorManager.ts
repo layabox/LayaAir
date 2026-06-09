@@ -62,16 +62,22 @@ export class AnimatorManager implements IElementComponentManager {
     Init(_data: any): void { }
 
     update(_dt: number): void {
+        // ── 阶段1：状态机更新（tickOne 循环）──
         const list = this._activeAnimators;
         for (let i = 0, n = list.length; i < n; i++) {
             this.tickOne(list[i]);
         }
+
+        // ── 阶段2：曲线解析（采样）──
         this._factory.flushEvaluate();
-        // 开 batch mode：同一 transform 同帧多次 set 时跳过重复 walk children
+
+        // ── 阶段3：数据回写 ──（开 batch mode：同一 transform 同帧多次 set 时跳过重复 walk children）
         Transform3D._currentAnimatorFrame++;
         Transform3D._inAnimatorBatch = true;
         this._factory.flushApply();
         Transform3D._inAnimatorBatch = false;
+
+        // 收尾（crossFade 切换 / LateUpdate 事件）归入状态机阶段
         this._drainPendingSwitches();
         this._drainLateUpdates(list);
     }
@@ -94,6 +100,7 @@ export class AnimatorManager implements IElementComponentManager {
     destroy(): void {
         this._activeAnimators.length = 0;
         this._pendingSwitches.length = 0;
+        this._factory.destroy();
     }
 
     /**
@@ -323,7 +330,11 @@ export class AnimatorManager implements IElementComponentManager {
                 const loopNum = Math.floor(elapsedPlaybackTime / clipDuration);
                 const pLoopNum = Math.floor(lastElapsedTime / clipDuration);
                 if (pLoopNum != loopNum) {
-                    this._factory.updateDefaultValues(animator._keyframeNodeOwners);
+                    // 仅 additive layer 需要按圈刷新叠加基准；override（单层/多层）回写时不读 defaultValue，
+                    // 跳过可省下大量 owner 遍历与 native 跨界（大量循环动画时尤为明显）。
+                    if (animator._controllerLayers[layerIndex].blendingMode === AnimatorControllerLayer.BLENDINGMODE_ADDTIVE) {
+                        this._factory.updateDefaultValues(animator._keyframeNodeOwners);
+                    }
                     animatorState._eventLoop();
                 }
             }
