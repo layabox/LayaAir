@@ -420,27 +420,6 @@ export class LayaXTransform3D extends Transform3D {
     // 容忍 1 帧延迟；未绑定 pool（OHOS / 未入场景）回落基类即时自算。world 视图懒建。
     // ------------------------------------------------------------------
 
-    getWorldPositionLastFrame(out: Vector3): Vector3 {
-        if (this._poolBound) {
-            let m = this._worldView;
-            if (!m) m = this._worldView = new Float32Array(this._nativeObj.getOwnWorldMat());
-            out.x = m[12]; out.y = m[13]; out.z = m[14]; // 列主序，平移在 [12,13,14]
-            return out;
-        }
-        return super.getWorldPositionLastFrame(out);
-    }
-
-    getWorldMatrixLastFrame(out: Matrix4x4): Matrix4x4 {
-        if (this._poolBound) {
-            let m = this._worldView;
-            if (!m) m = this._worldView = new Float32Array(this._nativeObj.getOwnWorldMat());
-            const e = out.elements;
-            for (let i = 0; i < 16; i++) e[i] = m[i];
-            return out;
-        }
-        return super.getWorldMatrixLastFrame(out);
-    }
-
     // ------------------------------------------------------------------
     // Hierarchy —— 父子链结构由基类维护，额外通知 Rust ECS（propagate 依赖 Parent 组件）
     // ------------------------------------------------------------------
