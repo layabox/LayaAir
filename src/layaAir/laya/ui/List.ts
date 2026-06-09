@@ -1121,6 +1121,9 @@ export class List extends Box {
         this._itemRender = null;
         this._cells = null;
         this._array = null;
+        this.selectHandler && this.selectHandler.clear();
+        this.renderHandler && this.renderHandler.clear();
+        this.mouseHandler && this.mouseHandler.clear();
         this.selectHandler = this.renderHandler = this.mouseHandler = null;
     }
 

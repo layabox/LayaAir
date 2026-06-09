@@ -220,6 +220,7 @@ export class ProgressBar extends UIComponent {
         this._bg && this._bg.destroy(destroyChild);
         this._bar && this._bar.destroy(destroyChild);
         this._bg = this._bar = null;
+        this.changeHandler && this.changeHandler.clear();
         this.changeHandler = null;
     }
 

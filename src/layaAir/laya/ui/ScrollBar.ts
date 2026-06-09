@@ -144,6 +144,7 @@ export class ScrollBar extends UIComponent {
         this.slider && this.slider.destroy(destroyChild);
         this.upButton = this.downButton = null;
         this.slider = null;
+        this.changeHandler && this.changeHandler.clear();
         this.changeHandler = null;
         this._offsets = null;
     }

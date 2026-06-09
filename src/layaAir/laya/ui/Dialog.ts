@@ -304,6 +304,7 @@ export class Dialog extends View {
      * @param destroyChild 是否销毁子对象。
      */
     destroy(destroyChild: boolean = true): void {
+        this.closeHandler && this.closeHandler.clear();
         this.closeHandler = null;
         this.popupEffect = null;
         this.closeEffect = null;

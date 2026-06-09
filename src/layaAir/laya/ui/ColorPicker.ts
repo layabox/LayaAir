@@ -415,6 +415,7 @@ export class ColorPicker extends UIComponent {
         this._colorInput = null;
         this._colorButton = null;
         this._colors = null;
+        this.changeHandler && this.changeHandler.clear();
         this.changeHandler = null;
     }
 

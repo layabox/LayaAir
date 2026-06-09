@@ -602,6 +602,7 @@ export class UIGroup extends Box {
         super.destroy(destroyChild);
         this._items && (this._items.length = 0);
         this._items = null;
+        this.selectHandler && this.selectHandler.clear();
         this.selectHandler = null;
     }
 

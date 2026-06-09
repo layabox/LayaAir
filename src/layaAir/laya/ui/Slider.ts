@@ -97,6 +97,7 @@ export class Slider extends UIComponent {
         this._bg = null;
         this._bar = null;
         this._progress = null;
+        this.changeHandler && this.changeHandler.clear();
         this.changeHandler = null;
     }
 

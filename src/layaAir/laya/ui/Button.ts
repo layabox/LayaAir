@@ -435,6 +435,7 @@ export class Button extends UIComponent implements ISelect {
         super.destroy(destroyChild);
         this._text && this._text.destroy(destroyChild);
         this._text = null;
+        this._clickHandler && this._clickHandler.clear();
         this._clickHandler = null;
         this._labelColors = this._strokeColors = null;
     }

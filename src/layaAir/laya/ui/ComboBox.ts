@@ -608,6 +608,7 @@ export class ComboBox extends UIComponent {
         this._itemPadding = null;
         this._itemHeight = null;
         this._labels = null;
+        this._selectHandler && this._selectHandler.clear();
         this._selectHandler = null;
         this._defaultLabel = null;
     }

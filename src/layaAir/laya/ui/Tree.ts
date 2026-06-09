@@ -473,6 +473,7 @@ export class Tree extends Box {
         this._list && this._list.destroy(destroyChild);
         this._list = null;
         this._source = null;
+        this._renderHandler && this._renderHandler.clear();
         this._renderHandler = null;
     }
 
