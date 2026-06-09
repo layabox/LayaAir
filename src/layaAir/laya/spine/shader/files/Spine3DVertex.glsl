@@ -54,10 +54,6 @@ void getVertexParams(inout Vertex vertex)
 
     vertex.texCoord0 = a_uv;
 
-    #ifdef UV1
-        vertex.texCoord1 = a_Texcoord1;
-    #endif // UV1
-
     #ifdef LIGHTMAP
         vertex.lightmapScaleOffset = getLightmapScaleOffset();
 	#endif LIGHTMAP
