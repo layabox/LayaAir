@@ -54,10 +54,17 @@ export class LayaXTransform3D extends Transform3D {
     static TRANSFORM_RT_SYNC_FLAG_DATAOFFSET: number = 59;
     static TRANSFORM_SHARE_MEMORY_SIZE: number = 60;
 
-    // ---- flag 独立共享内存（不进 pool）：[0]=ChangeFlag 脏标记，[1]=SyncFlag（native 改 pool 后置位）----
+    // ---- flag 独立共享内存（不进 pool）：[0]=ChangeFlag 脏标记，[1]=SyncFlag（native 改 pool 后按分量置位）----
     static FLAG_CHANGE_IDX: number = 0;
     static FLAG_SYNC_IDX: number = 1;
     static FLAG_MEMORY_SIZE: number = 2;
+
+    // SyncFlag 按分量置位（与 C++ _syncLocalToBackend(component) 的 component 对齐：0=pos,1=rot,2=scale）。
+    // C++ 用 `|= (1<<component)` 标位，JS 读时只拉「被需要 ∩ 仍待拉」的分量、拉一个清一个 bit。
+    static SYNC_POS: number = 1 << 0;
+    static SYNC_ROT: number = 1 << 1;
+    static SYNC_SCALE: number = 1 << 2;
+    static SYNC_ALL: number = (1 << 0) | (1 << 1) | (1 << 2);
 
     /** 进程级一次性探测：V8 平台 external ArrayBuffer 可用 = true；OHOS = false。 */
     private static _zeroCopyProbed: boolean = false;
@@ -256,17 +263,60 @@ export class LayaXTransform3D extends Transform3D {
         return this._flagU32[LayaXTransform3D.FLAG_CHANGE_IDX];
     }
 
-    /** SyncFlag 置位时把 pool 的整组 local 拉回 JS 镜像并清 SyncFlag（共享内存读，0 跨界）。 */
-    private _pullLocalFromPool(): void {
+    // 按分量从 pool/native 拉回单个 local 分量到 JS 镜像。回退路径（!_poolBound, OHOS）下每个分量
+    // 各一次 FFI getLocalXxx；零拷贝路径（V8）只读本 slot 视图。善后由 _syncLocal 统一处理（rot 的
+    // euler/quat 善后例外，放在 _pullRot 内，因为只在拉 rot 时才成立）。
+    private _pullPos(): void {
         if (this._poolBound) {
             this._localPosition.setValue(this._posView[0], this._posView[1], this._posView[2]);
-            this._localRotation.setValue(this._rotView[0], this._rotView[1], this._rotView[2], this._rotView[3]);
-            this._localScale.setValue(this._scaleView[0], this._scaleView[1], this._scaleView[2]);
-            // 拉回的 quat 是 source，euler 待重算
-            this._setTransformFlag(Transform3D.TRANSFORM_LOCALEULER, true);
-            this._setTransformFlag(Transform3D.TRANSFORM_LOCALQUATERNION, false);
+        } else {
+            this._nativeObj.getLocalPosition();
+            let i = LayaXTransform3D.TRANSFORM_LOCALPOS_DATAOFFSET;
+            this._localPosition.setValue(
+                this._nativeFloat32Buffer[i], this._nativeFloat32Buffer[i + 1], this._nativeFloat32Buffer[i + 2]);
         }
-        this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX] = 0; // OHOS（未绑定 pool）数据拉取走 C++，待补
+    }
+
+    private _pullRot(): void {
+        if (this._poolBound) {
+            this._localRotation.setValue(this._rotView[0], this._rotView[1], this._rotView[2], this._rotView[3]);
+        } else {
+            this._nativeObj.getLocalRotation();
+            let i = LayaXTransform3D.TRANSFORM_LOCALQUATERNION_DATAOFFSET;
+            this._localRotation.setValue(
+                this._nativeFloat32Buffer[i], this._nativeFloat32Buffer[i + 1],
+                this._nativeFloat32Buffer[i + 2], this._nativeFloat32Buffer[i + 3]);
+        }
+        // 拉回的 quat 是 source：euler 待重算、quat 不脏。仅在拉 rot 时做此善后（拉 pos/scale 不得碰旋转标志）。
+        this._setTransformFlag(Transform3D.TRANSFORM_LOCALEULER, true);
+        this._setTransformFlag(Transform3D.TRANSFORM_LOCALQUATERNION, false);
+    }
+
+    private _pullScale(): void {
+        if (this._poolBound) {
+            this._localScale.setValue(this._scaleView[0], this._scaleView[1], this._scaleView[2]);
+        } else {
+            this._nativeObj.getLocalScale();
+            let i = LayaXTransform3D.TRANSFORM_LOCALSCALE_DATAOFFSET;
+            this._localScale.setValue(
+                this._nativeFloat32Buffer[i], this._nativeFloat32Buffer[i + 1], this._nativeFloat32Buffer[i + 2]);
+        }
+    }
+
+    /**
+     * SyncFlag 按分量置位后，按需把「需要 ∩ 仍待拉」的 local 分量拉回 JS 镜像。
+     * need = SYNC_POS|SYNC_ROT|SYNC_SCALE 的任意子集；只拉真正变了且被需要的分量，拉一个清一个 bit。
+     */
+    private _syncLocal(need: number): void {
+        const pending = this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX] & need;
+        if (pending === 0) return;
+        if (pending & LayaXTransform3D.SYNC_POS) this._pullPos();
+        if (pending & LayaXTransform3D.SYNC_ROT) this._pullRot();
+        if (pending & LayaXTransform3D.SYNC_SCALE) this._pullScale();
+        this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX] &= ~pending;
+        // 任一 local 分量变更都使 local/world 矩阵失效；本次一并拉的多个分量只触发一次。
+        this._setTransformFlag(Transform3D.TRANSFORM_LOCALMATRIX, true);
+        this._onWorldTransform();
     }
 
     // ------------------------------------------------------------------
@@ -278,7 +328,7 @@ export class LayaXTransform3D extends Transform3D {
         this._pushLocalPos();            // 落自己 slot（V8 零拷贝直写 / OHOS C++ 推）
     }
     get localPosition(): Vector3 {
-        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        this._syncLocal(LayaXTransform3D.SYNC_POS);
         return super.localPosition;
     }
 
@@ -287,7 +337,7 @@ export class LayaXTransform3D extends Transform3D {
         this._pushLocalRot();
     }
     get localRotation(): Quaternion {
-        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        this._syncLocal(LayaXTransform3D.SYNC_ROT);
         return super.localRotation;      // 基类懒求值（euler→quat）
     }
 
@@ -296,7 +346,7 @@ export class LayaXTransform3D extends Transform3D {
         this._pushLocalScale();
     }
     get localScale(): Vector3 {
-        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        this._syncLocal(LayaXTransform3D.SYNC_SCALE);
         return super.localScale;
     }
 
@@ -305,7 +355,7 @@ export class LayaXTransform3D extends Transform3D {
         this._pushLocalRot();             // _pushLocalRot 经 localRotation getter 触发 euler→quat
     }
     get localRotationEuler(): Vector3 {
-        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        this._syncLocal(LayaXTransform3D.SYNC_ROT);
         return super.localRotationEuler;
     }
 
@@ -316,7 +366,7 @@ export class LayaXTransform3D extends Transform3D {
         this._pushLocalScale();
     }
     get localMatrix(): Matrix4x4 {
-        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        this._syncLocal(LayaXTransform3D.SYNC_ALL);
         return super.localMatrix;
     }
 
@@ -324,49 +374,49 @@ export class LayaXTransform3D extends Transform3D {
     // 故在此补挂 SyncFlag 同步；旋转/欧拉分量、rotation、worldMatrix 等经已挂 getter 自动覆盖。
 
     get localPositionX(): number {
-        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        this._syncLocal(LayaXTransform3D.SYNC_POS);
         return super.localPositionX;
     }
     set localPositionX(x: number) { super.localPositionX = x; }
 
     get localPositionY(): number {
-        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        this._syncLocal(LayaXTransform3D.SYNC_POS);
         return super.localPositionY;
     }
     set localPositionY(y: number) { super.localPositionY = y; }
 
     get localPositionZ(): number {
-        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        this._syncLocal(LayaXTransform3D.SYNC_POS);
         return super.localPositionZ;
     }
     set localPositionZ(z: number) { super.localPositionZ = z; }
 
     get localScaleX(): number {
-        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        this._syncLocal(LayaXTransform3D.SYNC_SCALE);
         return super.localScaleX;
     }
     set localScaleX(value: number) { super.localScaleX = value; }
 
     get localScaleY(): number {
-        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        this._syncLocal(LayaXTransform3D.SYNC_SCALE);
         return super.localScaleY;
     }
     set localScaleY(value: number) { super.localScaleY = value; }
 
     get localScaleZ(): number {
-        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        this._syncLocal(LayaXTransform3D.SYNC_SCALE);
         return super.localScaleZ;
     }
     set localScaleZ(value: number) { super.localScaleZ = value; }
 
     get position(): Vector3 {
-        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        this._syncLocal(LayaXTransform3D.SYNC_ALL);   // world 位置经父链/世界矩阵算，保守拉齐全部待拉分量
         return super.position;
     }
     set position(value: Vector3) { super.position = value; }
 
     getWorldLossyScale(): Vector3 {
-        if (this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX]) this._pullLocalFromPool();
+        this._syncLocal(LayaXTransform3D.SYNC_ALL);   // world lossy scale 经父链算，保守拉齐全部待拉分量
         return super.getWorldLossyScale();
     }
 
