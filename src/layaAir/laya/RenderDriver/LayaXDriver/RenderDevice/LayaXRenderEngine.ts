@@ -139,6 +139,8 @@ export class LayaXRenderEngine implements IRenderEngine {
         let transparent = nativeObj.frameTransparentDrawCall();
         let depth = nativeObj.frameDepthDrawCall();
         let shadow = nativeObj.frameShadowDrawCall();
+        let instancing = nativeObj.frameInstanceDrawCall ? nativeObj.frameInstanceDrawCall() : 0;
+        let indirect = nativeObj.frameIndirectDrawCall ? nativeObj.frameIndirectDrawCall() : 0;
         let triangle = nativeObj.frameTriangle();
         let cullMainTime = nativeObj.frameCullMainTime();
         let draw2D = nativeObj.consumeFrame2DDrawCall ? nativeObj.consumeFrame2DDrawCall() : 0;
@@ -148,6 +150,8 @@ export class LayaXRenderEngine implements IRenderEngine {
         LayaGL.statAgent.recordCTData(StatElement.CT_TransDrawCall, transparent);
         LayaGL.statAgent.recordCTData(StatElement.CT_DepthCastDrawCall, depth);
         LayaGL.statAgent.recordCTData(StatElement.CT_ShadowDrawCall, shadow);
+        LayaGL.statAgent.recordCTData(StatElement.CT_Instancing_DrawCall, instancing);
+        LayaGL.statAgent.recordCTData(StatElement.CT_IndirectDrawCall, indirect);
         LayaGL.statAgent.recordCTData(StatElement.CT_2DDrawCall, draw2D);
         LayaGL.statAgent.recordCTData(StatElement.CT_3DDrawCall, draw3D);
         LayaGL.statAgent.recordCTData(StatElement.CT_DrawCall, draw2D + draw3D + depth + shadow);
