@@ -203,6 +203,12 @@ export class VFXParticleSystem extends VFXSystem {
     // 混合模式 — 对齐 Unity VFX Graph BlendMode
     blendMode: import("../VFXAsset").VFXBlendMode = "Alpha" as any;
 
+    private static _matUidCounter = 0;
+    /** per-system 材质实例 key:custom shader 材质若按 shaderName+blendMode 全局共享,
+     *  各 system 的 per-system uniform(_MaskTexture/alpha 年龄曲线/Disappear 曲线/颜色渐变)会互相覆盖。
+     *  对齐 Unity 每 output 独立 material 实例。 */
+    readonly matInstanceKey: string = "s" + (VFXParticleSystem._matUidCounter++);
+
     // Soft Particle 淡出距离（eye 空间单位，0 = 关闭）
     softParticleFade: number = 0;
 
@@ -849,6 +855,7 @@ export class VFXParticleSystem extends VFXSystem {
                     (this.geometry as any).subpixelAA = this.subpixelAA;
                     (this.geometry as any).customShaderName = this.customShaderName;
                 }
+                if (this.geometry) (this.geometry as any).matInstanceKey = this.matInstanceKey;
             } catch (e) {
                 console.warn("VFXParticleSystem: geometry creation failed, compute pipeline will still run.", e);
             }

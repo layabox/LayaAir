@@ -72,6 +72,20 @@ export class VisualEffect extends Script {
     /** 采样值 uniform 名后缀。 */
     static readonly AGE_CURVE_VALS_SUFFIX = "CurveVals";
 
+    /**
+     * per-particle 颜色渐变 uniform 集合（.laya.vfx shaderPropertyExpressions 的 key）。
+     * Unity SG 里这些 uniform = SampleGradient(gradient, age) 按【每粒子年龄】采样；Laya material uniform
+     * 是 per-system 一份（evaluator 用 ageMedian=0.5 固定采样）→ 所有粒子同色（单色锐丝/顶环不亮/无混色层次）。
+     * 这里把 gradient 烘成 4-stop uniform（u_VfxColorGradTimes/C0..C3 + Enable），render shader（ShaderBuild
+     * supportVFX 注入的 vfxSampleColorGradient）按 v_NormalizedAge 分段采样还原 per-particle 颜色。
+     * ⚠ 必须与 LayaPro ShaderBuild.ts 的 per-particle color gradient 注入段 uniform 命名保持一致。
+     */
+    static readonly PER_PARTICLE_COLOR_GRADIENT_UNIFORMS: ReadonlySet<string> = new Set(["_MainTextureColor"]);
+    /** per-particle 颜色渐变 uniform 名（与 ShaderBuild 注入的 shader 端一致）。 */
+    static readonly COLOR_GRAD_ENABLE_UNIFORM = "u_VfxColorGradEnable";
+    static readonly COLOR_GRAD_TIMES_UNIFORM = "u_VfxColorGradTimes";
+    static readonly COLOR_GRAD_COLOR_UNIFORMS: ReadonlyArray<string> = ["u_VfxColorGradC0", "u_VfxColorGradC1", "u_VfxColorGradC2", "u_VfxColorGradC3"];
+
     declare owner: Sprite3D;
     private _asset: VFXAsset;
     public get asset(): VFXAsset {
@@ -553,7 +567,7 @@ export class VisualEffect extends Script {
             const customShaderName = (sys as any).customShaderName as string;
             const blendMode = (sys as any).blendMode as string || "Alpha";
             if (customShaderName) {
-                const mat = VFXRenderer.getCustomShaderMaterial(customShaderName, blendMode);
+                const mat = VFXRenderer.getCustomShaderMaterial(customShaderName, blendMode, (sys as any).matInstanceKey || "");
                 if (mat && mat.shaderData && allDatas.indexOf(mat.shaderData) === -1) allDatas.push(mat.shaderData);
             }
             for (const uniformName in defaults) {
@@ -642,12 +656,6 @@ export class VisualEffect extends Script {
     /// lifecycle methods
     onStart(): void {
         console.log("VisualEffect onStart", this, this.asset);
-        console.log(`[VFX-DBG] VE onStart systems=${this.systems.length}`,
-            this.systems.map((s: any, i: number) => {
-                const cap = (s as any).capacity ?? (s.desc && (s.desc as any).capacity);
-                const t = s.constructor.name;
-                return `${i}:${t}${cap != null ? `(cap=${cap})` : ""}`;
-            }).join(","));
     }
 
     // Strip 专用子节点和 Renderer（避免与 Mesh instancing 的渲染管线冲突）
@@ -992,7 +1000,7 @@ export class VisualEffect extends Script {
             const customShaderName = (sys as any).customShaderName as string;
             const blendMode = (sys as any).blendMode as string || "Alpha";
             if (customShaderName) {
-                const mat = VFXRenderer.getCustomShaderMaterial(customShaderName, blendMode);
+                const mat = VFXRenderer.getCustomShaderMaterial(customShaderName, blendMode, (sys as any).matInstanceKey || "");
                 if (mat && mat.shaderData && allDatas.indexOf(mat.shaderData) === -1) allDatas.push(mat.shaderData);
             }
             for (const uniformName in expressions) {
@@ -1022,6 +1030,76 @@ export class VisualEffect extends Script {
                         const tv = new Vector4(ts[0], ts[1], ts[2], ts[3]);
                         const vv = new Vector4(s(ts[0]), s(ts[1]), s(ts[2]), s(ts[3]));
                         for (const sd of allDatas) { sd.setVector(tId, tv); sd.setVector(vId, vv); }
+                    }
+                }
+                // per-particle Disappear 曲线 shaping: _Disappear = SampleCurve(curve, ageMedian) 时把 V 形曲线
+                // 4 关键点烘进 u_VfxDisTimes/Vals + Enable=1,render shader(ShaderBuild 注入的 vfxDisappearShape)
+                // 按 v_NormalizedAge 分段采样 → 还原 Unity 出生 fade-in + 死亡 fade-out
+                // (纯线性 v_NormalizedAge 让新生粒子立即全显 → Barrier walls 顶部亮环;老年慢淡 → 底部长尾)。
+                if (uniformName === "_Disappear" || uniformName === "Disappear") {
+                    const g: any = graph;
+                    const root = g.nodes && g.nodes[g.rootNodeId];
+                    if (root && root.kind === "SampleCurve" && root.inputs && root.inputs.length > 0) {
+                        const cnode = g.nodes[root.inputs[0]];
+                        const curve = cnode && cnode.kind === "Constant" ? cnode.value : null;
+                        if (curve && Array.isArray(curve.frames) && curve.frames.length > 0) {
+                            // 曲线原生关键帧 ≤4 个用原生 t(完整还原 V 形拐点),>4 均匀重采样
+                            let times = curve.frames.map((f: any) => Number(f.time) || 0).sort((a: number, b: number) => a - b);
+                            if (times.length > 4) times = [0, 1 / 3, 2 / 3, 1];
+                            while (times.length < 4) times.push(times[times.length - 1] ?? 1);
+                            const sc = (t: number) => ShaderExpressionEvaluator._sampleCurve(curve, t) || 0;
+                            const eId = Shader3D.propertyNameToID("u_VfxDisCurveEnable");
+                            const tId3 = Shader3D.propertyNameToID("u_VfxDisTimes");
+                            const vId3 = Shader3D.propertyNameToID("u_VfxDisVals");
+                            const tv3 = new Vector4(times[0], times[1], times[2], times[3]);
+                            const vv3 = new Vector4(sc(times[0]), sc(times[1]), sc(times[2]), sc(times[3]));
+                            for (const sd of allDatas) { sd.setNumber(eId, 1); sd.setVector(tId3, tv3); sd.setVector(vId3, vv3); }
+                        }
+                    }
+                }
+                // per-particle 颜色渐变: _MainTextureColor = SampleGradient(gradient, ageMedian) 时把 gradient
+                // 烘成 4-stop uniform(u_VfxColorGradTimes/C0..C3 + Enable=1),render shader(ShaderBuild supportVFX
+                // 注入的 vfxSampleColorGradient)按 v_NormalizedAge 分段采样 → 每粒子随年龄变色(新生亮青/老金棕),
+                // 而非全局 ageMedian 单色。未命中时 Enable 保持默认 0,shader 走原 uniform 路径,其它 VFX 零影响。
+                if (VisualEffect.PER_PARTICLE_COLOR_GRADIENT_UNIFORMS.has(uniformName)) {
+                    const g: any = graph;
+                    const root = g.nodes && g.nodes[g.rootNodeId];
+                    if (root && root.kind === "SampleGradient" && root.inputs && root.inputs.length > 0) {
+                        const gnode = g.nodes[root.inputs[0]];
+                        let grad: any = null;
+                        if (gnode && gnode.kind === "VFXParameter") {
+                            const pv: any = (propertyValues && gnode.exposedName) ? propertyValues.get(gnode.exposedName) : null;
+                            if (pv && pv.rawGradientStops && pv.rawGradientStops.length > 0) {
+                                grad = { __layaGradientStops: pv.rawGradientStops };
+                            } else if (gnode.defaultValue && (gnode.defaultValue.colorKeys || gnode.defaultValue.alphaKeys)) {
+                                grad = gnode.defaultValue;
+                            }
+                        }
+                        if (grad) {
+                            // 采样时间点: gradient 原生关键 t ≤4 个时用原生(完整还原陡变,如 Barrier ColorOverLife
+                            // 的 0/0.1/0.75/1),>4 个退化为均匀 4 点重采样
+                            const tSet = new Set<number>();
+                            if (grad.__layaGradientStops) {
+                                for (const s of grad.__layaGradientStops) tSet.add(Number(s.t) || 0);
+                            } else {
+                                for (const k of grad.colorKeys || []) tSet.add(Number(k.time) || 0);
+                                for (const k of grad.alphaKeys || []) tSet.add(Number(k.time) || 0);
+                            }
+                            let times = [...tSet].sort((a, b) => a - b);
+                            if (times.length > 4) times = [0, 1 / 3, 2 / 3, 1];
+                            while (times.length < 4) times.push(times[times.length - 1] ?? 1);
+                            const sampler = (ShaderExpressionEvaluator as any)._sampleGradient.bind(ShaderExpressionEvaluator);
+                            const eId = Shader3D.propertyNameToID(VisualEffect.COLOR_GRAD_ENABLE_UNIFORM);
+                            const tId2 = Shader3D.propertyNameToID(VisualEffect.COLOR_GRAD_TIMES_UNIFORM);
+                            const tv2 = new Vector4(times[0], times[1], times[2], times[3]);
+                            for (const sd of allDatas) { sd.setNumber(eId, 1); sd.setVector(tId2, tv2); }
+                            for (let ci = 0; ci < 4; ci++) {
+                                const col = sampler(grad, times[ci]) || { r: 1, g: 1, b: 1, a: 1 };
+                                const cId = Shader3D.propertyNameToID(VisualEffect.COLOR_GRAD_COLOR_UNIFORMS[ci]);
+                                const cv = new Vector4(col.r, col.g, col.b, col.a);
+                                for (const sd of allDatas) sd.setVector(cId, cv);
+                            }
+                        }
                     }
                 }
                 const result = ShaderExpressionEvaluator.evaluate(graph, { totalTime, deltaTime, propertyValues, hasContinuousSpawn });
