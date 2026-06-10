@@ -215,6 +215,11 @@ export class Color implements IClone {
         if (value == null)
             value = 0;
 
+        if (typeof value !== 'string' && typeof value !== 'number') {
+            this.setValue(0, 0, 0, 1);
+            return this;
+        }
+
         if (typeof value === 'number') {
             if (value < 0 || isNaN(value))
                 value = 0;
