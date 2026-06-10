@@ -24,9 +24,6 @@ export class VFXAssetParser {
 
         const vfxAsset = new VFXAsset();
 
-        console.log(`[VFX-DBG] runtime parse systems=${(data.systems || []).length}`,
-            (data.systems || []).map((s: any, i: number) => `${i}:${s.type}${s.capacity != null ? `(cap=${s.capacity})` : ""}`).join(","));
-
         // 解析 updateMode
         let updateMode = VFXUpdateMode.FixedDeltaTime;
         if (data.fixedDeltaTime === false) {
