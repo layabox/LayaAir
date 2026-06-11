@@ -323,20 +323,23 @@ export class InputManager {
             this.handleRollOver(touch);
 
         if (type == 0) {
-            if (!touch.began) {
-                touch.begin();
-                this._touches[0] = touch;
-                touch.event.button = ev.button;
-                touch.downButton = ev.button;
+            if (touch.began) {
+                //force end stale touch, e.g. right-click drag outside browser without mouseout
+                touch.end();
+                this._touches.length = 0;
+            }
+            touch.begin();
+            this._touches[0] = touch;
+            touch.event.button = ev.button;
+            touch.downButton = ev.button;
 
-                InputManager.onMouseDownCapture.invoke(touch.touchId);
+            InputManager.onMouseDownCapture.invoke(touch.touchId);
 
-                if (InputManager.mouseEventsEnabled) {
-                    if (ev.button == 0)
-                        touch.bubble(Event.MOUSE_DOWN);
-                    else
-                        touch.bubble(Event.RIGHT_MOUSE_DOWN);
-                }
+            if (InputManager.mouseEventsEnabled) {
+                if (ev.button == 0)
+                    touch.bubble(Event.MOUSE_DOWN);
+                else
+                    touch.bubble(Event.RIGHT_MOUSE_DOWN);
             }
         }
         else if (type == 1) {
