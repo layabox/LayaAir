@@ -204,6 +204,14 @@ export class Sprite3D extends Node {
         LayaGL.statAgent.recordCountData(StatElement.C_Sprite3DCount, -1);
     }
 
+    protected _onActiveInScene(): void {
+        this._transform.activeInScene();
+    }
+
+    protected _onInActiveInScene(): void {
+        this._transform.inActiveInScene();
+    }
+
     protected _onAdded(): void {
         if (this._parent instanceof Sprite3D) {
             var parent3D: Sprite3D = (<Sprite3D>this._parent);

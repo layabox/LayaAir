@@ -26,6 +26,10 @@ export class VolumetricGIManager implements IVolumeManager {
         this._needUpdateAllRender = true;
     }
 
+    hasVolume(): boolean {
+        return this._GIVolumes.length > 0;
+    }
+
     /**
      * @en Remove Volumetric GI from the specified renderer.
      * @zh 从指定的渲染器中移除体积全局光照。

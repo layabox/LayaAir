@@ -173,7 +173,7 @@ export class WebRender2DPass implements IRender2DPass {
       let renderStruct = (struct.subStruct && struct !== this.root) ? struct.subStruct : struct;
 
       // manualRender 模式：完全跳过此节点及所有子节点
-      if (renderStruct.manualRender) return;
+    //  if (renderStruct.manualRender) return;
 
       renderStruct._handleInterData();
       //这里进入process2D的排序  并不帧判断
@@ -406,7 +406,7 @@ export class WebRender2DPass implements IRender2DPass {
          if (sizeX === 0 || sizeY === 0)
             return false
          context.invertY = false;
-         context.setOffscreenView(sizeX, sizeY);
+         context.setOffscreenView(sizeX, sizeY, 0, 0);
 
          context.setRenderTarget(null, this.doClearColor, this._clearColor);
 
@@ -421,6 +421,8 @@ export class WebRender2DPass implements IRender2DPass {
          this._rtsize.setValue(sizeX, sizeY);
          this.shaderData.setVector2(ShaderDefines2D.UNIFORM_SIZE, this._rtsize);
       }
+
+      this.shaderData.setNumber(ShaderDefines2D.UNIFORM_TIME, renderTime);
 
       return true;
    }

@@ -11,6 +11,7 @@ import { Bridge3DSprite } from "./Bridge3DSprite";
 import { Config3D } from "../../Config3D";
 import { Utils3D } from "../d3/utils/Utils3D";
 import { Texture2D } from "../resource/Texture2D";
+import { LayaXBridge3DContext } from "./render/LayaXBridge3DContext";
 import { RTBridge3DContext } from "./render/RTBridge3DContext";
 import { Bridge3DSceneInternal } from "./Bridge3DSceneInternal";
 import { Bridge3DContext } from "./render/Bridge3DContext";
@@ -50,7 +51,7 @@ export class Bridge3DScene3D extends Scene3D {
      * Bridge3D rendering context (unified held and managed by Scene3D)
      * @private
      */
-    private _bridge3DContext: Bridge3DContext | RTBridge3DContext;
+    private _bridge3DContext: Bridge3DContext | LayaXBridge3DContext | RTBridge3DContext;
 
 
     /**
@@ -104,7 +105,7 @@ export class Bridge3DScene3D extends Scene3D {
     /**
      * Bridge3D渲染上下文（供process访问）
      */
-    get bridge3DContext(): Bridge3DContext | RTBridge3DContext {
+    get bridge3DContext(): Bridge3DContext | LayaXBridge3DContext | RTBridge3DContext {
         return this._bridge3DContext;
     }
 
@@ -125,8 +126,11 @@ export class Bridge3DScene3D extends Scene3D {
             this._bridge3DLightTexture.lock = true;
         }
 
-        // Create unified Bridge3D rendering context (platform-aware)
-        if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {
+        // Create unified Bridge3D rendering context (3-way platform-aware):
+        // 现代图形API 原生 (wgpu) / Conch GLES 原生 / Web (浏览器或 conch graphicsAPI=2 的 WebGL 回退)
+        if (LayaEnv.isModernAPIs) {
+            this._bridge3DContext = new LayaXBridge3DContext();
+        } else if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {
             this._bridge3DContext = new RTBridge3DContext();
         } else {
             this._bridge3DContext = new Bridge3DContext();
@@ -193,6 +197,11 @@ export class Bridge3DScene3D extends Scene3D {
         this._bridge3DContext.setSceneModuleData(this._sceneModuleData);
         this._bridge3DContext.setCameraModuleData(this._sharedCamera._renderDataModule);
         this._bridge3DContext.updateFromCamera(this._sharedCamera);
+        this._bridge3DContext.setBridgeProjectionData(
+            this._sharedCamera.sceneOffsetMatrix,
+            this._getBridgePlaneWidth(),
+            this._getBridgePlaneHeight()
+        );
     }
 
     /**
@@ -207,7 +216,6 @@ export class Bridge3DScene3D extends Scene3D {
         // 找到渲染对象所属的 Bridge3DSprite
         const bridge = this._findOwnerBridge3DSprite(render.owner as Sprite3D);
         if (bridge) {
-            // 委托给 Bridge3DSprite 管理
             bridge._addRenderObject(render);
             this._renderToBridgeMap.set(render, bridge);
         }
@@ -315,6 +323,11 @@ export class Bridge3DScene3D extends Scene3D {
 
             this._updateCameraPosition(width, height);
             this._bridge3DContext.updateFromCamera(this._sharedCamera);
+            this._bridge3DContext.setBridgeProjectionData(
+                this._sharedCamera.sceneOffsetMatrix,
+                this._getBridgePlaneWidth(),
+                this._getBridgePlaneHeight()
+            );
         } finally {
             this._updatingCameraProjection = false;
         }
@@ -380,6 +393,9 @@ export class Bridge3DScene3D extends Scene3D {
         if (this._renderByEditor) return;
 
         Scene3D._updateMark++;
+        if (LayaEnv.isModernAPIs) {
+            this._prepareLayaXActiveCameras();
+        }
 
         // 1. Prepare scene rendering (lights)
         this._prepareSceneToRender();
@@ -408,6 +424,10 @@ export class Bridge3DScene3D extends Scene3D {
             this._volumeManager.reCaculateAllRenderObjects(this._sceneRenderManager.list);
         else
             this._volumeManager.handleMotionlist();
+
+        this.componentElementMap.forEach((value) => {
+            value.update(delta);
+        });
 
         // 只更新根级 Bridge3DSprite 的 renderUpdate
         const bridge3DList = this._holder.bridge3DList;

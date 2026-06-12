@@ -16,6 +16,17 @@ export class KeyframeNode {
 	/**@internal */
 	_indexInList: number;
 
+	/**
+	 * @internal
+	 * Hermite fast-path 嗅探缓存。
+	 * 整条曲线上：没有任何 frame 启用 weightedMode + 全部 tangent 分量为有限数，则置 true。
+	 * 由 AnimationClip._evaluateClipDatasRealTime 首次扫到该 node 时 lazy 解析（只算一次），
+	 * 命中后 hermite 内层省掉 per-component 的 weightedMode 分支与 Number.isFinite × 2 调用。
+	 */
+	_isPlainHermite: boolean = false;
+	/**@internal */
+	_isPlainHermiteResolved: boolean = false;
+
 	/**@internal */
 	type: KeyFrameValueType;
 	/**@internal */

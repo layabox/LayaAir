@@ -170,7 +170,7 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
 
             this.uploadBuffer(subMeshBuffer, true);
             geometry.clearRenderParams();
-            geometry.setDrawArrayParams(0, block.indexLength);
+            geometry.setDrawElemenParams(block.indexLength, 0);
 
             if (i < cache.materials.length) {
                 batch.material = cache.materials[i];
@@ -314,7 +314,7 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
                 const currentBatch = this.batches[this._currentBatchIndex];
                 if (currentBatch && currentBatch.buffer.vertexLength > 0) {
                     currentBatch.geometry.clearRenderParams();
-                    currentBatch.geometry.setDrawArrayParams(0, currentBatch.buffer.indexLength);
+                    currentBatch.geometry.setDrawElemenParams(currentBatch.buffer.indexLength, 0);
                     this.uploadBuffer(currentBatch.buffer);
                 }
             }
@@ -466,7 +466,7 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
         if (this._currentBatchIndex >= 0) {
             const currentBatch = this.batches[this._currentBatchIndex];
             currentBatch.geometry.clearRenderParams();
-            currentBatch.geometry.setDrawArrayParams(0, currentBatch.buffer.indexLength);
+            currentBatch.geometry.setDrawElemenParams(currentBatch.buffer.indexLength, 0);
             this.uploadBuffer(currentBatch.buffer);
         }
 

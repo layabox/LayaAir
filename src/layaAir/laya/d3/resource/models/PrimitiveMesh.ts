@@ -681,6 +681,7 @@ export class PrimitiveMesh {
 		var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV,TANGENT");
 		var halfLong: number = long / 2;
 		var halfWidth: number = width / 2;
+
 		// per vertex: pos(3) + normal(3) + uv(2) + tangent(4) = 12 floats
 		// tangent = (1, 0, 0, 1) — UV.x dir, w=1 right-handed bitangent (跟 fbx 标准 quad 一致)
 		var vertices: Float32Array = new Float32Array([

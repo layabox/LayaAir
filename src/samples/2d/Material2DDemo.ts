@@ -60,9 +60,12 @@ export class Material2DDemo {
             let mat = new Material();
             mat.setShaderName("custom2DShader_0");
             // 设置2D全局uniform变量
-            Graphics.add2DGlobalUniformData(Shader3D.propertyNameToID("u_GlobalColor"), "u_GlobalColor", ShaderDataType.Color);
             this.scene.setglobalRenderData(Shader3D.propertyNameToID("u_GlobalColor"), ShaderDataType.Color, new Color(0.0, 1.0, 0.0, 1.0));
             sp.graphics.material = mat;
         });
     }
 }
+
+Laya.addAfterInitCallback(() => {
+    Graphics.add2DGlobalUniformData(Shader3D.propertyNameToID("u_GlobalColor"), "u_GlobalColor", ShaderDataType.Color);
+})

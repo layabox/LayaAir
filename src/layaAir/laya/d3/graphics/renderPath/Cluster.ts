@@ -34,9 +34,7 @@ class ClusterData {
     indices: number[] = [];
 }
 
-/**
- * @internal
- */
+
 export class Cluster {
     static instance: Cluster;
 

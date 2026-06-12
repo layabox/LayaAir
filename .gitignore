@@ -4,6 +4,7 @@ bin/uploads
 bin/rollUp
 bin/jsLibs
 bin/webgl
+bin/webgpu
 node_modules
 .cache
 .vscode/chrome
@@ -14,4 +15,6 @@ build
 package-lock.json
 .rpt2_cache
 /docTool/dist
-docs.planning/
+docs
+.claude
+.planning

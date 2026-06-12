@@ -141,6 +141,7 @@ export class Blit2DCMD extends Command2D {
      * @param offsetScale offset and scale Value,(Based on percentage)
      * @param shader use shader
      * @param shaderData data for shader
+     * @param invert data for geomerty invert uv
      * @returns render command
      * @zh 创建一个纹理拷贝渲染指令
      * @param source 拷贝原图
@@ -148,9 +149,10 @@ export class Blit2DCMD extends Command2D {
      * @param offsetScale 偏移缩放（基于百分比）
      * @param shader 拷贝使用Shader
      * @param shaderData 拷贝使用的shader对应的渲染数据
+     * @param shaderData 拷贝使用的geometry 是否翻转uv
      * @returns 渲染指令 
      */
-    static create(source: BaseTexture, dest: IRenderTarget, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null) {
+    static create(source: BaseTexture, dest: IRenderTarget, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null , invert = false) {
         if (!Blit2DCMD._blitShaderData)
             Blit2DCMD.__init__();
         let cmd = Blit2DCMD._pool.take();
@@ -158,6 +160,7 @@ export class Blit2DCMD extends Command2D {
         cmd.dest = dest;
         cmd.offsetScale = offsetScale;
         cmd.setshader(shader, shaderData);
+        cmd._renderElement.geometry = invert ? Blit2DCMD.InvertQuadGeometry : Blit2DCMD.QuadGeometry;
         return cmd;
     }
 
@@ -183,7 +186,7 @@ export class Blit2DCMD extends Command2D {
         this._renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
         this._blitQuadCMDData = LayaGL.render2DRenderPassFactory.createBlit2DQuadCMDData();
         this._blitQuadCMDData.element = this._renderElement;
-        this._renderElement.geometry = !LayaGL.renderEngine._screenInvertY ? Blit2DCMD.QuadGeometry : Blit2DCMD.InvertQuadGeometry;
+        this._renderElement.geometry = Blit2DCMD.QuadGeometry;
         this._renderElement.nodeCommonMap = null;
         this._renderElement.renderStateIsBySprite = false;
     }

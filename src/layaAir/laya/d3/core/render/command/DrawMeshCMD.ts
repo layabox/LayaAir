@@ -27,7 +27,8 @@ export class DrawMeshCMD extends Command {
         cmd.material = material;
         cmd.subMeshIndex = subMeshIndex;
         cmd._subShaderIndex = subShaderIndex;
-        cmd._meshRender.probReflection = RenderContext3D._instance.scene.sceneReflectionProb;
+        // probReflection 移到 run() 里赋值：_instance.scene 仅在 Camera.render 时有效，
+        // create() 时（Scene.open 回调、首帧前）scene 还是 undefined
         cmd.mesh = mesh;
         cmd._commandBuffer = commandBuffer;
         return cmd;
@@ -73,7 +74,18 @@ export class DrawMeshCMD extends Command {
         super();
         this._drawRenderCMDDData = Laya3DRender.Render3DPassFactory.createDrawNodeCMDData();
         this._transform = Laya3DRender.Render3DModuleDataFactory.createTransform(null);
+        // 合成 transform 不经过 scene 激活；手动 activeInScene 触发驱动层的 ECS/entity 创建，
+        // 否则 LayaX 路径下 _baseRenderNode.transform 拿到的 entityId=0，u_WorldMat 永远是 0。
+        // WebGL/WebGPU 的 activeInScene 是空实现，不受影响。
+        this._transform.activeInScene();
         this._meshRender = new MeshRenderer();
+
+        // LayaX: 预绑 transform 到 baseRenderNode。DrawMeshCMD.run() 每帧会重绑，
+        // 触发 Rust 侧 render_node_set_transform 里 world_mat_version 自增，
+        // 驱动 pre_render_update 把 ECS 计算好的 WorldMat 写入 Sprite3D UBO。
+        // 这里不挂 CullComponent（挂了会让 node 走 scene 可见性/阴影采样路径，
+        // 触发 bg_set1 sampler filtering 校验错误，且和 CommandBuffer 的主动绘制语义重复）。
+        this._meshRender._baseRenderNode.transform = this._transform;
     }
 
     /**
@@ -125,8 +137,9 @@ export class DrawMeshCMD extends Command {
         this._meshRender._baseRenderNode.transform = this._transform;
         this._meshRender._baseRenderNode.ismoved.setValue(Stat.loopCount, LayaGL.renderEngine._framePassCount);
         this._meshRender.renderUpdate(RenderContext3D._instance);
-        // todo scene ibl
-        // this._meshRender.probReflection = RenderContext3D._instance.scene.sceneReflectionProb;
+        // 每帧 run() 时 _instance.scene 已由 Camera.render 赋值，此时拿 reflection probe 才安全
+        // 没它 LayaX 路径会 strip 掉 ReflectionProbe uniform block，导致 u_AmbientColor 未声明
+        this._meshRender.probReflection = RenderContext3D._instance.scene && RenderContext3D._instance.scene.sceneReflectionProb;
 
         this._drawRenderCMDDData.destSubShader = this.material.shader.getSubShaderAt(this._subShaderIndex);
         this._drawRenderCMDDData.destShaderData = this.material.shaderData;
@@ -141,8 +154,9 @@ export class DrawMeshCMD extends Command {
         DrawMeshCMD._pool.recover(this);
         super.recover();
         this._material && (this.material = null);
-        this._mesh && (this.mesh = null);
+        this._meshRender.probReflection = null;
         this._meshRender.lightProbe = null;
+        this._mesh && (this.mesh = null);
     }
 
     /**

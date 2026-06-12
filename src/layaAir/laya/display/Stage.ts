@@ -856,6 +856,7 @@ export class Stage extends Sprite {
             }
         }
 
+        Render2DProcessor.renderTime += (ILaya.timer?.delta || 0) * 0.001;
         this.passManager.apply(Render2DProcessor.rendercontext2D, Render2DProcessor.renderTime);
         PostProcess2D.postRenderAll();
 

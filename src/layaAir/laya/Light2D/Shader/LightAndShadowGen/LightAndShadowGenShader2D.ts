@@ -26,7 +26,10 @@ export class LightAndShadowGenShader2D {
 
     static __init__(): void {
         this.renderShader = Shader3D.add('LightAndShadowGen2D', false, false);
-        this.renderShader.shaderType = ShaderFeatureType.Default;
+        // 与 LightGen2D 对齐：2D shader 必须声明为 D2_BaseRenderNode2D，
+        // 否则 LayaX ShaderPass.is2D 保持 false，shader 生成器按 3D 规则
+        // 生成绑定布局，导致灯光合成 / 阴影贴图采样失败。
+        this.renderShader.shaderType = ShaderFeatureType.D2_BaseRenderNode2D;
         const subShader = new SubShader(this.RenderAttribute, this.RenderUniform, {});
         this.renderShader.addSubShader(subShader);
         subShader.addShaderPass(lightAndShadowGen2D_vs, lightAndShadowGen2D_ps);

@@ -128,16 +128,18 @@ export class RTRender2DPass implements IRender2DPass {
       this._nativeObj.setClearColor(r, g, b, a);
    }
 
-   constructor() {
+   constructor(skipNative?: boolean) {
       this._shaderData = LayaGL.renderDeviceFactory.createShaderData(null) as GLESShaderData;
-      this._nativeObj = new (window as any).conchRTRender2DPass(this._shaderData._nativeObj);
-      this.enable = true;
-      this.enableBatch = true;
-      this.isSupport = false;
-      this.doClearColor = true;
-      this.repaint = true;
-      this.priority = 0;
-      this.offsetMatrix = new Matrix();
+      if (!skipNative) {
+         this._nativeObj = new (window as any).conchRTRender2DPass(this._shaderData._nativeObj);
+         this.enable = true;
+         this.enableBatch = true;
+         this.isSupport = false;
+         this.doClearColor = true;
+         this.repaint = true;
+         this.priority = 0;
+         this.offsetMatrix = new Matrix();
+      }
    }
 
    /**
@@ -171,6 +173,7 @@ export class RTRender2DPass implements IRender2DPass {
          this._enablePostProcess = false;
       }
    }
+
 
    private _getRenderCMDArray(cmds: any[]): any[] {
       let nativeobCMDs: any[] = [];

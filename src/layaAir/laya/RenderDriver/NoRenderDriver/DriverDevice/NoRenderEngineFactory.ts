@@ -82,7 +82,20 @@ export class NoRenderEngine implements IRenderEngine {
         return define;
     }
     getNamesByDefineData(defineData: IDefineDatas, out: string[]): void {
-
+        var maskMap: Array<{ [key: number]: string }> = NoRenderEngine._maskMap;
+        var mask: Array<number> = defineData._mask;
+        out.length = 0;
+        for (var i: number = 0, n: number = defineData._length; i < n; i++) {
+            var subMaskMap: { [key: number]: string } = maskMap[i];
+            var subMask: number = mask[i];
+            for (var j: number = 0; j < 32; j++) {
+                var d: number = 1 << j;
+                if (subMask > 0 && d > subMask)
+                    break;
+                if (subMask & d)
+                    out.push(subMaskMap[d]);
+            }
+        }
     }
     addTexGammaDefine(key: number, value: ShaderDefine): void {
     }

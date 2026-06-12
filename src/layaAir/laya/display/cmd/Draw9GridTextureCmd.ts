@@ -151,23 +151,6 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
             if (this.color)
                 vb.color.setABGR(this.color);
 
-            // Apply half-texel inset to prevent atlas bleeding from bilinear filtering
-            // Only for static atlas sub-textures; dynamic atlas already has extendSize border
-            let uvrect = this.texture.uvrect;
-            if (!this.texture._dynamic
-                && (uvrect[0] !== 0 || uvrect[1] !== 0 || uvrect[2] !== 1 || uvrect[3] !== 1)) {
-                let bitmapW = this.texture.bitmap.width;
-                let bitmapH = this.texture.bitmap.height;
-                if (bitmapW > 0 && bitmapH > 0) {
-                    let halfTexelU = 0.5 / bitmapW;
-                    let halfTexelV = 0.5 / bitmapH;
-                    vb.uvRect.x += halfTexelU;
-                    vb.uvRect.y += halfTexelV;
-                    vb.uvRect.width -= halfTexelU * 2;
-                    vb.uvRect.height -= halfTexelV * 2;
-                }
-            }
-
             let gridRect = Rectangle.create();
             let sourceWidth = vb.mainTex.sourceWidth;
             let sourceHeight = vb.mainTex.sourceHeight;

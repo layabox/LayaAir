@@ -10,7 +10,6 @@ import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
 export type TSpineMaterialMap = Record<string, Material | null>;
 export type TSpineMaterialTextureMap = Record<string, string>;
 export type TSpineMaterialDimension = "2D" | "3D";
-type TSpineCreateURLAlias = { url: string, uuid?: string };
 
 /**
  * @en Base class for Spine animation template
@@ -30,7 +29,6 @@ export class SpineTemplet extends Resource {
     private _spineMaterials3D: TSpineMaterialMap = {};
     private _spineMaterialTextures: TSpineMaterialTextureMap = {};
     private _spineMaterialTextureKeys: Record<number, string[]> = {};
-    private _createURLAliases: TSpineCreateURLAlias[] = [];
 
     /** @internal */
     _textures: Record<string, Texture2D>;
@@ -132,29 +130,6 @@ export class SpineTemplet extends Resource {
      */
     onSpineMaterialsChanged(): void {
         this.event(SpineTemplet.EVENT_SPINE_MATERIAL_CHANGE);
-    }
-
-    /** @internal */
-    _addCreateURLAlias(url: string, uuid?: string): void {
-        if (!url && !uuid)
-            return;
-
-        for (let alias of this._createURLAliases) {
-            if (alias.url === url && alias.uuid === uuid)
-                return;
-        }
-        this._createURLAliases.push({ url, uuid });
-    }
-
-    isCreateFromURL(url: string): boolean {
-        if (super.isCreateFromURL(url))
-            return true;
-
-        for (let alias of this._createURLAliases) {
-            if (alias.uuid && url.length === alias.uuid.length + 6 && url.endsWith(alias.uuid) || alias.url === url)
-                return true;
-        }
-        return false;
     }
 
     /** @internal */

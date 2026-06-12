@@ -42,6 +42,7 @@ export class Bridge3DSceneInternal implements IBridge3DSceneInternal{
         const renderH = RenderState2D.height || ILaya.stage.height;
         const sceneH = this._scene2D.height || renderH;
         cam.setSceneOffsetFrom2DMatrix(m.a, m.b, m.c, m.d, m.tx, m.ty, renderH, sceneH);
+        this._scene3d.updateContext();
     };
 
     private _onScene2DResize = (): void => {
@@ -270,7 +271,7 @@ export class Bridge3DSceneInternal implements IBridge3DSceneInternal{
      * @zh 反序列化完成、holder 数据就绪后重新套用一次配置。
      * scene3d 创建、相机内参、bridge 注册都已在 registerBridge3D / initScene3D 中完成，
      * 此处仅做一次最终的数据 apply，覆盖 holder 数据晚于 bridge 到位的情况。
-     * @internal
+    
      */
     finalizeSetup(): void {
         if (!this._scene3d) return;

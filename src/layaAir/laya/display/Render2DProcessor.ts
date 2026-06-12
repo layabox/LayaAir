@@ -10,6 +10,7 @@ import { GraphicsRunner } from "./Scene2DSpecial/GraphicsRunner";
 export class Render2DProcessor {
 
     static rendercontext2D: IRenderContext2D;
+    static renderTime: number = 0;
     static runner: GraphicsRunner;
     static renderTime: number = 0;
 

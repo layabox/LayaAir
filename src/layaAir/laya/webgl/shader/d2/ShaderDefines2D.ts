@@ -133,6 +133,8 @@ export class ShaderDefines2D {
     static UNIFORM_TIME: number;
     /**@internal */
     static SHADERDEFINE_CAMERA2D: ShaderDefine;
+    /**@internal */
+    static UNIFORM_TIME: number;
 
     //TODO?
     //static NOOPTMASK: number = ShaderDefines2D.FILTERGLOW | ShaderDefines2D.FILTERBLUR | ShaderDefines2D.FILTERCOLOR | ShaderDefines2D.FILLTEXTURE;	//有这些定义的不要优化。见submittexture
@@ -191,7 +193,7 @@ export class ShaderDefines2D {
         ShaderDefines2D.UNIFORM_TIME = Shader3D.propertyNameToID("u_Time");
         ShaderDefines2D.UNIFORM_VERTALPHA = Shader3D.propertyNameToID("u_VertAlpha");
         ShaderDefines2D.VIEW2D = Shader3D.propertyNameToID("u_view2D");
-        
+        ShaderDefines2D.UNIFORM_TIME = Shader3D.propertyNameToID("u_Time");
 
         // sprite2d
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2D");
@@ -207,6 +209,7 @@ export class ShaderDefines2D {
         passUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_TIME, "u_Time", ShaderDataType.Float);
         passUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_INVERTMAT_0, "u_InvertMat_0", ShaderDataType.Vector3);
         passUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_INVERTMAT_1, "u_InvertMat_1", ShaderDataType.Vector3);
+        passUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_TIME, "u_Time", ShaderDataType.Float);
 
         // graphics
         ShaderDefines2D.UNIFORM_MATERIAL_CLIPMATDIR = Shader3D.propertyNameToID("u_mClipMatDir");

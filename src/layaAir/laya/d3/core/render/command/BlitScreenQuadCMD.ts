@@ -186,6 +186,13 @@ export class BlitScreenQuadCMD extends Command {
         }
 
         this._renderElement.setGeometry(invertY ? ScreenQuad.InvertInstance : ScreenQuad.instance);
+
+        // Per-CMD texelSize: 通过 native CMD 传到 Rust，避免 shared element 覆盖
+        if (source && (this._blitQuadCMDData as any)._nativeObj?.setTexelSize) {
+            (this._blitQuadCMDData as any)._nativeObj.setTexelSize(
+                1.0 / source.width, 1.0 / source.height, source.width, source.height
+            );
+        }
     }
 
     /**

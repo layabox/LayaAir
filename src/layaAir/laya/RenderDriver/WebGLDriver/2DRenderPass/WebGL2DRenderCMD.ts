@@ -93,19 +93,20 @@ export class WebGLBlit2DQuadCMD extends Blit2DQuadCMD {
     }
 
     apply(context: WebglRenderContext2D): void {
-        let cacheInvert = context.invertY;
-        if (!this._dest || context._destRT._textures[0].gammaCorrection != 1) {
-            context.invertY = false;
+        let dest = this._dest as WebGLInternalRT || context._destRT;
+        if (dest && dest._textures[0].gammaCorrection != 1) {
             this.element.materialShaderData.addDefine(WebGLBlit2DQuadCMD.GammaCorrect);
         } else {
             this.element.materialShaderData.removeDefine(WebGLBlit2DQuadCMD.GammaCorrect);
         }
 
+        if (!dest) {
+            context.invertY = false;
+        }
         this.element.materialShaderData._setInternalTexture(WebGLBlit2DQuadCMD.SCREENTEXTURE_ID, this._source);
         this.element.materialShaderData.setVector(WebGLBlit2DQuadCMD.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale);
         this.element.materialShaderData.setVector(WebGLBlit2DQuadCMD.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
         context.setRenderTarget(this._dest as WebGLInternalRT, false, Color.BLACK);
         context.drawRenderElementOne(this.element as WebGLRenderElement2D);
-        context.invertY = cacheInvert;
     }
 }

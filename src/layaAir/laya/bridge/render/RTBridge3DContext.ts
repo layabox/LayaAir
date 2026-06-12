@@ -42,6 +42,10 @@ export class RTBridge3DContext {
         this._nativeObj.setGlobalShaderData(data ? (data as any)._nativeObj : null);
     }
 
+    setBridgeProjectionData(sceneOffsetMatrix: Matrix4x4, bridgePlaneWidth: number, bridgePlaneHeight: number): void {
+        this._nativeObj.setBridgeProjectionData(sceneOffsetMatrix, bridgePlaneWidth, bridgePlaneHeight);
+    }
+
     setRenderTarget2D(rt: InternalRenderTarget): void {
         // Not used on native - C++ gets RT from 2D context
     }

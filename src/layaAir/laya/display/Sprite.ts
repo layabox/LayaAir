@@ -2332,7 +2332,7 @@ export class Sprite extends Node {
             changed = true;
             this._struct.enabled = b;
             if (b) {
-                //visible = false 会清理 rt 
+                //visible = false 会清理 rt
                 this.repaint();
             } else {
                 this._struct.setRepaint();
@@ -2500,7 +2500,6 @@ export class Sprite extends Node {
             renderTexture._invertY = LayaGL.renderEngine._screenInvertY;
             this._drawOriRT = renderTexture;
         }
-
         rect.recover();
         oriRect.recover();
 
@@ -2523,6 +2522,7 @@ export class Sprite extends Node {
         this._struct.renderMatrix = matrix;
         if (this._subStruct)
             this._subStruct.renderMatrix = matrix;
+
 
         let rect = struct.rect;
         if (this._struct.inheritedEnableCulling || this._struct.inheritedDcOptimize) {

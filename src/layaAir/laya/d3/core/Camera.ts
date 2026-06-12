@@ -738,6 +738,11 @@ export class Camera extends BaseCamera {
         }
 
         this._renderDataModule.setProjectionViewMatrix(this._projectionViewMatrix);
+        // Pass camera forward direction to native for shadow cascade culling
+        if ((this._renderDataModule as any).setForward) {
+            this.transform.getForward(Vector3.TEMP);
+            (this._renderDataModule as any).setForward(Vector3.TEMP.x, Vector3.TEMP.y, Vector3.TEMP.z);
+        }
     }
 
     /**
@@ -1143,9 +1148,9 @@ export class Camera extends BaseCamera {
         }
         else {
             Matrix4x4.multiply(proMat, viewMat, this._projectionViewMatrix);
-            this._renderDataModule.setProjectionViewMatrix(this._projectionViewMatrix);
             projectView = this._projectionViewMatrix;
         }
+        this._renderDataModule.setProjectionViewMatrix(projectView);
         this._shaderValues.setMatrix4x4(BaseCamera.VIEWMATRIX, viewMat);
         this._shaderValues.setMatrix4x4(BaseCamera.PROJECTMATRIX, proMat);
         this._shaderValues.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, projectView);
@@ -1511,6 +1516,10 @@ export class Camera extends BaseCamera {
         this._offScreenRenderTexture = null;
         if (this._opaqueTexture) {
             RenderTexture.recoverToPool(this._opaqueTexture);
+        }
+        // 释放 native cameraNode：缺这步会让 cull slot 不回收，跨场景切换 cull_bit 错位
+        if (this._renderDataModule && (this._renderDataModule as any).destroy) {
+            (this._renderDataModule as any).destroy();
         }
         this._Render3DProcess.destroy();
         this.transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);

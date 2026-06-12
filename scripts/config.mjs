@@ -129,6 +129,48 @@ export const allBundles = [{
     ],
 },
 {
+    name: 'modernAPIs_2D',
+    input: [
+        'laya/RenderDriver/LayaXDriver/RenderDevice/**/*.*',
+        'laya/RenderDriver/LayaXDriver/ShaderCompile/**/*.*',
+        'laya/RenderDriver/LayaXDriver/2DRenderPass/**/*.*',
+        // 共用 shader 数据类（被 RenderDevice 反向依赖，必须随 2D base 一起加载）
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXDefineDatas.ts',
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXRenderState.ts',
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXShaderPass.ts',
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXSubShader.ts',
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXUnitRenderModuleDataFactory.ts',
+        //引擎核心
+        'laya/RenderDriver/RenderModuleData/RuntimeModuleData/*.*',
+        'laya/RenderDriver/RenderModuleData/RuntimeModuleData/2D/*.*',
+    ],
+},
+{
+    name: 'modernAPIs_3D',
+    input: [
+        'laya/RenderDriver/LayaXDriver/3DRenderPass/**/*.*',
+        // 3D 节点数据（不含上面已放入 LayaX_2D 的共用 shader 类）
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaX3DRenderModuleFactory.ts',
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXBaseRenderNode.ts',
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXBounds.ts',
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXCameraNodeData.ts',
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXDirectLight.ts',
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXLightmapData.ts',
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXMeshRenderNode.ts',
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXPointLight.ts',
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXReflectionProbe.ts',
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXSceneNodeData.ts',
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXSimpleSkinRenderNode.ts',
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXSkinRenderNode.ts',
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXSpotLight.ts',
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXTransform3D.ts',
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXVolumetricGI.ts',
+		//引擎核心
+        'laya/RenderDriver/RenderModuleData/RuntimeModuleData/3D/*.*',
+        'laya/RenderDriver/RenderModuleData/RuntimeModuleData/3D/3DRenderProcess/*.*',
+    ],
+},
+{
     name: 'webgl_2D',
     input: [
         'laya/RenderDriver/WebGLDriver/RenderDevice/**/*.*',
@@ -432,6 +474,13 @@ export const allBundles = [{
     input: [
         'platforms/minigame/**/*.*',
         'platforms/huawei/**/*.*'
+    ],
+},
+{
+    name: 'adapter-bilibili',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/bilibili/**/*.*'
     ],
 },
 {

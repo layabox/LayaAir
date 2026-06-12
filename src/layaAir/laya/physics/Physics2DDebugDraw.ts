@@ -46,11 +46,6 @@ export class Physics2DDebugDraw {
     private _meshAccums: Map<number, MeshAccumData> = new Map();
     private _lineAccums: Map<number, LineAccumData> = new Map();
 
-    // ---- Temp arrays reused across frames during render() ----
-    private _tmpMeshCmds: DrawMesh2DCMD[] = [];
-    private _tmpMeshes: Mesh2D[] = [];
-    private _tmpLineCmds: PhysicsDrawLine2DCMD[] = [];
-
     // ---- Legacy per-shape storage (for backward-compatible addMeshDebugDrawCMD / addLineDebugDrawCMD) ----
     private _cmdDrawLineList: PhysicsDrawLine2DCMD[] = [];
     private _linePointsList: any[] = [];
@@ -196,16 +191,32 @@ export class Physics2DDebugDraw {
 
     // ---- Render ----
 
+    // 延迟 N 帧再 destroy，确保 LayaX 渲染线程在销毁前完成命令消费
+    private static readonly _RETAIN_FRAMES = 6;
+    private _pendingMeshCmdRing: DrawMesh2DCMD[][] = [];
+    private _pendingMeshRing: Mesh2D[][] = [];
+    private _pendingLineCmdRing: PhysicsDrawLine2DCMD[][] = [];
+
     private render(): void {
         this._matrix.identity();
         this._matrix.scale(Physics2D.toRenderX(1), Physics2D.toRenderY(1));
 
+        // 延迟销毁：ring buffer 满时释放最旧一帧
+        if (this._pendingMeshCmdRing.length >= Physics2DDebugDraw._RETAIN_FRAMES) {
+            const oldestMeshCmds = this._pendingMeshCmdRing.shift()!;
+            for (let i = 0; i < oldestMeshCmds.length; i++) oldestMeshCmds[i].recover();
+            const oldestMeshes = this._pendingMeshRing.shift()!;
+            for (let i = 0; i < oldestMeshes.length; i++) oldestMeshes[i].destroy();
+            const oldestLineCmds = this._pendingLineCmdRing.shift()!;
+            for (let i = 0; i < oldestLineCmds.length; i++) oldestLineCmds[i].recover();
+        }
+
         let area2D = this._scene._area2Ds.size > 0 ? this._scene._area2Ds.values().next().value._struct : null;
 
         // --- Flush mesh accumulators → merged DrawMesh2DCMD ---
-        let tmpMeshCmds = this._tmpMeshCmds;
-        let tmpMeshes = this._tmpMeshes;
-        let tmpLineCmds = this._tmpLineCmds;
+        let frameMeshCmds: DrawMesh2DCMD[] = [];
+        let frameMeshes: Mesh2D[] = [];
+        let frameLineCmds: PhysicsDrawLine2DCMD[] = [];
 
         const declaration = VertexMesh2D.getVertexDeclaration(["POSITION,UV"], false)[0];
         this._meshAccums.forEach(accum => {
@@ -219,8 +230,8 @@ export class Physics2DDebugDraw {
                 [{ length: indices.length, start: 0 }]
             );
             const cmd = DrawMesh2DCMD.create(mesh, this._matrix, Texture2D.whiteTexture, accum.color, this._material);
-            if (cmd) tmpMeshCmds.push(cmd);
-            tmpMeshes.push(mesh);
+            if (cmd) frameMeshCmds.push(cmd);
+            frameMeshes.push(mesh);
             // reset for next frame (keep array allocation)
             accum.vertices.length = 0;
             accum.indices.length = 0;
@@ -228,12 +239,10 @@ export class Physics2DDebugDraw {
         });
 
         // --- Flush line accumulators → merged PhysicsDrawLine2DCMD ---
-        // Note: PhysicsDrawLine2DCMD stores the points array by reference,
-        // so we must NOT clear accum.points here. Clear after apply().
         this._lineAccums.forEach(accum => {
             if (accum.points.length < 4) return;
             const cmd = PhysicsDrawLine2DCMD.create(accum.points, this._matrix, accum.color, this._lineWidth);
-            if (cmd) tmpLineCmds.push(cmd);
+            if (cmd) frameLineCmds.push(cmd);
         });
 
         // --- Submit all CMDs to command buffer ---
@@ -247,8 +256,8 @@ export class Physics2DDebugDraw {
             this._cmdBuffer.addCacheCommand(cmd);
         }
         // merged mesh CMDs
-        for (let i = 0; i < tmpMeshCmds.length; i++) {
-            let cmd = tmpMeshCmds[i];
+        for (let i = 0; i < frameMeshCmds.length; i++) {
+            let cmd = frameMeshCmds[i];
             if (area2D)
                 (cmd as any)._renderElements[0] && ((cmd as any)._renderElements[0].owner = area2D);
             this._cmdBuffer.addCacheCommand(cmd);
@@ -262,8 +271,8 @@ export class Physics2DDebugDraw {
             this._cmdBuffer.addCacheCommand(cmd);
         }
         // merged line CMDs
-        for (let i = 0; i < tmpLineCmds.length; i++) {
-            let cmd = tmpLineCmds[i];
+        for (let i = 0; i < frameLineCmds.length; i++) {
+            let cmd = frameLineCmds[i];
             if (area2D)
                 cmd._renderElements[0] && (cmd._renderElements[0].owner = area2D);
             this._cmdBuffer.addCacheCommand(cmd);
@@ -272,37 +281,20 @@ export class Physics2DDebugDraw {
         this._cmdBuffer.apply(true);
         this._cmdBuffer.clear(false);
 
-        // --- Cleanup legacy ---
-        for (let i = 0; i < this._cmdDrawMeshList.length; i++) {
-            this._cmdDrawMeshList[i].recover();
-        }
-        for (let i = 0; i < this._meshList.length; i++) {
-            this._meshList[i].destroy();
-        }
-        for (let i = 0; i < this._cmdDrawLineList.length; i++) {
-            this._cmdDrawLineList[i].recover();
-        }
+        // 本帧提交的资源入队末尾；延迟 _RETAIN_FRAMES 帧后才 destroy / recover
+        // legacy + merged 合并入同一 ring slot
+        this._pendingMeshCmdRing.push(this._cmdDrawMeshList.slice().concat(frameMeshCmds));
+        this._pendingMeshRing.push(this._meshList.slice().concat(frameMeshes));
+        this._pendingLineCmdRing.push(this._cmdDrawLineList.slice().concat(frameLineCmds));
+
         for (let i = 0; i < this._linePointsList.length; i++) {
             this._linePointsList[i] = null;
         }
+
         this._cmdDrawLineList.length = 0;
         this._cmdDrawMeshList.length = 0;
         this._meshList.length = 0;
         this._linePointsList.length = 0;
-
-        // --- Cleanup merged ---
-        for (let i = 0; i < tmpMeshCmds.length; i++) {
-            tmpMeshCmds[i].recover();
-        }
-        for (let i = 0; i < tmpMeshes.length; i++) {
-            tmpMeshes[i].destroy();
-        }
-        for (let i = 0; i < tmpLineCmds.length; i++) {
-            tmpLineCmds[i].recover();
-        }
-        tmpMeshCmds.length = 0;
-        tmpMeshes.length = 0;
-        tmpLineCmds.length = 0;
 
         // Clear line accumulator points (deferred to here because
         // PhysicsDrawLine2DCMD holds a reference to the array until apply() finishes)
@@ -425,17 +417,18 @@ export class Physics2DDebugDraw {
         this._material && this._material.destroy();
         this._material = null;
         this._cmdBuffer = null;
-        if (this._meshList) {
-            for (let i = 0; i < this._meshList.length; i++) {
-                this._meshList[i].destroy();
-            }
-            this._meshList.length = 0;
-        }
+        // recover CMD 必须在 destroy mesh 之前，CMD recover 内部会访问 mesh 属性
         if (this._cmdDrawMeshList) {
             for (let i = 0; i < this._cmdDrawMeshList.length; i++) {
                 this._cmdDrawMeshList[i].recover();
             }
             this._cmdDrawMeshList.length = 0;
+        }
+        if (this._meshList) {
+            for (let i = 0; i < this._meshList.length; i++) {
+                this._meshList[i].destroy();
+            }
+            this._meshList.length = 0;
         }
         if (this._cmdDrawLineList) {
             for (let i = 0; i < this._cmdDrawLineList.length; i++) {
@@ -446,5 +439,21 @@ export class Physics2DDebugDraw {
         this._linePointsList && (this._linePointsList.length = 0);
         this._meshAccums.clear();
         this._lineAccums.clear();
+        // 清理 pending ring：同样先 recover CMD 再 destroy mesh
+        for (let i = 0; i < this._pendingMeshCmdRing.length; i++) {
+            const cmds = this._pendingMeshCmdRing[i];
+            for (let j = 0; j < cmds.length; j++) cmds[j].recover();
+        }
+        for (let i = 0; i < this._pendingLineCmdRing.length; i++) {
+            const cmds = this._pendingLineCmdRing[i];
+            for (let j = 0; j < cmds.length; j++) cmds[j].recover();
+        }
+        for (let i = 0; i < this._pendingMeshRing.length; i++) {
+            const meshes = this._pendingMeshRing[i];
+            for (let j = 0; j < meshes.length; j++) meshes[j].destroy();
+        }
+        this._pendingMeshCmdRing.length = 0;
+        this._pendingLineCmdRing.length = 0;
+        this._pendingMeshRing.length = 0;
     }
 }
