@@ -1952,7 +1952,7 @@ const ellipsisStr = "…";
 const maxWordLength = 20;
 
 function getReplaceStr(word: string): string {
-    return escapeSequence[word];
+    return escapeSequence[word] ?? word;
 }
 
 function isHighSurrogate(c: number): boolean {
