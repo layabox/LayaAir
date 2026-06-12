@@ -11,6 +11,7 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
     typeKey: number = 0;
     textureKey: number = 0;
 
+    private static _textureDefineMask: number = (1 << ShaderDefines2D.SHADER_DEFINE_BITS) - 1;
     private static _additionShaderData: string[] = ["Sprite2DGraphics"];
 
     private _primitiveShaderData: WebGLShaderData;
@@ -31,7 +32,6 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
 
         for (var j: number = 0, m: number = passes.length; j < m; j++) {
             var pass: ShaderPass = passes[j];
-            //NOTE:this will cause maybe a shader not render but do prepare before，but the developer can avoide this manual,for example shaderCaster=false.
             if (pass.pipelineMode !== context.pipelineMode)
                 continue;
 
@@ -89,16 +89,21 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
             let clipInfo = this.owner.getClipInfo();
             if (this.owner.renderType === context._prevRenderType
                 && this.typeKey === context._prevTypeKey
-                && this.textureKey === context._prevTextureKey
                 && clipInfo === context._prevClip
                 && shaderIns === context._prevShaderIns) {
-                // 快速路径：状态完全相同，只执行 draw
-                WebGLEngine.instance.getDrawContext().drawGeometryElement(this.geometry);
+                let defineMask = WebGLPrimitiveRenderElement2D._textureDefineMask;
+                if ((this.textureKey & defineMask) === (context._prevTextureKey & defineMask)) {
+                    if (this.textureKey !== context._prevTextureKey) {
+                        this.uploadTexture(shaderIns);
+                    }
+                    WebGLEngine.instance.getDrawContext().drawGeometryElement(this.geometry);
+                } else {
+                    this.renderByShaderInstance(shaderIns, context);
+                }
             } else {
                 this.renderByShaderInstance(shaderIns, context);
             }
 
-            // 更新 context 上的 prev state 供下一个元素使用
             context._prevTypeKey = this.typeKey;
             context._prevTextureKey = this.textureKey;
             context._prevClip = clipInfo;
@@ -108,6 +113,11 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
                 this.renderByShaderInstance(inss[j], context);
             }
         }
+    }
+
+    private uploadTexture(shader: WebGLShaderInstance) {
+        let encoder = shader._additionUniformParamsMaps.get("Sprite2DGraphics");
+        encoder && this._primitiveShaderData && shader.uploadUniforms(encoder, this._primitiveShaderData, false);
     }
 
     renderByShaderInstance(shader: WebGLShaderInstance, context: WebglRenderContext2D): void {
@@ -123,7 +133,6 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
         encoder && this._primitiveShaderData && shader.uploadUniforms(encoder, this._primitiveShaderData, true);
 
         let shaderData = this.value2DShaderData;
-        //blend
         if (!this.renderStateIsBySprite) {
             if (this.materialShaderData) {
                 shaderData = this.materialShaderData;
