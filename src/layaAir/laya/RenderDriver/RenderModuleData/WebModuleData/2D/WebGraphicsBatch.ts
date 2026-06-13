@@ -21,7 +21,6 @@ import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRend
 import { Vector4 } from "../../../../maths/Vector4";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 
-
 /**
  * 简单的管理indexBuffer
  */
@@ -206,20 +205,19 @@ class WebGLBatchContext extends BaseBatchContext {
 
         this.typeKey = element.typeKey;
         this.textureKey = element.textureKey;
-        this.textureId = element.textureKey & (~((1 << ShaderDefines2D.SHADER_DEFINE_BITS) - 1)); // texture portion
+        this.textureId = element.textureKey;
         this.globalAlpha = element.owner.globalAlpha;
         this.clipInfo = (element.owner as WebRenderStruct2D).getClipInfo();
         this.globalRenderData = element.owner.globalRenderData;
-        this.fillTexture = !!(element.typeKey & 64); // bit 6 = hasFillTexture
+        this.fillTexture = !!(element.typeKey & ShaderDefines2D.DEFINE_BIT_FILLTEXTURE);
         this.texRange = this.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE) as Vector4;
     }
 
     isCompatible(element: IPrimitiveRenderElement2D): boolean {
-        // mc/materialClip bit (bit 5) breaks batch
-        if (this.typeKey & 32)
+        if (this.typeKey & ShaderDefines2D.DEFINE_BIT_MATERIALCLIP)
             return false;
 
-        if (element.typeKey & 32) {
+        if (element.typeKey & ShaderDefines2D.DEFINE_BIT_MATERIALCLIP) {
             return false;
         }
 
@@ -228,13 +226,7 @@ class WebGLBatchContext extends BaseBatchContext {
             return false;
         }
 
-        // textureKey comparison: check define bits first, then texture portion
-        let defineMask = (1 << ShaderDefines2D.SHADER_DEFINE_BITS) - 1;
-        if ((this.textureKey & defineMask) !== (element.textureKey & defineMask)) {
-            return false;
-        }
-
-        let elementTexId = element.textureKey & (~defineMask);
+        let elementTexId = element.textureKey;
         if (elementTexId !== 0 && elementTexId !== this.textureId && this.textureId !== 0)
             return false;
 
@@ -247,12 +239,10 @@ class WebGLBatchContext extends BaseBatchContext {
         }
 
         // 检查材质 自定义材质直接比对 shaderdata
-        if ((this.typeKey & 16) !== 0 && element.materialShaderData !== this.materialShaderData) {
+        if ((this.typeKey & ShaderDefines2D.TYPEKEY_CUSTOM_MATERIAL) !== 0 && element.materialShaderData !== this.materialShaderData) {
             return false;
         }
 
-        // fillTexture 已通过 typeKey bit 6 检查，相同才到这里
-        // 但仍需检查 texRange 是否一致
         if (this.fillTexture) {
             if (!element.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE).equal(this.texRange))
                 return false;
@@ -285,20 +275,19 @@ class WebGPUBatchContext extends BaseBatchContext {
 
         this.typeKey = element.typeKey;
         this.textureKey = element.textureKey;
-        this.textureId = element.textureKey & (~((1 << ShaderDefines2D.SHADER_DEFINE_BITS) - 1)); // texture portion
+        this.textureId = element.textureKey;
         this.globalAlpha = element.owner.globalAlpha;
         this.clipInfo = (element.owner as WebRenderStruct2D).getClipInfo();
         this.globalRenderData = element.owner.globalRenderData;
-        this.fillTexture = !!(element.typeKey & 64); // bit 6 = hasFillTexture
+        this.fillTexture = !!(element.typeKey & ShaderDefines2D.DEFINE_BIT_FILLTEXTURE);
         this.texRange = this.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE) as Vector4;
     }
 
     isCompatible(element: IPrimitiveRenderElement2D): boolean {
-        // mc/materialClip bit (bit 5) breaks batch
-        if (this.typeKey & 32)
+        if (this.typeKey & ShaderDefines2D.DEFINE_BIT_MATERIALCLIP)
             return false;
 
-        if (element.typeKey & 32) {
+        if (element.typeKey & ShaderDefines2D.DEFINE_BIT_MATERIALCLIP) {
             return false;
         }
 
@@ -307,13 +296,7 @@ class WebGPUBatchContext extends BaseBatchContext {
             return false;
         }
 
-        // textureKey comparison: check define bits first, then texture portion
-        let defineMask = (1 << ShaderDefines2D.SHADER_DEFINE_BITS) - 1;
-        if ((this.textureKey & defineMask) !== (element.textureKey & defineMask)) {
-            return false;
-        }
-
-        let elementTexId = element.textureKey & (~defineMask);
+        let elementTexId = element.textureKey;
         if (elementTexId !== 0 && elementTexId !== this.textureId && this.textureId !== 0)
             return false;
 
@@ -326,12 +309,10 @@ class WebGPUBatchContext extends BaseBatchContext {
         }
 
         // 检查材质 自定义材质直接比对 shaderdata
-        if ((this.typeKey & 16) !== 0 && (element as any)._materialShaderData !== this.materialShaderData) {
+        if ((this.typeKey & ShaderDefines2D.TYPEKEY_CUSTOM_MATERIAL) !== 0 && (element as any)._materialShaderData !== this.materialShaderData) {
             return false;
         }
 
-        // fillTexture 已通过 typeKey bit 6 检查，相同才到这里
-        // 但仍需检查 texRange 是否一致
         if (this.fillTexture) {
             let primitiveShaderData = (element as any)._primitiveShaderData;
             if (!primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE).equal(this.texRange))

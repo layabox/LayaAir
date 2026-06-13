@@ -11,7 +11,11 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
     typeKey: number = 0;
     textureKey: number = 0;
 
-    private static _textureDefineMask: number = (1 << ShaderDefines2D.SHADER_DEFINE_BITS) - 1;
+    private static _spriteUniformDefineMask: number = ShaderDefines2D.DEFINE_BIT_VERTEX_SIZE;
+    private static _primitiveUniformDefineMask: number =
+        ShaderDefines2D.DEFINE_BIT_VERTEX_SIZE |
+        ShaderDefines2D.DEFINE_BIT_FILLTEXTURE |
+        ShaderDefines2D.DEFINE_BIT_MATERIALCLIP;
     private static _additionShaderData: string[] = ["Sprite2DGraphics"];
 
     private _primitiveShaderData: WebGLShaderData;
@@ -91,15 +95,12 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
                 && this.typeKey === context._prevTypeKey
                 && clipInfo === context._prevClip
                 && shaderIns === context._prevShaderIns) {
-                let defineMask = WebGLPrimitiveRenderElement2D._textureDefineMask;
-                if ((this.textureKey & defineMask) === (context._prevTextureKey & defineMask)) {
-                    if (this.textureKey !== context._prevTextureKey) {
-                        this.uploadTexture(shaderIns);
-                    }
-                    WebGLEngine.instance.getDrawContext().drawGeometryElement(this.geometry);
-                } else {
-                    this.renderByShaderInstance(shaderIns, context);
+                if (this.needUploadPrimitiveUniform()) {
+                    this.uploadFastPathUniform(shaderIns);
+                } else if (this.textureKey !== context._prevTextureKey) {
+                    this.uploadPrimitiveUniform(shaderIns, false);
                 }
+                WebGLEngine.instance.getDrawContext().drawGeometryElement(this.geometry);
             } else {
                 this.renderByShaderInstance(shaderIns, context);
             }
@@ -115,9 +116,24 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
         }
     }
 
-    private uploadTexture(shader: WebGLShaderInstance) {
+    private uploadPrimitiveUniform(shader: WebGLShaderInstance, uploadUnTexture: boolean) {
         let encoder = shader._additionUniformParamsMaps.get("Sprite2DGraphics");
-        encoder && this._primitiveShaderData && shader.uploadUniforms(encoder, this._primitiveShaderData, false);
+        encoder && this._primitiveShaderData && shader.uploadUniforms(encoder, this._primitiveShaderData, uploadUnTexture);
+    }
+
+    private needUploadPrimitiveUniform(): boolean {
+        return (this.typeKey & WebGLPrimitiveRenderElement2D._primitiveUniformDefineMask) !== 0;
+    }
+
+    private needUploadSpriteUniform(): boolean {
+        return (this.typeKey & WebGLPrimitiveRenderElement2D._spriteUniformDefineMask) !== 0;
+    }
+
+    private uploadFastPathUniform(shader: WebGLShaderInstance): void {
+        if (this.needUploadSpriteUniform()) {
+            this.value2DShaderData && shader.uploadUniforms(shader._sprite2DUniformParamsMap, this.value2DShaderData, true);
+        }
+        this.uploadPrimitiveUniform(shader, true);
     }
 
     renderByShaderInstance(shader: WebGLShaderInstance, context: WebglRenderContext2D): void {

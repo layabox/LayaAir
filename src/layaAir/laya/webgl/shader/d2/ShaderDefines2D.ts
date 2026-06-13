@@ -6,10 +6,34 @@ import { LayaGL } from "../../../layagl/LayaGL";
 export class ShaderDefines2D {
     
     /**
-     * @en Number of bits reserved for per-element shader defines in the textureKey encoding.
-     * @zh textureKey 编码中为逐元素着色器宏定义保留的位数。
+     * @en Number of bits reserved for per-element shader defines in the typeKey encoding.
+     * @zh typeKey 编码中为逐元素着色器宏定义保留的位数。
      */
-    static SHADER_DEFINE_BITS = 9;
+    static SHADER_DEFINE_BITS = 10;
+    /** @internal */
+    static TYPE_KEY_DEFINE_SHIFT = 7;
+    /** @internal */
+    static TYPEKEY_CUSTOM_MATERIAL = 1 << 4;
+    /** @internal */
+    static DEFINE_BIT_FILLTEXTURE = 1 << (ShaderDefines2D.TYPE_KEY_DEFINE_SHIFT + 0);
+    /** @internal */
+    static DEFINE_BIT_GAMMATEXTURE = 1 << (ShaderDefines2D.TYPE_KEY_DEFINE_SHIFT + 1);
+    /** @internal */
+    static DEFINE_BIT_VERTEXALPHA = 1 << (ShaderDefines2D.TYPE_KEY_DEFINE_SHIFT + 2);
+    /** @internal */
+    static DEFINE_BIT_TEXTURESHADER = 1 << (ShaderDefines2D.TYPE_KEY_DEFINE_SHIFT + 3);
+    /** @internal */
+    static DEFINE_BIT_PRIMITIVESHADER = 1 << (ShaderDefines2D.TYPE_KEY_DEFINE_SHIFT + 4);
+    /** @internal */
+    static DEFINE_BIT_USE_TEX_ARRAY = 1 << (ShaderDefines2D.TYPE_KEY_DEFINE_SHIFT + 5);
+    /** @internal */
+    static DEFINE_BIT_MATERIALCLIP = 1 << (ShaderDefines2D.TYPE_KEY_DEFINE_SHIFT + 6);
+    /** @internal */
+    static DEFINE_BIT_UNIFORMCLIP = 1 << (ShaderDefines2D.TYPE_KEY_DEFINE_SHIFT + 7);
+    /** @internal */
+    static DEFINE_BIT_UV_CLIP_GPU = 1 << (ShaderDefines2D.TYPE_KEY_DEFINE_SHIFT + 8);
+    /** @internal */
+    static DEFINE_BIT_VERTEX_SIZE = 1 << (ShaderDefines2D.TYPE_KEY_DEFINE_SHIFT + 9);
     /**
      * @en Per-element shader define names, in bit-position order (bit 0 = FILLTEXTURE, bit 1 = GAMMATEXTURE, etc.)
      * @zh 逐元素着色器宏定义名称，按位位置排列。
@@ -17,7 +41,8 @@ export class ShaderDefines2D {
      */
     static _PER_ELEMENT_DEFINE_NAMES: string[] = [
         'FILLTEXTURE', 'GAMMATEXTURE', 'VERTEXALPHA', 'TEXTURESHADER',
-        'PRIMITIVESHADER', 'USE_TEX_ARRAY', 'MATERIALCLIP', 'UNIFORMCLIP', 'UV_CLIP_GPU'
+        'PRIMITIVESHADER', 'USE_TEX_ARRAY', 'MATERIALCLIP', 'UNIFORMCLIP', 'UV_CLIP_GPU',
+        'VERTEX_SIZE'
     ];
 
     /** @internal cached mapping: array of { _index, _value, bit } for fast lookup */
@@ -37,7 +62,14 @@ export class ShaderDefines2D {
         const defines: ShaderDefine[] = [
             ShaderDefines2D.FILLTEXTURE, ShaderDefines2D.GAMMATEXTURE, ShaderDefines2D.VERTEXALPHA,
             ShaderDefines2D.TEXTURESHADER, ShaderDefines2D.PRIMITIVESHADER, ShaderDefines2D.USE_TEX_ARRAY,
-            ShaderDefines2D.MATERIALCLIP, ShaderDefines2D.UNIFORMCLIP, ShaderDefines2D.UV_CLIP_GPU
+            ShaderDefines2D.MATERIALCLIP, ShaderDefines2D.UNIFORMCLIP, ShaderDefines2D.UV_CLIP_GPU,
+            ShaderDefines2D.VERTEX_SIZE
+        ];
+        const bits: number[] = [
+            ShaderDefines2D.DEFINE_BIT_FILLTEXTURE, ShaderDefines2D.DEFINE_BIT_GAMMATEXTURE, ShaderDefines2D.DEFINE_BIT_VERTEXALPHA,
+            ShaderDefines2D.DEFINE_BIT_TEXTURESHADER, ShaderDefines2D.DEFINE_BIT_PRIMITIVESHADER, ShaderDefines2D.DEFINE_BIT_USE_TEX_ARRAY,
+            ShaderDefines2D.DEFINE_BIT_MATERIALCLIP, ShaderDefines2D.DEFINE_BIT_UNIFORMCLIP, ShaderDefines2D.DEFINE_BIT_UV_CLIP_GPU,
+            ShaderDefines2D.DEFINE_BIT_VERTEX_SIZE
         ];
         let firstIndex = defines[0]._index;
         this._singleWord = true;
@@ -45,17 +77,17 @@ export class ShaderDefines2D {
             if (defines[i]._index !== firstIndex) {
                 this._singleWord = false;
             }
-            this._perElementDefineMap.push({ define: defines[i], bit: 1 << i });
+            this._perElementDefineMap.push({ define: defines[i], bit: bits[i] });
         }
         if (this._singleWord) {
             this._sharedIndex = firstIndex;
         }
     }
     /**
-     * @en Compute a bit field (0..511) representing which per-element shader defines are active in the given ShaderData.
-     * @zh 计算给定 ShaderData 中活跃的逐元素着色器宏定义位域（0..511）。
+     * @en Compute the typeKey bits representing which per-element shader defines are active in the given ShaderData.
+     * @zh 计算给定 ShaderData 中活跃的逐元素着色器宏定义在 typeKey 中的位域。
      * @param shaderData The shader data to query defines from.
-     * @returns A number in range [0, 2^SHADER_DEFINE_BITS - 1].
+     * @returns TypeKey bits with TYPE_KEY_DEFINE_SHIFT already applied.
      */
     static getPerElementDefineBits(shaderData: ShaderData): number {
         let bits = 0;
@@ -165,12 +197,13 @@ export class ShaderDefines2D {
             let defines = [
                 ShaderDefines2D.FILLTEXTURE, ShaderDefines2D.GAMMATEXTURE, ShaderDefines2D.VERTEXALPHA,
                 ShaderDefines2D.TEXTURESHADER, ShaderDefines2D.PRIMITIVESHADER, ShaderDefines2D.USE_TEX_ARRAY,
-                ShaderDefines2D.MATERIALCLIP, ShaderDefines2D.UNIFORMCLIP, ShaderDefines2D.UV_CLIP_GPU
+                ShaderDefines2D.MATERIALCLIP, ShaderDefines2D.UNIFORMCLIP, ShaderDefines2D.UV_CLIP_GPU,
+                ShaderDefines2D.VERTEX_SIZE
             ];
             let idx0 = defines[0]._index;
             for (let i = 1; i < defines.length; i++) {
                 if (defines[i]._index !== idx0) {
-                    console.warn('[ShaderDefines2D] Per-element defines span multiple _index words (' + idx0 + ' vs ' + defines[i]._index + '). textureKey bit mapping uses per-define hasDefine() fallback.');
+                    console.warn('[ShaderDefines2D] Per-element defines span multiple _index words (' + idx0 + ' vs ' + defines[i]._index + '). typeKey bit mapping uses per-define hasDefine() fallback.');
                     break;
                 }
             }

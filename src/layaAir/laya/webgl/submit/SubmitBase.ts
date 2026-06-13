@@ -239,20 +239,16 @@ export class SubmitBase {
 
         //set flag
         let useCustomMaterial = this.material ? 1 : 0;
-        let mc = (useCustomMaterial === 0 && this._internalInfo.materialClip) ? 1 : 0;
         let texture: BaseTexture;
         let textureHost = this._internalInfo.textureHost;
         if (textureHost)
             texture = (textureHost as Texture).bitmap || textureHost as BaseTexture;
 
-        let hasFillTexture = this._internalInfo.shaderData.hasDefine(ShaderDefines2D.FILLTEXTURE) ? 1 : 0;
-        element.typeKey = this._key.blendShader
-            | (useCustomMaterial << 4) //16
-            | (mc << 5) //32
-            | (hasFillTexture << 6); //64
         let defineBits = ShaderDefines2D.getPerElementDefineBits(this._internalInfo.shaderData);
-        element.textureKey = defineBits
-            | ((texture ? texture.id : 0) << ShaderDefines2D.SHADER_DEFINE_BITS);
+        element.typeKey = this._key.blendShader
+            | (useCustomMaterial ? ShaderDefines2D.TYPEKEY_CUSTOM_MATERIAL : 0)
+            | defineBits;
+        element.textureKey = texture ? texture.id : 0;
 
 
         if (this._cacheInfo) {

@@ -532,11 +532,6 @@ export class SubStructRender {
       if (this._internalInfo.textureHost == destRT && !this._needUpdateVertexSize)
          return;
 
-      if (destRT) {
-         this._renderElement.textureKey = destRT._id << ShaderDefines2D.SHADER_DEFINE_BITS;
-      } else {
-         this._renderElement.textureKey = 0;
-      }
       this._internalInfo.textureHost = destRT;
 
       let rtRect = this._rtRect;
@@ -555,6 +550,9 @@ export class SubStructRender {
       }
       this._internalInfo.vertexSize = vSize;
       this._needUpdateVertexSize = false;
+      let defineBits = ShaderDefines2D.getPerElementDefineBits(this._internalInfo.shaderData);
+      this._renderElement.typeKey = this._subStruct.blendMode | defineBits;
+      this._renderElement.textureKey = destRT ? destRT._id : 0;
    }
 
    destroy(): void {
