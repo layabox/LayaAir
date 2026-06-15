@@ -30,6 +30,8 @@ export class ShaderDefines2D {
     static INVERTY: ShaderDefine;
     /**@internal */
     static GAMMATEXTURE: ShaderDefine;
+    /**@internal 轴对齐裁剪改用硬件 scissor 时启用，编译掉片元 discard（移动端尤其 iOS 降低发热）*/
+    static CLIPSCISSOR: ShaderDefine;
 
     /**@internal */
     static TEXTURESHADER: ShaderDefine;
@@ -77,6 +79,8 @@ export class ShaderDefines2D {
         ShaderDefines2D.INVERTY = Shader3D.getDefineByName('INVERTY');
 
         ShaderDefines2D.GAMMATEXTURE = Shader3D.getDefineByName('GAMMATEXTURE');
+
+        ShaderDefines2D.CLIPSCISSOR = Shader3D.getDefineByName('CLIPSCISSOR');
 
         ShaderDefines2D.TEXTURESHADER = Shader3D.getDefineByName("TEXTUREVS");
         ShaderDefines2D.PRIMITIVESHADER = Shader3D.getDefineByName("PRIMITIVEMESH");

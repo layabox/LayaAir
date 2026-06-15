@@ -41,7 +41,16 @@ export class Submit extends SubmitBase {
             this._blendFn();
             BlendMode.activeBlendFunction = this._blendFn;
         }
+        // 轴对齐裁剪用硬件 scissor 替代 discard（移动端尤其 iOS 降低发热）。自包含开关，绘制后立即关闭，避免状态泄漏到后续 2D/3D。
+        let useScissor = this.shaderValue._useScissor;
+        if (useScissor) {
+            let r = this.shaderValue._scissorRect;
+            LayaGL.renderEngine.scissorTest(true);
+            LayaGL.renderEngine.scissor(r.x, r.y, r.z, r.w);
+        }
         LayaGL.renderDrawContext.drawElements2DTemp(MeshTopology.Triangles, this._numEle, IndexFormat.UInt16, this._startIdx);
+        if (useScissor)
+            LayaGL.renderEngine.scissorTest(false);
         // Stat.renderBatches++;
         // Stat.trianglesFaces += this._numEle / 3;
 
