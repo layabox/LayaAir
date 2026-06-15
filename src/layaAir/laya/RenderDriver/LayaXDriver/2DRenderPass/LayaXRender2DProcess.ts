@@ -25,6 +25,7 @@ import {
     RTSpineRenderDataHandle
 } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderDataHandle";
 import { RTGlobalRenderData, RTRenderStruct2D } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderStruct2D";
+import "../../../display/transform2d/runtime/RTTransform2DSweep";
 import {
     RT2DGraphic2DIndexDataView, RT2DGraphic2DVertexDataView,
     RT2DGraphicIndexBuffer, RT2DGraphicVertexBuffer

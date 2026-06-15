@@ -51,6 +51,8 @@ export interface IRenderStruct2D {
    renderUpdateMask: number;
 
    //----- 渲染继承累加数据 -----
+   /** @zh 本节点在 Transform2DStore(SoA) 中的 slot。渲染底层据此按 slot 直读 world 数据。 */
+   transSlot: number;
    renderMatrix: Matrix;
    /** 非即时数据 */
    readonly globalAlpha: number;

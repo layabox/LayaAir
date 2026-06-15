@@ -12,7 +12,6 @@ export class Render2DProcessor {
     static rendercontext2D: IRenderContext2D;
     static renderTime: number = 0;
     static runner: GraphicsRunner;
-    static renderTime: number = 0;
 
     static __init__() {
         Render2DProcessor.runner = new GraphicsRunner();

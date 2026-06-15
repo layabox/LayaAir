@@ -548,6 +548,7 @@ enum ChildrenUpdateType {
 
 export class NoRenderStruct2D implements IRenderStruct2D {
     owner: Sprite;
+    transSlot: number = -1;
     manualRender: boolean = false;
     _parentData: ParentData = { ..._DefaultParentData };
     _currentData: ParentData = this._parentData;
@@ -584,12 +585,10 @@ export class NoRenderStruct2D implements IRenderStruct2D {
 
     get renderMatrix(): Matrix { return this.trans.matrix; }
     set renderMatrix(value: Matrix) {
-        if (this.trans) {
-            this.trans.matrix = value;
-            this.trans.modifiedFrame = Stat.loopCount;
-        } else {
-            this.trans = { matrix: value, modifiedFrame: Stat.loopCount };
-        }
+        if (!this.trans)
+            this.trans = { matrix: new Matrix(), modifiedFrame: 0 };
+        value.copyTo(this.trans.matrix);
+        this.trans.modifiedFrame = Stat.loopCount;
     }
 
     get globalAlpha(): number { return this._currentData.globalAlpha; }

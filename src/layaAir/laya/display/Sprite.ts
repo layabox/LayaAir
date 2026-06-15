@@ -22,6 +22,8 @@ import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetForma
 import { BaseRenderNode2D } from "../NodeRender2D/BaseRenderNode2D";
 import { Component } from "../components/Component";
 import { SpriteGlobalTransform } from "./SpriteGlobaTransform";
+import { Transform2DStore } from "./transform2d/Transform2DStore";
+import { SlotConst } from "./transform2d/Transform2DLayout";
 import { IRenderStruct2D } from "../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 import { LayaGL } from "../layagl/LayaGL";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
@@ -42,6 +44,10 @@ import { StatElement } from "../layagl/StatisticsContext";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 
 const hiddenBits = NodeFlags.NOT_IN_PAGE;
+
+/** @internal _updateStruct 中从 store 读 world 推给渲染结构的模块级 scratch(无 per-call 分配) */
+const _structMat = new Matrix();
+const _structWM6 = new Float32Array(6);
 
 /**
  * @en Sprite is a basic display list node for displaying graphical content. By default, Sprite does not accept mouse events. Through the graphics API, images or vector graphics can be drawn, supporting operations like rotation, scaling, translation, and more. Sprite also functions as a container class, allowing the addition of multiple child nodes.
@@ -170,7 +176,7 @@ export class Sprite extends Node {
      */
     _transform: Matrix;
     /**
-     * @internal 
+     * @internal
      */
     _globalTrans: SpriteGlobalTransform;
 
@@ -266,7 +272,9 @@ export class Sprite extends Node {
         super();
         this._struct = LayaGL.render2DRenderPassFactory.createRenderStruct2D();
         this._struct.owner = this;
+        // SoA slot 由 SpriteGlobalTransform 持有(构造里 alloc)；渲染底层经 struct.transSlot 拿同一个值。
         this._globalTrans = new SpriteGlobalTransform(this);
+        this._struct.transSlot = this._globalTrans.slot;
     }
 
     protected _onActive(): void {
@@ -334,7 +342,7 @@ export class Sprite extends Node {
             this._struct = null;
         }
         if (this._globalTrans) {
-            this._globalTrans.destroy();
+            this._globalTrans.destroy(); // 释放 SoA slot
             this._globalTrans = null;
         }
     }
@@ -660,7 +668,9 @@ export class Sprite extends Node {
         value = value < 0 ? 0 : (value > 1 ? 1 : value);
         if (this._alpha !== value) {
             this._alpha = value;
-            this._struct.alpha = value;
+            // 写穿 Transform2DStore 的 Alpha 通道(worldAlpha 帧末 sweep 级联，渲染按 slot 直读)。
+            // struct.alpha 直接读同一 slot，无需再单独同步一份。
+            Transform2DStore.instance.writeAlpha(this._globalTrans.slot, value);
             this.repaint();
         }
     }
@@ -901,9 +911,10 @@ export class Sprite extends Node {
 
         if (value && this._manualRender) this._setManualRender(false);
 
-        if (this._mask) {
-            this._mask.cacheAs = "none";
-            this._mask._maskParent = null;
+        let oldMask = this._mask;
+        if (oldMask) {
+            oldMask.cacheAs = "none";
+            oldMask._maskParent = null;
         }
 
         this._mask = value;
@@ -917,6 +928,9 @@ export class Sprite extends Node {
         else {
             this._renderType &= ~SpriteConst.MASK;
         }
+        // _maskParent 变化可能改变 Transform2DStore 的有效父(无 _parent 时走 _maskParent)
+        value && value._syncTransParent();
+        oldMask && oldMask._syncTransParent();
         this.setSubpassFlag(SubPassFlag.Mask);
         this.repaint();
     }
@@ -2411,7 +2425,8 @@ export class Sprite extends Node {
         this._subStruct = subStruct;
         this._oriRenderPass = subPass;
 
-        subStruct.renderMatrix = this.globalTrans.getMatrix();
+        // subStruct 与本节点共享 slot：renderMatrix getter 按 slot 直读 store(不经 SpriteGlobalTransform)
+        subStruct.transSlot = this._globalTrans.slot;
     }
 
     private _ensureSubStructRender(): void {
@@ -2513,17 +2528,28 @@ export class Sprite extends Node {
 
     /** @internal */
     _updateStruct() {
-        let trans = this.globalTrans;
-        if (this._destroyed || !trans)
+        if (this._destroyed)
             return;
 
-        let matrix = trans.getMatrix();
         let struct = this._struct;
-        this._struct.renderMatrix = matrix;
+        // 渲染结构按 slot 从 Transform2DStore 直读 world，替代 SpriteGlobalTransform。
+        // Web 后端 struct.renderMatrix getter 自身也按 slot 直读 store(供顶点绘制)；
+        // 这里推一份给非 Web 后端 + bump modifiedFrame(Spine/clip 用) + 取包围盒用矩阵。
+        const store = Transform2DStore.instance;
+        const slot = this._globalTrans.slot;
+        if (store.dirtyM)
+            store.computeWorldMatrix(slot, _structWM6);
+        else
+            store.readWorldMatrix(slot, _structWM6);
+        const sm = _structMat;
+        sm.a = _structWM6[0]; sm.b = _structWM6[1]; sm.c = _structWM6[2];
+        sm.d = _structWM6[3]; sm.tx = _structWM6[4]; sm.ty = _structWM6[5];
+        sm._checkTransform();
+        struct.renderMatrix = sm;
         if (this._subStruct)
-            this._subStruct.renderMatrix = matrix;
+            this._subStruct.renderMatrix = sm;
 
-
+        let matrix = struct.renderMatrix;
         let rect = struct.rect;
         if (this._struct.inheritedEnableCulling || this._struct.inheritedDcOptimize) {
             this.getSelfBounds(rect, false);
@@ -2582,6 +2608,7 @@ export class Sprite extends Node {
 
         super._setParent(value, index);
 
+        this._syncTransParent();
         this._setStructParent(value as Sprite, index);
         this._processVisible();
 
@@ -2592,6 +2619,21 @@ export class Sprite extends Node {
 
         if (value && this._getBit(NodeFlags.DEMAND_TRANS_EVENT) && !value._getBit(NodeFlags.DEMAND_TRANS_EVENT))
             this.setDemandTransEventUp();
+    }
+
+    /**
+     * @internal
+     * @zh 把本节点在 Transform2DStore 中的父 slot 同步为当前 _parent(或 _maskParent 兜底)。
+     * 与旧 getMatrix 取父逻辑一致：优先 _parent，其次 _maskParent，否则为根。
+     */
+    _syncTransParent(): void {
+        const slot = this._globalTrans.slot;
+        if (slot === SlotConst.None) return;
+        let ps: number = SlotConst.None;
+        const p = this._parent;
+        if (p instanceof Sprite) ps = p._globalTrans.slot;
+        else if (this._maskParent) ps = this._maskParent._globalTrans.slot;
+        Transform2DStore.instance.setParent(slot, ps);
     }
 
     private _checkSubRenderPass() {

@@ -382,6 +382,7 @@ export class UI3D extends BaseRender {
         this._shellSprite = new UI3DShellSprite();
         this._shellSprite.name = "UI3D";
         this._shellSprite._parent = ILaya.stage;
+        this._shellSprite._syncTransParent(); // 直接改 _parent 绕过了 _setParent，需手动同步 SoA 的 parent
         this._shellSprite._setBit(NodeFlags.DISPLAYED_INSTAGE, true);
         this._shellSprite._setBit(NodeFlags.ACTIVE_INHIERARCHY, true);
         this._shellSprite.cacheAs = "bitmap";
@@ -649,7 +650,10 @@ export class UI3D extends BaseRender {
     protected _onDestroy() {
         super._onDestroy();
         this._rendertexure2D && this._rendertexure2D.destroy();
-        this._shellSprite && (this._shellSprite._parent = null);
+        if (this._shellSprite) {
+            this._shellSprite._parent = null;
+            this._shellSprite._syncTransParent(); // 同步 SoA parent(置为 root)
+        }
         this._uisprite && this._uisprite.destroy();
         this._shellSprite && this._shellSprite.destroy();
         this._ui3DMat && this._ui3DMat.destroy();
