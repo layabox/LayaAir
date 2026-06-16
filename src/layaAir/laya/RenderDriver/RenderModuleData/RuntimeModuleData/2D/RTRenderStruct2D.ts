@@ -189,6 +189,9 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       return this._renderUpdateMask;
    }
 
+   /** @zh Transform2DStore slot(非 Web 后端暂不直读 store，保留字段以满足接口/未来 native 直读) */
+   transSlot: number = -1;
+
    private _renderMatrix: Matrix = new Matrix();
    set renderMatrix(value: Matrix) {
       value.cloneTo(this._renderMatrix);

@@ -17,6 +17,7 @@ import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer"
 import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, IGraphics2DBufferBlock, I2DGraphicIndexDataView, IGraphics2DVertexBlock, I2DGraphicVertexDataView } from "../../Design/2D/IRender2DDataHandle";
 import { Web2DGraphic2DIndexCloneDataView, Web2DGraphic2DIndexDataView, Web2DGraphic2DVertexDataView } from "./Web2DGraphic2DBufferDataView";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
+import { Transform2DStore } from "../../../../display/transform2d/Transform2DStore";
 
 export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     protected _owner: WebRenderStruct2D;
@@ -28,6 +29,8 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     }
     protected _nMatrix_0 = new Vector3();
     protected _nMatrix_1 = new Vector3();
+    /** @internal 上次上传矩阵 uniform 时的 store matrixFrame；用于"world 矩阵没变就不重传"。 */
+    protected _matUploadFrame: number = -1;
     constructor() {
     }
     private _needUseMatrix: boolean = true;
@@ -36,6 +39,7 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     }
     public set needUseMatrix(value: boolean) {
         this._needUseMatrix = value;
+        this._matUploadFrame = -1; // 切换 needUseMatrix 后强制下次重传矩阵 uniform
         if (!value) {
             this._nMatrix_0.set(1, 0, 0);
             this._nMatrix_1.set(0, 1, 0);
@@ -49,17 +53,20 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     }
 
     inheriteRenderData(context: IRenderContext2D): void {
-        //更新位置
-        //todo  如果没有更新世界位置 不需要更新Matrix到shaderData
         let data = this._owner.spriteShaderData;
         if (!data)
             return;
         if (this._needUseMatrix) {
-            let mat = this._owner.renderMatrix;
-            this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
-            this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
-            this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
-            this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
+            // 完成原 TODO：world 矩阵没变就不重传矩阵 uniform——先比 slot 的 matrixFrame，变了才读 renderMatrix。
+            let matFrame = Transform2DStore.instance.getMatrixFrame(this._owner.transSlot);
+            if (this._matUploadFrame !== matFrame) {
+                this._matUploadFrame = matFrame;
+                let mat = this._owner.renderMatrix;
+                this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
+                this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
+                data.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
+                data.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
+            }
         }
     }
 }
@@ -104,15 +111,11 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         this._bufferBlocks = blocks;
         this.updateCloneView();
         this._globalAlpha = this._owner.globalAlpha;
-        if (this._owner.trans) {
-            this._modifiedFrame = this._owner.trans.modifiedFrame;
-        }
+        this._modifiedFrame = Transform2DStore.instance.getMatrixFrame(this._owner.transSlot);
     }
 
     skipBufferUpdate() {
-        if (this._owner.trans) {
-            this._modifiedFrame = this._owner.trans.modifiedFrame;
-        }
+        this._modifiedFrame = Transform2DStore.instance.getMatrixFrame(this._owner.transSlot);
     }
 
     /** @internal */
@@ -125,12 +128,14 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         if (!data)
             return;
 
-        let trans = this._owner.trans;
-        let mat = trans.matrix;
+        // 先取变更帧号；矩阵没变就不读 renderMatrix(getter 每次会填一份 Matrix)，省掉无谓的 copy。
+        let matFrame = Transform2DStore.instance.getMatrixFrame(this._owner.transSlot);
 
         if (
-            this._modifiedFrame < trans.modifiedFrame
+            this._modifiedFrame < matFrame
         ) {
+            // 仅在 world 矩阵真变时才按 slot 从 store 读 renderMatrix。
+            let mat = this._owner.renderMatrix;
             if (!this._bufferBlocks || !this._bufferBlocks.length) {
 
                 //更新位置
@@ -151,13 +156,13 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                 this._updateVertexData(mat, this._owner.globalAlpha, true, true, false);
                 this._globalAlpha = this._owner.globalAlpha;
             }
-            this._modifiedFrame = trans.modifiedFrame;
+            this._modifiedFrame = matFrame;
         }
         else if (this._globalAlpha != this._owner.globalAlpha) {
             this._globalAlpha = this._owner.globalAlpha;
-            // 乘到顶点里
+            // alpha-only:updateMatrix=false，不需要矩阵，传 null 省一次 renderMatrix 读取。
             if (this._bufferBlocks && this._bufferBlocks.length)
-                this._updateVertexData(mat, this._owner.globalAlpha, false, true, false);
+                this._updateVertexData(null, this._owner.globalAlpha, false, true, false);
         }
     }
 

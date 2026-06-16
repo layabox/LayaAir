@@ -415,6 +415,7 @@ export class WebRender2DPass implements IRender2DPass {
       }
 
       context.passData = this.shaderData;
+      this.shaderData.setNumber(ShaderDefines2D.UNIFORM_TIME, renderTime);
 
       if (sizeX !== this._rtsize.x || sizeY !== this._rtsize.y) {
          this._rtsize.setValue(sizeX, sizeY);
@@ -445,17 +446,18 @@ export class WebRender2DPass implements IRender2DPass {
    }
 
    private _updateInvertMatrix() {
-      let rootTrans = this.root.trans;
-      if (!rootTrans) {
+      // 矩阵按 slot 直接问 Transform2DStore(经 renderMatrix getter)，不再依赖 struct 自存的 trans。
+      if (!this.root || this.root.transSlot < 0) {
          this._setInvertMatrix(1, 0, 0, 1, 0, 0);
          return true;
       }
+      let rootMatrix = this.root.renderMatrix;
       //无效值不更新
       if (
-         rootTrans.matrix.a == 0
-         && rootTrans.matrix.b == 0
-         && rootTrans.matrix.c == 0
-         && rootTrans.matrix.d == 0
+         rootMatrix.a == 0
+         && rootMatrix.b == 0
+         && rootMatrix.c == 0
+         && rootMatrix.d == 0
       ) {
          return false;
       }
@@ -463,11 +465,11 @@ export class WebRender2DPass implements IRender2DPass {
       let temp = _TEMP_InvertMatrix;
       let mask = this.mask;
       let offset = this.offsetMatrix;
-      if (mask && mask.trans) {
+      if (mask) {
          let maskMatrix = mask.renderMatrix;
          maskMatrix.copyTo(temp);
       } else {
-         rootTrans.matrix.copyTo(temp);
+         rootMatrix.copyTo(temp);
       }
 
       Matrix.mul(offset, temp, temp);

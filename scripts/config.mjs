@@ -526,6 +526,13 @@ export const allBundles = [{
     ],
 },
 {
+    name: 'adapter-bilibili',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/bilibili/**/*.*'
+    ],
+},
+{
     name: 'ik',
     input: [
         'laya/ik/**/*.ts'
@@ -543,4 +550,5 @@ export const allBundles = [{
         'laya/vfx/**/*.*'
     ]
 },
+
 ];

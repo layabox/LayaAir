@@ -113,6 +113,7 @@ c("Matrix3x3", Matrix3x3);
 c("Matrix4x4", Matrix4x4);
 c("Camera2D", Camera2D);
 c("Mesh2DRender", Mesh2DRender);
+c("SequenceFrame2DRender", SequenceFrame2DRender);
 c("BaseRenderNode2D", BaseRenderNode2D);
 c("Mesh2D", Mesh2D);
 c("Gradient", Gradient);

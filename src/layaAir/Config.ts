@@ -172,8 +172,8 @@ export class Config {
     /**
      * @en Whether to use TextureArray
      * @zh 是否使用TextureArray: 文字和自动图集使用TextureArray来优化
-     */ 
-    static useTextureArray=false;
+     */
+    static useTextureArray = false;
 }
 
 export const PlayerConfig: {
