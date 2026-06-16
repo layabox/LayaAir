@@ -6,6 +6,18 @@ import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
 import { IDeviceBuffer } from "../../DriverDesign/RenderDevice/IDeviceBuffer";
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
 
+/**
+ * 共享属性块槽位（uint32 索引），与 C++ `LayaXRenderGeometry_JS::Props` 结构体字段
+ * 顺序一一对应。改任一侧必须同步改另一侧。
+ */
+const enum GeoSlot {
+    Mode = 0,
+    DrawType = 1,
+    InstanceCount = 2,
+    IndexFormat = 3,
+    Count = 4,
+}
+
 export class LayaXRenderGeometry implements IRenderGeometryElement {
     private _bufferState: IBufferState;
 
@@ -14,9 +26,14 @@ export class LayaXRenderGeometry implements IRenderGeometryElement {
 
     _nativeObj: any;
 
+    /** @internal 共享属性块：C++ 写、JS 读；槽位见 GeoSlot，对应 C++ Props 结构体 */
+    private _propBuf = new ArrayBuffer(GeoSlot.Count * 4);
+    private _propU32 = new Uint32Array(this._propBuf);
+
     /**@internal */
     constructor(mode: MeshTopology, drawType: DrawType) {
         this._nativeObj = new (window as any).conchLayaXRenderGeometry();
+        this._nativeObj.bindPropertyBuffer(this._propBuf);   // 必须在写 mode/drawType 之前
         this.mode = mode;
         this.drawParams = new FastSinglelist();
         this.drawType = drawType;
@@ -71,7 +88,7 @@ export class LayaXRenderGeometry implements IRenderGeometryElement {
     }
 
     get mode(): MeshTopology {
-        return this._nativeObj.mode;
+        return this._propU32[GeoSlot.Mode];
     }
 
     set drawType(value: DrawType) {
@@ -79,7 +96,7 @@ export class LayaXRenderGeometry implements IRenderGeometryElement {
     }
 
     get drawType(): DrawType {
-        return this._nativeObj.drawType;
+        return this._propU32[GeoSlot.DrawType];
     }
 
     set instanceCount(value: number) {
@@ -87,7 +104,7 @@ export class LayaXRenderGeometry implements IRenderGeometryElement {
     }
 
     get instanceCount(): number {
-        return this._nativeObj.instanceCount;
+        return this._propU32[GeoSlot.InstanceCount];
     }
 
     set indexFormat(value: IndexFormat) {
@@ -95,6 +112,6 @@ export class LayaXRenderGeometry implements IRenderGeometryElement {
     }
 
     get indexFormat(): IndexFormat {
-        return this._nativeObj.indexFormat;
+        return this._propU32[GeoSlot.IndexFormat];
     }
 }
