@@ -10,8 +10,6 @@ import { RTRender2DPass, RTRender2DPassManager } from "../../RenderModuleData/Ru
 import { RTBaseRenderDataHandle, RTEmptyRender2DDataHandle, RTGraphics2DBufferBlock, RTGraphics2DVertexBlock, RTMesh2DRenderDataHandle, RTPrimitiveDataHandle, RTRender2DDataHandle, RTSpineRenderDataHandle } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderDataHandle";
 import { RTGlobalRenderData, RTRenderStruct2D } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderStruct2D";
 import { ITransform2DMemoryFactory } from "../../../display/transform2d/ITransform2DMemory";
-// 导入即触发 RT sweep 下沉注册(addBeforeInitCallback,内部按 conchRTTransform2DStore 门控)。
-import { RTTransform2DMemoryFactory } from "../../../display/transform2d/runtime/RTTransform2DStore";
 import { GLESSetRenderData, GLESSetShaderDefine } from "../RenderDevice/GLESRenderCMD";
 import { GLESBlit2DQuadCMD, GLESDraw2DElementCMD, GLESSetRendertarget2DCMD } from "./GLES2DRenderCMD";
 import { GLESRenderContext2D } from "./GLESRenderContext2D";
@@ -19,6 +17,7 @@ import { GLESRenderElement2D } from "./GLESRenderElement2D";
 import { RT2DGraphic2DIndexDataView, RT2DGraphic2DVertexDataView, RT2DGraphicIndexBuffer, RT2DGraphicVertexBuffer } from "../../RenderModuleData/RuntimeModuleData/2D/RT2DGraphic2DBufferDataView";
 import { IPrimitiveRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { GLESPrimitiveRenderElement2D } from "./GLESPrimitiveRenderElement2D";
+import { RTTransform2DMemoryFactory } from "../../RenderModuleData/RuntimeModuleData/2D/RTTransform2DStore";
 
 export class GLESRender2DProcess implements I2DRenderPassFactory {
     createTransform2DMemoryFactory(): ITransform2DMemoryFactory {

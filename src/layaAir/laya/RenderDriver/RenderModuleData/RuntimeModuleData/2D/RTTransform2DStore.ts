@@ -1,9 +1,9 @@
-import { Laya } from "../../../../Laya";
-import { NativeMemory } from "../../../RenderDriver/RenderModuleData/RuntimeModuleData/NativeMemory";
-import { ITransform2DChunkBuffers, ITransform2DMemoryFactory } from "../ITransform2DMemory";
-import { ITransform2DSweep } from "../ITransform2DSweep";
-import { ChildrenStore, LocalTrs, WorldData } from "../Transform2DLayout";
-import { Transform2DStore } from "../Transform2DStore";
+import { Laya } from "../../../../../Laya";
+import { ITransform2DChunkBuffers, ITransform2DMemoryFactory } from "../../../../display/transform2d/ITransform2DMemory";
+import { ITransform2DSweep } from "../../../../display/transform2d/ITransform2DSweep";
+import { ChildrenStore, LocalTrs, WorldData } from "../../../../display/transform2d/Transform2DLayout";
+import { Transform2DStore } from "../../../../display/transform2d/Transform2DStore";
+import { NativeMemory } from "../NativeMemory";
 
 /**
  * @zh 共享 native transformStore 句柄。SoA 的列 buffer / 控制 buffer / changed buffer 都由 **JS 用 NativeMemory 分配**

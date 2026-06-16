@@ -1,5 +1,5 @@
 import { ITransform2DChunkBuffers, ITransform2DMemoryFactory } from "./ITransform2DMemory";
-import { Chunk } from "./Transform2DLayout";
+import { Chunk, SlotConst } from "./Transform2DLayout";
 
 /**
  * @zh 一个 chunk = 固定 {@link Chunk.Capacity} 个 slot 的全部平行列。
@@ -54,5 +54,8 @@ export class TreeChunk {
         this.matrixFrame = b.matrixFrame;
         this.alphaFrame = b.alphaFrame;
         this.cullingFrame = b.cullingFrame;
+        // 未分配 slot 的 parent 初始化为 None(-1):native sweep 从 parent 列自建 children 邻接时,
+        // 未分配 slot(parent>=0 会被误当孩子)不污染;alloc/setParent 之后会覆盖已用 slot。Web 路径无影响。
+        this.parent.fill(SlotConst.None);
     }
 }

@@ -1,5 +1,6 @@
-import { ITransform2DChunkBuffers, ITransform2DMemoryFactory } from "./ITransform2DMemory";
-import { ChildrenStore, LocalTrs, WorldData } from "./Transform2DLayout";
+import { ITransform2DChunkBuffers, ITransform2DMemoryFactory } from "../../../../display/transform2d/ITransform2DMemory";
+import { ChildrenStore, LocalTrs, WorldData } from "../../../../display/transform2d/Transform2DLayout";
+
 
 /**
  * @zh Web 后端的内存工厂：每 chunk 的列直接用 JS TypedArray 分配。

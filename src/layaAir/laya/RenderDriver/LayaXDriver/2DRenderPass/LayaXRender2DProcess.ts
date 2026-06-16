@@ -26,8 +26,6 @@ import {
 } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderDataHandle";
 import { RTGlobalRenderData, RTRenderStruct2D } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderStruct2D";
 import { ITransform2DMemoryFactory } from "../../../display/transform2d/ITransform2DMemory";
-// 导入即触发 RT sweep 下沉注册(addBeforeInitCallback,内部按 conchRTTransform2DStore 门控)。
-import { RTTransform2DMemoryFactory } from "../../../display/transform2d/runtime/RTTransform2DStore";
 import {
     RT2DGraphic2DIndexDataView, RT2DGraphic2DVertexDataView,
     RT2DGraphicIndexBuffer, RT2DGraphicVertexBuffer
@@ -39,6 +37,7 @@ import { LayaXPrimitiveRenderElement2D } from "./LayaXPrimitiveRenderElement2D";
 import { LayaXRenderContext2D } from "./LayaXRenderContext2D";
 import { LayaXSetRendertarget2DCMD, LayaXDraw2DElementCMD, LayaXBlit2DQuadCMD } from "./LayaX2DRenderCMD";
 import { LayaXSetRenderData, LayaXSetShaderDefine } from "../RenderDevice/LayaXRenderCMD";
+import { RTTransform2DMemoryFactory } from "../../RenderModuleData/RuntimeModuleData/2D/RTTransform2DStore";
 
 /**
  * RTRender2DPass 的 LayaX 子类。
