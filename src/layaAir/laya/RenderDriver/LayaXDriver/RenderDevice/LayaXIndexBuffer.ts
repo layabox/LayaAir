@@ -6,24 +6,28 @@ export class LayaXIndexBuffer implements IIndexBuffer {
     _nativeObj: any;
 
     private _bufferRef: any = null;
+    private _indexType: IndexFormat;
+    private _indexCount: number = 0;
 
     constructor(bufferUsageType: BufferUsage) {
         this._nativeObj = new (window as any).conchLayaXIndexBuffer(bufferUsageType);
     }
 
     public get indexType(): IndexFormat {
-        return this._nativeObj._indexType;
+        return this._indexType;
     }
 
     public set indexType(value: IndexFormat) {
+        this._indexType = value;
         this._nativeObj.setIndexType(value);
     }
 
     public get indexCount(): number {
-        return this._nativeObj._indexCount;
+        return this._indexCount;
     }
 
     public set indexCount(value: number) {
+        this._indexCount = value;
         this._nativeObj.setIndexCount(value);
     }
 
