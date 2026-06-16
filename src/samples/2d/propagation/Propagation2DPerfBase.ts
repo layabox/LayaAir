@@ -234,9 +234,9 @@ export abstract class Propagation2DPerfBase {
         const results = g.__Propagation2DPerfResults || (g.__Propagation2DPerfResults = []);
         results.push(result);
         g.__Propagation2DPerfLastResult = result;
-        if (g.dispatchEvent) {
-            g.dispatchEvent(new CustomEvent("Propagation2DPerfDone", { detail: result }));
-        }
+        // 跨平台通知：用全局回调列表，不用 DOM CustomEvent/dispatchEvent（native conch 无 CustomEvent）。
+        const doneCbs: ((r: any) => void)[] = g.__Propagation2DPerfDoneCbs;
+        if (doneCbs) for (let i = 0, n = doneCbs.length; i < n; i++) doneCbs[i](result);
         this._hud.text = [
             "Propagation2DPerf done",
             this._title,
