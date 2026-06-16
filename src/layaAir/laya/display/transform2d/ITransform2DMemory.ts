@@ -57,9 +57,10 @@ export interface ITransform2DChunkBuffers {
 /**
  * @zh 2D Transform SoA 的「内存工厂」—— 整个系统唯一可切换后端的边界。
  *
- * - Web 现态：{@link "./WebTransform2DMemoryFactory"} 直接 `new Float32Array(...)`。
- * - 未来 C++ FFI：实现一份返回 view over native memory 的工厂，在引擎初始化时
- *   赋给 `Transform2DStore.memoryFactory` 即可，算法层零改动。
+ * 由当前 2D 渲染后端的 `I2DRenderPassFactory.createTransform2DMemoryFactory()` 提供(各 driver 分别给)：
+ * - Web 系(WebGL/WebGPU/NoRender)：{@link "./WebTransform2DMemoryFactory"} 直接 `new Float32Array(...)`(只 JS 读写)。
+ * - native(GLES/LayaX)：{@link "./runtime/RTTransform2DStore".RTTransform2DMemoryFactory} 返回 view over native ArrayBuffer
+ *   (上下层共享读写,数据创建下沉 native),算法层零改动。
  *
  * 约定：同一个 chunkIndex 的多次调用必须返回稳定(地址不变)的 buffer；
  * 扩容只追加新 chunk，已存在 chunk 的 buffer 永不重分配 —— 保证零拷贝视图永久有效。

@@ -4,9 +4,8 @@ import { ChildrenStore, LocalTrs, WorldData } from "./Transform2DLayout";
 /**
  * @zh Web 后端的内存工厂：每 chunk 的列直接用 JS TypedArray 分配。
  *
- * 这是默认实现。未来若内存改由 C++ FFI 提供，只需另写一份
- * {@link ITransform2DMemoryFactory} 返回 view over native ArrayBuffer，
- * 并在引擎初始化时赋给 `Transform2DStore.memoryFactory`。
+ * 由 Web 系 driver(WebGL/WebGPU/NoRender)的 `I2DRenderPassFactory.createTransform2DMemoryFactory()` 创建。
+ * native(GLES/LayaX)则给 view over native ArrayBuffer 的 {@link "./runtime/RTTransform2DStore".RTTransform2DMemoryFactory}，算法层零改动。
  */
 export class WebTransform2DMemoryFactory implements ITransform2DMemoryFactory {
     createChunkBuffers(_chunkIndex: number, capacity: number, dirtyWords: number): ITransform2DChunkBuffers {

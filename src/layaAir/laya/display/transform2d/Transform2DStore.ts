@@ -1,7 +1,7 @@
+import { LayaGL } from "../../layagl/LayaGL";
 import { ITransform2DMemoryFactory } from "./ITransform2DMemory";
 import { ITransform2DSweep } from "./ITransform2DSweep";
 import { TreeChunk } from "./TreeChunk";
-import { WebTransform2DMemoryFactory } from "./WebTransform2DMemoryFactory";
 import {
     Channel, ChildrenStore, Chunk, Control, DirtyBitmap, LocalFlag, LocalTrs, SlotConst, SweepElem, WorldData, WorldFlag,
 } from "./Transform2DLayout";
@@ -78,23 +78,22 @@ function mulWorld(
  */
 export class Transform2DStore {
     /**
-     * @zh 列 buffer 的来源边界 —— "buffer 由 Web/RT 分别给"。默认 Web TypedArray;
-     * RT 后端替换为返回 native 共享 ArrayBuffer view 的工厂(JS 与 native 读写同一份内存),accessor 层零改动。
-     */
-    static memoryFactory: ITransform2DMemoryFactory = new WebTransform2DMemoryFactory();
-
-    /**
      * @zh sweep(节点树计算)下沉点 —— 唯一可下沉 native 的部分。null=JS sweep(本类内置);
      * RT 在 `Laya.addBeforeInitCallback` 里装上 native sweeper(读共享 buffer 的 local/parent/脏位、写 world、
-     * 产出 changed),见 transform2d/runtime/RTTransform2DSweep。chunk 创建 / alloc / setParent / 读写 buffer 仍全在本类(上层)。
+     * 产出 changed),见 transform2d/runtime/RTTransform2DStore。chunk 创建 / alloc / setParent / 读写 buffer 仍全在本类(上层)。
      */
     static sweeper: ITransform2DSweep | null = null;
 
     private static _instance: Transform2DStore;
 
-    /** @zh 全局单例(所有 2D Sprite 共享一棵 SoA 森林)。accessor 全在此 JS 类;sweep 视 {@link sweeper} 走 JS / native。 */
+    /**
+     * @zh 全局单例(所有 2D Sprite 共享一棵 SoA 森林)。accessor 全在此 JS 类;sweep 视 {@link sweeper} 走 JS / native。
+     * 列 buffer 来源由当前 2D 渲染后端(`I2DRenderPassFactory.createTransform2DMemoryFactory`)给：
+     * Web=JS TypedArray;GLES/LayaX=native 共享 view(数据创建下沉 native)。首次访问发生在首个 Sprite 创建时,
+     * 此时 render2DRenderPassFactory 已由 driver 设好(与 createRenderStruct2D 同前置条件)。
+     */
     static get instance(): Transform2DStore {
-        return this._instance || (this._instance = new Transform2DStore(Transform2DStore.memoryFactory));
+        return this._instance || (this._instance = new Transform2DStore(LayaGL.render2DRenderPassFactory.createTransform2DMemoryFactory()));
     }
 
     private readonly _mem: ITransform2DMemoryFactory;

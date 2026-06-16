@@ -28,9 +28,14 @@ import {
 	NoRenderMeshDataHandle, NoRenderSpineDataHandle,
 	NoRenderStruct2D, NoRender2DPass, NoRender2DPassManager
 } from "./NoRender2DModuleData";
+import { ITransform2DMemoryFactory } from "../../../display/transform2d/ITransform2DMemory";
+import { WebTransform2DMemoryFactory } from "../../../display/transform2d/WebTransform2DMemoryFactory";
 
 
 export class NoRender2DProcess implements I2DRenderPassFactory {
+    createTransform2DMemoryFactory(): ITransform2DMemoryFactory {
+        return new WebTransform2DMemoryFactory();
+    }
     createGraphic2DBufferBlock(): IGraphics2DBufferBlock {
         return new NoRenderGraphics2DBufferBlock();
     }
