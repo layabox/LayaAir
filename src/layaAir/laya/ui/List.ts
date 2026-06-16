@@ -479,9 +479,10 @@ export class List extends Box {
 
     protected createChildren(): void {
         this._content = new Box();
-        if (!LayaEnv.isPlaying)
+        if (!LayaEnv.isPlaying) {
             this._content.hideFlags = HideFlags.HideAndDontSave;
-        this._content.mouseThrough = true;
+            this._content.mouseThrough = true;
+        }
         this.addChild(this._content);
     }
 
