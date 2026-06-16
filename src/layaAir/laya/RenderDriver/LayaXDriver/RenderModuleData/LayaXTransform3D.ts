@@ -5,30 +5,30 @@ import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { NativeMemory } from "../../RenderModuleData/RuntimeModuleData/NativeMemory";
+import { LayaXChunkPages } from "./LayaXChunkPages";
 
 /**
- * LayaX Transform3D —— 三端同源方案（world 计算回 JS）。
+ * LayaX Transform3D —— chunk 共享存储上的三端同源方案（world 计算回 JS）。
  *
- * 设计（见 Plan/Transform-三端同源最优方案.md）：
- *   - local TRS 唯一源 = Rust pool（`local_pos/rot/scale` 列）。JS 写 local 经零拷贝视图
- *     **直写 pool + 标 pool dirty bit**，0 跨语言调用（V8）；OHOS 无 external ArrayBuffer，
- *     降级为「写共享内存 + 一发 C++ setter 推 pool」。
- *   - world 读写 / 懒求值 **完全复用基类纯 TS `Transform3D`**（与 WebGL 同一套算法），
- *     数据源是基类 `_localPosition/_localRotation/_localScale` 字段——这些字段由本类 5 个
- *     local setter 在写 pool 的同时一并维护，故基类 world 计算取到的恒是最新 local。
- *     **JS↔C++ 读写 world 0 跨边界。**（故本类不再 override world get/set、_onWorldXxx、
- *     translate/rotate、flag 读写——全部回落基类纯 TS。）
- *   - world **结果零拷贝落 pool**：`_bindPool` 把 `_worldMatrix.elements` 绑到 `pool.world_mat`，
- *     基类 getter 算的 world 直接写 pool，三端共用一份（非零拷贝设备不绑、保持堆走纯 TS）。
- *   - 路②（高频只读）：`getWorldPositionLastFrame` 直读 Rust 上帧已算的 `pool.world_mat`，
- *     免 JS 矩阵自算、0 跨边界，容忍 1 帧延迟。
- *   - Rust 仍独立从 pool.local 算 world_mat 给 GPU（渲染链路不变）。
+ * 存储模型（stable_row_chunk_design.md）：local TRS 唯一源 = ECS chunk 的
+ * Transform 组件；WorldMat 组件由 Rust propagate 独家产出。本类是基类纯 TS
+ * `Transform3D` 之上的薄壳：
+ *   - JS 写 local：经本 slot 零拷贝视图**直写 chunk + 标 slot 脏位**，
+ *     0 跨语言调用；视图不可用（native 页 + 沙箱/OHOS）则降级
+ *     「写共享 scratch + 一发 C++ setter 推 chunk」。
+ *   - world 读写 / 懒求值完全复用基类纯 TS（与 WebGL 同一套算法），数据源是
+ *     基类 `_localPosition/_localRotation/_localScale` 字段——由本类 local
+ *     setter 在写 chunk 的同时一并维护。**JS↔C++ 读写 world 0 跨边界。**
+ *   - 读 world 消除双算：flag 干净且 slot 脏位已被消费时直读 chunk WorldMat
+ *     （容忍 1 帧），否则回落基类自算（见 worldMatrix getter）。
  *
- * **零拷贝视图按 slot 粒度，不映射整个池**：每个 transform 在 createEntity 后向 C++ 取
- * 「只覆盖自己 slot 那几个 float」的 ArrayBuffer（pos 3 / rot 4 / scale 3 / dirty 1 word /
- * worldMat 16），建成定长 Float32Array/Uint32Array 直写自己 slot。因 Rust pool 运行期
- * append-only（block 地址稳定、不 compact），这些视图绑定一次后**终身有效，无需 version 重绑**；
- * destroyEntity 时丢弃（slot 被 Rust 回收）。
+ * 视图绑定（_bindViews，按 slot 粒度，不映射整列）：
+ *   - 路径①（全平台，含沙箱）：chunk 住在 JS 供页（LayaXChunkPages）内 →
+ *     用 (pageId, offset) 在自家页 buffer 上建普通 TypedArray；
+ *   - 路径②（native 页回退）：external ArrayBuffer（仅非沙箱可用）；
+ *   - 路径③：两者都不可用 → 不绑定，写 local 走 C++ 推。
+ *   失效协议：迁移/搬行在结构 FFI 内同步 bump 结构 epoch（主判据，零窗口），
+ *   VIEW_STALE 位兜底；_checkViewStale 失配即重绑（§6.3/§8.2）。
  *
  * ⚠ 构造时序铁律（见 memory project_layax_transform_init_order）：基类 ctor 在 `super()`
  * 期间调 `this._initProperty()`，子类字段初始化器在 `super()` 返回后才执行、会覆盖 `_initProperty`
@@ -39,7 +39,7 @@ import { NativeMemory } from "../../RenderModuleData/RuntimeModuleData/NativeMem
  */
 export class LayaXTransform3D extends Transform3D {
 
-    // ---- 共享内存布局（OHOS 降级写 + 构造期 C++ 同步用；与 JSRTTransform 一致）----
+    // ---- 共享内存布局（降级写 + 构造期 C++ 同步用；与 JSRTTransform 一致）----
     static TRANSFORM_LOCALQUATERNION_DATAOFFSET: number = 0;
     static TRANSFORM_LOCALEULER_DATAOFFSET: number = 4;
     static TRANSFORM_LOCALPOS_DATAOFFSET: number = 7;
@@ -54,7 +54,7 @@ export class LayaXTransform3D extends Transform3D {
     static TRANSFORM_RT_SYNC_FLAG_DATAOFFSET: number = 59;
     static TRANSFORM_SHARE_MEMORY_SIZE: number = 60;
 
-    // ---- flag 独立共享内存（不进 pool）：[0]=ChangeFlag 脏标记，[1]=SyncFlag（native 改 pool 后按分量置位）----
+    // ---- flag 独立共享内存（不进 chunk）：[0]=ChangeFlag 脏标记，[1]=SyncFlag（native 改 chunk 后按分量置位）----
     static FLAG_CHANGE_IDX: number = 0;
     static FLAG_SYNC_IDX: number = 1;
     static FLAG_MEMORY_SIZE: number = 2;
@@ -65,22 +65,24 @@ export class LayaXTransform3D extends Transform3D {
     static SYNC_ROT: number = 1 << 1;
     static SYNC_SCALE: number = 1 << 2;
     static SYNC_ALL: number = (1 << 0) | (1 << 1) | (1 << 2);
+    /** chunk 行搬家（swap-remove）后 native 置位：本实体所有零拷贝视图已失效，须重绑（§8.2） */
+    static VIEW_STALE: number = 0x80000000;
+    /** 全局结构 epoch 的共享视图（4 字节，所有 wrapper 共用一份；首次绑定视图时取） */
+    private static _epochView: Uint32Array = null;
 
-    /** 进程级一次性探测：V8 平台 external ArrayBuffer 可用 = true；OHOS = false。 */
+    /** 进程级一次性探测：external ArrayBuffer 可用 = true；沙箱/OHOS = false。 */
     private static _zeroCopyProbed: boolean = false;
     private static _hasZeroCopy: boolean = false;
-    /** 临时诊断计数（定位 bind 是否成功后删） */
-    private static _diagN: number = 0;
 
     /**
-     * @internal 进程级共享 marshalling scratch（OHOS / 构造期降级路径用）。
-     * plan A 下这块共享内存只作「JS 写一发 → C++ 同步读一发」的瞬时中转，不持任何跨调用的
-     * per-transform 状态（local 唯一源在 pool、world/flag 全在 JS），故全进程一份即可——
-     * 省掉每 transform 240B；V8 绑定后根本不碰它（local 走 _posView、world 走 JS 自算）。
+     * @internal 进程级共享 marshalling scratch（降级路径用）。
+     * 这块共享内存只作「JS 写一发 → C++ 同步读一发」的瞬时中转，不持任何跨调用的
+     * per-transform 状态（local 唯一源在 chunk、world/flag 全在 JS），故全进程一份即可——
+     * 省掉每 transform 240B；视图绑定后根本不碰它。
      */
     private static _sharedNativeMemory: NativeMemory = null;
     /**
-     * @internal 指向共享 scratch 的 float32 视图（仅未绑定 / OHOS 降级写 local 用）。
+     * @internal 指向共享 scratch 的 float32 视图（仅未绑定视图的降级写 local 用）。
      * ⚠ 不能带 `= null` 初始化器：本字段在 `_initProperty`（基类构造期间调用）里赋值，
      * 子类字段初始化器在 `super()` 返回后才执行，会把构造期赋的值覆盖回 null，
      * 导致后续 fallback 写 `f[7]` 崩 "Cannot set property of null"。
@@ -88,7 +90,7 @@ export class LayaXTransform3D extends Transform3D {
     private _nativeFloat32Buffer: Float32Array;
 
     /**
-     * @internal flag 独立共享内存（不进 pool），C++/JS 共维护。⚠ 不能带初值（_initProperty 里赋值）。
+     * @internal flag 独立共享内存（不进 chunk），C++/JS 共维护。⚠ 不能带初值（_initProperty 里赋值）。
      */
     private _flagMemory: NativeMemory;
     private _flagU32: Uint32Array;
@@ -99,18 +101,20 @@ export class LayaXTransform3D extends Transform3D {
     /**@internal RTAnimatorFactory._notifyJsTransformChanged 的帧去重标记，整数比对替代 Set 去重 */
     _notifyFrame: number = 0;
 
-    // ---- 本 slot 零拷贝视图（createEntity 后由 _bindPool 填充；OHOS 恒为未绑定）----
-    /** @internal 是否已绑定 pool 零拷贝视图（仅 V8 且分配到 slot 时为 true） */
-    private _poolBound: boolean = false;
+    // ---- 本 slot 零拷贝视图（createEntity 后由 _bindViews 填充）----
+    /** @internal 是否已绑定 chunk 零拷贝视图（路径①/②任一成功） */
+    private _viewsBound: boolean = false;
+    /** @internal 视图解析时的结构 epoch；与全局 epoch 失配=行可能已搬家，写前必须重绑（§6.3） */
+    private _boundEpoch: number = -1;
     /** @internal 本 slot 的列视图（定长：pos=3 / rot=4 / scale=3），直接写下标 0.. */
     private _posView: Float32Array = null;
     private _rotView: Float32Array = null;
     private _scaleView: Float32Array = null;
-    /** @internal 本 slot 的 world_mat 视图（16，路②只读，懒建——多数节点不读 world） */
+    /** @internal 本 slot 的 WorldMat 视图（16，只读——propagate 是组件唯一写者） */
     private _worldView: Float32Array = null;
-    /** @internal 本 slot 所属的 1 个脏位字视图（与同字 31 个邻居共享），只 |= 自己那 bit */
+    /** @internal 本 slot 所属脏位半字视图（与同字 31 个邻居共享），只 |= 自己那 bit */
     private _dirtyWordView: Uint32Array = null;
-    /** @internal 本 slot 在脏字内的位掩码 = 1 << (idx & 31) */
+    /** @internal 本 slot 在脏字内的位掩码 = 1 << (slot & 31) */
     private _dirtyMask: number = 0;
 
     constructor(owner: Sprite3D) {
@@ -141,7 +145,7 @@ export class LayaXTransform3D extends Transform3D {
             true
         );
         // 把构造期默认 local（pos=0/rot=identity/scale=1）推给 C++ m_localXxx，供 createEntity
-        // 时 push 进 pool。此刻未绑定 pool，setter 走未绑定降级分支（写共享内存 + C++）。
+        // 时 push 进 chunk。此刻未绑定视图，setter 走降级分支（写共享内存 + C++）。
         this.localPosition = this._localPosition;
         this.localRotation = this._localRotation;
         this.localScale = this._localScale;
@@ -157,70 +161,115 @@ export class LayaXTransform3D extends Transform3D {
     }
 
     // ------------------------------------------------------------------
-    // ECS Entity / pool 绑定
+    // ECS Entity / 视图绑定
     // ------------------------------------------------------------------
 
     /**
-     * 在 Rust ECS 创建 entity + 分配 pool slot（C++ 内部完成），随后绑定本 slot 的零拷贝视图。
+     * 在 Rust ECS 创建 entity（chunk 行随 spawn 分配），随后绑定本 slot 的零拷贝视图。
+     * 创建前补足 JS 供页储备（§7.1）。
      */
     createEntity(): void {
+        LayaXChunkPages.ensure(this._nativeObj);
         this._nativeObj.createEntity();
-        this._bindPool();
+        this._bindViews();
     }
 
     /**
-     * 递归销毁子 entity 后销毁自身，并丢弃本 slot 视图（slot 被 Rust 回收、gen 递增，旧视图禁止再写）。
+     * 递归销毁子 entity 后销毁自身，并丢弃本 slot 视图（行被 swap-remove 回收，旧视图禁止再写）。
      */
     destroyEntity(): void {
         this._nativeObj.destroyEntity();
-        this._poolBound = false;
-        // world 矩阵脱离 pool：slot 被 Rust 回收后视图禁止再写，换回独立堆并标脏，待下次入场景重算。
+        this._dropViews();
+        // world 矩阵脱离 chunk：换回独立堆并标脏，待下次入场景重算。
         this._worldMatrix.elements = new Float32Array(16);
         this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX, true);
+    }
+
+    /** @internal 丢弃全部 slot 视图（销毁 / 失效重绑前） */
+    private _dropViews(): void {
+        this._viewsBound = false;
         this._posView = this._rotView = this._scaleView = this._worldView = null;
         this._dirtyWordView = null;
     }
 
     /**
-     * 绑定本实例到「自己 slot」的零拷贝视图——只取自己那几个 float，不映射整个池。
-     * OHOS（无零拷贝）保持未绑定，写 local 走 C++ 推。
+     * 绑定本实例到「自己 slot」的零拷贝视图——只取自己那几个 float，不映射整列。
+     * 路径①（页内普通 TypedArray）→ 路径②（external AB 回退）→ 不绑定（C++ 推）。
      */
-    private _bindPool(): void {
-        const idx: number = this._nativeObj.getPoolIdx();
-        if (idx === 0xFFFFFFFF) {
-            if (LayaXTransform3D._diagN < 5) { LayaXTransform3D._diagN++; console.warn("[LayaXTransform] bind FAIL: getPoolIdx()==UINT32_MAX，entity/slot 未分配"); }
-            return; // 未分配 slot
+    private _bindViews(): void {
+        const idx: number = this._nativeObj.getSlotIndex();
+        if (idx === 0xFFFFFFFF) return; // entity 未创建
+        if (this._bindPageViews(idx)) return;
+        this._bindExternalViews(idx);
+    }
+
+    /**
+     * 路径①（全平台，含 V8 沙箱/OHOS——必须在 external-AB 探测之前）：chunk 在
+     * JS 供页内 → 用 (pageId, offset) 在自家页 buffer 上建普通 TypedArray，
+     * 零 external-ArrayBuffer API（§7.1/§8.1）。
+     * Transform 布局（repr(C)）：pos f32×3 @+0 / rot f32×4 @+12 / scale f32×3 @+28。
+     */
+    private _bindPageViews(idx: number): boolean {
+        const tLoc: number = this._nativeObj.getChunkViewLoc(0);
+        const wLoc: number = this._nativeObj.getChunkViewLoc(2);
+        if (tLoc < 0 || wLoc < 0) return false; // native 页 / 不可定位
+        const tPid = Math.floor(tLoc / 0x100000000), tOff = tLoc - tPid * 0x100000000;
+        const wPid = Math.floor(wLoc / 0x100000000), wOff = wLoc - wPid * 0x100000000;
+        const tBuf = LayaXChunkPages.page(tPid);
+        const wBuf = LayaXChunkPages.page(wPid);
+        if (!tBuf || !wBuf) return false;
+        this._posView = new Float32Array(tBuf, tOff, 3);
+        this._rotView = new Float32Array(tBuf, tOff + 12, 4);
+        this._scaleView = new Float32Array(tBuf, tOff + 28, 3);
+        this._dirtyWordView = new Uint32Array(wBuf, wOff, 1);
+        // WorldMat 只读视图（propagate 产物，容忍 1 帧；禁写——见 worldMatrix getter）
+        const mLoc: number = this._nativeObj.getChunkViewLoc(1);
+        if (mLoc >= 0) {
+            const mPid = Math.floor(mLoc / 0x100000000), mOff = mLoc - mPid * 0x100000000;
+            const mBuf = LayaXChunkPages.page(mPid);
+            if (mBuf) this._worldView = new Float32Array(mBuf, mOff, 16);
         }
+        this._dirtyMask = (1 << (idx & 31)) >>> 0;
+        this._viewsBound = true;
+        this._bindEpoch();
+        return true;
+    }
+
+    /**
+     * 路径②（回退：native fallback 页 / 异常）：external ArrayBuffer——仅非沙箱可用；
+     * 探测失败保持未绑定，写 local 走 C++ 推（路径③）。
+     */
+    private _bindExternalViews(idx: number): void {
         if (!LayaXTransform3D._zeroCopyProbed) {
             const probe: ArrayBuffer = this._nativeObj.getOwnLocalPos();
-            LayaXTransform3D._hasZeroCopy = !!probe && probe.byteLength > 0; // OHOS: 空 buffer → false
+            LayaXTransform3D._hasZeroCopy = !!probe && probe.byteLength > 0; // 沙箱/OHOS: 空 buffer → false
             LayaXTransform3D._zeroCopyProbed = true;
-            console.warn("[LayaXTransform] zeroCopy probe: hasZeroCopy=" + LayaXTransform3D._hasZeroCopy +
-                " probeBytes=" + (probe ? probe.byteLength : "null"));
         }
-        if (!LayaXTransform3D._hasZeroCopy) {
-            if (LayaXTransform3D._diagN < 5) { LayaXTransform3D._diagN++; console.warn("[LayaXTransform] bind FAIL: hasZeroCopy=false → 全程走 C++ 降级"); }
-            return; // OHOS 降级
-        }
+        if (!LayaXTransform3D._hasZeroCopy) return;
         // 每个视图只覆盖本 slot：pos[3] / rot[4] / scale[3] / dirtyWord[1]
         this._posView = new Float32Array(this._nativeObj.getOwnLocalPos());
         this._rotView = new Float32Array(this._nativeObj.getOwnLocalRot());
         this._scaleView = new Float32Array(this._nativeObj.getOwnLocalScale());
         this._dirtyWordView = new Uint32Array(this._nativeObj.getOwnDirtyWord());
-        this._dirtyMask = (1 << (idx & 31)) >>> 0; // slot 在脏字内的位 = idx 低 5 位
-        this._poolBound = true;
-        // world 零拷贝同源：_worldMatrix 存储后端换成 pool.world_mat 视图，基类 getter 算的 world 直接落 pool。
-        // pool 当前内容非最新，标脏强制下次重算填入。
-        this._worldView = new Float32Array(this._nativeObj.getOwnWorldMat());
-        this._worldMatrix.elements = this._worldView;
-        this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX, true);
-        if (LayaXTransform3D._diagN < 5) {
-            LayaXTransform3D._diagN++;
-            console.warn("[LayaXTransform] bind OK: idx=" + idx + " mask=" + this._dirtyMask +
-                " posLen=" + this._posView.length + " rotLen=" + this._rotView.length +
-                " scaleLen=" + this._scaleView.length + " dirtyLen=" + this._dirtyWordView.length);
+        this._dirtyMask = (1 << (idx & 31)) >>> 0; // slot 在脏字内的位 = 低 5 位
+        this._viewsBound = true;
+        this._bindEpoch();
+        // WorldMat 只读视图（禁写禁换绑 elements——TS 写穿组件会让 propagate
+        // 误判"值未变"漏标脏，断 Changed<WorldMat> 链）
+        const wbuf: ArrayBuffer = this._nativeObj.getOwnWorldMat();
+        if (wbuf && wbuf.byteLength > 0) {
+            this._worldView = new Float32Array(wbuf);
         }
-        // C++ createEntity 已把 m_localXxx push 进 pool；JS 字段与之同源（构造期同步），无需重复写。
+        // C++ createEntity 已把 m_localXxx push 进 chunk；JS 字段与之同源（构造期同步），无需重复写。
+    }
+
+    /** @internal 记录解析时的结构 epoch；写前与全局值比对，失配即重绑（行可能已搬家） */
+    private _bindEpoch(): void {
+        if (!LayaXTransform3D._epochView) {
+            const eb: ArrayBuffer = this._nativeObj.getEpochView();
+            if (eb && eb.byteLength >= 4) LayaXTransform3D._epochView = new Uint32Array(eb);
+        }
+        this._boundEpoch = LayaXTransform3D._epochView ? LayaXTransform3D._epochView[0] : -1;
     }
 
     /** @internal */
@@ -242,7 +291,7 @@ export class LayaXTransform3D extends Transform3D {
 
     /**
      * @internal
-     * RTAnimatorFactory 派发 TRANSFORM_CHANGED 时读取的脏标志。plan A 下 flag 在 JS 内（基类字段）。
+     * RTAnimatorFactory 派发 TRANSFORM_CHANGED 时读取的脏标志（flag 在共享 flag 内存里）。
      */
     get _RTtransformFlag(): number {
         return this._getTransformChangeFlag();
@@ -263,11 +312,11 @@ export class LayaXTransform3D extends Transform3D {
         return this._flagU32[LayaXTransform3D.FLAG_CHANGE_IDX];
     }
 
-    // 按分量从 pool/native 拉回单个 local 分量到 JS 镜像。回退路径（!_poolBound, OHOS）下每个分量
-    // 各一次 FFI getLocalXxx；零拷贝路径（V8）只读本 slot 视图。善后由 _syncLocal 统一处理（rot 的
+    // 按分量从 chunk/native 拉回单个 local 分量到 JS 镜像。降级路径（!_viewsBound）下每个分量
+    // 各一次 FFI getLocalXxx；零拷贝路径只读本 slot 视图。善后由 _syncLocal 统一处理（rot 的
     // euler/quat 善后例外，放在 _pullRot 内，因为只在拉 rot 时才成立）。
     private _pullPos(): void {
-        if (this._poolBound) {
+        if (this._viewsBound) {
             this._localPosition.setValue(this._posView[0], this._posView[1], this._posView[2]);
         } else {
             this._nativeObj.getLocalPosition();
@@ -278,7 +327,7 @@ export class LayaXTransform3D extends Transform3D {
     }
 
     private _pullRot(): void {
-        if (this._poolBound) {
+        if (this._viewsBound) {
             this._localRotation.setValue(this._rotView[0], this._rotView[1], this._rotView[2], this._rotView[3]);
         } else {
             this._nativeObj.getLocalRotation();
@@ -293,7 +342,7 @@ export class LayaXTransform3D extends Transform3D {
     }
 
     private _pullScale(): void {
-        if (this._poolBound) {
+        if (this._viewsBound) {
             this._localScale.setValue(this._scaleView[0], this._scaleView[1], this._scaleView[2]);
         } else {
             this._nativeObj.getLocalScale();
@@ -304,10 +353,48 @@ export class LayaXTransform3D extends Transform3D {
     }
 
     /**
-     * SyncFlag 按分量置位后，按需把「需要 ∩ 仍待拉」的 local 分量拉回 JS 镜像。
-     * need = SYNC_POS|SYNC_ROT|SYNC_SCALE 的任意子集；只拉真正变了且被需要的分量，拉一个清一个 bit。
+     * @internal 行搬家后重建本实体全部零拷贝视图。
+     * 主判据：结构 epoch（迁移/搬行在结构 FFI 内同步递增，零窗口——一次性写
+     * 紧跟迁移也能立刻重绑）；VIEW_STALE 位（native row-moved 回调置位）兜底。
+     * 热路径上只是一次位读；置位/失配是低频事件。
      */
+    private _checkViewStale(): void {
+        const ev = LayaXTransform3D._epochView;
+        const staleBit = this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX] & LayaXTransform3D.VIEW_STALE;
+        if (ev && ev[0] === (this._boundEpoch >>> 0) && staleBit === 0) return;
+        if (!ev && staleBit === 0) return; // 无 epoch 视图（降级环境）时仅靠 STALE 位
+        this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX] &= ~LayaXTransform3D.VIEW_STALE;
+        this._dropViews();
+        this._bindViews(); // re-resolve views at the new row
+    }
+
+    /**
+     * 读 world 消除双算：flag 干净 → 直读 chunk WorldMat（Rust propagate 的产物，
+     * 容忍 1 帧），免去 JS 沿父链的矩阵乘；本帧写过 local（flag 脏）→ 回落基类
+     * 自算，结果只落 JS 堆（propagate 仍是组件唯一写者）。
+     */
+    get worldMatrix(): Matrix4x4 {
+        this._checkViewStale();
+        // 直读 chunk 的前提（两个都要）：
+        // ① WORLDMATRIX flag 干净——但 set worldMatrix 也会清它（堆值即新值），
+        //    所以单独不充分；
+        // ② 自家 slot 脏位已被清——位图由 tick 末清零，"位干净"=上次 local 写
+        //    已被 propagate 消费 => chunk WorldMat 新鲜。写后同帧读（位仍置）
+        //    回落基类：自算或直接返回 setter 留在堆里的新值，保持基类语义。
+        if (this._worldView && this._dirtyWordView
+            && !this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX)
+            && (this._dirtyWordView[0] & this._dirtyMask) === 0) {
+            (this._worldMatrix.elements as Float32Array).set(this._worldView);
+            return this._worldMatrix;
+        }
+        return super.worldMatrix;
+    }
+    set worldMatrix(value: Matrix4x4) {
+        super.worldMatrix = value;
+    }
+
     private _syncLocal(need: number): void {
+        this._checkViewStale();
         const pending = this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX] & need;
         if (pending === 0) return;
         if (pending & LayaXTransform3D.SYNC_POS) this._pullPos();
@@ -325,7 +412,7 @@ export class LayaXTransform3D extends Transform3D {
 
     set localPosition(value: Vector3) {
         super.localPosition = value;     // 基类：cloneTo _localPosition + 标 flag + 纯 TS 父子链传播
-        this._pushLocalPos();            // 落自己 slot（V8 零拷贝直写 / OHOS C++ 推）
+        this._pushLocalPos();            // 落自己 slot（零拷贝直写 / 降级 C++ 推）
     }
     get localPosition(): Vector3 {
         this._syncLocal(LayaXTransform3D.SYNC_POS);
@@ -420,15 +507,16 @@ export class LayaXTransform3D extends Transform3D {
         return super.getWorldLossyScale();
     }
 
-    // world rotation/rotationEuler/worldMatrix/setWorldLossyScale、_onWorldXxxTransform、
+    // world rotation/rotationEuler/setWorldLossyScale、_onWorldXxxTransform、
     // translate/rotate、isDefaultMatrix 全部回落基类纯 TS——基类 world setter 内部最终调本类
-    // local setter（落 pool），基类 world getter 沿 _parent 链用 _localXxx 字段即时算，0 跨边界。
+    // local setter（落 chunk），基类 world getter 沿 _parent 链用 _localXxx 字段即时算，0 跨边界。
 
-    // ---- local→自己 slot 落库（V8 零拷贝直写 + 标自己 dirty bit；未绑定/OHOS 经 C++ 推）----
+    // ---- local→自己 slot 落库（零拷贝直写 + 标自己 dirty bit；未绑定经 C++ 推）----
 
     private _pushLocalPos(): void {
+        this._checkViewStale();
         const lp = this._localPosition;
-        if (this._poolBound) {
+        if (this._viewsBound) {
             const p = this._posView;
             p[0] = lp.x; p[1] = lp.y; p[2] = lp.z;
             this._dirtyWordView[0] |= this._dirtyMask;
@@ -440,8 +528,9 @@ export class LayaXTransform3D extends Transform3D {
     }
 
     private _pushLocalRot(): void {
+        this._checkViewStale();
         const lr = this.localRotation;    // 经基类 getter 懒求值，保证四元数最新（与 WebGL bit-exact）
-        if (this._poolBound) {
+        if (this._viewsBound) {
             const p = this._rotView;
             p[0] = lr.x; p[1] = lr.y; p[2] = lr.z; p[3] = lr.w;
             this._dirtyWordView[0] |= this._dirtyMask;
@@ -453,8 +542,9 @@ export class LayaXTransform3D extends Transform3D {
     }
 
     private _pushLocalScale(): void {
+        this._checkViewStale();
         const ls = this._localScale;
-        if (this._poolBound) {
+        if (this._viewsBound) {
             const p = this._scaleView;
             p[0] = ls.x; p[1] = ls.y; p[2] = ls.z;
             this._dirtyWordView[0] |= this._dirtyMask;
@@ -464,11 +554,6 @@ export class LayaXTransform3D extends Transform3D {
             this._nativeObj.setLocalScale();
         }
     }
-
-    // ------------------------------------------------------------------
-    // 路②：高频只读直读自己 slot 的 pool.world_mat（Rust 上帧 world，免 JS 矩阵自算、0 跨边界）
-    // 容忍 1 帧延迟；未绑定 pool（OHOS / 未入场景）回落基类即时自算。world 视图懒建。
-    // ------------------------------------------------------------------
 
     // ------------------------------------------------------------------
     // Hierarchy —— 父子链结构由基类维护，额外通知 Rust ECS（propagate 依赖 Parent 组件）
