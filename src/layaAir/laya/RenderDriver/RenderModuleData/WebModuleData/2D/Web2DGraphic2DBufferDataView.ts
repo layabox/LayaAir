@@ -1,4 +1,5 @@
-
+import { GraphicsDefines } from "../../../../webgl/shader/d2/GraphicsDefines";
+import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { I2DGraphicVertexDataView, I2DGraphicIndexDataView, I2DGraphicBufferDataView } from "../../Design/2D/IRender2DDataHandle";
 import { Web2DGraphicsIndexBatchBuffer, Web2DGraphicsIndexBuffer, Web2DGraphicsVertexBuffer, Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBuffer";
@@ -71,7 +72,7 @@ export class Web2DGraphic2DVertexDataView extends Web2DGraphicsBufferDataView im
 
 export class Web2DGraphic2DIndexDataView extends Web2DGraphicsBufferDataView implements I2DGraphicIndexDataView {
 
-    protected _view: Uint16Array;
+    protected _view: Uint16Array | Uint32Array;
 
     declare owner: Web2DGraphicsIndexBuffer;
 
@@ -86,7 +87,7 @@ export class Web2DGraphic2DIndexDataView extends Web2DGraphicsBufferDataView imp
     /** @internal */
     declare _prev: Web2DGraphic2DIndexDataView;
 
-    setData(data: Float32Array | Uint16Array) {
+    setData(data: ArrayLike<number>): void {
         this._view.set(data);
         this._modify();
     }
@@ -97,12 +98,12 @@ export class Web2DGraphic2DIndexDataView extends Web2DGraphicsBufferDataView imp
         this.length = length;
 
         if (create) {
-            this._view = new Uint16Array(length);
+            this._view = new (GraphicsDefines.GRAPHICS_INDEX_ARRAY_TYPE)(length);
         }
     }
 
     // 更新数据视图
-    _updateView(wholeData: Uint16Array) {
+    _updateView(wholeData: Uint16Array | Uint32Array) {
         wholeData.set(this._view, this.start);
     }
 

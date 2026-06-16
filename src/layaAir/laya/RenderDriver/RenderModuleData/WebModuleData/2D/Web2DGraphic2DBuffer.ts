@@ -1,4 +1,5 @@
 import { Vector2 } from "../../../../maths/Vector2";
+import { GraphicsDefines } from "../../../../webgl/shader/d2/GraphicsDefines";
 import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
 import { I2DGraphicWholeBuffer } from "../../Design/2D/IRender2DDataHandle";
@@ -6,7 +7,7 @@ import { Web2DGraphicsBufferDataView, Web2DGraphic2DVertexDataView, Web2DGraphic
 
 export abstract class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
     buffer: IIndexBuffer | IVertexBuffer;
-    _dataView: Float32Array | Uint16Array;
+    _dataView: Float32Array | Uint16Array | Uint32Array;
     arrayBuffer: ArrayBuffer;
     _needResetData: boolean;
     _inPass: boolean;
@@ -129,7 +130,7 @@ export class Web2DGraphicsVertexBuffer extends Web2DGraphicWholeBuffer {
 export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
     declare buffer: IIndexBuffer;
 
-    declare _dataView: Uint16Array;
+    declare _dataView: Uint16Array | Uint32Array;
     
     /** @internal */
     declare _first: Web2DGraphic2DIndexDataView;
@@ -139,7 +140,7 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
     resetData(byteLength: number) {
         this.arrayBuffer = new ArrayBuffer(byteLength);
 
-        let newData = new Uint16Array(this.arrayBuffer);
+        let newData = new (GraphicsDefines.GRAPHICS_INDEX_ARRAY_TYPE)(this.arrayBuffer);
         if (this._dataView) {
             newData.set(this._dataView);
         }
@@ -150,6 +151,7 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
 
     _upload() {
         if (!this._num) return;
+        let indexByteSize = GraphicsDefines.GRAPHICS_INDEX_BYTE_SIZE;
         let view = this._first;
         let start = 0;
         let length = 0;
@@ -163,7 +165,7 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
             if (geometry != view._geometry) {//切换geometry时，检查上一个是否需要提交
                 if (needUpdate) {// 设置上一个的绘制状态
                     geometry.clearRenderParams();
-                    geometry.setDrawElemenParams(length, start * 2);
+                    geometry.setDrawElemenParams(length, start * indexByteSize);
                 }
 
                 geometry = view._geometry;
@@ -186,16 +188,17 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
 
         if (needUpdate) {
             geometry.clearRenderParams();
-            geometry.setDrawElemenParams(length, start * 2);
+            geometry.setDrawElemenParams(length, start * indexByteSize);
         }
 
         let len = this._last.start + this._last.length - uploadStart;
 
-        let offset = uploadStart * 2;
+        let uploadByteStart = uploadStart * indexByteSize;
+        let offset = uploadByteStart;
 
         offset = Math.floor(offset / 4) * 4;
 
-        this.buffer.setData(this.arrayBuffer, offset, offset, len * 2 + (uploadStart * 2 - offset));
+        this.buffer.setData(this.arrayBuffer, offset, offset, len * indexByteSize + (uploadByteStart - offset));
         this._needResetData = false;
     }
 
@@ -220,6 +223,7 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
     // _uploadMask: Record<number, number> = {};
 
     _upload() {
+        let indexByteSize = GraphicsDefines.GRAPHICS_INDEX_BYTE_SIZE;
         let view = this._first;
         let uploadStart = this._needResetData ? 0 : this._updateRange.x;
 
@@ -240,11 +244,12 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
         let len = this._last.start + this._last.length - uploadStart;
         if (len == 0) return;
 
-        let offset = uploadStart * 2;
+        let uploadByteStart = uploadStart * indexByteSize;
+        let offset = uploadByteStart;
 
         offset = Math.floor(offset / 4) * 4;
 
-        let dataLength = len * 2 + (uploadStart * 2 - offset);
+        let dataLength = len * indexByteSize + (uploadByteStart - offset);
 
         if (dataLength + offset > this.arrayBuffer.byteLength) { 
             offset -= (dataLength + offset - this.arrayBuffer.byteLength);
@@ -267,7 +272,7 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
             view._geometry.clearRenderParams();
             // let clearRenderParamsTime = Date.now();
             // TimeStatistics.instance.addToFrameTime("Web2DGraphic2DBuffer.clearRenderParams", clearRenderParamsTime - modifyOneViewTime);
-            view._geometry.setDrawElemenParams(view.length, view.start * 2);
+            view._geometry.setDrawElemenParams(view.length, view.start * GraphicsDefines.GRAPHICS_INDEX_BYTE_SIZE);
             // let setDrawElemenParamsTime = Date.now();
             // TimeStatistics.instance.addToFrameTime("Web2DGraphic2DBuffer.setDrawElemenParams", setDrawElemenParamsTime - clearRenderParamsTime);
             // TimeStatistics.instance.addToFrameTime("Web2DGraphic2DBuffer._modifyOneView", setDrawElemenParamsTime - startTimer);

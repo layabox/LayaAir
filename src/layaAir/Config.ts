@@ -64,6 +64,12 @@ export class Config {
     static webGL2D_MeshAllocMaxMem: boolean = true;
 
     /**
+     * @en Whether 2D Graphics uses UInt32 index buffers when the render backend supports them.
+     * @zh 2D Graphics 是否在渲染后端支持时使用 UInt32 索引缓冲。
+     */
+    static useGraphics2DIndexUInt32: boolean = true;
+
+    /**
      * @en Default text size, default is 12
      * @zh 默认文本大小，默认为12
      */

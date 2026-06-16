@@ -39,6 +39,7 @@ import { Resource } from "../../resource/Resource";
 import { Texture2DArray } from "../../resource/Texture2DArray";
 import { TextureArrayRegistry2D } from "../../webgl/utils/TextureArrayRegistry2D";
 import { ITextureProcessor, EmptyTextureProcessor } from "../../large/ITextureProcessor";
+import { GraphicsDefines } from "../../webgl/shader/d2/GraphicsDefines";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 //const tmpuv1: number[] = [0, 0, 0, 0, 0, 0, 0, 0];
@@ -1159,7 +1160,7 @@ export class GraphicsRunner {
         x: number, y: number,
         vertices: Float32Array,
         uvs: Float32Array,
-        indices: Uint16Array,
+        indices: ArrayLike<number>,
         matrix?: Matrix, alpha?: number,
         blendMode?: BlendMode | string,
         colorNum?: number,
@@ -2260,7 +2261,7 @@ export class GraphicsRunner {
 
         let positions: number[] = [];
         let vbdata: Float32Array = result.mesh._buffer._tempVertexData;
-        let vertexLength = GraphicsMesh.stride;
+        let vertexLength = GraphicsDefines.stride;
 
         // 如果需要缓存，先构建本地坐标的 vbdata
         let cachedVbdata: Float32Array | null = null , localX: number, localY: number;
@@ -2369,7 +2370,7 @@ export class GraphicsRunner {
             this._currentSubmitCache.chunks.push({
                 vbdata: cachedVbdata,
                 vertexCount: vertexCount,
-                indices: indices as number[],
+                indices: indices,
                 positions: positions,
             });
         }
@@ -2413,7 +2414,7 @@ export class GraphicsRunner {
 
         let dataView: I2DGraphicVertexDataView;
         let offset = 0;
-        let vertexLength = GraphicsMesh.stride;
+        let vertexLength = GraphicsDefines.stride;
         let vertexCount = chunk.vertexCount;
         let cachedVbdata = chunk.vbdata;
         let vbdata:Float32Array;
@@ -2485,7 +2486,7 @@ export class GraphicsRunner {
 
     initDefalutMesh() {
         if (!this.def_geometry) {
-            let length = 4 * GraphicsMesh.stride;
+            let length = 4 * GraphicsDefines.stride;
             let def_vertices = new Float32Array(length);
             let inv_vertices = new Float32Array(length);
             let def_uv = Texture.DEF_UV;
@@ -2494,7 +2495,7 @@ export class GraphicsRunner {
 
             let offset = 0;
             for (let i = 0; i < 4; i++) {
-                let index = i * GraphicsMesh.stride;
+                let index = i * GraphicsDefines.stride;
                 //pos
                 inv_vertices[index] = def_vertices[index] = positions[offset];
                 inv_vertices[index + 1] = def_vertices[index + 1] = positions[offset + 1];
@@ -2523,12 +2524,12 @@ export class GraphicsRunner {
             indexBuffer._setIndexData(indices, 0);
 
             let defaultBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Static);
-            defaultBuffer.vertexDeclaration = GraphicsMesh.vertexDeclarition;
+            defaultBuffer.vertexDeclaration = GraphicsDefines.vertexDeclarition;
             defaultBuffer.setDataLength(def_vertices.byteLength);
             defaultBuffer.setData(def_vertices.buffer, 0, 0, def_vertices.byteLength);
 
             let invertBuffer = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Static);
-            invertBuffer.vertexDeclaration = GraphicsMesh.vertexDeclarition;
+            invertBuffer.vertexDeclaration = GraphicsDefines.vertexDeclarition;
             invertBuffer.setDataLength(inv_vertices.byteLength);
             invertBuffer.setData(inv_vertices.buffer, 0, 0, inv_vertices.byteLength);
 

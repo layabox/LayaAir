@@ -6,7 +6,6 @@ import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { BaseRenderNode2D } from "../../../../NodeRender2D/BaseRenderNode2D";
 import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
-import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Texture2D } from "../../../../resource/Texture2D";
@@ -18,6 +17,7 @@ import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandl
 import { Web2DGraphic2DIndexCloneDataView, Web2DGraphic2DIndexDataView, Web2DGraphic2DVertexDataView } from "./Web2DGraphic2DBufferDataView";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 import { Transform2DStore } from "../../../../display/transform2d/Transform2DStore";
+import { GraphicsDefines } from "../../../../webgl/shader/d2/GraphicsDefines";
 
 export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     protected _owner: WebRenderStruct2D;
@@ -269,7 +269,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         } else {
             clone = view._clone(false, false);
             clone._geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
-            clone._geometry.indexFormat = IndexFormat.UInt16;
+            clone._geometry.indexFormat = GraphicsDefines.GRAPHICS_INDEX_FORMAT;
         }
         return clone;
     }
