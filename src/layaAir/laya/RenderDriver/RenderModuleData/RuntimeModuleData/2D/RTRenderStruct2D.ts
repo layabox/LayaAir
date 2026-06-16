@@ -189,13 +189,22 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       return this._renderUpdateMask;
    }
 
-   /** @zh Transform2DStore slot(非 Web 后端暂不直读 store，保留字段以满足接口/未来 native 直读) */
-   transSlot: number = -1;
+   /** @zh Transform2DStore slot；下推 native，渲染结构据此按 slot 直读 world/alpha。 */
+   private _transSlot: number = -1;
+   get transSlot(): number {
+      return this._transSlot;
+   }
+   set transSlot(value: number) {
+      this._transSlot = value;
+      this._nativeObj.setTransSlot(value);
+   }
 
    private _renderMatrix: Matrix = new Matrix();
    set renderMatrix(value: Matrix) {
+      // JS 侧留一份给包围盒；slot>=0 时 native 按 slot 直读 store 不回推；slot<0 才推 native 兜底。
       value.cloneTo(this._renderMatrix);
-      this._nativeObj.setRenderMatrix(value, Stat.loopCount);
+      if (this._transSlot < 0)
+         this._nativeObj.setRenderMatrix(value, Stat.loopCount);
    }
    get renderMatrix(): Matrix {
       return this._renderMatrix;
