@@ -31,6 +31,10 @@ export class LayaXShaderData extends ShaderData {
     /** @internal RenderState 监听者集合 */
     _renderStateListeners: Set<IRenderStateListener> = new Set();
 
+    /** @internal 共享矩阵 scratch：JS 写、index-only fast 触发同步消费（全实例共用一块，16 float） */
+    private static _matScratchBuf = new ArrayBuffer(16 * 4);
+    private static _matScratch = new Float32Array(LayaXShaderData._matScratchBuf);
+
     /**
      * @internal
      */
@@ -38,6 +42,7 @@ export class LayaXShaderData extends ShaderData {
         super(ownerResource);
         if (createNativeObj) {
             this._nativeObj = new (window as any).conchLayaXShaderData((this._defineDatas as any)._nativeObj);
+            this._nativeObj.bindMatrixScratch(LayaXShaderData._matScratchBuf);
         } else {
             this._nativeObj = null;
         }
@@ -190,7 +195,7 @@ export class LayaXShaderData extends ShaderData {
     }
 
     setVector2(index: number, value: Vector2): void {
-        this._nativeObj.setVector2(index, value);
+        this._nativeObj.setVector2(index, value.x, value.y);
     }
 
     getVector3(index: number): Vector3 {
@@ -207,7 +212,7 @@ export class LayaXShaderData extends ShaderData {
     }
 
     setVector3(index: number, value: Vector3): void {
-        this._nativeObj.setVector3(index, value);
+        this._nativeObj.setVector3(index, value.x, value.y, value.z);
         if (index === Shader3D.STENCIL_Op) this._notifyRenderStateChanged();
     }
 
@@ -222,7 +227,7 @@ export class LayaXShaderData extends ShaderData {
     }
 
     setVector(index: number, value: Vector4): void {
-        this._nativeObj.setVector(index, value);
+        this._nativeObj.setVector(index, value.x, value.y, value.z, value.w);
     }
 
     getColor(index: number): Color {
@@ -242,37 +247,31 @@ export class LayaXShaderData extends ShaderData {
     setColor(index: number, value: Color): void {
         if (!value)
             return;
-        this._nativeObj.setColor(index, value);
+        this._nativeObj.setColor(index, value.r, value.g, value.b, value.a);
     }
 
     getMatrix4x4(index: number): Matrix4x4 {
-        let value = this._nativeObj.getMatrix4x4(index);
-        if (value == null) {
-            return value;
-        } else {
-            let _tempMatrix4x4: Matrix4x4 = new Matrix4x4();
-            _tempMatrix4x4.elements.set(value.elements);
-            return _tempMatrix4x4;
-        }
+        if (!this._nativeObj.getMatrix4x4ToScratch(index)) return null;
+        let _tempMatrix4x4: Matrix4x4 = new Matrix4x4();
+        _tempMatrix4x4.elements.set(LayaXShaderData._matScratch);
+        return _tempMatrix4x4;
     }
 
     setMatrix4x4(index: number, value: Matrix4x4): void {
-        this._nativeObj.setMatrix4x4(index, value);
+        LayaXShaderData._matScratch.set(value.elements);
+        this._nativeObj.setMatrix4x4FromScratch(index);
     }
 
     getMatrix3x3(index: number): Matrix3x3 {
-        let value = this._nativeObj.getMatrix3x3(index);
-        if (value == null) {
-            return value;
-        } else {
-            let _tempMatrix3x3: Matrix3x3 = new Matrix3x3();
-            _tempMatrix3x3.elements.set(value.elements);
-            return _tempMatrix3x3;
-        }
+        if (!this._nativeObj.getMatrix3x3ToScratch(index)) return null;
+        let _tempMatrix3x3: Matrix3x3 = new Matrix3x3();
+        _tempMatrix3x3.elements.set(LayaXShaderData._matScratch.subarray(0, 9));
+        return _tempMatrix3x3;
     }
 
     setMatrix3x3(index: number, value: Matrix3x3): void {
-        this._nativeObj.setMatrix3x3(index, value);
+        LayaXShaderData._matScratch.set(value.elements);
+        this._nativeObj.setMatrix3x3FromScratch(index);
     }
 
     getBuffer(index: number): Float32Array {
