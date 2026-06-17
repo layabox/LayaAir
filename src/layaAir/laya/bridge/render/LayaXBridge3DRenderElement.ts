@@ -96,6 +96,16 @@ export class LayaXBridge3DRenderElement implements IBridgeRenderElement {
 		this._nativeObj.setRenderProcess(process ? (process as any)._nativeObj : null);
 	}
 
+	// ctx is a resident singleton (RenderContext3D._instance._contextOBJ); dedup to
+	// skip the per-frame per-element FFI call when the value has not changed.
+	private _context3dNative: any = null;
+	setContext3D(context3d: any): void {
+		const native = context3d ? (context3d as any)._nativeObj : null;
+		if (this._context3dNative === native) return;
+		this._context3dNative = native;
+		this._nativeObj.setContext3D(native);
+	}
+
 	getBaseRenderList(): SingletonList<IBaseRenderNode> {
 		return this._baseRenderList;
 	}
@@ -116,7 +126,7 @@ export class LayaXBridge3DRenderElement implements IBridgeRenderElement {
 	}
 
 	collectElements(context3d: any): number {
-		return this._nativeObj.collectFromNodes((context3d as any)._nativeObj);
+		return this._nativeObj.collectFromNodes();
 	}
 
 	_prepare(context: IRenderContext2D) {

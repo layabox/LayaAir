@@ -4,6 +4,7 @@ import { Matrix } from "../../maths/Matrix";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 import { GraphicsDefines } from "../../webgl/shader/d2/GraphicsDefines";
 
+
 /**
  * @en Split large triangle meshes into batches when vertex count exceeds the dynamic graphics VB capacity.
  * Runtime IB format is selected by ShaderDefines2D; public indices are still Uint16Array.
