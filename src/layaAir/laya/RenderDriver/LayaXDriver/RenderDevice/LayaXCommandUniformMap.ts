@@ -25,7 +25,7 @@ export class LayaXCommandUniformMap extends CommandUniformMap {
         super(stateName);
         this._stateName = stateName;
         this._stateID = Shader3D.propertyNameToID(stateName);
-        this._nativeObj = new (window as any).conchLayaXCommandUniformMap.create(stateName);
+        this._nativeObj = (window as any).conchLayaXCommandUniformMap.create(stateName);
     }
 
     hasPtrID(propertyID: number): boolean {

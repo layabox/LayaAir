@@ -27,6 +27,7 @@ export class LayaXShaderPass implements IShaderPassData {
     private _renderState: RenderState;
     private _compileCallbackBound: any;
     private _statefirst: boolean = false;
+    private _pipelineMode: string = "Forward";
 
     is2D: boolean = false;
     name: string = "";
@@ -52,10 +53,12 @@ export class LayaXShaderPass implements IShaderPassData {
     }
 
     get pipelineMode(): string {
-        return this._nativeObj._pipelineMode || "";
+        // Stored TS-side: native obj has no _pipelineMode field to read back.
+        return this._pipelineMode;
     }
 
     set pipelineMode(value: string) {
+        this._pipelineMode = value;
         this._nativeObj.setPipelineMode(value);
     }
 
