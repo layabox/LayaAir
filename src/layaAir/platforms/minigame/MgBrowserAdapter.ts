@@ -67,10 +67,10 @@ export class MgBrowserAdapter extends BrowserAdapter {
 
         systemInfo = systemInfo || <any>{};
 
-        const { SDKVersion } = PAL.hasAPI("getAppBaseInfo") ? PAL.g.getAppBaseInfo() : systemInfo;
+        const { SDKVersion } = (PAL.hasAPI("getAppBaseInfo") ? PAL.g.getAppBaseInfo() : null) || systemInfo;
         Browser.SDKVersion = SDKVersion || "";
 
-        const { system } = PAL.hasAPI("getDeviceInfo") ? PAL.g.getDeviceInfo() : systemInfo;
+        const { system } = (PAL.hasAPI("getDeviceInfo") ? PAL.g.getDeviceInfo() : null) || systemInfo;
         const systemVersionArr = system ? system.split(' ') : [];
         Browser.systemVersion = systemVersionArr.length ? systemVersionArr[systemVersionArr.length - 1] : '';
 
