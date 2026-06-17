@@ -1,6 +1,5 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
-import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { IPool, Pool } from "../../../../utils/Pool";
 import { FastSinglelist } from "../../../../utils/SingletonList";
@@ -20,6 +19,7 @@ import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { Vector4 } from "../../../../maths/Vector4";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
+import { GraphicsDefines } from "../../../../webgl/shader/d2/GraphicsDefines";
 
 /**
  * 简单的管理indexBuffer
@@ -35,7 +35,7 @@ class BatchBuffer {
 
     constructor() {
         this.indexBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
-        this.indexBuffer.indexType = IndexFormat.UInt16;
+        this.indexBuffer.indexType = GraphicsDefines.GRAPHICS_INDEX_FORMAT;
         this.wholeBuffer = new Web2DGraphicsIndexBatchBuffer();
         this.wholeBuffer.buffer = this.indexBuffer;
         if (!!(LayaGL.renderEngine as any).gl) {
@@ -123,7 +123,7 @@ class BatchBuffer {
     updateBufLength() {
         if (this.maxIndexCount <= this.indexCount) {
             let nLength = Math.ceil(this.indexCount / _STEP_) * _STEP_;
-            let byteLength = nLength * 2;
+            let byteLength = nLength * GraphicsDefines.GRAPHICS_INDEX_BYTE_SIZE;
             this.indexBuffer._setIndexDataLength(byteLength);
             this.wholeBuffer._resetData(byteLength);
             this.maxIndexCount = nLength;
@@ -341,7 +341,7 @@ export class WebGraphicsBatch implements IBatch2DProvider {
         () => { //create
             let element = LayaGL.render2DRenderPassFactory.createPrimitiveRenderElement2D();
             element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
-            element.geometry.indexFormat = IndexFormat.UInt16;
+            element.geometry.indexFormat = GraphicsDefines.GRAPHICS_INDEX_FORMAT;
             element.nodeCommonMap = ["Sprite2D"];
             element.renderStateIsBySprite = false;
             return element;
@@ -527,7 +527,7 @@ export class WebGraphicsBatch implements IBatch2DProvider {
                 }
 
                 // 检查是否可以合并
-                if (currentOffset + currentCount * 2 === offset) {
+                if (currentOffset + currentCount * GraphicsDefines.GRAPHICS_INDEX_BYTE_SIZE === offset) {
                     currentCount += count;
                 } else {
                     batchedGeometry.setDrawElemenParams(currentCount, currentOffset);

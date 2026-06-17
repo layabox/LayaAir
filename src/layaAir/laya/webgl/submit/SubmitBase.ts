@@ -3,7 +3,6 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { IPrimitiveRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IGraphics2DVertexBlock, I2DGraphicIndexDataView, IGraphics2DBufferBlock } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
-import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
@@ -17,11 +16,12 @@ import { GraphicsShaderInfo } from "../shader/d2/value/GraphicsShaderInfo";
 import { GraphicsMesh, MeshBlockInfo } from "../utils/GraphicsMesh";
 import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D";
 import { SubmitKey } from "./SubmitKey";
+import { GraphicsDefines } from "../shader/d2/GraphicsDefines";
 
 export type GraphicsRunnerCacheChunk = {
     vbdata: Float32Array;
     vertexCount: number;
-    indices: number[];
+    indices: ArrayLike<number>;
     positions: number[];
 };
 
@@ -43,7 +43,7 @@ export class SubmitBase {
     }, (element: IPrimitiveRenderElement2D, needGeometry?: boolean) => { //init
         if (needGeometry || needGeometry == null) {
             element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
-            element.geometry.indexFormat = IndexFormat.UInt16;
+            element.geometry.indexFormat = GraphicsDefines.GRAPHICS_INDEX_FORMAT;
         } else {
             if (element.geometry) {
                 element.geometry.destroy();

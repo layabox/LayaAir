@@ -2,23 +2,23 @@ import { Texture } from "../../resource/Texture";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Matrix } from "../../maths/Matrix";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
-import { Graphic2DDynamicVIBuffer } from "../Scene2DSpecial/Graphic2DDynamicVIBuffer";
+import { GraphicsDefines } from "../../webgl/shader/d2/GraphicsDefines";
 
 /**
- * @en Split large triangle meshes into batches when vertex count exceeds the GPU index buffer limit.
- * Uint16Array indices can only reference vertices 0-65535, and the engine's dynamic VB limit is MAX_VERTEX (32768).
- * @zh 当顶点数超过 GPU 索引缓冲区限制时，将大型三角形网格拆分为多个批次。
- * Uint16Array 索引只能引用 0-65535 的顶点，引擎动态 VB 限制为 MAX_VERTEX (32768)。
+ * @en Split large triangle meshes into batches when vertex count exceeds the dynamic graphics VB capacity.
+ * Runtime IB format is selected by ShaderDefines2D; public indices are still Uint16Array.
+ * @zh 当顶点数超过 graphics 动态 VB 容量时，将大型三角形网格拆分为多个批次。
+ * 运行时 IB 格式由 ShaderDefines2D 选择；公开传入的 indices 仍为 Uint16Array。
  */
 export function drawTrianglesBatched(
     runner: GraphicsRunner, tex: Texture | BaseTexture,
     x: number, y: number,
-    vertices: Float32Array, uvs: Float32Array, indices: Uint16Array,
+    vertices: Float32Array, uvs: Float32Array, indices: ArrayLike<number>,
     matrix: Matrix | null, alpha: number, blendMode: string | null,
     colorNum: number | null, colors: Float32Array | null, uvRange: ArrayLike<number> | null
 ): void {
     const vertexCount = vertices.length / 2;
-    const maxBatchVertices = Graphic2DDynamicVIBuffer.MAX_VERTEX;
+    const maxBatchVertices = GraphicsDefines.GRAPHICS_MAX_VERTEX;
 
     if (vertexCount <= maxBatchVertices) {
         runner.drawTriangles(tex, x, y, vertices, uvs, indices, matrix, alpha, blendMode, colorNum, colors, uvRange);
@@ -55,7 +55,7 @@ export function drawTrianglesBatched(
         const batchUVs = new Float32Array(newVertCount * 2);
         const batchColors = colors ? new Float32Array(newVertCount * 4) : null;
         const indexCount = (batchEnd - batchStart) * 3;
-        const batchIndices = new Uint16Array(indexCount);
+        const batchIndices = new (GraphicsDefines.GRAPHICS_INDEX_ARRAY_TYPE)(indexCount);
 
         // Fill vertices, uvs, colors via remap
         remap.forEach((newIdx, oldIdx) => {
