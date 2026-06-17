@@ -133,7 +133,7 @@ class LayaXBlitQuadCMDData extends BlitQuadCMDData {
     set viewport(value: Viewport) {
         this._viewport = value;
         if (value) {
-            this._nativeObj.setViewport(value);
+            this._nativeObj.setViewport(value.x, value.y, value.width, value.height);
         }
     }
 
@@ -143,7 +143,7 @@ class LayaXBlitQuadCMDData extends BlitQuadCMDData {
     set scissor(value: Vector4) {
         this._scissor = value;
         if (value) {
-            this._nativeObj.setScissor(value);
+            this._nativeObj.setScissor(value.x, value.y, value.z, value.w);
         }
     }
 
@@ -162,7 +162,7 @@ class LayaXBlitQuadCMDData extends BlitQuadCMDData {
     set offsetScale(value: Vector4) {
         this._offsetScale = value;
         if (value) {
-            this._nativeObj.setOffsetScale(value);
+            this._nativeObj.setOffsetScale(value.x, value.y, value.z, value.w);
         }
     }
 
@@ -226,7 +226,7 @@ class LayaXSetViewportCMD extends SetViewportCMD {
     set viewport(value: Viewport) {
         this._viewport = value;
         if (value) {
-            this._nativeObj.setViewport(value);
+            this._nativeObj.setViewport(value.x, value.y, value.width, value.height);
         }
     }
 
@@ -236,7 +236,7 @@ class LayaXSetViewportCMD extends SetViewportCMD {
     set scissor(value: Vector4) {
         this._scissor = value;
         if (value) {
-            this._nativeObj.setScissor(value);
+            this._nativeObj.setScissor(value.x, value.y, value.z, value.w);
         }
     }
 
@@ -287,7 +287,7 @@ class LayaXSetRenderTargetCMD extends SetRenderTargetCMD {
     set clearColorValue(value: Color) {
         this._clearColorValue = value;
         if (value) {
-            this._nativeObj.clearColorValue(value);
+            this._nativeObj.clearColorValue(value.r, value.g, value.b, value.a);
         }
     }
 

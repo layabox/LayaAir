@@ -41,7 +41,6 @@ export class LayaXSetRenderData extends SetRenderDataCMD {
     }
     set dataType(value: ShaderDataType) {
         this._dataType = value;
-        this._nativeObj.setDataType(value);
     }
 
     get propertyID(): number {
@@ -68,7 +67,7 @@ export class LayaXSetRenderData extends SetRenderDataCMD {
             case ShaderDataType.Int:
                 this.data_number = value as number;
                 this._value = this.data_number;
-                this._nativeObj.setInt(this._value);
+                this._nativeObj.setInt(this.data_number | 0);
                 break;
             case ShaderDataType.Float:
                 this.data_number = value as number;
@@ -78,7 +77,7 @@ export class LayaXSetRenderData extends SetRenderDataCMD {
             case ShaderDataType.Bool:
                 this.data_number = value as number;
                 this._value = this.data_number;
-                this._nativeObj.setBool(this._value);
+                this._nativeObj.setBool(!!this.data_number);
                 break;
             case ShaderDataType.Matrix4x4:
                 !this.data_mat && (this.data_mat = new Matrix4x4());
@@ -90,7 +89,7 @@ export class LayaXSetRenderData extends SetRenderDataCMD {
                 !this.data_Color && (this.data_Color = new Color());
                 (value as Color).cloneTo(this.data_Color);
                 this._value = this.data_Color;
-                this._nativeObj.setColor(this._value);
+                this._nativeObj.setColor(this.data_Color.r, this.data_Color.g, this.data_Color.b, this.data_Color.a);
                 break;
             case ShaderDataType.Texture2D:
                 this._value = this.data_texture = value as BaseTexture;
@@ -100,19 +99,19 @@ export class LayaXSetRenderData extends SetRenderDataCMD {
                 !this.data_v4 && (this.data_v4 = new Vector4());
                 (value as Vector4).cloneTo(this.data_v4);
                 this._value = this.data_v4;
-                this._nativeObj.setVector(this._value);
+                this._nativeObj.setVector(this.data_v4.x, this.data_v4.y, this.data_v4.z, this.data_v4.w);
                 break;
             case ShaderDataType.Vector2:
                 !this.data_v2 && (this.data_v2 = new Vector2());
                 (value as Vector2).cloneTo(this.data_v2);
                 this._value = this.data_v2;
-                this._nativeObj.setVector2(this._value);
+                this._nativeObj.setVector2(this.data_v2.x, this.data_v2.y);
                 break;
             case ShaderDataType.Vector3:
                 !this.data_v3 && (this.data_v3 = new Vector3());
                 (value as Vector3).cloneTo(this.data_v3);
                 this._value = this.data_v3;
-                this._nativeObj.setVector3(this._value);
+                this._nativeObj.setVector3(this.data_v3.x, this.data_v3.y, this.data_v3.z);
                 break;
             case ShaderDataType.Buffer:
                 this._value = this.data_Buffer = value as Float32Array;
@@ -151,7 +150,7 @@ export class LayaXSetShaderDefine extends SetShaderDefineCMD {
     }
     set define(value: ShaderDefine) {
         this._define = value;
-        this._nativeObj.setDefine(value);
+        this._nativeObj.setDefine(value._index, value._value);
     }
 
     get dest(): ShaderData {
