@@ -35,6 +35,9 @@ export class LayaXShaderData extends ShaderData {
     private static _matScratchBuf = new ArrayBuffer(16 * 4);
     private static _matScratch = new Float32Array(LayaXShaderData._matScratchBuf);
 
+    /** @internal 构造期缓存 Rust ShaderData handle，供 LayaXComputeContext 每帧 setShaderData 复用（省每次 getHandle FFI） */
+    _handleId: number = 0;
+
     /**
      * @internal
      */
@@ -43,6 +46,7 @@ export class LayaXShaderData extends ShaderData {
         if (createNativeObj) {
             this._nativeObj = new (window as any).conchLayaXShaderData((this._defineDatas as any)._nativeObj);
             this._nativeObj.bindMatrixScratch(LayaXShaderData._matScratchBuf);
+            this._handleId = this._nativeObj.getHandle();
         } else {
             this._nativeObj = null;
         }
