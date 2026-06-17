@@ -130,7 +130,8 @@ export class LayaXBlit2DQuadCMD extends Blit2DQuadCMD {
     get offsetScale(): Vector4 { return this._offsetScale; }
     set offsetScale(value: Vector4) {
         value.cloneTo(this._offsetScale);
-        this._nativeObj.setOffsetScale(this._offsetScale);
+        const o = this._offsetScale;
+        this._nativeObj.setOffsetScale(o.x, o.y, o.z, o.w);
     }
 
     apply(_context: IRenderContext2D): void {
