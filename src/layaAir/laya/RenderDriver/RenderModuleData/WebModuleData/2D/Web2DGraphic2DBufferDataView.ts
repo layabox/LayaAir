@@ -1,5 +1,4 @@
 import { GraphicsDefines } from "../../../../webgl/shader/d2/GraphicsDefines";
-import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { I2DGraphicVertexDataView, I2DGraphicIndexDataView, I2DGraphicBufferDataView } from "../../Design/2D/IRender2DDataHandle";
 import { Web2DGraphicsIndexBatchBuffer, Web2DGraphicsIndexBuffer, Web2DGraphicsVertexBuffer, Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBuffer";
@@ -105,6 +104,11 @@ export class Web2DGraphic2DIndexDataView extends Web2DGraphicsBufferDataView imp
     // 更新数据视图
     _updateView(wholeData: Uint16Array | Uint32Array) {
         wholeData.set(this._view, this.start);
+    }
+
+    /** @internal */
+    _writeTo(wholeData: Uint16Array | Uint32Array, targetStart: number, sourceStart: number = 0, sourceEnd: number = this.length) {
+        wholeData.set(this._view.subarray(sourceStart, sourceEnd), targetStart);
     }
 
 
