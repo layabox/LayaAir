@@ -38,27 +38,15 @@ function _hasMark(u8: Uint8Array): boolean {
     return u8.length >= 4 && u8[0] === 66 && u8[1] === 54 && u8[2] === 52 && u8[3] === 58; // "B64:"
 }
 
-// 是否「iOS + 高性能模式」——所有特殊处理（路径编码 / manifest base64 / copyFile 幂等）只在这一组合生效。
-// 启动后不变，惰性缓存。
-let _iosHighPerf: boolean | null = null;
+// 高性能模式（淘宝把 my.env.isHighPerformanceMode 存到通用的 Browser.isIOSHighPerformanceMode）：copyFile 幂等用它——
+// 高性能模式下 copyFile 不覆盖已存在文件（iOS 报 516、安卓报 ALREADY_EXIST），普通模式会覆盖。
+function _isHighPerf(): boolean {
+    return !!Browser.isIOSHighPerformanceMode;
+}
+
+// iOS + 高性能：路径编码 / manifest base64 只在这一组合生效。
 function _isIOSHighPerf(): boolean {
-    if (_iosHighPerf === null) {
-        _iosHighPerf = false;
-        try {
-            const g: any = (PAL.g as any) || (window as any).my;
-            const hp = !!(g && g.env && g.env.isHighPerformanceMode);
-            let ios = false;
-            if (g && g.getSystemInfoSync) {
-                const info = g.getSystemInfoSync();
-                const plat = String((info && (info.platform || info.system)) || "").toLowerCase();
-                ios = plat.indexOf("ios") !== -1;
-            }
-            _iosHighPerf = hp && ios;
-        } catch (e) {
-            _iosHighPerf = false;
-        }
-    }
-    return _iosHighPerf;
+    return !!Browser.isIOSHighPerformanceMode && Browser.onIOS;
 }
 
 // 加载边界编码：iOS 高性能下，native 读取/加载（readFile / super.image）要 %2520 编码路径（native 内部会 decode）。
@@ -99,9 +87,9 @@ class TbFileSystemAdapter extends MgFileSystemAdapter {
         });
     }
 
-    // 516（iOS copyFile 不覆盖已存在文件）实测仅出现在 iOS 高性能模式；仅此模式先删已存在目标再拷保证幂等，其它走基类
+    // 高性能模式下 copyFile 不覆盖已存在文件（iOS 报 516、安卓报 ALREADY_EXIST）；仅高性能模式先删已存在目标再拷保证幂等，普通模式走基类（会覆盖）
     copyFile(srcPath: string, destPath: string): Promise<void> {
-        if (!_isIOSHighPerf()) return super.copyFile(srcPath, destPath);
+        if (!_isHighPerf()) return super.copyFile(srcPath, destPath);
         return super.exists(destPath)
             .then(ex => ex ? super.unlink(destPath).catch(() => { }) : null)
             .then(() => super.copyFile(srcPath, destPath));
@@ -119,10 +107,14 @@ class TbDownloader extends MgDownloader {
 }
 
 MgBrowserAdapter.beforeInit = function () {
-    // 淘宝的webgl2支持不完善，淘宝推荐使用webgl1.0
-    Config.useWebGL2 = false;
-    Browser.onTBMiniGame = true;
     PAL.g = (window as any).my;
+    // 淘宝高性能字段是 my.env.isHighPerformanceMode（不带 iOS，安卓也可能 true），存到通用的 Browser.isIOSHighPerformanceMode
+    Browser.isIOSHighPerformanceMode = !!((PAL.g as any)?.env?.isHighPerformanceMode);
+    if (!Browser.isIOSHighPerformanceMode) {
+        // 普通模式下淘宝的webgl2支持不完善，淘宝推荐使用webgl1.0（高性能模式不关闭 webgl2）
+        Config.useWebGL2 = false;
+    }
+    Browser.onTBMiniGame = true;
     // 让 start() 直接 new TbDownloader（图片本地路径编码走 encodeLocalPath 钩子）
     MgBrowserAdapter.downloaderClass = TbDownloader;
 };
