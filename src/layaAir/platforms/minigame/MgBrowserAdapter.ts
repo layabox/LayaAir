@@ -117,8 +117,8 @@ export class MgBrowserAdapter extends BrowserAdapter {
     }
 
     onInitRender(): void {
-        if (Browser.onTBMiniGame) {
-            // srgb问题
+        if (Browser.onTBMiniGame && !Browser.isIOSHighPerformanceMode) {
+            // srgb问题（高性能模式不关闭 srgb）
             (LayaGL.renderEngine as WebGLEngine)._supportCapatable.turnOffSRGB();
         }
 
