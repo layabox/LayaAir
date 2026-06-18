@@ -216,19 +216,19 @@ export class DragSupport {
     private checkArea(dx: number = 0, dy: number = 0) {
         let tx: number;
         let ty: number;
-        let rect = Rectangle.TEMP.setTo(this.target.x + dx - this.target.pivotX, this.target.y + dy - this.target.pivotY,
-            this.target.width, this.target.height);
-        if (rect.x < this.area.x)
-            tx = this.area.x - rect.x;
-        else if (rect.right > this.area.right)
-            tx = this.area.right - rect.right;
+        let px = this.target.x + dx;
+        let py = this.target.y + dy;
+        if (px < this.area.x)
+            tx = this.area.x - px;
+        else if (px > this.area.right)
+            tx = this.area.right - px;
         else
             tx = 0;
 
-        if (rect.y < this.area.y)
-            ty = this.area.y - rect.y;
-        else if (rect.bottom > this.area.bottom)
-            ty = this.area.bottom - rect.bottom;
+        if (py < this.area.y)
+            ty = this.area.y - py;
+        else if (py > this.area.bottom)
+            ty = this.area.bottom - py;
         else
             ty = 0;
         return tmpPoint.setTo(tx, ty);
