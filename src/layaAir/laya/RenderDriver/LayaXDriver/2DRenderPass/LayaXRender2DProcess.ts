@@ -50,6 +50,7 @@ class LayaXRTRender2DPass extends RTRender2DPass {
         this._nativeObj = new (window as any).conchLayaXRender2DPass(
             (this as any)._shaderData._nativeObj
         );
+        this._nativeObj.bindPass2DBuffer((this as any)._propsBuf);
         // 重新推送初始状态到 LayaX native（父类构造跳过了这些）
         this.enable = true;
         this.enableBatch = true;
