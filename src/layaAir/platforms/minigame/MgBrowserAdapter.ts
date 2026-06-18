@@ -17,6 +17,8 @@ import { MgWebSocket } from "./MgWebSocket";
 export class MgBrowserAdapter extends BrowserAdapter {
     static beforeInit: () => void;
     static afterInit: () => void;
+    /** 可被平台覆盖的下载器类（默认 MgDownloader）；平台可在 beforeInit 里替换为子类。 */
+    static downloaderClass: typeof MgDownloader = MgDownloader;
 
     protected _visible: boolean = true;
     protected _orientation: OrientationType = "portrait-primary";
@@ -67,10 +69,10 @@ export class MgBrowserAdapter extends BrowserAdapter {
 
         systemInfo = systemInfo || <any>{};
 
-        const { SDKVersion } = PAL.hasAPI("getAppBaseInfo") ? PAL.g.getAppBaseInfo() : systemInfo;
+        const { SDKVersion } = (PAL.hasAPI("getAppBaseInfo") ? PAL.g.getAppBaseInfo() : null) || systemInfo;
         Browser.SDKVersion = SDKVersion || "";
 
-        const { system } = PAL.hasAPI("getDeviceInfo") ? PAL.g.getDeviceInfo() : systemInfo;
+        const { system } = (PAL.hasAPI("getDeviceInfo") ? PAL.g.getDeviceInfo() : null) || systemInfo;
         const systemVersionArr = system ? system.split(' ') : [];
         Browser.systemVersion = systemVersionArr.length ? systemVersionArr[systemVersionArr.length - 1] : '';
 
@@ -101,7 +103,7 @@ export class MgBrowserAdapter extends BrowserAdapter {
     }
 
     start(): Promise<void> {
-        let downloader = Loader.downloader = new MgDownloader(
+        let downloader = Loader.downloader = new MgBrowserAdapter.downloaderClass(
             PAL.hasAPI("getFileSystemManager") && PAL.hasAPI(PAL.g.getFileSystemManager(), "writeFile") && PAL.hasAPI(PAL.g.getFileSystemManager(), "readdir")
         );
         this.setupWasmSupport();
@@ -115,8 +117,8 @@ export class MgBrowserAdapter extends BrowserAdapter {
     }
 
     onInitRender(): void {
-        if (Browser.onTBMiniGame) {
-            // srgb问题
+        if (Browser.onTBMiniGame && !Browser.isIOSHighPerformanceMode) {
+            // srgb问题（高性能模式不关闭 srgb）
             (LayaGL.renderEngine as WebGLEngine)._supportCapatable.turnOffSRGB();
         }
 
