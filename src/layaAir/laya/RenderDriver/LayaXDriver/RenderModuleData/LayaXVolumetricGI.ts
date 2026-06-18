@@ -9,10 +9,25 @@ import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { IVolumetricGIData } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 
 /**
+ * TS-owned per-GI buffer layout. Contract shared with C++ `LayaXVolumetricGI_JS`
+ * (and future Rust direct-read) — changing it requires updating both sides.
+ */
+const enum GISlot {
+    Intensity = 0,    // f32
+    UpdateMark = 1,   // u32
+    ParamsX = 2,      // f32 xyzw
+    ProbeCountsX = 6, // f32 xyz
+    ProbeStepX = 9,   // f32 xyz
+    Count = 12,
+}
+
+/**
  * LayaX VolumetricGI bridge.
  *
- * Wraps volumetric global illumination probe data for the Rust rendering
- * pipeline via `conchLayaXVolumetricGI`.
+ * Numeric GI properties live in a TS-owned ArrayBuffer that C++ holds (and Rust will read
+ * directly once a GI system lands) — no per-property FFI. Object refs (bounds / textures)
+ * still go through native setters. Today `applyRenderData()` pushes everything into the
+ * ShaderData; the buffer is the forward path for native consumption.
  */
 export class LayaXVolumetricGI implements IVolumetricGIData {
 
@@ -25,6 +40,12 @@ export class LayaXVolumetricGI implements IVolumetricGIData {
 
     /** @internal */
     _defaultBounds: Bounds;
+
+    // TS owns this buffer; C++ caches its pointer via bindBuffer. Held as an instance
+    // field so it stays alive (GC) for the GI probe's lifetime.
+    private _buf: ArrayBuffer;
+    private _f32: Float32Array;
+    private _u32: Uint32Array;
 
     private _irradiance: InternalTexture;
     public get irradiance(): InternalTexture { return this._irradiance; }
@@ -52,28 +73,28 @@ export class LayaXVolumetricGI implements IVolumetricGIData {
         this._nativeObj.setBounds(value ? (value._imp as any)._nativeObj : null);
     }
 
-    public get intensity(): number { return this._nativeObj._intensity; }
+    public get intensity(): number { return this._f32[GISlot.Intensity]; }
     public set intensity(value: number) {
-        if (this._nativeObj._intensity === value) return;
-        this._nativeObj._intensity = value;
+        if (this._f32[GISlot.Intensity] === value) return;
+        this._f32[GISlot.Intensity] = value;
         LayaXVolumetricGI._dirtySet.add(this);
     }
 
     /** @internal 全局脏集合：updateMark 变化时自动收集 */
     static _dirtySet: Set<LayaXVolumetricGI> = new Set();
 
-    public get updateMark(): number { return this._nativeObj._updateMark; }
+    public get updateMark(): number { return this._u32[GISlot.UpdateMark]; }
     public set updateMark(value: number) {
-        if (this._nativeObj._updateMark === value) return;
-        this._nativeObj._updateMark = value;
+        if (this._u32[GISlot.UpdateMark] === value) return;
+        this._u32[GISlot.UpdateMark] = value;
         LayaXVolumetricGI._dirtySet.add(this);
     }
 
     _shaderData: ShaderData;
     public get shaderData(): ShaderData { return this._shaderData; }
     public set shaderData(value: ShaderData) {
+        // shaderData is consumed via the TS field below (applyRenderData); native holds no copy.
         this._shaderData = value;
-        this._nativeObj.shaderData = value ? (this._shaderData as any)._nativeObj : null;
     }
 
     private _probeCounts: Vector3 = new Vector3();
@@ -82,6 +103,12 @@ export class LayaXVolumetricGI implements IVolumetricGIData {
 
     constructor() {
         this._nativeObj = new (window as any).conchLayaXVolumetricGI();
+        this._buf = new ArrayBuffer(GISlot.Count * 4);
+        this._f32 = new Float32Array(this._buf);
+        this._u32 = new Uint32Array(this._buf);
+        // Seed C++ default (_intensity = 1).
+        this._f32[GISlot.Intensity] = 1.0;
+        this._nativeObj.bindBuffer(this._buf);
         this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
         this._defaultBounds = new Bounds();
         this.bound = this._defaultBounds;
@@ -89,17 +116,24 @@ export class LayaXVolumetricGI implements IVolumetricGIData {
 
     setParams(value: Vector4): void {
         value.cloneTo(this._params);
-        this._nativeObj.setParams(value);
+        this._f32[GISlot.ParamsX] = value.x;
+        this._f32[GISlot.ParamsX + 1] = value.y;
+        this._f32[GISlot.ParamsX + 2] = value.z;
+        this._f32[GISlot.ParamsX + 3] = value.w;
     }
 
     setProbeCounts(value: Vector3): void {
         value.cloneTo(this._probeCounts);
-        this._nativeObj.setProbeCounts(value);
+        this._f32[GISlot.ProbeCountsX] = value.x;
+        this._f32[GISlot.ProbeCountsX + 1] = value.y;
+        this._f32[GISlot.ProbeCountsX + 2] = value.z;
     }
 
     setProbeStep(value: Vector3): void {
         value.cloneTo(this._probeStep);
-        this._nativeObj.setProbeStep(value);
+        this._f32[GISlot.ProbeStepX] = value.x;
+        this._f32[GISlot.ProbeStepX + 1] = value.y;
+        this._f32[GISlot.ProbeStepX + 2] = value.z;
     }
 
     applyRenderData(): void {
