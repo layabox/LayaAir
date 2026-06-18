@@ -54,6 +54,9 @@ export class DragSupport {
      */
     autoStart: boolean = false;
 
+    /** @internal */
+    _hasArea: boolean = false;
+
     private _testing: boolean = false;
     private _dragging: boolean = false;
     private _touchId: number;
@@ -186,7 +189,7 @@ export class DragSupport {
             this._dragging = false;
             ILaya.systemTimer.frameLoop(1, this, this.tweenMove);
 
-        } else if (!this.area.isEmpty() && this.elasticDistance > 0) {
+        } else if (this._hasArea && this.elasticDistance > 0) {
             this.checkElastic();
         } else {
             this.clear();
@@ -196,7 +199,7 @@ export class DragSupport {
     private moveTarget(dx: number, dy: number): void {
         let nx = this.target._x + dx;
         let ny = this.target._y + dy;
-        if (this.area.isEmpty())
+        if (!this._hasArea)
             this.target.pos(nx, ny);
         else if (this.elasticDistance > 0 && this._dragging) {
             this.target.pos(nx, ny);
@@ -266,7 +269,7 @@ export class DragSupport {
 
         if (Math.abs(dx) < 1 && Math.abs(dy) < 1 || this._elasticRateX < 0.5 || this._elasticRateY < 0.5) {
             ILaya.systemTimer.clear(this, this.tweenMove);
-            if (!this.area.isEmpty() && this.elasticDistance > 0)
+            if (this._hasArea && this.elasticDistance > 0)
                 this.checkElastic();
             else
                 this.clear();

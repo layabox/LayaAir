@@ -2263,10 +2263,14 @@ export class Sprite extends Node {
      */
     startDrag(area?: Rectangle, hasInertia?: boolean, elasticDistance?: number, elasticBackTime?: number, data?: any, ratio?: number): void {
         let d = this.dragSupport;
-        if (area != null)
+        if (area != null) {
             d.area.copyFrom(area);
-        else
+            d._hasArea = true;
+        }
+        else {
             d.area.reset();
+            d._hasArea = false;
+        }
         d.hasInertia = !!hasInertia;
         elasticDistance != null && (d.elasticDistance = elasticDistance);
         elasticBackTime != null && (d.elasticBackTime = elasticBackTime);
