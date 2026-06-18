@@ -36,29 +36,35 @@ export class GLESRenderContext2D implements IRenderContext2D {
 
     private _dist: GLESInternalRT;
 
-    private _offscreenX: number = 0;
-    private _offscreenY: number = 0;
-    private _offscreenWidth: number = 0;
-    private _offscreenHeight: number = 0;
+    /** @internal Shared Ctx2DProps block: slot0=invertY(i32 0/1), 1=offW(u32), 2=offH(u32), 3=offX(i32), 4=offY(i32). */
+    private _ctx2dBuf = new ArrayBuffer(5 * 4);
+    private _ctx2dI32 = new Int32Array(this._ctx2dBuf);
+    private _ctx2dU32 = new Uint32Array(this._ctx2dBuf);
+
+    /** @internal pipelineMode TS cache + change dedupe; GLES C++ consumes it so it is pushed to native on change. */
+    private _pipelineMode: string = "Forward";
 
     public get invertY(): boolean {
-        return this._nativeObj.invertY;
+        return this._ctx2dI32[0] !== 0;
     }
 
     public set invertY(value: boolean) {
-        this._nativeObj.invertY = value;
+        this._ctx2dI32[0] = value ? 1 : 0;
     }
 
     public get pipelineMode(): string {
-        return this._nativeObj.pipelineMode;
+        return this._pipelineMode;
     }
 
     public set pipelineMode(value: string) {
+        if (this._pipelineMode === value) return;
+        this._pipelineMode = value;
         this._nativeObj.pipelineMode = value;
     }
 
     constructor() {
         this._nativeObj = new (window as any).conchGLESRenderContext2D();
+        this._nativeObj.bindContext2DBuffer(this._ctx2dBuf);
         this._nativeObj.setGlobalConfigShaderData((Shader3D._configDefineValues as any)._nativeObj);
         this._nativeObj.pipelineMode = "Forward";
     }
@@ -66,12 +72,12 @@ export class GLESRenderContext2D implements IRenderContext2D {
     private _passData: GLESShaderData = null;
     private _passDataShell: GLESShaderData = new GLESShaderData(null, false);
     public get passData(): GLESShaderData {
-        this._passDataShell._nativeObj = this._nativeObj.passData;
+        this._passDataShell._nativeObj = this._nativeObj.getPassData();
         return this._passDataShell;
     }
     public set passData(value: GLESShaderData) {
         this._passData = value;
-        this._nativeObj.passData = value ? value._nativeObj : null;
+        this._nativeObj.setPassData(value ? value._nativeObj : null);
     }
 
 
@@ -94,15 +100,15 @@ export class GLESRenderContext2D implements IRenderContext2D {
     }
 
     setOffscreenView(width: number, height: number, x: number = 0, y: number = 0): void {
-        this._offscreenWidth = width;
-        this._offscreenHeight = height;
-        this._offscreenX = x;
-        this._offscreenY = y;
-        this._nativeObj.setOffscreenView(width, height, x, y);
+        // Write the shared block directly (zero crossing); GLES C++ setRenderTarget reads it.
+        this._ctx2dU32[1] = width;
+        this._ctx2dU32[2] = height;
+        this._ctx2dI32[3] = x;
+        this._ctx2dI32[4] = y;
     }
 
     getOffscreenView(out: Vector4): void {
-        out.setValue(this._offscreenX, this._offscreenY, this._offscreenWidth, this._offscreenHeight);
+        out.setValue(this._ctx2dI32[3], this._ctx2dI32[4], this._ctx2dU32[1], this._ctx2dU32[2]);
     }
 
     drawRenderElementOne(node: GLESRenderElement2D): void {
