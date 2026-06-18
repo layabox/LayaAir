@@ -37,6 +37,10 @@ export class LayaXCameraNodeData implements ICameraNodeData {
     private _buf: ArrayBuffer;
     private _f32: Float32Array;
 
+    // Cached after construction; layax_create_camera makes the handle constant for the
+    // camera's lifetime, so the per-frame prepareActiveCameras path reads zero-crossing.
+    private _handleId: number = 0;
+
     public get transform(): LayaXTransform3D {
         return this._transform;
     }
@@ -74,7 +78,7 @@ export class LayaXCameraNodeData implements ICameraNodeData {
     }
 
     public get handle(): number {
-        return this._nativeObj ? this._nativeObj.getHandle() : 0;
+        return this._nativeObj ? this._handleId : 0;
     }
 
     constructor() {
@@ -91,6 +95,7 @@ export class LayaXCameraNodeData implements ICameraNodeData {
         this._f32[CamSlot.Aspect] = 1.0;
         this._f32[CamSlot.ForwardZ] = -1.0;
         this._nativeObj.bindBuffer(this._buf);
+        this._handleId = this._nativeObj.getHandle();
     }
 
     setProjectionViewMatrix(value: Matrix4x4): void {
