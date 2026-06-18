@@ -213,6 +213,25 @@ export class Animator extends Component {
         this._manager?._factory.updateDefaultValues(this._keyframeNodeOwners);
     }
 
+    /**
+     * @internal
+     * 是否至少存在一个启用且 blending 为 additive 的 layer。
+     * additive 模式下，defaultValue 作为 base 被 apply 阶段叠加；切换 state 时需要刷成当前姿态以避免叠加跳变。
+     * override 模式下，defaultValue 的语义是「接管前姿态」，不能被切换时刻的实时值覆盖，否则
+     * play()/crossFade() 里随后的 revertDefaultKeyframeNodes 会变成 no-op（典型症状：
+     * A 把 scale 动到 0、切 B 后 scale 无法还原）。
+     */
+    private _hasAdditiveLayer(): boolean {
+        const layers = this._controllerLayers;
+        for (let i = 0, n = layers.length; i < n; i++) {
+            const layer = layers[i];
+            if (layer && layer.enable && layer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private _revertDefaultKeyframeNodes(clipStateInfo: AnimatorState): void {
         this._manager?._factory.revertDefaultKeyframeNodes(clipStateInfo);
     }
@@ -406,7 +425,7 @@ export class Animator extends Component {
                 return;
             }
 
-            this._updateDefaultValues();
+            if (this._hasAdditiveLayer()) this._updateDefaultValues();
 
             var clipDuration: number = animatorState._clip!._duration;
             var calclipduration = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
@@ -457,7 +476,7 @@ export class Animator extends Component {
                     return;
                 }
 
-                this._updateDefaultValues();
+                if (this._hasAdditiveLayer()) this._updateDefaultValues();
 
                 var crossPlayStateInfo = controllerLayer._crossPlayStateInfo;
                 var crossNodeOwners = controllerLayer._crossNodesOwners;
