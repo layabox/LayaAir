@@ -16,8 +16,19 @@ import { Sprite } from "../../../../display/Sprite";
 
 export class RTGlobalRenderData implements I2DGlobalRenderData {
    _nativeObj: any;
+
+   // TS-owned 5-slot block: [0..3]f32 cullRect xyzw, [4]i32 renderLayerMask. C++ lazily reads it.
+   private _buf: ArrayBuffer;
+   private _f32: Float32Array;
+   private _i32: Int32Array;
+
    constructor() {
       this._nativeObj = new (window as any).conchRTGlobalRenderData();
+      this._buf = new ArrayBuffer(5 * 4);
+      this._f32 = new Float32Array(this._buf);
+      this._i32 = new Int32Array(this._buf);
+      this._i32[4] = -1; // renderLayerMask default = all
+      this._nativeObj.bindPropertyBuffer(this._buf);
    }
 
    private _cullRect: Vector4;
@@ -26,16 +37,14 @@ export class RTGlobalRenderData implements I2DGlobalRenderData {
    }
    set cullRect(value: Vector4) {
       this._cullRect = value;
-      this._nativeObj.setCullRect(value);
+      this._f32[0] = value.x; this._f32[1] = value.y; this._f32[2] = value.z; this._f32[3] = value.w;
    }
 
-   private _renderLayerMask: number;
    get renderLayerMask(): number {
-      return this._renderLayerMask;
+      return this._i32[4];
    }
    set renderLayerMask(value: number) {
-      this._renderLayerMask = value;
-      this._nativeObj.renderLayerMask = value;
+      this._i32[4] = value;
    }
    private _globalShaderData: GLESShaderData;
    get globalShaderData(): GLESShaderData {
@@ -53,6 +62,14 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    owner: Sprite;
 
+   // TS-owned 12-slot property block. C++ flushes it back into members each frame in cullAndSort.
+   // [0]i32 zIndex [1]i32 renderLayer [2]i32 renderType [3]u32 renderUpdateMask
+   // [4]i32 enable [5]i32 isRenderStruct [6]i32 manualRender [7]i32 stackingRoot
+   // [8..11]f32 rect.x/y/width/height
+   private _buf: ArrayBuffer;
+   private _i32: Int32Array;
+   private _f32: Float32Array;
+
    /** 手动渲染模式：子节点不参与父 pass 的自动遍历和渲染 */
    private _manualRender: boolean = false;
    get manualRender(): boolean {
@@ -60,7 +77,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
    set manualRender(value: boolean) {
       this._manualRender = value;
-      this._nativeObj.manualRender = value;
+      this._i32[6] = value ? 1 : 0;
    }
 
    public get globalAlpha(): number {
@@ -88,7 +105,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    private _zIndex: number = 0;
    set zIndex(value: number) {
       this._zIndex = value;
-      this._nativeObj.zIndex = value;
+      this._i32[0] = value;
    }
    get zIndex(): number {
       return this._zIndex;
@@ -97,7 +114,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    private _stackingRoot: boolean = false;
    set stackingRoot(value: boolean) {
       this._stackingRoot = value;
-      this._nativeObj.stackingRoot = value;
+      this._i32[7] = value ? 1 : 0;
    }
    get stackingRoot(): boolean {
       return this._stackingRoot;
@@ -116,7 +133,10 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    private _rect: Rectangle = new Rectangle(0, 0, 0, 0);
    set rect(value: Rectangle) {
       value.cloneTo(this._rect);
-      this._nativeObj.rect = value;
+      this._f32[8] = value.x;
+      this._f32[9] = value.y;
+      this._f32[10] = value.width;
+      this._f32[11] = value.height;
    }
    get rect(): Rectangle {
       return this._rect;
@@ -125,7 +145,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    private _renderLayer: number = 1;
    set renderLayer(value: number) {
       this._renderLayer = value;
-      this._nativeObj.renderLayer = value;
+      this._i32[1] = value;
    }
    get renderLayer(): number {
       return this._renderLayer;
@@ -174,7 +194,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    private _renderType: number = -1;
    set renderType(value: number) {
       this._renderType = value;
-      this._nativeObj.renderType = value;
+      this._i32[2] = value;
    }
    get renderType(): number {
       return this._renderType;
@@ -183,7 +203,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    private _renderUpdateMask: number;
    set renderUpdateMask(value: number) {
       this._renderUpdateMask = value;
-      this._nativeObj.renderUpdateMask = value;
+      this._i32[3] = value;
    }
    get renderUpdateMask(): number {
       return this._renderUpdateMask;
@@ -217,7 +237,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    public set alpha(value: number) {
       this._alpha = value;
-      this._nativeObj.alpha = value;
+      this._nativeObj.setAlpha(value);
    }
 
    private _blendMode: BlendMode;
@@ -233,7 +253,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
          this._subStruct._blendMode = value;
       }
       this._blendMode = value;
-      this._nativeObj.blendMode = this._blendMode;
+      this._nativeObj.rt_setBlendMode(this._blendMode);
    }
 
    private _enabled: boolean = true;
@@ -243,7 +263,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    public set enabled(value: boolean) {
       this._enabled = value;
-      this._nativeObj.enable = value;
+      this._i32[4] = value ? 1 : 0;
    }
 
    private _isRenderStruct: boolean;
@@ -252,7 +272,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
    public set isRenderStruct(value: boolean) {
       this._isRenderStruct = value;
-      this._nativeObj.isRenderStruct = value;
+      this._i32[5] = value ? 1 : 0;
    }
 
    private _renderElements: IRenderElement2D[] = [];
@@ -311,6 +331,11 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    constructor() {
       this._nativeObj = new (window as any).conchRTRenderStruct2D();
+      // Allocate + bind the property block before any slot is written below.
+      this._buf = new ArrayBuffer(12 * 4);
+      this._i32 = new Int32Array(this._buf);
+      this._f32 = new Float32Array(this._buf);
+      this._nativeObj.bindPropertyBuffer(this._buf);
       this.zIndex = 0;
       this.rect = new Rectangle(0, 0, 0, 0);
       this.renderLayer = 1;
