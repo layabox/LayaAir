@@ -3,20 +3,44 @@ import { ShadowMode } from "../../../../d3/core/light/ShadowMode";
 import { Vector3 } from "../../../../maths/Vector3";
 import { IDirectLightData } from "../../Design/3D/I3DRenderModuleData";
 import { RTTransform3D } from "./RTTransform3D";
+import { NativeMemory } from "../NativeMemory";
+
+/** @internal conchRTDirectLight 共享块槽位（与 C++ RTDirectLight::Props 一致）。 */
+const enum RTDirectLightSlot {
+    shadowNearPlane = 0,
+    shadowCascadesMode = 1,
+    shadowResolution = 2,
+    shadowDistance = 3,
+    shadowMode = 4,
+    shadowStrength = 5,
+    shadowDepthBias = 6,
+    shadowNormalBias = 7,
+    shadowTwoCascadeSplits = 8,
+    shadowFourCascadeSplitsX = 9,
+    shadowFourCascadeSplitsY = 10,
+    shadowFourCascadeSplitsZ = 11,
+    Count = 12,
+}
+
 export class RTDirectLight implements IDirectLightData {
 
+    _nativeObj: any;
+    private _mem: NativeMemory;
+    private _f32: Float32Array;
+    private _i32: Int32Array;
+
     public get shadowNearPlane(): number {
-        return this._nativeObj._shadowNearPlane;
+        return this._f32[RTDirectLightSlot.shadowNearPlane];
     }
     public set shadowNearPlane(value: number) {
-        this._nativeObj._shadowNearPlane = value;
+        this._f32[RTDirectLightSlot.shadowNearPlane] = value;
     }
 
     public get shadowCascadesMode(): ShadowCascadesMode {
-        return this._nativeObj._shadowCascadesMode;
+        return this._i32[RTDirectLightSlot.shadowCascadesMode];
     }
     public set shadowCascadesMode(value: ShadowCascadesMode) {
-        this._nativeObj._shadowCascadesMode = value;
+        this._i32[RTDirectLightSlot.shadowCascadesMode] = value;
     }
     private _transform: RTTransform3D;
     public get transform(): RTTransform3D {
@@ -28,65 +52,70 @@ export class RTDirectLight implements IDirectLightData {
     }
 
     public get shadowResolution(): number {
-        return this._nativeObj._shadowResolution;
+        return this._i32[RTDirectLightSlot.shadowResolution];
     }
     public set shadowResolution(value: number) {
-        this._nativeObj._shadowResolution = value;
+        this._i32[RTDirectLightSlot.shadowResolution] = value;
     }
 
     public get shadowDistance(): number {
-        return this._nativeObj._shadowDistance;
+        return this._f32[RTDirectLightSlot.shadowDistance];
     }
     public set shadowDistance(value: number) {
-        this._nativeObj._shadowDistance = value;
+        this._f32[RTDirectLightSlot.shadowDistance] = value;
     }
 
     public get shadowMode(): ShadowMode {
-        return this._nativeObj._shadowMode;
+        return this._i32[RTDirectLightSlot.shadowMode];
     }
     public set shadowMode(value: ShadowMode) {
-        this._nativeObj._shadowMode = value;
+        this._i32[RTDirectLightSlot.shadowMode] = value;
     }
 
     public get shadowStrength(): number {
-        return this._nativeObj._shadowStrength;
+        return this._f32[RTDirectLightSlot.shadowStrength];
     }
     public set shadowStrength(value: number) {
-        this._nativeObj._shadowStrength = value;
+        this._f32[RTDirectLightSlot.shadowStrength] = value;
     }
     public get shadowDepthBias(): number {
-        return this._nativeObj._shadowDepthBias;
+        return this._f32[RTDirectLightSlot.shadowDepthBias];
     }
     public set shadowDepthBias(value: number) {
-        this._nativeObj._shadowDepthBias = value;
+        this._f32[RTDirectLightSlot.shadowDepthBias] = value;
     }
 
     public get shadowNormalBias(): number {
-        return this._nativeObj._shadowNormalBias;
+        return this._f32[RTDirectLightSlot.shadowNormalBias];
     }
     public set shadowNormalBias(value: number) {
-        this._nativeObj._shadowNormalBias = value;
+        this._f32[RTDirectLightSlot.shadowNormalBias] = value;
     }
 
     public get shadowTwoCascadeSplits(): number {
-        return this._nativeObj._shadowTwoCascadeSplits;
+        return this._f32[RTDirectLightSlot.shadowTwoCascadeSplits];
     }
     public set shadowTwoCascadeSplits(value: number) {
-        this._nativeObj._shadowTwoCascadeSplits = value;
+        this._f32[RTDirectLightSlot.shadowTwoCascadeSplits] = value;
     }
 
     setShadowFourCascadeSplits(value: Vector3): void {
-        value && this._nativeObj.setShadowFourCascadeSplits(value);
+        if (!value) return;
+        this._f32[RTDirectLightSlot.shadowFourCascadeSplitsX] = value.x;
+        this._f32[RTDirectLightSlot.shadowFourCascadeSplitsY] = value.y;
+        this._f32[RTDirectLightSlot.shadowFourCascadeSplitsZ] = value.z;
     }
 
     setDirection(value: Vector3): void {
         value && this._nativeObj.setDirection(value);
     }
 
-    _nativeObj: any;
-
     constructor() {
         this._nativeObj = new (window as any).conchRTDirectLight();
+        this._mem = new NativeMemory(RTDirectLightSlot.Count * 4, false);
+        this._f32 = this._mem.float32Array;
+        this._i32 = this._mem.int32Array;
+        this._nativeObj.bindPropertyBuffer(this._mem._buffer);
     }
 
 }
