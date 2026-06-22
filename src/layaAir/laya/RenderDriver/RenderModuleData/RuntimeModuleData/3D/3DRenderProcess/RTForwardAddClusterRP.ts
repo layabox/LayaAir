@@ -10,8 +10,29 @@ import { InternalRenderTarget } from "../../../../DriverDesign/RenderDevice/Inte
 import { IRenderCMD } from "../../../../DriverDesign/RenderDevice/IRenderCMD";
 import { RTCameraNodeData } from "../RT3DRenderModuleData";
 import { RTBaseRenderNode } from "../RTBaseRenderNode";
+import { NativeMemory } from "../../NativeMemory";
 
-
+/** @internal conchRTForwardAddClusterRP 共享块槽位（与 C++ RTForwardAddClusterRP::Props 一致）。 */
+const enum RTForwardAddClusterRPSlot {
+    depthTextureMode = 0,
+    enableCMD = 1,
+    enableOpaque = 2,
+    enableTransparent = 3,
+    viewportX = 4,
+    viewportY = 5,
+    viewportWidth = 6,
+    viewportHeight = 7,
+    scissorX = 8,
+    scissorY = 9,
+    scissorZ = 10,
+    scissorW = 11,
+    clearColorR = 12,
+    clearColorG = 13,
+    clearColorB = 14,
+    clearColorA = 15,
+    clearFlag = 16,
+    Count = 17,
+}
 
 export class RTForwardAddClusterRP {
     public get pipelineMode(): string {
@@ -36,10 +57,10 @@ export class RTForwardAddClusterRP {
     }
 
     public get depthTextureMode(): DepthTextureMode {
-        return this._nativeObj.depthTextureMode;
+        return this._u32[RTForwardAddClusterRPSlot.depthTextureMode];
     }
     public set depthTextureMode(value: DepthTextureMode) {
-        this._nativeObj.depthTextureMode = value;
+        this._u32[RTForwardAddClusterRPSlot.depthTextureMode] = value;
     }
 
     blitOpaqueBuffer: CommandBuffer;//TODO
@@ -73,24 +94,24 @@ export class RTForwardAddClusterRP {
     }
 
     public get enableCMD(): boolean {
-        return this._nativeObj.enableCMD;
+        return this._i32[RTForwardAddClusterRPSlot.enableCMD] !== 0;
     }
     public set enableCMD(value: boolean) {
-        this._nativeObj.enableCMD = value;
+        this._i32[RTForwardAddClusterRPSlot.enableCMD] = value ? 1 : 0;
     }
 
     public get enableOpaque(): boolean {
-        return this._nativeObj.enableOpaque;
+        return this._i32[RTForwardAddClusterRPSlot.enableOpaque] !== 0;
     }
     public set enableOpaque(value: boolean) {
-        this._nativeObj.enableOpaque = value;
+        this._i32[RTForwardAddClusterRPSlot.enableOpaque] = value ? 1 : 0;
     }
 
     public get enableTransparent(): boolean {
-        return this._nativeObj.enableTransparent;
+        return this._i32[RTForwardAddClusterRPSlot.enableTransparent] !== 0;
     }
     public set enableTransparent(value: boolean) {
-        this._nativeObj.enableTransparent = value;
+        this._i32[RTForwardAddClusterRPSlot.enableTransparent] = value ? 1 : 0;
     }
 
     private _skyRenderNode: RTBaseRenderNode;
@@ -118,7 +139,10 @@ export class RTForwardAddClusterRP {
     }
     public set clearColor(value: Color) {
         this._clearColor = value;
-        this._nativeObj.setClearColor(value);
+        this._f32[RTForwardAddClusterRPSlot.clearColorR] = value.r;
+        this._f32[RTForwardAddClusterRPSlot.clearColorG] = value.g;
+        this._f32[RTForwardAddClusterRPSlot.clearColorB] = value.b;
+        this._f32[RTForwardAddClusterRPSlot.clearColorA] = value.a;
     }
 
     private _clearFlag: number;
@@ -127,7 +151,7 @@ export class RTForwardAddClusterRP {
     }
     public set clearFlag(value: number) {
         this._clearFlag = value;
-        this._nativeObj.setClearFlag(value);
+        this._u32[RTForwardAddClusterRPSlot.clearFlag] = value;
     }
 
 
@@ -143,11 +167,17 @@ export class RTForwardAddClusterRP {
     }
 
     setViewPort(value: Viewport): void {
-        this._nativeObj.setViewPort(value);
+        this._f32[RTForwardAddClusterRPSlot.viewportX] = value.x;
+        this._f32[RTForwardAddClusterRPSlot.viewportY] = value.y;
+        this._f32[RTForwardAddClusterRPSlot.viewportWidth] = value.width;
+        this._f32[RTForwardAddClusterRPSlot.viewportHeight] = value.height;
     }
 
     setScissor(value: Vector4): void {
-        this._nativeObj.setScissor(value);
+        this._f32[RTForwardAddClusterRPSlot.scissorX] = value.x;
+        this._f32[RTForwardAddClusterRPSlot.scissorY] = value.y;
+        this._f32[RTForwardAddClusterRPSlot.scissorZ] = value.z;
+        this._f32[RTForwardAddClusterRPSlot.scissorW] = value.w;
     }
 
     private _getRenderCMDArray(cmds: IRenderCMD[]) {
@@ -196,10 +226,27 @@ export class RTForwardAddClusterRP {
     }
 
     _nativeObj: any;
+    private _mem: NativeMemory;
+    private _f32: Float32Array;
+    private _i32: Int32Array;
+    private _u32: Uint32Array;
 
     constructor() {
         this._cameraCullInfo = new CameraCullInfo();
         this._nativeObj = new (window as any).conchRTForwardAddClusterRP();
+        this._mem = new NativeMemory(RTForwardAddClusterRPSlot.Count * 4, false);
+        this._f32 = this._mem.float32Array;
+        this._i32 = this._mem.int32Array;
+        this._u32 = this._mem.Uint32Array;
+        this._nativeObj.bindPropertyBuffer(this._mem._buffer);
+        // Non-zero C++ construction defaults (rest zero-initialized): enableOpaque/Transparent=true,
+        // clearColor=(1,1,1,1). render()'s syncFromBlock pulls these into the native members.
+        this._i32[RTForwardAddClusterRPSlot.enableOpaque] = 1;
+        this._i32[RTForwardAddClusterRPSlot.enableTransparent] = 1;
+        this._f32[RTForwardAddClusterRPSlot.clearColorR] = 1;
+        this._f32[RTForwardAddClusterRPSlot.clearColorG] = 1;
+        this._f32[RTForwardAddClusterRPSlot.clearColorB] = 1;
+        this._f32[RTForwardAddClusterRPSlot.clearColorA] = 1;
     }
 
     destroy() {
