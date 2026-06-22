@@ -4,6 +4,7 @@ import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer"
 import { I2DGraphicBufferDataView, I2DGraphicIndexDataView, I2DGraphicVertexDataView, I2DGraphicWholeBuffer } from "../../Design/2D/IRender2DDataHandle";
 import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { NativeMemory } from "../NativeMemory";
+import { GraphicsDefines } from "../../../../webgl/shader/d2/GraphicsDefines";
 
 //这个也不会删除
 export class RT2DGraphicVertexBuffer implements I2DGraphicWholeBuffer {
@@ -36,7 +37,6 @@ export class RT2DGraphicVertexBuffer implements I2DGraphicWholeBuffer {
     _addDataView(dataView: I2DGraphicBufferDataView) {
         //vertex创建会在内部 addView，这里需要记录一下js引用一方被gc
         this._views.add(dataView);
-        //this._nativeObj.addDataView(dataView ? (dataView as any)._nativeObj : null);
     }
 
     removeDataView(dataView: I2DGraphicBufferDataView) {
@@ -87,6 +87,7 @@ export class RT2DGraphicIndexBuffer implements I2DGraphicWholeBuffer {
 
     constructor() {
         this._nativeObj = new (window as any).conchRT2DGraphicIndexBuffer();
+        this._nativeObj.setIndexByteSize(GraphicsDefines.GRAPHICS_INDEX_BYTE_SIZE);
     }
 
     resetData(byteLength: number) {
@@ -169,12 +170,15 @@ export class RT2DGraphic2DIndexDataView implements I2DGraphicIndexDataView {
         this._length = length;
         this._nativeObj = new (window as any).conchRT2DGraphic2DIndexDataView(owner ? owner._nativeObj : null, length);
         // this._owner && this._owner._addDataView(this);
-        this._memoryData = new NativeMemory(this.length * 2, false);
+        this._memoryData = new NativeMemory(this.length * GraphicsDefines.GRAPHICS_INDEX_BYTE_SIZE, false);
         this._nativeObj.setIndexShareMemory(this._memoryData._buffer);
     }
 
     setData(data: ArrayLike<number>): void {
-        this._memoryData.Uint16Array.set(data);
+        if (GraphicsDefines.GRAPHICS_INDEX_BYTE_SIZE == 4)
+            this._memoryData.Uint32Array.set(data);
+        else
+            this._memoryData.Uint16Array.set(data);
         this._nativeObj.modify();
     }
 
