@@ -50,7 +50,7 @@ class IDispatchCommand implements ICommand {
         this._nativeObj.setShaderData(shaderData);
     }
     set dispatchParams(value: Vector3) {
-        this._nativeObj.setDispatchParams(value);
+        this._nativeObj.rt_setDispatchParams(value.x, value.y, value.z);
     }
     _nativeObj: any;
     constructor() {
@@ -64,6 +64,7 @@ class IDispatchCommand implements ICommand {
  */
 class ISetShaderDataCommand implements ICommand {
     private _shaderData: GLESShaderData;
+    private _shaderDataType: ShaderDataType;
     private _shaderDataItem: ShaderDataItem;
     set shaderData(value: GLESShaderData) {
         this._shaderData = value;
@@ -73,11 +74,43 @@ class ISetShaderDataCommand implements ICommand {
         this._nativeObj.setPropertyID(value);
     }
     set shaderDataType(value: ShaderDataType) {
-        this._nativeObj.setShaderDataType(value);
+        this._shaderDataType = value;
+        this._nativeObj.rt_setShaderDataType(value);
     }
     set value(value: ShaderDataItem) {
         this._shaderDataItem = value;
-        this._nativeObj.setShaderDataItem(value);
+        const obj = this._nativeObj;
+        // Hot scalar/vector types use the flattened fast entries; Color/Matrix/Texture/Buffer fall
+        // through to the raw setShaderDataItem (jsvm) path. shaderDataType is always set first.
+        switch (this._shaderDataType) {
+            case ShaderDataType.Int:
+                obj.rt_setItemInt(value as number);
+                break;
+            case ShaderDataType.Float:
+                obj.rt_setItemFloat(value as number);
+                break;
+            case ShaderDataType.Bool:
+                obj.rt_setItemBool(!!(value as any));
+                break;
+            case ShaderDataType.Vector2: {
+                const v = value as Vector2;
+                obj.rt_setItemVec2(v.x, v.y);
+                break;
+            }
+            case ShaderDataType.Vector3: {
+                const v = value as Vector3;
+                obj.rt_setItemVec3(v.x, v.y, v.z);
+                break;
+            }
+            case ShaderDataType.Vector4: {
+                const v = value as Vector4;
+                obj.rt_setItemVec4(v.x, v.y, v.z, v.w);
+                break;
+            }
+            default:
+                obj.setShaderDataItem(value);
+                break;
+        }
     }
     _nativeObj: any;
     constructor() {
