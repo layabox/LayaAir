@@ -9,6 +9,15 @@ import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderD
 import { ISceneNodeData, ICameraNodeData } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderState2D } from "../../webgl/utils/RenderState2D";
+import { NativeMemory } from "../../RenderDriver/RenderModuleData/RuntimeModuleData/NativeMemory";
+
+/** @internal conchGLESBridge3DContext 共享块槽位（与 C++ GLESBridge3DContext::Props 一致）。 */
+const enum Bridge3DContextSlot {
+    clearDepthBeforeRender = 0,
+    clearDepth = 1,
+    clearStencil = 2,
+    Count = 3,
+}
 
 /**
  * RTBridge3DContext - Native wrapper for GLESBridge3DContext
@@ -17,9 +26,19 @@ import { RenderState2D } from "../../webgl/utils/RenderState2D";
  */
 export class RTBridge3DContext {
     _nativeObj: any;
+    private _mem: NativeMemory;
+    private _f32: Float32Array;
+    private _i32: Int32Array;
 
     constructor() {
         this._nativeObj = new (window as any).conchGLESBridge3DContext();
+        this._mem = new NativeMemory(Bridge3DContextSlot.Count * 4, false);
+        this._f32 = this._mem.float32Array;
+        this._i32 = this._mem.int32Array;
+        this._nativeObj.bindPropertyBuffer(this._mem._buffer);
+        // C++ defaults (depth clear on, clearDepth=1.0); zero-init would disable depth clear.
+        this._i32[Bridge3DContextSlot.clearDepthBeforeRender] = 1;
+        this._f32[Bridge3DContextSlot.clearDepth] = 1.0;
     }
 
     setSceneModuleData(data: ISceneNodeData): void {
@@ -63,9 +82,9 @@ export class RTBridge3DContext {
     }
 
     setClearData(flag: number, color: Color, depthValue: number, stencilValue: number): void {
-        this._nativeObj.clearDepthBeforeRender = (flag & RenderClearFlag.Depth) !== 0;
-        this._nativeObj.clearDepth = depthValue;
-        this._nativeObj.clearStencil = stencilValue;
+        this._i32[Bridge3DContextSlot.clearDepthBeforeRender] = (flag & RenderClearFlag.Depth) !== 0 ? 1 : 0;
+        this._f32[Bridge3DContextSlot.clearDepth] = depthValue;
+        this._i32[Bridge3DContextSlot.clearStencil] = stencilValue | 0;
     }
 
     setInvertMatrix(a: number, b: number, c: number, d: number, tx: number, ty: number): void {
@@ -81,27 +100,27 @@ export class RTBridge3DContext {
     }
 
     get clearDepthBeforeRender(): boolean {
-        return this._nativeObj.clearDepthBeforeRender;
+        return this._i32[Bridge3DContextSlot.clearDepthBeforeRender] !== 0;
     }
 
     set clearDepthBeforeRender(value: boolean) {
-        this._nativeObj.clearDepthBeforeRender = value;
+        this._i32[Bridge3DContextSlot.clearDepthBeforeRender] = value ? 1 : 0;
     }
 
     get clearDepth(): number {
-        return this._nativeObj.clearDepth;
+        return this._f32[Bridge3DContextSlot.clearDepth];
     }
 
     set clearDepth(value: number) {
-        this._nativeObj.clearDepth = value;
+        this._f32[Bridge3DContextSlot.clearDepth] = value;
     }
 
     get clearStencil(): number {
-        return this._nativeObj.clearStencil;
+        return this._i32[Bridge3DContextSlot.clearStencil];
     }
 
     set clearStencil(value: number) {
-        this._nativeObj.clearStencil = value;
+        this._i32[Bridge3DContextSlot.clearStencil] = value | 0;
     }
 
     get pipelineMode(): PipelineMode {
