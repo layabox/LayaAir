@@ -12,7 +12,9 @@ export class GLESMeshRenderBatchAgent implements IBatchModuleAgent {
     }
 
     create(): void {
-        this._nativeObj.create();
+        // No-op: the native batch agent is created in the constructor (conchGLESMeshRenderBatchAgent),
+        // so creation has fully sunk to native. The old this._nativeObj.create() call hit an
+        // unregistered binding (would TypeError) and is removed.
     }
     addRenderNode(object: BaseRender): boolean {
         return this._nativeObj.addRenderNode((object._baseRenderNode as RTBaseRenderNode)._nativeObj);
