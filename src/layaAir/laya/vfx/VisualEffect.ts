@@ -492,6 +492,9 @@ export class VisualEffect extends Script {
                 type: prop.type,
                 value: Array.isArray(v) ? [...v] : [],
                 cached,
+                // 默认 cached/stops 备份：组件级 override(Gradient/Texture2D)被取消时恢复，见 _applyPropertyOverrides
+                defaultCached: cached,
+                defaultRawGradientStops: prop.type === VFXPropertyType.Gradient ? (prop.gradientStops || []) : undefined,
                 // raw 字段：Gradient 的 baked Texture 不可 CPU sample，evaluator 用这里的 stops/curve 数据
                 // gradientStops 格式：[{ time, r, g, b, a }]（已 normalize 到 0-1 time）
                 // 期望：随后 _applyPropertyOverrides / setPropertyXxx 时若 override 也更新这里
@@ -559,8 +562,28 @@ export class VisualEffect extends Script {
      * @internal
      */
     private _applyPropertyOverrides(): void {
+        // 先恢复资产默认值：被取消/删除的 override 须回到默认，不残留旧值
+        if (this.asset && this._propertyValues) {
+            for (const prop of this.asset.properties) {
+                const entry = this._propertyValues.get(prop.name) as any;
+                if (!entry) continue;
+                if (Array.isArray(prop.default) && Array.isArray(entry.value)) {
+                    for (let i = 0; i < entry.value.length && i < prop.default.length; i++)
+                        entry.value[i] = prop.default[i];
+                }
+                // Gradient/Texture2D：cached(纹理)被 override 改过，恢复到 default 备份并重新绑定。
+                // (Gradient 的 applyProperties 每帧重绑 entry.id；这里恢复 cached + 别名绑定即可)
+                if (entry.type === VFXPropertyType.Gradient || entry.type === VFXPropertyType.Texture2D) {
+                    if (entry.defaultCached !== undefined) {
+                        entry.cached = entry.defaultCached;
+                        if (entry.type === VFXPropertyType.Gradient) entry.rawGradientStops = entry.defaultRawGradientStops;
+                        this._bindPropertyTextureToShaders(prop.name, entry.id, entry.cached);
+                    }
+                }
+            }
+        }
         if (!this.propertyOverrides) return;
-        let overrides: { [name: string]: number[] };
+        let overrides: { [name: string]: any };
         try {
             // 兼容老版本场景里 propertyOverrides 可能是 object 不是 string
             overrides = typeof this.propertyOverrides === "string"
@@ -573,12 +596,20 @@ export class VisualEffect extends Script {
         if (!overrides || typeof overrides !== "object") return;
         for (const name in overrides) {
             const value = overrides[name];
-            if (!Array.isArray(value)) continue;
-            switch (value.length) {
-                case 1: this.setPropertyFloat(name, value[0]); break;
-                case 2: this.setPropertyVec2(name, value[0], value[1]); break;
-                case 3: this.setPropertyVec3(name, value[0], value[1], value[2]); break;
-                case 4: this.setPropertyVec4(name, value[0], value[1], value[2], value[3]); break;
+            if (Array.isArray(value)) {
+                // 数值类：float/vec2/vec3/vec4(color 也走 vec4)
+                switch (value.length) {
+                    case 1: this.setPropertyFloat(name, value[0]); break;
+                    case 2: this.setPropertyVec2(name, value[0], value[1]); break;
+                    case 3: this.setPropertyVec3(name, value[0], value[1], value[2]); break;
+                    case 4: this.setPropertyVec4(name, value[0], value[1], value[2], value[3]); break;
+                }
+            } else if (typeof value === "string" && value) {
+                // Texture2D override：res://uuid 字符串
+                this.setPropertyTexture(name, value);
+            } else if (value && typeof value === "object" && Array.isArray(value.stops)) {
+                // Gradient override：{ stops:[{t,color:{r,g,b,a}}] }
+                this.setPropertyGradient(name, value.stops);
             }
         }
     }
@@ -1256,6 +1287,68 @@ export class VisualEffect extends Script {
             entry.value[2] = z;
             entry.value[3] = w;
         }
+    }
+
+    /**
+     * 把纹理(Gradient 烘焙纹理 / Texture2D)绑到所有粒子系统的 shaderData。
+     * 绑 entry.id(u_VfxProp_<name>) + shaderPropertyBindings 别名(Unity OutputContext binding → shader uniform，如 _MaskTexture)。
+     * @internal
+     */
+    private _bindPropertyTextureToShaders(name: string, id: number, texture: Texture2D): void {
+        if (!texture) return;
+        for (const sys of this.systems) {
+            if (!(sys instanceof VFXParticleSystem)) continue;
+            const bindings = (sys as any).shaderPropertyBindings;
+            const shaderUniformName = bindings ? bindings[name] : null;
+            const aliasIds = shaderUniformName
+                ? [id, Shader3D.propertyNameToID(shaderUniformName)]
+                : [id];
+            for (const sd of sys.getAllShaderDatas()) {
+                for (const aid of aliasIds) sd.setTexture(aid, texture);
+            }
+        }
+    }
+
+    /**
+     * Texture2D 属性 override：异步 load res://uuid → 解包 → 更新 cached + 绑定。
+     * (applyProperties 不处理 Texture2D，必须在此显式重绑)
+     */
+    setPropertyTexture(name: string, url: string): void {
+        const entry = this._propertyValues.get(name) as any;
+        if (!entry || !url) return;
+        Laya.loader.load(url).then((res: any) => {
+            // loader 对 PNG 返回 Texture wrapper，取其 bitmap (Texture2D) 用来 bind shader sampler（同 VFXAssetParser property 路径）
+            const tex = res ? (res.bitmap || res._image || res._source || res) : null;
+            if (!tex) {
+                console.warn(`[VFX] setPropertyTexture('${name}') load returned null: ${url}`);
+                return;
+            }
+            entry.cached = tex;
+            this._bindPropertyTextureToShaders(name, entry.id, tex);
+        }, (err: any) => {
+            console.warn(`[VFX] setPropertyTexture('${name}') load failed: ${url}`, err);
+        });
+    }
+
+    /**
+     * Gradient 属性 override：重烘 HDR 渐变纹理 → 更新 cached/rawGradientStops + 绑定。
+     * stops 接受 color 为 {r,g,b,a} 对象(面板/资产格式)或 [r,g,b,a] 数组(引擎内部)，统一归一成数组喂 bakeGradientTexture。
+     */
+    setPropertyGradient(name: string, stops: any[]): void {
+        const entry = this._propertyValues.get(name) as any;
+        if (!entry || !Array.isArray(stops)) return;
+        const engineStops = stops.map((s: any) => {
+            const c = s && s.color;
+            const color: [number, number, number, number] = Array.isArray(c)
+                ? [Number(c[0]) || 0, Number(c[1]) || 0, Number(c[2]) || 0, c[3] != null ? Number(c[3]) : 1]
+                : [Number(c && c.r) || 0, Number(c && c.g) || 0, Number(c && c.b) || 0, (c && c.a != null) ? Number(c.a) : 1];
+            return { t: Number(s && s.t) || 0, color };
+        });
+        engineStops.sort((a, b) => a.t - b.t);
+        entry.rawGradientStops = engineStops;
+        entry.cached = bakeGradientTexture(engineStops);
+        // applyProperties 每帧把 entry.cached 绑到 entry.id；这里再绑别名(若有 shaderPropertyBindings)
+        this._bindPropertyTextureToShaders(name, entry.id, entry.cached);
     }
 
     /**
