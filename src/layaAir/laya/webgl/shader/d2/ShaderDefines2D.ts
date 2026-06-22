@@ -192,23 +192,6 @@ export class ShaderDefines2D {
         ShaderDefines2D.USE_TEX_ARRAY = Shader3D.getDefineByName('USE_TEX_ARRAY');
         ShaderDefines2D.SHADERDEFINE_CAMERA2D = Shader3D.getDefineByName("CAMERA2D");
 
-        // Verify per-element defines share a single _index word for efficient bit mapping
-        {
-            let defines = [
-                ShaderDefines2D.FILLTEXTURE, ShaderDefines2D.GAMMATEXTURE, ShaderDefines2D.VERTEXALPHA,
-                ShaderDefines2D.TEXTURESHADER, ShaderDefines2D.PRIMITIVESHADER, ShaderDefines2D.USE_TEX_ARRAY,
-                ShaderDefines2D.MATERIALCLIP, ShaderDefines2D.UNIFORMCLIP, ShaderDefines2D.UV_CLIP_GPU,
-                ShaderDefines2D.VERTEX_SIZE
-            ];
-            let idx0 = defines[0]._index;
-            for (let i = 1; i < defines.length; i++) {
-                if (defines[i]._index !== idx0) {
-                    console.warn('[ShaderDefines2D] Per-element defines span multiple _index words (' + idx0 + ' vs ' + defines[i]._index + '). typeKey bit mapping uses per-define hasDefine() fallback.');
-                    break;
-                }
-            }
-        }
-
         ShaderDefines2D.initSprite2DCommandEncoder();
         this._buildDefineMap();
     }
