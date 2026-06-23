@@ -13,6 +13,36 @@ import { RTRender2DDataHandle } from "./RTRenderDataHandle";
 import { Stat } from "../../../../utils/Stat";
 import { Sprite } from "../../../../display/Sprite";
 
+/** @internal conchRTGlobalRenderData 共享块槽位（与 C++ RTGlobalRenderData::Props 一致）。 */
+const enum RTGlobalRenderDataSlot {
+   cullRectX = 0,
+   cullRectY = 1,
+   cullRectZ = 2,
+   cullRectW = 3,
+   renderLayerMask = 4,
+   Count = 5,
+}
+
+/** @internal conchRTRenderStruct2D 共享块槽位（与 C++ RTRenderStruct2D::Props 一致）。
+ *  [0..11] JS 写 / C++ 读（[2]renderType 双写：spine 也写）；[12..14] C++ 写镜像 / JS 读。 */
+const enum RTRenderStruct2DSlot {
+   zIndex = 0,
+   renderLayer = 1,
+   renderType = 2,
+   renderUpdateMask = 3,
+   enable = 4,
+   isRenderStruct = 5,
+   manualRender = 6,
+   stackingRoot = 7,
+   rectX = 8,
+   rectY = 9,
+   rectW = 10,
+   rectH = 11,
+   ownEnableCulling = 12,
+   inheritedEnableCulling = 13,
+   inheritedDcOptimize = 14,
+   Count = 15,
+}
 
 export class RTGlobalRenderData implements I2DGlobalRenderData {
    _nativeObj: any;
@@ -24,10 +54,10 @@ export class RTGlobalRenderData implements I2DGlobalRenderData {
 
    constructor() {
       this._nativeObj = new (window as any).conchRTGlobalRenderData();
-      this._buf = new ArrayBuffer(5 * 4);
+      this._buf = new ArrayBuffer(RTGlobalRenderDataSlot.Count * 4);
       this._f32 = new Float32Array(this._buf);
       this._i32 = new Int32Array(this._buf);
-      this._i32[4] = -1; // renderLayerMask default = all
+      this._i32[RTGlobalRenderDataSlot.renderLayerMask] = -1; // default = all
       this._nativeObj.bindPropertyBuffer(this._buf);
    }
 
@@ -37,14 +67,17 @@ export class RTGlobalRenderData implements I2DGlobalRenderData {
    }
    set cullRect(value: Vector4) {
       this._cullRect = value;
-      this._f32[0] = value.x; this._f32[1] = value.y; this._f32[2] = value.z; this._f32[3] = value.w;
+      this._f32[RTGlobalRenderDataSlot.cullRectX] = value.x;
+      this._f32[RTGlobalRenderDataSlot.cullRectY] = value.y;
+      this._f32[RTGlobalRenderDataSlot.cullRectZ] = value.z;
+      this._f32[RTGlobalRenderDataSlot.cullRectW] = value.w;
    }
 
    get renderLayerMask(): number {
-      return this._i32[4];
+      return this._i32[RTGlobalRenderDataSlot.renderLayerMask];
    }
    set renderLayerMask(value: number) {
-      this._i32[4] = value;
+      this._i32[RTGlobalRenderDataSlot.renderLayerMask] = value;
    }
    private _globalShaderData: GLESShaderData;
    get globalShaderData(): GLESShaderData {
@@ -62,10 +95,8 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    owner: Sprite;
 
-   // TS-owned 12-slot property block. C++ flushes it back into members each frame in cullAndSort.
-   // [0]i32 zIndex [1]i32 renderLayer [2]i32 renderType [3]u32 renderUpdateMask
-   // [4]i32 enable [5]i32 isRenderStruct [6]i32 manualRender [7]i32 stackingRoot
-   // [8..11]f32 rect.x/y/width/height
+   // TS-owned 15-slot property block (see RTRenderStruct2DSlot). C++ reads it directly via a struct
+   // overlay (no flush-back). Slots [12..14] are the culling mirror written by C++ for JS to read.
    private _buf: ArrayBuffer;
    private _i32: Int32Array;
    private _f32: Float32Array;
@@ -77,7 +108,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
    set manualRender(value: boolean) {
       this._manualRender = value;
-      this._i32[6] = value ? 1 : 0;
+      this._i32[RTRenderStruct2DSlot.manualRender] = value ? 1 : 0;
    }
 
    public get globalAlpha(): number {
@@ -96,16 +127,14 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
 
    public get inheritedDcOptimize(): boolean {
-      if (this._nativeObj.getInheritedDcOptimize) {
-         return this._nativeObj.getInheritedDcOptimize();
-      }
-      return this._dcOptimize || this._parent?.dcOptimize;
+      // C++ writes the propagated value into the shared block; read it directly (no FFI).
+      return this._i32[RTRenderStruct2DSlot.inheritedDcOptimize] !== 0;
    }
 
    private _zIndex: number = 0;
    set zIndex(value: number) {
       this._zIndex = value;
-      this._i32[0] = value;
+      this._i32[RTRenderStruct2DSlot.zIndex] = value;
    }
    get zIndex(): number {
       return this._zIndex;
@@ -114,29 +143,31 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    private _stackingRoot: boolean = false;
    set stackingRoot(value: boolean) {
       this._stackingRoot = value;
-      this._i32[7] = value ? 1 : 0;
+      this._i32[RTRenderStruct2DSlot.stackingRoot] = value ? 1 : 0;
    }
    get stackingRoot(): boolean {
       return this._stackingRoot;
    }
    get enableCulling(): boolean {
-      return this._nativeObj.getEnableCulling();
+      // C++ mirrors _enableCulling into the shared block; read it directly (no FFI).
+      return this._i32[RTRenderStruct2DSlot.ownEnableCulling] !== 0;
    }
    set enableCulling(value: boolean) {
       this._nativeObj.setEnableCulling(value);
    }
 
    get inheritedEnableCulling(): boolean {
-      return this._nativeObj.getInheritedEnableCulling();
+      // C++ writes the propagated value into the shared block; read it directly (no FFI).
+      return this._i32[RTRenderStruct2DSlot.inheritedEnableCulling] !== 0;
    }
 
    private _rect: Rectangle = new Rectangle(0, 0, 0, 0);
    set rect(value: Rectangle) {
       value.cloneTo(this._rect);
-      this._f32[8] = value.x;
-      this._f32[9] = value.y;
-      this._f32[10] = value.width;
-      this._f32[11] = value.height;
+      this._f32[RTRenderStruct2DSlot.rectX] = value.x;
+      this._f32[RTRenderStruct2DSlot.rectY] = value.y;
+      this._f32[RTRenderStruct2DSlot.rectW] = value.width;
+      this._f32[RTRenderStruct2DSlot.rectH] = value.height;
    }
    get rect(): Rectangle {
       return this._rect;
@@ -145,7 +176,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    private _renderLayer: number = 1;
    set renderLayer(value: number) {
       this._renderLayer = value;
-      this._i32[1] = value;
+      this._i32[RTRenderStruct2DSlot.renderLayer] = value;
    }
    get renderLayer(): number {
       return this._renderLayer;
@@ -194,7 +225,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    private _renderType: number = -1;
    set renderType(value: number) {
       this._renderType = value;
-      this._i32[2] = value;
+      this._i32[RTRenderStruct2DSlot.renderType] = value;
    }
    get renderType(): number {
       return this._renderType;
@@ -203,7 +234,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    private _renderUpdateMask: number;
    set renderUpdateMask(value: number) {
       this._renderUpdateMask = value;
-      this._i32[3] = value;
+      this._i32[RTRenderStruct2DSlot.renderUpdateMask] = value;
    }
    get renderUpdateMask(): number {
       return this._renderUpdateMask;
@@ -263,7 +294,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    public set enabled(value: boolean) {
       this._enabled = value;
-      this._i32[4] = value ? 1 : 0;
+      this._i32[RTRenderStruct2DSlot.enable] = value ? 1 : 0;
    }
 
    private _isRenderStruct: boolean;
@@ -272,7 +303,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
    public set isRenderStruct(value: boolean) {
       this._isRenderStruct = value;
-      this._i32[5] = value ? 1 : 0;
+      this._i32[RTRenderStruct2DSlot.isRenderStruct] = value ? 1 : 0;
    }
 
    private _renderElements: IRenderElement2D[] = [];
@@ -332,7 +363,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    constructor() {
       this._nativeObj = new (window as any).conchRTRenderStruct2D();
       // Allocate + bind the property block before any slot is written below.
-      this._buf = new ArrayBuffer(12 * 4);
+      this._buf = new ArrayBuffer(RTRenderStruct2DSlot.Count * 4);
       this._i32 = new Int32Array(this._buf);
       this._f32 = new Float32Array(this._buf);
       this._nativeObj.bindPropertyBuffer(this._buf);
