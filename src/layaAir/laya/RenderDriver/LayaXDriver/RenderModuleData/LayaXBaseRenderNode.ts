@@ -97,8 +97,14 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
     public get lightmapIndex(): number { return this._nativeObj.lightmapIndex; }
     public set lightmapIndex(value: number) { this._nativeObj.lightmapIndex = value; }
 
-    public get reflectionMode(): number { return this._nativeObj.reflectionMode; }
-    public set reflectionMode(value: number) { this._nativeObj.reflectionMode = value; }
+    private _reflectionMode: number = 0;
+    public get reflectionMode(): number { return this._reflectionMode; }
+    public set reflectionMode(value: number) {
+        if (this._reflectionMode === value)
+            return;
+        this._reflectionMode = value;
+        this._nativeObj.reflectionMode = value;
+    }
 
     public get lightProbUpdateMark(): number { return this._nativeObj.lightProbUpdateMark; }
     public set lightProbUpdateMark(value: number) { this._nativeObj.lightProbUpdateMark = value; }
