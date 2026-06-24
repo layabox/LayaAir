@@ -133,8 +133,6 @@ export class ShaderDefines2D {
     static UNIFORM_TIME: number;
     /**@internal */
     static SHADERDEFINE_CAMERA2D: ShaderDefine;
-    /**@internal */
-    static UNIFORM_TIME: number;
 
     //TODO?
     //static NOOPTMASK: number = ShaderDefines2D.FILTERGLOW | ShaderDefines2D.FILTERBLUR | ShaderDefines2D.FILTERCOLOR | ShaderDefines2D.FILLTEXTURE;	//有这些定义的不要优化。见submittexture

@@ -5,8 +5,15 @@ import { IPrimitiveRenderElement2D, IRenderElement2D } from "./IRenderElement2D"
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, I2DGraphicWholeBuffer, I2DGraphicVertexDataView, I2DGraphicIndexDataView, IGraphics2DBufferBlock, IGraphics2DVertexBlock, IRender2DDataHandle } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
+import { ITransform2DMemoryFactory } from "../../../display/transform2d/ITransform2DMemory";
 
 export interface I2DRenderPassFactory {
+
+    /**
+     * @zh 创建 Transform2D SoA 的列 buffer 工厂(数据来源)。各后端分别给：Web=JS TypedArray(只 JS 读写)；
+     * GLES/LayaX=native 共享 ArrayBuffer view(上下层都读写，数据创建下沉 native，native 直接操作那份内存)。
+     */
+    createTransform2DMemoryFactory(): ITransform2DMemoryFactory;
     createRenderElement2D(): IRenderElement2D;
 
     createPrimitiveRenderElement2D(): IPrimitiveRenderElement2D;

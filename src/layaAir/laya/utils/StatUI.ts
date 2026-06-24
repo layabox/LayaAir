@@ -110,6 +110,7 @@ export class StatUI {
         this._sp.pos(x || 0, y || 0);
         // 验证通过
         this._sp._parent = Laya.stage;
+        this._sp._syncTransParent(); // 直接改 _parent 绕过了 _setParent，需手动同步 SoA 的 parent
         this.updateSize();
         this._displayChild(this._sp, true);
     }
@@ -121,6 +122,7 @@ export class StatUI {
         this._txt.text = null;
 
         this._sp._parent = null;
+        this._sp._syncTransParent(); // 同步 SoA parent(置为 root)
         this._displayChild(this._sp, false);
     }
 

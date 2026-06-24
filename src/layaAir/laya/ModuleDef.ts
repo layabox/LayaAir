@@ -50,7 +50,6 @@ import "./loaders/ComputeShaderLoader"
 import "./media/WebAudioLoader";
 import { Camera2D } from "./display/Scene2DSpecial/Camera2D";
 import { Mesh2DRender } from "./display/Scene2DSpecial/Mesh2DRender";
-import { SequenceFrame2DRender } from "./display/Scene2DSpecial/SequenceFrame2D/SequenceFrame2DRender";
 import { BaseRenderNode2D } from "./NodeRender2D/BaseRenderNode2D";
 import { Mesh2D } from "./resource/Mesh2D";
 import { Gradient } from "./maths/Gradient";

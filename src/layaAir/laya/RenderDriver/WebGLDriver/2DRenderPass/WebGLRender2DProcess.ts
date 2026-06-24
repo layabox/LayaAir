@@ -12,6 +12,8 @@ import { Web2DGraphic2DIndexDataView, Web2DGraphic2DVertexDataView } from "../..
 import { WebRender2DPass, WebRender2DPassManager } from "../../RenderModuleData/WebModuleData/2D/WebRender2DPass";
 import { Web2DBaseRenderDataHandle, WebEmptyRender2DDataHandle, WebGraphics2DBufferBlock, WebGraphics2DVertexBlock, WebMesh2DRenderDataHandle, WebPrimitiveDataHandle, WebSpineRenderDataHandle } from "../../RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
 import { WebGlobalRenderData, WebRenderStruct2D } from "../../RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
+import { ITransform2DMemoryFactory } from "../../../display/transform2d/ITransform2DMemory";
+import { WebTransform2DMemoryFactory } from "../../../display/transform2d/WebTransform2DMemoryFactory";
 import { WebGLSetRenderData, WebGLSetShaderDefine } from "../RenderDevice/WebGLRenderCMD";
 import { WebGLBlit2DQuadCMD, WebGLDraw2DElementCMD, WebGLSetRendertarget2DCMD } from "./WebGL2DRenderCMD";
 import { WebGLPrimitiveRenderElement2D } from "./WebGLPrimitiveRenderElement2D";
@@ -22,6 +24,10 @@ export class WebGLRender2DProcess implements I2DRenderPassFactory {
 
     constructor() {
 
+    }
+
+    createTransform2DMemoryFactory(): ITransform2DMemoryFactory {
+        return new WebTransform2DMemoryFactory();
     }
 
     createGraphic2DBufferBlock(): IGraphics2DBufferBlock {

@@ -4,29 +4,41 @@ import { Point } from "../maths/Point";
 import { Stat } from "../utils/Stat";
 import { Sprite } from "./Sprite";
 import { SpriteConst, TransformKind } from "./SpriteConst";
+import { Transform2DStore } from "./transform2d/Transform2DStore";
+import { SlotConst } from "./transform2d/Transform2DLayout";
 
+/**
+ * @en Facade over {@link Transform2DStore}: exposes the legacy global-transform API while the
+ * actual world matrix is computed by the SoA store. local 值仍存在 Sprite 上(写穿到 store)。
+ * @zh {@link Transform2DStore} 的门面：对外保持原有全局变换 API 不变，世界矩阵的计算与传播
+ * 改由 SoA store 负责(写入只标脏、帧末统一 mark/sweep)。local 值仍存在 Sprite 上并写穿到 store。
+ */
 export class SpriteGlobalTransform {
     private _sp: Sprite;
-    private _flags: number = 0;
-    private _x: number = 0.0;
-    private _y: number = 0.0;
-    private _rot: number = 0.0;
-    private _scaleX: number = 1.0;
-    private _scaleY: number = 1.0;
     private _matrix: Matrix;
     private _cache: boolean;
+
+    /**
+     * @internal
+     * @zh 本节点在 Transform2DStore(SoA) 中的 slot 下标(worldMatrix/globalAlpha/culling 透传数据句柄)。
+     * 由本组件持有：构造时 alloc、destroy 时 free；渲染底层经 struct.transSlot 拿到同一个值。
+     */
+    slot: number = SlotConst.None;
 
     /** @internal */
     _modifiedFrame: number = 0;
     /**
-     * @zh An event constant for when the global transformation information changes.
+     * @en An event constant for when the global transformation information changes.
      * @zh 全局变换信息发生改变时的事件常量。
      */
     static readonly CHANGED = "globalTransChanged";
 
     constructor(sp: Sprite) {
         this._sp = sp;
-        this.cache = true;
+        this._cache = true;
+        const store = Transform2DStore.instance;
+        this.slot = store.alloc();
+        store.setOwner(this.slot, sp);
         this._notifyRenderSpriteTransChange();
     }
 
@@ -39,35 +51,25 @@ export class SpriteGlobalTransform {
     }
 
     set cache(value: boolean) {
-        if (value) {
-            //缓存全局变量
-            this._setFlag(TransformKind.Matrix | TransformKind.TRS, true);
-        }
         this._cache = value;
     }
 
     /**
      * @en Get the global matrix of the sprite.
-     * @returns The global transformation matrix of the sprite.
      * @zh 获取精灵的全局矩阵。
-     * @returns 精灵的全局变换矩阵。
      */
-    getMatrix() {
-        if (this._matrix == null) this._matrix = new Matrix();
-        //if (this._scene == null) { return this._globalMatrix; }
-        if (this._cache && !this._getFlag(TransformKind.Matrix))
-            return this._matrix;
-        let sp = this._sp;
-        this._matrix.setMatrix(sp._x, sp._y, sp._scaleX, sp._scaleY, sp._rotation, sp._skewX, sp._skewY, sp._pivotX, sp._pivotY);
-        if (sp._parent) {
-            Matrix.mul(this._matrix, sp._parent.globalTrans.getMatrix(), this._matrix);
-            this._setFlag(TransformKind.Matrix, false);
-            // this._syncFlag(TransformKind.Matrix, true);
-        } else if (sp._maskParent) {
-            Matrix.mul(this._matrix, sp._maskParent.globalTrans.getMatrix(), this._matrix);
-            this._setFlag(TransformKind.Matrix, false);
-        }
-        return this._matrix;
+    getMatrix(): Matrix {
+        const m = this._matrix || (this._matrix = new Matrix());
+        const store = Transform2DStore.instance;
+        const slot = this.slot;
+        // 帧中该通道仍有未结账写入 → 慢路径沿父链现算；否则直读 store world(已结账)。
+        if (store.dirtyM)
+            store.computeWorldMatrix(slot, _m6);
+        else
+            store.readWorldMatrix(slot, _m6);
+        m.a = _m6[0]; m.b = _m6[1]; m.c = _m6[2]; m.d = _m6[3]; m.tx = _m6[4]; m.ty = _m6[5];
+        m._checkTransform();
+        return m;
     }
 
     /**
@@ -79,7 +81,6 @@ export class SpriteGlobalTransform {
         out.invert();
         return out;
     }
-
 
     /**
      * @en The X-axis position in global coordinates.
@@ -99,7 +100,7 @@ export class SpriteGlobalTransform {
 
     /**
      * 获取基于Scene的变换矩阵
-     * @param out 
+     * @param out
      */
     getSceneMatrix(out: Matrix) {
         if (!this._sp.scene)
@@ -113,7 +114,7 @@ export class SpriteGlobalTransform {
     /**
      * @en get the scene position of the node.
      * @zh 获取节点对象在相应scene坐标系中的位置。
-     * @param out 
+     * @param out
      */
     getScenePos(out: Point) {
         if (!this._sp.scene)
@@ -124,7 +125,7 @@ export class SpriteGlobalTransform {
     /**
      * @en get the scene scale of the node.
      * @zh 获取节点对象在相应scene坐标系中的放缩值。
-     * @param out 
+     * @param out
      */
     getSceneScale(out: Point) {
         out.x = this.scaleX;
@@ -151,45 +152,26 @@ export class SpriteGlobalTransform {
     /**
      * @en get the global position of the node.
      * @zh 获取节点对象在全局坐标系中的位置。
-     * @param out 
+     * @param out
      */
     getPos(out: Point): Point {
         if (this._cache) {
-            this._cachePos();
-            out.x = this._x;
-            out.y = this._y;
-        }
-        else {
+            return this.getMatrix().transformPoint(out.setTo(this._sp.pivotX, this._sp.pivotY));
+        } else {
             this._sp.localToGlobal(out.setTo(0, 0), false, null);
+            return out;
         }
-        return out;
     }
 
     /**
      * @en Sets the global position of the node.
-     * @param x The global X position.
-     * @param y The global Y position.
      * @zh 设置节点对象在全局坐标系中的位置。
-     * @param x 全局X位置。
-     * @param y 全局Y位置。
      */
     setPos(x: number, y: number) {
         let sp = this._sp;
-        if (this._cache) {
-            this._cachePos();
-            if (x == this._x && y == this._y)
-                return;
-
+        if (this._cache && sp._parent instanceof Sprite) {
             let point = sp._parent.globalTrans.getMatrix().invertTransformPoint(tmpPoint.setTo(x, y));
-            this._cache = false; //临时取消标志，避免死循环
             sp.pos(point.x, point.y);
-            this._cache = true;
-
-            this._x = x;
-            this._y = y;
-            this._setFlag(TransformKind.Pos, false);
-            this._setFlag(TransformKind.Matrix, true);
-            this._syncFlag(TransformKind.Pos | TransformKind.Matrix, true);
         }
         else {
             tmpPoint.setTo(x, y);
@@ -205,150 +187,62 @@ export class SpriteGlobalTransform {
      */
     get rotation(): number {
         let sp = this._sp;
-        if (this._cache) {
-            if (this._getFlag(TransformKind.Rotation)) {
-                this._setFlag(TransformKind.Rotation, false);
-                if (sp._parent == sp._scene || !sp._parent)
-                    this._rot = sp._rotation;
-                else
-                    this._rot = sp._rotation + sp._parent.globalTrans.rotation;
-            }
-            return this._rot;
-        }
-        else {
-            //循环算法
-            let angle: number = 0;
-            let ele: Sprite = sp;
-            while (ele) {
-                if (ele === sp._scene) break;
-                angle += ele._rotation;
-                ele = ele._parent;
-            }
-            return angle;
-        }
+        if (!sp._parent || sp._parent === sp._scene)
+            return sp._rotation;
+        return sp._rotation + (sp._parent as Sprite).globalTrans.rotation;
     }
 
     set rotation(value: number) {
-        if (value == this.rotation) {
+        if (value == this.rotation)
             return;
-        }
-        //set local
         let sp = this._sp;
-        if (sp._parent == sp._scene || !sp._parent) {
+        if (!sp._parent || sp._parent === sp._scene) {
             sp.rotation = value;
         } else {
-            sp.rotation = value - sp._parent.globalTrans.rotation;
-        }
-        if (this._cache) {
-            this._rot = value;
-            this._setFlag(TransformKind.Rotation, false);
-            this._setFlag(TransformKind.Matrix, true);
-            this._syncFlag(TransformKind.Matrix, true);
+            sp.rotation = value - (sp._parent as Sprite).globalTrans.rotation;
         }
     }
 
     /**
-     * @en Gets the global X-axis scale relative to the stage (this value includes the scaling of parent nodes).
-     * @returns The global X-axis scale.
+     * @en Gets the global X-axis scale relative to the stage.
      * @zh 获得相对于stage的全局X轴缩放值（会叠加父亲节点的缩放值）。
-     * @returns 全局X轴缩放值。
      */
     get scaleX(): number {
-        if (this._cache) {
-            this._cacheScale();
-            return this._scaleX;
-        }
-        else {
-            let scale: number = 1;
-            let ele: Sprite = this._sp;
-            while (ele) {
-                if (ele === ILaya.stage) break;
-                scale *= ele._scaleX;
-                ele = ele._parent;
-            }
-            return scale;
-        }
+        return this.getMatrix().getScaleX();
     }
 
     /**
-     * @en Gets the global Y-axis scale relative to the stage (this value includes the scaling of parent nodes).
-     * @returns The global Y-axis scale.
+     * @en Gets the global Y-axis scale relative to the stage.
      * @zh 获得相对于stage的全局Y轴缩放值（会叠加父亲节点的缩放值）。
-     * @returns 全局Y轴缩放值。
      */
     get scaleY(): number {
-        if (this._cache) {
-            this._cacheScale();
-            return this._scaleY;
-        }
-        else {
-            let scale: number = 1;
-            let ele: Sprite = this._sp;
-            while (ele) {
-                if (ele === ILaya.stage) break;
-                scale *= ele._scaleY;
-                ele = ele._parent;
-            }
-            return scale;
-        }
-    }
-
-    private _cachePos() {
-        if (this._getFlag(TransformKind.Matrix | TransformKind.Pos)) {
-            this._setFlag(TransformKind.Pos, false);
-            let p = this.getMatrix().transformPoint(tmpPoint.setTo(this._sp.pivotX, this._sp.pivotY));
-            this._x = p.x;
-            this._y = p.y;
-        }
-    }
-
-    private _cacheScale() {
-        if (this._getFlag(TransformKind.Matrix | TransformKind.Scale)) {
-            this._setFlag(TransformKind.Scale, false);
-            let mat = this.getMatrix();
-            this._scaleX = mat.getScaleX();
-            this._scaleY = mat.getScaleY();
-        }
+        return this.getMatrix().getScaleY();
     }
 
     /**
-     * @internal
-     * @en Gets a global cache flag for a specific type.
-     * @param type The type of cache flag to get.
-     * @returns Whether the cache flag is enabled.
-     * @zh 获取特定类型的全局缓存标志。
+     * @en The global (cascaded) alpha, read directly from Transform2DStore by slot (no extra layer).
+     * @zh 全局(级联) alpha，按 slot 直读 Transform2DStore(不再经中间层)。本帧 alpha 未结账时走慢路径现算。
      */
-    _getFlag(type: number): boolean {
-        return (this._flags & type) != 0;
+    get globalAlpha(): number {
+        const store = Transform2DStore.instance;
+        const slot = this.slot;
+        return store.dirtyA ? store.computeWorldAlpha(slot) : store.getWorldAlpha(slot);
     }
 
     /**
-     * @internal
-     * @en Sets a global cache flag for a specific type.
-     * @param type The type of cache flag to set.
-     * @param value Whether to enable the cache flag.
-     * @param notify Whether to notify.
-     * @zh 设置特定类型的全局缓存标志。
-     * @param type 要设置的缓存标志类型。
-     * @param value 是否启用缓存标志。
-     * @param notify 是否通知。
+     * @en The reciprocal of globalAlpha (1/globalAlpha), analogous to the inverse matrix.
+     * @zh globalAlpha 的倒数(1/globalAlpha)，与逆矩阵类比。用于缓存子树(cacheAs/RT)按 cache 根隔离 alpha：
+     * 内容 alpha = 自身 globalAlpha × cache根.invertGlobalAlpha，合成时再施加 cache根 globalAlpha。
      */
-    _setFlag(type: number, value: boolean, notify = true): void {
-        if (value)
-            this._flags |= type;
-        else
-            this._flags &= ~type;
-
-        if (value) {
-            this._sp.event(SpriteGlobalTransform.CHANGED, type);
-            if (notify) {
-                this._notifyRenderSpriteTransChange();
-            }
-        }
+    get invertGlobalAlpha(): number {
+        const a = this.globalAlpha;
+        return a > 1e-6 ? 1 / a : 0;
     }
 
     /**
      * @internal
+     * @en Adds the sprite to the stage's per-frame transform update list so its render struct refreshes.
+     * @zh 把精灵加入舞台每帧的变换更新列表，使其渲染结构(renderMatrix 等)刷新。
      */
     _notifyRenderSpriteTransChange() {
         if ((this._sp._renderType & SpriteConst.UPDATETRANS)) {
@@ -358,40 +252,29 @@ export class SpriteGlobalTransform {
     }
 
     /**
-     * @param flag 
-     * @param value 
-     */
-    private _syncFlag(flag: number, value: boolean) {
-        if (this._cache) {
-            for (let child of this._sp._children) {
-                let globaltrans = child.globalTrans
-                if (globaltrans) {
-                    globaltrans._setFlag(flag, value);
-                    globaltrans._syncFlag(flag, value);
-                }
-            }
-        }
-    }
-
-    /**
      * @internal
-     * @param kind
+     * @en Notify that the sprite's local transform changed: push the current local TRS into the store
+     * (marks the Matrix channel dirty). 子树的世界矩阵由帧末 store.update() 的 mark/sweep 统一传播。
+     * @zh 通知本节点 local 变换已改变：把当前 local TRS 写入 store(标 Matrix 通道脏)。
+     * 子树世界矩阵由帧末 store.update() 的 mark/sweep 统一传播，不再在此递归。
+     * @param kind 变化类型(保留以兼容调用方；所有到达此处的变化都影响矩阵，统一写全部 TRS)
      */
     _spTransChanged(kind: TransformKind) {
-        if (this._cache)
-            this._setFlag(kind | TransformKind.Matrix, true);
-        this._syncFlag(kind | TransformKind.Matrix, true);
+        const sp = this._sp;
+        Transform2DStore.instance.writeTRSAll(
+            this.slot,
+            sp._x, sp._y, sp._scaleX, sp._scaleY,
+            sp._rotation, sp._skewX, sp._skewY, sp._pivotX, sp._pivotY,
+        );
+        // 直接节点入更新列表(与旧行为对齐)：bump modifiedFrame、刷新 struct.renderMatrix。
+        // 即便本次 world 未变(如 setClipRect/dcOptimize 调用)，也需让 _updateStruct 跑一次刷新 clip 等。
+        // 子孙节点由 Stage 帧末 flush(按 store.changedSlots)补充加入，Set 去重。
+        this._notifyRenderSpriteTransChange();
     }
 
     /**
      * @en Convert the point to the global coordinate system.
-     * @param x The X-axis position of the point.
-     * @param y The Y-axis position of the point.
-     * @returns The global position of the point.
      * @zh 转换点坐标到全局坐标系。
-     * @param x 点的X轴位置。
-     * @param y 点的Y轴位置。
-     * @returns 全局坐标的点。
      */
     localToGlobal(x: number, y: number): Readonly<Point> {
         if (this._cache) {
@@ -403,13 +286,7 @@ export class SpriteGlobalTransform {
 
     /**
      * @en Convert the point to the local coordinate system.
-     * @param x The X-axis position of the point.
-     * @param y The Y-axis position of the point.
-     * @returns The local position of the point.
      * @zh 转换点坐标到本地坐标系。
-     * @param x 点的X轴位置。
-     * @param y 点的Y轴位置。
-     * @returns 本地坐标的点。
      */
     globalToLocal(x: number, y: number): Readonly<Point> {
         if (this._cache) {
@@ -426,6 +303,10 @@ export class SpriteGlobalTransform {
      * @internal
      */
     destroy(): void {
+        if (this.slot !== SlotConst.None) {
+            Transform2DStore.instance.free(this.slot);
+            this.slot = SlotConst.None;
+        }
         this._sp = null;
         this._matrix = null;
     }
@@ -433,3 +314,4 @@ export class SpriteGlobalTransform {
 
 const tmpPoint = new Point();
 const tmpMarix = new Matrix();
+const _m6 = new Float32Array(6);

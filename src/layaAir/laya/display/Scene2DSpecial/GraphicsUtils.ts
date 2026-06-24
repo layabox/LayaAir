@@ -438,7 +438,8 @@ export class SubStructRender {
       // this._submit.material = sprite.material;
 
       subStruct.renderDataHandler = this._handle;
-      subStruct.renderMatrix = sprite.globalTrans.getMatrix();
+      // subStruct 共享 sprite 的 slot：renderMatrix getter 按 slot 直读 store(不经 SpriteGlobalTransform)
+      subStruct.transSlot = sprite._globalTrans.slot;
       subStruct.renderElements = this._renderElements;
 
       this._renderElement.owner = this._subStruct;

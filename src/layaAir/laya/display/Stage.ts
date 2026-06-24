@@ -1,4 +1,6 @@
 import { Sprite } from "./Sprite";
+import { Transform2DStore } from "./transform2d/Transform2DStore";
+import { Channel } from "./transform2d/Transform2DLayout";
 import { Node } from "./Node";
 import { Config } from "./../../Config";
 import { SpriteConst, SubPassFlag, TransformKind, RepaintFlag } from "./SpriteConst";
@@ -795,6 +797,24 @@ export class Stage extends Sprite {
         // context2D.render2dmgr.runProcess([])
         for (let i = 0, n = this._scene2Ds.length; i < n; i++) {
             this._scene2Ds[i].render(0, 0);
+        }
+
+        // 必须在 subpass/cacheAs/mask 渲染之前更新 SoA：subpass 渲染缓存内容时会读各 slot 的
+        // world 矩阵和 matrixFrame，若 update 晚于 subpass，matrixFrame 仍是上一帧，会被判成
+        // "矩阵没变"而跳过上传，导致 RT 用旧矩阵。放在 scene.render 之后(捕获其可能的布局写入)、
+        // subpass 之前。把 world 真变(Matrix 通道)的节点加入 _tranMatrixUpdateList 供 _updateStruct。
+        const t2dStore = Transform2DStore.instance;
+        t2dStore.update(Stat.loopCount);
+        const changedSlots = t2dStore.changedSlots;
+        const changedMasks = t2dStore.changedMasks;
+        for (let i = 0, n = t2dStore.changedCount; i < n; i++) {
+            // 只有 world 矩阵真变才驱动 _updateStruct(重算 renderMatrix/包围盒)。
+            // alpha/culling 变化不进这个列表——它们的重传由渲染遍历自检(各自 frame/repaint)。
+            if ((changedMasks[i] & Channel.Matrix) === 0)
+                continue;
+            const owner = t2dStore.getOwner(changedSlots[i]) as Sprite;
+            if (owner)
+                owner._globalTrans._notifyRenderSpriteTransChange();
         }
 
         //subpass 分析  for
