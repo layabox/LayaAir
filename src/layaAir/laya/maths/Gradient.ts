@@ -575,15 +575,24 @@ export class Gradient implements IClone {
      */
     cloneTo(destObject: Gradient): void {
         destObject._colorAlphaKeysCount = this._colorAlphaKeysCount;
-        let destAlphaElements = destObject._alphaElements = new Float32Array(this._alphaElements.length);
-
-        for (let i = 0, n = this._alphaElements.length; i < n; i++)
-            destAlphaElements[i] = this._alphaElements[i];
+        const srcAlphaElements = this._alphaElements;
+        if (srcAlphaElements) {
+            const destAlphaElements = destObject._alphaElements = new Float32Array(srcAlphaElements.length);
+            for (let i = 0, n = srcAlphaElements.length; i < n; i++)
+                destAlphaElements[i] = srcAlphaElements[i];
+        } else {
+            destObject._alphaElements = null;
+        }
 
         destObject._colorRGBKeysCount = this._colorRGBKeysCount;
-        var destRGBElements: Float32Array = destObject._rgbElements = new Float32Array(this._rgbElements.length);
-        for (let i = 0, n = this._rgbElements.length; i < n; i++)
-            destRGBElements[i] = this._rgbElements[i];
+        const srcRGBElements = this._rgbElements;
+        if (srcRGBElements) {
+            const destRGBElements: Float32Array = destObject._rgbElements = new Float32Array(srcRGBElements.length);
+            for (let i = 0, n = srcRGBElements.length; i < n; i++)
+                destRGBElements[i] = srcRGBElements[i];
+        } else {
+            destObject._rgbElements = null;
+        }
     }
 
     /**
