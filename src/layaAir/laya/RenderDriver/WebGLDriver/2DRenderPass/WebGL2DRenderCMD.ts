@@ -94,7 +94,7 @@ export class WebGLBlit2DQuadCMD extends Blit2DQuadCMD {
 
     apply(context: WebglRenderContext2D): void {
         let dest = this._dest as WebGLInternalRT || context._destRT;
-        if (dest && dest._textures[0].gammaCorrection != 1) {
+        if (!dest || dest._textures[0].gammaCorrection != 1) {
             this.element.materialShaderData.addDefine(WebGLBlit2DQuadCMD.GammaCorrect);
         } else {
             this.element.materialShaderData.removeDefine(WebGLBlit2DQuadCMD.GammaCorrect);

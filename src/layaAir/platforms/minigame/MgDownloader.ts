@@ -108,16 +108,21 @@ export class MgDownloader extends Downloader {
         }
         this.cacheManager.getFile(url).then(cacheFilePath => {
             if (cacheFilePath)
-                super.image(owner, cacheFilePath, originalUrl, onProgress, onComplete);
+                super.image(owner, this.encodeLocalPath(cacheFilePath), originalUrl, onProgress, onComplete);
             else {
                 this.downloadFile(url, onProgress, (filePath: string, error: string) => {
                     if (filePath)
-                        super.image(owner, filePath, originalUrl, onProgress, onComplete);
+                        super.image(owner, this.encodeLocalPath(filePath), originalUrl, onProgress, onComplete);
                     else
                         onComplete(null, error);
                 });
             }
         });
+    }
+
+    /** 平台可覆盖：把本地文件路径转成 native 加载所需格式（默认原样，对其它平台零影响）。 */
+    protected encodeLocalPath(path: string): string {
+        return path;
     }
 
     package(path: string, onProgress: ProgressCallback, onComplete: DownloadCompleteCallback): void {

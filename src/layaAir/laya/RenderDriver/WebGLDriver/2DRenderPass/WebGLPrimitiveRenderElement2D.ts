@@ -11,6 +11,11 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
     typeKey: number = 0;
     textureKey: number = 0;
 
+    private static _spriteUniformDefineMask: number = ShaderDefines2D.DEFINE_BIT_VERTEX_SIZE;
+    private static _primitiveUniformDefineMask: number =
+        ShaderDefines2D.DEFINE_BIT_VERTEX_SIZE |
+        ShaderDefines2D.DEFINE_BIT_FILLTEXTURE |
+        ShaderDefines2D.DEFINE_BIT_MATERIALCLIP;
     private static _additionShaderData: string[] = ["Sprite2DGraphics"];
 
     private _primitiveShaderData: WebGLShaderData;
@@ -31,7 +36,6 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
 
         for (var j: number = 0, m: number = passes.length; j < m; j++) {
             var pass: ShaderPass = passes[j];
-            //NOTE:this will cause maybe a shader not render but do prepare before，but the developer can avoide this manual,for example shaderCaster=false.
             if (pass.pipelineMode !== context.pipelineMode)
                 continue;
 
@@ -89,16 +93,18 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
             let clipInfo = this.owner.getClipInfo();
             if (this.owner.renderType === context._prevRenderType
                 && this.typeKey === context._prevTypeKey
-                && this.textureKey === context._prevTextureKey
                 && clipInfo === context._prevClip
                 && shaderIns === context._prevShaderIns) {
-                // 快速路径：状态完全相同，只执行 draw
+                if (this.needUploadPrimitiveUniform()) {
+                    this.uploadFastPathUniform(shaderIns);
+                } else if (this.textureKey !== context._prevTextureKey) {
+                    this.uploadPrimitiveUniform(shaderIns, false);
+                }
                 WebGLEngine.instance.getDrawContext().drawGeometryElement(this.geometry);
             } else {
                 this.renderByShaderInstance(shaderIns, context);
             }
 
-            // 更新 context 上的 prev state 供下一个元素使用
             context._prevTypeKey = this.typeKey;
             context._prevTextureKey = this.textureKey;
             context._prevClip = clipInfo;
@@ -108,6 +114,26 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
                 this.renderByShaderInstance(inss[j], context);
             }
         }
+    }
+
+    private uploadPrimitiveUniform(shader: WebGLShaderInstance, uploadUnTexture: boolean) {
+        let encoder = shader._additionUniformParamsMaps.get("Sprite2DGraphics");
+        encoder && this._primitiveShaderData && shader.uploadUniforms(encoder, this._primitiveShaderData, uploadUnTexture);
+    }
+
+    private needUploadPrimitiveUniform(): boolean {
+        return (this.typeKey & WebGLPrimitiveRenderElement2D._primitiveUniformDefineMask) !== 0;
+    }
+
+    private needUploadSpriteUniform(): boolean {
+        return (this.typeKey & WebGLPrimitiveRenderElement2D._spriteUniformDefineMask) !== 0;
+    }
+
+    private uploadFastPathUniform(shader: WebGLShaderInstance): void {
+        if (this.needUploadSpriteUniform()) {
+            this.value2DShaderData && shader.uploadUniforms(shader._sprite2DUniformParamsMap, this.value2DShaderData, true);
+        }
+        this.uploadPrimitiveUniform(shader, true);
     }
 
     renderByShaderInstance(shader: WebGLShaderInstance, context: WebglRenderContext2D): void {
@@ -123,7 +149,6 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
         encoder && this._primitiveShaderData && shader.uploadUniforms(encoder, this._primitiveShaderData, true);
 
         let shaderData = this.value2DShaderData;
-        //blend
         if (!this.renderStateIsBySprite) {
             if (this.materialShaderData) {
                 shaderData = this.materialShaderData;
