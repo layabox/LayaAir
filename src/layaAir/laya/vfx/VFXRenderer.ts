@@ -632,6 +632,13 @@ export class VFXRenderer extends BaseRender {
         // baseColor 退到默认 (1,1,1,1) 让 PBR 高 metallic/smoothness 走纯黑。
         const colorDef = Shader3D.getDefineByName("COLOR");
         if (colorDef) mat.addDefine(colorDef);
+        // EMISSION 宏: 蓝图 Lit shader(SurfaceShading→pbrFrag)里 `color += surface.emissionColor`
+        // 被 `#ifdef EMISSION` 门控。.bps material 没 emission 开关 → 宏不设 → 自定义 shader
+        // 算好的 emissionColor(materialize 溶解边缘 HDR 辉光/白块、emissionMap)被整段跳过。
+        // Unlit 路径无此分支不受影响; Lit 无 emission 时 emissionColor 默认 0 加 0 无害。
+        // 修 Energy DM materialize 白块/辉光缺失根因。
+        const emissionDef = Shader3D.getDefineByName("EMISSION");
+        if (emissionDef) mat.addDefine(emissionDef);
         mat.setColor("u_Color", new Color(1, 1, 1, 1));
         mat.setTexture("u_AlbedoTexture", VFXRenderer.getDefaultDotTexture());
         mat.renderQueue = 3000;
@@ -1115,6 +1122,19 @@ function applyBlendMode(mat: Material, mode: string): void {
         mat.depthWrite = true;
         mat.depthTest = RS.DEPTHTEST_LESS;
         if (sd && opaqueDef) sd.addDefine(opaqueDef);
+        return;
+    }
+    // AlphaClip: 对齐 Unity URP「Transparent + _ALPHATEST_ON + ZWrite On」(materialize 溶解雕像)。
+    // alpha 是二值(step 0/1),shader 端 alpha test discard 掉 alpha<阈值的像素,保留像素写深度,
+    // 让前后/内外面正确深度排序 → 雕像实心(非半透穿透)。仍用 alpha 混合保留 Unity 的边缘合成。
+    if (mode === "AlphaClip") {
+        if (sd && opaqueDef) sd.removeDefine(opaqueDef);
+        mat.materialRenderMode = MaterialRenderMode.RENDERMODE_TRANSPARENT;
+        mat.blend = RS.BLEND_ENABLE_ALL;
+        mat.blendSrc = RS.BLENDPARAM_SRC_ALPHA;
+        mat.blendDst = RS.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
+        mat.depthWrite = true;   // ← 关键: Unity ZWrite On
+        mat.depthTest = RS.DEPTHTEST_LESS;
         return;
     }
     if (sd && opaqueDef) sd.removeDefine(opaqueDef);

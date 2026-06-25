@@ -609,8 +609,14 @@ export class VisualEffect extends Script {
                     case 4: this.setPropertyVec4(name, value[0], value[1], value[2], value[3]); break;
                 }
             } else if (typeof value === "string" && value) {
-                // Texture2D override：res://uuid 字符串
-                this.setPropertyTexture(name, value);
+                // string override = 资源引用(res://uuid)：Texture2D 或 Mesh。按属性类型分流
+                // （转换器 Mesh 属性 type 写 "Mesh"，大小写不敏感比较）。
+                const _entry: any = this._propertyValues.get(name);
+                if (_entry && String(_entry.type).toLowerCase() === "mesh") {
+                    this.setPropertyMesh(name, value);
+                } else {
+                    this.setPropertyTexture(name, value);   // Texture2D
+                }
             } else if (value && typeof value === "object" && Array.isArray(value.stops)) {
                 // Gradient override：{ stops:[{t,color:{r,g,b,a}}] }
                 this.setPropertyGradient(name, value.stops);
@@ -1358,6 +1364,30 @@ export class VisualEffect extends Script {
     }
 
     /**
+     * Mesh 属性 override：load mesh → 换所有 mesh 输出系统的 mesh（particle VFXGeometry 重绑 GPU 几何 + static mesh 换 sharedMesh）。
+     * 系统的 setMesh 内部已判类型（仅 mesh 输出生效），故这里对所有 system 调用即可。
+     * ⚠ 当前对【所有】mesh 输出应用（一个 Mesh 属性 → 一个 mesh 输出的常见情形成立）；
+     *    多 mesh 输出需精确区分时要靠转换器 mesh-property 绑定（后续）。
+     */
+    setPropertyMesh(name: string, url: string): void {
+        const entry = this._propertyValues.get(name) as any;
+        if (!entry || !url) return;
+        const meshUrl = url.startsWith("res://") ? url : "res://" + url;
+        Laya.loader.load(meshUrl).then((mesh: any) => {
+            if (!mesh) {
+                console.warn(`[VFX] setPropertyMesh('${name}') load returned null: ${meshUrl}`);
+                return;
+            }
+            entry.cached = mesh;
+            for (const system of this.systems) {
+                if (typeof (system as any).setMesh === "function") (system as any).setMesh(mesh);
+            }
+        }, (err: any) => {
+            console.warn(`[VFX] setPropertyMesh('${name}') load failed: ${meshUrl}`, err);
+        });
+    }
+
+    /**
      * Gradient 属性 override：重烘 HDR 渐变纹理 → 更新 cached/rawGradientStops + 绑定。
      * stops 接受 color 为 {r,g,b,a} 对象(面板/资产格式)或 [r,g,b,a] 数组(引擎内部)，统一归一成数组喂 bakeGradientTexture。
      */
@@ -1459,6 +1489,23 @@ export class VisualEffect extends Script {
                 if (!texture) continue;
                 for (const sd of allDatas) {
                     sd.setTexture(id, texture);
+                }
+            }
+        }
+
+        // 绑定 setPositionMesh 点云 storage buffer（mesh 表面/体积烘焙的 DeviceBuffer，对齐 Unity buffer 采样，
+        // 绕开 WebGPU compute 下动态现造 Texture2D 绑定失效的问题）。buffer 异步烘焙完成后此处绑定。
+        for (let i = 0; i < this.systems.length; i++) {
+            const system = this.systems[i];
+            const desc = descs[i] as any;
+            if (!(system instanceof VFXParticleSystem)) continue;
+            if (!desc?.meshPointBuffers || desc.meshPointBuffers.length === 0) continue;
+            const allDatas = system.getAllShaderDatas();
+            for (const mpb of desc.meshPointBuffers) {
+                if (!mpb.buffer) continue;
+                const id = Shader3D.propertyNameToID(mpb.uniformName + "Buffer");
+                for (const sd of allDatas) {
+                    sd.setDeviceBuffer(id, mpb.buffer.deviceBuffer);
                 }
             }
         }
