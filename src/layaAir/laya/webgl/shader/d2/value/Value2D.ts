@@ -155,6 +155,11 @@ export class Value2D {
         return this.defines.getVector2(ShaderDefines2D.UNIFORM_CLIPMATPOS);
     }//Vector2
     //clipMatPos: Array<number> = [0, 0];//Vector2
+    /**@internal 本次提交是否使用硬件 scissor 裁剪（轴对齐裁剪）。由 updateShaderData 计算，Submit 读取。*/
+    _useScissor: boolean = false;
+    /**@internal scissor 矩形，GL 窗口坐标（左下原点）：x, y, width, height */
+    _scissorRect: Vector4 = new Vector4();
+
     _clipOff: Vector2 = new Vector2();//vector2			// 裁剪是否需要加上偏移，cacheas normal用
     set clipOff(value: Vector2) {
         this.defines.setVector2(ShaderDefines2D.UNIFORM_CLIPOFF, value);
@@ -237,6 +242,42 @@ export class Value2D {
         }
         if (this.mainID == RenderSpriteData.Primitive) {
             this.defines.addDefine(ShaderDefines2D.PRIMITIVESHADER);
+        }
+
+        this.updateScissor();
+    }
+
+    /**
+     * 轴对齐裁剪改用硬件 scissor，并编译掉片元 discard（移动端尤其 iOS 降低发热）。
+     * 仅在轴对齐、非"无裁剪"哨兵、且非 MVP3D / cacheAs-normal 偏移时启用；其余情况回退到 discard。
+     */
+    private updateScissor(): void {
+        this._useScissor = false;
+        // 全局开关关闭、或 2D 被投影到 3D 空间(MVP3D)时，屏幕坐标映射不成立，直接走 discard
+        if (RenderState2D.clipUseScissor && !RenderState2D.matWVP) {
+            let cd = this.clipMatDir; // a=x(宽方向), b=y, c=z, d=w(高方向)
+            let cp = this.clipMatPos; // tx=x, ty=y（裁剪框左上角，屏幕像素）
+            let a = cd.x, b = cd.y, c = cd.z, d = cd.w;
+            // 轴对齐 = 无旋转/斜切（b、c 近似为 0）
+            let axisAligned = b < 0.01 && b > -0.01 && c < 0.01 && c > -0.01;
+            let clipw = a < 0 ? -a : a;
+            let cliph = d < 0 ? -d : d;
+            // 与 shader 一致：方向都很大时视为"无裁剪"
+            let noClip = clipw > 20000 && cliph > 20000;
+            // cacheAs normal 时 clipMatPos 被去掉了偏移、由 shader 用 u_mmat 补回，TS 侧无法还原，回退 discard
+            let cacheOffset = this.clipOff.x > 0;
+            if (axisAligned && !noClip && !cacheOffset) {
+                let left = a >= 0 ? cp.x : cp.x + a;
+                let top = d >= 0 ? cp.y : cp.y + d;
+                // 2D 屏幕像素(左上原点) -> GL scissor(左下原点)。渲染到 RT 时已有 INVERTY 翻转，无需再翻
+                let sy = RenderState2D.InvertY ? top : (RenderState2D.height - top - cliph);
+                this._scissorRect.setValue(left, sy, clipw, cliph);
+                this._useScissor = true;
+                this.defines.addDefine(ShaderDefines2D.CLIPSCISSOR);
+            }
+        }
+        if (!this._useScissor) {
+            this.defines.removeDefine(ShaderDefines2D.CLIPSCISSOR);
         }
     }
 

@@ -1,6 +1,8 @@
 vec3 gammaToLinear(in vec3 value)
 {
-    return pow((value + 0.055) / 1.055, vec3(2.4));
+    // gamma 2.0 近似：用乘法代替 pow(...,2.4) 的精确 sRGB 公式，纯 ALU 运算，移动端(尤其 iOS)显著降低功耗
+    return value * value;
+    // return pow((value + 0.055) / 1.055, vec3(2.4));
 }
 
 vec4 gammaToLinear(in vec4 value)
@@ -10,8 +12,9 @@ vec4 gammaToLinear(in vec4 value)
 
 vec3 linearToGamma(in vec3 value)
 {
-    return vec3(mix(pow(value.rgb, vec3(0.41666)) * 1.055 - vec3(0.055), value.rgb * 12.92, vec3(lessThanEqual(value.rgb, vec3(0.0031308)))));
-
+    // gamma 2.0 近似：用 sqrt 代替分段 mix+pow，避免 log2+exp2 占用 SFU，移动端(尤其 iOS)显著降低功耗
+    return sqrt(value);
+    // return vec3(mix(pow(value.rgb, vec3(0.41666)) * 1.055 - vec3(0.055), value.rgb * 12.92, vec3(lessThanEqual(value.rgb, vec3(0.0031308)))));
     // return pow(value, vec3(1.0 / 2.2));
     // return pow(value, vec3(0.455));
 }
@@ -185,8 +188,12 @@ vec4 sampleTexture(sampler2D spriteTexture, vec2 uv)
 
 
 void clip(){
-    if(v_cliped.x<0.) discard;
-    if(v_cliped.x>1.) discard;
-    if(v_cliped.y<0.) discard;
-    if(v_cliped.y>1.) discard;
+    // 定义了 CLIPSCISSOR 时，裁剪已由硬件 scissor 完成，这里不再 discard，
+    // 避免 discard 破坏移动端(尤其 iOS TBDR)的 tile 快路径 / early-Z，降低发热。
+    #ifndef CLIPSCISSOR
+        if(v_cliped.x<0.) discard;
+        if(v_cliped.x>1.) discard;
+        if(v_cliped.y<0.) discard;
+        if(v_cliped.y>1.) discard;
+    #endif
 }

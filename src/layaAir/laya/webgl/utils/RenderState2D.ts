@@ -14,6 +14,10 @@ export class RenderState2D {
 
     static worldScissorTest: boolean = false;
 
+    /** 轴对齐 2D 裁剪是否改用硬件 scissor 替代片元 discard（移动端尤其 iOS 降低发热）。
+     *  置 false 可整体回退到原 discard 方案。旋转/斜切裁剪、MVP3D、cacheAs normal 仍自动走 discard。*/
+    static clipUseScissor: boolean = true;
+
     //public static var worldClipRect:Rectangle = new Rectangle(0, 0, _MAXSIZE, _MAXSIZE);
     static worldShaderDefines: ShaderDefines2D;
     static worldFilters: any[];
