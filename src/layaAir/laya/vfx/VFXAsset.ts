@@ -253,6 +253,10 @@ export class VFXParticleSystemDesc implements VFXSystemDesc {
     // 运行时通过 VisualEffect.setBuffer(name, buffer) 公开 API 绑定
     bufferUniforms: Array<{ uniformName: string; propertyName: string }> = [];
 
+    // setPositionMesh 点云 storage buffer 列表（mesh 表面/体积烘焙的 DeviceBuffer，对齐 Unity 的 buffer 采样）
+    // buffer 异步烘焙完成后由 VisualEffect 绑到 compute shader 的 <uniformName>Buffer
+    meshPointBuffers: Array<{ uniformName: string; buffer: any }> = [];
+
     // Output Event 描述（CPU readback 通知，对齐 Unity VFXOutputEvent）
     outputEvents: Array<VFXOutputEventDesc> = [];
 }

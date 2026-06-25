@@ -3,6 +3,7 @@ import { VFXState } from "../VFXState";
 import { VFXSystem } from "./VFXSystem";
 import { UnlitMaterial } from "../../d3/core/material/UnlitMaterial";
 import { MeshFilter } from "../../d3/core/MeshFilter";
+import { Mesh } from "../../d3/resource/models/Mesh";
 import { MeshRenderer } from "../../d3/core/MeshRenderer";
 import { Sprite3D } from "../../d3/core/Sprite3D";
 import { Color } from "../../maths/Color";
@@ -26,6 +27,13 @@ export class VFXStaticMeshSystem extends VFXSystem {
     private _child: Sprite3D = null;
     private _meshFilter: MeshFilter = null;
     private _meshRenderer: MeshRenderer = null;
+
+    /** 运行时更换 mesh（VFX 组件级 Mesh 属性 override）。静态 mesh 直接换 sharedMesh。 */
+    setMesh(mesh: Mesh): void {
+        if (!mesh) return;
+        this.desc.mesh = mesh;
+        if (this._meshFilter) this._meshFilter.sharedMesh = mesh;
+    }
 
     init(): void {
         if (this._child) this.release();
