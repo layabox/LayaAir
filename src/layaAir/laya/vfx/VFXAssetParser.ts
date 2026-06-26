@@ -380,6 +380,13 @@ export class VFXAssetParser {
                                 continue;   // 不进入下面的 .lmat / mesh / pcache loader 路径
                             }
 
+                            // SkinnedMeshTransform/VFXTransform：Mat4 uniform，非纹理。记 transformSource，
+                            // 引擎 VisualEffect._updateTransformSources 每帧把注册节点世界矩阵绑到该 uniform。
+                            if (textureType === "Transform") {
+                                entry.transformSource = uuid;
+                                continue;
+                            }
+
                             // 内联 Gradient：不需要加载 UUID，直接用编译器透传的 stops 烘焙 256×1 RGBA8 纹理
                             if (textureType === "InlineGradient") {
                                 const rawStops = Array.isArray(tu.gradientStops) ? tu.gradientStops : [];
