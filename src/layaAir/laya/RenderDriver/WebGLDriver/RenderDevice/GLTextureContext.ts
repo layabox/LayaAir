@@ -1356,29 +1356,31 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
     createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
         multiSamples = 1;
-
-        // let texture = this.createRenderTextureInternal(dimension, size, size, colorFormat, generateMipmap, sRGB);
         let texture = this.createRenderTextureCubeInternal(TextureDimension.Cube, size, colorFormat, generateMipmap, sRGB);
-
-        let renderTarget = new WebGLInternalRT(this._engine, colorFormat, depthStencilFormat, true, texture.mipmap, multiSamples);
+        let renderTarget = this._assembleLayeredRT(texture, size, size, colorFormat, depthStencilFormat, true);
+        // 内存语义与改动前一致:cube 在 RT.gpuMemory 计 color+depth
         renderTarget.gpuMemory = this.getGLRTTexMemory(size, size, colorFormat, depthStencilFormat, generateMipmap, multiSamples, true);
-        renderTarget._textures.push(texture);
+        return renderTarget;
+    }
 
-        let framebuffer = renderTarget._framebuffer;
+    /** 组装"分层渲染目标"的公共骨架(cube/array 共享):建 RT、挂颜色纹理、建一份共享 depth、配 FBO。gpuMemory 由调用方设置。 */
+    protected _assembleLayeredRT(colorTex: WebGLInternalTex, width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, isCube: boolean): WebGLInternalRT {
+        let gl = <WebGLRenderingContext>this._gl;
+        depthStencilFormat = depthStencilFormat == null ? RenderTargetFormat.None : depthStencilFormat;
 
-        let gl = <WebGLRenderingContext>renderTarget._gl;
+        let renderTarget = new WebGLInternalRT(this._engine, colorFormat, depthStencilFormat, isCube, colorTex.mipmap, 1);
+        renderTarget.colorFormat = colorFormat;
+        renderTarget.depthStencilFormat = depthStencilFormat;
+        renderTarget._textures.push(colorTex);
 
-        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-
+        gl.bindFramebuffer(gl.FRAMEBUFFER, renderTarget._framebuffer);
         let depthBufferParam = this.glRenderBufferParam(depthStencilFormat, false);
         if (depthBufferParam) {
-            let depthbuffer = this.createRenderbuffer(size, size, depthBufferParam.internalFormat, renderTarget._samples);
+            let depthbuffer = this.createRenderbuffer(width, height, depthBufferParam.internalFormat, renderTarget._samples);
             renderTarget._depthbuffer = depthbuffer;
             gl.framebufferRenderbuffer(gl.FRAMEBUFFER, depthBufferParam.attachment, gl.RENDERBUFFER, depthbuffer);
         }
-
         gl.bindFramebuffer(gl.FRAMEBUFFER, WebGLEngine._lastFrameBuffer_WebGLOBJ);
-
         return renderTarget;
     }
 
