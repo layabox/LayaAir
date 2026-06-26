@@ -9,6 +9,7 @@ import { Bounds } from "../../d3/math/Bounds";
 import { Mesh } from "../../d3/resource/models/Mesh";
 import { LayaGL } from "../../layagl/LayaGL";
 import { StatElement } from "../../layagl/StatisticsContext";
+import { Quaternion } from "../../maths/Quaternion";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { IRenderContext3D } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
@@ -45,6 +46,13 @@ export class ShurikenParticleRenderer extends BaseRender {
     private _mesh: Mesh = null;
     private _pivot: Vector3 = new Vector3(0, 0, 0);
 
+    /** @internal transform-derived uniform caches (event-gated + value-diffed). */
+    private _transformUniformDirty: boolean = true;
+    private _cacheWorldPos: Vector3 = new Vector3(NaN, NaN, NaN);
+    private _cacheWorldRot: Quaternion = new Quaternion(NaN, NaN, NaN, NaN);
+    private _cachePositionScale: Vector3 = new Vector3(NaN, NaN, NaN);
+    private _cacheSizeScale: Vector3 = new Vector3(NaN, NaN, NaN);
+
     /**@internal */
     _particleSystem: ShurikenParticleSystem;
     /**
@@ -56,12 +64,26 @@ export class ShurikenParticleRenderer extends BaseRender {
      * @en Speed scale in stretched billboard mode.
      * @zh 拉伸广告牌模式速度缩放。
      */
-    stretchedBillboardSpeedScale: number = 0;
+    private _stretchedBillboardSpeedScale: number = 0;
+    get stretchedBillboardSpeedScale(): number {
+        return this._stretchedBillboardSpeedScale;
+    }
+    set stretchedBillboardSpeedScale(value: number) {
+        this._stretchedBillboardSpeedScale = value;
+        this._onParticleConfigChanged();
+    }
     /**
      * @en Length scale in stretched billboard mode.
      * @zh 拉伸广告牌模式长度缩放。
      */
-    stretchedBillboardLengthScale: number = 2;
+    private _stretchedBillboardLengthScale: number = 2;
+    get stretchedBillboardLengthScale(): number {
+        return this._stretchedBillboardLengthScale;
+    }
+    set stretchedBillboardLengthScale(value: number) {
+        this._stretchedBillboardLengthScale = value;
+        this._onParticleConfigChanged();
+    }
 
     /**
      * @en The particle management system.
@@ -154,6 +176,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 
     set pivot(value: Vector3) {
         value.cloneTo(this._pivot);
+        this._onParticleConfigChanged();
     }
 
     /**
@@ -165,6 +188,62 @@ export class ShurikenParticleRenderer extends BaseRender {
         super();
         this.renderMode = 0;
         this._baseRenderNode.renderNodeType = BaseRenderType.ParticleRender
+    }
+
+    /**
+     * @internal
+     * Hook the engine transform-changed event so transform-derived uniforms are only
+     * recomputed when the emitter actually moves/rotates/scales.
+     */
+    protected _onWorldMatNeedChange(flag: number): void {
+        super._onWorldMatNeedChange(flag);
+        this._transformUniformDirty = true;
+    }
+
+    /** @internal returns true and stores v into cache when v differs from the cached value. */
+    private static _v3Changed(v: Vector3, cache: Vector3): boolean {
+        if (v.x !== cache.x || v.y !== cache.y || v.z !== cache.z) {
+            cache.x = v.x;
+            cache.y = v.y;
+            cache.z = v.z;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @internal
+     * Push every config-driven uniform once. Called at setup and on any config change,
+     * so _renderUpdate never re-pushes config per frame.
+     */
+    _applyConfigShaderData(): void {
+        let ps: ShurikenParticleSystem = this._particleSystem;
+        if (!ps) return;
+        let sv: ShaderData = this._baseRenderNode.shaderData;
+
+        sv.setBool(ShuriKenParticle3DShaderDeclaration.SHAPE, !!(ps.shape && ps.shape.enable));
+
+        if (ps.dragType === 0 || ps.dragType === 2) {
+            let dragY: number = ps.dragType === 0 ? ps.dragSpeedConstantMin : ps.dragSpeedConstantMax;
+            this._dragConstant.setValue(ps.dragSpeedConstantMin, dragY);
+            sv.setVector2(ShuriKenParticle3DShaderDeclaration.DRAG, this._dragConstant);
+        }
+
+        Vector3.scale(ShurikenParticleRenderer.gravity, ps.gravityModifier, this._finalGravity);
+        sv.setVector3(ShuriKenParticle3DShaderDeclaration.GRAVITY, this._finalGravity);
+        sv.setInt(ShuriKenParticle3DShaderDeclaration.SIMULATIONSPACE, ps.simulationSpace);
+        sv.setBool(ShuriKenParticle3DShaderDeclaration.THREEDSTARTROTATION, ps.threeDStartRotation);
+        sv.setInt(ShuriKenParticle3DShaderDeclaration.SCALINGMODE, ps.scaleMode);
+        sv.setNumber(ShuriKenParticle3DShaderDeclaration.STRETCHEDBILLBOARDLENGTHSCALE, this.stretchedBillboardLengthScale);
+        sv.setNumber(ShuriKenParticle3DShaderDeclaration.STRETCHEDBILLBOARDSPEEDSCALE, this.stretchedBillboardSpeedScale);
+        sv.setVector3(ShuriKenParticle3DShaderDeclaration.PIVOT, this._pivot);
+    }
+
+    /** @internal a config property changed: re-apply config uniforms + re-evaluate transform-derived ones. */
+    _onParticleConfigChanged(): void {
+        if (!this._particleSystem) return;
+        this._applyConfigShaderData();
+        this._transformUniformDirty = true;
     }
 
     protected _isMaterialVaild(value: Material): boolean {
@@ -192,6 +271,7 @@ export class ShurikenParticleRenderer extends BaseRender {
         element.material = ShurikenParticleMaterial.defaultMaterial;
 
         this._setRenderElements();
+        this._applyConfigShaderData();
     }
     protected _onEnable(): void {
         super._onEnable();
@@ -265,63 +345,56 @@ export class ShurikenParticleRenderer extends BaseRender {
         var particleSystem: ShurikenParticleSystem = this._particleSystem;
         var sv: ShaderData = this._baseRenderNode.shaderData;
         var transform: Transform3D = this.owner.transform;
-        switch (particleSystem.simulationSpace) {
-            case 0: //World
-                break;
-            case 1: //Local
-                sv.setVector3(ShuriKenParticle3DShaderDeclaration.WORLDPOSITION, transform.position);
-                sv.setShaderData(ShuriKenParticle3DShaderDeclaration.WORLDROTATION, ShaderDataType.Vector4, transform.rotation);
-                break;
-            default:
-                throw new Error("ShurikenParticleMaterial: SimulationSpace value is invalid.");
-        }
 
-        if (particleSystem.shape && particleSystem.shape.enable) {
-            sv.setBool(ShuriKenParticle3DShaderDeclaration.SHAPE, true)
-        } else {
-            sv.setBool(ShuriKenParticle3DShaderDeclaration.SHAPE, false)
-        }
-
-        switch (particleSystem.scaleMode) {
-            case 0:
-                var scale: Vector3 = transform.getWorldLossyScale();
-                sv.setVector3(ShuriKenParticle3DShaderDeclaration.POSITIONSCALE, scale);
-                sv.setVector3(ShuriKenParticle3DShaderDeclaration.SIZESCALE, scale);
-                break;
-            case 1:
-                var localScale: Vector3 = transform.localScale;
-                sv.setVector3(ShuriKenParticle3DShaderDeclaration.POSITIONSCALE, localScale);
-                sv.setVector3(ShuriKenParticle3DShaderDeclaration.SIZESCALE, localScale);
-                break;
-            case 2:
-                sv.setVector3(ShuriKenParticle3DShaderDeclaration.POSITIONSCALE, transform.getWorldLossyScale());
-                sv.setVector3(ShuriKenParticle3DShaderDeclaration.SIZESCALE, Vector3.ONE);
-                break;
-        }
-
-        switch (particleSystem.dragType) {
-            case 0:
-                this._dragConstant.setValue(particleSystem.dragSpeedConstantMin, particleSystem.dragSpeedConstantMin);
-                sv.setVector2(ShuriKenParticle3DShaderDeclaration.DRAG, this._dragConstant);
-                break;
-            case 2:
-                this._dragConstant.setValue(particleSystem.dragSpeedConstantMin, particleSystem.dragSpeedConstantMax);
-                sv.setVector2(ShuriKenParticle3DShaderDeclaration.DRAG, this._dragConstant);
-                break;
-            default:
-                this._dragConstant.setValue(0, 0);
-                break;
-        }
-
-        Vector3.scale(ShurikenParticleRenderer.gravity, particleSystem.gravityModifier, this._finalGravity);
-        sv.setVector3(ShuriKenParticle3DShaderDeclaration.GRAVITY, this._finalGravity);
-        sv.setInt(ShuriKenParticle3DShaderDeclaration.SIMULATIONSPACE, particleSystem.simulationSpace);
-        sv.setBool(ShuriKenParticle3DShaderDeclaration.THREEDSTARTROTATION, particleSystem.threeDStartRotation);
-        sv.setInt(ShuriKenParticle3DShaderDeclaration.SCALINGMODE, particleSystem.scaleMode);
-        sv.setNumber(ShuriKenParticle3DShaderDeclaration.STRETCHEDBILLBOARDLENGTHSCALE, this.stretchedBillboardLengthScale);
-        sv.setNumber(ShuriKenParticle3DShaderDeclaration.STRETCHEDBILLBOARDSPEEDSCALE, this.stretchedBillboardSpeedScale);
+        // The particle animation clock is the only genuinely per-frame uniform.
         sv.setNumber(ShuriKenParticle3DShaderDeclaration.CURRENTTIME, particleSystem._currentTime);
-        sv.setVector3(ShuriKenParticle3DShaderDeclaration.PIVOT, this._pivot);
+
+        // Transform-derived uniforms: only recompute when the emitter transform (or sim/scale mode) changed.
+        if (this._transformUniformDirty) {
+            let simSpace: number = particleSystem.simulationSpace;
+            if (simSpace === 1) { //Local
+                let pos: Vector3 = transform.position;
+                if (ShurikenParticleRenderer._v3Changed(pos, this._cacheWorldPos)) {
+                    sv.setVector3(ShuriKenParticle3DShaderDeclaration.WORLDPOSITION, pos);
+                }
+                let rot: Quaternion = transform.rotation;
+                if (rot.x !== this._cacheWorldRot.x || rot.y !== this._cacheWorldRot.y || rot.z !== this._cacheWorldRot.z || rot.w !== this._cacheWorldRot.w) {
+                    sv.setShaderData(ShuriKenParticle3DShaderDeclaration.WORLDROTATION, ShaderDataType.Vector4, rot);
+                    rot.cloneTo(this._cacheWorldRot);
+                }
+            } else if (simSpace !== 0) {
+                throw new Error("ShurikenParticleMaterial: SimulationSpace value is invalid.");
+            }
+
+            switch (particleSystem.scaleMode) {
+                case 0: {
+                    let scale: Vector3 = transform.getWorldLossyScale();
+                    if (ShurikenParticleRenderer._v3Changed(scale, this._cachePositionScale))
+                        sv.setVector3(ShuriKenParticle3DShaderDeclaration.POSITIONSCALE, scale);
+                    if (ShurikenParticleRenderer._v3Changed(scale, this._cacheSizeScale))
+                        sv.setVector3(ShuriKenParticle3DShaderDeclaration.SIZESCALE, scale);
+                    break;
+                }
+                case 1: {
+                    let localScale: Vector3 = transform.localScale;
+                    if (ShurikenParticleRenderer._v3Changed(localScale, this._cachePositionScale))
+                        sv.setVector3(ShuriKenParticle3DShaderDeclaration.POSITIONSCALE, localScale);
+                    if (ShurikenParticleRenderer._v3Changed(localScale, this._cacheSizeScale))
+                        sv.setVector3(ShuriKenParticle3DShaderDeclaration.SIZESCALE, localScale);
+                    break;
+                }
+                case 2: {
+                    let worldScale: Vector3 = transform.getWorldLossyScale();
+                    if (ShurikenParticleRenderer._v3Changed(worldScale, this._cachePositionScale))
+                        sv.setVector3(ShuriKenParticle3DShaderDeclaration.POSITIONSCALE, worldScale);
+                    if (ShurikenParticleRenderer._v3Changed(Vector3.ONE, this._cacheSizeScale))
+                        sv.setVector3(ShuriKenParticle3DShaderDeclaration.SIZESCALE, Vector3.ONE);
+                    break;
+                }
+            }
+
+            this._transformUniformDirty = false;
+        }
     }
 
     /**
