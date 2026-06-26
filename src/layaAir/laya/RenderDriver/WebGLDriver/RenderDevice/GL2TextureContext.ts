@@ -341,6 +341,17 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
         return bytelength;
     }
 
+    private _ensureTexture3DStorage(texture: WebGLInternalTex, depth: number = texture.depth): void {
+        if (texture._texture3DStorageAllocated)
+            return;
+
+        let gl = this._gl;
+        this._engine._bindTexture(texture.target, texture.resource);
+        gl.texStorage3D(texture.target, texture.mipmapCount, texture.internalFormat, texture.width, texture.height, depth);
+        texture.gpuMemory = this.getGLtexMemory(texture, depth);
+        texture._texture3DStorageAllocated = true;
+    }
+
     // todo webgl2 srgb 判断
     supportSRGB(format: TextureFormat | RenderTargetFormat, mipmap: boolean): boolean {
         switch (format) {
@@ -492,12 +503,10 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
 
         this._engine._bindTexture(texture.target, texture.resource);
 
-        gl.texStorage3D(target, mipmapCount, internalFormat, width, height, depth);
-        texture.gpuMemory = this.getGLtexMemory(texture, depth);
+        this._ensureTexture3DStorage(texture, depth);
         for (let index = 0; index < depth; index++) {
             gl.texSubImage3D(target, 0, 0, 0, index, width, height, 1, format, type, sources[index]);
         }
-        texture.gpuMemory = this.getGLtexMemory(texture);
         if (texture.mipmap) {
             gl.generateMipmap(texture.target);
         }
@@ -524,8 +533,7 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
         this._engine._bindTexture(texture.target, texture.resource);
-        gl.texStorage3D(target, mipmapCount, internalFormat, width, height, depth);
-        texture.gpuMemory = this.getGLtexMemory(texture, depth);
+        this._ensureTexture3DStorage(texture, depth);
         if (source) {
             gl.texSubImage3D(target, 0, 0, 0, 0, width, height, depth, format, type, source);
             if (texture.mipmap) {
@@ -556,6 +564,7 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
 
         this._engine._bindTexture(texture.target, texture.resource);
 
+        this._ensureTexture3DStorage(texture);
         gl.texSubImage3D(target, mipmapLevel, xOffset, yOffset, zOffset, width, height, depth, format, type, source);
 
         if (texture.mipmap && generateMipmap) {
@@ -1080,6 +1089,8 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
         renderTarget.gpuMemory = this.getGLRTTexMemory(texture.width, texture.height, RenderTargetFormat.None, depthStencilFormat, false, 1, false);
 
         let framebuffer = renderTarget._framebuffer;
+        this._ensureTexture3DStorage(texture);
+        this._engine._bindTexture(texture.target, null);
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
 
         let colorAttachment = this.glRenderTargetAttachment(colorFormat);
