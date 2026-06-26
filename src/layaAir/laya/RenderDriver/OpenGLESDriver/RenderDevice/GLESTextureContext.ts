@@ -20,6 +20,12 @@ export class GLESTextureContext implements ITextureContext {
         this._native = native;
         this.needBitmap = false;
     }
+    createRenderTargetArrayInternal(width: number, height: number, depth: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
+        if (this._native && typeof this._native.createRenderTargetArrayInternal === "function") {
+            return this._native.createRenderTargetArrayInternal(width, height, depth, colorFormat, depthStencilFormat, generateMipmap, sRGB, multiSamples);
+        }
+        throw "not implemented";
+    }
     createRenderTargetFromArrayLayer(arrayTex: InternalTexture, layer: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, sRGB: boolean): InternalRenderTarget {
         throw new Error("Method not implemented.");
     }

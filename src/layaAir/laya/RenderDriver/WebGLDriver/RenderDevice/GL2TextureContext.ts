@@ -1191,6 +1191,36 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
 
     }
 
+    /** 创建用作 RT 的 Texture2DArray 内部纹理(仅描述，存储分配延迟到 _ensureTexture3DStorage) */
+    createRenderTextureArrayInternal(width: number, height: number, depth: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): WebGLInternalTex {
+        let useSRGBExt = false;
+        generateMipmap = generateMipmap && this.supportGenerateMipmap(format);
+        let target = this._gl.TEXTURE_2D_ARRAY;
+        let internalTex = new WebGLInternalTex(this._engine, target, width, height, depth, TextureDimension.Texture2DArray, generateMipmap, useSRGBExt, 1.0);
+        let glParam = this.glRenderTextureParam(format, useSRGBExt);
+        internalTex.internalFormat = glParam.internalFormat;
+        internalTex.format = glParam.format;
+        internalTex.type = glParam.type;
+        return internalTex;
+    }
+
+    createRenderTargetArrayInternal(width: number, height: number, depth: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
+        if (multiSamples > 1) {
+            throw "createRenderTargetArrayInternal: MSAA for Texture2DArray RT is not implemented yet.";
+        }
+        let texture = this.createRenderTextureArrayInternal(width, height, depth, colorFormat, generateMipmap, sRGB);
+        // 一次性分配整张 array 不可变存储
+        this._ensureTexture3DStorage(texture, depth);
+        this._engine._bindTexture(texture.target, null);
+
+        let renderTarget = this._assembleLayeredRT(texture, width, height, colorFormat, depthStencilFormat, false);
+        renderTarget.isSRGB = sRGB;
+        // 内存语义:array 颜色按层计在纹理上(getGLRTTexMemory 无法表达层数);RT 只记 depth
+        texture.gpuMemory = this.getGLtexMemory(texture, depth);
+        renderTarget.gpuMemory = this.getGLRTTexMemory(width, height, RenderTargetFormat.None, depthStencilFormat, false, 1, false);
+        return renderTarget;
+    }
+
 
     bindRenderTarget(renderTarget: WebGLInternalRT, slice: number = 0): void {
         this.currentActiveRT && this.unbindRenderTarget(this.currentActiveRT);
