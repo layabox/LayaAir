@@ -296,7 +296,8 @@ export class WebRender2DPass implements IRender2DPass {
          let list = this._structs.lists.get(index);
          for (let i = 0, cnt = list.length; i < cnt; i++) {
             let struct = list.elements[i];
-            let n = struct.renderElements ? struct.renderElements.length : 0;
+            let structElements = struct.renderElements;
+            let n = structElements ? structElements.length : 0;
             if (struct.owner._getBit(NodeFlags.HIDE_BY_EDITOR)) //Editor only code, native should ignore
                n = 0;
 
@@ -312,9 +313,25 @@ export class WebRender2DPass implements IRender2DPass {
 
             if (n > 0) {
                for (let i = 0; i < n; i++) {
-                  let element = struct.renderElements[i];
+                  let element = structElements[i];
                   element._index = i;
-                  element.geometry && renderElements.add(element);
+                  if (!element.geometry)
+                     continue;
+                  if (element.noBatch) {
+                     if (groupStart !== renderElements.length) {
+                        this._elementGroups.add(groupStart);
+                        this._elementGroups.add(renderElements.length - 1);
+                        this._elementGroups.add(false);
+                     }
+                     renderElements.add(element);
+                     this._elementGroups.add(renderElements.length - 1);
+                     this._elementGroups.add(renderElements.length - 1);
+                     this._elementGroups.add(false);
+                     groupStart = renderElements.length;
+                  }
+                  else {
+                     renderElements.add(element);
+                  }
                }
             }
 
@@ -415,6 +432,7 @@ export class WebRender2DPass implements IRender2DPass {
       }
 
       context.passData = this.shaderData;
+      (context as any).stencilClip2D?.reset();
       this.shaderData.setNumber(ShaderDefines2D.UNIFORM_TIME, renderTime);
 
       if (sizeX !== this._rtsize.x || sizeY !== this._rtsize.y) {

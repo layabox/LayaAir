@@ -45,9 +45,6 @@ void getViewPos(in vec2 globalPos,out vec2 viewPos){
     #ifdef RENDERTEXTURE
         vec2 tempPos;
         transfrom(globalPos , u_InvertMat_0, u_InvertMat_1, tempPos);
-        // tempPos -= u_clipMatPos.xy - u_clipMatPos.zw;
-        // tempPos.x += (u_clipMatPos.x - u_clipMatPos.z); 
-        // tempPos.y += (u_clipMatPos.y - u_clipMatPos.w);
 
         #ifdef CAMERA2D
             viewPos.xy = (u_view2D *vec3(tempPos,1.0)).xy+u_size/2.;

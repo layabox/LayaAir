@@ -66,5 +66,5 @@ export class TextRenderConfig {
      * @en  Whether to use premultipAlpha
      * @zh  是否预乘
      */
-    static premultiplyAlpha = false;
+    static premultiplyAlpha = true;
 }

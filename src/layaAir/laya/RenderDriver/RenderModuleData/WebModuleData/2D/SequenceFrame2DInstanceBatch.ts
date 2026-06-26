@@ -103,7 +103,8 @@ export class SequenceFrame2DInstanceBatch implements IBatch2DProvider {
         if (!leftRenderer._canBatchWith(rightRenderer)) {
             return false;
         }
-        if (left.materialShaderData !== right.materialShaderData || left.subShader !== right.subShader) {
+        if (left.materialShaderData !== right.materialShaderData ||
+            left.subShader !== right.subShader) {
             return false;
         }
 
@@ -201,6 +202,7 @@ export class SequenceFrame2DInstanceBatch implements IBatch2DProvider {
         batchElement.globalShaderData = first.globalShaderData;
         batchElement.subShader = first.subShader;
         batchElement.renderStateIsBySprite = first.renderStateIsBySprite;
+        batchElement.stencilClipState = null;
         batchElement.nodeCommonMap = first.nodeCommonMap;
         batchElement.owner = first.owner;
 
@@ -357,6 +359,7 @@ export class SequenceFrame2DInstanceBatchTool {
     static recover(info: ISequenceFrame2DBatchInfo): void {
         const element = info.element;
         element.materialShaderData = null;
+        element.stencilClipState = null;
         element.value2DShaderData = null;
         element.globalShaderData = null;
         element.subShader = null;

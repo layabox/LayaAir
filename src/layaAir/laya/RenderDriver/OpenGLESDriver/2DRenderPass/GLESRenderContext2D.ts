@@ -2,30 +2,29 @@ import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
-import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
-import { Vector3 } from "../../../maths/Vector3";
 import { VertexElement } from "../../../renders/VertexElement";
 import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
-import { ShaderData, ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
-import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { GLESInternalRT } from "../RenderDevice/GLESInternalRT";
 import { GLESRenderGeometryElement } from "../RenderDevice/GLESRenderGeometryElement";
 import { GLESShaderData } from "../RenderDevice/GLESShaderData";
-import { GLESVertexBuffer } from "../RenderDevice/GLESVertexBuffer";
 import { GLESRenderElement2D } from "./GLESRenderElement2D";
+import { Shader2D } from "../../../webgl/shader/d2/Shader2D";
+import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 
 export class GLESRenderContext2D implements IRenderContext2D {
 
     static isCreateBlitScreenELement = false;
 
     static blitScreenElement: GLESRenderElement2D;
+    private static _stencilMaskGeometry: GLESRenderGeometryElement = null;
+    private static _stencilMaskTemplate: GLESRenderElement2D = null;
 
     private _tempList: any = [];
 
@@ -67,6 +66,21 @@ export class GLESRenderContext2D implements IRenderContext2D {
         this._nativeObj.bindContext2DBuffer(this._ctx2dBuf);
         this._nativeObj.setGlobalConfigShaderData((Shader3D._configDefineValues as any)._nativeObj);
         this._nativeObj.pipelineMode = "Forward";
+        this._nativeObj.setStencilMaskTemplate(GLESRenderContext2D._getStencilMaskTemplate()._nativeObj);
+    }
+
+    private static _getStencilMaskTemplate(): GLESRenderElement2D {
+        if (GLESRenderContext2D._stencilMaskTemplate)
+            return GLESRenderContext2D._stencilMaskTemplate;
+
+        const element = new GLESRenderElement2D();
+        element.geometry = ShaderDefines2D._stencilGeo as GLESRenderGeometryElement;
+        element.subShader = Shader2D.stencilShader.getSubShaderAt(0);
+        element.nodeCommonMap = ["BaseRender2D"];
+        element.renderStateIsBySprite = true;
+
+        GLESRenderContext2D._stencilMaskTemplate = element;
+        return element;
     }
 
     private _passData: GLESShaderData = null;

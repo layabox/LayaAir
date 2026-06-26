@@ -53,6 +53,8 @@ class BatchBuffer {
 
         let cview = handle.getCloneViews()[element._index];
         let block = blocks[element._index];
+        if (!cview || !block)
+            return null;
         let vertexBuffer = block.vertexBuffer;
         let bufferState = this.bindBuffer(vertexBuffer);
         this.indexCount += cview.length;
@@ -79,6 +81,8 @@ class BatchBuffer {
 
         let cview = handle.getCloneViews()[element._index];
         let block = blocks[element._index];
+        if (!cview || !block)
+            return null;
         let vertexBuffer = block.vertexBuffer;
         let bufferState = this.bindBuffer(vertexBuffer);
         this.indexCount += cview.length;
@@ -214,13 +218,6 @@ class WebGLBatchContext extends BaseBatchContext {
     }
 
     isCompatible(element: IPrimitiveRenderElement2D): boolean {
-        if (this.typeKey & ShaderDefines2D.DEFINE_BIT_MATERIALCLIP)
-            return false;
-
-        if (element.typeKey & ShaderDefines2D.DEFINE_BIT_MATERIALCLIP) {
-            return false;
-        }
-
         // typeKey comparison (blend+flags)
         if (this.typeKey !== element.typeKey) {
             return false;
@@ -284,13 +281,6 @@ class WebGPUBatchContext extends BaseBatchContext {
     }
 
     isCompatible(element: IPrimitiveRenderElement2D): boolean {
-        if (this.typeKey & ShaderDefines2D.DEFINE_BIT_MATERIALCLIP)
-            return false;
-
-        if (element.typeKey & ShaderDefines2D.DEFINE_BIT_MATERIALCLIP) {
-            return false;
-        }
-
         // typeKey comparison (blend+flags)
         if (this.typeKey !== element.typeKey) {
             return false;
@@ -351,6 +341,7 @@ export class WebGraphicsBatch implements IBatch2DProvider {
             element.geometry.clearRenderParams();
             element.geometry.bufferState = null;
             element.materialShaderData = null;
+            element.stencilClipState = null;
             element.value2DShaderData = null;
             element.primitiveShaderData = null;
             element.subShader = null;
@@ -507,6 +498,7 @@ export class WebGraphicsBatch implements IBatch2DProvider {
                 staticBatchRenderElement.value2DShaderData = element.value2DShaderData;
                 staticBatchRenderElement.subShader = element.subShader;
                 staticBatchRenderElement.renderStateIsBySprite = element.renderStateIsBySprite;
+                staticBatchRenderElement.stencilClipState = null;
                 staticBatchRenderElement.primitiveShaderData = batchContext.primitiveShaderData;
                 staticBatchRenderElement.owner = element.owner;
                 staticBatchRenderElement.typeKey = batchContext.typeKey;

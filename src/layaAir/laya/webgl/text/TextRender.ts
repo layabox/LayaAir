@@ -322,7 +322,8 @@ export class TextRender {
 
         if (Config.useTextureArray && TextRenderConfig.useTextureArray) {
             // 尝试从数组纹理池分配一层并注册映射，使本 TextTexture 被绘制时自动替换为 Texture2DArray+layer
-            const alloc = TextureArrayRegistry2D.allocateLayerAsTexture(width, height, TextureFormat.R8G8B8A8, 64, /*sRGB*/ false , RenderTargetFormat.None , true);
+            let enableMipmap = !!(LayaGL.renderEngine as any).gl;
+            const alloc = TextureArrayRegistry2D.allocateLayerAsTexture(width, height, TextureFormat.R8G8B8A8, 64, /*sRGB*/ false , RenderTargetFormat.None , enableMipmap);
             if (alloc) {
                 // 当启用 CPU 预乘时，文本数据来自 Canvas 2D（sRGB 空间）且已预乘 alpha。
                 // 不能使用硬件 sRGB 格式（会对预乘数据错误解码产生白边），

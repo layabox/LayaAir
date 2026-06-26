@@ -3,8 +3,7 @@ import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Vector2 } from "../../../maths/Vector2";
 import { Stat } from "../../../utils/Stat";
 import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
-import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
-import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
+import { IRenderElement2D, WebGL2DStencilState } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { WebRenderStruct2D } from "../../RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
@@ -35,6 +34,8 @@ export class WebGLRenderElement2D implements IRenderElement2D {
     owner: WebRenderStruct2D;
     nodeCommonMap: string[];
     renderStateIsBySprite: boolean = true;
+    stencilClipState: WebGL2DStencilState = null;
+    noBatch: boolean = false;
 
     type: number = 0;
     /** @internal */
@@ -235,9 +236,13 @@ export class WebGLRenderElement2D implements IRenderElement2D {
         this._materialShaderData && shader.uploadUniforms(shader._materialUniformParamsMap, this._materialShaderData, true);
         //blend
         if (this.renderStateIsBySprite || !this._materialShaderData) {
+            if (this.stencilClipState)
+                context.applyStencil2DToShaderData(this._value2DShaderData, this.stencilClipState);
             shader.uploadRenderStateBlendDepth(this._value2DShaderData);
             shader.uploadRenderStateFrontFace(this._value2DShaderData, false, context.invertY);
         } else {
+            if (this.stencilClipState)
+                context.applyStencil2DToShaderData(this._materialShaderData, this.stencilClipState);
             shader.uploadRenderStateBlendDepth(this._materialShaderData);
             shader.uploadRenderStateFrontFace(this._materialShaderData, false, context.invertY);
         }

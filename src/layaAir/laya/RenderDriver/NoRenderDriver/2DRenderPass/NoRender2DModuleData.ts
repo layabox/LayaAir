@@ -514,7 +514,9 @@ const _DefaultClipInfo: IClipInfo = {
     clipMatrix: new Matrix(),
     clipMatDir: new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE),
     clipMatPos: new Vector4(0, 0, 0, 0),
-    _updateFrame: 0
+    _updateFrame: 0,
+    clipDepth: 0,
+    clipParent: null
 };
 
 interface StructTransform {
@@ -611,6 +613,7 @@ export class NoRenderStruct2D implements IRenderStruct2D {
     }
 
     needUploadClip = -1;
+    private _clipOffset: Vector2 = new Vector2();
     needUploadAlpha = true;
     enabled: boolean = true;
     isRenderStruct: boolean = false;
@@ -728,17 +731,24 @@ export class NoRenderStruct2D implements IRenderStruct2D {
                     width = Math.max(width, 0.0001);
                     height = Math.max(height, 0.0001);
                     let tx = mat.tx, ty = mat.ty;
-                    cm.tx = x * mat.a + y * mat.c + tx;
-                    cm.ty = x * mat.b + y * mat.d + ty;
-                    cm.a = width * mat.a;
-                    cm.b = width * mat.b;
-                    cm.c = height * mat.c;
-                    cm.d = height * mat.d;
+                    let maskA = width * mat.a, maskB = width * mat.b;
+                    let maskC = height * mat.c, maskD = height * mat.d;
+                    let parentOffsetX = 0, parentOffsetY = 0;
+                    let rawClipX = x * mat.a + y * mat.c + tx;
+                    let rawClipY = x * mat.b + y * mat.d + ty;
+                    cm.tx = tx;
+                    cm.ty = ty;
+                    cm.a = maskA;
+                    cm.b = maskB;
+                    cm.c = maskC;
+                    cm.d = maskD;
 
                     if (parentClipUpdateFrame !== -1) {
                         let parentClipPos = clipInfo.clipMatPos;
                         let offsetx = parentClipPos.z - parentClipPos.x;
                         let offsety = parentClipPos.w - parentClipPos.y;
+                        parentOffsetX = offsetx;
+                        parentOffsetY = offsety;
                         if (cm.a > 0 && cm.d > 0) {
                             let parentMat = clipInfo.clipMatrix;
                             let parentMinX = parentMat.tx;
@@ -762,9 +772,13 @@ export class NoRenderStruct2D implements IRenderStruct2D {
                         }
                         tx += offsetx;
                         ty += offsety;
+                        cm.tx = tx;
+                        cm.ty = ty;
                     }
                     info.clipMatDir.setValue(cm.a, cm.b, cm.c, cm.d);
-                    info.clipMatPos.setValue(cm.tx, cm.ty, tx, ty);
+                    info.clipMatPos.setValue(rawClipX, rawClipY, tx, ty);
+                    info.clipDepth = (parentClipUpdateFrame !== -1 ? clipInfo.clipDepth : 0) + 1;
+                    info.clipParent = parentClipUpdateFrame !== -1 ? clipInfo : null;
                     info._updateFrame = Math.max(trans.modifiedFrame, parentClipUpdateFrame);
                 }
             }
@@ -775,8 +789,8 @@ export class NoRenderStruct2D implements IRenderStruct2D {
             let info = this.getClipInfo();
             if (info !== _DefaultClipInfo) {
                 if (this.needUploadClip < info._updateFrame) {
-                    data.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, info.clipMatDir);
-                    data.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, info.clipMatPos);
+                    this._clipOffset.setValue(info.clipMatPos.z - info.clipMatPos.x, info.clipMatPos.w - info.clipMatPos.y);
+                    data.setVector2(ShaderDefines2D.UNIFORM_CLIPOFFSET, this._clipOffset);
                     this.needUploadClip = info._updateFrame;
                 }
                 if (!this._uniformClip) {
@@ -811,9 +825,18 @@ export class NoRenderStruct2D implements IRenderStruct2D {
 
     private _initClipInfo(): void {
         if (!this._clipInfo) {
-            this._clipInfo = { clipMatDir: new Vector4, clipMatPos: new Vector4, clipMatrix: new Matrix, _updateFrame: -1 };
+            this._clipInfo = {
+                clipMatDir: new Vector4,
+                clipMatPos: new Vector4,
+                clipMatrix: new Matrix,
+                _updateFrame: -1,
+                clipDepth: 1,
+                clipParent: null
+            };
         } else {
             this._clipInfo._updateFrame = -1;
+            this._clipInfo.clipDepth = 1;
+            this._clipInfo.clipParent = null;
         }
     }
 
