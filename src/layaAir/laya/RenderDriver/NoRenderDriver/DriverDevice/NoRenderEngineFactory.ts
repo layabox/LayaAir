@@ -161,15 +161,6 @@ export class NoTextureContext implements ITextureContext {
         renderTarget.isSRGB = sRGB;
         return renderTarget;
     }
-    createRenderTargetFromArrayLayer(arrayTex: InternalTexture, layer: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, sRGB: boolean): InternalRenderTarget {
-        const rt = new NoInternalRT();
-        rt._textures = [arrayTex];
-        rt.colorFormat = colorFormat;
-        rt.depthStencilFormat = depthStencilFormat;
-        rt.isSRGB = sRGB;
-        (rt as any)._arrayLayerIndex = layer;
-        return rt;
-    }
     needBitmap: boolean;
     createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
         let internalTex = new NoInternalTexture();

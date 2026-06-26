@@ -58,9 +58,6 @@ export interface ITextureContext {
 
     createRenderTargetArrayInternal(width: number, height: number, depth: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget;
 
-    /** @deprecated 由共享模式 createRenderTargetArrayInternal 取代，待 LargeTex 迁移后删除 */
-    createRenderTargetFromArrayLayer(arrayTex: InternalTexture, layer: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, sRGB: boolean): InternalRenderTarget;
-
     bindRenderTarget(renderTarget: InternalRenderTarget, faceIndex?: number): void;
     bindoutScreenTarget(): void;
     unbindRenderTarget(renderTarget: InternalRenderTarget): void;

@@ -1069,45 +1069,6 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
 
     }
 
-    createRenderTargetFromArrayLayer(arrayTex: InternalTexture, layer: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, sRGB: boolean): WebGLInternalRT {
-        let texture = arrayTex as WebGLInternalTex;
-        let gl = this._gl;
-        depthStencilFormat = depthStencilFormat == null ? RenderTargetFormat.None : depthStencilFormat;
-
-        if (!texture || texture.target != gl.TEXTURE_2D_ARRAY) {
-            throw "createRenderTargetFromArrayLayer: arrayTex must be a Texture2DArray.";
-        }
-        if (layer < 0 || layer >= texture.depth) {
-            throw "createRenderTargetFromArrayLayer: layer out of range.";
-        }
-
-        let renderTarget = new WebGLInternalRT(this._engine, colorFormat, depthStencilFormat, false, texture.mipmap, 1);
-        renderTarget._texturesOwnsResources = false;
-        renderTarget._textures.push(texture);
-        renderTarget.isSRGB = sRGB;
-        renderTarget._arrayLayerIndex = layer;
-        renderTarget.gpuMemory = this.getGLRTTexMemory(texture.width, texture.height, RenderTargetFormat.None, depthStencilFormat, false, 1, false);
-
-        let framebuffer = renderTarget._framebuffer;
-        this._ensureTexture3DStorage(texture);
-        this._engine._bindTexture(texture.target, null);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-
-        let colorAttachment = this.glRenderTargetAttachment(colorFormat);
-        gl.framebufferTextureLayer(gl.FRAMEBUFFER, colorAttachment, texture.resource, 0, layer);
-
-        let depthBufferParam = this.glRenderBufferParam(depthStencilFormat, false);
-        if (depthBufferParam) {
-            let depthbuffer = this.createRenderbuffer(texture.width, texture.height, depthBufferParam.internalFormat, renderTarget._samples);
-            renderTarget._depthbuffer = depthbuffer;
-            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, depthBufferParam.attachment, gl.RENDERBUFFER, depthbuffer);
-        }
-
-        gl.bindFramebuffer(gl.FRAMEBUFFER, WebGLEngine._lastFrameBuffer_WebGLOBJ);
-
-        return renderTarget;
-    }
-
     createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
         let texture = this.createRenderTextureCubeInternal(TextureDimension.Cube, size, colorFormat, generateMipmap, sRGB);
 

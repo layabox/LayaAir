@@ -35,7 +35,7 @@ import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { IGraphicsCmd } from "../IGraphics";
-import { Texture2DArray } from "../../resource/Texture2DArray";
+import { TextureDimension } from "../../RenderEngine/RenderEnum/TextureDimension";
 import { TextureArrayRegistry2D } from "../../webgl/utils/TextureArrayRegistry2D";
 import { ITextureProcessor, EmptyTextureProcessor } from "../../large/ITextureProcessor";
 import { GraphicsDefines } from "../../webgl/shader/d2/GraphicsDefines";
@@ -1006,7 +1006,7 @@ export class GraphicsRunner {
             this._setClipInfo(material);
             // 如果外部已注册到数组纹理，替换材质与合批键，并设置层索引
             let reg = TextureArrayRegistry2D.resolve(tex);
-            if (reg && reg.array instanceof Texture2DArray) {
+            if (reg && reg.array && reg.array.dimension === TextureDimension.Texture2DArray) {
                 material.textureHost = reg.array;
                 // 记录层索引，用于 a_attribFlags.b
                 material.texArrayLayer = reg.layer | 0;
@@ -1221,7 +1221,7 @@ export class GraphicsRunner {
             submit = this._curSubmit = this.createSubmit(mesh);
             // 若有数组纹理注册，替换为数组纹理并设置层索引
             let reg = TextureArrayRegistry2D.resolve(tex);
-            if (reg && reg.array instanceof Texture2DArray) {
+            if (reg && reg.array && reg.array.dimension === TextureDimension.Texture2DArray) {
                 submit._internalInfo.textureHost = reg.array;
                 submit._internalInfo.texArrayLayer = reg.layer | 0;
             } else {
