@@ -1226,16 +1226,22 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
         this.currentActiveRT && this.unbindRenderTarget(this.currentActiveRT);
         let gl = this._gl;
 
-        if (renderTarget._isCube) {
+        let head = <WebGLInternalTex>renderTarget._textures[0];
+        let needReattach = renderTarget._isCube || head.target === gl.TEXTURE_2D_ARRAY;
+        if (needReattach) {
             gl.bindFramebuffer(gl.FRAMEBUFFER, renderTarget._framebuffer);
-            let texture = <WebGLInternalTex>renderTarget._textures[0];
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_X + slice, texture.resource, 0);
-        }
-        else if ((<WebGLInternalTex>renderTarget._textures[0]).target === gl.TEXTURE_2D_ARRAY) {
-            gl.bindFramebuffer(gl.FRAMEBUFFER, renderTarget._framebuffer);
-            let texture = <WebGLInternalTex>renderTarget._textures[0];
-            gl.framebufferTextureLayer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, texture.resource, 0, slice);
-            renderTarget._arrayLayerIndex = slice;
+            let bufs: number[] = [];
+            for (let i = 0; i < renderTarget._textures.length; i++) {
+                let tex = <WebGLInternalTex>renderTarget._textures[i];
+                let attach = gl.COLOR_ATTACHMENT0 + i;
+                if (renderTarget._isCube)
+                    gl.framebufferTexture2D(gl.FRAMEBUFFER, attach, gl.TEXTURE_CUBE_MAP_POSITIVE_X + slice, tex.resource, 0);
+                else
+                    gl.framebufferTextureLayer(gl.FRAMEBUFFER, attach, tex.resource, 0, slice);
+                bufs.push(attach);
+            }
+            if (bufs.length > 1) gl.drawBuffers(bufs);
+            if (head.target === gl.TEXTURE_2D_ARRAY) renderTarget._arrayLayerIndex = slice;
         }
 
         if (renderTarget._samples > 1) {
