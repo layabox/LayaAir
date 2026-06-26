@@ -1192,24 +1192,27 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
     }
 
 
-    bindRenderTarget(renderTarget: WebGLInternalRT, faceIndex: number = 0): void {
+    bindRenderTarget(renderTarget: WebGLInternalRT, slice: number = 0): void {
         this.currentActiveRT && this.unbindRenderTarget(this.currentActiveRT);
         let gl = this._gl;
 
         if (renderTarget._isCube) {
-            let framebuffer = renderTarget._framebuffer;
-            gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, renderTarget._framebuffer);
             let texture = <WebGLInternalTex>renderTarget._textures[0];
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, texture.resource, 0);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_X + slice, texture.resource, 0);
+        }
+        else if ((<WebGLInternalTex>renderTarget._textures[0]).target === gl.TEXTURE_2D_ARRAY) {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, renderTarget._framebuffer);
+            let texture = <WebGLInternalTex>renderTarget._textures[0];
+            gl.framebufferTextureLayer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, texture.resource, 0, slice);
+            renderTarget._arrayLayerIndex = slice;
         }
 
         if (renderTarget._samples > 1) {
             gl.bindFramebuffer(gl.FRAMEBUFFER, renderTarget._msaaFramebuffer);
         }
         else {
-            let framebuffer = renderTarget._framebuffer;
-
-            gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, renderTarget._framebuffer);
         }
         this.currentActiveRT = renderTarget;
     }
