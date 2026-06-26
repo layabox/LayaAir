@@ -178,6 +178,11 @@ export class VisualEffect extends Script {
     // 标记静态 vertex 属性（pos/idx/weight/normal）是否已烘焙过（每个 sourceName 一份）
     private _skinnedMeshVertexBaked: Set<string> = new Set();
 
+    // SkinnedMeshTransform/VFXTransform 注册表 — transformPosition block 通过 transformSource 引用。
+    // 注册一个场景节点（骨骼/Transform），其世界矩阵每帧驱动对应 transformSource 的粒子位置变换
+    // （position = matrix * position），实现 bolts/sparks/surge 跟随该骨骼动画（对齐 Unity）。
+    private _transformSources: Map<string, any> = new Map();
+
     /**
      * 注册 SkinnedMesh source — sampleSkinnedMeshXxx operator 通过 sourceName 引用
      * @param name      与 .vfx 中 sampleSkinnedMeshXxx operator 的 Source Name 一致
@@ -196,6 +201,20 @@ export class VisualEffect extends Script {
         const tex = this._skinnedMeshBoneTextures.get(name);
         if (tex) tex.destroy();
         this._skinnedMeshBoneTextures.delete(name);
+    }
+
+    /**
+     * 注册 SkinnedMeshTransform/VFXTransform source — transformPosition block 通过 transformSource 引用。
+     * @param name  与 .vfx 中 Transform 暴露属性名一致（如 "SkinnedMeshTransform"）
+     * @param node  场景节点（骨骼/Transform），其世界矩阵每帧驱动粒子位置变换
+     */
+    setTransformSource(name: string, node: any): void {
+        this._transformSources.set(name, node);
+    }
+
+    /** 移除 TransformSource 注册 */
+    clearTransformSource(name: string): void {
+        this._transformSources.delete(name);
     }
 
     /**
@@ -1049,6 +1068,8 @@ export class VisualEffect extends Script {
 
         // Phase 0.6: SkinnedMesh texture 烘焙/刷新（首次烘焙静态 vertex 属性，每帧刷 bones 矩阵）
         this._updateSkinnedMeshTextures();
+        // Phase 0.7: SkinnedMeshTransform/VFXTransform — 每帧把注册骨骼/节点世界矩阵绑到粒子位置变换 uniform
+        this._updateTransformSources();
 
         // 计算 emitter 世界矩阵
         state.emitterWorldMatrix = this.owner.transform.worldMatrix;
@@ -1446,6 +1467,10 @@ export class VisualEffect extends Script {
             if (!textureUniforms || textureUniforms.length === 0) continue;
             const allDatas = system.getAllShaderDatas();
             for (const tu of textureUniforms) {
+                // transformSource 项是 Mat4 uniform（SkinnedMeshTransform/VFXTransform），不是纹理。
+                // 若在此 setTexture(whiteTexture)，会把该 uniform 槽注册成纹理 → _updateTransformSources
+                // 的 setMatrix4x4 往纹理上 cloneTo 崩（Cannot read 'set' of undefined）。必须跳过。
+                if ((tu as any).transformSource) continue;
                 const id = Shader3D.propertyNameToID(tu.uniformName);
                 // 空 texture fallback 到默认纹理，避免 compute shader bind group 读 null 崩溃
                 // （用户可通过 shaderData.setTexture 运行时覆盖）
@@ -1480,6 +1505,35 @@ export class VisualEffect extends Script {
                 for (const sd of allDatas) {
                     sd.setDeviceBuffer(id, mpb.buffer.deviceBuffer);
                 }
+            }
+        }
+    }
+
+    /**
+     * 每帧把注册的 TransformSource（骨骼/Transform 节点）世界矩阵绑到对应 transformPosition 的
+     * Mat4 uniform（u_VfxProp_VfxTransform_<name>）。transformPosition block 的 initialize compute
+     * 里 position = matrix * position，让 bolts/sparks/surge 跟随该骨骼动画（对齐 Unity 的 mul(uniform,...)）。
+     */
+    private _updateTransformSources(): void {
+        if (this._transformSources.size === 0) return;
+        const asset = this.asset;
+        if (!asset) return;
+        const descs = (asset as any).systems;
+        for (let i = 0; i < this.systems.length; i++) {
+            const system = this.systems[i];
+            const desc = descs[i];
+            if (!(system instanceof VFXParticleSystem)) continue;
+            if (!desc?.textureUniforms) continue;
+            for (const tu of desc.textureUniforms as any[]) {
+                if (!tu.transformSource) continue;
+                const node = this._transformSources.get(tu.transformSource);
+                if (!node) continue;
+                const tr = node.transform || (node.owner && node.owner.transform);
+                if (!tr) continue;
+                const id = Shader3D.propertyNameToID(tu.uniformName);
+                const wm = tr.worldMatrix;
+                for (const sd of system.getAllShaderDatas())
+                    sd.setMatrix4x4(id, wm);
             }
         }
     }
