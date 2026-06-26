@@ -19,7 +19,7 @@ import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
 import { RenderTexture2D } from "../../resource/RenderTexture2D";
 import { Resource } from "../../resource/Resource";
-import { Texture } from "../../resource/Texture";
+import { DynamicTexInfo, Texture } from "../../resource/Texture";
 import { Browser } from "../../utils/Browser";
 import { Texture2D } from "../../resource/Texture2D";
 import { IPool, Pool } from "../../utils/Pool";
@@ -70,6 +70,7 @@ export class GraphicsRenderer {
    texturesMap: Map<number, {
       texture: Texture;
       time:number;
+      dynamic?: DynamicTexInfo;
    }> = new Map();
 
    _display: boolean = false;
@@ -278,9 +279,7 @@ export class GraphicsRenderer {
       });
       this._submits.destroy();
 
-      this.texturesMap.forEach(inf => {
-         inf.texture.off(Event.CHANGE, this, this._resourceRepaint);
-      });
+      this.texturesMap.forEach(inf => this._releaseTextureMapInfo(inf));
       this.texturesMap.clear();
 
       this.graphics = null;
@@ -357,15 +356,17 @@ export class GraphicsRenderer {
          let inf = this.texturesMap.get(res.id);
          if (!inf) {
             res.on(Event.CHANGE, this, this._resourceRepaint , [res.id]);
-            this.texturesMap.set(res.id, {
-               texture: res,
-               time: this.modified
-            });
             if (runner._textureProcessor.shouldAddToDynamicAtlas(res)) {
                runner._textureProcessor.addTexture(res);
             }
-            if (res._dynamic) {
-               res._dynamic.referenceCount ++;
+            let dynamic = res._dynamic;
+            this.texturesMap.set(res.id, {
+               texture: res,
+               time: this.modified,
+               dynamic: dynamic
+            });
+            if (dynamic) {
+               dynamic.referenceCount ++;
             }
          } else 
             inf.time = this.modified;
@@ -376,7 +377,7 @@ export class GraphicsRenderer {
       let inf = this.texturesMap.get(id);
       if (inf.time !== this.modified) {
          this.texturesMap.delete(id);
-         inf.texture.off(Event.CHANGE, this, this._resourceRepaint);
+         this._releaseTextureMapInfo(inf);
          return;
       }
 
@@ -386,6 +387,12 @@ export class GraphicsRenderer {
       }else {
          graphics._modified = Stat.loopCount;
       }
+   }
+
+   private _releaseTextureMapInfo(inf: { texture: Texture, time: number, dynamic?: DynamicTexInfo }): void {
+      inf.texture.off(Event.CHANGE, this, this._resourceRepaint);
+      if (inf.dynamic && inf.dynamic.referenceCount > 0)
+         inf.dynamic.referenceCount--;
    }
    /**
     * @internal
