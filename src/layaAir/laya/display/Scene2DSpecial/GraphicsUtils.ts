@@ -352,7 +352,7 @@ export class GraphicsRenderer {
       return submit;
    }
 
-   addResRef(res: Resource) {
+   addResRef(runner: GraphicsRunner, res: Resource) {
       if (res instanceof Texture) {
          let inf = this.texturesMap.get(res.id);
          if (!inf) {
@@ -361,6 +361,12 @@ export class GraphicsRenderer {
                texture: res,
                time: this.modified
             });
+            if (runner._textureProcessor.shouldAddToDynamicAtlas(res)) {
+               runner._textureProcessor.addTexture(res);
+            }
+            if (res._dynamic) {
+               res._dynamic.referenceCount ++;
+            }
          } else 
             inf.time = this.modified;
       }

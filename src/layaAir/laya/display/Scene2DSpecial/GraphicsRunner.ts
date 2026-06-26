@@ -35,7 +35,6 @@ import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { IGraphicsCmd } from "../IGraphics";
-import { Resource } from "../../resource/Resource";
 import { Texture2DArray } from "../../resource/Texture2DArray";
 import { TextureArrayRegistry2D } from "../../webgl/utils/TextureArrayRegistry2D";
 import { ITextureProcessor, EmptyTextureProcessor } from "../../large/ITextureProcessor";
@@ -756,7 +755,7 @@ export class GraphicsRunner {
         if (!this._getImageSource(texture)) {
             return;
         }
-        this._renderer.addResRef(texture);
+        this._renderer.addResRef(this, texture);
         this._fillTexture(texture, texture.width, texture.height, texture.uvrect, x, y, width, height, type, offset.x, offset.y, color);
     }
 
@@ -868,7 +867,7 @@ export class GraphicsRunner {
             return;
         }
 
-        this._renderer.addResRef(tex);
+        this._renderer.addResRef(this, tex);
         //TODO 还没实现
         var n = pos.length / 2;
         var ipos = 0;
@@ -885,7 +884,7 @@ export class GraphicsRunner {
         if (!this._getImageSource(tex)) { //source内调用tex.active();
             return false;
         }
-        this._renderer.addResRef(tex);
+        this._renderer.addResRef(this, tex);
         return this._inner_drawTexture(tex, (tex.bitmap as Texture2D).id, x, y, width, height, m, uv, alpha, color);
     }
 
@@ -1171,7 +1170,7 @@ export class GraphicsRunner {
             if (!this._getImageSource(tex)) { //source内调用tex.active();
                 return;
             }
-            this._renderer.addResRef(tex);
+            this._renderer.addResRef(this, tex);
         }
 
         if (alpha == null) alpha = 1.0;
