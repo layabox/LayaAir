@@ -14,15 +14,20 @@ export class NativeSpineOptimizeRender3D extends NativeSpineOptimizeRenderBase {
         super(owner, nativeRender);
     }
 
-    initBake(obj: TSpineBakeData): void {
-    if (!this._nativeRender) {
-        return;
-    }
+    initBake(obj: TSpineBakeData | null): void {
+        if (!this._nativeRender) {
+            return;
+        }
 
-    let shaderData = this._owner.shaderData;
-    let texture = obj.texture2d;
-    shaderData.setTexture(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURE, texture);
-    shaderData.setNumber(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURESIZE, texture.width);
-    super.initBake(obj);
-}
+        if (!obj) {
+            super.initBake(obj);
+            return;
+        }
+
+        let shaderData = this._owner.shaderData;
+        let texture = obj.texture2d;
+        shaderData.setTexture(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURE, texture);
+        shaderData.setNumber(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURESIZE, texture.width);
+        super.initBake(obj);
+    }
 }
