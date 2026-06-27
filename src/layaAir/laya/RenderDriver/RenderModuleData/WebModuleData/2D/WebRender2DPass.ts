@@ -23,6 +23,7 @@ import { NodeFlags } from "../../../../Const";
 import { WebGraphicsBatch } from "./WebGraphicsBatch";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Rectangle } from "../../../../maths/Rectangle";
+import { WebStencilClip2D } from "./WebStencilClip2D";
 
 BatchManager.registerProvider(BaseRender2DType.graphics, WebGraphicsBatch);
 
@@ -77,6 +78,7 @@ export class WebRender2DPass implements IRender2DPass {
    private _structsPool = Pool.createPool(SortedStructs, null, obj => obj.reset());
    private _pStructs: SortedStructs;
    private _batchProviders: IBatch2DProvider[] = [];
+   private _stencilClip2D: WebStencilClip2D = new WebStencilClip2D();
 
    _priority: number = 0;
    public get priority(): number {
@@ -291,6 +293,27 @@ export class WebRender2DPass implements IRender2DPass {
       let groupStart: number = 0;
       let reorderRoot: WebRenderStruct2D;
       let renderElements = this._renderElements;
+      const stencilBuilder = this._stencilClip2D;
+
+      const addRenderElement = (element: IRenderElement2D) => {
+         if ((element as any).noBatch) {
+            if (groupStart !== renderElements.length) {
+               this._elementGroups.add(groupStart);
+               this._elementGroups.add(renderElements.length - 1);
+               this._elementGroups.add(false);
+            }
+            renderElements.add(element);
+            this._elementGroups.add(renderElements.length - 1);
+            this._elementGroups.add(renderElements.length - 1);
+            this._elementGroups.add(false);
+            groupStart = renderElements.length;
+         }
+         else {
+            renderElements.add(element);
+         }
+      };
+
+      stencilBuilder.beginBuild();
 
       this._structs.indice.forEach(index => {
          let list = this._structs.lists.get(index);
@@ -317,21 +340,7 @@ export class WebRender2DPass implements IRender2DPass {
                   element._index = i;
                   if (!element.geometry)
                      continue;
-                  if (element.noBatch) {
-                     if (groupStart !== renderElements.length) {
-                        this._elementGroups.add(groupStart);
-                        this._elementGroups.add(renderElements.length - 1);
-                        this._elementGroups.add(false);
-                     }
-                     renderElements.add(element);
-                     this._elementGroups.add(renderElements.length - 1);
-                     this._elementGroups.add(renderElements.length - 1);
-                     this._elementGroups.add(false);
-                     groupStart = renderElements.length;
-                  }
-                  else {
-                     renderElements.add(element);
-                  }
+                  stencilBuilder.appendElement(element, addRenderElement);
                }
             }
 
@@ -346,6 +355,9 @@ export class WebRender2DPass implements IRender2DPass {
             }
          }
       });
+
+      // if (useStencilBuilder)
+      stencilBuilder.finishBuild(addRenderElement);
 
       if (groupStart !== renderElements.length) {
          this._elementGroups.add(groupStart);
@@ -432,7 +444,6 @@ export class WebRender2DPass implements IRender2DPass {
       }
 
       context.passData = this.shaderData;
-      (context as any).stencilClip2D?.reset();
       this.shaderData.setNumber(ShaderDefines2D.UNIFORM_TIME, renderTime);
 
       if (sizeX !== this._rtsize.x || sizeY !== this._rtsize.y) {

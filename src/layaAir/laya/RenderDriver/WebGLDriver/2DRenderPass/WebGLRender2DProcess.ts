@@ -18,6 +18,7 @@ import { WebGLBlit2DQuadCMD, WebGLDraw2DElementCMD, WebGLSetRendertarget2DCMD } 
 import { WebGLPrimitiveRenderElement2D } from "./WebGLPrimitiveRenderElement2D";
 import { WebglRenderContext2D } from "./WebGLRenderContext2D";
 import { WebGLRenderElement2D } from "./WebGLRenderElement2D";
+import { WebGLStencilMaskElement2D } from "./WebGLStencilMaskElement2D";
 import { WebTransform2DMemoryFactory } from "../../RenderModuleData/WebModuleData/2D/WebTransform2DMemoryFactory";
 
 export class WebGLRender2DProcess implements I2DRenderPassFactory {
@@ -103,6 +104,10 @@ export class WebGLRender2DProcess implements I2DRenderPassFactory {
 
     createRenderElement2D(): IRenderElement2D {
         return new WebGLRenderElement2D();
+    }
+
+    createStencilMaskElement2D(): IRenderElement2D {
+        return WebGLStencilMaskElement2D.create();
     }
 
     createRenderContext2D(): IRenderContext2D {

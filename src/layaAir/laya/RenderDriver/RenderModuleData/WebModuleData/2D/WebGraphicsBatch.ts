@@ -498,7 +498,7 @@ export class WebGraphicsBatch implements IBatch2DProvider {
                 staticBatchRenderElement.value2DShaderData = element.value2DShaderData;
                 staticBatchRenderElement.subShader = element.subShader;
                 staticBatchRenderElement.renderStateIsBySprite = element.renderStateIsBySprite;
-                staticBatchRenderElement.stencilClipState = null;
+                staticBatchRenderElement.stencilClipState = element.stencilClipState;
                 staticBatchRenderElement.primitiveShaderData = batchContext.primitiveShaderData;
                 staticBatchRenderElement.owner = element.owner;
                 staticBatchRenderElement.typeKey = batchContext.typeKey;

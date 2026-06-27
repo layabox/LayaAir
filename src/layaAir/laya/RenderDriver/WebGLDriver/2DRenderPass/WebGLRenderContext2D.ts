@@ -17,7 +17,6 @@ import { WebGLInternalRT } from "../RenderDevice/WebGLInternalRT";
 
 import { WebGLRenderElement2D } from "./WebGLRenderElement2D";
 import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
-import { WebGLStencilClip2D, WebGLStencilDrawItem } from "./WebGLStencilClip2D";
 
 export class WebglRenderContext2D implements IRenderContext2D {
 
@@ -39,9 +38,6 @@ export class WebglRenderContext2D implements IRenderContext2D {
     _prevShaderIns: WebGLShaderInstance = null;
     /** @internal */
     _prevRenderType: number = -1;
-    /** @internal */
-    stencilClip2D: WebGLStencilClip2D;
-    private _stencilDrawItems: WebGLStencilDrawItem[] = [];
     private _stencilOpCache: Map<number, Vector3> = new Map();
 
     private _offscreenWidth: number;
@@ -51,22 +47,14 @@ export class WebglRenderContext2D implements IRenderContext2D {
 
     constructor() {
         this._globalConfigShaderData = Shader3D._configDefineValues as WebDefineDatas;
-        this.stencilClip2D = new WebGLStencilClip2D(this);
     }
 
     drawRenderElementList(list: FastSinglelist<WebGLRenderElement2D>): number {
         let time = performance.now();
-        const useStencilItems = this.stencilClip2D.buildDrawItems(list, this._stencilDrawItems);
-        if (useStencilItems)
-            this.prepareRenderElementItems(this._stencilDrawItems);
-        else
-            this.prepareRenderElementList(list);
+        this.prepareRenderElementList(list);
         LayaGL.statAgent.recordTimeData(StatElement.T_2DContextPre, performance.now() - time);
         time = performance.now();
-        if (useStencilItems)
-            this.drawRenderElementItems(this._stencilDrawItems);
-        else
-            this.drawRenderElementListRange(list, 0, list.length);
+        this.drawRenderElementListRange(list, 0, list.length);
         LayaGL.statAgent.recordTimeData(StatElement.T_2DContextRender, performance.now() - time);
         return 0;
     }
@@ -80,13 +68,6 @@ export class WebglRenderContext2D implements IRenderContext2D {
     }
 
     /** @internal */
-    prepareRenderElementItems(items: WebGLStencilDrawItem[]): void {
-        for (let i = 0, n = items.length; i < n; i++) {
-            items[i]._prepare(this);
-        }
-    }
-
-    /** @internal */
     drawRenderElementListRange(list: FastSinglelist<WebGLRenderElement2D>, start: number, end: number): number {
         this.resetFastState();
         for (var i: number = start; i < end; i++) {
@@ -95,21 +76,6 @@ export class WebglRenderContext2D implements IRenderContext2D {
             this._prevRenderType = element.owner ? element.owner.renderType : -1;
         }
         LayaGL.statAgent.recordCTData(StatElement.CT_2DDrawCall, end - start);
-        LayaGL.renderEngine._framePassCount++;
-        return 0;
-    }
-
-    /** @internal */
-    drawRenderElementItems(items: WebGLStencilDrawItem[]): number {
-        this.resetFastState();
-        let drawCount = 0;
-        for (let i = 0, n = items.length; i < n; i++) {
-            const item = items[i];
-            item._render(this);
-            this._prevRenderType = item.owner ? item.owner.renderType : -1;
-            drawCount++;
-        }
-        LayaGL.statAgent.recordCTData(StatElement.CT_2DDrawCall, drawCount);
         LayaGL.renderEngine._framePassCount++;
         return 0;
     }
@@ -185,6 +151,13 @@ export class WebglRenderContext2D implements IRenderContext2D {
 
     getRenderTarget(): WebGLInternalRT {
         return this._destRT;
+    }
+
+    /** @internal */
+    getStencilBits(): number {
+        const gl = WebGLEngine.instance.gl;
+        const bits = gl.getParameter(gl.STENCIL_BITS);
+        return bits == null ? 8 : bits;
     }
 
     drawRenderElementOne(node: WebGLRenderElement2D): void {

@@ -202,7 +202,7 @@ export class SequenceFrame2DInstanceBatch implements IBatch2DProvider {
         batchElement.globalShaderData = first.globalShaderData;
         batchElement.subShader = first.subShader;
         batchElement.renderStateIsBySprite = first.renderStateIsBySprite;
-        batchElement.stencilClipState = null;
+        batchElement.stencilClipState = first.stencilClipState;
         batchElement.nodeCommonMap = first.nodeCommonMap;
         batchElement.owner = first.owner;
 
