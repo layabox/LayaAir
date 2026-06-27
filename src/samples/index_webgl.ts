@@ -33,7 +33,7 @@ Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
 // Resource.DEBUG = true;
 Physics2D.I._factory = new physics2DwasmFactory();
 // Laya3D.PhysicsCreateUtil = new btPhysicsCreateUtil();
-new Main(true, false, TextureDemo);
+new Main(true, false);
 
 // new Sprite_DisplayImage(Main);
 
