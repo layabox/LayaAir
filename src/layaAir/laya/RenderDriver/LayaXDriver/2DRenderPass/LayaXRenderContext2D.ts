@@ -1,4 +1,4 @@
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+﻿import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { SingletonList } from "../../../utils/SingletonList";
@@ -7,8 +7,13 @@ import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
+import { Shader2D } from "../../../webgl/shader/d2/Shader2D";
+import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
+import { LayaXRenderElement2D } from "./LayaXRenderElement2D";
 
 export class LayaXRenderContext2D implements IRenderContext2D {
+
+    private static _stencilMaskTemplate: LayaXRenderElement2D = null;
 
     _nativeObj: any;
 
@@ -28,6 +33,21 @@ export class LayaXRenderContext2D implements IRenderContext2D {
         this._nativeObj.setGlobalConfigShaderData(
             (Shader3D._configDefineValues as any)._nativeObj
         );
+        this._nativeObj.setStencilMaskTemplate(LayaXRenderContext2D._getStencilMaskTemplate()._nativeObj);
+    }
+
+    private static _getStencilMaskTemplate(): LayaXRenderElement2D {
+        if (LayaXRenderContext2D._stencilMaskTemplate)
+            return LayaXRenderContext2D._stencilMaskTemplate;
+
+        const element = new LayaXRenderElement2D();
+        element.geometry = ShaderDefines2D._stencilGeo;
+        element.subShader = Shader2D.stencilShader.getSubShaderAt(0);
+        element.nodeCommonMap = ["BaseRender2D"];
+        element.renderStateIsBySprite = true;
+
+        LayaXRenderContext2D._stencilMaskTemplate = element;
+        return element;
     }
 
     // ---- invertY (直写共享块槽 0，零跨界) ----
