@@ -353,7 +353,6 @@ export class VFXRenderer extends BaseRender {
     private static async _patchTextureAlphaFromLuminance(tex: BaseTexture, url: string): Promise<void> {
         if (VFXRenderer._patchedTextureUrls.has(url)) return;
         VFXRenderer._patchedTextureUrls.add(url);
-        console.log("[VFX alpha] start url=", url);
         try {
             // 不能直接 fetch(res://...)，浏览器不认 res: scheme。
             // 改走 Laya.loader.load(url, BUFFER) 拿 ArrayBuffer：
@@ -366,7 +365,6 @@ export class VFXRenderer extends BaseRender {
             }
             // 只处理 PNG (其它格式如 KTX/DDS 通常带正确 alpha)
             if (!url.toLowerCase().endsWith(".png")) {
-                console.log("[VFX alpha] skip - not png");
                 return;
             }
             const blob = new Blob([buffer], { type: "image/png" });
@@ -384,7 +382,6 @@ export class VFXRenderer extends BaseRender {
             for (let i = 3; i < pixels.length; i += 4) {
                 if (pixels[i] !== 255) { allOpaque = false; break; }
             }
-            console.log("[VFX alpha] allOpaque=", allOpaque, "pixels.length=", pixels.length);
             if (!allOpaque) return; // 真有 alpha 通道不动
             // 区分两种 PNG atlas 类型:
             // (A) "火焰风格": 大量黑色背景 + 彩色渐变主体 (flame/smoke) → 用 luminance 当 alpha
@@ -396,7 +393,6 @@ export class VFXRenderer extends BaseRender {
             }
             const blackRatio = blackCount / pixelCount;
             const isFlameStyle = blackRatio > 0.15;
-            console.log("[VFX alpha] blackRatio=", blackRatio.toFixed(3), "isFlameStyle=", isFlameStyle);
             let modified = false;
             for (let i = 0; i < pixels.length; i += 4) {
                 const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2];
@@ -424,7 +420,6 @@ export class VFXRenderer extends BaseRender {
             const t2d = ((tex as any).bitmap || tex) as Texture2D;
             if (t2d && (t2d as any).setPixelsData) {
                 (t2d as any).setPixelsData(new Uint8Array(pixels.buffer), false, false);
-                console.log("[VFX] alpha patched from luminance:", url, "size=", canvas.width, "x", canvas.height);
             } else {
                 console.warn("[VFX alpha] no setPixelsData on bitmap, t2d=", t2d, "tex=", tex);
             }
@@ -636,12 +631,10 @@ export class VFXRenderer extends BaseRender {
         const useGradient = colorMapping === "GradientMapped" && gradientStops && gradientStops.length > 0;
         const gradDef = Shader3D.getDefineByName("VFX_STRIP_GRADIENT_MAPPED");
         const sbDef = Shader3D.getDefineByName("VFX_STRIP_UV_SCALE_BIAS");
-        console.log(`[VFX Strip Mat] colorMapping=${colorMapping}, useGradient=${useGradient}, gradDef=${!!gradDef}, sbDef=${!!sbDef}, stops=${gradientStops?.length ?? 0}`);
         if (useGradient) {
             if (gradDef) mat.addDefine(gradDef);
             const gradTex = bakeGradientTexture256(gradientStops!);
             mat.setTexture("u_VfxStripGradient", gradTex);
-            console.log(`[VFX Strip Mat] gradient texture baked, hasDefine=${gradDef ? mat.hasDefine(gradDef) : "noDef"}`);
         }
         // UV Mode = ScaleAndBias: 设 scale/bias uniform + 启用 define
         const useScaleBias = (uvScale && (uvScale.x !== 1 || uvScale.y !== 1)) || (uvBias && (uvBias.x !== 0 || uvBias.y !== 0));
@@ -834,14 +827,6 @@ export class VFXRenderer extends BaseRender {
             if (geometry instanceof VFXStripGeometry || outType === "outputPoint" || outType === "outputLine" || outType === "outputLineStrip") {
                 const mode = (geometry as any).blendMode || "Alpha";
                 const stripCustomShader = (geometry as any).customShaderName || "";
-                if (!(this as any)._stripLogOnce) {
-                    (this as any)._stripLogOnce = true;
-                    console.log(`[VFX Renderer] Strip path: isStripGeo=${geometry instanceof VFXStripGeometry}, outType=${outType}, mode=${mode}, customShader=${stripCustomShader}, isRender=${element._renderElementOBJ.isRender}`);
-                }
-                if (!(this as any)._stripDebug2) {
-                    (this as any)._stripDebug2 = true;
-                    console.log(`[VFX Strip Debug] meshMaterial=${meshMaterial ? (meshMaterial as any)._shader?.name : 'NULL'}, stripCustomShader='${stripCustomShader}'`);
-                }
                 if (stripCustomShader && stripCustomShader !== "VFXStrip") {
                     element.material = VFXRenderer.getCustomShaderMaterial(stripCustomShader, mode);
                 } else {

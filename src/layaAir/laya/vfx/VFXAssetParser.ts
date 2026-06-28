@@ -24,9 +24,6 @@ export class VFXAssetParser {
 
         const vfxAsset = new VFXAsset();
 
-        console.log(`[VFX-DBG] runtime parse systems=${(data.systems || []).length}`,
-            (data.systems || []).map((s: any, i: number) => `${i}:${s.type}${s.capacity != null ? `(cap=${s.capacity})` : ""}`).join(","));
-
         // 解析 updateMode
         let updateMode = VFXUpdateMode.FixedDeltaTime;
         if (data.fixedDeltaTime === false) {
@@ -433,9 +430,6 @@ export class VFXAssetParser {
                                 const loadMeshTex = Laya.loader.load(meshUrl).then((mesh: Mesh) => {
                                     if (mesh) {
                                         entry.texture = bakeMeshAttributeTexture(mesh, normalizedRole as MeshRole);
-                                        const positions: any[] = [];
-                                        try { mesh.getPositions(positions); } catch {}
-                                        console.log(`[VFX] sampleMesh OK: ${meshUrl} role=${normalizedRole} vertexCount=${positions.length} firstVert=${positions[0] ? `(${positions[0].x.toFixed(2)},${positions[0].y.toFixed(2)},${positions[0].z.toFixed(2)})` : 'null'}`);
                                     } else {
                                         console.warn(`[VFX] sampleMesh: failed to load mesh ${meshUrl}`);
                                     }
