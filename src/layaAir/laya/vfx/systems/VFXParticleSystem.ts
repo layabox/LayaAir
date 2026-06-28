@@ -761,7 +761,6 @@ export class VFXParticleSystem extends VFXSystem {
             // 包在 try-catch 中，确保 geometry 创建失败不会阻断后续的 Bounds 和 GPU Event 初始化
             try {
                 if (isStrip) {
-                    console.log(`[VFX] Creating StripGeometry: capacity=${capacity}, stripCap=${this.stripCapacity}, perStrip=${this.particlePerStripCount}, blend=${this.blendMode}`);
                     const stripParams = new VFXStripGeometryParams();
                     stripParams.capacity = capacity;
                     stripParams.stripVertexBuffer = this.renderBuffer;
@@ -779,7 +778,6 @@ export class VFXParticleSystem extends VFXSystem {
                     (this.geometry as any).stripGradientStops = this.stripGradientStops;
                     (this.geometry as any).stripTilingMode = this.stripTilingMode;
                     (this.geometry as any).stripPpsc = this.particlePerStripCount;
-                    console.log(`[VFX] StripGeometry created:`, this.geometry ? "OK" : "FAILED");
                 } else if (isPoint) {
                     const pointParams = new VFXPointGeometryParams();
                     pointParams.capacity = capacity;
@@ -1046,12 +1044,7 @@ export class VFXParticleSystem extends VFXSystem {
     /**
      * 阶段3: Output — 压缩输出到 RenderBuffer
      */
-    private _outputLogOnce = false;
     outputPhase(state: VFXState, cmd: ComputeCommandBuffer): void {
-        if (!this._outputLogOnce && this.isStripOutput) {
-            this._outputLogOnce = true;
-            console.log(`[VFX OutputPhase] type=${this.outputType}, hasShader=${!!this.outputShader}, hasAlive=${!!this.aliveListBufferRead}, hasRender=${!!this.renderBuffer}, hasIndirect=${!!this.indirectBuffer}, isStrip=${this.isStripOutput}, geometry=${this.geometry?.constructor?.name}`);
-        }
         if (this.outputType === "none" || !this.outputShader) return;
         if (!this.aliveListBufferRead || !this.renderBuffer || !this.indirectBuffer) return;
 
