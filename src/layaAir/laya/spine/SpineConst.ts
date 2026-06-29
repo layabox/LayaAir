@@ -14,7 +14,7 @@ export class SpineConst {
      * @en Image defalut premultiplied alpha
      * @zh 图片默认预乘
      */
-    static PREMULTIPLIED_ALPHA_DEFAULT = false;
+    static PREMULTIPLIED_ALPHA_DEFAULT = true;
     /**
      * @en Spine runtime version.
      * @zh Spine 运行时版本。

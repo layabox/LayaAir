@@ -34,7 +34,7 @@ export class NativeSpineTempletParser implements ISpineTempletParser {
         const lines = atlasText.split(SpineConst.SPLIT_REGEX);
         const textureInfos: Array<{ path: string; pma: boolean }> = [];
         const urls: string[] = [];
-        let currentPma: boolean = true;
+        let currentPma: boolean = this._premultipliedAlpha;
         
         for (let i = 0; i < lines.length; i++) {
             const trimmed = lines[i].trim();
@@ -95,10 +95,12 @@ export class NativeSpineTempletParser implements ISpineTempletParser {
         let textureUrls: string[] = this._cachedTextureUrls;
 
         if (textureUrls.length > 0 && textures.length > 0) {
+            let currentPma = this._premultipliedAlpha;
             const minLength = Math.min(textureUrls.length, textures.length);
             for (let i = 0; i < minLength; i++) {
                 const texture = textures[i];
                 if (texture) {
+                    currentPma = currentPma && texture._premultiplyAlpha;
                     this._nativeParser.addTextureSizeInfo(
                         textureUrls[i],
                         texture.width,
@@ -106,6 +108,7 @@ export class NativeSpineTempletParser implements ISpineTempletParser {
                     );
                 }
             }
+            this._premultipliedAlpha = currentPma;
         }
 
         const optimize = new NativeSkeletonOptimise();

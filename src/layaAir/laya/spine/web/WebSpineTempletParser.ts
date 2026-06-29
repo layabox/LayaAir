@@ -37,7 +37,7 @@ export class WebSpineTempletParser implements ISpineTempletParser {
 
         templet._textures = textures;
         templet._premultipliedAlpha = this._premultipliedAlpha;
-        skeletonOptimise.hasPhysics = this._premultipliedAlpha && skeletonData.physicsConstraints.length > 0;
+        skeletonOptimise.hasPhysics = this._premultipliedAlpha && skeletonData.physicsConstraints && skeletonData.physicsConstraints.length > 0;
         skeletonOptimise.canCache = SpineConst.cacheSwitch && !skeletonOptimise.hasPhysics;
         skeletonOptimise.checkMainAttach(skeleton, skeletonData);
         
@@ -74,7 +74,7 @@ export class WebSpineTempletParser implements ISpineTempletParser {
         const lines = atlasText.split(SpineConst.SPLIT_REGEX);
         const textureInfos: Array<{ path: string; pma: boolean }> = [];
         const urls: string[] = [];
-        let currentPma: boolean = true;
+        let currentPma: boolean = this._premultipliedAlpha;
         
         for (let i = 0; i < lines.length; i++) {
             const trimmed = lines[i].trim();
@@ -138,6 +138,7 @@ export class WebSpineTempletParser implements ISpineTempletParser {
         }
         
         let textureMap: Record<string, Texture2D> = {}
+        let currentPma = this._premultipliedAlpha;
         let atlas = this._atlas;
         for (var i = 0; i < textures.length; i++) {
             let tex = textures[i];
@@ -147,11 +148,14 @@ export class WebSpineTempletParser implements ISpineTempletParser {
             let page = pages[i];
             textureMap[page.name] = tex;
 
+            currentPma = currentPma && tex._premultiplyAlpha;
             if (page.setTexture) {
                 //@ts-ignore
                 page.setTexture(new SpineTexture(tex));
             }
         }
+
+        this._premultipliedAlpha = currentPma;
         
         return this.parse(desc , textureMap)
     }
