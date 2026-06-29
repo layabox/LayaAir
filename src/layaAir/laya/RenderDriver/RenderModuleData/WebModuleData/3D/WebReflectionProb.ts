@@ -103,6 +103,9 @@ export class WebReflectionProbe implements IReflectionProbeData {
     }
     /**@internal */
     applyRenderData(): void {
+        if (!this.shaderData)
+            return;
+
         this._updateMaskFlag = this.updateMark;
 
         let data = this.shaderData;

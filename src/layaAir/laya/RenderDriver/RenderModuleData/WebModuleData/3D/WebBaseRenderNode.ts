@@ -314,6 +314,8 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     _applyReflection() {
         if (!this.probeReflection || this.reflectionMode == ReflectionProbeMode.off)
             return;
+        if (!this.probeReflection.shaderData)
+            return;
         if (this.probeReflection.needUpdate()) {
             this.probeReflection.applyRenderData();
         }
