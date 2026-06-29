@@ -284,7 +284,7 @@ export class InputManager {
         //console.log("handleMouse", type);
         let touch: TouchInfo = this._mouseTouch;
 
-        _tempPoint.setTo(ev.pageX || ev.clientX, ev.pageY || ev.clientY);
+        this.getCanvasPoint(ev.clientX, ev.clientY, _tempPoint);
         this._stage._canvasTransform.invertTransformPoint(_tempPoint);
         InputManager.mouseX = _tempPoint.x;
         InputManager.mouseY = _tempPoint.y;
@@ -410,7 +410,7 @@ export class InputManager {
                 && this._touches[0].touchId != uTouch.identifier)
                 continue;
 
-            _tempPoint.setTo(uTouch.pageX, uTouch.pageY);
+            this.getCanvasPoint(uTouch.clientX, uTouch.clientY, _tempPoint);
             this._stage._canvasTransform.invertTransformPoint(_tempPoint);
             InputManager.mouseX = _tempPoint.x;
             InputManager.mouseY = _tempPoint.y;
@@ -516,6 +516,20 @@ export class InputManager {
         this._touches.push(touch);
 
         return touch;
+    }
+
+    private getCanvasPoint(clientX: number, clientY: number, out: Point): Point {
+        let target = Browser.mainCanvas.source.parentElement;
+        if (!target)
+            return out.setTo(clientX, clientY);
+
+        let rect = target.getBoundingClientRect();
+        if (!rect.width || !rect.height)
+            return out.setTo(clientX, clientY);
+
+        let scaleX = target.clientWidth / rect.width;
+        let scaleY = target.clientHeight / rect.height;
+        return out.setTo((clientX - rect.left) * scaleX, (clientY - rect.top) * scaleY);
     }
 
     /**
