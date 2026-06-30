@@ -27,8 +27,7 @@ import { LayaXChunkPages } from "./LayaXChunkPages";
  *     用 (pageId, offset) 在自家页 buffer 上建普通 TypedArray；
  *   - 路径②（native 页回退）：external ArrayBuffer（仅非沙箱可用）；
  *   - 路径③：两者都不可用 → 不绑定，写 local 走 C++ 推。
- *   失效协议：迁移/搬行在结构 FFI 内同步 bump 结构 epoch（主判据，零窗口），
- *   VIEW_STALE 位兜底；_checkViewStale 失配即重绑（§6.3/§8.2）。
+ *   失效协议：只有 VIEW_STALE 表示本实体 row moved，需要重绑；普通 epoch 变化只刷新快照。
  *
  * ⚠ 构造时序铁律（见 memory project_layax_transform_init_order）：基类 ctor 在 `super()`
  * 期间调 `this._initProperty()`，子类字段初始化器在 `super()` 返回后才执行、会覆盖 `_initProperty`
@@ -169,7 +168,7 @@ export class LayaXTransform3D extends Transform3D {
      * 创建前补足 JS 供页储备（§7.1）。
      */
     createEntity(): void {
-        LayaXChunkPages.ensure(this._nativeObj);
+        LayaXChunkPages.ensureForEntityCreate(this._nativeObj);
         this._nativeObj.createEntity();
         this._bindViews();
     }
@@ -352,17 +351,16 @@ export class LayaXTransform3D extends Transform3D {
         }
     }
 
-    /**
-     * @internal 行搬家后重建本实体全部零拷贝视图。
-     * 主判据：结构 epoch（迁移/搬行在结构 FFI 内同步递增，零窗口——一次性写
-     * 紧跟迁移也能立刻重绑）；VIEW_STALE 位（native row-moved 回调置位）兜底。
-     * 热路径上只是一次位读；置位/失配是低频事件。
-     */
+    /** @internal Rebind only when this entity's row moved. */
     private _checkViewStale(): void {
         const ev = LayaXTransform3D._epochView;
         const staleBit = this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX] & LayaXTransform3D.VIEW_STALE;
-        if (ev && ev[0] === (this._boundEpoch >>> 0) && staleBit === 0) return;
-        if (!ev && staleBit === 0) return; // 无 epoch 视图（降级环境）时仅靠 STALE 位
+        const epochChanged = !!ev && ev[0] !== (this._boundEpoch >>> 0);
+        if (staleBit === 0) {
+            // Other structure changes do not invalidate this slot view.
+            if (epochChanged) this._boundEpoch = ev[0];
+            return;
+        }
         this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX] &= ~LayaXTransform3D.VIEW_STALE;
         this._dropViews();
         this._bindViews(); // re-resolve views at the new row
