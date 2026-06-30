@@ -118,6 +118,9 @@ export class ScrollBar extends UIComponent {
     protected _touchScrollEnable: boolean;
     protected _mouseWheelEnable: boolean;
 
+    private static _tmpPoint1: Point = new Point();
+    private static _tmpPoint2: Point = new Point();
+
     /**
      * @en creates an instance of ScrollBar.
      * @param skin The address of the skin resource.
@@ -634,11 +637,29 @@ export class ScrollBar extends UIComponent {
         ILaya.timer.frameLoop(1, this, this.tweenMove, [200]);
     }
 
+    /**
+     * @internal
+     * Compute the drag offset in target's local coordinate space,
+     * so that parent rotation/scale is accounted for.
+     */
+    private _computeLocalOffset(x1: number, y1: number, x2: number, y2: number): number {
+        if (this._target) {
+            var p1 = ScrollBar._tmpPoint1;
+            var p2 = ScrollBar._tmpPoint2;
+            p1.setTo(x1, y1);
+            p2.setTo(x2, y2);
+            this._target.globalToLocal(p1);
+            this._target.globalToLocal(p2);
+            return this.isVertical ? (p2.y - p1.y) : (p2.x - p1.x);
+        }
+        return this.isVertical ? (y2 - y1) : (x2 - x1);
+    }
+
     protected loop(): void {
         if (this.disableDrag) return;
         var mouseY: number = ILaya.stage.mouseY;
         var mouseX: number = ILaya.stage.mouseX;
-        this._lastOffset = this.isVertical ? (mouseY - this._lastPoint.y) : (mouseX - this._lastPoint.x);
+        this._lastOffset = this._computeLocalOffset(this._lastPoint.x, this._lastPoint.y, mouseX, mouseY);
 
         if (this._clickOnly) {
             if (Math.abs(this._lastOffset * (this.isVertical ? ILaya.stage._canvasTransform.getScaleY() : ILaya.stage._canvasTransform.getScaleX())) > 1) {
@@ -730,7 +751,7 @@ export class ScrollBar extends UIComponent {
             if (!this._offsets) return;
             //计算平均值
             if (this._offsets.length < 1) {
-                this._offsets[0] = this.isVertical ? ILaya.stage.mouseY - this._lastPoint.y : ILaya.stage.mouseX - this._lastPoint.x;
+                this._offsets[0] = this._computeLocalOffset(this._lastPoint.x, this._lastPoint.y, ILaya.stage.mouseX, ILaya.stage.mouseY);
             }
             var offset: number = 0;
             var n: number = Math.min(this._offsets.length, 3);
