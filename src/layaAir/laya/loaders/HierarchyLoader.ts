@@ -42,6 +42,10 @@ export class HierarchyLoader implements IResourceLoader {
         delete options.cache;
         delete options.ignoreCache;
         return task.loader.load(links, options, task.progress.createCallback()).then((resArray: any[]) => {
+            if (resArray && resArray.some(r => r == null)) {
+                console.warn(`[HierarchyLoader] Some dependencies failed to load for: ${task.url}`);
+                return null;
+            }
             let res = new PrefabImpl(api, data, version);
             res.fromDCC = fromDCC;
             res.addDeps(resArray);
