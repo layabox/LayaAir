@@ -431,19 +431,22 @@ export class VFXAssetParser {
                             if (meshPCMatch) {
                                 const pcRole = meshPCMatch[1] === "SurfacePoints" ? "surface" : "volume";
                                 const pointCount = Math.max(16, Math.min(8192, Number((tu as any).pointCount) || 1024));
+                                // 顶点缩放：优先用转换器注入的 meshScale(数据驱动)；.lvfx 没带时对已知 cm-unit
+                                // mesh(Ellen.fbx)兜底 0.01；内置 mesh → 1.0(替代旧 ×0.01 硬编码，后者会错误缩小内置 mesh)。
+                                const meshScale = _resolveMeshScale(Number((tu as any).meshScale), uuid);
                                 if (uuid.startsWith("builtin:")) {
                                     // 内置 mesh（如 Capsule）：同步生成 + 烘点云，无异步加载（不会卡住 asset 加载）
                                     const builtinMesh = buildBuiltinMesh(uuid.slice(8));
                                     if (builtinMesh) entry.texture = pcRole === "surface"
-                                        ? bakeMeshSurfacePoints(builtinMesh, pointCount)
-                                        : bakeMeshVolumePoints(builtinMesh, pointCount);
+                                        ? bakeMeshSurfacePoints(builtinMesh, pointCount, meshScale)
+                                        : bakeMeshVolumePoints(builtinMesh, pointCount, meshScale);
                                     else console.warn(`[VFX] setPositionMesh(${pcRole}): unknown builtin mesh ${uuid}`);
                                 } else {
                                     const meshUrl = uuid.startsWith("res://") ? uuid : "res://" + uuid;
                                     const loadMeshTex = Laya.loader.load(meshUrl).then((mesh: Mesh) => {
                                         if (mesh) entry.texture = pcRole === "surface"
-                                            ? bakeMeshSurfacePoints(mesh, pointCount)
-                                            : bakeMeshVolumePoints(mesh, pointCount);
+                                            ? bakeMeshSurfacePoints(mesh, pointCount, meshScale)
+                                            : bakeMeshVolumePoints(mesh, pointCount, meshScale);
                                         else console.warn(`[VFX] setPositionMesh(${pcRole}): failed to load mesh ${meshUrl}`);
                                     });
                                     loadPromises.push(loadMeshTex);
@@ -489,10 +492,11 @@ export class VFXAssetParser {
                                 const pcUrl = pcUuid.startsWith("res://") ? pcUuid : "res://" + pcUuid;
                                 const pcRole = String((bu as any).meshRole || "surfacePoints");
                                 const pcCount = Math.max(16, Math.min(8192, Number((bu as any).pointCount) || 1024));
+                                const pcScale = _resolveMeshScale(Number((bu as any).meshScale), pcUuid);
                                 loadPromises.push((Laya.loader.load(pcUrl) as Promise<any>).then((mesh: Mesh) => {
                                     if (mesh) mpEntry.buffer = pcRole === "volumePoints"
-                                        ? bakeMeshVolumePointsBuffer(mesh, pcCount)
-                                        : bakeMeshSurfacePointsBuffer(mesh, pcCount);
+                                        ? bakeMeshVolumePointsBuffer(mesh, pcCount, pcScale)
+                                        : bakeMeshSurfacePointsBuffer(mesh, pcCount, pcScale);
                                     else console.warn(`[VFX] setPositionMesh(buffer): failed to load mesh ${pcUrl}`);
                                 }));
                             } else {
@@ -1159,12 +1163,14 @@ function _fallbackPointTexture(): Texture2D {
 
 // ── 点云数据计算 (Float32Array, count*4: xyz + w=1)。失败返回 null ──
 // Surface 采样：按三角形面积加权 → 重心 random
-function _computeSurfacePointsData(mesh: Mesh, count: number): Float32Array | null {
+function _computeSurfacePointsData(mesh: Mesh, count: number, scale?: number): Float32Array | null {
     const tri = getMeshTriangles(mesh);
     if (!tri || tri.indices.length < 3) return null;
     const { positions, indices } = tri;
     const triCount = (indices.length / 3) | 0;
     if (triCount <= 0) return null;
+    // 顶点缩放：转换器按 mesh 注入(数据驱动)，缺省 1.0；cm-unit mesh(如 Ellen.fbx，Unity fileScale 未应用，顶点 100x)=0.01
+    const _S = (typeof scale === "number" && scale > 0) ? scale : 1;
     // 按三角形均匀采样(每个三角形等概率,非面积加权) —— 对齐 Unity:
     // 曲面细分密的区域(如胶囊半球帽)三角形更多 → 自然采到更多点,两端更密。
     const data = new Float32Array(count * 4);
@@ -1177,16 +1183,17 @@ function _computeSurfacePointsData(mesh: Mesh, count: number): Float32Array | nu
         let u = Math.random(), v = Math.random();
         if (u + v > 1) { u = 1 - u; v = 1 - v; }
         const w = 1 - u - v;
-        data[p * 4] = w * a.x + u * b.x + v * c.x;
-        data[p * 4 + 1] = w * a.y + u * b.y + v * c.y;
-        data[p * 4 + 2] = w * a.z + u * b.z + v * c.z;
+        data[p * 4] = (w * a.x + u * b.x + v * c.x) * _S;
+        data[p * 4 + 1] = (w * a.y + u * b.y + v * c.y) * _S;
+        data[p * 4 + 2] = (w * a.z + u * b.z + v * c.z) * _S;
         data[p * 4 + 3] = 1;
     }
     return data;
 }
 
 // Volume 采样：AABB rejection + ray-tri parity test
-function _computeVolumePointsData(mesh: Mesh, count: number): Float32Array | null {
+function _computeVolumePointsData(mesh: Mesh, count: number, scale?: number): Float32Array | null {
+    const _S = (typeof scale === "number" && scale > 0) ? scale : 1; // 顶点缩放(同 surface,缺省 1.0)
     const tri = getMeshTriangles(mesh);
     if (!tri || tri.indices.length < 3) return null;
     const { positions, indices } = tri;
@@ -1224,11 +1231,11 @@ function _computeVolumePointsData(mesh: Mesh, count: number): Float32Array | nul
             if (_rayTri(px, py, pz, 1, 0, 0, a, b, c) !== null) crossings++;
         }
         if ((crossings & 1) === 1) {
-            data[written * 4] = px; data[written * 4 + 1] = py; data[written * 4 + 2] = pz; data[written * 4 + 3] = 1;
+            data[written * 4] = px * _S; data[written * 4 + 1] = py * _S; data[written * 4 + 2] = pz * _S; data[written * 4 + 3] = 1;
             written++;
         }
     }
-    if (written === 0) return _computeSurfacePointsData(mesh, count);
+    if (written === 0) return _computeSurfacePointsData(mesh, count, scale);
     for (let i = written; i < count; i++) {
         const src = (i % written) * 4;
         data[i * 4] = data[src]; data[i * 4 + 1] = data[src + 1]; data[i * 4 + 2] = data[src + 2]; data[i * 4 + 3] = 1;
@@ -1242,14 +1249,27 @@ function _fallbackPointData(count: number): Float32Array {
     return data;
 }
 
+// 已知 cm-unit mesh(顶点 100x，Unity fileScale 未应用)的【兜底】缩放表：
+// 当 .lvfx 没带 meshScale 时(旧编译产物 / 引擎更新但 .vfx 未用新编译器重导)仍能把点云缩回世界尺度，
+// 避免火焰点云 100x 喷到屏幕外。⭐优先用转换器注入的数据驱动 meshScale，此表仅兜底。
+const MESH_CMUNIT_FALLBACK: Record<string, number> = { "e38d2d0d-ea52-4bc0-ae3f-09506c2cde20": 0.01 };  // Ellen.fbx (Smoke DM 火焰发射面)
+function _resolveMeshScale(rawScale: number, uuid?: string): number {
+    if (typeof rawScale === "number" && rawScale > 0 && rawScale !== 1) return rawScale;  // 数据驱动优先
+    if (uuid) {
+        const bare = String(uuid).replace(/^res:\/\//, "").replace(/@.*$/, "");
+        if (MESH_CMUNIT_FALLBACK[bare]) return MESH_CMUNIT_FALLBACK[bare];
+    }
+    return (typeof rawScale === "number" && rawScale > 0) ? rawScale : 1;
+}
+
 // 兼容旧纹理路径（setPositionMesh 已改 storage buffer，此处保留供其他可能引用）
-function bakeMeshSurfacePoints(mesh: Mesh, count: number): Texture2D {
-    const data = _computeSurfacePointsData(mesh, count);
+function bakeMeshSurfacePoints(mesh: Mesh, count: number, scale?: number): Texture2D {
+    const data = _computeSurfacePointsData(mesh, count, scale);
     if (!data) console.warn("[VFX] bakeMeshSurfacePoints: mesh has no triangles, fallback to single point");
     return data ? _makePointTexture(data, count) : _fallbackPointTexture();
 }
-function bakeMeshVolumePoints(mesh: Mesh, count: number): Texture2D {
-    const data = _computeVolumePointsData(mesh, count);
+function bakeMeshVolumePoints(mesh: Mesh, count: number, scale?: number): Texture2D {
+    const data = _computeVolumePointsData(mesh, count, scale);
     if (!data) console.warn("[VFX] bakeMeshVolumePoints: mesh has no triangles, fallback to single point");
     return data ? _makePointTexture(data, count) : _fallbackPointTexture();
 }
@@ -1260,12 +1280,12 @@ function _makePointBuffer(data: Float32Array, count: number): DeviceBuffer {
     buf.deviceBuffer.setData(data.buffer as ArrayBuffer, 0, 0, count * 16);
     return buf;
 }
-function bakeMeshSurfacePointsBuffer(mesh: Mesh, count: number): DeviceBuffer {
-    const data = _computeSurfacePointsData(mesh, count) || _fallbackPointData(count);
+function bakeMeshSurfacePointsBuffer(mesh: Mesh, count: number, scale?: number): DeviceBuffer {
+    const data = _computeSurfacePointsData(mesh, count, scale) || _fallbackPointData(count);
     return _makePointBuffer(data, count);
 }
-function bakeMeshVolumePointsBuffer(mesh: Mesh, count: number): DeviceBuffer {
-    const data = _computeVolumePointsData(mesh, count) || _fallbackPointData(count);
+function bakeMeshVolumePointsBuffer(mesh: Mesh, count: number, scale?: number): DeviceBuffer {
+    const data = _computeVolumePointsData(mesh, count, scale) || _fallbackPointData(count);
     return _makePointBuffer(data, count);
 }
 
