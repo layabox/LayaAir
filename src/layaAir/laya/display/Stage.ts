@@ -299,6 +299,32 @@ export class Stage extends Sprite {
     }
 
     /**
+     * @en The width of the stage, in pixels.
+     * @zh 舞台的宽度，单位为像素。
+     */
+    get width(): number {
+        this.needUpdateCanvasSize();
+        return super.width;
+    }
+
+    set width(value: number) {
+        super.width = value;
+    }
+
+    /**
+     * @en The height of the stage, in pixels.
+     * @zh 舞台的高度，单位为像素。
+     */
+    get height(): number {
+        this.needUpdateCanvasSize();
+        return super.height;
+    }
+
+    set height(value: number) {
+        super.height = value;
+    }
+
+    /**
      * @ignore
      */
     protected measureWidth(): number {
