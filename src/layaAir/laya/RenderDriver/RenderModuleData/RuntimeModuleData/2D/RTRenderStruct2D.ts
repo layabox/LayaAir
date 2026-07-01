@@ -384,7 +384,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       else
          this._nativeObj.setRenderUpdate(null);
    }
-   
+
    setClipRect(rect: Rectangle): void {
       if (rect) {
          rect.cloneTo(this._clipRect);
@@ -397,7 +397,8 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
 
    setRepaint(): void {
-      this._nativeObj.setRepaint();
+      this._pass && (this._pass.repaint = true);
+      // this._nativeObj.setRepaint();
    }
 
    addChild(child: RTRenderStruct2D, index: number) {
