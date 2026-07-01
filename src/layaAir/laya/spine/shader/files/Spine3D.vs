@@ -42,6 +42,9 @@ void main()
     
     #ifdef COLOR2
         v_color2 = a_color2;
+        #ifdef Gamma_u_spineTexture
+            v_color2.rgb = pow(v_color2.rgb, vec3(2.2));
+        #endif
     #else
         v_color2 = vec4(0.0, 0.0, 0.0, 1.0);
     #endif

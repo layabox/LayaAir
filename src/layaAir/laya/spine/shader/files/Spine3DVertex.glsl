@@ -50,6 +50,9 @@ void getVertexParams(inout Vertex vertex)
     vertex.vertexColor = vec4(1.0,1.0,1.0,1.0);
 
     vertex.vertexColor = a_color;
+    #ifdef Gamma_u_spineTexture
+        vertex.vertexColor.rgb = pow(vertex.vertexColor.rgb, vec3(2.2));
+    #endif
     vertex.vertexColor.rgb *=a_color.a;
 
     vertex.texCoord0 = a_uv;
