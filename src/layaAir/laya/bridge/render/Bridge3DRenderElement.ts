@@ -1,17 +1,37 @@
 
 import { RenderContext3D } from "../../d3/core/render/RenderContext3D";
-import { Vector4 } from "../../maths/Vector4";
+import { Vector3 } from "../../maths/Vector3";
 import { RenderListQueue } from "../../RenderDriver/DriverCommon/RenderListQueue";
 import { IRenderContext2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
+import { WebGL2DStencilState } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
+import { IRenderElement3D } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IRenderStruct2D } from "../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
+import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
 import { WebBaseRenderNode } from "../../RenderDriver/RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { SubShader } from "../../RenderEngine/RenderShader/SubShader";
 import { SingletonList } from "../../utils/SingletonList";
 import { IBridgeRenderElement } from "../Bridge3DSprite";
 import { Bridge3DContext } from "./Bridge3DContext";
 import { IBridge3DRenderProcess } from "./IBridge3DRenderProcess";
+
+type Bridge3DStencilRestore = {
+    shaderData: ShaderData;
+    hasStencilTest: boolean;
+    stencilTest: any;
+    hasStencilWrite: boolean;
+    stencilWrite: any;
+    hasStencilRef: boolean;
+    stencilRef: any;
+    hasStencilReadMask: boolean;
+    stencilReadMask: any;
+    hasStencilWriteMask: boolean;
+    stencilWriteMask: any;
+    hasStencilOp: boolean;
+    stencilOp: Vector3 | null;
+};
 
 /**
  * Bridge3DRenderElement是Bridge3DSprite的渲染元素,负责将3D内容集成到2D渲染管线
@@ -27,6 +47,7 @@ export class Bridge3DRenderElement implements IBridgeRenderElement {
     globalShaderData: ShaderData = null;
     subShader: SubShader = null;
     renderStateIsBySprite: boolean = true;
+    stencilClipState: WebGL2DStencilState = null;
     nodeCommonMap: Array<string> = [];
     owner: IRenderStruct2D = null;
     _index?: number;
@@ -56,14 +77,11 @@ export class Bridge3DRenderElement implements IBridgeRenderElement {
      */
     private _transparentList: RenderListQueue;
 
-    /** @internal */ _cachedPassData: ShaderData = null;
+    private static _stencilKeepOp: Vector3 = new Vector3(RenderState.STENCILOP_KEEP, RenderState.STENCILOP_KEEP, RenderState.STENCILOP_KEEP);
+    private _stencilRestoreList: Bridge3DStencilRestore[] = [];
+
 
     /** clip 变换结果缓存：以 info._updateFrame + rtH + passData 为失效依据，避免逐分量比较 */
-    /** @internal */ _cachedRtClipDir: Vector4 = new Vector4();
-    /** @internal */ _cachedRtClipPos: Vector4 = new Vector4();
-    /** @internal */ _cachedRtH = -1;
-    /** @internal */ _cachedClipUpdateFrame = -1;
-    /** @internal */ _clipCacheValid = false;
 
     /**
      * 创建Bridge3DRenderElement实例
@@ -151,6 +169,96 @@ export class Bridge3DRenderElement implements IBridgeRenderElement {
         return -1;
     }
 
+    /** @internal */
+    applyStencilClipTo3DRenderStates(): void {
+        this.restoreStencilClipTo3DRenderStates();
+        const state = this.stencilClipState;
+        if (!state || !state.enabled)
+            return;
+
+        this._applyStencilClipToQueue(this._opaqueList, state);
+        this._applyStencilClipToQueue(this._transparentList, state);
+    }
+
+    /** @internal */
+    restoreStencilClipTo3DRenderStates(): void {
+        const restores = this._stencilRestoreList;
+        for (let i = 0, n = restores.length; i < n; i++) {
+            const item = restores[i];
+            const shaderData = item.shaderData as any;
+            const data = shaderData.getData();
+
+            this._restoreShaderDataField(shaderData, data, Shader3D.STENCIL_TEST, item.hasStencilTest, item.stencilTest);
+            this._restoreShaderDataField(shaderData, data, Shader3D.STENCIL_WRITE, item.hasStencilWrite, item.stencilWrite);
+            this._restoreShaderDataField(shaderData, data, Shader3D.STENCIL_Ref, item.hasStencilRef, item.stencilRef);
+            this._restoreShaderDataField(shaderData, data, Shader3D.STENCIL_READ_MASK, item.hasStencilReadMask, item.stencilReadMask);
+            this._restoreShaderDataField(shaderData, data, Shader3D.STENCIL_WRITE_MASK, item.hasStencilWriteMask, item.stencilWriteMask);
+            if (item.hasStencilOp) {
+                if (item.stencilOp)
+                    shaderData.setVector3(Shader3D.STENCIL_Op, item.stencilOp);
+                else {
+                    data[Shader3D.STENCIL_Op] = item.stencilOp;
+                    shaderData._renderStateChanged = true;
+                }
+            } else {
+                delete data[Shader3D.STENCIL_Op];
+                shaderData._renderStateChanged = true;
+            }
+        }
+        restores.length = 0;
+    }
+
+    private _applyStencilClipToQueue(queue: RenderListQueue, state: WebGL2DStencilState): void {
+        const list = queue.elements;
+        for (let i = 0, n = list.length; i < n; i++) {
+            const element = list.elements[i] as IRenderElement3D;
+            const shaderData = element && element.materialShaderData;
+            if (shaderData)
+                this._applyStencilClipToShaderData(shaderData, state);
+        }
+    }
+
+    private _applyStencilClipToShaderData(shaderData: ShaderData, state: WebGL2DStencilState): void {
+        const restores = this._stencilRestoreList;
+        for (let i = 0, n = restores.length; i < n; i++) {
+            if (restores[i].shaderData === shaderData)
+                return;
+        }
+
+        const data = shaderData.getData();
+        const stencilOp = data[Shader3D.STENCIL_Op];
+        restores.push({
+            shaderData,
+            hasStencilTest: Object.prototype.hasOwnProperty.call(data, Shader3D.STENCIL_TEST),
+            stencilTest: data[Shader3D.STENCIL_TEST],
+            hasStencilWrite: Object.prototype.hasOwnProperty.call(data, Shader3D.STENCIL_WRITE),
+            stencilWrite: data[Shader3D.STENCIL_WRITE],
+            hasStencilRef: Object.prototype.hasOwnProperty.call(data, Shader3D.STENCIL_Ref),
+            stencilRef: data[Shader3D.STENCIL_Ref],
+            hasStencilReadMask: Object.prototype.hasOwnProperty.call(data, Shader3D.STENCIL_READ_MASK),
+            stencilReadMask: data[Shader3D.STENCIL_READ_MASK],
+            hasStencilWriteMask: Object.prototype.hasOwnProperty.call(data, Shader3D.STENCIL_WRITE_MASK),
+            stencilWriteMask: data[Shader3D.STENCIL_WRITE_MASK],
+            hasStencilOp: Object.prototype.hasOwnProperty.call(data, Shader3D.STENCIL_Op),
+            stencilOp: stencilOp ? new Vector3(stencilOp.x, stencilOp.y, stencilOp.z) : null
+        });
+
+        shaderData.setInt(Shader3D.STENCIL_TEST, state.test);
+        shaderData.setBool(Shader3D.STENCIL_WRITE, false);
+        shaderData.setInt(Shader3D.STENCIL_Ref, state.ref);
+        shaderData.setInt(Shader3D.STENCIL_READ_MASK, state.readMask);
+        shaderData.setInt(Shader3D.STENCIL_WRITE_MASK, 0x00);
+        shaderData.setVector3(Shader3D.STENCIL_Op, Bridge3DRenderElement._stencilKeepOp);
+    }
+
+    private _restoreShaderDataField(shaderData: any, data: any, index: number, hasValue: boolean, value: any): void {
+        if (hasValue)
+            data[index] = value;
+        else
+            delete data[index];
+        shaderData._renderStateChanged = true;
+    }
+
     _prepare(context: IRenderContext2D) {
 
     }
@@ -184,8 +292,8 @@ export class Bridge3DRenderElement implements IBridgeRenderElement {
         this._transparentList = null;
         this._bridge3DContext = null; // 只清理引用，不销毁（由Scene3D管理）
         this._renderProcess = null; // 只清理引用，不销毁（由Bridge3DCamera管理）
-        this._cachedPassData = null;
-        this._clipCacheValid = false;
+        this._stencilRestoreList.length = 0;
+        this.stencilClipState = null;
         this.owner = null;
         this.geometry = null;
         this.materialShaderData = null;

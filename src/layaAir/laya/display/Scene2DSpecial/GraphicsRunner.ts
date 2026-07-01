@@ -35,7 +35,7 @@ import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { IGraphicsCmd } from "../IGraphics";
-import { Texture2DArray } from "../../resource/Texture2DArray";
+import { TextureDimension } from "../../RenderEngine/RenderEnum/TextureDimension";
 import { TextureArrayRegistry2D } from "../../webgl/utils/TextureArrayRegistry2D";
 import { ITextureProcessor, EmptyTextureProcessor } from "../../large/ITextureProcessor";
 import { GraphicsDefines } from "../../webgl/shader/d2/GraphicsDefines";
@@ -62,6 +62,7 @@ export class GraphicsRunner {
     private _strokeStyle: DrawStyle = DrawStyle.DEFAULT;
 
     private static SEGNUM = 32;
+    private static _warnedUnsupportedClipRect = false;
 
     private _tempUV = new Float32Array(8);
     private _drawTriUseAbsMatrix = false;	//drawTriange函数的矩阵是全局的，不用再乘以当前矩阵了。这是一个补丁。
@@ -720,7 +721,6 @@ export class GraphicsRunner {
                 submit = this._curSubmit = this.createSubmit(mesh);
                 let material = submit._internalInfo;
                 // this.fillShaderValue(submit.shaderValue);
-                this._setClipInfo(material);
                 submit.clipInfoID = this._clipInfoID;
                 material.textureHost = this._lastTex;
                 //这里有一个问题。例如 clip1, drawTex(tex1), clip2, fillRect, drawTex(tex2)	会被分成3个submit，
@@ -834,7 +834,6 @@ export class GraphicsRunner {
             Vector4.TEMP.setValue(arry[0], arry[1], arry[2], arry[3]);
             material.u_TexRange = Vector4.TEMP;
 
-            this._setClipInfo(material);
             submit.clipInfoID = this._clipInfoID;
             submit._internalInfo.textureHost = texture;
 
@@ -886,22 +885,6 @@ export class GraphicsRunner {
         }
         this._renderer.addResRef(this, tex);
         return this._inner_drawTexture(tex, (tex.bitmap as Texture2D).id, x, y, width, height, m, uv, alpha, color);
-    }
-
-    /**@internal */
-    _setClipInfo(material: GraphicsShaderInfo): void {
-        if (this._clipRect === SaveClipRect.MAX) {
-            material.materialClip = false;
-            return
-        }
-        let clipInfo = this._globalClipMatrix;
-        var cm = material.clipMatDir;
-        material.materialClip = true;
-        cm.x = clipInfo.a; cm.y = clipInfo.b; cm.z = clipInfo.c; cm.w = clipInfo.d;
-        material.clipMatDir = cm;
-        var cmp = material.clipMatPos;
-        cmp.x = clipInfo.tx; cmp.y = clipInfo.ty, cmp.z = this._clip_x, cmp.w = this._clip_y;
-        material.clipMatPos = cmp;
     }
 
     //通用的部分的比较
@@ -1003,10 +986,9 @@ export class GraphicsRunner {
             this._curSubmit = submit = this.createSubmit(mesh);
             let material = submit._internalInfo;
             // let shaderValue = Value2D.create(RenderSpriteData.Texture2D);
-            this._setClipInfo(material);
             // 如果外部已注册到数组纹理，替换材质与合批键，并设置层索引
             let reg = TextureArrayRegistry2D.resolve(tex);
-            if (reg && reg.array instanceof Texture2DArray) {
+            if (reg && reg.array && reg.array.dimension === TextureDimension.Texture2DArray) {
                 material.textureHost = reg.array;
                 // 记录层索引，用于 a_attribFlags.b
                 material.texArrayLayer = reg.layer | 0;
@@ -1028,7 +1010,6 @@ export class GraphicsRunner {
 
     // private fillShaderValue(material: GraphicsShaderInfo) {
     //     // shaderValue.size = new Vector2(this._width, this._height);
-    //     this._setClipInfo(material);
     // }
     /**
      * pt所描述的多边形完全在clip外边，整个被裁掉了
@@ -1221,13 +1202,12 @@ export class GraphicsRunner {
             submit = this._curSubmit = this.createSubmit(mesh);
             // 若有数组纹理注册，替换为数组纹理并设置层索引
             let reg = TextureArrayRegistry2D.resolve(tex);
-            if (reg && reg.array instanceof Texture2DArray) {
+            if (reg && reg.array && reg.array.dimension === TextureDimension.Texture2DArray) {
                 submit._internalInfo.textureHost = reg.array;
                 submit._internalInfo.texArrayLayer = reg.layer | 0;
             } else {
                 submit._internalInfo.textureHost = tex;
             }
-            this._setClipInfo(submit._internalInfo);
             // submit._key.submitType = SubmitBase.KEY_TRIANGLES;
             submit._key.other = (reg?.array as any)?._texture?.id ?? (webGLImg?.id ?? -1);
 
@@ -1282,6 +1262,12 @@ export class GraphicsRunner {
     }
 
     clipRect(x: number, y: number, width: number, height: number, escape?: boolean): void {
+        if (!GraphicsRunner._warnedUnsupportedClipRect) {
+            GraphicsRunner._warnedUnsupportedClipRect = true;
+            console.warn("Graphics.clipRect command is not supported in WebGL 2D graphics rendering. Use Sprite.scrollRect for stencil clipping.");
+        }
+        return;
+
         SaveClipRect.save(this);
         if (this._clipRect === SaveClipRect.MAX) {
             this._clipRect = new Rectangle(x, y, width, height);
@@ -1519,7 +1505,6 @@ export class GraphicsRunner {
     private addVGSubmit(mesh: GraphicsMesh): SubmitBase {
         //elenum设为0，后面再加
         var submit: SubmitBase = this.createSubmit(mesh);
-        this._setClipInfo(submit._internalInfo);
         //submit._key.clear();
         // submit._key.blendShader = _submitKey.blendShader;	//TODO 这个在哪里赋值的啊
         // submit._key.submitType = SubmitBase.KEY_VG;

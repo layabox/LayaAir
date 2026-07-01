@@ -5,7 +5,6 @@ import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTarge
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
-import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
 import { LayaXReadbackDispatcher } from "./LayaXReadbackDispatcher";
@@ -21,8 +20,8 @@ export class LayaXTextureContext implements ITextureContext {
         this.needBitmap = false;
     }
 
-    createRenderTargetFromArrayLayer(arrayTex: InternalTexture, layer: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, sRGB: boolean): InternalRenderTarget {
-        throw new Error("Method not implemented.");
+    createRenderTargetArrayInternal(width: number, height: number, depth: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): LayaXInternalRT {
+        return new LayaXInternalRT(this._native.createRenderTargetArrayInternal(width, height, depth, colorFormat, depthStencilFormat ? depthStencilFormat : RenderTargetFormat.None, generateMipmap, sRGB, multiSamples));
     }
 
     createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): LayaXInternalTex {

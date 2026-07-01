@@ -1,10 +1,8 @@
-import { Const } from "../../Const";
 import { Command2D } from "../../display/Scene2DSpecial/RenderCMD2D/Command2D";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Color } from "../../maths/Color";
 import { Matrix } from "../../maths/Matrix";
 import { Vector3 } from "../../maths/Vector3";
-import { Vector4 } from "../../maths/Vector4";
 import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
 import { Draw2DElementCMD } from "../../RenderDriver/DriverDesign/2DRenderPass/IRender2DCMD";
 import { IRenderElement2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
@@ -63,10 +61,6 @@ export class PhysicsDrawLine2DCMD extends Command2D {
         this._drawElementData = LayaGL.render2DRenderPassFactory.createDraw2DElementCMDData();
         this._shaderData = LayaGL.renderDeviceFactory.createShaderData();
         this._shaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
-        let temp = Vector4.TEMP.setValue(0, 0, 0, 0);
-        this._shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, temp);
-        temp.x = temp.w = Const.MAX_CLIP_SIZE;
-        this._shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, temp);
 
         this._struct = LayaGL.render2DRenderPassFactory.createRenderStruct2D();
         this._renderElements[0] = LayaGL.render2DRenderPassFactory.createRenderElement2D();

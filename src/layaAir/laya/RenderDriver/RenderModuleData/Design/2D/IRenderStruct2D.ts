@@ -15,6 +15,8 @@ export interface IClipInfo {
    clipMatPos: Vector4;
    clipMatrix: Matrix;
    _updateFrame: number;
+   clipDepth: number;
+   clipParent: IClipInfo;
 }
 
 /** 
@@ -79,6 +81,9 @@ export interface IRenderStruct2D {
    globalRenderData: I2DGlobalRenderData;
 
    pass: IRender2DPass;
+
+   /** @internal Keep fragment-shader clip for special elements such as Bridge3D. */
+   forceShaderClip?: boolean;
 
    setRepaint(): void;
 

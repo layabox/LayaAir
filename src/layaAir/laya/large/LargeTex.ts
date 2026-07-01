@@ -1,10 +1,8 @@
-
 import { Config } from "../../Config";
 import { Laya } from "../../Laya";
 import { Render2DProcessor } from "../display/Render2DProcessor";
 import { Blit2DCMD } from "../display/Scene2DSpecial/RenderCMD2D/Blit2DCMD";
 import { CommandBuffer2D } from "../display/Scene2DSpecial/RenderCMD2D/CommandBuffer2D";
-import { LayaGL } from "../layagl/LayaGL";
 import { Vector4 } from "../maths/Vector4";
 import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
@@ -12,14 +10,16 @@ import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { RenderTexture } from "../resource/RenderTexture";
 import { Texture2D } from "../resource/Texture2D";
-import { TextureArrayRegistry2D } from "../webgl/utils/TextureArrayRegistry2D";
+import { TextureArrayLayerAllocation, TextureArrayRegistry2D } from "../webgl/utils/TextureArrayRegistry2D";
 import { TextureMergeShaderInit } from "./shader/TextureMergeShaderInit";
 
 export class LargeTex extends RenderTexture {
     cmdBuffer: CommandBuffer2D;
-    private _limitMipmap: number = -1; //是否限制mipmap层数
-    private _willDestroyTex: Texture2D[] = []; //待删除小贴图队列
-    private _shader: Shader3D; //合图的着色器
+    private _arrayAlloc: TextureArrayLayerAllocation;
+    private _limitMipmap: number = -1;
+    private _willDestroyTex: Texture2D[] = [];
+    private _shader: Shader3D;
+
     /**
      * @en Whether to immediately execute the merge
      * @zh 是否立即执行合并
@@ -37,7 +37,8 @@ export class LargeTex extends RenderTexture {
     private _waitMergeIds: Set<number> = new Set();
 
     constructor(width: number, height: number, format: RenderTargetFormat = RenderTargetFormat.R8G8B8A8,
-        depthStencilFormat: RenderTargetFormat = null, mipmap: boolean = false, limitMipmap: number = -1, sRGB: boolean = true , gammaCorrection: number = 1.0) {
+        depthStencilFormat: RenderTargetFormat = null, mipmap: boolean = false, limitMipmap: number = -1,
+        sRGB: boolean = true, gammaCorrection: number = 1.0) {
         super(width, height, format, depthStencilFormat, mipmap, 1, false, sRGB);
         this._limitMipmap = limitMipmap;
         this.anisoLevel = 1;
@@ -46,27 +47,25 @@ export class LargeTex extends RenderTexture {
                 this._setMaxMipmapLevel(this._limitMipmap);
         }
         this._shader = Shader3D.find("TexMerge");
+        this._texture.gammaCorrection = gammaCorrection;
+    }
 
-        // WebGPU：将渲染目标直接指向 Texture2DArray 的单层
+    _createRenderTarget(): void {
         if (Config.useTextureArray) {
-            const alloc = TextureArrayRegistry2D.allocateLayerAsTexture(width, height, <any>TextureFormat.R8G8B8A8, 64, sRGB);
-            const tc: any = LayaGL.textureContext;
-            if (alloc && tc) {
-                // 用数组层重建 RT
-                this._disposeResource();
-                // 内部纹理对象
-                const internalArrayTex = alloc.array._texture;
-                this._renderTarget = tc.createRenderTargetFromArrayLayer(internalArrayTex, alloc.layer, format,
-                    depthStencilFormat, sRGB);
-                // RenderTexture 的采样源沿用 color attachment
-                // @ts-ignore
-                this._texture = this._renderTarget._textures[0];
-                // 注册映射：采样 LargeTex 时自动切换为数组纹理指定层
-                TextureArrayRegistry2D.register(this as any, alloc.array, alloc.layer);
+            const alloc = TextureArrayRegistry2D.allocateLayerAsTexture(this.width, this.height, <RenderTargetFormat><any>this._format,
+                64, this._gammaSpace, this._depthStencilFormat, this._generateMipmap);
+            if (alloc) {
+                this._arrayAlloc = alloc;
+                this._dimension = alloc.sharedRT.dimension;
+                this._renderTarget = alloc.sharedRT._renderTarget;
+                this._generateMipmap = alloc.sharedRT.generateMipmap;
+                this._texture = alloc.sharedRT._texture;
+                TextureArrayRegistry2D.register(this, alloc);
+                this._bindTextureArrayLayer();
+                return;
             }
         }
-        //
-        this._texture.gammaCorrection = gammaCorrection;
+        super._createRenderTarget();
     }
 
     /**
@@ -83,6 +82,7 @@ export class LargeTex extends RenderTexture {
         let cacheInvertY = Render2DProcessor.rendercontext2D.invertY;
         while (cmd && (force || Laya.stage.getTimeFromFrameStart() < 30)) {
             this.cmdBuffer.addCacheCommand(cmd);
+            this._bindTextureArrayLayer();
             this.cmdBuffer.applyOne(true);
             this.commands.delete(cmd);
 
@@ -236,13 +236,17 @@ export class LargeTex extends RenderTexture {
         this._willDestroyTex = null;
     }
 
-    /**
-     * 创建小贴图
-     * @param w 宽度
-     * @param h 高度
-     * @param pixelArray 像素数据 
-     * @returns 贴图对象
-     */
+    protected _disposeResource(): void {
+        if (this._arrayAlloc) {
+            TextureArrayRegistry2D.unregister(this as any);
+            this._arrayAlloc = null;
+            this._renderTarget = null;
+            this._texture = null;
+            return;
+        }
+        super._disposeResource();
+    }
+
     private _createSmallTex(w: number, h: number, pixelArray: Uint8Array): Texture2D {
         const smallTex = new Texture2D(w, h, this.format, false, false, false);
         smallTex.setPixelsData(pixelArray, false, false);
@@ -250,24 +254,17 @@ export class LargeTex extends RenderTexture {
         return smallTex;
     }
 
-    /**
-     * 删除小贴图
-     */
     private _doDestoryTex() {
         if (this._willDestroyTex)
             while (this._willDestroyTex.length)
                 this._willDestroyTex.pop().destroy();
     }
 
-    /**
-     * 绘制小贴图到大贴图上，包含扩边功能
-     * @param x 绘制到大贴图的位置x
-     * @param y 绘制到大贴图的位置y
-     * @param w 绘制到大贴图的宽度
-     * @param h 绘制到大贴图的高度
-     * @param expand 扩边像素数
-     * @param smallTex 小贴图
-     */
+    private _bindTextureArrayLayer(): void {
+        if (this._arrayAlloc)
+            this._arrayAlloc.sharedRT.bindLayer(this._arrayAlloc.layer);
+    }
+
     private _drawTex(x: number, y: number, w: number, h: number, expand: number, smallTex: Texture2D) {
         const width = this.width; //大贴图宽度
         const height = this.height; //大贴图高度
@@ -277,7 +274,6 @@ export class LargeTex extends RenderTexture {
         offsetScale.y = Math.max(0, height - y - h - expand) / height;
         offsetScale.z = (w + expand * 2) / width;
         offsetScale.w = (h + expand * 2) / height;
-
 
         let sd = TextureMergeShaderInit._sdNotChange;
         if (this.gammaSpace) {

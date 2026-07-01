@@ -56,7 +56,7 @@ export interface ITextureContext {
 
     createRenderTargetDepthTexture(renderTarget: InternalRenderTarget, dimension: TextureDimension, width: number, height: number): InternalTexture;
 
-    createRenderTargetFromArrayLayer(arrayTex: InternalTexture, layer: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, sRGB: boolean): InternalRenderTarget;
+    createRenderTargetArrayInternal(width: number, height: number, depth: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget;
 
     bindRenderTarget(renderTarget: InternalRenderTarget, faceIndex?: number): void;
     bindoutScreenTarget(): void;

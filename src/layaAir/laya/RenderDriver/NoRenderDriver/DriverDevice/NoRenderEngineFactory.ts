@@ -151,14 +151,15 @@ export class NoInternalRT implements InternalRenderTarget {
 
 
 export class NoTextureContext implements ITextureContext {
-    createRenderTargetFromArrayLayer(arrayTex: InternalTexture, layer: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, sRGB: boolean): InternalRenderTarget {
-        const rt = new NoInternalRT();
-        rt._textures = [arrayTex];
-        rt.colorFormat = colorFormat;
-        rt.depthStencilFormat = depthStencilFormat;
-        rt.isSRGB = sRGB;
-        (rt as any)._arrayLayerIndex = layer;
-        return rt;
+    createRenderTargetArrayInternal(width: number, height: number, depth: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
+        let texture = this.createTextureInternal(TextureDimension.Texture2DArray, width, height, TextureFormat.R8G8B8A8, generateMipmap, sRGB, false);
+        texture.depth = depth;
+        let renderTarget = new NoInternalRT();
+        renderTarget._textures.push(texture);
+        renderTarget.colorFormat = colorFormat;
+        renderTarget.depthStencilFormat = depthStencilFormat;
+        renderTarget.isSRGB = sRGB;
+        return renderTarget;
     }
     needBitmap: boolean;
     createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {

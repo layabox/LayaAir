@@ -17,6 +17,7 @@ import { GraphicsMesh, MeshBlockInfo } from "../utils/GraphicsMesh";
 import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D";
 import { SubmitKey } from "./SubmitKey";
 import { GraphicsDefines } from "../shader/d2/GraphicsDefines";
+import { LayaEnv } from "../../../LayaEnv";
 
 export type GraphicsRunnerCacheChunk = {
     vbdata: Float32Array;
@@ -231,7 +232,7 @@ export class SubmitBase {
         }
         indexView.setData(this.indices);
 
-        if (vertexBlocksChanged && Browser.onLayaRuntime) {
+        if (vertexBlocksChanged && LayaEnv.isConch) {
             this._bufferBlock.vertexs = this.vertexs.elements;
         }
         

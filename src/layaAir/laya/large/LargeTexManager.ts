@@ -822,7 +822,7 @@ export class LargeTexBase {
      * @param sRGB 大图是否sRGB格式
      */
     createLargeTex(largeTextureIndex: number, sRGB?: boolean, gammaCorrection?: number) {
-        const mipMap = this.mipMap && !!(LayaGL.renderEngine as any).gl;
+        const mipMap = this.mipMap;
         const texMode = this.texMode;
         const anisoLevel = this.texAnisoLevel;
         sRGB = sRGB ? sRGB : this.sRGB;

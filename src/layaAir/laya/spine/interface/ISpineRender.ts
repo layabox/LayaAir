@@ -183,7 +183,7 @@ export interface ISpineRender {
      * @zh 初始化烘焙数据
      * @param obj 烘焙数据
      */
-    initBake(obj: TSpineBakeData): void;
+    initBake(obj: TSpineBakeData | null): void;
     
     /**
      * @zh 设置动画事件监听器

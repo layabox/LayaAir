@@ -19,14 +19,12 @@ import { WebCameraNodeData } from "../../RenderDriver/RenderModuleData/WebModule
 import { WebBaseSpotRP } from "../../RenderDriver/RenderModuleData/WebModuleData/3D/WebShadowRP/WebBaseSpotRP";
 import { WebDirCascadeShadowRP } from "../../RenderDriver/RenderModuleData/WebModuleData/3D/WebShadowRP/WebDirCascadeShadowRP";
 import { WebSpotLight } from "../../RenderDriver/RenderModuleData/WebModuleData/3D/WebSpotLight";
-import type { WebRenderStruct2D } from "../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderContext3D } from "../../d3/core/render/RenderContext3D";
 import { RenderTexture } from "../../resource/RenderTexture";
 import { RenderState2D } from "../../webgl/utils/RenderState2D";
 import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 import { IBridgeRenderElement } from "../Bridge3DSprite";
-import { Bridge3DCamera } from "../Bridge3DCamera";
 import { Bridge3DContext } from "./Bridge3DContext";
 import { Bridge3DRenderElement } from "./Bridge3DRenderElement";
 import { IBridge3DRenderProcess } from "./IBridge3DRenderProcess";
@@ -75,7 +73,6 @@ export class WebBridge3DRenderProcess implements IBridge3DRenderProcess {
     private _invTy: number = 0;
 
     private _projCorrected: boolean = false;
-    private _hasShaderClip: boolean = false;
     private _hasGammaCorrect: boolean = false;
 
     // ===== 静态临时对象 (避免每帧分配) =====
@@ -260,7 +257,7 @@ export class WebBridge3DRenderProcess implements IBridge3DRenderProcess {
 
         // ===== 4. 设置3D渲染目标为2D当前RT =====
         const clearFlag = bridge3DContext.clearDepthBeforeRender
-            ? RenderClearFlag.Depth | RenderClearFlag.Stencil
+            ? RenderClearFlag.Depth
             : RenderClearFlag.Nothing;
         context3d.setRenderTarget(this._rt2d, clearFlag);
 
@@ -342,46 +339,6 @@ export class WebBridge3DRenderProcess implements IBridge3DRenderProcess {
             this._projCorrected = true;
         }
 
-        // ===== 7. Fragment shader clip =====
-        this._hasShaderClip = false;
-        const ownerStruct = bridge3DElement.owner as WebRenderStruct2D;
-        if (ownerStruct && typeof ownerStruct.getClipInfo === 'function') {
-            if (ownerStruct.hasClip()) {
-                const info = ownerStruct.getClipInfo();
-                const clipReuse =
-                    bridge3DElement._clipCacheValid &&
-                    bridge3DElement._cachedClipUpdateFrame === info._updateFrame &&
-                    bridge3DElement._cachedRtH === this._rtH &&
-                    bridge3DElement._cachedPassData === context2d.passData;
-
-                if (!clipReuse) {
-                    const clipDir = info.clipMatDir;
-                    const clipPos = info.clipMatPos;
-                    bridge3DElement._cachedRtClipPos.x = this._invA * clipPos.x + this._invC * clipPos.y + this._invTx;
-                    bridge3DElement._cachedRtClipPos.y = this._invB * clipPos.x + this._invD * clipPos.y + this._invTy;
-                    bridge3DElement._cachedRtClipPos.z = this._rtH;
-                    bridge3DElement._cachedRtClipPos.w = 0;
-                    bridge3DElement._cachedRtClipDir.x = this._invA * clipDir.x + this._invC * clipDir.y;
-                    bridge3DElement._cachedRtClipDir.y = this._invB * clipDir.x + this._invD * clipDir.y;
-                    bridge3DElement._cachedRtClipDir.z = this._invA * clipDir.z + this._invC * clipDir.w;
-                    bridge3DElement._cachedRtClipDir.w = this._invB * clipDir.z + this._invD * clipDir.w;
-                    bridge3DElement._cachedClipUpdateFrame = info._updateFrame;
-                    bridge3DElement._cachedRtH = this._rtH;
-                    bridge3DElement._cachedPassData = context2d.passData;
-                    bridge3DElement._clipCacheValid = true;
-                }
-
-                const cameraData = bridge3DContext.cameraData;
-                cameraData.addDefine(Bridge3DCamera.BRIDGE3D_CLIP);
-                cameraData.setVector(Bridge3DCamera.BRIDGE3D_CLIPDIR, bridge3DElement._cachedRtClipDir);
-                cameraData.setVector(Bridge3DCamera.BRIDGE3D_CLIPPOS, bridge3DElement._cachedRtClipPos);
-                this._hasShaderClip = true;
-            } else {
-                bridge3DElement._clipCacheValid = false;
-            }
-        } else {
-            bridge3DElement._clipCacheValid = false;
-        }
     }
 
     private _computeSceneCorrectionMatrix(bridge3DContext: Bridge3DContext, out: Matrix4x4): void {
@@ -423,24 +380,23 @@ export class WebBridge3DRenderProcess implements IBridge3DRenderProcess {
         const opaqueList = bridge3DElement.getOpaqueList();
         const transparentList = bridge3DElement.getTransparentList();
 
-        if (opaqueList.elements.length > 0) {
-            opaqueList.renderQueueOnly(context3d);
-        }
+        bridge3DElement.applyStencilClipTo3DRenderStates();
+        try {
+            if (opaqueList.elements.length > 0) {
+                opaqueList.renderQueueOnly(context3d);
+            }
 
-        if (transparentList.elements.length > 0) {
-            transparentList.renderQueueOnly(context3d);
+            if (transparentList.elements.length > 0) {
+                transparentList.renderQueueOnly(context3d);
+            }
+        } finally {
+            bridge3DElement.restoreStencilClipTo3DRenderStates();
         }
 
         // ===== 9. 恢复状态 =====
         // 恢复 gamma correction
         if (this._hasGammaCorrect) {
             bridge3DContext.cameraData.removeDefine(RenderContext3D.GammaCorrect);
-        }
-
-        // 恢复shader clip
-        if (this._hasShaderClip) {
-            const cameraData = bridge3DContext.cameraData;
-            cameraData.removeDefine(Bridge3DCamera.BRIDGE3D_CLIP);
         }
 
         // 恢复投影矩阵

@@ -12,6 +12,7 @@ import { ILaya } from "../../../ILaya";
 import { ColorUtils } from "../../utils/ColorUtils";
 import { Config } from "../../../Config";
 import { TextureArrayRegistry2D } from "../utils/TextureArrayRegistry2D";
+import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 
 
 /** @ignore @blueprintIgnore */
@@ -321,7 +322,8 @@ export class TextRender {
 
         if (Config.useTextureArray && TextRenderConfig.useTextureArray) {
             // 尝试从数组纹理池分配一层并注册映射，使本 TextTexture 被绘制时自动替换为 Texture2DArray+layer
-            const alloc = TextureArrayRegistry2D.allocateLayerAsTexture(width, height, TextureFormat.R8G8B8A8, 64, /*sRGB*/ false);
+            let enableMipmap = !!(LayaGL.renderEngine as any).gl;
+            const alloc = TextureArrayRegistry2D.allocateLayerAsTexture(width, height, TextureFormat.R8G8B8A8, 64, /*sRGB*/ false , RenderTargetFormat.None , enableMipmap);
             if (alloc) {
                 // 当启用 CPU 预乘时，文本数据来自 Canvas 2D（sRGB 空间）且已预乘 alpha。
                 // 不能使用硬件 sRGB 格式（会对预乘数据错误解码产生白边），
@@ -330,7 +332,7 @@ export class TextRender {
                 if (TextRenderConfig.premultiplyAlpha && alloc.array.gammaCorrection === 1) {
                     alloc.array._texture.gammaCorrection = 2.2;
                 }
-                TextureArrayRegistry2D.register(tex, alloc.array, alloc.layer);
+                TextureArrayRegistry2D.register(tex, alloc);
             }
         }
 
@@ -344,7 +346,7 @@ export class TextRender {
 
         const reg = TextureArrayRegistry2D.resolve(tex);
         if (reg) {
-            reg.array.setSubPixelsData(x, y, reg.layer, imgdt.width, imgdt.height, 1, data, 0, false, false, false);
+            reg.uploadSubPixels(x, y, imgdt.width, imgdt.height, data);
         } else {
             // CPU 预乘已完成时不再请求 GPU 预乘，避免双重预乘
             LayaGL.textureContext.setTextureSubPixelsData(tex._texture, data, 0, false, x, y, imgdt.width, imgdt.height, !TextRenderConfig.premultiplyAlpha, false);
@@ -392,7 +394,7 @@ export class TextRender {
 
                 //看看是不是已经有空白的了。只保留一个空白的，避免占用过多内存
                 if (this.textAtlases.length > 2 && this.textAtlases.findIndex((a) => a.ref === 0) !== -1) {
-                    atlas.tex.destroy();
+                    this.destroyTextTexture(atlas.tex);
                     let idx = this.textAtlases.indexOf(atlas);
                     this.textAtlases.splice(idx, 1);
                 }
@@ -449,7 +451,7 @@ export class TextRender {
     GC(): void {
         if (this.freeIsoTextures.length > 0) {
             for (let tex of this.freeIsoTextures)
-                tex?.destroy();
+                this.destroyTextTexture(tex);
             this.freeIsoTextures.length = 0;
             freeIsoTextureNullCnt = 0;
         }
@@ -462,6 +464,13 @@ export class TextRender {
         for (let ri of toClearChars) {
             this.free(ri);
         }
+    }
+
+    private destroyTextTexture(tex: Texture2D): void {
+        if (!tex)
+            return;
+        TextureArrayRegistry2D.unregister(tex);
+        tex.destroy();
     }
 }
 

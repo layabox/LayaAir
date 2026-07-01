@@ -79,7 +79,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
      * @en Bake data for the Spine animation.
      * @zh Spine 动画的烘焙数据。
      */
-    bakeData: TSpineBakeData;
+    bakeData: TSpineBakeData | null;
  
     private _transform: Vector2 = new Vector2();
 
@@ -387,7 +387,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
      * @zh 初始化 Spine 动画的烘焙数据。
      * @param obj 烘焙数据对象。
      */
-    initBake(obj: TSpineBakeData): void {
+    initBake(obj: TSpineBakeData | null): void {
         this.bakeData = obj;
         if (obj) {
             let render = this.renderProxyMap.get(ERenderProxyType.RenderBake) as BakedSpineRenderer;
@@ -407,7 +407,11 @@ export abstract class BaseOptimizeRender implements ISpineRender {
 
         if (this._curAnimationName) {
             this._clearRenderElements();
-            this.play(this._curAnimationName);
+            if (this.trackEntry) {
+                this.play(this._curAnimationName , this.trackEntry.loop , this.trackEntry.trackIndex , this.trackEntry.animationStart , this.trackEntry.animationEnd );
+            }else{
+                this.play(this._curAnimationName)
+            }
         }
     }
 

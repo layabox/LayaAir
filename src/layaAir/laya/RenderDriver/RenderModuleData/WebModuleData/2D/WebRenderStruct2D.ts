@@ -5,6 +5,7 @@ import { Rectangle } from "../../../../maths/Rectangle";
 import { WebRender2DPass } from "./WebRender2DPass";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { Matrix } from "../../../../maths/Matrix";
+import { Vector2 } from "../../../../maths/Vector2";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Const } from "../../../../Const";
 import { WebRender2DDataHandle } from "./WebRenderDataHandle";
@@ -17,12 +18,16 @@ import { SlotConst } from "../../../../display/transform2d/Transform2DLayout";
 
 /** @internal 读 store world 矩阵的模块级 scratch(无 per-call 分配) */
 const _wm6 = new Float32Array(6);
+let _clipUpdateFrame = 1;
+let _clipRectUpdateFrame = 1;
 
 const _DefaultClipInfo: IClipInfo = {
    clipMatrix: new Matrix(),
    clipMatDir: new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE),
    clipMatPos: new Vector4(0, 0, 0, 0),
-   _updateFrame: 0
+   _updateFrame: 0,
+   clipDepth: 0,
+   clipParent: null
 }
 
 export class WebGlobalRenderData implements I2DGlobalRenderData {
@@ -64,6 +69,7 @@ const _DefaultParentData: ParentData = {
 
 export class WebRenderStruct2D implements IRenderStruct2D {
    owner: Sprite;
+   forceShaderClip: boolean = false;
 
    /** 手动渲染模式：子节点不参与父 pass 的自动遍历和渲染 */
    manualRender: boolean = false;
@@ -225,7 +231,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
    /** @internal */
-   needUploadClip = -1;
+   private _needUploadClipOffset = -1;
+   private _clipOffset: Vector2 = new Vector2();
 
    /** 是否启动 */
    enabled: boolean = true;
@@ -234,7 +241,6 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    isRenderStruct: boolean = false;
 
    renderElements: IRenderElement2D[] = null;
-
    spriteShaderData: ShaderData = null;
 
    private _renderDataHandler: WebRender2DDataHandle;
@@ -405,6 +411,10 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    _clipRect: Rectangle = null;
    /** @internal */
    _clipInfo: IClipInfo = null;
+   private _clipMatFrame: number = -1;
+   private _clipParentUpdateFrame: number = -2;
+   private _clipRectUpdateFrame: number = 0;
+   private _clipRectAppliedFrame: number = -1;
 
    private _uniformClip = false;
    /**@deprecated 使用_currentData.clipInfo代替 */
@@ -432,130 +442,47 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          let parentClipUpdateFrame = clipInfo && clipInfo !== _DefaultClipInfo ? clipInfo._updateFrame : -1;
 
          if (this.transSlot >= 0) {
-            if (info._updateFrame < matFrame || info._updateFrame < parentClipUpdateFrame) {
+            if (this._clipMatFrame !== matFrame
+               || this._clipParentUpdateFrame !== parentClipUpdateFrame
+               || this._clipRectAppliedFrame !== this._clipRectUpdateFrame) {
+               this._clipMatFrame = matFrame;
+               this._clipParentUpdateFrame = parentClipUpdateFrame;
+               this._clipRectAppliedFrame = this._clipRectUpdateFrame;
                let mat = this.renderMatrix;
                let cm = info.clipMatrix;
                let { x, y, width, height } = rect;
                width = Math.max(width, 0.0001);
                height = Math.max(height, 0.0001);
                let tx = mat.tx, ty = mat.ty;
-               cm.tx = x * mat.a + y * mat.c + tx;
-               cm.ty = x * mat.b + y * mat.d + ty;
-               cm.a = width * mat.a;
-               cm.b = width * mat.b;
-               cm.c = height * mat.c;
-               cm.d = height * mat.d;
-
+               let maskA = width * mat.a, maskB = width * mat.b;
+               let maskC = height * mat.c, maskD = height * mat.d;
+               let parentOffsetX = 0, parentOffsetY = 0;
                if (parentClipUpdateFrame !== -1) {
-
                   let parentClipPos = clipInfo.clipMatPos;
-                  let offsetx = parentClipPos.z - parentClipPos.x;
-                  let offsety = parentClipPos.w - parentClipPos.y;
-                  let parentMat = clipInfo.clipMatrix;
-                  // 旋转/翻转判定：只要任一方 b/c 不为 0 就走世界 AABB 通用分支
-                  let pmRot = parentMat.b !== 0 || parentMat.c !== 0;
-                  let cmRot = cm.b !== 0 || cm.c !== 0;
-                  //计算交集
-                  if (!pmRot && !cmRot) {
-                     // —— 快速路径：轴对齐场景，与旧实现行为完全一致 ——
-                     if (cm.a > 0 && cm.d > 0) {
-                        let parentMinX = parentMat.tx;
-                        let parentMinY = parentMat.ty;
-                        let parentMaxX = parentMinX + parentMat.a;
-                        let parentMaxY = parentMinY + parentMat.d;
-
-                        let cmaxx = tx + cm.a;
-                        let cmaxy = ty + cm.d;
-                        if (cmaxx <= parentMinX || cmaxy <= parentMinY || tx >= parentMaxX || ty >= parentMaxY) {
-                           //超出范围了
-                           cm.a = -0.1; cm.d = -0.1;
-                        } else {
-                           if (tx < parentMinX) {
-                              cm.a -= (parentMinX - tx);
-                              tx = parentMinX;
-                           }
-                           if (cmaxx > parentMaxX) {
-                              cm.a -= (cmaxx - parentMaxX);
-                           }
-                           if (ty < parentMinY) {
-                              cm.d -= (parentMinY - ty);
-                              ty = parentMinY;
-                           }
-                           if (cmaxy > parentMaxY) {
-                              cm.d -= (cmaxy - parentMaxY);
-                           }
-                           if (cm.a <= 0) cm.a = -0.1;
-                           if (cm.d <= 0) cm.d = -0.1;
-
-                           if (cm.tx < parentMinX) {
-                              cm.tx = parentMinX;
-                           }
-                           if (cm.ty < parentMinY) {
-                              cm.ty = parentMinY;
-                           }
-                        }
-                     }
-                  } else {
-                     // —— 旋转分支：在父 clip 的局部空间里求交 ——
-                     // 父 clip 的局部空间里它本身是 [0,1]×[0,1] 的单位方块。
-                     // 把子 clip 4 个角变到父局部坐标系，取 AABB 后与 [0,1]² 求交，
-                     // 再用父矩阵变回世界。这样：
-                     //   - 子和父同向（典型情况：子无自旋转，仅继承祖先）→ 子在父局部就是轴对齐，AABB = 真实矩形，零损失。
-                     //   - 子在父基础上有额外旋转 → AABB 是近似，但结果仍沿父方向，远比世界 AABB 紧。
-                     let det = parentMat.a * parentMat.d - parentMat.b * parentMat.c;
-                     if (det === 0) {
-                        // 父矩阵退化（例如缩放为 0），无法反求局部坐标，整体裁掉
-                        cm.a = -0.1; cm.b = 0; cm.c = 0; cm.d = -0.1;
-                     } else {
-                        let invDet = 1 / det;
-                        // 世界向量 (dx,dy) → 父 clip 局部向量 (du,dv)
-                        // 由 [a c][u]   [dx]   解得：u = ( d*dx - c*dy)/det
-                        //    [b d][v] = [dy]      v = (-b*dx + a*dy)/det
-                        let dx0 = cm.tx - parentMat.tx, dy0 = cm.ty - parentMat.ty;
-                        let u0 = ( parentMat.d * dx0 - parentMat.c * dy0) * invDet;
-                        let v0 = (-parentMat.b * dx0 + parentMat.a * dy0) * invDet;
-                        // 子的两个基底在父局部
-                        let du1 = ( parentMat.d * cm.a - parentMat.c * cm.b) * invDet;
-                        let dv1 = (-parentMat.b * cm.a + parentMat.a * cm.b) * invDet;
-                        let du2 = ( parentMat.d * cm.c - parentMat.c * cm.d) * invDet;
-                        let dv2 = (-parentMat.b * cm.c + parentMat.a * cm.d) * invDet;
-                        // 子 4 个角的父局部 AABB（用正负分摊）
-                        let du1N = du1 < 0 ? du1 : 0, du1P = du1 > 0 ? du1 : 0;
-                        let du2N = du2 < 0 ? du2 : 0, du2P = du2 > 0 ? du2 : 0;
-                        let dv1N = dv1 < 0 ? dv1 : 0, dv1P = dv1 > 0 ? dv1 : 0;
-                        let dv2N = dv2 < 0 ? dv2 : 0, dv2P = dv2 > 0 ? dv2 : 0;
-                        let cMinU = u0 + du1N + du2N, cMaxU = u0 + du1P + du2P;
-                        let cMinV = v0 + dv1N + dv2N, cMaxV = v0 + dv1P + dv2P;
-
-                        // 与父单位方块 [0,1]² 求交
-                        let iu0 = cMinU > 0 ? cMinU : 0;
-                        let iv0 = cMinV > 0 ? cMinV : 0;
-                        let iu1 = cMaxU < 1 ? cMaxU : 1;
-                        let iv1 = cMaxV < 1 ? cMaxV : 1;
-
-                        if (iu0 >= iu1 || iv0 >= iv1) {
-                           cm.a = -0.1; cm.b = 0; cm.c = 0; cm.d = -0.1;
-                        } else {
-                           let du = iu1 - iu0, dv = iv1 - iv0;
-                           // 用父矩阵把局部矩形变回世界，结果保留父方向旋转
-                           cm.tx = parentMat.tx + iu0 * parentMat.a + iv0 * parentMat.c;
-                           cm.ty = parentMat.ty + iu0 * parentMat.b + iv0 * parentMat.d;
-                           cm.a  = du * parentMat.a;
-                           cm.b  = du * parentMat.b;
-                           cm.c  = dv * parentMat.c;
-                           cm.d  = dv * parentMat.d;
-                           tx = cm.tx; ty = cm.ty;
-                        }
-                     }
-                  }
-
-                  tx += offsetx;
-                  ty += offsety;
+                  parentOffsetX = parentClipPos.z - parentClipPos.x;
+                  parentOffsetY = parentClipPos.w - parentClipPos.y;
                }
-               info.clipMatDir.setValue(cm.a, cm.b, cm.c, cm.d);
-               info.clipMatPos.setValue(cm.tx, cm.ty, tx, ty);
 
-               info._updateFrame = Math.max(matFrame, parentClipUpdateFrame);
+               const rawClipX = x * mat.a + y * mat.c + tx;
+               const rawClipY = x * mat.b + y * mat.d + ty;
+               const contentTx = tx + parentOffsetX;
+               const contentTy = ty + parentOffsetY;
+               const maskTx = contentTx;
+               const maskTy = contentTy;
+
+               cm.a = maskA;
+               cm.b = maskB;
+               cm.c = maskC;
+               cm.d = maskD;
+               cm.tx = maskTx;
+               cm.ty = maskTy;
+
+               info.clipMatDir.setValue(maskA, maskB, maskC, maskD);
+               info.clipMatPos.setValue(rawClipX, rawClipY, contentTx, contentTy);
+               info.clipDepth = (parentClipUpdateFrame !== -1 ? clipInfo.clipDepth : 0) + 1;
+               info.clipParent = parentClipUpdateFrame !== -1 ? clipInfo : null;
+
+               info._updateFrame = ++_clipUpdateFrame;
             }
          }
       }
@@ -566,18 +493,17 @@ export class WebRenderStruct2D implements IRenderStruct2D {
          // clip
          let info = this.getClipInfo();
          if (info !== _DefaultClipInfo) {
-            if (this.needUploadClip < info._updateFrame) {
-               data.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, info.clipMatDir);
-               data.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, info.clipMatPos);
-               this.needUploadClip = info._updateFrame;
+            if (this._needUploadClipOffset < info._updateFrame) {
+               this._clipOffset.setValue(info.clipMatPos.z - info.clipMatPos.x, info.clipMatPos.w - info.clipMatPos.y);
+               data.setVector2(ShaderDefines2D.UNIFORM_CLIPOFFSET, this._clipOffset);
+               this._needUploadClipOffset = info._updateFrame;
             }
 
             if (!this._uniformClip) {
                this._uniformClip = true;
                data.addDefine(ShaderDefines2D.UNIFORMCLIP);
             }
-            
-         }else if (this._uniformClip) {
+         } else if (this._uniformClip) {
             data.removeDefine(ShaderDefines2D.UNIFORMCLIP);
             this._uniformClip = false;
          }
@@ -602,8 +528,17 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
    setClipRect(rect: Rectangle): void {
       this._clipRect = rect;
+      this._clipRectUpdateFrame = ++_clipRectUpdateFrame;
+      this._invalidateClipCache();
       rect ? this._initClipInfo() : this._clipInfo = null;
       this.updateChildren(ChildrenUpdateType.Clip);
+   }
+
+   private _invalidateClipCache(): void {
+      this._clipMatFrame = -1;
+      this._clipParentUpdateFrame = -2;
+      this._clipRectAppliedFrame = -1;
+      this._needUploadClipOffset = -1;
    }
 
    private _initClipInfo(): void {
@@ -612,11 +547,16 @@ export class WebRenderStruct2D implements IRenderStruct2D {
             clipMatDir: new Vector4,
             clipMatPos: new Vector4,
             clipMatrix: new Matrix,
-            _updateFrame: -1
+            _updateFrame: -1,
+            clipDepth: 1,
+            clipParent: null
          };
       }
-      else
+      else {
          this._clipInfo._updateFrame = -1;
+         this._clipInfo.clipDepth = 1;
+         this._clipInfo.clipParent = null;
+      }
    }
 
    /** @zh 交给孩子的 alpha 隔离基准：cache 根→自身 slot；否则继承自身 base。 */
@@ -666,9 +606,9 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
       if (type & ChildrenUpdateType.Clip) {
          info = this.getClipInfo();
-         this.needUploadClip = -1;
+         this._needUploadClipOffset = -1;
          if (this._subStruct) {
-            this._subStruct.needUploadClip = -1;
+            this._subStruct._needUploadClipOffset = -1;
          }
          updateClip = true;
       }
@@ -827,6 +767,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       if (this._rnUpdateFun) {
          this._rnUpdateFun(context);
       }
+
    }
 
    destroy(): void {

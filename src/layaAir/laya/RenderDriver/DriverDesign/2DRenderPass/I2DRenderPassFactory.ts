@@ -16,6 +16,9 @@ export interface I2DRenderPassFactory {
     createTransform2DMemoryFactory(): ITransform2DMemoryFactory;
     createRenderElement2D(): IRenderElement2D;
 
+    /** @internal WebGL 2D stencil clipping mask element. Backends without this path can omit it. */
+    createStencilMaskElement2D?(): IRenderElement2D;
+
     createPrimitiveRenderElement2D(): IPrimitiveRenderElement2D;
 
     createRenderContext2D(): IRenderContext2D;

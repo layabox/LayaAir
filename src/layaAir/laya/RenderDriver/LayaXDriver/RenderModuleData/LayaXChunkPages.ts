@@ -15,7 +15,9 @@ export class LayaXChunkPages {
     /** 页大小：1MB = 64 chunk */
     private static readonly PAGE_BYTES = 1 << 20;
     /** 储备页水位：空闲页低于该值即补 */
-    private static readonly WATERMARK = 2;
+    private static readonly WATERMARK = 8;
+    private static readonly ENTITY_CREATE_RESERVE = 16;
+    private static readonly MAX_REGISTER_PER_ENSURE = 128;
 
     /** 已注册页（下标 = Rust 侧 page_id，注册顺序一致；强引用防 GC） */
     private static _pages: ArrayBuffer[] = [];
@@ -24,18 +26,32 @@ export class LayaXChunkPages {
     /**
      * 实体创建是页消耗的唯一来源：每次创建前补足储备页（稳态零成本，一次跨界查询）。
      */
-    static ensure(nativeObj: any): void {
-        if (LayaXChunkPages._dead) return;
-        while (nativeObj.chunkPagesFreeCount() < LayaXChunkPages.WATERMARK) {
+    static ensure(nativeObj: any, minFree: number = LayaXChunkPages.WATERMARK): boolean {
+        if (LayaXChunkPages._dead) return false;
+        let freeCount = nativeObj.chunkPagesFreeCount();
+        let registeredThisCall = 0;
+        while (freeCount < minFree) {
+            if (registeredThisCall >= LayaXChunkPages.MAX_REGISTER_PER_ENSURE) {
+                LayaXChunkPages._dead = true;
+                console.warn("[LayaXChunkPages] reserve limit reached, falling back to native pages");
+                return false;
+            }
             const buf = new ArrayBuffer(LayaXChunkPages.PAGE_BYTES);
             const id: number = nativeObj.chunkPagesRegister(buf);
             if (id === 0xFFFFFFFF) {
                 LayaXChunkPages._dead = true;
                 console.warn("[LayaXChunkPages] register failed, falling back to native pages");
-                return;
+                return false;
             }
             LayaXChunkPages._pages.push(buf);
+            registeredThisCall++;
+            freeCount = nativeObj.chunkPagesFreeCount();
         }
+        return true;
+    }
+
+    static ensureForEntityCreate(nativeObj: any): boolean {
+        return LayaXChunkPages.ensure(nativeObj, LayaXChunkPages.ENTITY_CREATE_RESERVE);
     }
 
     /** 按 page_id 取已注册页（视图定位用；未注册返回 undefined） */

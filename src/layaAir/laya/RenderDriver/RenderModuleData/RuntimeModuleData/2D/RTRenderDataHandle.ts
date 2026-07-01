@@ -97,7 +97,14 @@ export class RTGraphics2DBufferBlock implements IGraphics2DBufferBlock {
     constructor() {
         this._nativeObj = new (window as any).conchRTGraphics2DBufferBlock();
     }
-    textureArrayIndex: number;
+    private _textureArrayIndex: number;
+    public get textureArrayIndex(): number {
+        return this._textureArrayIndex;
+    }
+    public set textureArrayIndex(value: number) {
+        this._nativeObj.setTextureArrayIndex(value);
+        this._textureArrayIndex = value;
+    }
 
 }
 

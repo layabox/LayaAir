@@ -23,6 +23,7 @@ import { NodeFlags } from "../../../../Const";
 import { WebGraphicsBatch } from "./WebGraphicsBatch";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Rectangle } from "../../../../maths/Rectangle";
+import { WebStencilClip2D } from "./WebStencilClip2D";
 
 BatchManager.registerProvider(BaseRender2DType.graphics, WebGraphicsBatch);
 
@@ -77,6 +78,7 @@ export class WebRender2DPass implements IRender2DPass {
    private _structsPool = Pool.createPool(SortedStructs, null, obj => obj.reset());
    private _pStructs: SortedStructs;
    private _batchProviders: IBatch2DProvider[] = [];
+   private _stencilClip2D: WebStencilClip2D = new WebStencilClip2D();
 
    _priority: number = 0;
    public get priority(): number {
@@ -291,12 +293,34 @@ export class WebRender2DPass implements IRender2DPass {
       let groupStart: number = 0;
       let reorderRoot: WebRenderStruct2D;
       let renderElements = this._renderElements;
+      const stencilBuilder = this._stencilClip2D;
+
+      const addRenderElement = (element: IRenderElement2D) => {
+         if ((element as any).noBatch) {
+            if (groupStart !== renderElements.length) {
+               this._elementGroups.add(groupStart);
+               this._elementGroups.add(renderElements.length - 1);
+               this._elementGroups.add(false);
+            }
+            renderElements.add(element);
+            this._elementGroups.add(renderElements.length - 1);
+            this._elementGroups.add(renderElements.length - 1);
+            this._elementGroups.add(false);
+            groupStart = renderElements.length;
+         }
+         else {
+            renderElements.add(element);
+         }
+      };
+
+      stencilBuilder.beginBuild();
 
       this._structs.indice.forEach(index => {
          let list = this._structs.lists.get(index);
          for (let i = 0, cnt = list.length; i < cnt; i++) {
             let struct = list.elements[i];
-            let n = struct.renderElements ? struct.renderElements.length : 0;
+            let structElements = struct.renderElements;
+            let n = structElements ? structElements.length : 0;
             if (struct.owner._getBit(NodeFlags.HIDE_BY_EDITOR)) //Editor only code, native should ignore
                n = 0;
 
@@ -312,9 +336,11 @@ export class WebRender2DPass implements IRender2DPass {
 
             if (n > 0) {
                for (let i = 0; i < n; i++) {
-                  let element = struct.renderElements[i];
+                  let element = structElements[i];
                   element._index = i;
-                  element.geometry && renderElements.add(element);
+                  if (!element.geometry)
+                     continue;
+                  stencilBuilder.appendElement(element, addRenderElement);
                }
             }
 
@@ -329,6 +355,9 @@ export class WebRender2DPass implements IRender2DPass {
             }
          }
       });
+
+      // if (useStencilBuilder)
+      stencilBuilder.finishBuild(addRenderElement);
 
       if (groupStart !== renderElements.length) {
          this._elementGroups.add(groupStart);

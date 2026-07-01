@@ -376,17 +376,35 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
         this._nativeRender.complete();
     }
 
-    initBake(obj: TSpineBakeData): void {
+    initBake(obj: TSpineBakeData | null): void {
         if (!this._nativeRender) {
             return;
         }
-        
+
+        this._nativeRender.resetBakeData();
+
+        if (!obj) {
+            this._mode = ESpineRenderMode.Optimize;
+            if (this._nativeRender.setMode) {
+                this._nativeRender.setMode(ESpineRenderMode.Optimize);
+            }
+            return;
+        }
+
         this._nativeRender.setBakeBonesNums(obj.bonesNums);
         let animationMap = obj.aniOffsetMap;
         for (const key in animationMap) {
-            this._nativeRender.setBakeAniOffset(key , animationMap[key]);
+            const offset = animationMap[key];
+            if (key === "textureWidth" || typeof offset !== "number" || !isFinite(offset)) {
+                continue;
+            }
+            this._nativeRender.setBakeAniOffset(key, offset);
         }
-        
+
+        if (this._nativeRender.initBake) {
+            this._nativeRender.initBake();
+        }
+        this._mode = ESpineRenderMode.Bake;
     }
 
     setEventListener(listeners: {

@@ -27,8 +27,13 @@ export class NativeSpineOptimizeRender2D extends NativeSpineOptimizeRenderBase {
         // }
     }
 
-    initBake(obj: TSpineBakeData): void {
+    initBake(obj: TSpineBakeData | null): void {
         if (!this._nativeRender) {
+            return;
+        }
+
+        if (!obj) {
+            super.initBake(obj);
             return;
         }
 

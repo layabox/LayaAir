@@ -14,8 +14,7 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
     private static _spriteUniformDefineMask: number = ShaderDefines2D.DEFINE_BIT_VERTEX_SIZE;
     private static _primitiveUniformDefineMask: number =
         ShaderDefines2D.DEFINE_BIT_VERTEX_SIZE |
-        ShaderDefines2D.DEFINE_BIT_FILLTEXTURE |
-        ShaderDefines2D.DEFINE_BIT_MATERIALCLIP;
+        ShaderDefines2D.DEFINE_BIT_FILLTEXTURE;
     private static _additionShaderData: string[] = ["Sprite2DGraphics"];
 
     private _primitiveShaderData: WebGLShaderData;
@@ -156,6 +155,8 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
                 shaderData = this._primitiveShaderData;
             }
         }
+        if (this.stencilClipState)
+            context.applyStencil2DToShaderData(shaderData, this.stencilClipState);
         shader.uploadRenderStateBlendDepth(shaderData);
         shader.uploadRenderStateFrontFace(shaderData, false, context.invertY);
 
