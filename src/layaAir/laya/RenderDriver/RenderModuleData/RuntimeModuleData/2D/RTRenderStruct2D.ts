@@ -12,6 +12,7 @@ import { IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElem
 import { RTRender2DDataHandle } from "./RTRenderDataHandle";
 import { Stat } from "../../../../utils/Stat";
 import { Sprite } from "../../../../display/Sprite";
+import { Transform2DStore } from "../../../../display/transform2d/Transform2DStore";
 
 /** @internal conchRTGlobalRenderData 共享块槽位（与 C++ RTGlobalRenderData::Props 一致）。 */
 const enum RTGlobalRenderDataSlot {
@@ -24,7 +25,7 @@ const enum RTGlobalRenderDataSlot {
 }
 
 /** @internal conchRTRenderStruct2D 共享块槽位（与 C++ RTRenderStruct2D::Props 一致）。
- *  [0..11] JS 写 / C++ 读（[2]renderType 双写：spine 也写）；[12..14] C++ 写镜像 / JS 读。 */
+ *  [0..11] JS 写 / C++ 读（[2]renderType 双写：spine 也写）；[12..15] C++ 写镜像 / JS 读。 */
 const enum RTRenderStruct2DSlot {
    zIndex = 0,
    renderLayer = 1,
@@ -41,7 +42,8 @@ const enum RTRenderStruct2DSlot {
    ownEnableCulling = 12,
    inheritedEnableCulling = 13,
    inheritedDcOptimize = 14,
-   Count = 15,
+   alphaBaseSlot = 15,
+   Count = 16,
 }
 
 export class RTGlobalRenderData implements I2DGlobalRenderData {
@@ -111,8 +113,21 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       this._i32[RTRenderStruct2DSlot.manualRender] = value ? 1 : 0;
    }
 
+   /**
+    * @zh 全局(级联) alpha：与 Web 完全对称，按 slot 直读共享 Transform2DStore(免 FFI)。
+    * base(alpha 隔离基准) 由 C++ 写进共享块的 alphaBaseSlot 镜像；mask 合成分支与 Web 一致(以 SoA 父为 base)。
+    */
    public get globalAlpha(): number {
-      return this._nativeObj.getGlobalAlpha();
+      const slot = this._transSlot;
+      if (slot < 0) return 1; // 无 SoA 节点的临时 struct 兜底
+      const store = Transform2DStore.instance;
+      let base = this._i32[RTRenderStruct2DSlot.alphaBaseSlot];
+      if (this._blendMode === BlendMode.mask && this.owner && this.owner._maskParent) {
+         base = store.getParent(slot);
+      }
+      if (base < 0)
+         return store.dirtyA ? store.computeWorldAlpha(slot) : store.getWorldAlpha(slot);
+      return store.getRelativeWorldAlpha(slot, base, store.dirtyA);
    }
 
    private _clipRect: Rectangle = new Rectangle(0, 0, 0, 0);
@@ -397,7 +412,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
 
    setRepaint(): void {
-      this._pass && (this._pass.repaint = true);
+      this.pass && (this.pass.repaint = true);
       // this._nativeObj.setRepaint();
    }
 
