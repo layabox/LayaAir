@@ -406,7 +406,6 @@ export class ShurikenParticleRenderer extends BaseRender {
     renderUpdate(context: RenderContext3D): void {
         this._renderElements.forEach(element => {
             element._renderElementOBJ.isRender = element._geometry._prepareRender(context);
-            element._geometry._prepareRender(context);
             element._geometry._updateRenderParams(context);
         })
     }
