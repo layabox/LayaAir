@@ -193,7 +193,7 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
      * @ignore @blueprintIgnore
      */
     needsLayoutRepaint(): number {
-        return this.percent ? 1 : 0;
+        return 1;
     }
 
     /**

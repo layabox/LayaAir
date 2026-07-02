@@ -19,7 +19,9 @@ export class TextureProcessorAdapter implements ITextureProcessor {
 
     constructor() {
         if (AutoTextureConfig.enableAutoDynamicAtlas) {
-            this._dynamicAtlas = new DynamicAtlasManager(undefined, true);
+            this._dynamicAtlas = new DynamicAtlasManager({
+                largeTextureSize : [AutoTextureConfig.limitDynamicAtlasSize , AutoTextureConfig.limitDynamicAtlasSize]
+            }, true);
         }
     }
 

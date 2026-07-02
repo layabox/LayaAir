@@ -18,6 +18,7 @@ import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/S
 import { Vector2 } from "../../../../maths/Vector2";
 import { BakedSpineRenderer, StandardSpineRenderer } from "./SpineRendererTypes";
 import { Texture } from "../../../../resource/Texture";
+import { Stat } from "../../../../utils/Stat";
 
 enum ERenderProxyType {
     RenderNormal,
@@ -223,6 +224,8 @@ export abstract class BaseOptimizeRender implements ISpineRender {
     }
     
     update(delta: number): void {
+        if (!Stat.enableSpine) return
+        
         this._state.update(delta);
         this.currentTime = this.trackEntry.getAnimationTime();
         let cacheFrameIndex = Math.floor(this.currentTime / SpineConst.SPINE_STEP);
@@ -310,6 +313,8 @@ export abstract class BaseOptimizeRender implements ISpineRender {
      * @param time 要渲染动画的时间。
      */
     render(time: number, physicsUpdate: number): void {
+        if (!Stat.enableSpine) return
+
         this._skeleton.update && this._skeleton.update(time);
 
         if ((!this._enableCache

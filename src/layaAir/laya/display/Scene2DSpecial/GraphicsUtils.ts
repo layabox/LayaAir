@@ -37,7 +37,6 @@ import { BaseRender2DType, SpriteConst, TransformKind } from "../SpriteConst";
 import { SpriteGlobalTransform } from "../SpriteGlobaTransform";
 import { GraphicsRunner } from "./GraphicsRunner";
 import type { IGraphicsCmd } from "../IGraphics";
-import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
 
 type GraphicBlockRecord = {
    index: number;
@@ -74,6 +73,8 @@ export class GraphicsRenderer {
    }> = new Map();
 
    _display: boolean = false;
+
+   private _structDisplay: boolean = false;
 
    private _renderDataHandle: I2DPrimitiveDataHandle;
 
@@ -116,8 +117,15 @@ export class GraphicsRenderer {
      * @internal
      */
    _render(runner: GraphicsRunner, x: number = 0, y: number = 0): void {
-      if (!this.owner || !this.graphics || this.owner.destroyed || this.owner._struct.renderType !== BaseRender2DType.graphics)
+      if (!this.owner || !this.graphics || this.owner.destroyed)
          return;  
+
+      if (!this._display) {
+         this._syncDisplayToStruct(false);
+         return;
+      }
+
+      this._syncDisplayToStruct(true);
 
       if (this.modified >= this.graphics._modified) {
          this.setRenderElement();
@@ -211,6 +219,29 @@ export class GraphicsRenderer {
 
       this._display = value;
 
+      if (value) {
+         this.owner._renderType |= SpriteConst.GRAPHICS;
+      } else {
+         this.modified = -1;
+         if (!this._structDisplay) {
+            this.owner._renderType &= ~SpriteConst.GRAPHICS;
+         }
+      }
+   }
+
+   private _syncDisplayToStruct(value: boolean): void {
+      if (!this.owner || !this.owner._struct) {
+         this._structDisplay = false;
+         return;
+      }
+
+      if (this._structDisplay === value) {
+         if (!value) {
+            this.owner._renderType &= ~SpriteConst.GRAPHICS;
+         }
+         return;
+      }
+
       let struct = this.owner._struct;
       if (value) {
          this.owner._initShaderData();
@@ -226,8 +257,12 @@ export class GraphicsRenderer {
          }
          this.modified = -1;
          struct.renderType = -1;
-         struct.renderDataHandler = null;
+         if (struct.renderDataHandler === this._renderDataHandle) {
+            struct.renderDataHandler = null;
+         }
       }
+
+      this._structDisplay = value;
    }
 
    take(info: MeshBlockInfo) {
@@ -262,6 +297,7 @@ export class GraphicsRenderer {
    }
 
    destroy(): void {
+      this._syncDisplayToStruct(false);
       this.clear();
 
       for (const bucket of this._cachedBuckets) {
@@ -332,7 +368,9 @@ export class GraphicsRenderer {
    }
 
    setRenderElement(): void {
-      this._struct.renderElements = this._renderElements;
+      if (this._struct.renderElements !== this._renderElements) {
+         this._struct.renderElements = this._renderElements;
+      }
       // this._renderDataHandle.applyVertexBufferBlock(this._bufferBlocks);
    }
 
@@ -564,7 +602,7 @@ export class SubStructRender {
       }
       this._internalInfo.vertexSize = vSize;
       this._needUpdateVertexSize = false;
-      let defineBits = ShaderDefines2D.getPerElementDefineBits(this._internalInfo.shaderData);
+      let defineBits = this._internalInfo.defineBits;
       this._renderElement.typeKey = this._subStruct.blendMode | defineBits;
       this._renderElement.textureKey = destRT ? destRT._id : 0;
    }

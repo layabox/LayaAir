@@ -19,6 +19,8 @@ export class GraphicsShaderInfo {
    private _vertexSize: Vector4 = null;
    private _isTextrueReadGamma: boolean = false;
    private _bitmap: BaseTexture;
+   /** @internal */
+   defineBits: number = 0;
    // 使用 Texture2DArray 时的层索引
    texArrayLayer: number = 0;
 
@@ -27,12 +29,23 @@ export class GraphicsShaderInfo {
    constructor() {
       this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
       this.shaderData.addDefine(ShaderDefines2D.TEXTURESHADER);
+      this.defineBits |= ShaderDefines2D.DEFINE_BIT_TEXTURESHADER;
       this.shaderData.addDefine(ShaderDefines2D.VERTEXALPHA);
+      this.defineBits |= ShaderDefines2D.DEFINE_BIT_VERTEXALPHA;
       if (Config.uvClipMode === "gpu") {
          this.shaderData.addDefine(ShaderDefines2D.UV_CLIP_GPU);
+         this.defineBits |= ShaderDefines2D.DEFINE_BIT_UV_CLIP_GPU;
       }
       this.toDefault();
       BlendModeHandler.initBlendMode(this.shaderData);
+   }
+
+   private _setDefineBit(bit: number, enabled: boolean): void {
+      if (enabled) {
+         this.defineBits |= bit;
+      } else {
+         this.defineBits &= ~bit;
+      }
    }
 
    toDefault() {
@@ -62,8 +75,10 @@ export class GraphicsShaderInfo {
          this._isTextrueReadGamma = textrueReadGamma;
          if (textrueReadGamma) {
             this.shaderData.addDefine(ShaderDefines2D.GAMMATEXTURE);
+            this._setDefineBit(ShaderDefines2D.DEFINE_BIT_GAMMATEXTURE, true);
          } else {
             this.shaderData.removeDefine(ShaderDefines2D.GAMMATEXTURE);
+            this._setDefineBit(ShaderDefines2D.DEFINE_BIT_GAMMATEXTURE, false);
          }
       }
 
@@ -83,9 +98,11 @@ export class GraphicsShaderInfo {
          // 切换到数组纹理路径: 传入 Texture2DArray 则启用 USE_TEX_ARRAY 宏与数组uniform
          if (this.isTextureArray(tex)) {
             this.shaderData.addDefine(ShaderDefines2D.USE_TEX_ARRAY);
+            this._setDefineBit(ShaderDefines2D.DEFINE_BIT_USE_TEX_ARRAY, true);
             this.shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE_ARRAY, tex);
          } else {
             this.shaderData.removeDefine(ShaderDefines2D.USE_TEX_ARRAY);
+            this._setDefineBit(ShaderDefines2D.DEFINE_BIT_USE_TEX_ARRAY, false);
             this.shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, tex);
          }
       }
@@ -98,9 +115,13 @@ export class GraphicsShaderInfo {
       if (value) {
          this.shaderData.addDefine(ShaderDefines2D.VERTEX_SIZE);
          this.shaderData.removeDefine(ShaderDefines2D.VERTEXALPHA);
+         this._setDefineBit(ShaderDefines2D.DEFINE_BIT_VERTEX_SIZE, true);
+         this._setDefineBit(ShaderDefines2D.DEFINE_BIT_VERTEXALPHA, false);
       } else {
          this.shaderData.addDefine(ShaderDefines2D.VERTEXALPHA);
          this.shaderData.removeDefine(ShaderDefines2D.VERTEX_SIZE);
+         this._setDefineBit(ShaderDefines2D.DEFINE_BIT_VERTEXALPHA, true);
+         this._setDefineBit(ShaderDefines2D.DEFINE_BIT_VERTEX_SIZE, false);
       }
    }
 
@@ -130,8 +151,10 @@ export class GraphicsShaderInfo {
       this._fillTexture = value;
       if (value) {
          this.shaderData.addDefine(ShaderDefines2D.FILLTEXTURE);
+         this._setDefineBit(ShaderDefines2D.DEFINE_BIT_FILLTEXTURE, true);
       } else {
          this.shaderData.removeDefine(ShaderDefines2D.FILLTEXTURE);
+         this._setDefineBit(ShaderDefines2D.DEFINE_BIT_FILLTEXTURE, false);
       }
    }
 

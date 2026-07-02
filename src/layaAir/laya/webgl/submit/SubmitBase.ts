@@ -245,7 +245,7 @@ export class SubmitBase {
         if (textureHost)
             texture = (textureHost as Texture).bitmap || textureHost as BaseTexture;
 
-        let defineBits = ShaderDefines2D.getPerElementDefineBits(this._internalInfo.shaderData);
+        let defineBits = this._internalInfo.defineBits;
         element.typeKey = this._key.blendShader
             | (useCustomMaterial ? ShaderDefines2D.TYPEKEY_CUSTOM_MATERIAL : 0)
             | defineBits;
