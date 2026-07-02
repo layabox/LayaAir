@@ -146,6 +146,7 @@ export class ShurikenParticleRenderer extends BaseRender {
             }
             var parSys: ShurikenParticleSystem = this._particleSystem;
             (parSys) && (parSys._initBufferDatas());
+            this._syncBoundsToNative();
         }
     }
 
@@ -163,6 +164,7 @@ export class ShurikenParticleRenderer extends BaseRender {
             this._mesh = value;
             (value) && (value._addReference());
             this._particleSystem._initBufferDatas();
+            this._syncBoundsToNative();
         }
     }
 
@@ -188,6 +190,8 @@ export class ShurikenParticleRenderer extends BaseRender {
         super();
         this.renderMode = 0;
         this._baseRenderNode.renderNodeType = BaseRenderType.ParticleRender
+        // LayaX：bounds 输入下沉 ECS（见 _syncBoundsToNative），退订每帧 native 回调
+        this._baseRenderNode.disableNativeBoundsCallback?.();
     }
 
     /**
@@ -198,6 +202,40 @@ export class ShurikenParticleRenderer extends BaseRender {
     protected _onWorldMatNeedChange(flag: number): void {
         super._onWorldMatNeedChange(flag);
         this._transformUniformDirty = true;
+        // 世界空间 velocityOverLifetime 的解析 local bounds 依赖 worldMatrix，emitter 动时须重推
+        const vol = this._particleSystem && this._particleSystem.velocityOverLifetime;
+        if (vol && vol.enable && vol.space == 1)
+            this._syncBoundsToNative();
+    }
+
+    /**
+     * @internal
+     * LayaX：包围盒输入下沉 ECS——geometryBounds(local) + 世界空间重力 pad + 来源模式，
+     * 世界 AABB 由 Rust update_cull_bounds_system 统一计算。发射参数变化时调用；
+     * Web/RT 驱动无此接口，直接返回（沿用惰性 _calculateBoundingBox 路径）。
+     */
+    _syncBoundsToNative(): void {
+        const node = this._baseRenderNode;
+        const ps = this._particleSystem;
+        if (!node.setBoundsMode || !ps) return;
+        if (ps._useCustomBounds) {
+            this.geometryBounds = ps.customBounds;
+            node.setBoundsWorldPad(0, 0, 0, 0, 0, 0);
+            node.setBoundsMode(0); // Auto
+        } else if (ps._simulationSupported()) {
+            ps._generateBounds();
+            this.geometryBounds = ps._bounds;
+            if (ps.gravityModifier != 0) {
+                // 对齐 _calculateBoundingBox：max.y -= offset.x, min.y -= offset.y（世界空间）
+                const go = ps._gravityOffset;
+                node.setBoundsWorldPad(0, -go.y, 0, 0, -go.x, 0);
+            } else {
+                node.setBoundsWorldPad(0, 0, 0, 0, 0, 0);
+            }
+            node.setBoundsMode(0); // Auto
+        } else {
+            node.setBoundsMode(2); // AlwaysVisible（对齐无穷大 bounds 语义）
+        }
     }
 
     /** @internal returns true and stores v into cache when v differs from the cached value. */
@@ -244,6 +282,7 @@ export class ShurikenParticleRenderer extends BaseRender {
         if (!this._particleSystem) return;
         this._applyConfigShaderData();
         this._transformUniformDirty = true;
+        this._syncBoundsToNative();
     }
 
     protected _isMaterialVaild(value: Material): boolean {
@@ -275,6 +314,8 @@ export class ShurikenParticleRenderer extends BaseRender {
     }
     protected _onEnable(): void {
         super._onEnable();
+        // 兜底重推：反序列化直改公共字段（startSize/startSpeed 等无 setter）在此收口
+        this._syncBoundsToNative();
         (this._particleSystem.playOnAwake && LayaEnv.isPlaying) && (this._particleSystem.play());
     }
     protected _onDisable(): void {

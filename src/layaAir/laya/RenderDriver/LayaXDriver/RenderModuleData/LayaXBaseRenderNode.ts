@@ -119,7 +119,12 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
     private _bounds: Bounds;
     public get bounds(): Bounds {
         if (this.boundsChange) {
-            this._nativeObj._calculateBoundingBox();
+            // 已退订 native 回调的 renderer（bounds 下沉 ECS）直接走本地 JS 计算，
+            // 避免 C++ fallback 用 base×worldMat 覆盖（UI3D 自维护矩阵等场景会算错）
+            if (this._nativeBoundsCallbackDisabled && this._caculateBoundingBoxbindFun)
+                this._caculateBoundingBoxbindFun();
+            else
+                this._nativeObj._calculateBoundingBox();
             this.boundsChange = false;
         }
         return this._bounds as Bounds;
@@ -134,7 +139,29 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
     public get baseGeometryBounds(): Bounds { return this._baseGeometryBounds; }
     public set baseGeometryBounds(value: Bounds) {
         this._baseGeometryBounds = value;
-        this._nativeObj.setBaseGeometryBounds((value._imp as any)._nativeObj);
+        value && this._nativeObj.setBaseGeometryBounds((value._imp as any)._nativeObj);
+    }
+
+    // ------------------------------------------------------------------
+    // Bounds 下沉 ECS（模式 + 世界空间 pad），见 IBaseRenderNode 可选接口
+    // ------------------------------------------------------------------
+
+    setBoundsMode(mode: number): void {
+        this._nativeObj.setBoundsMode(mode);
+    }
+
+    setBoundsWorldPad(minX: number, minY: number, minZ: number, maxX: number, maxY: number, maxZ: number): void {
+        this._nativeObj.setBoundsWorldPad(minX, minY, minZ, maxX, maxY, maxZ);
+    }
+
+    setWorldBounds(minX: number, minY: number, minZ: number, maxX: number, maxY: number, maxZ: number): void {
+        this._nativeObj.setWorldBounds(minX, minY, minZ, maxX, maxY, maxZ);
+    }
+
+    private _nativeBoundsCallbackDisabled: boolean = false;
+    disableNativeBoundsCallback(): void {
+        this._nativeBoundsCallbackDisabled = true;
+        this._nativeObj.disableNativeBoundsCallback();
     }
 
     // ------------------------------------------------------------------

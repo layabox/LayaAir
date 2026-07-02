@@ -392,6 +392,17 @@ export class UI3D extends BaseRender {
 
         this._matrix = new Matrix4x4();
         this._scale = new Vector3(1.0, 1.0, 1.0);
+        // LayaX：bounds 依赖自维护 _matrix（非 owner worldMatrix），走 Explicit 直推（见 onPreRender）
+        this._baseRenderNode.disableNativeBoundsCallback?.();
+        this._baseRenderNode.setBoundsMode?.(1); // Explicit
+    }
+
+    /** LayaX：_matrix 更新后把世界 AABB 推给 ECS cull（Explicit 模式）。 */
+    private _pushWorldBoundsToNative(): void {
+        if (!this._baseRenderNode.setWorldBounds) return;
+        this._calculateBoundingBox();
+        const min = this._bounds.getMin(), max = this._bounds.getMax();
+        this._baseRenderNode.setWorldBounds(min.x, min.y, min.z, max.x, max.y, max.z);
     }
 
     protected _isMaterialVaild(value: Material): boolean {
@@ -503,6 +514,7 @@ export class UI3D extends BaseRender {
      */
     onPreRender(): void {
         //this._geometry
+        let matrixUpdated = true;
         if (this._isCameraSpaceMode()) {
             this.boundsChange = true;
             let cameraforward = Vector3.TEMP;
@@ -536,8 +548,11 @@ export class UI3D extends BaseRender {
                 this.boundsChange = true;
                 Matrix4x4.createScaling(this._scale, tempMatrix);
                 Matrix4x4.multiply(this._transform.worldMatrix, tempMatrix, this._matrix);
+            } else {
+                matrixUpdated = false;
             }
         }
+        matrixUpdated && this._pushWorldBoundsToNative();
     }
 
 

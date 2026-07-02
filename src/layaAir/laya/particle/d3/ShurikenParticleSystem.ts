@@ -1620,20 +1620,16 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     set customBounds(value: Bounds) {
         if (value) {
             this._useCustomBounds = true;
-            if (!this._customBounds) {
-                this._customBounds = new Bounds(new Vector3(), new Vector3());
-                this._ownerRender.geometryBounds = this._customBounds;
-            }
             this._customBounds = value;
-
+            // 直接指向 value（原实现指向临时空 Bounds，native 下沉拿到的是空盒）
+            this._ownerRender && (this._ownerRender.geometryBounds = value);
         }
         else {
             this._useCustomBounds = false;
             this._customBounds = null;
-            this._ownerRender.geometryBounds = null;
+            this._ownerRender && (this._ownerRender.geometryBounds = null);
         }
-
-
+        this._ownerRender && this._ownerRender._syncBoundsToNative();
     }
 
     /**
@@ -2457,6 +2453,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         this._frameRateTime = this._currentTime + this._playStartDelay;//同步频率模式发射时间,更新函数中小于延迟时间不会更新此时间。
 
         this._startUpdateLoopCount = Stat.loopCount;
+        // 兜底重推 LayaX bounds：运行期直改发射参数字段后通常紧跟 play()
+        this._ownerRender && this._ownerRender._syncBoundsToNative();
     }
 
     /**
