@@ -53,9 +53,9 @@ export class VFXSpawnerSystem extends VFXSystem {
         {
             const buffer = attrDesc.createBuffer();
             this.eventAttribute.initBuffer(buffer);
-            // 给关键 attribute 设 Unity 风格 default：粒子 setAttribute(lifetime, source=Source)
+            // 给关键 attribute 设源引擎风格 default：粒子 setAttribute(lifetime, source=Source)
             // 但 spawn event 没 setSpawnEventAttribute(lifetime) 时，src.lifetime=0 让粒子瞬死。
-            // Unity 默认 lifetime=1，保持一致避免 sample 默认配置不可见。
+            // 源引擎默认 lifetime=1，保持一致避免 sample 默认配置不可见。
             if (attrDesc.hasAttribute("lifetime")) {
                 this.eventAttribute.setFloat("lifetime", 1);
             }

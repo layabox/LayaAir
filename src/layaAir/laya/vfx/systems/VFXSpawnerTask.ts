@@ -78,7 +78,7 @@ export class VFXSpawnerSingleBurst extends VFXSpawnerTask {
     // 循环开始后到首次爆发的延迟时间（x=min, y=max），单位：秒
     delay: Vector2 = new Vector2();
 
-    // 当为 true 时，burst count = spawnerState.loopIndex % countModulo（对齐 Unity VFX LoopIndex → burst count 连接）
+    // 当为 true 时，burst count = spawnerState.loopIndex % countModulo（对齐 LoopIndex → burst count 连接）
     countFromLoopIndex: boolean = false;
     countModulo: number = 0;
 
@@ -94,14 +94,14 @@ export class VFXSpawnerSingleBurst extends VFXSpawnerTask {
 
     play(): void {
         // VFX onPlay (stop → play / asset re-import) 应该让 SingleBurst 重新 fire 一次
-        // (跟 Unity 行为一致：每次 onPlay 视为一次新 VFX 生命周期)
+        // (与源引擎行为一致：每次 onPlay 视为一次新 VFX 生命周期)
         this.sleeping = false;
     }
 
     internalInit(rand: Rand): void {
         // internalInit 在 newLoop(每个 loop 开始)时被 VFXSpawnerTask.update 调用。这里重置 sleeping=false,
         // 让【有限循环】(durationMode=Constant, loopDuration>0, loop 会周期性重启)的 SingleBurst 每个 loop 重新 fire,
-        // 对齐 Unity(有限 loop 的 Single Burst 每个 loop 触发一次)。BarrierVFX7 底圈脉冲依赖此行为。
+        // 对齐源引擎(有限 loop 的 Single Burst 每个 loop 触发一次)。BarrierVFX7 底圈脉冲依赖此行为。
         // 为何不会重蹈旧 bug(Infinite + 无限重 fire): durationMode=Infinite → loopDuration=-1,
         // VFXSpawnerState.endUpdate 对 currentMaximumDuration<0 不转换 loop 状态 → loop 永不重启 → newLoop 只第一次 true
         // → Infinite 模式仍只 fire 一次。所以重置 sleeping 对 Infinite/Finite 两种都正确。
@@ -123,7 +123,7 @@ export class VFXSpawnerSingleBurst extends VFXSpawnerTask {
 
         this.sleeping = true;
         if (this.countFromLoopIndex) {
-            // Unity Modulo(loopIndex, N) → count 语义：loop 0 spawn 0 颗，loop 1 spawn 1 颗，... loop N-1 spawn N-1 颗，loop N 又 0 颗循环。
+            // Modulo(loopIndex, N) → count 语义：loop 0 spawn 0 颗，loop 1 spawn 1 颗，... loop N-1 spawn N-1 颗，loop N 又 0 颗循环。
             // 之前写 `idx + 1` 让 loop 0 就 spawn 1 颗 texIndex=0 → 数字 atlas 起点错位（看到 "0" 而非 "1"）。
             const idx = this.countModulo > 0 ? (spawnerState.loopIndex % this.countModulo) : spawnerState.loopIndex;
             spawnerState.spawnCount += idx;
@@ -212,7 +212,7 @@ export class VFXSpawnerCustomWrapper extends VFXSpawnerTask {
     release(): void { }
 }
 
-// 写 spawn event attribute（对齐 Unity VFXSpawnerSetAttribute）
+// 写 spawn event attribute（对齐 VFXSpawnerSetAttribute）
 // 每帧把固定值或 loopIndex(%N) 写入 spawnerState.eventAttribute，
 // 让粒子 Initialize 阶段 setAttribute(attr, source=Source) 能读到。
 // 这是 Strip / GPU Event 链上 stripIndex / texIndex / lifetime 等正确分配的关键
@@ -222,7 +222,7 @@ export class VFXSpawnerSetEventAttribute extends VFXSpawnerTask {
     value: [number, number, number, number] = [0, 0, 0, 0];
     fromLoopIndex: boolean = false;
     loopIndexModulo: number = 0;
-    // Unity SpawnContext 模式：lifetime ← Add(spawnState.loopDuration, spawnState.delayAfterLoop)
+    // SpawnContext 模式：lifetime ← Add(spawnState.loopDuration, spawnState.delayAfterLoop)
     // runtime 时用 spawnerState.loopDuration + delayAfterLoop 当 lifetime 值
     fromSpawnStateLoop: boolean = false;
 

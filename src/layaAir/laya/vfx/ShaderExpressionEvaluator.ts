@@ -3,7 +3,7 @@ import { Vector4 } from "../maths/Vector4";
 /**
  * VFX → ShaderGraph 之间 operator chain 的 runtime evaluator。
  *
- * Unity VFX Graph 中 OutputContext 的 shader uniform（如 _MainTextureColor）可以接到
+ * OutputContext 的 shader uniform（如 _MainTextureColor）可以接到
  * operator chain（SampleGradient/SampleCurve/Math 等），每帧求值后写到 material。
  * 转换器把这些 chain 序列化到 .lvfx 的 shaderPropertyExpressions，runtime 这里 evaluate。
  *
@@ -50,7 +50,7 @@ export interface ExprEvalContext {
 
 export class ShaderExpressionEvaluator {
     /**
-     * 转换器 unity-shader-to-laya.js 注入的“年龄中位数”全局常量 slot 名。
+     * 转换器注入的“年龄中位数”全局常量 slot 名。
      * SampleCurve(time = 该常量) 表示按 age 驱动 → 无法在全局表达式里 per-particle 采样，
      * 走 {@link _sampleCurveAverage} 的时间平均近似。两端约定共用，改名需同步转换器。
      */
@@ -122,7 +122,7 @@ export class ShaderExpressionEvaluator {
                     : Math.min(ctx.totalTime, 1);
                 break;
             case "Random": {
-                // Unity 端 Random(min, max, seed) 是 per-particle random, Laya material uniform 是 per-system 一份不能 per-particle.
+                // 源引擎端 Random(min, max, seed) 是 per-particle random, Laya material uniform 是 per-system 一份不能 per-particle.
                 // 之前写死 result=0.5 完全 ignore inputs 让 _MaskFlipbookIndex Random(0,3) 永远 0.5 而不是 0~3 范围
                 // 改成读 min/max input + 用 totalTime+seed-based deterministic random 让每帧动画 (frame 切换 mask flipbook)
                 const min = Number(this._evalNode(n.inputs![0], nodes, cache, ctx)) || 0;
@@ -144,8 +144,8 @@ export class ShaderExpressionEvaluator {
                 const curve = this._evalNode(n.inputs![0], nodes, cache, ctx) as CurveData;
                 const timeNode = nodes[n.inputs![1]] as any;
                 // age 驱动的 SampleCurve(time=ageMedian 全局常量)在全局表达式里无法 per-particle 采样。
-                // 用曲线在 [0,1] 的【时间平均值】—— 数学上等于 Unity per-particle 随年龄采样后所有粒子的平均
-                // (粒子年龄在常 spawn 下均匀分布 [0,1])→ 整体亮度与 Unity 对齐。
+                // 用曲线在 [0,1] 的【时间平均值】—— 数学上等于源引擎 per-particle 随年龄采样后所有粒子的平均
+                // (粒子年龄在常 spawn 下均匀分布 [0,1])→ 整体亮度与源引擎对齐。
                 // 注:Alpha_Multiplier 已在 VisualEffect._evaluateShaderExpressions 走真·per-particle 曲线 uniform,
                 // 此平均仅作其它 age 驱动属性 / per-particle 未注入时的兜底近似。
                 if (timeNode && timeNode.kind === "Constant" && timeNode.slotName === ShaderExpressionEvaluator.AGE_MEDIAN_SLOT_NAME) {
@@ -218,7 +218,7 @@ export class ShaderExpressionEvaluator {
     }
 
     /** Gradient sample lerp — 支持两种格式：
-     *  Unity {colorKeys:[{color,time}], alphaKeys:[{alpha,time}]}
+     *  源格式 {colorKeys:[{color,time}], alphaKeys:[{alpha,time}]}
      *  Laya  {__layaGradientStops:[{time,r,g,b,a}]} (color+alpha 同 stop)
      */
     private static _sampleGradient(g: any, t: number): { r: number; g: number; b: number; a: number } | null {
@@ -246,7 +246,7 @@ export class ShaderExpressionEvaluator {
                 a: c0[3] + (c1[3] - c0[3]) * u,
             };
         }
-        // Unity 格式
+        // 源格式
         if (!g.colorKeys || g.colorKeys.length === 0) return { r: 1, g: 1, b: 1, a: 1 };
         const keys = g.colorKeys;
         const aKeys = g.alphaKeys || [{ alpha: 1, time: 0 }];
@@ -274,7 +274,7 @@ export class ShaderExpressionEvaluator {
         return { r, g: g_, b, a };
     }
 
-    /** Unity AnimationCurve sample — 简化 linear lerp（不算 Hermite tangent，足够多数 material uniform 用例） */
+    /** AnimationCurve sample — 简化 linear lerp（不算 Hermite tangent，足够多数 material uniform 用例） */
     static _sampleCurve(c: CurveData, t: number): number {
         // curve 未提供 → return null 让 caller skip setUniform 让 ShaderGraph default 生效
         if (!c) return null as any;

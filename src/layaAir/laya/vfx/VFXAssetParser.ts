@@ -24,9 +24,6 @@ export class VFXAssetParser {
 
         const vfxAsset = new VFXAsset();
 
-        console.log(`[VFX-DBG] runtime parse systems=${(data.systems || []).length}`,
-            (data.systems || []).map((s: any, i: number) => `${i}:${s.type}${s.capacity != null ? `(cap=${s.capacity})` : ""}`).join(","));
-
         // 解析 updateMode
         let updateMode = VFXUpdateMode.FixedDeltaTime;
         if (data.fixedDeltaTime === false) {
@@ -135,12 +132,12 @@ export class VFXAssetParser {
                     desc.outputType = sys.outputType || "outputMesh";
                     desc.particlePerStripCount = sys.particlePerStripCount ?? 128;
                     desc.stripCapacity = sys.stripCapacity ?? 1;
-                    // Billboard procedural：对齐 Unity VFXPlanarPrimitiveOutput，编译器写入 primitive/vertexCount/cropFactor
+                    // Billboard procedural：对齐 VFXPlanarPrimitiveOutput，编译器写入 primitive/vertexCount/cropFactor
                     desc.billboardPrimitive = (sys.billboardPrimitive as string) || "";
                     desc.billboardVertexCount = Number(sys.billboardVertexCount) || 0;
                     desc.distortionMode = (sys.distortionMode as string) || "Procedural";
                     desc.billboardCropFactor = Number(sys.billboardCropFactor ?? 0.146);
-                    // Alpha Clipping (Unity VFXPlanarPrimitiveOutput useAlphaClipping)
+                    // Alpha Clipping (VFXPlanarPrimitiveOutput useAlphaClipping)
                     (desc as any).useAlphaClipping = !!sys.useAlphaClipping;
                     (desc as any).alphaThreshold = Number(sys.alphaThreshold ?? 0.5);
 
@@ -164,7 +161,7 @@ export class VFXAssetParser {
                         desc.softParticleFade = sys.softParticleFade;
                     }
 
-                    // 解析 Flipbook UV Mode + 图集尺寸（对齐 Unity VFX Output UV Mode）
+                    // 解析 Flipbook UV Mode + 图集尺寸（对齐 Output UV Mode）
                     if (typeof sys.uvMode === "string") desc.uvMode = sys.uvMode;
                     if (Array.isArray(sys.flipbookSize)) {
                         desc.flipbookSize = new Vector2(
@@ -187,7 +184,7 @@ export class VFXAssetParser {
                         const shaderUrl: string = sys.customShaderRes;
                         loadPromises.push(
                             (Laya.loader.load(shaderUrl) as Promise<any>).then(
-                                () => { console.log(`[VFX Parser] preloaded custom shader '${sys.customShaderName}' from ${shaderUrl}`); },
+                                () => { },
                                 (err: any) => { console.warn(`[VFX Parser] failed preloading custom shader '${sys.customShaderName}' from ${shaderUrl}`, err); }
                             )
                         );
@@ -223,7 +220,7 @@ export class VFXAssetParser {
                         (desc as any).shaderPropertyExpressions = sys.shaderPropertyExpressions;
                     }
 
-                    // Strip 专属字段（对齐 Unity Output Trail）
+                    // Strip 专属字段（对齐 Output Trail）
                     if (typeof sys.colorMapping === "string") desc.stripColorMapping = sys.colorMapping;
                     if (typeof sys.tilingMode === "string") (desc as any).tilingMode = sys.tilingMode;
                     if (sys.uvScale && typeof sys.uvScale === "object") {
@@ -232,7 +229,7 @@ export class VFXAssetParser {
                     if (sys.uvBias && typeof sys.uvBias === "object") {
                         desc.stripUvBias = { x: Number(sys.uvBias.x ?? 0), y: Number(sys.uvBias.y ?? 0) };
                     }
-                    // gradient: Unity 格式 colorKeys+alphaKeys → 合并成 Laya stops 格式 (跟 sampleGradient 一致)
+                    // gradient: 源引擎格式 colorKeys+alphaKeys → 合并成 Laya stops 格式 (跟 sampleGradient 一致)
                     if (sys.gradient && typeof sys.gradient === "object" && Array.isArray(sys.gradient.colorKeys)) {
                         const gck = sys.gradient.colorKeys, gak = sys.gradient.alphaKeys || [];
                         const allTimes = new Set<number>();
@@ -326,8 +323,8 @@ export class VFXAssetParser {
                         // outputShaderGraphQuad / Billboard / Point / Line 无显式 mesh：用内置 Quad
                         return PrimitiveMesh.createQuad(1, 1);
                     };
-                    // builtin: 前缀表示 Unity 内置 primitive mesh（converter 检测 guid=0000-e000+fileID 后写入）
-                    // 直接用 PrimitiveMesh.createXxx 创建对齐尺寸（Unity 内置 Sphere/Cube 都是 1m，Plane 是 10m，Quad 1m）
+                    // builtin: 前缀表示内置 primitive mesh（converter 检测 guid=0000-e000+fileID 后写入）
+                    // 直接用 PrimitiveMesh.createXxx 创建对齐尺寸（内置 Sphere/Cube 都是 1m，Plane 是 10m，Quad 1m）
                     const buildBuiltinMesh = (name: string): Mesh | null => {
                         switch (name) {
                             case "Sphere":   return PrimitiveMesh.createSphere(0.5, 12, 12);
@@ -426,9 +423,6 @@ export class VFXAssetParser {
                                 const loadMeshTex = Laya.loader.load(meshUrl).then((mesh: Mesh) => {
                                     if (mesh) {
                                         entry.texture = bakeMeshAttributeTexture(mesh, normalizedRole as MeshRole);
-                                        const positions: any[] = [];
-                                        try { mesh.getPositions(positions); } catch {}
-                                        console.log(`[VFX] sampleMesh OK: ${meshUrl} role=${normalizedRole} vertexCount=${positions.length} firstVert=${positions[0] ? `(${positions[0].x.toFixed(2)},${positions[0].y.toFixed(2)},${positions[0].z.toFixed(2)})` : 'null'}`);
                                     } else {
                                         console.warn(`[VFX] sampleMesh: failed to load mesh ${meshUrl}`);
                                     }
@@ -497,7 +491,7 @@ export class VFXAssetParser {
                                 const exShaderUrl: string = eo.customShaderRes;
                                 loadPromises.push(
                                     (Laya.loader.load(exShaderUrl) as Promise<any>).then(
-                                        () => { console.log(`[VFX Parser] preloaded extra custom shader '${eo.customShaderName}' from ${exShaderUrl}`); },
+                                        () => { },
                                         (err: any) => { console.warn(`[VFX Parser] failed preloading extra custom shader '${eo.customShaderName}' from ${exShaderUrl}`, err); }
                                     )
                                 );
@@ -655,7 +649,7 @@ export class VFXAssetParser {
                     }
                     case VFXPropertyType.Texture2D: {
                         // Texture2D property: d 是 string "res://uuid" 或 array ["res://uuid"] (转换器统一输出后者)
-                        // Unity VFX exposed prop 跟 ShaderGraph 内 shader uniform 是双命名空间，OutputContext 含 binding；
+                        // VFX exposed prop 跟 ShaderGraph 内 shader uniform 是双命名空间，OutputContext 含 binding；
                         // 这里只 load 资源存到 desc.texture，setTexture 绑定 shader uniform 在 VisualEffect.onStart 用 binding 名做
                         let url: string | null = null;
                         if (Array.isArray(d) && typeof d[0] === "string") url = d[0];
@@ -728,7 +722,7 @@ export class VFXAssetParser {
 /**
  * 把 Mesh 顶点的 position 打包成 RGBA32F Texture2D（宽 = 顶点数 / 高 = 1）。
  * setPositionMesh block 在 compute shader 里通过 texelFetch(tex, ivec2(i, 0), 0) 取点。
- * 对齐 Unity VFX Graph 的 Point Cache 方案。
+ * 对齐 Point Cache 方案。
  */
 /**
  * 按关键帧烘焙 256×1 RGBA8 Gradient Texture2D
@@ -761,9 +755,9 @@ function bakeInlineGradientTexture(stops: { t: number; color: [number, number, n
         { t: 1, color: [1, 1, 1, 0] as [number, number, number, number] },
     ];
     // ⭐2026-06-11 HDR 直通：烘到 R16G16B16A16 半精度浮点纹理，不再 max-channel 归一化。
-    // 归一化是 LDR framebuffer 时代的 crutch——保了 chroma 但丢强度，让 Unity 的 HDR 红(23.97,0,0)
-    // 在 additive 下永远压不过低强度橙 → Buff 爆心橙白 vs Unity 饱和红的根因。
-    // 场景 enableHDR(浮点 framebuffer)下直通才是 Unity 语义(LDR 场景 clip 爆白同样是 Unity 行为)。
+    // 归一化是 LDR framebuffer 时代的 crutch——保了 chroma 但丢强度，让源引擎的 HDR 红(23.97,0,0)
+    // 在 additive 下永远压不过低强度橙 → Buff 爆心橙白 vs 源引擎饱和红的根因。
+    // 场景 enableHDR(浮点 framebuffer)下直通才是源引擎语义(LDR 场景 clip 爆白同样是源引擎行为)。
     const sanitizeStop = (c: number[]): [number, number, number, number] => [
         Math.max(0, c[0]), Math.max(0, c[1]), Math.max(0, c[2]), Math.max(0, Math.min(1, c[3])),
     ];
@@ -1005,7 +999,7 @@ export function bakeSkinnedMeshBonesTexture(renderer: any, existingTex: Texture2
         } else {
             boneWorld.cloneTo(tmpMtx);
         }
-        // GLSL mat4 是 column-major，elements 已是 column-major（同 Three / Unity）
+        // GLSL mat4 是 column-major，elements 已是 column-major（同 Three）
         const e = tmpMtx.elements;
         const off = i * 16;
         for (let k = 0; k < 16; k++) data[off + k] = e[k];

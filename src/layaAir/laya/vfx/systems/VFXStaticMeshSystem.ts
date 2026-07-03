@@ -12,7 +12,7 @@ import { Material } from "../../resource/Material";
 import { Laya } from "../../../Laya";
 
 /**
- * Unity VFXStaticMeshOutput 对齐：渲染单个 mesh，不跑 particle simulation
+ * VFXStaticMeshOutput 对齐：渲染单个 mesh，不跑 particle simulation
  * - 在 owner（VisualEffect 节点）下创建子 Sprite3D + MeshFilter + MeshRenderer
  * - 子节点 transform 默认 identity（mesh 跟随 owner 世界 transform）
  * - material 由 .vfx props 提供 UUID，runtime 异步加载；未指定 / 加载失败 fallback unlit material

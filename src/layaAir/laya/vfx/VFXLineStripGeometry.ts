@@ -11,7 +11,7 @@ import { VertexElementFormat } from "../renders/VertexElementFormat";
 import { BufferState } from "../webgl/utils/BufferState";
 /**
  * VFXLineStripGeometry — Output LineStrip 渲染几何
- * 对齐 Unity VFXLineStripOutput
+ * 对齐 VFXLineStripOutput
  *
  * 每粒子 1 vertex（同 VFXPointGeometry layout，48 bytes）：
  *   [0] xyz=position, w=size (size 不使用，但保持 layout 兼容)

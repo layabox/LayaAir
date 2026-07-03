@@ -43,7 +43,7 @@ export class VFXRenderer extends BaseRender {
     private static _defaultDotTexture: Texture2D | null = null;
 
     /**
-     * 程序生成 DefaultDot 软圆纹理（对齐 Unity VFX Graph DefaultParticle.png）
+     * 程序生成 DefaultDot 软圆纹理（对齐 DefaultParticle.png）
      * 64×64 白色软圆，alpha 为距中心的平滑衰减
      */
     static getDefaultDotTexture(): Texture2D {
@@ -110,7 +110,7 @@ export class VFXRenderer extends BaseRender {
     private static _smoothedNormalMeshIds: Set<number> = new Set();
 
     /**
-     * 给 mesh 跑 smooth normal: Unity .fbx import 默认 split vertex by hard edge + smooth normal
+     * 给 mesh 跑 smooth normal: 源引擎 .fbx import 默认 split vertex by hard edge + smooth normal
      * 平均化, 让相邻 face 共享 normal → shading 平滑无 alternating. Laya .fbx import 没这步,
      * 让蓝图 PBR shader 算 SurfaceShading 时邻接 face normal 不一致 → fragment shading 跳变 →
      * 三角形 alternating striping (image 56 蜡池区现象). 这里 weld by position + 平均 normal 复用
@@ -214,7 +214,7 @@ export class VFXRenderer extends BaseRender {
     /**
      * 给 mesh 跑 Laplacian vertex color smooth: 蓝图 ShaderGraph 用 mesh 顶点色驱动多区域选色
      * (e.g. SG_Candle 用 vc.g 分饰圈/蜡池/dripping), per-vertex 颜色直接 dump 显示三角形渐变.
-     * Unity 端因为有 bloom + AA + tonemap 视觉融合, Laya 简单 lighting 直接暴露相邻三角形色差.
+     * 源引擎端因为有 bloom + AA + tonemap 视觉融合, Laya 简单 lighting 直接暴露相邻三角形色差.
      * 这里对相邻 vertex (共三角形) 颜色做加权平均, 减少 striping 同时保留大尺度 region 差异.
      * 只 smooth r/g/a 通道 (b 通道在 vertex shader vfxTransformVertex 阶段 override 给 per-particle).
      */
@@ -329,10 +329,10 @@ export class VFXRenderer extends BaseRender {
         Laya.loader.load(url).then(async (tex: BaseTexture) => {
             if (tex) {
                 // PNG RGB-only atlas (e.g. TX_Flipbook_example.png 白数字 + 橙/cyan 方块底,
-                // colorType=2 无 alpha channel) 走 alpha blend 时方块底色全显示. Unity 端默认 Particles
-                // shader Color Mapping Default = color * tex, PNG no alpha → tex.a=1 → Unity 端实际行为不明,
+                // colorType=2 无 alpha channel) 走 alpha blend 时方块底色全显示. 源引擎端默认 Particles
+                // shader Color Mapping Default = color * tex, PNG no alpha → tex.a=1 → 源引擎端实际行为不明,
                 // 但 visually 蜡烛场景方块透明跟数字白显示. 这里跑 saturation 检测把彩色像素 alpha 设 0,
-                // 灰度像素保留 luminance, 让 atlas 视觉对齐 Unity (背景透明). 检测条件:
+                // 灰度像素保留 luminance, 让 atlas 视觉对齐源引擎 (背景透明). 检测条件:
                 // 所有 pixel alpha 都是 255 (PNG 无 alpha 让 IDE import 自动填 1) 才跑.
                 await VFXRenderer._patchTextureAlphaFromLuminance(tex, url);
                 VFXRenderer._atlasTextureCache.set(url, tex);
@@ -353,7 +353,6 @@ export class VFXRenderer extends BaseRender {
     private static async _patchTextureAlphaFromLuminance(tex: BaseTexture, url: string): Promise<void> {
         if (VFXRenderer._patchedTextureUrls.has(url)) return;
         VFXRenderer._patchedTextureUrls.add(url);
-        console.log("[VFX alpha] start url=", url);
         try {
             // ⚠不能用 loader.load(url, BUFFER)：同 url 已按 Texture 加载过时，资产缓存按 url 直接命中
             // 返回 Texture 对象（请求类型被忽略）→ "non-ArrayBuffer: object"，alpha 修补静默失效。
@@ -365,7 +364,6 @@ export class VFXRenderer extends BaseRender {
             }
             // 只处理 PNG (其它格式如 KTX/DDS 通常带正确 alpha)
             if (!url.toLowerCase().endsWith(".png")) {
-                console.log("[VFX alpha] skip - not png");
                 return;
             }
             const blob = new Blob([buffer], { type: "image/png" });
@@ -383,7 +381,6 @@ export class VFXRenderer extends BaseRender {
             for (let i = 3; i < pixels.length; i += 4) {
                 if (pixels[i] !== 255) { allOpaque = false; break; }
             }
-            console.log("[VFX alpha] allOpaque=", allOpaque, "pixels.length=", pixels.length);
             if (!allOpaque) return; // 真有 alpha 通道不动
             // 区分两种 PNG atlas 类型:
             // (A) "火焰风格": 大量黑色背景 + 彩色渐变主体 (flame/smoke) → 用 luminance 当 alpha
@@ -395,7 +392,6 @@ export class VFXRenderer extends BaseRender {
             }
             const blackRatio = blackCount / pixelCount;
             const isFlameStyle = blackRatio > 0.15;
-            console.log("[VFX alpha] blackRatio=", blackRatio.toFixed(3), "isFlameStyle=", isFlameStyle);
             let modified = false;
             for (let i = 0; i < pixels.length; i += 4) {
                 const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2];
@@ -423,7 +419,6 @@ export class VFXRenderer extends BaseRender {
             const t2d = ((tex as any).bitmap || tex) as Texture2D;
             if (t2d && (t2d as any).setPixelsData) {
                 (t2d as any).setPixelsData(new Uint8Array(pixels.buffer), false, false);
-                console.log("[VFX] alpha patched from luminance:", url, "size=", canvas.width, "x", canvas.height);
             } else {
                 console.warn("[VFX alpha] no setPixelsData on bitmap, t2d=", t2d, "tex=", tex);
             }
@@ -433,7 +428,7 @@ export class VFXRenderer extends BaseRender {
     }
 
     /**
-     * 对齐 Unity VFXPlanarPrimitiveOutput：procedural billboard（用 gl_VertexID 生成顶点）
+     * 对齐 VFXPlanarPrimitiveOutput：procedural billboard（用 gl_VertexID 生成顶点）
      * primitive: "Quad" / "Triangle" / "Octagon"
      * cropFactor: Octagon 专用裁角因子 [0, 0.5]
      * mainTextureUuid / uvMode / fbW / fbH 加入 cache key —— Multi-Output 同一 system 多 output ctx
@@ -482,11 +477,11 @@ export class VFXRenderer extends BaseRender {
         return mat;
     }
 
-    /** Distortion procedural material 缓存（Unity VFXDistortion 对齐） */
+    /** Distortion procedural material 缓存（VFXDistortion 对齐） */
     private static _distortionMaterialCache: Map<string, Material> = new Map();
 
     /**
-     * 对齐 Unity VFXDistortion：采样 u_CameraOpaqueTexture 做 UV 偏移
+     * 对齐 VFXDistortion：采样 u_CameraOpaqueTexture 做 UV 偏移
      * mode: "Procedural"（径向透镜）/ "NormalMap"（用 u_AlbedoTexture 的 RG 当法线）
      * distortionStrength: UV 偏移乘法因子 [0, 1]
      * Camera 必须启用 opaqueTexture 才能看到效果
@@ -515,11 +510,11 @@ export class VFXRenderer extends BaseRender {
         return mat;
     }
 
-    /** Cube procedural material 缓存（Unity VFXBasicCubeOutput 对齐） */
+    /** Cube procedural material 缓存（VFXBasicCubeOutput 对齐） */
     private static _cubeProceduralCache: Map<string, Material> = new Map();
 
     /**
-     * 对齐 Unity VFXBasicCubeOutput：3D cube 粒子（6 面，带简易 Lambert 光照）
+     * 对齐 VFXBasicCubeOutput：3D cube 粒子（6 面，带简易 Lambert 光照）
      */
     static getCubeProceduralMaterial(blendMode: string = "Alpha"): Material | null {
         let mat = VFXRenderer._cubeProceduralCache.get(blendMode);
@@ -603,7 +598,7 @@ export class VFXRenderer extends BaseRender {
                     : (Laya as any).AssetDb?.inst?.shaderName_to_URL_async?.(shaderName)
                         .then((u: string) => u ? Laya.loader.load(u) : null);
                 Promise.resolve(loadPromise)
-                    .then(() => console.log(`[VFX Renderer] custom shader '${shaderName}' loaded (url=${url})`))
+                    .then(() => { })
                     .catch((err: any) => console.warn(`[VFX Renderer] custom shader '${shaderName}' load failed`, err));
             }
             // Shader 还没注册：返回 VFXUnlit fallback，不缓存（让下一帧重试）
@@ -677,12 +672,10 @@ export class VFXRenderer extends BaseRender {
         const useGradient = colorMapping === "GradientMapped" && gradientStops && gradientStops.length > 0;
         const gradDef = Shader3D.getDefineByName("VFX_STRIP_GRADIENT_MAPPED");
         const sbDef = Shader3D.getDefineByName("VFX_STRIP_UV_SCALE_BIAS");
-        console.log(`[VFX Strip Mat] colorMapping=${colorMapping}, useGradient=${useGradient}, gradDef=${!!gradDef}, sbDef=${!!sbDef}, stops=${gradientStops?.length ?? 0}`);
         if (useGradient) {
             if (gradDef) mat.addDefine(gradDef);
             const gradTex = bakeGradientTexture256(gradientStops!);
             mat.setTexture("u_VfxStripGradient", gradTex);
-            console.log(`[VFX Strip Mat] gradient texture baked, hasDefine=${gradDef ? mat.hasDefine(gradDef) : "noDef"}`);
         }
         // UV Mode = ScaleAndBias: 设 scale/bias uniform + 启用 define
         const useScaleBias = (uvScale && (uvScale.x !== 1 || uvScale.y !== 1)) || (uvBias && (uvBias.x !== 0 || uvBias.y !== 0));
@@ -875,14 +868,6 @@ export class VFXRenderer extends BaseRender {
             if (geometry instanceof VFXStripGeometry || outType === "outputPoint" || outType === "outputLine" || outType === "outputLineStrip") {
                 const mode = (geometry as any).blendMode || "Alpha";
                 const stripCustomShader = (geometry as any).customShaderName || "";
-                if (!(this as any)._stripLogOnce) {
-                    (this as any)._stripLogOnce = true;
-                    console.log(`[VFX Renderer] Strip path: isStripGeo=${geometry instanceof VFXStripGeometry}, outType=${outType}, mode=${mode}, customShader=${stripCustomShader}, isRender=${element._renderElementOBJ.isRender}`);
-                }
-                if (!(this as any)._stripDebug2) {
-                    (this as any)._stripDebug2 = true;
-                    console.log(`[VFX Strip Debug] meshMaterial=${meshMaterial ? (meshMaterial as any)._shader?.name : 'NULL'}, stripCustomShader='${stripCustomShader}'`);
-                }
                 if (stripCustomShader && stripCustomShader !== "VFXStrip") {
                     element.material = VFXRenderer.getCustomShaderMaterial(stripCustomShader, mode, "strip");
                 } else {
@@ -938,19 +923,19 @@ export class VFXRenderer extends BaseRender {
                     // 现在 _onEnable + _renderUpdate 接通真 reflection probe block bind,
                     // 引擎自动 push u_IBLTex / u_AmbientColor 等真值, 不需要手动 set.)
                 }
-                // Cube procedural（Unity VFXBasicCubeOutput 对齐）
+                // Cube procedural（VFXBasicCubeOutput 对齐）
                 else if (outType === "outputCube") {
                     const cubeMat = VFXRenderer.getCubeProceduralMaterial(mode);
                     if (cubeMat) element.material = cubeMat;
                 }
-                // Distortion（Unity VFXDistortion 对齐）
+                // Distortion（VFXDistortion 对齐）
                 else if (outType === "outputDistortion") {
                     const dMode = (geometry as any).distortionMode || "Procedural";
                     const dStrength = (geometry as any).cropFactor ?? 0.05; // 复用 cropFactor 字段传 strength
                     const dMat = VFXRenderer.getDistortionMaterial(dMode, mode, dStrength);
                     if (dMat) element.material = dMat;
                 }
-                // Billboard procedural（Unity VFXPlanarPrimitive 对齐）
+                // Billboard procedural（VFXPlanarPrimitive 对齐）
                 else if (isBillboardProcedural) {
                     const cropF = (geometry as any).cropFactor ?? 0.146;
                     // cache key 包含 mainTexture+uvMode+flipbookSize，让 multi-output 各 ctx 独立 material
@@ -982,7 +967,7 @@ export class VFXRenderer extends BaseRender {
                         const softFade = (geometry as any).softParticleFade || 0;
                         applySoftParticle(bbMat, softFade);
                         applySubpixelAA(bbMat, !!(geometry as any).subpixelAA);
-                        // Alpha Clipping (Unity VFXPlanarPrimitiveOutput useAlphaClipping)
+                        // Alpha Clipping (VFXPlanarPrimitiveOutput useAlphaClipping)
                         // atlas mask 字符用：alpha<threshold 时 fragment discard，atlas 背景方块消失
                         const useAlphaClip = !!(geometry as any).useAlphaClipping;
                         const alphaThresh = Number((geometry as any).alphaThreshold ?? 0.5);
@@ -1061,7 +1046,7 @@ export class VFXRenderer extends BaseRender {
 }
 
 /**
- * 按 blendMode 配置材质的 blend 状态（对齐 Unity VFX BlendMode 枚举）
+ * 按 blendMode 配置材质的 blend 状态（对齐 BlendMode 枚举）
  *   Alpha         = (SrcAlpha, OneMinusSrcAlpha)   — 普通半透明
  *   Additive      = (SrcAlpha, One)                — 发光/火花叠加
  *   Premultiplied = (One,      OneMinusSrcAlpha)   — 预乘 alpha
@@ -1078,7 +1063,7 @@ function bakeGradientTexture256(stops: { t: number; color: [number, number, numb
         sorted.push({ t: 1, color: [1, 1, 1, 0] });
     }
     const W = 256;
-    // 用 R32G32B32A32 float 格式保留 HDR (Unity gradient 末端 r=g=b=16)
+    // 用 R32G32B32A32 float 格式保留 HDR (源引擎 gradient 末端 r=g=b=16)
     const floats = new Float32Array(W * 4);
     for (let i = 0; i < W; i++) {
         const t = i / (W - 1);
@@ -1158,7 +1143,7 @@ function applySoftParticle(mat: Material, softFade: number): void {
 
 /**
  * 按 uvMode 开启/关闭 Flipbook / FlipbookBlend defines，并设置 u_FlipbookSize
- * 对齐 Unity VFX Output Context UV Mode（Default / Flipbook / FlipbookBlend）
+ * 对齐 Output Context UV Mode（Default / Flipbook / FlipbookBlend）
  */
 function applyFlipbook(mat: Material, uvMode: string, flipbookSize: Vector2): void {
     const defFB = Shader3D.getDefineByName("FLIPBOOK");
