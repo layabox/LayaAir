@@ -134,12 +134,12 @@ export class VFXAssetParser {
                     desc.outputType = sys.outputType || "outputMesh";
                     desc.particlePerStripCount = sys.particlePerStripCount ?? 128;
                     desc.stripCapacity = sys.stripCapacity ?? 1;
-                    // Billboard procedural：对齐 Unity VFXPlanarPrimitiveOutput，编译器写入 primitive/vertexCount/cropFactor
+                    // Billboard procedural：对齐 VFXPlanarPrimitiveOutput，编译器写入 primitive/vertexCount/cropFactor
                     desc.billboardPrimitive = (sys.billboardPrimitive as string) || "";
                     desc.billboardVertexCount = Number(sys.billboardVertexCount) || 0;
                     desc.distortionMode = (sys.distortionMode as string) || "Procedural";
                     desc.billboardCropFactor = Number(sys.billboardCropFactor ?? 0.146);
-                    // Alpha Clipping (Unity VFXPlanarPrimitiveOutput useAlphaClipping)
+                    // Alpha Clipping (VFXPlanarPrimitiveOutput useAlphaClipping)
                     (desc as any).useAlphaClipping = !!sys.useAlphaClipping;
                     (desc as any).alphaThreshold = Number(sys.alphaThreshold ?? 0.5);
 
@@ -163,7 +163,7 @@ export class VFXAssetParser {
                         desc.softParticleFade = sys.softParticleFade;
                     }
 
-                    // 解析 Flipbook UV Mode + 图集尺寸（对齐 Unity VFX Output UV Mode）
+                    // 解析 Flipbook UV Mode + 图集尺寸（对齐 Output UV Mode）
                     if (typeof sys.uvMode === "string") desc.uvMode = sys.uvMode;
                     if (Array.isArray(sys.flipbookSize)) {
                         desc.flipbookSize = new Vector2(
@@ -186,7 +186,7 @@ export class VFXAssetParser {
                         const shaderUrl: string = sys.customShaderRes;
                         loadPromises.push(
                             (Laya.loader.load(shaderUrl) as Promise<any>).then(
-                                () => { console.log(`[VFX Parser] preloaded custom shader '${sys.customShaderName}' from ${shaderUrl}`); },
+                                () => { },
                                 (err: any) => { console.warn(`[VFX Parser] failed preloading custom shader '${sys.customShaderName}' from ${shaderUrl}`, err); }
                             )
                         );
@@ -226,7 +226,7 @@ export class VFXAssetParser {
                         (desc as any).shaderPropertyExpressions = sys.shaderPropertyExpressions;
                     }
 
-                    // Strip 专属字段（对齐 Unity Output Trail）
+                    // Strip 专属字段（对齐 Output Trail）
                     if (typeof sys.colorMapping === "string") desc.stripColorMapping = sys.colorMapping;
                     if (typeof sys.tilingMode === "string") (desc as any).tilingMode = sys.tilingMode;
                     if (sys.uvScale && typeof sys.uvScale === "object") {
@@ -235,7 +235,7 @@ export class VFXAssetParser {
                     if (sys.uvBias && typeof sys.uvBias === "object") {
                         desc.stripUvBias = { x: Number(sys.uvBias.x ?? 0), y: Number(sys.uvBias.y ?? 0) };
                     }
-                    // gradient: Unity 格式 colorKeys+alphaKeys → 合并成 Laya stops 格式 (跟 sampleGradient 一致)
+                    // gradient: 源引擎格式 colorKeys+alphaKeys → 合并成 Laya stops 格式 (跟 sampleGradient 一致)
                     if (sys.gradient && typeof sys.gradient === "object" && Array.isArray(sys.gradient.colorKeys)) {
                         const gck = sys.gradient.colorKeys, gak = sys.gradient.alphaKeys || [];
                         const allTimes = new Set<number>();
@@ -329,8 +329,8 @@ export class VFXAssetParser {
                         // outputShaderGraphQuad / Billboard / Point / Line 无显式 mesh：用内置 Quad
                         return PrimitiveMesh.createQuad(1, 1);
                     };
-                    // builtin: 前缀表示 Unity 内置 primitive mesh（converter 检测 guid=0000-e000+fileID 后写入）
-                    // 直接用 PrimitiveMesh.createXxx 创建对齐尺寸（Unity 内置 Sphere/Cube 都是 1m，Plane 是 10m，Quad 1m）
+                    // builtin: 前缀表示内置 primitive mesh（converter 检测 guid=0000-e000+fileID 后写入）
+                    // 直接用 PrimitiveMesh.createXxx 创建对齐尺寸（内置 Sphere/Cube 都是 1m，Plane 是 10m，Quad 1m）
                     const buildBuiltinMesh = (name: string): Mesh | null => {
                         switch (name) {
                             case "Sphere":   return PrimitiveMesh.createSphere(0.5, 12, 12);
@@ -362,9 +362,9 @@ export class VFXAssetParser {
                         loadPromises.push(loadMesh);
                     } else if (!isProceduralGeometry) {
                         // mesh 输出但未指定 mesh —— 即暴露的 Mesh 属性未赋值（materialize/dissolve 这类效果
-                        // 在未绑定"被溶解模型"时 mesh 槽为空）。Unity 下此时渲染 nothing，绝不能 fallback 成球。
+                        // 在未绑定"被溶解模型"时 mesh 槽为空）。源引擎下此时渲染 nothing，绝不能 fallback 成球。
                         // mesh 类输出（outputMesh/outputStaticMesh）→ 置 outputType="none"：geometry 不创建、
-                        // output 不绘制，simulation 仍跑（与 Unity 一致，且后续运行时 setMesh 赋值可恢复）。
+                        // output 不绘制，simulation 仍跑（与源引擎一致，且后续运行时 setMesh 赋值可恢复）。
                         // 注意：mesh 已指定但加载失败（load 返回 null/异常）仍保留 debug 球，便于排查真实错误。
                         if (desc.outputType === "outputMesh" || desc.outputType === "outputStaticMesh") {
                             desc.outputType = "none";
@@ -485,7 +485,7 @@ export class VFXAssetParser {
                     if (sys.bufferUniforms && Array.isArray(sys.bufferUniforms)) {
                         for (const bu of sys.bufferUniforms) {
                             if ((bu as any).meshProp) {
-                                // setPositionMesh 点云: 烘 mesh 表面/体积点 → DeviceBuffer (对齐 Unity buffer 采样, 绕开 compute 纹理绑定 bug)
+                                // setPositionMesh 点云: 烘 mesh 表面/体积点 → DeviceBuffer (对齐 buffer 采样, 绕开 compute 纹理绑定 bug)
                                 const mpEntry: any = { uniformName: bu.uniformName as string, buffer: null };
                                 desc.meshPointBuffers.push(mpEntry);
                                 const pcUuid = String((bu as any).meshProp);
@@ -543,7 +543,7 @@ export class VFXAssetParser {
                                 const exShaderUrl: string = eo.customShaderRes;
                                 loadPromises.push(
                                     (Laya.loader.load(exShaderUrl) as Promise<any>).then(
-                                        () => { console.log(`[VFX Parser] preloaded extra custom shader '${eo.customShaderName}' from ${exShaderUrl}`); },
+                                        () => { },
                                         (err: any) => { console.warn(`[VFX Parser] failed preloading extra custom shader '${eo.customShaderName}' from ${exShaderUrl}`, err); }
                                     )
                                 );
@@ -701,7 +701,7 @@ export class VFXAssetParser {
                     }
                     case VFXPropertyType.Texture2D: {
                         // Texture2D property: d 是 string "res://uuid" 或 array ["res://uuid"] (转换器统一输出后者)
-                        // Unity VFX exposed prop 跟 ShaderGraph 内 shader uniform 是双命名空间，OutputContext 含 binding；
+                        // VFX exposed prop 跟 ShaderGraph 内 shader uniform 是双命名空间，OutputContext 含 binding；
                         // 这里只 load 资源存到 desc.texture，setTexture 绑定 shader uniform 在 VisualEffect.onStart 用 binding 名做
                         let url: string | null = null;
                         if (Array.isArray(d) && typeof d[0] === "string") url = d[0];
@@ -774,7 +774,7 @@ export class VFXAssetParser {
 /**
  * 把 Mesh 顶点的 position 打包成 RGBA32F Texture2D（宽 = 顶点数 / 高 = 1）。
  * setPositionMesh block 在 compute shader 里通过 texelFetch(tex, ivec2(i, 0), 0) 取点。
- * 对齐 Unity VFX Graph 的 Point Cache 方案。
+ * 对齐 Point Cache 方案。
  */
 /**
  * 按关键帧烘焙 256×1 RGBA8 Gradient Texture2D
@@ -788,13 +788,13 @@ function bakeInlineGradientTexture(stops: { t: number; color: [number, number, n
         { t: 0, color: [1, 1, 1, 1] as [number, number, number, number] },
         { t: 1, color: [1, 1, 1, 0] as [number, number, number, number] },
     ];
-    // Unity Gradient editor 用 HDR color picker 输出值 (e.g., 0,89.97,46.39) → 没 HDR pipeline 时需 clamp 到 [0,1]
+    // HDR 颜色选择器输出值 (e.g., 0,89.97,46.39) → 没 HDR pipeline 时需 clamp 到 [0,1]
     // 之前 per-channel clamp 让所有三通道都 >1 的 HDR 颜色（如 (1.22, 5.66, 3.62) HDR teal）变成 (1,1,1) 纯白
     // 丢失 chroma → TexIndexAdvanced Core Cube 这种 stop 该显示 teal 但 Laya 显示纯白
     // 修：per-stop 用 max-channel 归一化保留 chroma 方向，仅 max>1 时缩放（max<=1 保留原值）
     //   (1.22, 5.66, 3.62) max=5.66 → (0.216, 1.0, 0.640) 保留 teal-green chroma
     //   (2.95, 0.012, 0.24) max=2.95 → (1.0, 0.004, 0.081) 保留 red chroma
-    // 副作用：失去 Unity HDR 强度信息（bloom glow 不可见），但 chroma 准确
+    // 副作用：失去 HDR 强度信息（bloom glow 不可见），但 chroma 准确
     const normalizeStop = (c: number[]): [number, number, number, number] => {
         const r = Math.max(0, c[0]);
         const g = Math.max(0, c[1]);
@@ -1044,7 +1044,7 @@ export function bakeSkinnedMeshBonesTexture(renderer: any, existingTex: Texture2
         } else {
             boneWorld.cloneTo(tmpMtx);
         }
-        // GLSL mat4 是 column-major，elements 已是 column-major（同 Three / Unity）
+        // GLSL mat4 是 column-major，elements 已是 column-major（同 Three）
         const e = tmpMtx.elements;
         const off = i * 16;
         for (let k = 0; k < 16; k++) data[off + k] = e[k];
@@ -1169,9 +1169,9 @@ function _computeSurfacePointsData(mesh: Mesh, count: number, scale?: number): F
     const { positions, indices } = tri;
     const triCount = (indices.length / 3) | 0;
     if (triCount <= 0) return null;
-    // 顶点缩放：转换器按 mesh 注入(数据驱动)，缺省 1.0；cm-unit mesh(如 Ellen.fbx，Unity fileScale 未应用，顶点 100x)=0.01
+    // 顶点缩放：转换器按 mesh 注入(数据驱动)，缺省 1.0；cm-unit mesh(如 Ellen.fbx，源引擎 fileScale 未应用，顶点 100x)=0.01
     const _S = (typeof scale === "number" && scale > 0) ? scale : 1;
-    // 按三角形均匀采样(每个三角形等概率,非面积加权) —— 对齐 Unity:
+    // 按三角形均匀采样(每个三角形等概率,非面积加权) —— 对齐源引擎:
     // 曲面细分密的区域(如胶囊半球帽)三角形更多 → 自然采到更多点,两端更密。
     const data = new Float32Array(count * 4);
     for (let p = 0; p < count; p++) {
@@ -1249,7 +1249,7 @@ function _fallbackPointData(count: number): Float32Array {
     return data;
 }
 
-// 已知 cm-unit mesh(顶点 100x，Unity fileScale 未应用)的【兜底】缩放表：
+// 已知 cm-unit mesh(顶点 100x，源引擎 fileScale 未应用)的【兜底】缩放表：
 // 当 .lvfx 没带 meshScale 时(旧编译产物 / 引擎更新但 .vfx 未用新编译器重导)仍能把点云缩回世界尺度，
 // 避免火焰点云 100x 喷到屏幕外。⭐优先用转换器注入的数据驱动 meshScale，此表仅兜底。
 const MESH_CMUNIT_FALLBACK: Record<string, number> = { "e38d2d0d-ea52-4bc0-ae3f-09506c2cde20": 0.01 };  // Ellen.fbx (Smoke DM 火焰发射面)
@@ -1274,7 +1274,7 @@ function bakeMeshVolumePoints(mesh: Mesh, count: number, scale?: number): Textur
     return data ? _makePointTexture(data, count) : _fallbackPointTexture();
 }
 
-// ── 点云 storage buffer (对齐 Unity 的 buffer 采样, 绕开 WebGPU compute 动态纹理绑定 bug) ──
+// ── 点云 storage buffer (对齐 buffer 采样, 绕开 WebGPU compute 动态纹理绑定 bug) ──
 function _makePointBuffer(data: Float32Array, count: number): DeviceBuffer {
     const buf = new DeviceBuffer(count * 16, EDeviceBufferUsage.STORAGE | EDeviceBufferUsage.COPY_DST);
     buf.deviceBuffer.setData(data.buffer as ArrayBuffer, 0, 0, count * 16);

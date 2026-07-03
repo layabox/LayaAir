@@ -136,7 +136,7 @@ export class VisualEffect extends Script {
     state: VFXState = new VFXState();
 
     /**
-     * Output Event 回调（对齐 Unity VFXOutputEventArgs）
+     * Output Event 回调（对齐 VFXOutputEventArgs）
      *
      * 当 triggerEvent block 路由到 outputEvent context 且触发条件满足时，
      * 每一条触发都会异步回调一次（typically 1-2 帧延迟 due to GPU readback）。
@@ -166,7 +166,7 @@ export class VisualEffect extends Script {
         size: number;
     }) => void) | null = null;
 
-    // CustomSpawn 回调注册表 — Unity VFXSpawnerCustomWrapper 对齐
+    // CustomSpawn 回调注册表 — 对齐 VFXSpawnerCustomWrapper
     // 用 customSpawn block 的 Callback Name 索引到对应回调
     private _customSpawnCallbacks: Map<string, IVFXCustomSpawnCallback> = new Map();
 
@@ -180,7 +180,7 @@ export class VisualEffect extends Script {
 
     // SkinnedMeshTransform/VFXTransform 注册表 — transformPosition block 通过 transformSource 引用。
     // 注册一个场景节点（骨骼/Transform），其世界矩阵每帧驱动对应 transformSource 的粒子位置变换
-    // （position = matrix * position），实现 bolts/sparks/surge 跟随该骨骼动画（对齐 Unity）。
+    // （position = matrix * position），实现 bolts/sparks/surge 跟随该骨骼动画（与源引擎一致）。
     private _transformSources: Map<string, any> = new Map();
 
     /**
@@ -362,12 +362,12 @@ export class VisualEffect extends Script {
                     (particleSystem as any).shaderPropertyDefaults = (particleDesc as any).shaderPropertyDefaults || null;
                     // ShaderGraph property expression chains（每帧 evaluate 写 shader uniform，参 ShaderExpressionEvaluator）
                     (particleSystem as any).shaderPropertyExpressions = (particleDesc as any).shaderPropertyExpressions || null;
-                    // Billboard procedural 配置（对齐 Unity VFXPlanarPrimitiveOutput）
+                    // Billboard procedural 配置（对齐 VFXPlanarPrimitiveOutput）
                     particleSystem.billboardPrimitive = particleDesc.billboardPrimitive;
                     particleSystem.billboardVertexCount = particleDesc.billboardVertexCount;
                     particleSystem.distortionMode = particleDesc.distortionMode || "Procedural";
                     particleSystem.billboardCropFactor = particleDesc.billboardCropFactor;
-                    // Alpha Clipping (Unity VFXPlanarPrimitiveOutput useAlphaClipping)
+                    // Alpha Clipping (VFXPlanarPrimitiveOutput useAlphaClipping)
                     particleSystem.useAlphaClipping = (particleDesc as any).useAlphaClipping || false;
                     particleSystem.alphaThreshold = (particleDesc as any).alphaThreshold ?? 0.5;
                     // Strip 专属字段
@@ -558,7 +558,7 @@ export class VisualEffect extends Script {
             for (const uniformName in defaults) {
                 const entry = defaults[uniformName];
                 if (!entry || !entry.texture) continue;
-                // Unity 端 shader uniform 用 _MainTexture 带下划线, 但 Laya .bps 编译后 uniform name 不带下划线 (MainTexture).
+                // 源引擎端 shader uniform 用 _MainTexture 带下划线, 但 Laya .bps 编译后 uniform name 不带下划线 (MainTexture).
                 // 同时 set 带 / 不带 _ 两个 ID, 让两种命名都能命中真实 shader uniform.
                 const ids = [Shader3D.propertyNameToID(uniformName)];
                 if (uniformName.startsWith("_")) ids.push(Shader3D.propertyNameToID(uniformName.substring(1)));
@@ -831,8 +831,6 @@ export class VisualEffect extends Script {
         this.frameTime.deltaTime = MathUtil.clamp(currentDeltaTime, 0, maxDeltaTime);
         this.frameTime.unscaledFixedDeltaTime = this.frameTime.unscaledTimeStepCount * fixedTimeStep;
         this.frameTime.unscaledDeltaTime = MathUtil.clamp(currentUnscaledDeltaTime, 0.0, maxDeltaTime);
-
-        // console.log(`VisualEffect onUpdate deltaTime:${this.frameTime.deltaTime.toFixed(4)} fixedDeltaTime:${this.frameTime.fixedDeltaTime.toFixed(4)} timeStepCount:${this.frameTime.timeStepCount}`);
 
         // update state
         let currentUnscaledVfxDeltaTime = 0;
@@ -1311,7 +1309,7 @@ export class VisualEffect extends Script {
 
     /**
      * 把纹理(Gradient 烘焙纹理 / Texture2D)绑到所有粒子系统的 shaderData。
-     * 绑 entry.id(u_VfxProp_<name>) + shaderPropertyBindings 别名(Unity OutputContext binding → shader uniform，如 _MaskTexture)。
+     * 绑 entry.id(u_VfxProp_<name>) + shaderPropertyBindings 别名(OutputContext binding → shader uniform，如 _MaskTexture)。
      * @internal
      */
     private _bindPropertyTextureToShaders(name: string, id: number, texture: Texture2D): void {
@@ -1484,7 +1482,7 @@ export class VisualEffect extends Script {
             }
         }
 
-        // 绑定 setPositionMesh 点云 storage buffer（mesh 表面/体积烘焙的 DeviceBuffer，对齐 Unity buffer 采样，
+        // 绑定 setPositionMesh 点云 storage buffer（mesh 表面/体积烘焙的 DeviceBuffer，对齐 buffer 采样，
         // 绕开 WebGPU compute 下动态现造 Texture2D 绑定失效的问题）。buffer 异步烘焙完成后此处绑定。
         for (let i = 0; i < this.systems.length; i++) {
             const system = this.systems[i];
@@ -1505,7 +1503,7 @@ export class VisualEffect extends Script {
     /**
      * 每帧把注册的 TransformSource（骨骼/Transform 节点）世界矩阵绑到对应 transformPosition 的
      * Mat4 uniform（u_VfxProp_VfxTransform_<name>）。transformPosition block 的 initialize compute
-     * 里 position = matrix * position，让 bolts/sparks/surge 跟随该骨骼动画（对齐 Unity 的 mul(uniform,...)）。
+     * 里 position = matrix * position，让 bolts/sparks/surge 跟随该骨骼动画（对齐源引擎的 mul(uniform,...)）。
      */
     private _updateTransformSources(): void {
         if (this._transformSources.size === 0) return;
@@ -1638,7 +1636,7 @@ function bakeGradientTexture(stops: { t: number; color: [number, number, number,
         { t: 0, color: [1, 1, 1, 1] as [number, number, number, number] },
         { t: 1, color: [1, 1, 1, 0] as [number, number, number, number] },
     ];
-    // Unity HDR color picker 让 gradient stops 含 >1 值；之前 per-channel clamp 让 (1.22, 5.66, 3.62) 全 >1
+    // HDR 颜色选择器让 gradient stops 含 >1 值；之前 per-channel clamp 让 (1.22, 5.66, 3.62) 全 >1
     // 的 HDR teal 变成 (1,1,1) 纯白丢 chroma。修：per-stop max-normalize 保留 chroma 方向
     const normalizeStop = (c: number[]): [number, number, number, number] => {
         const r = Math.max(0, c[0]);

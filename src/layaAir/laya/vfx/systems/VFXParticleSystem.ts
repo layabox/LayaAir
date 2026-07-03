@@ -50,7 +50,7 @@ let ID: {
     u_LoopIndex: number;
     u_EventCount: number;
     u_MaxSpawnCount: number;
-    // SpawnState operator (Unity SpawnState.cs 对齐) — Initialize stage uniforms
+    // SpawnState operator (SpawnState 对齐) — Initialize stage uniforms
     u_NewLoop: number;
     u_LoopState: number;
     u_SpawnCount: number;
@@ -198,13 +198,13 @@ export class VFXParticleSystem extends VFXSystem {
     particlePerStripCount: number = 128;
     stripCapacity: number = 1;
 
-    // 混合模式 — 对齐 Unity VFX Graph BlendMode
+    // 混合模式 — 对齐 BlendMode
     blendMode: import("../VFXAsset").VFXBlendMode = "Alpha" as any;
 
     // Soft Particle 淡出距离（eye 空间单位，0 = 关闭）
     softParticleFade: number = 0;
 
-    // Flipbook UV 模式 + 图集尺寸（对齐 Unity Output Context UV Mode）
+    // Flipbook UV 模式 + 图集尺寸（对齐 Output Context UV Mode）
     uvMode: string = "Default";
     flipbookSize: Vector2 = new Vector2(4, 4);
     // Flipbook atlas 资源（res:// uuid），uvMode != Default 时由 runtime 加载到 BillboardMaterial.u_AlbedoTexture
@@ -213,7 +213,7 @@ export class VFXParticleSystem extends VFXSystem {
     // Subpixel AA 开关
     subpixelAA: boolean = false;
 
-    // Strip output 专属字段（对齐 Unity Output Trail）
+    // Strip output 专属字段（对齐 Output Trail）
     stripColorMapping: string = "Default";   // "Default" | "GradientMapped"
     stripUvScale: { x: number, y: number } = { x: 1, y: 1 };
     stripUvBias: { x: number, y: number } = { x: 0, y: 0 };
@@ -223,7 +223,7 @@ export class VFXParticleSystem extends VFXSystem {
     // 自定义 Shader 名（空 = VFXUnlit）
     customShaderName: string = "";
 
-    // Billboard procedural 配置（对齐 Unity VFXPlanarPrimitiveOutput）
+    // Billboard procedural 配置（对齐 VFXPlanarPrimitiveOutput）
     // 空 = 走旧 mesh 路径；"Quad"/"Triangle"/"Octagon" = VFXBillboardGeometry
     billboardPrimitive: string = "";
     billboardVertexCount: number = 0;
@@ -255,7 +255,7 @@ export class VFXParticleSystem extends VFXSystem {
     spawnedCount: number = 0;
     eventCount: number = 0;
 
-    /** 本系统历史上已成功 Initialize 的粒子总数（用于 spawnIndex / particleId 与 Unity 对齐） */
+    /** 本系统历史上已成功 Initialize 的粒子总数（用于 spawnIndex / particleId 与源引擎对齐） */
     private _cumulativeSpawnTotal: number = 0;
 
     maxEventsPerFrame: number = 32;
@@ -671,7 +671,7 @@ export class VFXParticleSystem extends VFXSystem {
 
         // Strip: StripDataBuffer (5 uint per strip) for ring buffer tracking
         // Layout: [firstIndex, nextIndex, snapFirst, snapNext, minAlive(hi16)|maxAlive(lo16)]
-        // Matches Unity: firstIndex, nextIndex, prevNextIndex, minAlive, maxAlive
+        // 对齐: firstIndex, nextIndex, prevNextIndex, minAlive, maxAlive
         if (this.isStripOutput) {
             const stripCount = this.stripCapacity;
             const stripDataSize = stripCount * 5 * 4; // 5 uint per strip
@@ -803,7 +803,7 @@ export class VFXParticleSystem extends VFXSystem {
                     (this.geometry as any).blendMode = this.blendMode;
                     (this.geometry as any).outputType = this.outputType;
                 } else if (isBillboardProc) {
-                    // 对齐 Unity VFXPlanarPrimitiveOutput：DrawArrayIndirect + gl_VertexID 生成顶点
+                    // 对齐 VFXPlanarPrimitiveOutput：DrawArrayIndirect + gl_VertexID 生成顶点
                     const bbParams = new VFXBillboardGeometryParams();
                     bbParams.capacity = capacity;
                     bbParams.vertexCount = this.billboardVertexCount;
@@ -1179,7 +1179,7 @@ export class VFXParticleSystem extends VFXSystem {
         shaderData.setInt(ID.u_TotalSpawnedCount, this._cumulativeSpawnTotal);
         shaderData.setInt(ID.u_SpawnedCount, sc);
         shaderData.setInt(ID.u_EventCount, this.eventCount);
-        // 传递 LoopIndex + SpawnState 全套（Unity SpawnState.cs 对齐）
+        // 传递 LoopIndex + SpawnState 全套（SpawnState 对齐）
         if (this.spawnerSystems.length > 0) {
             const spawner = this.effect.systems[this.spawnerSystems[0]] as VFXSpawnerSystem;
             if (spawner) {
