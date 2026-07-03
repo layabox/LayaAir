@@ -181,9 +181,13 @@ export class MgDownloader extends Downloader {
         let filePath = this.urlToFilePath(url);
         PAL.fs.readFile(filePath, contentType === "arraybuffer" ? null : "utf8").then(data => {
             switch (contentType) {
-                case "json":
-                    onComplete(JSON.parse(<string>data));
+                case "json": {
+                    let str = <string>data;
+                    if (str.charCodeAt(0) === 0xFEFF)
+                        str = str.substring(1);
+                    onComplete(JSON.parse(str));
                     break;
+                }
                 case "xml":
                     onComplete(new XML(<string>data));
                     break;
