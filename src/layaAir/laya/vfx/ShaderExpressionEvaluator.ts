@@ -3,7 +3,7 @@ import { Vector4 } from "../maths/Vector4";
 /**
  * VFX → ShaderGraph 之间 operator chain 的 runtime evaluator。
  *
- * Unity VFX Graph 中 OutputContext 的 shader uniform（如 _MainTextureColor）可以接到
+ * OutputContext 的 shader uniform（如 _MainTextureColor）可以接到
  * operator chain（SampleGradient/SampleCurve/Math 等），每帧求值后写到 material。
  * 转换器把这些 chain 序列化到 .lvfx 的 shaderPropertyExpressions，runtime 这里 evaluate。
  *
@@ -112,7 +112,7 @@ export class ShaderExpressionEvaluator {
                     : Math.min(ctx.totalTime, 1);
                 break;
             case "Random": {
-                // Unity 端 Random(min, max, seed) 是 per-particle random, Laya material uniform 是 per-system 一份不能 per-particle.
+                // 源引擎端 Random(min, max, seed) 是 per-particle random, Laya material uniform 是 per-system 一份不能 per-particle.
                 // 之前写死 result=0.5 完全 ignore inputs 让 _MaskFlipbookIndex Random(0,3) 永远 0.5 而不是 0~3 范围
                 // 改成读 min/max input + 用 totalTime+seed-based deterministic random 让每帧动画 (frame 切换 mask flipbook)
                 const min = Number(this._evalNode(n.inputs![0], nodes, cache, ctx)) || 0;
@@ -198,7 +198,7 @@ export class ShaderExpressionEvaluator {
     }
 
     /** Gradient sample lerp — 支持两种格式：
-     *  Unity {colorKeys:[{color,time}], alphaKeys:[{alpha,time}]}
+     *  源格式 {colorKeys:[{color,time}], alphaKeys:[{alpha,time}]}
      *  Laya  {__layaGradientStops:[{time,r,g,b,a}]} (color+alpha 同 stop)
      */
     private static _sampleGradient(g: any, t: number): { r: number; g: number; b: number; a: number } | null {
@@ -226,7 +226,7 @@ export class ShaderExpressionEvaluator {
                 a: c0[3] + (c1[3] - c0[3]) * u,
             };
         }
-        // Unity 格式
+        // 源格式
         if (!g.colorKeys || g.colorKeys.length === 0) return { r: 1, g: 1, b: 1, a: 1 };
         const keys = g.colorKeys;
         const aKeys = g.alphaKeys || [{ alpha: 1, time: 0 }];
@@ -254,7 +254,7 @@ export class ShaderExpressionEvaluator {
         return { r, g: g_, b, a };
     }
 
-    /** Unity AnimationCurve sample — 简化 linear lerp（不算 Hermite tangent，足够多数 material uniform 用例） */
+    /** AnimationCurve sample — 简化 linear lerp（不算 Hermite tangent，足够多数 material uniform 用例） */
     private static _sampleCurve(c: CurveData, t: number): number {
         // curve 未提供 → return null 让 caller skip setUniform 让 ShaderGraph default 生效
         if (!c) return null as any;

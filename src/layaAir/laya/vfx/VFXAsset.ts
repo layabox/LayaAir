@@ -69,7 +69,7 @@ export class VFXSpawnerSetEventAttributeTaskDesc implements VFXSpawnerTaskDesc {
     value: [number, number, number, number] = [0, 0, 0, 0];
     fromLoopIndex: boolean = false;
     loopIndexModulo: number = 0;
-    // Unity Add(spawnState.loopDuration, spawnState.delayAfterLoop) → src.lifetime 模式
+    // Add(spawnState.loopDuration, spawnState.delayAfterLoop) → src.lifetime 模式
     fromSpawnStateLoop: boolean = false;
 }
 
@@ -87,7 +87,7 @@ export interface VFXGPUEventInput {
 }
 
 /**
- * Output Event 描述（CPU readback 通知，对齐 Unity VFXOutputEvent）
+ * Output Event 描述（CPU readback 通知，对齐 VFXOutputEvent）
  * 每个 outputEvent context 对应 update shader 中一份 OutputEventBuffer_<eventIdx>
  * Runtime 每帧 readback，按 eventName 派发到 VisualEffect.outputEventReceived 回调
  */
@@ -129,7 +129,7 @@ interface VFXSystemDesc {
 
 /**
  * VFXStaticMeshSystem 描述：渲染单个 mesh，不跑 particle simulation
- * Unity VFXStaticMeshOutput 对齐 — mesh 跟随 owner transform，material 由用户提供
+ * VFXStaticMeshOutput 对齐 — mesh 跟随 owner transform，material 由用户提供
  * bindings: setStaticMeshAttr block 收集到的 graph driven 绑定
  *   target: "position" | "rotation" | "scale" | "color"
  *   source: "inline" → value 是静态值 / "property" → name 引用 effect graph property
@@ -205,7 +205,7 @@ export class VFXParticleSystemDesc implements VFXSystemDesc {
     // Soft Particle 淡出距离（eye 空间单位，0 = 关闭）
     softParticleFade: number = 0;
 
-    // Flipbook 帧动画图集模式（对齐 Unity VFX Graph Output Context UV Mode）
+    // Flipbook 帧动画图集模式（对齐 Output Context UV Mode）
     // "Default" | "Flipbook" | "FlipbookBlend"
     uvMode: string = "Default";
     // Flipbook atlas 的列数/行数（cols, rows），启用 Flipbook 时用
@@ -213,13 +213,13 @@ export class VFXParticleSystemDesc implements VFXSystemDesc {
     // Flipbook 模式专用 atlas 资源（res:// uuid），runtime 加载后设到 BillboardMaterial.u_AlbedoTexture
     mainTexture: string = "";
 
-    // Subpixel AA 开关（对齐 Unity subpixelAA block）
+    // Subpixel AA 开关（对齐 subpixelAA block）
     subpixelAA: boolean = false;
 
     // 自定义 Shader 名（outputShaderGraphQuad 使用，空 = 默认 VFXUnlit）
     customShaderName: string = "";
 
-    // Billboard procedural 配置（对齐 Unity VFXPlanarPrimitiveOutput）
+    // Billboard procedural 配置（对齐 VFXPlanarPrimitiveOutput）
     // 空 = 走旧 mesh 路径（createQuad）兼容现有 VFX；
     // "Quad" / "Triangle" / "Octagon" = 走 VFXBillboardGeometry + gl_VertexID procedural
     billboardPrimitive: string = "";
@@ -228,12 +228,12 @@ export class VFXParticleSystemDesc implements VFXSystemDesc {
     // Octagon 裁角因子 [0, 0.5]，运行时可通过 property 系统动态调整
     billboardCropFactor: number = 0.146;
 
-    // Alpha Clipping (Unity VFXPlanarPrimitiveOutput useAlphaClipping):
+    // Alpha Clipping (VFXPlanarPrimitiveOutput useAlphaClipping):
     // 让 atlas mask 字符 (alpha<threshold 时 fragment discard)，背景方块透明
     useAlphaClipping: boolean = false;
     alphaThreshold: number = 0.5;
 
-    // Strip output 专属字段（对齐 Unity Output Trail）
+    // Strip output 专属字段（对齐 Output Trail）
     stripColorMapping: string = "Default";   // "Default" | "GradientMapped"
     stripUvScale: { x: number, y: number } = { x: 1, y: 1 };
     stripUvBias: { x: number, y: number } = { x: 0, y: 0 };
@@ -253,7 +253,7 @@ export class VFXParticleSystemDesc implements VFXSystemDesc {
     // 运行时通过 VisualEffect.setBuffer(name, buffer) 公开 API 绑定
     bufferUniforms: Array<{ uniformName: string; propertyName: string }> = [];
 
-    // Output Event 描述（CPU readback 通知，对齐 Unity VFXOutputEvent）
+    // Output Event 描述（CPU readback 通知，对齐 VFXOutputEvent）
     outputEvents: Array<VFXOutputEventDesc> = [];
 }
 

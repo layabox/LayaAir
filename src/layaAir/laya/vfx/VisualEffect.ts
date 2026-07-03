@@ -138,7 +138,7 @@ export class VisualEffect extends Script {
     state: VFXState = new VFXState();
 
     /**
-     * Output Event 回调（对齐 Unity VFXOutputEventArgs）
+     * Output Event 回调（对齐 VFXOutputEventArgs）
      *
      * 当 triggerEvent block 路由到 outputEvent context 且触发条件满足时，
      * 每一条触发都会异步回调一次（typically 1-2 帧延迟 due to GPU readback）。
@@ -168,7 +168,7 @@ export class VisualEffect extends Script {
         size: number;
     }) => void) | null = null;
 
-    // CustomSpawn 回调注册表 — Unity VFXSpawnerCustomWrapper 对齐
+    // CustomSpawn 回调注册表 — VFXSpawnerCustomWrapper 对齐
     // 用 customSpawn block 的 Callback Name 索引到对应回调
     private _customSpawnCallbacks: Map<string, IVFXCustomSpawnCallback> = new Map();
 
@@ -345,12 +345,12 @@ export class VisualEffect extends Script {
                     (particleSystem as any).shaderPropertyDefaults = (particleDesc as any).shaderPropertyDefaults || null;
                     // ShaderGraph property expression chains（每帧 evaluate 写 shader uniform，参 ShaderExpressionEvaluator）
                     (particleSystem as any).shaderPropertyExpressions = (particleDesc as any).shaderPropertyExpressions || null;
-                    // Billboard procedural 配置（对齐 Unity VFXPlanarPrimitiveOutput）
+                    // Billboard procedural 配置（对齐 VFXPlanarPrimitiveOutput）
                     particleSystem.billboardPrimitive = particleDesc.billboardPrimitive;
                     particleSystem.billboardVertexCount = particleDesc.billboardVertexCount;
                     particleSystem.distortionMode = particleDesc.distortionMode || "Procedural";
                     particleSystem.billboardCropFactor = particleDesc.billboardCropFactor;
-                    // Alpha Clipping (Unity VFXPlanarPrimitiveOutput useAlphaClipping)
+                    // Alpha Clipping (VFXPlanarPrimitiveOutput useAlphaClipping)
                     particleSystem.useAlphaClipping = (particleDesc as any).useAlphaClipping || false;
                     particleSystem.alphaThreshold = (particleDesc as any).alphaThreshold ?? 0.5;
                     // Strip 专属字段
@@ -540,7 +540,7 @@ export class VisualEffect extends Script {
             for (const uniformName in defaults) {
                 const entry = defaults[uniformName];
                 if (!entry || !entry.texture) continue;
-                // Unity 端 shader uniform 用 _MainTexture 带下划线, 但 Laya .bps 编译后 uniform name 不带下划线 (MainTexture).
+                // 源引擎端 shader uniform 用 _MainTexture 带下划线, 但 Laya .bps 编译后 uniform name 不带下划线 (MainTexture).
                 // 同时 set 带 / 不带 _ 两个 ID, 让两种命名都能命中真实 shader uniform.
                 const ids = [Shader3D.propertyNameToID(uniformName)];
                 if (uniformName.startsWith("_")) ids.push(Shader3D.propertyNameToID(uniformName.substring(1)));
@@ -625,13 +625,6 @@ export class VisualEffect extends Script {
 
     /// lifecycle methods
     onStart(): void {
-        console.log("VisualEffect onStart", this, this.asset);
-        console.log(`[VFX-DBG] VE onStart systems=${this.systems.length}`,
-            this.systems.map((s: any, i: number) => {
-                const cap = (s as any).capacity ?? (s.desc && (s.desc as any).capacity);
-                const t = s.constructor.name;
-                return `${i}:${t}${cap != null ? `(cap=${cap})` : ""}`;
-            }).join(","));
     }
 
     // Strip 专用子节点和 Renderer（避免与 Mesh instancing 的渲染管线冲突）
@@ -804,8 +797,6 @@ export class VisualEffect extends Script {
         this.frameTime.deltaTime = MathUtil.clamp(currentDeltaTime, 0, maxDeltaTime);
         this.frameTime.unscaledFixedDeltaTime = this.frameTime.unscaledTimeStepCount * fixedTimeStep;
         this.frameTime.unscaledDeltaTime = MathUtil.clamp(currentUnscaledDeltaTime, 0.0, maxDeltaTime);
-
-        // console.log(`VisualEffect onUpdate deltaTime:${this.frameTime.deltaTime.toFixed(4)} fixedDeltaTime:${this.frameTime.fixedDeltaTime.toFixed(4)} timeStepCount:${this.frameTime.timeStepCount}`);
 
         // update state
         let currentUnscaledVfxDeltaTime = 0;
@@ -1497,7 +1488,7 @@ function bakeGradientTexture(stops: { t: number; color: [number, number, number,
         { t: 1, color: [1, 1, 1, 0] as [number, number, number, number] },
     ];
     // ⭐2026-06-11 HDR 直通：烘到 R16G16B16A16 半精度浮点，不再 max-normalize（LDR 时代 crutch，
-    // 保 chroma 丢强度 → Unity HDR 红压不过低强度橙）。enableHDR 场景下直通才是 Unity 语义。
+    // 保 chroma 丢强度 → 源引擎 HDR 红压不过低强度橙）。enableHDR 场景下直通才是源引擎语义。
     const sanitizeStop = (c: number[]): [number, number, number, number] => [
         Math.max(0, c[0]), Math.max(0, c[1]), Math.max(0, c[2]), Math.max(0, Math.min(1, c[3])),
     ];
