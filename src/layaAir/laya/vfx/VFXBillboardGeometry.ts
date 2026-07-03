@@ -12,7 +12,7 @@ import { VertexElement } from "../renders/VertexElement";
 import { VertexElementFormat } from "../renders/VertexElementFormat";
 import { BufferState } from "../webgl/utils/BufferState";
 /**
- * VFXBillboardGeometry — 对齐 Unity VFXPlanarPrimitiveOutput
+ * VFXBillboardGeometry — 对齐 VFXPlanarPrimitiveOutput
  *
  * Procedural billboard 渲染：不依赖 mesh 资源，vertex shader 根据 gl_VertexID
  * 生成 Quad(6)/Triangle(3)/Octagon(18) 的顶点。配合 per-particle instance buffer。
