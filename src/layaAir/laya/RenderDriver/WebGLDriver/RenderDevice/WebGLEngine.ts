@@ -315,7 +315,7 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
         this._activeTextures = [];
         this._GLTextureContext = this.isWebGL2 ? new GL2TextureContext(this) : new GLTextureContext(this);
         this._GLRenderDrawContext = new GLRenderDrawContext(this);
-        canvas.addEventListener("webglcontextlost", this.webglContextLost)
+        canvas.addEventListener("webglcontextlost", this.webglContextLost.bind(this))
     }
 
     webglContextLost(e: any) {
