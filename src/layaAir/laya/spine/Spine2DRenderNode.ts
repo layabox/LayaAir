@@ -613,8 +613,13 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
                 if (entry.loop) { // 如果多次播放,发送complete事件
                     this._spineRender.complete();
                     this.owner.event(Event.COMPLETE);
-                } else { // 如果只播放一次，就发送stop事件
-                    this.stop();
+                } else { // 如果只播放一次，停留在最后一帧
+                    this._pause = true;
+                    this._needUpdate = false;
+                    this.owner.event(Event.STOPPED);
+                    if (this._soundChannelArr.length > 0) {
+                        this._onAniSoundStoped(true);
+                    }
                 }
             },
             event: (entry: any, event: any) => {
