@@ -39,8 +39,9 @@ export class Spine3DShaderInit {
         // 为3D shader注册全局uniform map
         const commandUniform3D = LayaGL.renderDeviceFactory.createGlobalUniformMap("Spine3D");
         commandUniform3D.addShaderUniformArray(SpineShaderInit.BONEMAT, "u_sBone", ShaderDataType.Vector4, 200);
-        commandUniform3D.addShaderUniform(SpineShaderInit.BONEMAT_0, "u_sBone0", ShaderDataType.Vector3);
-        commandUniform3D.addShaderUniform(SpineShaderInit.BONEMAT_1, "u_sBone1", ShaderDataType.Vector3);
+        commandUniform3D.addShaderUniform(SpineShaderInit.COLOR, "u_color", ShaderDataType.Vector4);
+        commandUniform3D.addShaderUniform(SpineShaderInit.BONEMAT_0, "u_sBone0", ShaderDataType.Vector4);
+        commandUniform3D.addShaderUniform(SpineShaderInit.BONEMAT_1, "u_sBone1", ShaderDataType.Vector4);
         commandUniform3D.addShaderUniform(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS, "u_SimpleAnimatorParams", ShaderDataType.Vector4);
         commandUniform3D.addShaderUniform(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURE, "u_SimpleAnimatorTexture", ShaderDataType.Texture2D);
         commandUniform3D.addShaderUniform(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURESIZE, "u_SimpleAnimatorTextureSize", ShaderDataType.Float);

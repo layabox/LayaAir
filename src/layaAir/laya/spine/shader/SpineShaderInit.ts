@@ -141,6 +141,7 @@ export class SpineShaderInit {
      * @zh Spine 纹理的属性 ID。
      */
     static SpineTexture: number;
+    static COLOR: number;
 
     /**
      * @en Property ID for render size (width, height).
@@ -222,6 +223,7 @@ export class SpineShaderInit {
         SpineShaderInit.BONEMAT_0 = Shader3D.propertyNameToID("u_sBone0");
         SpineShaderInit.BONEMAT_1 = Shader3D.propertyNameToID("u_sBone1");
         SpineShaderInit.SpineTexture = Shader3D.propertyNameToID("u_spineTexture");
+        SpineShaderInit.COLOR = Shader3D.propertyNameToID("u_color");
         SpineShaderInit.SPINE_RENDER_SIZE = Shader3D.propertyNameToID("u_spineRenderSize");
         SpineShaderInit.SPINE_FAST = Shader3D.getDefineByName("SPINE_FAST");
         SpineShaderInit.SPINE_RB = Shader3D.getDefineByName("SPINE_RB");
@@ -241,10 +243,10 @@ export class SpineShaderInit {
 
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Spine2D");
         commandUniform.addShaderUniformArray(SpineShaderInit.BONEMAT, "u_sBone", ShaderDataType.Vector4, 200);
-        commandUniform.addShaderUniform(SpineShaderInit.BONEMAT_0, "u_sBone0", ShaderDataType.Vector3);
-        commandUniform.addShaderUniform(SpineShaderInit.BONEMAT_1, "u_sBone1", ShaderDataType.Vector3);
+        commandUniform.addShaderUniform(SpineShaderInit.BONEMAT_0, "u_sBone0", ShaderDataType.Vector4);
+        commandUniform.addShaderUniform(SpineShaderInit.BONEMAT_1, "u_sBone1", ShaderDataType.Vector4);
         // commandUniform.addShaderUniform(SpineShaderInit.NMatrix, "u_NMatrix", ShaderDataType.Buffer);
-        // commandUniform.addShaderUniform(SpineShaderInit.Color, "u_color", ShaderDataType.Color);
+        commandUniform.addShaderUniform(SpineShaderInit.COLOR, "u_color", ShaderDataType.Vector4);
         // commandUniform.addShaderUniform(SpineShaderInit.Size, "u_size", ShaderDataType.Vector2);
 
         commandUniform.addShaderUniform(SpineShaderInit.SIMPLE_SIMPLEANIMATORPARAMS, "u_SimpleAnimatorParams", ShaderDataType.Vector4);
