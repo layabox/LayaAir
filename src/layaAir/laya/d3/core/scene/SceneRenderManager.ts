@@ -2,6 +2,7 @@ import { Config3D } from "../../../../Config3D";
 import { ISceneRenderManager } from "../../../RenderDriver/DriverDesign/3DRenderPass/ISceneRenderManager";
 import { BaseRenderType, IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { SingletonList } from "../../../utils/SingletonList";
+import { Profiler } from "../../../utils/Profiler";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
@@ -117,4 +118,16 @@ export class SceneRenderManager {
         this._sceneManagerOBJ.destroy();
     }
 
+}
+
+if (Profiler.enabled) {
+    const renderUpdate = SceneRenderManager.prototype.renderUpdate;
+    SceneRenderManager.prototype.renderUpdate = function (): void {
+        let profileZone = Profiler.start("scene/render_update");
+        try {
+            renderUpdate.call(this);
+        } finally {
+            Profiler.end(profileZone);
+        }
+    };
 }

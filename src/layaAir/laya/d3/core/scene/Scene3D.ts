@@ -3,6 +3,7 @@ import { ILaya } from "../../../../ILaya";
 import { Sprite } from "../../../display/Sprite";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Handler } from "../../../utils/Handler";
+import { Profiler } from "../../../utils/Profiler";
 import { Timer } from "../../../utils/Timer";
 import { SubmitKey } from "../../../webgl/submit/SubmitKey";
 import { Cluster } from "../../graphics/renderPath/Cluster";
@@ -1387,4 +1388,57 @@ export class Scene3D extends Sprite {
         }
         return lightmapColors;//slice()防止修改数组内容
     }
+}
+if (Profiler.enabled) {
+    Scene3D.prototype._update = function (this: any): void {
+        var delta: number = this.timer.delta / 1000;
+        this._time += delta;
+        this._shaderValues.setNumber(Scene3D.TIME, this._time);
+        if (LayaEnv.isPlaying) {
+            this._physicsStepTime += delta;
+            let steps = Math.floor(this._physicsStepTime / Scene3D.physicsSettings.fixedTimeStep);
+            steps = Math.min(steps, Scene3D.physicsSettings.maxSubSteps);
+            if (steps > 0) {
+                let physicsManager = this._physicsManager;
+                if (ILaya.Laya3D.enablePhysics && Stat.enablePhysicsUpdate) {
+                    physicsManager.update(steps * Scene3D.physicsSettings.fixedTimeStep);
+                }
+                this._physicsStepTime -= steps * Scene3D.physicsSettings.fixedTimeStep;
+            }
+        }
+
+        let profileZone = Profiler.start("scene/component_driver");
+        try {
+            this._componentDriver.callStart();
+            this._componentDriver.callUpdate();
+            this._componentDriver.callLateUpdate();
+            this._componentDriver.callDestroy();
+        } finally {
+            Profiler.end(profileZone);
+        }
+
+        profileZone = Profiler.start("scene/volume_update");
+        try {
+            if (this._volumeManager.needreCaculateAllRenderObjects())
+                this._volumeManager.reCaculateAllRenderObjects(this._sceneRenderManager.list);
+            else
+                this._volumeManager.handleMotionlist();
+        } finally {
+            Profiler.end(profileZone);
+        }
+
+        profileZone = Profiler.start("scene/component_elements_update");
+        try {
+            this.componentElementMap.forEach((value: IElementComponentManager) => {
+                value.update(delta);
+            });
+        } finally {
+            Profiler.end(profileZone);
+        }
+
+        this._sceneRenderManager.renderUpdate();
+        this.skyRenderer.renderUpdate(RenderContext3D._instance);
+        if (!this._renderByEditor)
+            this._UI3DManager.update();
+    };
 }

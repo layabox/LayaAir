@@ -29,6 +29,7 @@ import { PAL } from "../platform/PlatformAdapters";
 import { TextRenderConfig } from "../webgl/text/TextRenderConfig";
 import { StatElement } from "../layagl/StatisticsContext";
 import { Render } from "../renders/Render";
+import { Profiler } from "../utils/Profiler";
 
 /**
  * @en Stage is the root node of the display list. All display objects are shown on the stage. It can be accessed through the Laya.stage singleton.
@@ -748,30 +749,42 @@ export class Stage extends Sprite {
 
         if (this.renderingEnabled) {
 
+            let profileZone = Profiler.start("stage/run_components");
             this._runComponents();
+            Profiler.end(profileZone);
 
+            profileZone = Profiler.start("stage/scene_update");
             for (let i = 0, n = this._scene2Ds.length; i < n; i++) {
                 this._scene2Ds[i]._update();
             }
             for (let i = 0, n = this._scene3Ds.length; i < n; i++) {
                 this._scene3Ds[i]._update();
             }
+            Profiler.end(profileZone);
 
+            profileZone = Profiler.start("stage/pre_render");
             this._componentDriver.callPreRender();
+            Profiler.end(profileZone);
 
             Render2DProcessor.rendercontext2D.setRenderTarget(null, true, this._wgColor);
 
             //先渲染3d
+            profileZone = Profiler.start("stage/render3d");
             let t = performance.now();
             for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
                 this._scene3Ds[i].renderSubmit();
             LayaGL.statAgent.recordTimeData(StatElement.T_AllRender3D, performance.now() - t);
+            Profiler.end(profileZone);
             //再渲染2d
+            profileZone = Profiler.start("stage/render2d");
             t = performance.now();
             this._render2d();
             LayaGL.statAgent.recordTimeData(StatElement.T_AllRender2D, performance.now() - t);
+            Profiler.end(profileZone);
 
+            profileZone = Profiler.start("stage/post_render");
             this._componentDriver.callPostRender();
+            Profiler.end(profileZone);
         }
         else
             this._runComponents();
@@ -902,10 +915,18 @@ export class Stage extends Sprite {
     }
 
     private _updateTimers(timestamp: number): void {
+        let profileZone = Profiler.start("stage/timer_system");
         ILaya.systemTimer._update(timestamp);
+        Profiler.end(profileZone);
+        profileZone = Profiler.start("stage/timer_physics");
         ILaya.physicsTimer._update(timestamp);
+        Profiler.end(profileZone);
+        profileZone = Profiler.start("stage/timer_user");
         ILaya.timer._update(timestamp);
+        Profiler.end(profileZone);
+        profileZone = Profiler.start("stage/tween");
         Tweener._runAll();
+        Profiler.end(profileZone);
     }
 
     /**
