@@ -588,7 +588,7 @@ export class Spine3DRenderer extends BaseRender {
     }
 
     private _update(): void {
-        let timerDelta = this._enableCache ? SpineConst.SPINE_STEP : Laya.timer.delta / 1000 * this._playbackRate;
+        let timerDelta = this._enableCache ? SpineConst.SPINE_STEP : Laya.timer.delta / 1000;
         
         if (timerDelta > this._maxDeltaTime)
             timerDelta = this._maxDeltaTime;
