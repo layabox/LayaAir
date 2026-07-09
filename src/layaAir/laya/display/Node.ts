@@ -627,8 +627,10 @@ export class Node extends EventDispatcher {
      */
     removeChild<T extends Node>(node: T, destroy?: boolean): T {
         let index: number = this._$children.indexOf(node);
-        if (index == -1)
-            throw new Error("not a child of this node");
+        if (index == -1) {
+            console.warn("not a child of this node");
+            return node;
+        }
         this._$children.splice(index, 1);
         node._setParent(null);
         if (destroy)
@@ -768,8 +770,10 @@ export class Node extends EventDispatcher {
     */
     _removeChild(node: Node): Node {
         let index: number = this._children.indexOf(node);
-        if (index == -1)
-            throw new Error("not a child of this node");
+        if (index == -1) {
+            console.warn("not a child of this node");
+            return node;
+        }
         this._children.splice(index, 1);
         node._setParent(null);
         return node;
