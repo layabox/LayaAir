@@ -1,8 +1,10 @@
 import { Rectangle } from "../../maths/Rectangle";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool";
-import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { type GraphicsCommandInfo, IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import type { Sprite } from "../Sprite";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+import { GraphicsCommandInfoHelper, GraphicsGeometryHelper } from "../Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineHelpers";
 
 const className = "DrawEllipseCmd";
 
@@ -139,6 +141,13 @@ export class DrawEllipseCmd implements IGraphicsCmd {
      */
     needsLayoutRepaint(): number {
         return 1;
+    }
+
+    /** @internal */
+    getGraphicsCommandInfo(out: GraphicsCommandInfo, owner?: Sprite): GraphicsCommandInfo {
+        let offset = (this.lineWidth >= 1 && this.lineColor) ? this.lineWidth / 2 : 0;
+        let radius = this.percent ? this.width * GraphicsGeometryHelper.getOwnerWidth(owner) - offset : this.width - offset;
+        return GraphicsCommandInfoHelper.writeScaleTessellation(out, this.percent, GraphicsGeometryHelper.calcArcSegments(radius, owner, 40, 5));
     }
 
     /**

@@ -1,7 +1,8 @@
 import { Matrix } from "../../maths/Matrix"
 import { Pool } from "../../utils/Pool"
-import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { type GraphicsCommandInfo, IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+import { GraphicsCommandInfoHelper } from "../Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineHelpers";
 
 const className = "TransformCmd";
 
@@ -93,6 +94,11 @@ export class TransformCmd implements IGraphicsCmd {
      */
     get cmdID(): string {
         return TransformCmd.ID;
+    }
+
+    /** @internal */
+    getGraphicsCommandInfo(out: GraphicsCommandInfo): GraphicsCommandInfo {
+        return GraphicsCommandInfoHelper.writeState(out);
     }
 
 }

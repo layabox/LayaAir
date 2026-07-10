@@ -14,6 +14,10 @@ import { Config } from "../../../Config";
 import { TextureArrayRegistry2D } from "../utils/TextureArrayRegistry2D";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 
+/** @internal */
+export type TextRenderTextureSink = (texture: Texture2D, x: number, y: number, width: number, height: number,
+    uv: ArrayLike<number>, color: number, italicDeg: number, pixelSnap: boolean) => void;
+
 
 /** @ignore @blueprintIgnore */
 export class TextRender {
@@ -50,7 +54,7 @@ export class TextRender {
         font: string, fontSize: number, bold: boolean, italic: boolean,
         color: string, stroke: number, strokeColor: string, letterSpacing: number,
         shadowOffsetX: number, shadowOffsetY: number, shadowBlur: number, shadowColor: string,
-        charMode: boolean, preMeasuredWidth: number, renderInfo?: ITextRenderInfo[]): ITextRenderInfo[] {
+        charMode: boolean, preMeasuredWidth: number, renderInfo?: ITextRenderInfo[], drawTexture?: TextRenderTextureSink): ITextRenderInfo[] {
 
         let hasEmoji = emojiTest.test(text);
         let curFont = this.getFont(font);
@@ -126,11 +130,16 @@ export class TextRender {
                 ri.ref++;
                 renderInfo.push(ri);
 
-                this.owner._inner_drawTexture(ri.tex, ri.tex.id,
-                    x + ri.x, y + ri.y, ri.w, ri.h,
-                    mat, ri.uv, 1.0,
-                    cc.length > 1 ? 0xffffffff : drawColor, //emoji总是用白色绘制
-                    italicDeg, true);
+                let quadColor = cc.length > 1 ? 0xffffffff : drawColor; //emoji总是用白色绘制
+                if (drawTexture) {
+                    drawTexture(ri.tex, x + ri.x, y + ri.y, ri.w, ri.h, ri.uv, quadColor, italicDeg, true);
+                }
+                else {
+                    this.owner._inner_drawTexture(ri.tex, ri.tex.id,
+                        x + ri.x, y + ri.y, ri.w, ri.h,
+                        mat, ri.uv, 1.0, quadColor,
+                        italicDeg, true);
+                }
 
                 x += ri.advance + letterSpacing;
             }
@@ -152,9 +161,12 @@ export class TextRender {
             }
             renderInfo[0] = ri;
 
-            this.owner._inner_drawTexture(ri.tex, ri.tex.id,
-                x + ri.x, y + ri.y, ri.w, ri.h,
-                this.owner._curMat, ri.uv, 1.0, drawColor, italicDeg, true);
+            if (drawTexture)
+                drawTexture(ri.tex, x + ri.x, y + ri.y, ri.w, ri.h, ri.uv, drawColor, italicDeg, true);
+            else
+                this.owner._inner_drawTexture(ri.tex, ri.tex.id,
+                    x + ri.x, y + ri.y, ri.w, ri.h,
+                    this.owner._curMat, ri.uv, 1.0, drawColor, italicDeg, true);
 
             for (let i = 1, n = renderInfo.length; i < n; i++)
                 this.free(renderInfo[i]);

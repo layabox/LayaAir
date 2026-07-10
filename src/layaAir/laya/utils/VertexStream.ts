@@ -4,7 +4,10 @@ import { MathUtil } from "../maths/MathUtil";
 import { Rectangle } from "../maths/Rectangle";
 import { Vector2 } from "../maths/Vector2";
 import { Texture } from "../resource/Texture";
+import { GraphicsDefines } from "../webgl/shader/d2/GraphicsDefines";
 import { IPool, Pool } from "./Pool";
+
+type VertexStreamIndexArray = Uint16Array | Uint32Array;
 
 /**
  * @en Vertex stream is a tool for appending vertices and triangles.
@@ -36,7 +39,7 @@ export class VertexStream {
 
     private _vertices: Float32Array;
     private _uvs: Float32Array;
-    private _indices: Uint16Array;
+    private _indices: VertexStreamIndexArray;
     private _colors: Float32Array;
     private _vp: number = 0;
     private _ip: number = 0;
@@ -52,7 +55,7 @@ export class VertexStream {
         this._vertices = this.resizeBuf(Float32Array, 20);
         this._uvs = this.resizeBuf(Float32Array, 20);
         this._colors = this.resizeBuf(Float32Array, 40);
-        this._indices = this.resizeBuf(Uint16Array, 30);
+        this._indices = this.resizeBuf<VertexStreamIndexArray>(GraphicsDefines.GRAPHICS_INDEX_ARRAY_TYPE, 30);
 
         this._vec = new Vector2();
     }
@@ -262,8 +265,11 @@ export class VertexStream {
      * @zh 获取索引的类型化数组。
      * @returns 索引的类型化数组。
      */
-    getIndices(): Uint16Array {
-        return new Uint16Array(this._indices.buffer, 0, this._ip);
+    getIndices(): VertexStreamIndexArray {
+        let indexArrayType = GraphicsDefines.GRAPHICS_INDEX_ARRAY_TYPE;
+        if (this._indices.constructor !== indexArrayType)
+            this._indices = this.resizeBuf<VertexStreamIndexArray>(indexArrayType, Math.max(this._indices.length, this._ip), this._indices);
+        return new indexArrayType(this._indices.buffer, 0, this._ip) as VertexStreamIndexArray;
     }
 
     private checkVBuf(addCount: number): void {
@@ -277,11 +283,12 @@ export class VertexStream {
     }
 
     private checkIBuf(addCount: number): void {
-        if (this._ip + addCount < this._indices.length)
+        let indexArrayType = GraphicsDefines.GRAPHICS_INDEX_ARRAY_TYPE;
+        if (this._indices.constructor === indexArrayType && this._ip + addCount < this._indices.length)
             return;
 
-        let ip = this._ip + Math.max(30, addCount);
-        this._indices = this.resizeBuf(Uint16Array, ip, this._indices);
+        let ip = Math.max(this._indices.length, this._ip + Math.max(30, addCount));
+        this._indices = this.resizeBuf<VertexStreamIndexArray>(indexArrayType, ip, this._indices);
     }
 
     private resizeBuf<T extends TypedArrayType>(type: TypedArrayConstructor, sz: number, oldData?: TypedArrayType): T {

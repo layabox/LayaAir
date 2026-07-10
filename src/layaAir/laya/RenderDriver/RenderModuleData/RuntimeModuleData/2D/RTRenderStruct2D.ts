@@ -10,7 +10,6 @@ import { RTRender2DPass } from "./RTRender2DPass";
 import { GLESRenderElement2D } from "../../../OpenGLESDriver/2DRenderPass/GLESRenderElement2D";
 import { IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { RTRender2DDataHandle } from "./RTRenderDataHandle";
-import { Stat } from "../../../../utils/Stat";
 import { Sprite } from "../../../../display/Sprite";
 import { Transform2DStore } from "../../../../display/transform2d/Transform2DStore";
 
@@ -45,6 +44,8 @@ const enum RTRenderStruct2DSlot {
    alphaBaseSlot = 15,
    Count = 16,
 }
+
+const _wm6 = new Float32Array(6);
 
 export class RTGlobalRenderData implements I2DGlobalRenderData {
    _nativeObj: any;
@@ -266,13 +267,26 @@ export class RTRenderStruct2D implements IRenderStruct2D {
    }
 
    private _renderMatrix: Matrix = new Matrix();
+   private _rmFrame: number = -1;
    set renderMatrix(value: Matrix) {
-      // JS 侧留一份给包围盒；slot>=0 时 native 按 slot 直读 store 不回推；slot<0 才推 native 兜底。
-      value.cloneTo(this._renderMatrix);
-      if (this._transSlot < 0)
-         this._nativeObj.setRenderMatrix(value, Stat.loopCount);
    }
    get renderMatrix(): Matrix {
+      if (this._transSlot >= 0) {
+         const store = Transform2DStore.instance;
+         if (store.dirtyM) {
+            store.computeWorldMatrix(this._transSlot, _wm6);
+            this._rmFrame = -1;
+         } else {
+            const matFrame = store.getMatrixFrame(this._transSlot);
+            if (this._rmFrame === matFrame)
+               return this._renderMatrix;
+            this._rmFrame = matFrame;
+            store.readWorldMatrix(this._transSlot, _wm6);
+         }
+         const m = this._renderMatrix;
+         m.a = _wm6[0]; m.b = _wm6[1]; m.c = _wm6[2]; m.d = _wm6[3]; m.tx = _wm6[4]; m.ty = _wm6[5];
+         m._checkTransform();
+      }
       return this._renderMatrix;
    }
 

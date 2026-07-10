@@ -29,6 +29,11 @@ export class Path {
 
     //直接添加一个完整的path
     push(points: number[], convex: boolean): void {
+        this.pushOwned(points.slice(), convex);
+    }
+
+    /** @internal */
+    pushOwned(points: number[], convex: boolean): void {
         if (!this._curPath) {
             this._curPath = new RenderPath();
             this.paths.push(this._curPath);
@@ -37,10 +42,9 @@ export class Path {
             this.paths.push(this._curPath);
         }
         var rp: RenderPath = this._curPath;
-        rp.path = points.slice();//TODO 这个可能多次slice了
+        rp.path = points;
         rp.convex = convex;
     }
-
     reset(): void {
         this.paths.length = 0;//TODO 复用
     }
@@ -49,7 +53,7 @@ export class Path {
 
 
 class RenderPath {
-    path: any[] = []; //[x,y,x,y,....]的数组
+    path: any[] = []; //[x,y,x,y,....]鐨勬暟缁?
     loop: boolean = false;
     convex: boolean = false;
 }

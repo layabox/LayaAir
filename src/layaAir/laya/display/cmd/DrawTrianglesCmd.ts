@@ -6,7 +6,7 @@ import { ClassUtils } from "../../utils/ClassUtils"
 import { ColorUtils } from "../../utils/ColorUtils"
 import { Pool } from "../../utils/Pool"
 import { VertexStream } from "../../utils/VertexStream"
-import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsCommandDependency, type GraphicsCommandInfo, GraphicsCommandLayoutRefresh, IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner"
 import { Rectangle } from "../../maths/Rectangle"
 import { Config } from "../../../Config";
@@ -58,7 +58,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @en Vertex indices.
      * @zh 顶点索引。
      */
-    indices: Uint16Array;
+    indices: ArrayLike<number>;
     /**
      * @en Scaling matrix.
      * @zh 缩放矩阵。
@@ -118,7 +118,7 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @param blendMode 混合模式  
      * @returns 绘制三角形命令实例
      */
-    static create(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array,
+    static create(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: ArrayLike<number>,
         matrix?: Matrix, alpha?: number, color?: string | number, blendMode?: string): DrawTrianglesCmd {
         var cmd: DrawTrianglesCmd = Pool.getItemByClass(className, DrawTrianglesCmd);
         cmd.texture = texture;
@@ -241,6 +241,15 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      */
     get cmdID(): string {
         return DrawTrianglesCmd.ID;
+    }
+
+    /** @internal */
+    getGraphicsCommandInfo(out: GraphicsCommandInfo): GraphicsCommandInfo {
+        out.dependency = this.mesh ? GraphicsCommandDependency.SizePayload : GraphicsCommandDependency.None;
+        out.layoutRefresh = this.mesh ? GraphicsCommandLayoutRefresh.RerunCommand : GraphicsCommandLayoutRefresh.None;
+        out.scaleTessellationKey = 0;
+        out.isStateCommand = false;
+        return out;
     }
 
     /**

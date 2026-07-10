@@ -1,23 +1,25 @@
-import { Color } from "../../../../maths/Color";
+﻿import { Color } from "../../../../maths/Color";
 import { BaseRenderNode2D } from "../../../../NodeRender2D/BaseRenderNode2D";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineShaderInit } from "../../../../spine/shader/SpineShaderInit";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
-import { IGraphics2DBufferBlock, I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, I2DGraphicIndexDataView, IGraphics2DVertexBlock, I2DGraphicVertexDataView } from "../../Design/2D/IRender2DDataHandle";
+import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, IGraphicsOp2D } from "../../Design/2D/IRender2DDataHandle";
 import { GLESRenderContext2D } from "../../../OpenGLESDriver/2DRenderPass/GLESRenderContext2D";
 import { RTRenderStruct2D } from "./RTRenderStruct2D";
 import { Vector2 } from "../../../../maths/Vector2";
-import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
-import { RT2DGraphic2DIndexDataView, RT2DGraphic2DVertexDataView } from "./RT2DGraphic2DBufferDataView";
 import { Matrix } from "../../../../maths/Matrix";
 import { Vector4 } from "../../../../maths/Vector4";
+
+type RTGraphicsNativeOpCarrier = {
+    _nativeObj?: any;
+};
 
 export abstract class RTRender2DDataHandle implements IRender2DDataHandle {
     _nativeObj: any;
     constructor(nativeObj: any) {
         this._nativeObj = nativeObj;
-        this.needUseMatrix = true;
+        this._needUseMatrix = true;
     }
     protected _owner: RTRenderStruct2D;
     public get owner(): RTRenderStruct2D {
@@ -33,6 +35,8 @@ export abstract class RTRender2DDataHandle implements IRender2DDataHandle {
         return this._needUseMatrix;
     }
     public set needUseMatrix(value: boolean) {
+        if (this._needUseMatrix === value)
+            return;
         this._needUseMatrix = value;
         this._nativeObj.needUseMatrix = value;
     }
@@ -59,87 +63,12 @@ export class RTEmptyRender2DDataHandle extends RTRender2DDataHandle {
     }
 }
 
-export class RTGraphics2DBufferBlock implements IGraphics2DBufferBlock {
-    private _vertexs: RTGraphics2DVertexBlock[];
-    public get vertexs(): RTGraphics2DVertexBlock[] {
-        return this._vertexs;
-    }
-    public set vertexs(value: RTGraphics2DVertexBlock[]) {
-        this._vertexs = value;
-        //clear  
-        this._nativeObj.clearVertexs();
-        //add
-        for (var i = 0; i < value.length; i++) {
-            this._nativeObj.addVetexBlock(value[i]._nativeObj);
-        }
-
-    }
-    private _indexView: RT2DGraphic2DIndexDataView;
-    public get indexView(): RT2DGraphic2DIndexDataView {
-        return this._indexView;
-    }
-    public set indexView(value: RT2DGraphic2DIndexDataView) {
-        this._indexView = value;
-        //set
-        this._nativeObj.setindexView(value._nativeObj)
-    }
-    private _vertexBuffer: IVertexBuffer;
-    public get vertexBuffer(): IVertexBuffer {
-        return this._vertexBuffer;
-    }
-    public set vertexBuffer(value: IVertexBuffer) {
-        this._vertexBuffer = value;
-        //set
-        this._nativeObj.setVertexBuffer((value as any)._nativeObj);
-    }
-
-    _nativeObj: any;
-    constructor() {
-        this._nativeObj = new (window as any).conchRTGraphics2DBufferBlock();
-    }
-    private _textureArrayIndex: number;
-    public get textureArrayIndex(): number {
-        return this._textureArrayIndex;
-    }
-    public set textureArrayIndex(value: number) {
-        this._nativeObj.setTextureArrayIndex(value);
-        this._textureArrayIndex = value;
-    }
-
-}
-
-export class RTGraphics2DVertexBlock implements IGraphics2DVertexBlock {
-    private _positions: number[];
-    public get positions(): number[] {
-        return this._positions;
-    }
-    public set positions(value: number[]) {
-        this._positions = value;
-        //set position
-        this._nativeObj.setPositions(value);
-    }
-    private _vertexViews: RT2DGraphic2DVertexDataView[];
-    public get vertexViews(): RT2DGraphic2DVertexDataView[] {
-        return this._vertexViews;
-    }
-    public set vertexViews(value: RT2DGraphic2DVertexDataView[]) {
-        this._vertexViews = value;
-        //clear
-        this._nativeObj.clearVertexViews();
-        for (var i = 0; i < value.length; i++) {
-            this._nativeObj.addVertexView(value[i]._nativeObj);
-        }
-    }
-    _nativeObj: any;
-    constructor() {
-        this._nativeObj = new (window as any).conchRTGraphics2DVertexBlock();
-    }
-}
-
 export class RTPrimitiveDataHandle extends RTRender2DDataHandle implements I2DPrimitiveDataHandle {
     constructor() {
         super(new (window as any).conchRTPrimitiveDataHandle());
     }
+
+    readonly autoGraphicsDirtySync: boolean = true;
 
     _mask: RTRenderStruct2D | null = null;
     get mask(): RTRenderStruct2D | null {
@@ -164,33 +93,34 @@ export class RTPrimitiveDataHandle extends RTRender2DDataHandle implements I2DPr
         this._nativeObj.setLogicMatrix(this._logicMatrix , !!value);
     }
 
-    private _blocks: RTGraphics2DBufferBlock[] = null;
-    private _blocksNative: any[] = null;
+    private _graphicsHandleUpdateBuffer: ArrayBuffer = null;
+    private _graphicsNativeOps: any[] = [];
 
-    applyVertexBufferBlock(blocks: RTGraphics2DBufferBlock[]): void {
-        this._blocks = blocks;
-        let nativeBlocks = [];
-        for (var i = 0; i < blocks.length; i++) {
-            nativeBlocks.push(blocks[i]._nativeObj);
-        }
-        this._blocksNative = nativeBlocks;
-        this._nativeObj.applyVertexBufferBlock(this._blocksNative);
+    setGraphicsHandleUpdateBuffer(buffer: ArrayBuffer): void {
+        if (this._graphicsHandleUpdateBuffer === buffer)
+            return;
+        this._graphicsHandleUpdateBuffer = buffer;
+        if (this._nativeObj.setGraphicsHandleUpdateBuffer)
+            this._nativeObj.setGraphicsHandleUpdateBuffer(buffer);
     }
 
-    skipBufferUpdate(): void {
-        // if (!this._blocksNative) return;
-        // this._nativeObj.applyVertexBufferBlock(this._blocksNative);
-        this._nativeObj.skipBufferUpdate();
+    syncGraphicsOps(ops: ReadonlyArray<IGraphicsOp2D>): void {
+        if (!this._nativeObj.syncGraphicsOps)
+            return;
+        let nativeOps = this._graphicsNativeOps;
+        let count = ops ? ops.length : 0;
+        nativeOps.length = count;
+        for (let i = 0; i < count; i++)
+            nativeOps[i] = (ops[i] as IGraphicsOp2D & RTGraphicsNativeOpCarrier)._nativeObj || null;
+        this._nativeObj.syncGraphicsOps(nativeOps, count);
     }
-
     inheriteRenderData(context: GLESRenderContext2D): void {
         this._nativeObj.inheriteRenderData(context._nativeObj);
     }
 
     destroy(): void {
         super.destroy();
-        this._blocks = null;
-        this._blocksNative = null;
+        this._graphicsNativeOps.length = 0;
     }
 }
 

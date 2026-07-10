@@ -1,8 +1,10 @@
 import { Rectangle } from "../../maths/Rectangle";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool";
-import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { type GraphicsCommandInfo, IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import type { Sprite } from "../Sprite";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+import { GraphicsCommandInfoHelper, GraphicsGeometryHelper } from "../Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineHelpers";
 
 const className = "DrawRoundRectCmd";
 
@@ -189,6 +191,11 @@ export class DrawRoundRectCmd implements IGraphicsCmd {
      */
     needsLayoutRepaint(): number {
         return 1;
+    }
+
+    /** @internal */
+    getGraphicsCommandInfo(out: GraphicsCommandInfo, owner?: Sprite): GraphicsCommandInfo {
+        return GraphicsCommandInfoHelper.writeScaleTessellation(out, this.percent, GraphicsGeometryHelper.combineRoundRectSegments(this.lt, this.rt, this.lb, this.rb, owner, this.minNum, this.segPixel));
     }
 
     /**

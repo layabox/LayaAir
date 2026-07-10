@@ -91,6 +91,18 @@ export class Web2DGraphic2DIndexDataView extends Web2DGraphicsBufferDataView imp
         this._modify();
     }
 
+    setDataRange(data: ArrayLike<number>, length: number): void {
+        let count = Math.min(length, this.length, data.length);
+        if (data instanceof Uint16Array || data instanceof Uint32Array) {
+            this._view.set(data.length === count ? data : data.subarray(0, count));
+        }
+        else {
+            for (let i = 0; i < count; i++)
+                this._view[i] = data[i];
+        }
+        this._modify();
+    }
+
     constructor(owner: Web2DGraphicsIndexBuffer, length: number, create: boolean = true) {
         super();
         this.owner = owner;

@@ -1,8 +1,6 @@
-import { Const } from "../../Const";
 import { Bezier } from "../../maths/Bezier";
 import { Matrix } from "../../maths/Matrix";
 import { Point } from "../../maths/Point";
-import { Rectangle } from "../../maths/Rectangle";
 import { Vector4 } from "../../maths/Vector4";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Material } from "../../resource/Material";
@@ -13,88 +11,64 @@ import { DrawStyle } from "../../webgl/canvas/DrawStyle";
 import { Path } from "../../webgl/canvas/Path";
 import { ISaveData } from "../../webgl/canvas/save/ISaveData";
 import { SaveBase } from "../../webgl/canvas/save/SaveBase";
-import { SaveClipRect } from "../../webgl/canvas/save/SaveClipRect";
 import { SaveStyle } from "../../webgl/canvas/save/SaveStyle";
 import { SaveMark } from "../../webgl/canvas/save/SaveMark";
 import { SaveTransform } from "../../webgl/canvas/save/SaveTransform";
 import { SaveTranslate } from "../../webgl/canvas/save/SaveTranslate";
-import { GraphicsShaderInfo } from "../../webgl/shader/d2/value/GraphicsShaderInfo";
 import { BasePoly } from "../../webgl/shapes/BasePoly";
 import { Earcut } from "../../webgl/shapes/Earcut";
-import { GraphicsRunnerCacheChunk, SubmitBase, SubmitCacheInfo } from "../../webgl/submit/SubmitBase";
-import { SubmitKey } from "../../webgl/submit/SubmitKey";
+import { SubmitBase } from "../../webgl/submit/SubmitBase";
 import { TextRender } from "../../webgl/text/TextRender";
-import { GraphicsMesh, MeshBlockInfo } from "../../webgl/utils/GraphicsMesh";
 import { Sprite } from "../Sprite";
-import { GraphicsRenderer } from "./GraphicsUtils";
-import { I2DGraphicVertexDataView } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import type { GraphicsRenderer } from "./GraphicsRenderPipeline/GraphicsRenderer";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { LayaGL } from "../../layagl/LayaGL";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
-import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
-import { IGraphicsCmd } from "../IGraphics";
-import { TextureDimension } from "../../RenderEngine/RenderEnum/TextureDimension";
+import { Texture2DArray } from "../../resource/Texture2DArray";
 import { TextureArrayRegistry2D } from "../../webgl/utils/TextureArrayRegistry2D";
 import { ITextureProcessor, EmptyTextureProcessor } from "../../large/ITextureProcessor";
 import { GraphicsDefines } from "../../webgl/shader/d2/GraphicsDefines";
 
-const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 //const tmpuv1: number[] = [0, 0, 0, 0, 0, 0, 0, 0];
 const tmpMat = new Matrix();
 //var _clipResult = new Vector2();
-const _drawTexToDrawTri_Vert = new Float32Array(8);// 从速度考虑，不做成static了
-const _drawTexToDrawTri_Index = new Uint16Array([0, 1, 2, 0, 2, 3]);
-const _drawTexToQuad_Index = new Uint16Array([0, 2, 1, 0, 3, 2]);
+let _drawTexToQuad_Index: Uint16Array | Uint32Array;
+function getDrawTexToQuadIndex(): Uint16Array | Uint32Array {
+    let arrayType = GraphicsDefines.GRAPHICS_INDEX_ARRAY_TYPE;
+    if (!_drawTexToQuad_Index || (_drawTexToQuad_Index as any).constructor !== arrayType)
+        _drawTexToQuad_Index = new arrayType([0, 2, 1, 0, 3, 2]);
+    return _drawTexToQuad_Index;
+}
 //const tmpUVRect: number[] = [0, 0, 0, 0];
-const _tempBlockMesh : MeshBlockInfo = { mesh: null, vertexViews: [], vertexBlocks: [] };
-const _tempCache: MeshBlockInfo = { mesh: null, vertexViews: [], vertexBlocks: [] };
 
 /** @ignore @blueprintIgnore */
 export class GraphicsRunner {
-    private _alpha = 1.0;
-    private _vertexBlockSize: number = 4;
+	private _alpha = 1.0;
 
-    _material: Material = null;
+	_material: Material = null;
 
     private _fillStyle: DrawStyle = DrawStyle.DEFAULT;
     private _strokeStyle: DrawStyle = DrawStyle.DEFAULT;
 
     private static SEGNUM = 32;
-    private static _warnedUnsupportedClipRect = false;
 
     private _tempUV = new Float32Array(8);
-    private _drawTriUseAbsMatrix = false;	//drawTriange函数的矩阵是全局的，不用再乘以当前矩阵了。这是一个补丁。
+    private _drawTriUseAbsMatrix = false;	// drawTriangles uses an absolute matrix; keep legacy patch behavior.
 
-    private _other: ContextParams | null = null;
+	private _other: ContextParams | null = null;
 
-    private _path: Path | null = null;
+	private _path: Path | null = null;
+	private _fillPathScratch: number[] = [];
+	private _fillIndexScratch: number[] = [];
+	private _drawState: SubmitBase = new SubmitBase();
+	_renderer: GraphicsRenderer = null;	// current render data used by shader path
+	private _transedPoints: number[] = new Array(8);
+	private _temp4Points: number[] = new Array(8);
 
-    // stopMerge = true;     //如果用设置_curSubmit的方法，可能导致渲染错误，因为_curSubmit保存上次的信息，不能任意改
-
-    _curSubmit: SubmitBase = null;
-    _submitKey = new SubmitKey();	//当前将要使用的设置。用来跟上一次的_curSubmit比较
-    _renderer: GraphicsRenderer = null;	//保存当前的渲染数据。用来给shader使用。    
-    _global:Matrix = null;
-    _enableCache: boolean = false;
-    //public var _vbs:Array = [];	//双buffer管理。TODO 临时删掉，需要mesh中加上
-    private _transedPoints: number[] = new Array(8);	//临时的数组，用来计算4个顶点的转换后的位置。
-    private _temp4Points: number[] = new Array(8);		//临时数组。用来保存4个顶点的位置。
-
-    _textureProcessor: ITextureProcessor = new EmptyTextureProcessor();
-    _clipRect = SaveClipRect.MAX;
-    _globalClipMatrix = defaultClipMatrix.clone();	//用矩阵描述的clip信息。最终的点投影到这个矩阵上，在0~1之间就可见。
-    _clip_x: number = 0;	//clip的x坐标
-    _clip_y: number = 0;	//clip的y坐标
-    _clipInfoID = 0;					//用来区分是不是clipinfo已经改变了
-    private _clipID_Gen = 0;			//生成clipid的，原来是  _clipInfoID=++_clipInfoID 这样会有问题，导致兄弟clip的id都相同
-
-    private _meshPool: GraphicsMesh[] = [];
-
-    
-
-    _matrixChanged = false;	//矩阵是否改变了
+	_textureProcessor: ITextureProcessor = new EmptyTextureProcessor();
+    _matrixChanged = false;	//矩阵是否改变??
     _curMat: Matrix;
     _matBuffer: Float32Array = new Float32Array(6);
 
@@ -109,9 +83,6 @@ export class GraphicsRunner {
     _save: ISaveData[] & { _length?: number } = null;
     _saveMark: SaveMark | null = null;
     // private _shader2D = new Shader2D();	//
-
-    // 当前 submit 的缓存信息（多个合批的 cmd 共享同一个对象）
-    _currentSubmitCache: SubmitCacheInfo | null = null;
 
     /**
      * 所cacheAs精灵
@@ -233,7 +204,7 @@ export class GraphicsRunner {
         this.strokeStyle = lineColor;
         this.lineWidth = lineWidth;
         //var points:Array = args[2];
-        this.addPath(points.slice(), false, false, x, y);
+        this.addPath(points, false, false, x, y);
         this.stroke();
     }
 
@@ -437,7 +408,7 @@ export class GraphicsRunner {
         //var points:Array = args[2];
         this.beginPath();
         //poly一定是close的
-        this.addPath(points.slice(), true, isConvexPolygon, x, y);
+        this.addPath(points, true, isConvexPolygon, x, y);
         this.closePath();
         this._fillAndStroke(fillColor, lineColor, lineWidth, isConvexPolygon);
     }
@@ -503,34 +474,23 @@ export class GraphicsRunner {
      * 释放所有资源
      */
     destroy(): void {
-        for (let i = 0; i < this._meshPool.length; i++) {
-            this._meshPool[i].destroy();
-        }
-        this._meshPool = null;
         this.sprite = null;
         this._path = null;
         this._save = null;
     }
 
-    clear(): void {
-        this._submitKey.clear();
-        this._curSubmit = SubmitBase.RENDERBASE;
-        this._curMat.identity();
-        this._other = ContextParams.DEFAULT;
-        this._other.clear();
-        this._clipRect = SaveClipRect.MAX;
-        this._clip_x = 0;
-        this._clip_y = 0;
-        this._clipID_Gen = 0;
-        this._clipInfoID = 0;
+	clear(): void {
+		this._drawState.clear();
+		this._curMat.identity();
+		this._matrixChanged = false;
+		this._other = ContextParams.DEFAULT;
+		this._other.clear();
         this._alpha = 1.0;
         this._nBlendType = BlendMode.normal;
         this._fillStyle = this._strokeStyle = DrawStyle.DEFAULT;
         this._lastTex = null;
         this._saveMark = <SaveMark>this._save[0];
         this._save._length = 1;
-        this._currentSubmitCache = null;
-        this._global = null;
     }
 
     /**
@@ -587,13 +547,12 @@ export class GraphicsRunner {
         return this._lastMatScaleY;
     }
 
-    set fillStyle(value: any) {
-        if (!this._fillStyle.equal(value)) {
-            SaveStyle.save(this, "fillStyle");
-            this._fillStyle = DrawStyle.create(value);
-            this._submitKey.other = -this._fillStyle._color.numColor;
-        }
-    }
+	set fillStyle(value: any) {
+		if (!this._fillStyle.equal(value)) {
+			SaveStyle.save(this, "fillStyle");
+			this._fillStyle = DrawStyle.create(value);
+		}
+	}
 
     get fillStyle(): any {
         return this._fillStyle;
@@ -627,17 +586,17 @@ export class GraphicsRunner {
         return this._other.textBaseline;
     }
 
-    set globalCompositeOperation(value: BlendMode) {
-        value == null || (this._nBlendType === value) || (SaveBase.save(this, SaveBase.TYPE_GLOBALCOMPOSITEOPERATION, this, true), this._curSubmit = SubmitBase.RENDERBASE, this._nBlendType = value /*, _shader2D.ALPHA = 1*/);
-    }
+	set globalCompositeOperation(value: BlendMode) {
+		value == null || (this._nBlendType === value) || (SaveBase.save(this, SaveBase.TYPE_GLOBALCOMPOSITEOPERATION, this, true), this._drawState.clear(), this._nBlendType = value /*, _shader2D.ALPHA = 1*/);
+	}
 
     get globalCompositeOperation(): BlendMode {
         return this._nBlendType;
     }
 
-    set strokeStyle(value: any) {
-        this._strokeStyle.equal(value) || (SaveStyle.save(this, "strokeStyle"), this._strokeStyle = DrawStyle.create(value), this._submitKey.other = -this._strokeStyle._color.numColor);
-    }
+	set strokeStyle(value: any) {
+		this._strokeStyle.equal(value) || (SaveStyle.save(this, "strokeStyle"), this._strokeStyle = DrawStyle.create(value));
+	}
 
     get strokeStyle(): any {
         return this._strokeStyle;
@@ -691,61 +650,18 @@ export class GraphicsRunner {
         }
     }
 
-    private _fillRect(x: number, y: number, width: number, height: number, rgba: number): void {
-        var submit = this._curSubmit;
-
-        this.transformQuad(x, y, width, height, 0, this._curMat, this._transedPoints);
-
-        let vertexResult = this.acquire(4);
-        let mesh = vertexResult.mesh;
-        // let mesh = this._graphicsData._meshQuatTex;
-        var sameKey =
-            submit && (
-                submit.mesh === mesh
-                // && submit._key.submitType === SubmitBase.KEY_DRAWTEXTURE 
-                && submit._key.blendShader === this._nBlendType
-                // && this._curSubmit.material == this._material
-            )
-
-        // if (mesh.vertexNum + 4 > GraphicsRunner._MAXVERTNUM) {
-        //     mesh = this._graphicsData.createMesh("quat") as MeshQuadTexture;
-        //     sameKey = false;
-        // }
-
-        //clipinfo
-        sameKey && (sameKey = sameKey && this.isSameClipInfo(submit));
-
-        if (!this.clipedOff(this._transedPoints)) {
-            //if (GlUtils.fillRectImgVb(_mesh._vb, _clipRect, x, y, width, height, Texture.DEF_UV, _curMat, rgba,this)){
-            if (!sameKey) {
-                submit = this._curSubmit = this.createSubmit(mesh);
-                let material = submit._internalInfo;
-                // this.fillShaderValue(submit.shaderValue);
-                submit.clipInfoID = this._clipInfoID;
-                material.textureHost = this._lastTex;
-                //这里有一个问题。例如 clip1, drawTex(tex1), clip2, fillRect, drawTex(tex2)	会被分成3个submit，
-                //submit._key.copyFrom2(_submitKey, SubmitBase.KEY_DRAWTEXTURE, (_lastTex && _lastTex.bitmap)?_lastTex.bitmap.id: -1);
-                submit._key.other = (this._lastTex && this._lastTex.bitmap) ? (this._lastTex.bitmap as Texture2D).id : -1
-            }
-
-            let positions = this.appendData(this._transedPoints, _drawTexToQuad_Index, vertexResult, submit, null, rgba, null, null, false);
-            this._appendBlockInfo(vertexResult, positions);
-        }
-    }
-
-    private _appendBlockInfo(info: MeshBlockInfo, positions: number[]): void {
-        this._renderer.take(info);
-
-        let vertexBlock = this._curSubmit.getVertexBlock();
-        vertexBlock.positions = positions;
-        vertexBlock.vertexViews = info.vertexViews;
-        this._curSubmit.appendData(info);
-    }
+	private _fillRect(x: number, y: number, width: number, height: number, rgba: number): void {
+		this.transformQuad(x, y, width, height, 0, this._curMat, this._transedPoints);
+		if (!this.clipedOff(this._transedPoints)) {
+			let submit = this._resetDrawState();
+			submit._key.other = -1;
+		}
+	}
 
     fillRect(x: number, y: number, width: number, height: number, fillStyle: any = null): void {
         var drawstyle: DrawStyle = fillStyle ? DrawStyle.create(fillStyle) : this._fillStyle;
         //var rgb = drawstyle.toInt() ;
-        //由于显卡的格式是 rgba，所以需要处理一下
+        //由于显卡的格式是 rgba，所以需要处理一??
         //var rgba:uint = ((rgb & 0xff0000) >> 16) | (rgb & 0x00ff00) | ((rgb & 0xff) << 16) | (_shader2D.ALPHA * 255) << 24;
         var rgba = this.mixRGBandAlpha(drawstyle._color.numColor);
         this._fillRect(x, y, width, height, rgba);
@@ -755,26 +671,13 @@ export class GraphicsRunner {
         if (!this._getImageSource(texture)) {
             return;
         }
-        this._renderer.addResRef(this, texture);
+        this._renderer.addResRef(texture);
         this._fillTexture(texture, texture.width, texture.height, texture.uvrect, x, y, width, height, type, offset.x, offset.y, color);
     }
 
-    /**@internal */
-    private _fillTexture(texture: Texture, texw: number, texh: number, texuvRect: number[], x: number, y: number, width: number, height: number, type: string, offsetx: number, offsety: number, color: number): void {
-        var submit = this._curSubmit;
-        //这个不合并，直接渲染
-        // let sameKey: boolean = false;
-        let vertexResult = this.acquire(4);
-        let mesh = vertexResult.mesh;
-        // let mesh = this._graphicsData._meshQuatTex;
-
-        // if (mesh.vertexNum + 4 > GraphicsRunner._MAXVERTNUM) {
-        //     mesh = this._graphicsData.createMesh("quat") as MeshQuadTexture;
-        //     sameKey = false;
-        // }
-
-        //filltexture相关逻辑。计算rect大小以及对应的uv
-        var repeatx = true;
+	/**@internal */
+	private _fillTexture(texture: Texture, texw: number, texh: number, texuvRect: number[], x: number, y: number, width: number, height: number, type: string, offsetx: number, offsety: number, color: number): void {
+		var repeatx = true;
         var repeaty = true;
         switch (type) {
             case "repeat": break;
@@ -810,6 +713,7 @@ export class GraphicsRunner {
         if (stx > edx || sty > edy)
             return;
 
+
         //计算最大uv
         var edu = (edx - x - offsetx) / texw;
         var edv = (edy - y - offsety) / texh;
@@ -817,45 +721,35 @@ export class GraphicsRunner {
         this.transformQuad(stx, sty, edx - stx, edy - sty, 0, this._curMat, this._transedPoints);
 
         //四个点对应的uv。必须在transformQuad后面，因为共用了_temp4Points
-        uv[0] = stu; uv[1] = stv; uv[2] = edu; uv[3] = stv; uv[4] = edu; uv[5] = edv; uv[6] = stu; uv[7] = edv;
-        if (!this.clipedOff(this._transedPoints)) {
+		uv[0] = stu; uv[1] = stv; uv[2] = edu; uv[3] = stv; uv[4] = edu; uv[5] = edv; uv[6] = stu; uv[7] = edv;
+		if (!this.clipedOff(this._transedPoints)) {
             //不依赖于wrapmode了，都走filltexture流程，自己修改纹理坐标
             //tex2d.wrapModeU = BaseTexture.WRAPMODE_REPEAT;	//这里会有重复判断
             //tex2d.wrapModeV = BaseTexture.WRAPMODE_REPEAT;
             //var rgba:int = mixRGBandAlpha(0xffffffff);
             //rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
-            submit = this._curSubmit = this.createSubmit(mesh);
-            let material = submit._internalInfo;
+			let submit = this._resetDrawState();
+			let material = submit;
             // var sv = Value2D.create(RenderSpriteData.Texture2D) as TextureSV;
             //这个优化先不要了，因为没太弄明白wrapmode的设置，总是不起作用。
             //if(texture.uvrect[2]<1.0||texture.uvrect[3]<1.0)//这表示是大图集中的一部分，只有这时候才用特殊shader
             material.fillTexture = true;
-            var arry = texuvRect.concat();
-            Vector4.TEMP.setValue(arry[0], arry[1], arry[2], arry[3]);
+            Vector4.TEMP.setValue(texuvRect[0], texuvRect[1], texuvRect[2], texuvRect[3]);
             material.u_TexRange = Vector4.TEMP;
 
-            submit.clipInfoID = this._clipInfoID;
-            submit._internalInfo.textureHost = texture;
+			submit.textureHost = texture;
+			// this._curSubmit._numEle += 6;
+		}
+		this.breakNextMerge();
+	}
 
-            var rgba = this._mixRGBandAlpha(color, this._alpha);
-            let positions = this.appendData(this._transedPoints, _drawTexToQuad_Index, vertexResult, submit, uv, rgba, null, null, true);
-            this._appendBlockInfo(vertexResult, positions);
-            // this._curSubmit._numEle += 6;
-        }
-
-        this.breakNextMerge();	//暂不合并
-    }
-
-    createSubmit(mesh: GraphicsMesh): SubmitBase {
-        let submit = this._renderer.createSubmit(this);
-        submit.mesh = mesh;
-        submit.material = this._material;
-
-        if (this._enableCache) {
-            this._currentSubmitCache = submit._getCacheInfo();
-        }
-        return submit
-    }
+	private _resetDrawState(): SubmitBase {
+		let submit = this._drawState;
+		submit.clear();
+		submit.update(this);
+		submit.material = this._material;
+		return submit;
+	}
 
     drawTexture(tex: Texture, x: number, y: number, width: number, height: number, color = 0xffffffff): void {
         this._drawTextureM(tex, x, y, width, height, null, 1, null, color);
@@ -866,7 +760,7 @@ export class GraphicsRunner {
             return;
         }
 
-        this._renderer.addResRef(this, tex);
+        this._renderer.addResRef(tex);
         //TODO 还没实现
         var n = pos.length / 2;
         var ipos = 0;
@@ -883,13 +777,8 @@ export class GraphicsRunner {
         if (!this._getImageSource(tex)) { //source内调用tex.active();
             return false;
         }
-        this._renderer.addResRef(this, tex);
+        this._renderer.addResRef(tex);
         return this._inner_drawTexture(tex, (tex.bitmap as Texture2D).id, x, y, width, height, m, uv, alpha, color);
-    }
-
-    //通用的部分的比较
-    private isSameClipInfo(submit: SubmitBase) {
-        return submit.clipInfoID !== this._clipInfoID;
     }
 
     /**
@@ -907,39 +796,22 @@ export class GraphicsRunner {
      */
     _inner_drawTexture(tex: Texture | BaseTexture, imgid: number, x: number, y: number, width: number, height: number, m: Matrix | null, uv: ArrayLike<number> | null, alpha: number, color: number,
         italicDeg?: number, pixelSnap?: boolean): boolean {
+		width = width || tex.width;
+		height = height || tex.height;
         if (width <= 0 || height <= 0) {
             return false;
         }
         if (italicDeg == null)
             italicDeg = 0;
-        var preKey = this._curSubmit._key;
+		var submit = this._drawState;
+		var preKey = submit._key;
         uv = uv || (tex as Texture)._uv
-        //为了优化，如果上次是画三角形，并且贴图相同，会认为他们是一组的，把这个也转成三角形，以便合并。
-        //因为好多动画是drawTexture和drawTriangle混用的
-        if (
-            // preKey.submitType === SubmitBase.KEY_TRIANGLES &&
-            preKey.other === imgid
-        ) {
-            let xoff = 0;
-            if (italicDeg !== 0) {
-                xoff = Math.tan(italicDeg * Math.PI / 180) * height;
-            }
-            var tv = _drawTexToDrawTri_Vert;
-            tv[0] = x + xoff; tv[1] = y; tv[2] = x + width + xoff, tv[3] = y, tv[4] = x + width, tv[5] = y + height, tv[6] = x, tv[7] = y + height;
-            this._drawTriUseAbsMatrix = true;
-            var tuv = this._tempUV;
-            tuv[0] = uv[0]; tuv[1] = uv[1]; tuv[2] = uv[2]; tuv[3] = uv[3]; tuv[4] = uv[4]; tuv[5] = uv[5]; tuv[6] = uv[6]; tuv[7] = uv[7];
-            this.drawTriangles(tex as Texture, 0, 0, tv, tuv, _drawTexToDrawTri_Index, m || this._curMat, alpha, null, color);//用tuv而不是uv会提高效率
-            this._drawTriUseAbsMatrix = false;
-            return true;
-        }
-
-        var submit = this._curSubmit;
-        // var ops: any[] = lastRender ? this._charSubmitCache.getPos() : this._transedPoints;
+		// Rotated, skewed, italic, or snapped quads still need the generic geometry path.
+		// var ops: any[] = lastRender ? this._charSubmitCache.getPos() : this._transedPoints;
         var ops = this._transedPoints;
 
         //凡是这个都是在_mesh上操作，不用考虑samekey
-        this.transformQuad(x, y, width || tex.width, height || tex.height, italicDeg, m || this._curMat, ops);
+        this.transformQuad(x, y, width, height, italicDeg, m || this._curMat, ops);
 
         if (pixelSnap) {
             var round: Function = Math.round;
@@ -953,25 +825,20 @@ export class GraphicsRunner {
             ops[7] = round(ops[7]);
         }
 
-        var rgba = this._mixRGBandAlpha(color, this._alpha * alpha);
-
         //lastRender = false;
         // if (lastRender) {
         //     this._charSubmitCache.add(this, tex as Texture, imgid, ops, uv, rgba);
         //     return true;
         // }
 
-        let vertexResult = this.acquire(4);
-        let mesh = vertexResult.mesh;
-        //this._drawCount++;
-        let sameKey = (
-            imgid >= 0
-            && submit.mesh === mesh
-            // && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE
-            && preKey.other === imgid
-        )
-            && !this.isSameClipInfo(this._curSubmit)
-        // && this._curSubmit.material == this._material
+		//this._drawCount++;
+		let sameKey = (
+			imgid >= 0
+			// && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE
+			&& preKey.other === imgid
+			&& preKey.blendShader === this._nBlendType
+		)
+		// && this._curSubmit.material == this._material
 
         // if (mesh.vertexNum + 4 > GraphicsRunner._MAXVERTNUM) {
         //     // this._drawToRender2D(this._curSubmit);
@@ -983,32 +850,28 @@ export class GraphicsRunner {
 
         if (!sameKey) {
             // todo
-            this._curSubmit = submit = this.createSubmit(mesh);
-            let material = submit._internalInfo;
+			submit = this._resetDrawState();
+            let material = submit;
             // let shaderValue = Value2D.create(RenderSpriteData.Texture2D);
             // 如果外部已注册到数组纹理，替换材质与合批键，并设置层索引
             let reg = TextureArrayRegistry2D.resolve(tex);
-            if (reg && reg.array && reg.array.dimension === TextureDimension.Texture2DArray) {
+            if (reg && reg.array instanceof Texture2DArray) {
                 material.textureHost = reg.array;
                 // 记录层索引，用于 a_attribFlags.b
                 material.texArrayLayer = reg.layer | 0;
                 // 使用数组纹理的 id 作为合批键，避免与原单纹理冲突
                 // @ts-ignore
-                submit._key.other = (reg.array as any)._texture?.id ?? imgid;
+                submit._key.other = reg.array.id;
             } else {
                 material.textureHost = tex;
                 submit._key.other = imgid;
             }
-            // this._copyClipInfo(submit.shaderValue);
-            submit.clipInfoID = this._clipInfoID;
         }
-        let positions = this.appendData(ops, _drawTexToQuad_Index, vertexResult, submit, uv, rgba, null, null, true);
-        // submit._numEle += 6;
-        this._appendBlockInfo(vertexResult, positions);
-        return true;
-    }
+		// submit._numEle += 6;
+		return true;
+	}
 
-    // private fillShaderValue(material: GraphicsShaderInfo) {
+    // private fillShaderValue(material: SubmitBase) {
     //     // shaderValue.size = new Vector2(this._width, this._height);
     // }
     /**
@@ -1017,9 +880,6 @@ export class GraphicsRunner {
      * @return
      */
     private clipedOff(pt: any[]): boolean {
-        //TODO
-        if (this._clipRect.width <= 0 || this._clipRect.height <= 0)
-            return true;
         return false;
     }
 
@@ -1093,10 +953,18 @@ export class GraphicsRunner {
      * 强制拒绝submit合并
      * 例如切换rt的时候
      */
-    breakNextMerge(): void {
-        // this.stopMerge = true;
-        this._curSubmit = SubmitBase.RENDERBASE;
-    }
+	breakNextMerge(): void {
+		// this.stopMerge = true;
+		this._drawState.clear();
+	}
+
+	_getSubmitKeyOther(): number {
+		return this._drawState._key.other;
+	}
+
+	_setSubmitKeyOther(value: number): void {
+		this._drawState._key.other = value;
+	}
 
     drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: BlendMode | string | null, uv?: number[], color = 0xffffffff): void {
         var oldcomp: BlendMode;
@@ -1110,9 +978,8 @@ export class GraphicsRunner {
 
         if (!transform) {
             this._drawTextureM(tex, x + tx, y + ty, width, height, curMat, alpha, uv, color);
-            if (blendMode) {
+            if (blendMode != null)
                 this.globalCompositeOperation = oldcomp;
-            }
             return;
         }
 
@@ -1151,7 +1018,7 @@ export class GraphicsRunner {
             if (!this._getImageSource(tex)) { //source内调用tex.active();
                 return;
             }
-            this._renderer.addResRef(this, tex);
+            this._renderer.addResRef(tex);
         }
 
         if (alpha == null) alpha = 1.0;
@@ -1164,59 +1031,33 @@ export class GraphicsRunner {
             oldcomp = this.globalCompositeOperation;
             this.globalCompositeOperation = blendMode as BlendMode;
         }
-        //this._drawCount++;
 
         let vertexCount = vertices.length / 2;
-        let vertexResult = this.acquire(vertexCount);
-        if (!vertexResult || !vertexResult.mesh) {
-            if (blendMode != null) {
+        if (vertexCount <= 0 || indices.length <= 0) {
+            if (blendMode != null)
                 this.globalCompositeOperation = oldcomp!;
-            }
             return;
         }
-        let mesh = vertexResult.mesh;
 
-        // 为了提高效率，把一些变量放到这里
         var webGLImg = tex instanceof Texture ? tex.bitmap : tex;
-        var preKey: SubmitKey = this._curSubmit._key;
-        var sameKey =
-            this._curSubmit.mesh === mesh
-            && (!webGLImg || preKey.other === webGLImg.id)
-            //&& preKey.submitType === SubmitBase.KEY_TRIANGLES 
-            && preKey.blendShader === this._nBlendType
-        // && this._curSubmit.material == this._material;
-
-        // let mesh = this._graphicsData._meshTex;
-
-        // if (mesh.vertexNum + vertices.length / 2 < GraphicsRunner._MAXVERTNUM) {
-        //     // this._drawToRender2D(this._curSubmit);
-        //     mesh = this._graphicsData.createMesh("tex") as MeshTexture;
-        //     sameKey = false;
-        // }
-        //var rgba:int = mixRGBandAlpha(0xffffffff);
-        //rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
-        let submit = this._curSubmit;
+        let submit = this._drawState;
+        var preKey = submit._key;
+        var sameKey = (!webGLImg || preKey.other === webGLImg.id)
+            && preKey.blendShader === this._nBlendType;
 
         if (!sameKey) {
-            //添加一个新的submit
-            submit = this._curSubmit = this.createSubmit(mesh);
-            // 若有数组纹理注册，替换为数组纹理并设置层索引
+            submit = this._resetDrawState();
             let reg = TextureArrayRegistry2D.resolve(tex);
-            if (reg && reg.array && reg.array.dimension === TextureDimension.Texture2DArray) {
-                submit._internalInfo.textureHost = reg.array;
-                submit._internalInfo.texArrayLayer = reg.layer | 0;
+            if (reg && reg.array instanceof Texture2DArray) {
+                submit.textureHost = reg.array;
+                submit.texArrayLayer = reg.layer | 0;
             } else {
-                submit._internalInfo.textureHost = tex;
+                submit.textureHost = tex;
             }
-            // submit._key.submitType = SubmitBase.KEY_TRIANGLES;
-            submit._key.other = (reg?.array as any)?._texture?.id ?? (webGLImg?.id ?? -1);
-
-            // this._copyClipInfo(submit._internalShaderData);
-            submit.clipInfoID = this._clipInfoID;
+            submit._key.other = reg ? reg.array.id : (webGLImg?.id ?? -1);
         }
 
         var rgba = this._mixRGBandAlpha(colorNum, this._alpha * alpha);
-        let positions: number[];
         if (!this._drawTriUseAbsMatrix) {
             if (!matrix) {
                 tmpMat.a = 1; tmpMat.b = 0; tmpMat.c = 0; tmpMat.d = 1; tmpMat.tx = x; tmpMat.ty = y;
@@ -1225,21 +1066,13 @@ export class GraphicsRunner {
             }
             Matrix.mul(tmpMat, this._curMat, tmpMat);
             tmpMat._checkTransform();
-            //由于2d动画部分的uvs是绝对的（例如图集的话就是相对图集的）所以最后不传uvrect了。
-            positions = this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, tmpMat, null, !!tex, colors, uvRange);
         }
         else {
-            // 这种情况是drawtexture转成的drawTriangle，直接使用matrix就行，传入的xy都是0
             let m = this._curMat == matrix ? (this._matrixChanged ? this._curMat : null) : matrix;
-            positions = this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, m, null, !!tex, colors, uvRange);
         }
-        // this._curSubmit._numEle += indices.length;
-        this._appendBlockInfo(vertexResult, positions);
 
-        if (blendMode != null) {
+        if (blendMode != null)
             this.globalCompositeOperation = oldcomp!;
-        }
-        //return true;
     }
 
     transform(a: number, b: number, c: number, d: number, tx: number, ty: number): void {
@@ -1261,102 +1094,6 @@ export class GraphicsRunner {
         this._matrixChanged = true;
     }
 
-    clipRect(x: number, y: number, width: number, height: number, escape?: boolean): void {
-        if (!GraphicsRunner._warnedUnsupportedClipRect) {
-            GraphicsRunner._warnedUnsupportedClipRect = true;
-            console.warn("Graphics.clipRect command is not supported in WebGL 2D graphics rendering. Use Sprite.scrollRect for stencil clipping.");
-        }
-        return;
-
-        SaveClipRect.save(this);
-        if (this._clipRect === SaveClipRect.MAX) {
-            this._clipRect = new Rectangle(x, y, width, height);
-        } else {
-            this._clipRect.width = width;
-            this._clipRect.height = height;
-
-            //把xy转换到当前矩阵空间。宽高不用转换，这样在shader中计算的时候就不用把方向normalize了
-            this._clipRect.x = x;
-            this._clipRect.y = y;
-        }
-        this._clipID_Gen++;
-        this._clipID_Gen %= 10000;
-        this._clipInfoID = this._clipID_Gen;
-
-        if (escape) {
-            defaultClipMatrix.copyTo(this._globalClipMatrix);
-            return;
-        }
-
-        var cm: Matrix = this._globalClipMatrix;
-        //TEMP 处理clip交集问题，这里有点问题，无法处理旋转，翻转
-        var minx = cm.tx;
-        var miny = cm.ty;
-        var maxx = minx + cm.a;
-        var maxy = miny + cm.d;
-        //TEMP end
-
-        let mat = this.sprite.globalTrans.getMatrix();
-        if (this._clipRect.width >= Const.MAX_CLIP_SIZE) {
-            cm.a = cm.d = Const.MAX_CLIP_SIZE;
-            cm.b = cm.c = cm.tx = cm.ty = 0;
-        } else {
-            let { x, y, width, height } = this._clipRect;
-            cm.tx = x * mat.a + y * mat.c + mat.tx;
-            cm.ty = x * mat.b + y * mat.d + mat.ty;
-            cm.a = width * mat.a;
-            cm.b = width * mat.b;
-            cm.c = height * mat.c;
-            cm.d = height * mat.d;
-            //其实就是矩阵相乘
-            // if (this._curMat._bTransform) {
-            //     cm.tx = this._clipRect.x * this._curMat.a + this._clipRect.y * this._curMat.c + this._curMat.tx;
-            //     cm.ty = this._clipRect.x * this._curMat.b + this._clipRect.y * this._curMat.d + this._curMat.ty;
-            //     cm.a = this._clipRect.width * this._curMat.a;
-            //     cm.b = this._clipRect.width * this._curMat.b;
-            //     cm.c = this._clipRect.height * this._curMat.c;
-            //     cm.d = this._clipRect.height * this._curMat.d;
-            // } else {
-            //     cm.tx = this._clipRect.x + this._curMat.tx;
-            //     cm.ty = this._clipRect.y + this._curMat.ty;
-            //     cm.a = this._clipRect.width;
-            //     cm.b = cm.c = 0;
-            //     cm.d = this._clipRect.height;
-            // }
-        }
-
-        //TEMP 处理clip交集问题，这里有点问题，无法处理旋转,翻转
-        if (cm.a > 0 && cm.d > 0) {
-            var cmaxx = cm.tx + cm.a;
-            var cmaxy = cm.ty + cm.d;
-            if (cmaxx <= minx || cmaxy <= miny || cm.tx >= maxx || cm.ty >= maxy) {
-                //超出范围了
-                cm.a = -0.1; cm.d = -0.1;
-            } else {
-                if (cm.tx < minx) {
-                    cm.a -= (minx - cm.tx);
-                    cm.tx = minx;
-                }
-                if (cmaxx > maxx) {
-                    cm.a -= (cmaxx - maxx);
-                }
-                if (cm.ty < miny) {
-                    cm.d -= (miny - cm.ty);
-                    cm.ty = miny;
-                }
-                if (cmaxy > maxy) {
-                    cm.d -= (cmaxy - maxy);
-                }
-                if (cm.a <= 0) cm.a = -0.1;
-                if (cm.d <= 0) cm.d = -0.1;
-            }
-        }
-
-        this._clip_x = mat.tx;
-        this._clip_y = mat.ty;
-        //TEMP end
-    }
-
     beginPath(convex = false): void {
         this._getPath().beginPath(convex);
     }
@@ -1366,250 +1103,103 @@ export class GraphicsRunner {
     }
 
     /**
-     * 添加一个path。
+     * 添加一个path??
      * @param points [x,y,x,y....]	这个会被保存下来，所以调用者需要注意复制。
      * @param close	是否闭合
      * @param   convex 是否是凸多边形。convex的优先级是这个最大。fill的时候的次之。其实fill的时候不应该指定convex，因为可以多个path
      * @param dx  需要添加的平移。这个需要在应用矩阵之前应用。
      * @param dy
      */
-    addPath(points: number[], close: boolean, convex: boolean, dx: number, dy: number): void {
-        let sz = points.length;
-        for (let i = 0; i < sz - 1; i += 2) {
-            points[i] += dx;
-            points[i + 1] += dy;
-        }
-        if (close && sz > 5 && (points[sz - 2] != points[0] || points[sz - 1] != points[1])) {
-            points.push(points[0], points[1]);
-        }
-        this._getPath().push(points, convex);
-    }
+	addPath(points: ArrayLike<number>, close: boolean, convex: boolean, dx: number, dy: number): void {
+		let sz = points.length;
+		let owned = new Array<number>(sz + ((close && sz > 5 && (points[sz - 2] != points[0] || points[sz - 1] != points[1])) ? 2 : 0));
+		for (let i = 0; i < sz - 1; i += 2) {
+			owned[i] = points[i] + dx;
+			owned[i + 1] = points[i + 1] + dy;
+		}
+		if (owned.length > sz) {
+			owned[sz] = owned[0];
+			owned[sz + 1] = owned[1];
+		}
+		this._getPath().pushOwned(owned, convex);
+	}
 
     fill(): void {
-        var m = this._curMat;
         var tPath = this._getPath();
-        var submit = this._curSubmit;
-        let mesh: GraphicsMesh; //= this.getCurrentMesh();
-        var sameKey = (
-            // submit._key.submitType === SubmitBase.KEY_VG 
-            // && 
-            submit._key.blendShader === this._nBlendType
-        )
-            && !this.isSameClipInfo(submit)
-        // && this._curSubmit.material == this._material;
+        var submit = this._resetDrawState();
 
         var rgba = this.mixRGBandAlpha(this._fillStyle._color.numColor);
-        var curEleNum = 0;
         var idx: any[];
+        let m = this._curMat;
 
-        let curvert = 0;
-
-        //如果有多个path的话，要一起填充mesh，使用相同的颜色和alpha
         for (var i = 0, sz = tPath.paths.length; i < sz; i++) {
             var p = tPath.paths[i];
             var vertNum = p.path.length / 2;
             if (vertNum < 3 || (vertNum === 3 && !p.convex))
                 continue;
 
-            let cpath: any[] = p.path.concat();
+            let sourcePath: number[] = p.path;
+            let cpath = this._fillPathScratch;
+            cpath.length = sourcePath.length;
 
-            // 应用矩阵转换顶点
-            let pi = 0;
             let xp: number, yp: number;
             let _x: number, _y: number;
-
             if (this._matrixChanged) {
                 if (m._bTransform) {
-                    for (pi = 0; pi < vertNum; pi++) {
+                    for (let pi = 0; pi < vertNum; pi++) {
                         xp = pi << 1;
                         yp = xp + 1;
-                        _x = cpath[xp];
-                        _y = cpath[yp];
+                        _x = sourcePath[xp];
+                        _y = sourcePath[yp];
                         cpath[xp] = m.a * _x + m.c * _y + m.tx;
                         cpath[yp] = m.b * _x + m.d * _y + m.ty;
                     }
                 } else {
-                    for (pi = 0; pi < vertNum; pi++) {
+                    for (let pi = 0; pi < vertNum; pi++) {
                         xp = pi << 1;
                         yp = xp + 1;
-                        _x = cpath[xp];
-                        _y = cpath[yp];
-                        cpath[xp] = _x + m.tx;
-                        cpath[yp] = _y + m.ty;
+                        cpath[xp] = sourcePath[xp] + m.tx;
+                        cpath[yp] = sourcePath[yp] + m.ty;
                     }
                 }
-            }
-            // else {
-            //     for (pi = 0; pi < vertNum; pi++) {
-            //         xp = pi << 1;
-            //         yp = xp + 1;
-            //         _x = cpath[xp];
-            //         _y = cpath[yp];
-            //         cpath[xp] = _x;
-            //         cpath[yp] = _y;
-            //     }
-            // }
-
-            let vertexResult: MeshBlockInfo;
-            if (mesh) {
-                vertexResult = mesh.checkVertex(vertNum);
+            } else {
+                for (let pi = 0; pi < sourcePath.length; pi++)
+                    cpath[pi] = sourcePath[pi];
             }
 
-            if (
-                !sameKey
-                || !vertexResult
-            ) {
-                //顶点数超了，要先提交一次
-                // this._curSubmit._numEle += curEleNum;
-                curEleNum = 0;
-                curvert = 0;
-
-                vertexResult = this.acquire(vertNum);
-                mesh = vertexResult.mesh;
-
-                if (!sameKey || this._curSubmit.mesh !== mesh) {
-                    //然后用新的mesh，和新的submit。
-                    submit = this._curSubmit = this.addVGSubmit(mesh);
-                    sameKey = true;
-                }
-            }
-
-            //生成 ib
-            if (p.convex) { //convex的ib比较容易
+            if (p.convex) {
                 var faceNum = vertNum - 2;
-                idx = new Array(faceNum * 3);
+                idx = this._fillIndexScratch;
+                idx.length = faceNum * 3;
                 var idxpos = 0;
                 for (var fi = 0; fi < faceNum; fi++) {
-                    idx[idxpos++] = curvert;
-                    idx[idxpos++] = fi + 1 + curvert;
-                    idx[idxpos++] = fi + 2 + curvert;
+                    idx[idxpos++] = 0;
+                    idx[idxpos++] = fi + 1;
+                    idx[idxpos++] = fi + 2;
                 }
             }
             else {
-                idx = Earcut.earcut(cpath, null, 2);	//返回索引
-                if (curvert > 0) {
-                    //修改ib
-                    for (var ii = 0; ii < idx.length; ii++) {
-                        idx[ii] += curvert;
-                    }
-                }
+                idx = Earcut.earcut(cpath, null, 2);
             }
-            //填充mesh
-            let positions = this.appendData(cpath, idx, vertexResult, submit, null, rgba, null, null, false);
-            curEleNum += idx.length;
-            this._appendBlockInfo(vertexResult, positions);
         }
-        // this._curSubmit._numEle += curEleNum;
     }
-
-    private addVGSubmit(mesh: GraphicsMesh): SubmitBase {
-        //elenum设为0，后面再加
-        var submit: SubmitBase = this.createSubmit(mesh);
-        //submit._key.clear();
-        // submit._key.blendShader = _submitKey.blendShader;	//TODO 这个在哪里赋值的啊
-        // submit._key.submitType = SubmitBase.KEY_VG;
-        // this._copyClipInfo(submit._internalShaderData);
-        submit.clipInfoID = this._clipInfoID;
-        return submit;
-    }
-
     stroke(): void {
         if (this.lineWidth <= 0)
             return;
         var rgba = this.mixRGBandAlpha(this.strokeStyle._color.numColor);
         var tPath = this._getPath();
-        var submit = this._curSubmit;
-        var sameKey = (
-            // submit._key.submitType === SubmitBase.KEY_VG 
-            // && 
-            submit._key.blendShader === this._nBlendType
-        )
-            && !this.isSameClipInfo(submit)
-        // && this._curSubmit.material == this._material
+        var submit = this._resetDrawState();
+        let matrix = this._matrixChanged ? this._curMat : null;
 
-        let mesh = this._curSubmit.mesh || this._meshPool[this._currentMeshIndex];
-
-        var curEleNum = 0;
-        let m: Matrix = this._curMat;
-
-        //如果有多个path的话，要一起填充mesh，使用相同的颜色和alpha
         for (var i = 0, sz = tPath.paths.length; i < sz; i++) {
             var p: any = tPath.paths[i];
             if (p.path.length <= 0)
                 continue;
-            var idx: any[] = [];
-            var vertex: any[] = [];//x,y
-            //填充vbib
-            var maxVertexNum = p.path.length * 2;	//最大可能产生的顶点数。这个需要考虑考虑
-            if (maxVertexNum < 2)
+            let lineGeometry = BasePoly.createLine2Geometry(p.path, this.lineWidth, p.loop);
+            if (!lineGeometry)
                 continue;
-
-            //这个需要放在创建新的mesh的后面，因为需要mesh.vertNum,否则如果先调用这个，再创建mesh，那么ib就不对了
-            BasePoly.createLine2(p.path, idx, this.lineWidth, 0, vertex, p.loop);	//_pathMesh.vertNum 是要加到生成的ib上的
-            // 变换所有的点
-            let ptnum = vertex.length / 2;
-
-            let vertexResult: MeshBlockInfo;
-            if (mesh) {
-                vertexResult = mesh.checkVertex(ptnum);
-            }
-
-            if (
-                !sameKey
-                || !vertexResult
-            ) {
-                //顶点数超了，要先提交一次
-                // this._curSubmit._numEle += curEleNum;
-                curEleNum = 0;
-
-                //然后用新的mesh，和新的submit。
-                vertexResult = this.acquire(ptnum);
-                mesh = vertexResult.mesh;
-                if (!sameKey || this._curSubmit.mesh !== mesh) {
-                    //然后用新的mesh，和新的submit。
-                    submit = this._curSubmit = this.addVGSubmit(mesh);
-                    sameKey = true;
-                }
-            }
-
-
-            let pi = 0;
-            let xp: number, yp: number;
-            let _x: number, _y: number;
-
-            if (this._matrixChanged) {
-                if (m._bTransform) {
-                    for (pi = 0; pi < ptnum; pi++) {
-                        xp = pi << 1;
-                        yp = xp + 1;
-                        _x = vertex[xp];
-                        _y = vertex[yp];
-
-                        vertex[xp] = m.a * _x + m.c * _y + m.tx;
-                        vertex[yp] = m.b * _x + m.d * _y + m.ty;
-                    }
-                } else {
-                    for (pi = 0; pi < ptnum; pi++) {
-                        xp = pi << 1;
-                        yp = xp + 1;
-                        _x = vertex[xp];
-                        _y = vertex[yp];
-                        vertex[xp] = _x + m.tx;
-                        vertex[yp] = _y + m.ty;
-                    }
-                }
-            }
-
-            //this.drawPoly(0, 0, p.path, fillStyle._color.numColor, 0, 0, p.convex);
-            //填充mesh
-            // mesh.addVertAndIBToMesh(vertex, rgba, idx);
-            let positions = this.appendData(vertex, idx, vertexResult, submit, null, rgba, null, null, false);
-            curEleNum += idx.length;
-            this._appendBlockInfo(vertexResult, positions);
         }
-        // this._curSubmit._numEle += curEleNum;
     }
-
     moveTo(x: number, y: number): void {
         var tPath: Path = this._getPath();
         tPath.newPath();
@@ -1625,7 +1215,7 @@ export class GraphicsRunner {
      */
     lineTo(x: number, y: number): void {
         var tPath: Path = this._getPath();
-        if (Math.abs(x - tPath._lastOriX) < 1e-3 && Math.abs(y - tPath._lastOriY) < 1e-3)//不判断的话，下面的画线算法受不了
+        if (Math.abs(x - tPath._lastOriX) < 1e-3 && Math.abs(y - tPath._lastOriY) < 1e-3)// skip tiny line segment updates
             return;
         tPath._lastOriX = x;
         tPath._lastOriY = y;
@@ -2119,7 +1709,7 @@ export class GraphicsRunner {
     //             let tuvr = tmpUVRect;
     //             tuvr[0] = uvl_; tuvr[1] = uvt_;
     //             tuvr[2] = uvr_ - uvl_; tuvr[3] = uvb_ - uvt_;
-    //             // 这个如果用重复的可能比较多，所以采用filltexture的方法，注意这样会打断合并
+        //filltexture相关逻辑。计算rect大小以及对应的uv
     //             this._fillTexture(tex, tex.width - left - right, tex.height - top - bottom, tuvr, left + tx, top + ty, width - left - right, height - top - bottom, 'repeat', 0, 0, color);
     //         } else {
     //             this._inner_drawTexture(tex, imgid, left + tx, top + ty, width - left - right, height - top - bottom, mat, tuv, 1, false, color);
@@ -2134,326 +1724,10 @@ export class GraphicsRunner {
                 if (cs._graphics)
                     cs._graphics.repaint(); //隐含了cs.repaint
                 else
-                    cs.repaint();	// 原来是calllater，callater对于cacheas normal是没有机会执行的
+                    cs.repaint();	// callLater does not run for cacheAs normal in this path
             }
         });
 
-    }
-
-    private _currentMeshIndex: number;
-    /**
-    * 获取一个可用的 Mesh
-    * @param vertexCount 需要的顶点数
-    * @returns 可用的 Mesh
-    */
-    public acquire(vertexCount: number): MeshBlockInfo {
-        // 优先尝试复用上一帧未释放的块
-        let reused = this._reuseBlocks(vertexCount);
-        if (reused) return reused;
-
-        // 按顺序检查是否有可用的 Mesh
-        let meshes = this._meshPool;
-
-        for (let i = 0; i < meshes.length; i++) {
-            let mesh = meshes[i];
-            let result = mesh.checkVertex(vertexCount);
-            if (result) {
-                this._currentMeshIndex = i;
-                return result;
-            }
-        }
-
-        let mesh = new GraphicsMesh(this._vertexBlockSize);
-        this._meshPool.push(mesh);
-        this._currentMeshIndex = this._meshPool.length - 1;
-        let result = mesh.checkVertex(vertexCount);
-
-        return result;
-    }
-
-    /**
-     * 尝试复用上一帧缓存的顶点块
-     * 放在 runner 内部方便直接复用当前的 blockSize 逻辑
-     */
-    private _reuseBlocks(vertexCount: number): MeshBlockInfo {
-        if (!this._renderer) return null;
-
-        let cachedBuckets = this._renderer._cachedBuckets;
-        let needBlocks = Math.ceil(vertexCount / this._vertexBlockSize);
-
-        for (let i = 0; i < cachedBuckets.length; i++) {
-            let bucket = cachedBuckets[i];
-            if (!bucket || bucket.indexs.length * this._vertexBlockSize < vertexCount) continue;
-
-            let reuseBlocks = bucket.indexs.splice(0, needBlocks);
-            // reuseBlocks.sort();
-            // if (bucket.indexs.length === 0) {
-            //     cachedBuckets.splice(i, 1);
-            // }
-            return {
-                mesh: bucket.mesh,
-                vertexBlocks: reuseBlocks,
-                vertexViews: reuseBlocks.map(b => bucket.blocks[b]),
-            };
-        }
-
-        return null;
-    }
-
-    appendData(
-        vertices: ArrayLike<number>, indices: ArrayLike<number>,
-        result: MeshBlockInfo, submit: SubmitBase,
-        uvs: ArrayLike<number>, rgba: number,
-        matrix: Matrix, uvrect: ArrayLike<number>, useTex: boolean,
-        colors?: ArrayLike<number>,
-        uvRange?: ArrayLike<number>,
-    ) {
-        let vertexCount = vertices.length / 2;
-        let uvminx = 0;
-        let uvminy = 0;
-        let uvu = 1;
-        let uvv = 1;
-        if (uvrect) {
-            uvminx = uvrect[0];
-            uvminy = uvrect[1];
-            uvu = uvrect[2];
-            uvv = uvrect[3];
-        }
-        let m00, m01, m10, m11, tx, ty;
-        let globalMatrix: Matrix | null = this._global;
-        if (matrix) {
-            m00 = matrix.a;
-            m01 = matrix.b;
-            m10 = matrix.c;
-            m11 = matrix.d;
-            tx = matrix.tx;
-            ty = matrix.ty;
-        }
-
-        let r = (rgba & 0xff) / 255.0;
-        let b = ((rgba >>> 16) & 0xff) / 255.0;
-        let g = ((rgba >>> 8) & 0xff) / 255.0;
-        let a = (rgba >>> 24) / 255.0;
-
-        let useTexByte = useTex ? 0xff : 0;
-        let useClipByte = uvRange ? 0xff : 0;
-        let dataViewIndex = 0;
-        let vertexViews = result.vertexViews;
-        let indexsMap: number[] = [];
-        let dataView: I2DGraphicVertexDataView;
-        let offset = 0;
-
-        let positions: number[] = [];
-        let vbdata: Float32Array = result.mesh._buffer._tempVertexData;
-        let vertexLength = GraphicsDefines.stride;
-
-        // 如果需要缓存，先构建本地坐标的 vbdata
-        let cachedVbdata: Float32Array | null = null , localX: number, localY: number;
-        if (this._currentSubmitCache) {
-            let count = Math.ceil(vertexCount / this._vertexBlockSize ) * this._vertexBlockSize;
-            cachedVbdata = new Float32Array(count * vertexLength);
-        }
-
-        let globalAlpha = this._renderer._struct.globalAlpha;
-
-        let cachedVi = 0;
-        for (let i = 0, pi = 0, ci = 0, vi = 0; i < vertexCount; i++) {
-
-            if (!dataView || dataView.length <= vi) {
-
-                if (dataView) {
-                    dataView.setData(vbdata);
-                }
-
-                dataView = vertexViews[dataViewIndex];
-                dataViewIndex++;
-                vi = 0;
-                offset = dataView.start / dataView.stride;
-
-                if (cachedVbdata) {
-                    cachedVbdata.set(vbdata, cachedVi);
-                    cachedVi = i * vertexLength;
-                }
-            }
-
-            localX = vertices[pi], localY = vertices[pi + 1];
-
-            if (matrix) {
-                if (matrix._bTransform) {
-                    localX = vertices[pi] * m00 + vertices[pi + 1] * m10 + tx;
-                    localY = vertices[pi] * m01 + vertices[pi + 1] * m11 + ty;
-                } else {
-                    localX += tx;
-                    localY += ty;
-                }
-            }
-            positions[pi] = localX;
-            positions[pi + 1] = localY;
-            vbdata[vi] = localX * globalMatrix.a + localY * globalMatrix.c + globalMatrix.tx;
-            vbdata[vi + 1] = localX * globalMatrix.b + localY * globalMatrix.d + globalMatrix.ty;
-
-            if (uvs) {
-                vbdata[vi + 2] = uvminx + uvs[pi] * uvu;
-                vbdata[vi + 3] = uvminy + uvs[pi + 1] * uvv;
-            }
-
-            if (colors != null) {
-                vbdata[vi + 4] = colors[ci];
-                vbdata[vi + 5] = colors[ci + 1];
-                vbdata[vi + 6] = colors[ci + 2];
-                vbdata[vi + 7] = colors[ci + 3];
-            }
-            else {
-                vbdata[vi + 4] = r;
-                vbdata[vi + 5] = g;
-                vbdata[vi + 6] = b;
-                vbdata[vi + 7] = a;
-            }
-
-            vbdata[vi + 8] = useTexByte;
-            vbdata[vi + 9] = useClipByte;
-            // a_attribFlags.a 用于纹理数组层
-            // 优先取 submit._internalInfo.texArrayLayer
-            // 若未设置则为0
-            // 注意：四个顶点需保持一致
-            vbdata[vi + 10] = globalAlpha;
-            // @ts-ignore
-            vbdata[vi + 11] = (submit && submit._internalInfo && submit._internalInfo.texArrayLayer) ? submit._internalInfo.texArrayLayer : 0;
-
-            if (uvRange) {
-                vbdata[vi + 12] = uvRange[0];
-                vbdata[vi + 13] = uvRange[1];
-                vbdata[vi + 14] = uvRange[2];
-                vbdata[vi + 15] = uvRange[3];
-            }
-
-            vi += vertexLength;
-            pi += 2;
-            ci += 4;
-            indexsMap[i] = offset++;
-        }
-
-        if (dataView) {
-            dataView.setData(vbdata);
-        }
-
-        if (cachedVbdata) {
-            cachedVbdata.set(vbdata, cachedVi);
-        }
-
-        let indexOffset = submit.indexCount;
-        let indexCount = indices.length;
-        let ibdata = submit.indices;
-        for (let i = 0; i < indexCount; i++) {
-            ibdata[i + indexOffset] = indexsMap[indices[i]];
-        }
-        submit.indexCount += indexCount;
-
-        if (this._currentSubmitCache && cachedVbdata) {
-            this._currentSubmitCache.vertexCount += vertexViews.length * 4;
-            this._currentSubmitCache.chunks.push({
-                vbdata: cachedVbdata,
-                vertexCount: vertexCount,
-                indices: indices,
-                positions: positions,
-            });
-        }
-
-        return positions;
-    }
-
-    /**@internal 使用已缓存的 submit 信息应用缓存 */
-    applyCachedSubmitInfo(submitInfo: SubmitCacheInfo): void {
-        let vertexResult = this.acquire(submitInfo.vertexCount);
-        let submit = this.createSubmit(vertexResult.mesh);
-        // 从 submitInfo 的 submit 获取属性并设置
-        submit._internalInfo.textureHost = submitInfo.texture;
-        submit._key.blendShader = submitInfo.blendShader;
-
-        this._curSubmit = submit;
-        let dataViewIndex = 0;
-        submitInfo.chunks.forEach(chunk => {
-            dataViewIndex = this._applyCachedChunk(this._global, vertexResult, submit, chunk, dataViewIndex);
-        });
-    }
-
-    /**@internal */
-    _applyCachedChunk(
-        matrix: Matrix, total: MeshBlockInfo,
-        submit: SubmitBase, chunk: GraphicsRunnerCacheChunk,
-        dataViewIndex: number,
-    ): number {
-
-        let vertexBlock = this._curSubmit.getVertexBlock();
-        if (!vertexBlock.vertexViews) {
-            vertexBlock.vertexViews = [];
-        }
-
-        _tempCache.mesh = total.mesh;
-        let views: I2DGraphicVertexDataView[] = _tempCache.vertexViews = vertexBlock.vertexViews;
-        let indexs: number[] = _tempCache.vertexBlocks;
-
-        let positions = chunk.positions;
-        vertexBlock.positions = positions;
-
-        let dataView: I2DGraphicVertexDataView;
-        let offset = 0;
-        let vertexLength = GraphicsDefines.stride;
-        let vertexCount = chunk.vertexCount;
-        let cachedVbdata = chunk.vbdata;
-        let vbdata:Float32Array;
-        let indexsMap: number[] = [];
-
-        let _localIndex = 0, localX: number, localY: number;
-        for (let i = 0, vi = 0, pi = 0; i < vertexCount; i++) {
-            if (!dataView || dataView.length <= vi) {
-                if (dataView) dataView.setData(vbdata);
-                dataView = views[_localIndex] = total.vertexViews[dataViewIndex];
-                indexs[_localIndex] = total.vertexBlocks[dataViewIndex];
-                vi = 0;
-                offset = dataView.start / dataView.stride;
-                dataViewIndex++
-
-                if (dataView.length == cachedVbdata.length) {
-                    vbdata = cachedVbdata;
-                }else{
-                    vbdata = new Float32Array(cachedVbdata.buffer , _localIndex * dataView.length * 4, dataView.length);
-                }
-                _localIndex++;
-            }
-
-            localX = positions[pi];
-            localY = positions[pi + 1];
-
-            vbdata[vi] = localX * matrix.a + localY * matrix.c + matrix.tx;
-            vbdata[vi + 1] = localX * matrix.b + localY * matrix.d + matrix.ty;
-
-            vi += vertexLength;
-            pi += 2;
-            indexsMap[i] = offset++;
-        }
-
-        if (dataView) dataView.setData(vbdata);
-
-        let indexOffset = submit.indexCount;
-        let ibdata = submit.indices;
-        for (let i = 0; i < chunk.indices.length; i++) {
-            ibdata[i + indexOffset] = indexsMap[chunk.indices[i]];
-        }
-        submit.indexCount += chunk.indices.length;
-
-        if (views.length > _localIndex) {
-            views.length = _localIndex;
-        }
-
-        if (indexs.length > _localIndex) {
-            indexs.length = _localIndex;
-        }
-
-        this._renderer.take(_tempCache);
-        this._curSubmit.appendData(_tempCache);
-
-        return dataViewIndex;
     }
 
     /**
@@ -2500,9 +1774,9 @@ export class GraphicsRunner {
                 offset += 2;
             }
 
-            let indices = _drawTexToQuad_Index;
+            let indices = getDrawTexToQuadIndex();
             let indexBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Static);
-            indexBuffer.indexType = IndexFormat.UInt16;
+            indexBuffer.indexType = GraphicsDefines.GRAPHICS_INDEX_FORMAT;
             indexBuffer.indexCount = indices.length;
             indexBuffer._setIndexDataLength(indices.byteLength);
             indexBuffer._setIndexData(indices, 0);
@@ -2521,14 +1795,14 @@ export class GraphicsRunner {
             let defaultState = LayaGL.renderDeviceFactory.createBufferState();
             defaultState.applyState([defaultBuffer], indexBuffer);
             this.def_geometry.bufferState = defaultState;
-            this.def_geometry.indexFormat = IndexFormat.UInt16;
+            this.def_geometry.indexFormat = GraphicsDefines.GRAPHICS_INDEX_FORMAT;
             this.def_geometry.setDrawElemenParams(6, 0);
 
             this.inv_geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
             let invertState = LayaGL.renderDeviceFactory.createBufferState();
             invertState.applyState([invertBuffer], indexBuffer);
             this.inv_geometry.bufferState = invertState;
-            this.inv_geometry.indexFormat = IndexFormat.UInt16;
+            this.inv_geometry.indexFormat = GraphicsDefines.GRAPHICS_INDEX_FORMAT;
             this.inv_geometry.setDrawElemenParams(6, 0);
         }
     }
@@ -2553,4 +1827,3 @@ class ContextParams {
         return this === ContextParams.DEFAULT ? new ContextParams() : this;
     }
 }
-

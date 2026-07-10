@@ -4,7 +4,7 @@ import { IRenderContext2D } from "./IRenderContext2D";
 import { IPrimitiveRenderElement2D, IRenderElement2D } from "./IRenderElement2D";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
-import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, I2DGraphicWholeBuffer, I2DGraphicVertexDataView, I2DGraphicIndexDataView, IGraphics2DBufferBlock, IGraphics2DVertexBlock, IRender2DDataHandle } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
+import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, IRender2DDataHandle, IGraphicsOp2DFactory } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
 import { ITransform2DMemoryFactory } from "../../../display/transform2d/ITransform2DMemory";
 
 export interface I2DRenderPassFactory {
@@ -39,11 +39,9 @@ export interface I2DRenderPassFactory {
 
     createRender2DPassManager(): IRender2DPassManager;
 
-    createGraphic2DBufferBlock(): IGraphics2DBufferBlock;
-
-    createGraphic2DVertexBlock(): IGraphics2DVertexBlock;
-
     create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle;
+
+    createGraphicsOp2DFactory(): IGraphicsOp2DFactory;
 
     create2DBaseRenderDataHandle(): I2DBaseRenderDataHandle;
 
@@ -52,14 +50,6 @@ export interface I2DRenderPassFactory {
     create2DGlobalRenderDataHandle(): I2DGlobalRenderData;
 
     createSpineRenderDataHandle(): ISpineRenderDataHandle;
-
-    create2DGraphicVertexDataView(wholeBuffer: I2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicVertexDataView;
-
-    create2DGraphicIndexDataView(wholeBuffer: I2DGraphicWholeBuffer, elementSize: number): I2DGraphicIndexDataView;
-
-    create2DGraphicVertexBuffer(): I2DGraphicWholeBuffer;
-
-    create2DGraphicIndexBuffer(): I2DGraphicWholeBuffer;
 
     /** 创建仅跑 clip/alpha 流程的空 handle，用于无 2D 渲染节点但需继承父级裁剪的节点 */
     createEmptyRenderDataHandle(): IRender2DDataHandle;

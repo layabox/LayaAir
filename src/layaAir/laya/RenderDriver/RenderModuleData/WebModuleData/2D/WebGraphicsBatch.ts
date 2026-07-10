@@ -1,36 +1,39 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
+import { GraphicsDefines } from "../../../../webgl/shader/d2/GraphicsDefines";
 import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { IPool, Pool } from "../../../../utils/Pool";
 import { FastSinglelist } from "../../../../utils/SingletonList";
 import { IPrimitiveRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
-import { Web2DGraphic2DIndexCloneDataView, Web2DGraphic2DIndexDataView } from "./Web2DGraphic2DBufferDataView";
-import { WebPrimitiveDataHandle } from "./WebRenderDataHandle";
-import { WebRenderStruct2D } from "./WebRenderStruct2D";
-import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
 import { IBufferState } from "../../../DriverDesign/RenderDevice/IBufferState";
-import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";;
+import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
+import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
+import { WebRenderStruct2D } from "./WebRenderStruct2D";
 import { Web2DGraphicsIndexBatchBuffer } from "./Web2DGraphic2DBuffer";
 import { BatchManager, IBatch2DProvider } from "./BatchManager";
 import { BaseRender2DType } from "../../../../display/SpriteConst";
-import { WebRender2DPass } from "./WebRender2DPass";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
-import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { Vector4 } from "../../../../maths/Vector4";
-import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
-import { GraphicsDefines } from "../../../../webgl/shader/d2/GraphicsDefines";
+import { WebRender2DPass } from "./WebRender2DPass";
+import type { WebGraphicsBatchEntry } from "./WebGraphicsOp2DRuntimeBuffers";
+import { WebPrimitiveDataHandle } from "./WebRenderDataHandle";
+
+const _STEP_ = 1024;
+
+type RenderEngineWebGLProbe = {
+    gl?: unknown;
+};
 
 /**
- * 简单的管理indexBuffer
+ * @internal
  */
 class BatchBuffer {
     indexBuffer: IIndexBuffer;
     wholeBuffer: Web2DGraphicsIndexBatchBuffer;
-
     indexCount: number = 0;
     maxIndexCount: number = 0;
-
     bufferStates: Map<IVertexBuffer, IBufferState> = new Map();
 
     constructor() {
@@ -38,93 +41,35 @@ class BatchBuffer {
         this.indexBuffer.indexType = GraphicsDefines.GRAPHICS_INDEX_FORMAT;
         this.wholeBuffer = new Web2DGraphicsIndexBatchBuffer();
         this.wholeBuffer.buffer = this.indexBuffer;
-        if (!!(LayaGL.renderEngine as any).gl) {
-            this.add = this._addWebgl;
-        } else {
-            this.add = this._addWebgpu;
-        }
-    }
-
-    _addWebgl(element: IPrimitiveRenderElement2D) {
-        let handle = element.owner.renderDataHandler as WebPrimitiveDataHandle;
-        let blocks = handle._getBlocks();
-        if (!blocks)
-            return null;
-
-        let cview = handle.getCloneViews()[element._index];
-        let block = blocks[element._index];
-        if (!cview || !block)
-            return null;
-        let vertexBuffer = block.vertexBuffer;
-        let bufferState = this.bindBuffer(vertexBuffer);
-        this.indexCount += cview.length;
-        this.wholeBuffer._modifyOneView(cview);
-
-        if (cview._geometry.bufferState !== bufferState) {
-            cview._geometry.bufferState = bufferState;
-        }
-
-        WebRender2DPass.setBuffer(this.wholeBuffer);
-        this.updateBufLength();
-
-        return cview._geometry;
-        //@ts-ignore
-        // return block.indexView._geometry;
-    }
-
-    _addWebgpu(element: IPrimitiveRenderElement2D) {
-
-        let handle = element.owner.renderDataHandler as WebPrimitiveDataHandle;
-        let blocks = handle._getBlocks();
-        if (!blocks)
-            return null;
-
-        let cview = handle.getCloneViews()[element._index];
-        let block = blocks[element._index];
-        if (!cview || !block)
-            return null;
-        let vertexBuffer = block.vertexBuffer;
-        let bufferState = this.bindBuffer(vertexBuffer);
-        this.indexCount += cview.length;
-        this.wholeBuffer._modifyOneView(cview);
-
-        //@ts-ignore
-        if (cview._geometry._bufferState !== bufferState) {
-            cview._geometry.bufferState = bufferState;
-        }
-
-        WebRender2DPass.setBuffer(this.wholeBuffer);
-        this.updateBufLength();
-
-        return cview._geometry;
-        //@ts-ignore
-        // return block.indexView._geometry;
     }
 
     add(element: IPrimitiveRenderElement2D): IRenderGeometryElement {
-        // let handle = element.owner.renderDataHandler as WebPrimitiveDataHandle;
-        // let blocks = handle._getBlocks();
-        // if (!blocks)
-        //     return null;
+        let geometry: IRenderGeometryElement = null;
+        if (element._index != null) {
+            let entry = element._graphicsBatchEntry as WebGraphicsBatchEntry;
+            if (!entry) {
+                let handle = element.owner.renderDataHandler as WebPrimitiveDataHandle;
+                entry = handle.getGraphicsBatchEntry(element._index);
+            }
 
-        // let cview = handle.getCloneViews()[element._index] as Web2DGraphic2DIndexDataView;
-        // let block = blocks[element._index];
-        // let vertexBuffer = block.vertexBuffer;
-        // let bufferState = this.bindBuffer(vertexBuffer);
-        // this.indexCount += cview.length;
-        // this.wholeBuffer._modifyOneView(cview);
+            if (entry) {
+                let cloneView = entry.cloneIndexView;
+                let bufferState = this.bindBuffer(entry.vertexBuffer);
+                this.indexCount += cloneView.length;
+                this.wholeBuffer._modifyOneView(cloneView);
 
-        // if (cview._geometry.bufferState !== bufferState) {
-        //     cview._geometry.bufferState = bufferState;
-        // }
+                if (cloneView._geometry.bufferState !== bufferState)
+                    cloneView._geometry.bufferState = bufferState;
 
-        // WebRender2DPass.setBuffer(this.wholeBuffer);
-        // this.updateBufLength();
-
-        return null;
+                WebRender2DPass.setBuffer(this.wholeBuffer);
+                this.updateBufLength();
+                geometry = cloneView._geometry;
+            }
+        }
+        return geometry;
     }
 
-    updateBufLength() {
+    updateBufLength(): void {
         if (this.maxIndexCount <= this.indexCount) {
             let nLength = Math.ceil(this.indexCount / _STEP_) * _STEP_;
             let byteLength = nLength * GraphicsDefines.GRAPHICS_INDEX_BYTE_SIZE;
@@ -134,7 +79,7 @@ class BatchBuffer {
         }
     }
 
-    bindBuffer(buffer: IVertexBuffer) {
+    bindBuffer(buffer: IVertexBuffer): IBufferState {
         let bufferState = this.bufferStates.get(buffer);
         if (!bufferState) {
             bufferState = LayaGL.renderDeviceFactory.createBufferState();
@@ -144,16 +89,14 @@ class BatchBuffer {
         return bufferState;
     }
 
-    clear() {
+    clear(): void {
         this.indexCount = 0;
         this.wholeBuffer.clearBufferViews();
     }
 
     destroy(): void {
         this.clear();
-        this.bufferStates.forEach((bufferState) => {
-            bufferState.destroy();
-        });
+        this.bufferStates.forEach(bufferState => bufferState.destroy());
         this.bufferStates.clear();
         this.indexBuffer.destroy();
         this.indexBuffer = null;
@@ -240,6 +183,8 @@ class WebGLBatchContext extends BaseBatchContext {
             return false;
         }
 
+        // fillTexture 已通过 typeKey bit 6 检查，相同才到这里
+        // 但仍需检查 texRange 是否一致
         if (this.fillTexture) {
             if (!element.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE).equal(this.texRange))
                 return false;
@@ -261,14 +206,10 @@ class WebGLBatchContext extends BaseBatchContext {
 class WebGPUBatchContext extends BaseBatchContext {
 
     setHead(element: IPrimitiveRenderElement2D): void {
-        //@ts-ignore
-        this.primitiveShaderData = element._primitiveShaderData;
-        //@ts-ignore
-        this.materialShaderData = element._materialShaderData;
-        //@ts-ignore
-        this.subShader = element._subShader;
-        //@ts-ignore
-        this.bufferState = element.geometry._bufferState;
+        this.primitiveShaderData = element.primitiveShaderData;
+        this.materialShaderData = element.materialShaderData;
+        this.subShader = element.subShader;
+        this.bufferState = element.geometry.bufferState;
 
         this.typeKey = element.typeKey;
         this.textureKey = element.textureKey;
@@ -299,19 +240,21 @@ class WebGPUBatchContext extends BaseBatchContext {
         }
 
         // 检查材质 自定义材质直接比对 shaderdata
-        if ((this.typeKey & ShaderDefines2D.TYPEKEY_CUSTOM_MATERIAL) !== 0 && (element as any)._materialShaderData !== this.materialShaderData) {
+        if ((this.typeKey & ShaderDefines2D.TYPEKEY_CUSTOM_MATERIAL) !== 0 && element.materialShaderData !== this.materialShaderData) {
             return false;
         }
 
+        // fillTexture 已通过 typeKey bit 6 检查，相同才到这里
+        // 但仍需检查 texRange 是否一致
         if (this.fillTexture) {
-            let primitiveShaderData = (element as any)._primitiveShaderData;
+            let primitiveShaderData = element.primitiveShaderData;
             if (!primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE).equal(this.texRange))
                 return false;
         }
 
         if (this.textureId === 0 && elementTexId !== 0) {
             this.textureId = elementTexId;
-            this.primitiveShaderData = (element as any)._primitiveShaderData;
+            this.primitiveShaderData = element.primitiveShaderData;
             this.textureKey = element.textureKey;
         }
 
@@ -341,7 +284,6 @@ export class WebGraphicsBatch implements IBatch2DProvider {
             element.geometry.clearRenderParams();
             element.geometry.bufferState = null;
             element.materialShaderData = null;
-            element.stencilClipState = null;
             element.value2DShaderData = null;
             element.primitiveShaderData = null;
             element.subShader = null;
@@ -356,7 +298,7 @@ export class WebGraphicsBatch implements IBatch2DProvider {
         this._buffer = new BatchBuffer();
         this._merged = [];
 
-        let isWebgl = !!(LayaGL.renderEngine as any).gl;
+        let isWebgl = !!(LayaGL.renderEngine as unknown as RenderEngineWebGLProbe).gl;
         if (isWebgl) {
             this._context = new WebGLBatchContext();
         } else {
@@ -498,7 +440,6 @@ export class WebGraphicsBatch implements IBatch2DProvider {
                 staticBatchRenderElement.value2DShaderData = element.value2DShaderData;
                 staticBatchRenderElement.subShader = element.subShader;
                 staticBatchRenderElement.renderStateIsBySprite = element.renderStateIsBySprite;
-                staticBatchRenderElement.stencilClipState = element.stencilClipState;
                 staticBatchRenderElement.primitiveShaderData = batchContext.primitiveShaderData;
                 staticBatchRenderElement.owner = element.owner;
                 staticBatchRenderElement.typeKey = batchContext.typeKey;
@@ -538,7 +479,6 @@ export class WebGraphicsBatch implements IBatch2DProvider {
     }
 }
 
-const _STEP_ = 1024;
 var elementFlags: Int16Array;
 var elementIndice: Int16Array;
 var rectLeftCache: Float32Array;

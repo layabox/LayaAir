@@ -1,6 +1,7 @@
 import { Pool } from "../../utils/Pool"
-import { IGraphicsCmd } from "../IGraphics";
+import { type GraphicsCommandInfo, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+import { GraphicsCommandInfoHelper } from "../Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineHelpers";
 
 const className = "RestoreCmd";
 
@@ -50,5 +51,10 @@ export class RestoreCmd implements IGraphicsCmd {
      */
     get cmdID(): string {
         return RestoreCmd.ID;
+    }
+
+    /** @internal */
+    getGraphicsCommandInfo(out: GraphicsCommandInfo): GraphicsCommandInfo {
+        return GraphicsCommandInfoHelper.writeState(out);
     }
 }

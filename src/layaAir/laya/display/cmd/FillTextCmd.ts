@@ -6,6 +6,7 @@ import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { Browser } from "../../utils/Browser";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 import { Render2DProcessor } from "../Render2DProcessor";
+import type { TextRenderTextureSink } from "../../webgl/text/TextRender";
 
 const className = "FillTextCmd";
 
@@ -246,6 +247,15 @@ export class FillTextCmd implements IGraphicsCmd {
      * @param gy 全局Y偏移
      */
     run(runner: GraphicsRunner, gx: number, gy: number): void {
+        this._renderText(runner, gx, gy);
+    }
+
+    /** @internal */
+    emitTextureQuads(runner: GraphicsRunner, gx: number, gy: number, drawTexture: TextRenderTextureSink): void {
+        this._renderText(runner, gx, gy, drawTexture);
+    }
+
+    private _renderText(runner: GraphicsRunner, gx: number, gy: number, drawTexture?: TextRenderTextureSink): void {
         if (!this.text) {
             if (this._renderInfo)
                 runner._textRender.freeRenderInfo(this._renderInfo);
@@ -267,7 +277,7 @@ export class FillTextCmd implements IGraphicsCmd {
             this.fontSize, this.bold, this.italic,
             this.color, this.stroke, this.strokeColor,
             this.letterSpacing, this.shadowOffsetX, this.shadowOffsetY, this.shadowBlur, this.shadowColor,
-            this.singleCharRender, tw, this._renderInfo
+            this.singleCharRender, tw, this._renderInfo, drawTexture
         );
     }
 

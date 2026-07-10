@@ -80,6 +80,14 @@ export abstract class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
     }
 
     destroy() {
+        let view = this._first;
+        while (view) {
+            let next = view._next;
+            view.owner = null;
+            view._prev = null;
+            view._next = null;
+            view = next;
+        }
         this._first = null;
         this._last = null;
         this._dataView = null;
@@ -223,13 +231,13 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
         if (!this._needResetData && this._updateRange.y <= this._updateRange.x)
             return;
 
-        let scratchIndexByteSize = GraphicsDefines.GRAPHICS_INDEX_BYTE_SIZE;
-        let scratchUploadStart = this._needResetData ? 0 : this._updateRange.x;
-        let scratchTotalLength = this._updateStartsAndDrawParams(scratchIndexByteSize);
+        let indexByteSize = GraphicsDefines.GRAPHICS_INDEX_BYTE_SIZE;
+        let uploadStart = this._needResetData ? 0 : this._updateRange.x;
+        let totalLength = this._updateStartsAndDrawParams(indexByteSize);
 
-        scratchUploadStart = Math.max(0, Math.min(scratchUploadStart, scratchTotalLength));
+        uploadStart = Math.max(0, Math.min(uploadStart, totalLength));
 
-        this._uploadScratchRange(scratchUploadStart, scratchTotalLength, scratchIndexByteSize);
+        this._uploadScratchRange(uploadStart, totalLength, indexByteSize);
         this._needResetData = false;
         this._updateRange.setValue(100000000, -100000000);
 
@@ -265,13 +273,13 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
         if (!this._needResetData && this._updateRange.y <= this._updateRange.x)
             return;
 
-        let scratchIndexByteSize = GraphicsDefines.GRAPHICS_INDEX_BYTE_SIZE;
-        let scratchUploadStart = this._needResetData ? 0 : this._updateRange.x;
-        let scratchTotalLength = this._last.start + this._last.length;
+        let indexByteSize = GraphicsDefines.GRAPHICS_INDEX_BYTE_SIZE;
+        let uploadStart = this._needResetData ? 0 : this._updateRange.x;
+        let totalLength = this._last.start + this._last.length;
 
-        scratchUploadStart = Math.max(0, Math.min(scratchUploadStart, scratchTotalLength));
+        uploadStart = Math.max(0, Math.min(uploadStart, totalLength));
 
-        this._uploadScratchRange(scratchUploadStart, scratchTotalLength, scratchIndexByteSize);
+        this._uploadScratchRange(uploadStart, totalLength, indexByteSize);
         this._needResetData = false;
         this._updateRange.setValue(100000000, -100000000);
 
@@ -279,6 +287,8 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
 
     _modifyOneView(view: Web2DGraphic2DIndexCloneDataView): void {
 
+        if (view.owner === this && (view._prev || view._next || this._first === view || this._last === view))
+            this.removeDataView(view);
         this.addDataView(view);
 
         // let startTimer = Date.now();
@@ -297,6 +307,14 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
     }
     
     clearBufferViews() {//不清理,添加时处理
+        let view = this._first;
+        while (view) {
+            let next = view._next;
+            view.owner = null;
+            view._prev = null;
+            view._next = null;
+            view = next;
+        }
         this._first = null;
         this._last = null;
         this._num = 0;

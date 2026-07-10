@@ -1,5 +1,9 @@
 import { Vector4 } from "../../maths/Vector4";
+import { GraphicsDefines } from "../shader/d2/GraphicsDefines";
 import { Earcut } from "../shapes/Earcut";
+
+type UVClipIndexArray = Uint16Array | Uint32Array;
+type UVClipTypedArray = Float32Array | UVClipIndexArray;
 
 /**
  * @en Clip vertex structure with position, UV, and color data
@@ -57,7 +61,7 @@ export class UVClippingUtils {
 
         // 可复用的TypedArray缓冲区,用于减少对象创建和GC开销
         verticesBuffer: new Float32Array(0),
-        indicesBuffer: new Uint16Array(0),
+        indicesBuffer: new (GraphicsDefines.GRAPHICS_INDEX_ARRAY_TYPE)(0) as UVClipIndexArray,
         uvsBuffer: new Float32Array(0),
         colorsBuffer: new Float32Array(0),
     };
@@ -85,12 +89,12 @@ export class UVClippingUtils {
      * @param constructor TypedArray构造函数
      * @returns 足够容量的缓冲区(可能是原缓冲区或新创建的)
      */
-    private static _ensureBufferCapacity<T extends Float32Array | Uint16Array>(
+    private static _ensureBufferCapacity<T extends UVClipTypedArray>(
         buffer: T,
         requiredLength: number,
         constructor: new (length: number) => T
     ): T {
-        if (buffer.length >= requiredLength) {
+        if (buffer.length >= requiredLength && buffer.constructor === constructor) {
             return buffer;
         }
         const newLength = Math.max(requiredLength, Math.ceil(buffer.length * 1.5));
@@ -129,12 +133,12 @@ export class UVClippingUtils {
      */
     static clipTrianglesByUVRange(
         vertices: Float32Array,
-        indices: Uint16Array,
+        indices: ArrayLike<number>,
         uvs: Float32Array,
         uvRange: ArrayLike<number>,
         colors: Float32Array,
         reuseBuffer: boolean = true
-    ): { vertices: Float32Array, indices: Uint16Array, uvs: Float32Array, colors: Float32Array } {
+    ): { vertices: Float32Array, indices: ArrayLike<number>, uvs: Float32Array, colors: Float32Array } {
 
         UVClippingUtils._resetBuffers();
         const ctx = UVClippingUtils._threadLocalContext;
@@ -440,7 +444,7 @@ export class UVClippingUtils {
             ctx.indicesBuffer = UVClippingUtils._ensureBufferCapacity(
                 ctx.indicesBuffer,
                 ctx.outIndicesLength,
-                Uint16Array
+                GraphicsDefines.GRAPHICS_INDEX_ARRAY_TYPE as new (length: number) => UVClipIndexArray
             );
             ctx.uvsBuffer = UVClippingUtils._ensureBufferCapacity(
                 ctx.uvsBuffer,
@@ -469,14 +473,14 @@ export class UVClippingUtils {
 
             return {
                 vertices: ctx.verticesBuffer.subarray(0, ctx.outVerticesLength) as Float32Array,
-                indices: ctx.indicesBuffer.subarray(0, ctx.outIndicesLength) as Uint16Array,
+                indices: ctx.indicesBuffer.subarray(0, ctx.outIndicesLength) as UVClipIndexArray,
                 uvs: ctx.uvsBuffer.subarray(0, ctx.outUVsLength) as Float32Array,
                 colors: ctx.colorsBuffer.subarray(0, ctx.outColorsLength) as Float32Array
             };
         } else {
             // 使用有效长度创建新数组
             const newVertices = new Float32Array(ctx.outVerticesLength);
-            const newIndices = new Uint16Array(ctx.outIndicesLength);
+            const newIndices = new (GraphicsDefines.GRAPHICS_INDEX_ARRAY_TYPE)(ctx.outIndicesLength) as UVClipIndexArray;
             const newUVs = new Float32Array(ctx.outUVsLength);
             const newColors = new Float32Array(ctx.outColorsLength);
 

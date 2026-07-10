@@ -4,7 +4,7 @@ import { Texture } from "../../resource/Texture"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { ColorUtils } from "../../utils/ColorUtils";
 import { Pool } from "../../utils/Pool";
-import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsCommandDependency, type GraphicsCommandInfo, GraphicsCommandLayoutRefresh, IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
 const className = "FillTextureCmd";
@@ -166,6 +166,24 @@ export class FillTextureCmd implements IGraphicsCmd {
      */
     needsLayoutRepaint(): number {
         return this.percent ? 1 : 0;
+    }
+
+    /** @internal */
+    getGraphicsCommandInfo(out: GraphicsCommandInfo): GraphicsCommandInfo {
+        out.dependency = this.percent ? GraphicsCommandDependency.SizePayload : GraphicsCommandDependency.None;
+        out.layoutRefresh = this.percent
+            ? (this._canRefreshPercentLocally() ? GraphicsCommandLayoutRefresh.MarkDirty : GraphicsCommandLayoutRefresh.RerunCommand)
+            : GraphicsCommandLayoutRefresh.None;
+        out.scaleTessellationKey = 0;
+        out.isStateCommand = false;
+        return out;
+    }
+
+    private _canRefreshPercentLocally(): boolean {
+        return this.type === "repeat"
+            || this.type === "repeat-x"
+            || this.type === "repeat-y"
+            || this.type === "no-repeat";
     }
 }
 

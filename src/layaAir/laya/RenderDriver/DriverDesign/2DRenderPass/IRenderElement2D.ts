@@ -49,10 +49,16 @@ export interface IPrimitiveRenderElement2D extends IRenderElement2D {
      */
     typeKey: number;
     /**
-     * @en Texture key encoding per-element shader define bits and texture ID.
+     * @en Texture key used to detect per-element texture changes.
      * @zh 纹理键编码逐元素着色器宏定义位和纹理ID。
      */
     textureKey: number;
     primitiveShaderData: ShaderData;
+    /**
+     * @internal
+     * @en Internal cache slot for render-module-specific primitive batch data.
+     * @zh 渲染模块内部使用的图元合批数据缓存槽。
+     */
+    _graphicsBatchEntry?: unknown;
 }
 

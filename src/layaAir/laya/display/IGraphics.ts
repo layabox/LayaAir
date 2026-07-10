@@ -1,5 +1,9 @@
 import { type Matrix } from "../maths/Matrix";
 import { GraphicsRunner } from "./Scene2DSpecial/GraphicsRunner";
+import type { Sprite } from "./Sprite";
+import type { GraphicsCommandInfo } from "./Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
+
+export { GraphicsCommandDependency, GraphicsCommandLayoutRefresh, type GraphicsCommandInfo } from "./Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
 
 /**
  * @en Graphics command interface
@@ -37,6 +41,9 @@ export interface IGraphicsCmd {
      * 
      */
     get cmdID(): string;
+
+    /** @internal */
+    getGraphicsCommandInfo?(out: GraphicsCommandInfo, owner?: Sprite): GraphicsCommandInfo;
     
     /**
      * @en Returns 1 if this command needs to respond to layout changes (e.g., percentage-based or arc drawing), otherwise returns 0.

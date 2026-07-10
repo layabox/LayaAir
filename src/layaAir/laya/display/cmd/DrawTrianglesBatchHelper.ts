@@ -7,9 +7,9 @@ import { GraphicsDefines } from "../../webgl/shader/d2/GraphicsDefines";
 
 /**
  * @en Split large triangle meshes into batches when vertex count exceeds the dynamic graphics VB capacity.
- * Runtime IB format is selected by ShaderDefines2D; public indices are still Uint16Array.
+ * Runtime IB format and split limit follow GraphicsDefines.
  * @zh 当顶点数超过 graphics 动态 VB 容量时，将大型三角形网格拆分为多个批次。
- * 运行时 IB 格式由 ShaderDefines2D 选择；公开传入的 indices 仍为 Uint16Array。
+ * 运行时 IB 格式和拆分上限跟随 GraphicsDefines。
  */
 export function drawTrianglesBatched(
     runner: GraphicsRunner, tex: Texture | BaseTexture,

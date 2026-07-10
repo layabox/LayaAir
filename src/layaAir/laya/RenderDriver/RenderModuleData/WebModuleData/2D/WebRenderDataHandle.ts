@@ -1,23 +1,20 @@
-import { LayaGL } from "../../../../layagl/LayaGL";
 import { Color } from "../../../../maths/Color";
 import { Matrix } from "../../../../maths/Matrix";
 import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { BaseRenderNode2D } from "../../../../NodeRender2D/BaseRenderNode2D";
-import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
-import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineShaderInit } from "../../../../spine/shader/SpineShaderInit";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
+import type { WebGraphicsOp2D } from "./WebGraphicsOp2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
-import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, IGraphics2DBufferBlock, I2DGraphicIndexDataView, IGraphics2DVertexBlock, I2DGraphicVertexDataView } from "../../Design/2D/IRender2DDataHandle";
-import { Web2DGraphic2DIndexCloneDataView, Web2DGraphic2DIndexDataView, Web2DGraphic2DVertexDataView } from "./Web2DGraphic2DBufferDataView";
+import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IGraphicsOp2D, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle } from "../../Design/2D/IRender2DDataHandle";
+import { WebGraphicsBatchEntry } from "./WebGraphicsOp2DRuntimeBuffers";
+import { WebGraphicsOp2DRuntime } from "./WebGraphicsOp2DRuntime";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 import { Transform2DStore } from "../../../../display/transform2d/Transform2DStore";
-import { GraphicsDefines } from "../../../../webgl/shader/d2/GraphicsDefines";
 
 export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     protected _owner: WebRenderStruct2D;
@@ -29,7 +26,6 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     }
     protected _nMatrix_0 = new Vector3();
     protected _nMatrix_1 = new Vector3();
-    /** @internal 上次上传矩阵 uniform 时的 store matrixFrame；用于"world 矩阵没变就不重传"。 */
     protected _matUploadFrame: number = -1;
     constructor() {
     }
@@ -39,8 +35,8 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     }
     public set needUseMatrix(value: boolean) {
         this._needUseMatrix = value;
-        this._matUploadFrame = -1; // 切换 needUseMatrix 后强制下次重传矩阵 uniform
-        if (!value) {
+        this._matUploadFrame = -1;
+        if (!value && this._owner?.spriteShaderData) {
             this._nMatrix_0.set(1, 0, 0);
             this._nMatrix_1.set(0, 1, 0);
             this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
@@ -57,24 +53,23 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
         if (!data)
             return;
         if (this._needUseMatrix) {
-            // 完成原 TODO：world 矩阵没变就不重传矩阵 uniform——先比 slot 的 matrixFrame，变了才读 renderMatrix。
-            let matFrame = Transform2DStore.instance.getMatrixFrame(this._owner.transSlot);
-            if (this._matUploadFrame !== matFrame) {
+            let slot = this._owner.transSlot;
+            if (slot >= 0) {
+                let matFrame = Transform2DStore.instance.getMatrixFrame(slot);
+                if (this._matUploadFrame === matFrame)
+                    return;
                 this._matUploadFrame = matFrame;
-                let mat = this._owner.renderMatrix;
-                this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
-                this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
-                data.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
-                data.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
             }
+            let mat = this._owner.renderMatrix;
+            this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
+            this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
+            this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
+            this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
         }
     }
 }
 
-/**
- * 空 Render Data Handle，仅用于跑通 _handleInterData 中的 clip/alpha 上传流程。
- * 适用于无 2D 渲染节点但需继承父级 scrollRect（clipRect）的节点，如 Bridge3DSprite。
- */
+
 export class WebEmptyRender2DDataHandle extends WebRender2DDataHandle {
     inheriteRenderData(_context: IRenderContext2D): void {
         // no-op：不写 2D 矩阵，仅依赖 _handleInterData 上传 clip/alpha
@@ -84,208 +79,123 @@ export class WebEmptyRender2DDataHandle extends WebRender2DDataHandle {
     }
 }
 
-export class WebGraphics2DBufferBlock implements IGraphics2DBufferBlock {
-    vertexs: IGraphics2DVertexBlock[];
-    indexView: I2DGraphicIndexDataView;
-    vertexBuffer: IVertexBuffer;
-    textureArrayIndex: number;
-}
-
-export class WebGraphics2DVertexBlock implements IGraphics2DVertexBlock {
-    positions: number[];
-    vertexViews: I2DGraphicVertexDataView[];
-}
-
-
 
 export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2DPrimitiveDataHandle {
     logicMatrix: Matrix | null = null;
     mask: WebRenderStruct2D | null = null;
 
-    private _bufferBlocks: IGraphics2DBufferBlock[] = null;
+    private _opRuntime: WebGraphicsOp2DRuntime = null;
+    private _graphicsHandleUpdateBuffer: ArrayBuffer = null;
+    private _matrixScratch: Float32Array = new Float32Array(6);
     private _modifiedFrame: number = -1;
-    private _clonesViews: Web2DGraphic2DIndexCloneDataView[];
     private _globalAlpha: number = 1;
 
-    applyVertexBufferBlock(blocks: IGraphics2DBufferBlock[]): void {
-        this._bufferBlocks = blocks;
-        this.updateCloneView();
-        this._globalAlpha = this._owner.globalAlpha;
-        this._modifiedFrame = Transform2DStore.instance.getMatrixFrame(this._owner.transSlot);
+    /** @internal */
+    public get lastShapeMismatchReason(): string {
+        return null;
     }
 
-    skipBufferUpdate() {
-        this._modifiedFrame = Transform2DStore.instance.getMatrixFrame(this._owner.transSlot);
+    public set owner(value: WebRenderStruct2D) {
+        if (this._owner === value)
+            return;
+        this._destroyGraphicsOpRuntime();
+        super.owner = value;
+        this._createGraphicsOpRuntime();
+    }
+
+    public get owner(): WebRenderStruct2D {
+        return super.owner;
+    }
+
+    private _destroyGraphicsOpRuntime(): void {
+        if (!this._opRuntime)
+            return;
+        this._opRuntime.destroy();
+        this._opRuntime = null;
+    }
+
+    private _createGraphicsOpRuntime(): void {
+        if (!this._owner)
+            return;
+        if (!this._opRuntime) {
+            this._opRuntime = new WebGraphicsOp2DRuntime(this._owner);
+            this._opRuntime.setGraphicsHandleUpdateBuffer(this._graphicsHandleUpdateBuffer);
+        }
+        this.needUseMatrix = false;
+    }
+
+    setGraphicsHandleUpdateBuffer(buffer: ArrayBuffer): void {
+        if (this._graphicsHandleUpdateBuffer === buffer)
+            return;
+        this._graphicsHandleUpdateBuffer = buffer;
+        if (this._opRuntime)
+            this._opRuntime.setGraphicsHandleUpdateBuffer(buffer);
+    }
+
+    syncGraphicsOps(ops: ReadonlyArray<IGraphicsOp2D>): void {
+        this._createGraphicsOpRuntime();
+        if (this._opRuntime)
+            this._opRuntime.syncGraphicsOps(ops as ReadonlyArray<WebGraphicsOp2D>);
     }
 
     /** @internal */
-    _getBlocks() {
-        return this._bufferBlocks;
+    getGraphicsBatchEntry(index: number): WebGraphicsBatchEntry {
+        return this._opRuntime ? this._opRuntime.getGraphicsBatchEntry(index) : null;
     }
 
     inheriteRenderData(context: IRenderContext2D): void {
         let data = this._owner.spriteShaderData;
-        if (!data)
-            return;
 
-        // 先取变更帧号；矩阵没变就不读 renderMatrix(getter 每次会填一份 Matrix)，省掉无谓的 copy。
-        let matFrame = Transform2DStore.instance.getMatrixFrame(this._owner.transSlot);
+        if (data) {
+            let store = Transform2DStore.instance;
+            let matFrame = store.getMatrixFrame(this._owner.transSlot);
+            let globalAlpha = this._owner.globalAlpha;
+            let alphaChanged = this._globalAlpha != globalAlpha;
 
-        if (
-            this._modifiedFrame < matFrame
-        ) {
-            // 仅在 world 矩阵真变时才按 slot 从 store 读 renderMatrix。
-            let mat = this._owner.renderMatrix;
-            if (!this._bufferBlocks || !this._bufferBlocks.length) {
-
-                //更新位置
-                if (this.logicMatrix) {
-                    let temp = Matrix.TEMP;
-                    Matrix.mul(this.logicMatrix, mat.copyTo(temp), temp);
-                    this._nMatrix_0.setValue(temp.a, temp.c, temp.tx);
-                    this._nMatrix_1.setValue(temp.b, temp.d, temp.ty);
+            if (this._modifiedFrame !== matFrame) {
+                let mat: Matrix = null;
+                if (this.needUseMatrix || this.logicMatrix || (this._opRuntime && this._owner.transSlot < 0))
+                    mat = this._owner.renderMatrix;
+                if (this.needUseMatrix) {
+                    if (this.logicMatrix) {
+                        let temp = Matrix.TEMP;
+                        Matrix.mul(this.logicMatrix, mat.copyTo(temp), temp);
+                        this._nMatrix_0.setValue(temp.a, temp.c, temp.tx);
+                        this._nMatrix_1.setValue(temp.b, temp.d, temp.ty);
+                    }
+                    else {
+                        this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
+                        this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
+                    }
+                    data.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
+                    data.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
                 }
-                else {
-                    this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
-                    this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
+                if (this._opRuntime) {
+                    if (mat)
+                        this._opRuntime.updateTransform(mat, globalAlpha, alphaChanged);
+                    else {
+                        store.readWorldMatrix(this._owner.transSlot, this._matrixScratch);
+                        let m = this._matrixScratch;
+                        this._opRuntime.updateTransformValues(m[0], m[1], m[2], m[3], m[4], m[5], globalAlpha, alphaChanged);
+                    }
                 }
-
-                this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
-                this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
-            } else {
-                this._updateVertexData(mat, this._owner.globalAlpha, true, true, false);
-                this._globalAlpha = this._owner.globalAlpha;
+                this._globalAlpha = globalAlpha;
+                this._modifiedFrame = matFrame;
             }
-            this._modifiedFrame = matFrame;
-        }
-        else if (this._globalAlpha != this._owner.globalAlpha) {
-            this._globalAlpha = this._owner.globalAlpha;
-            // alpha-only:updateMatrix=false，不需要矩阵，传 null 省一次 renderMatrix 读取。
-            if (this._bufferBlocks && this._bufferBlocks.length)
-                this._updateVertexData(null, this._owner.globalAlpha, false, true, false);
-        }
-    }
-
-    private _updateVertexData(
-        mat: Matrix, globalAlpha: number,
-        updateMatrix: boolean, updateGlobalAlpha: boolean, updateTextureArrayLayerIndex: boolean
-    ) {
-        let pos = 0, dataViewIndex = 0, ci = 0;
-        let dataView: Web2DGraphic2DVertexDataView = null;
-        let m00 = 1, m01 = 0, m10 = 0, m11 = 1, tx = 0, ty = 0;
-        if (updateMatrix) {
-            m00 = mat.a, m01 = mat.b, m10 = mat.c, m11 = mat.d, tx = mat.tx, ty = mat.ty;
-        }
-        let vbdata = null;
-        let vertexCount = 0, positions: number[] = null, vertexViews: Web2DGraphic2DVertexDataView[] = null;
-        let stride = this._bufferBlocks[0].vertexBuffer.vertexDeclaration.vertexStride / 4;
-        let textureArrayLayerIndex = 0;
-        for (let i = 0, n = this._bufferBlocks.length; i < n; i++) {
-            let vertexs = this._bufferBlocks[i].vertexs;
-            textureArrayLayerIndex = this._bufferBlocks[i].textureArrayIndex;
-
-            for (let index = 0, len = vertexs.length; index < len; index++) {
-                positions = vertexs[index].positions;
-                vertexViews = vertexs[index].vertexViews as Web2DGraphic2DVertexDataView[];
-
-                vertexCount = positions.length / 2;
-                dataView = null;
-                pos = 0, ci = 0, dataViewIndex = 0;
-
-                for (let j = 0; j < vertexCount; j++) {
-
-                    if (!dataView || dataView.length <= pos) {
-                        dataView = vertexViews[dataViewIndex];
-                        dataView._modify();
-                        dataViewIndex++;
-                        pos = 0;
-                        vbdata = dataView._getData();
-                    }
-
-                    if (updateMatrix) {
-                        let x = positions[ci], y = positions[ci + 1];
-                        vbdata[pos] = x * m00 + y * m10 + tx;
-                        vbdata[pos + 1] = x * m01 + y * m11 + ty;
-                    }
-
-                    if (updateGlobalAlpha) {
-                        vbdata[pos + 10] = globalAlpha;
-                    }
-
-                    if (updateTextureArrayLayerIndex) {
-                        vbdata[pos + 11] = textureArrayLayerIndex;
-                    }
-
-                    pos += stride;
-                    ci += 2;
+            else if (this._globalAlpha != globalAlpha) {
+                this._globalAlpha = globalAlpha;
+                if (this._opRuntime) {
+                    this._opRuntime.updateGlobalAlpha(this._globalAlpha);
                 }
             }
-
         }
-    }
-
-    getCloneViews(): Web2DGraphic2DIndexCloneDataView[] {
-        if (!this._clonesViews) {
-            this._clonesViews = [];
-            for (let i = 0, n = this._bufferBlocks.length; i < n; i++) {
-                this._clonesViews[i] = this._cloneView(this._bufferBlocks[i].indexView as Web2DGraphic2DIndexDataView);
-            }
-        }
-        return this._clonesViews;
-    }
-
-    updateCloneView() {
-        let cloneViews = this.getCloneViews();
-        let blockLength = this._bufferBlocks.length;
-        let cloneLength = cloneViews.length;
-
-        if (cloneLength > blockLength) {//超出
-            for (let i = blockLength; i < cloneLength; i++) {
-                let view = cloneViews[i];
-                view._geometry.destroy();
-                if (view.owner)
-                    view.owner.removeDataView(view);
-            }
-        }
-
-        this._clonesViews.length = blockLength;
-
-        for (let i = 0; i < blockLength; i++) {
-            let view = cloneViews[i] as Web2DGraphic2DIndexCloneDataView;
-            let block = this._bufferBlocks[i];
-            if (block) {
-                cloneViews[i] = this._cloneView(block.indexView as Web2DGraphic2DIndexDataView, view);
-            }
-        }
-    }
-
-    private _cloneView(view: Web2DGraphic2DIndexDataView, oView: Web2DGraphic2DIndexCloneDataView = null) {
-        let clone: Web2DGraphic2DIndexCloneDataView;
-        if (oView && oView._geometry) {
-            clone = oView;
-            view._cloneView(clone);
-            //更新需要提交
-            // clone._lastStart = -1;
-        } else {
-            clone = view._clone(false, false);
-            clone._geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
-            clone._geometry.indexFormat = GraphicsDefines.GRAPHICS_INDEX_FORMAT;
-        }
-        return clone;
     }
 
     destroy(): void {
+        this._destroyGraphicsOpRuntime();
         super.destroy();
-
-        if (this._clonesViews) {
-            for (let i = 0, n = this._clonesViews.length; i < n; i++)
-                this._clonesViews[i]._geometry.destroy();
-            this._clonesViews = null;
-        }
-        this._bufferBlocks = null;
     }
 }
-
 
 export class Web2DBaseRenderDataHandle extends WebRender2DDataHandle implements I2DBaseRenderDataHandle {
     private _lightReceive: boolean = false;

@@ -16,6 +16,11 @@ type SequenceFrame2DElement = IRenderElement2D & {
     _sequenceFrame2DRender?: SequenceFrame2DRender;
 };
 
+type SequenceFrameOwner = {
+    globalRenderData: unknown;
+    getClipInfo?: () => unknown;
+};
+
 interface ISequenceFrame2DBatchInfo {
     element: IRenderElement2D;
     geometry: IRenderGeometryElement;
@@ -108,8 +113,8 @@ export class SequenceFrame2DInstanceBatch implements IBatch2DProvider {
             return false;
         }
 
-        const leftOwner = left.owner as any;
-        const rightOwner = right.owner as any;
+        const leftOwner = left.owner as unknown as SequenceFrameOwner;
+        const rightOwner = right.owner as unknown as SequenceFrameOwner;
         if (leftOwner.globalRenderData !== rightOwner.globalRenderData) {
             return false;
         }

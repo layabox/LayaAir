@@ -180,6 +180,21 @@ export class Graphics {
         }
     }
 
+    private _repaintCommandReplacement(index: number, oldCmd: IGraphicsCmd, newCmd: IGraphicsCmd): boolean {
+        this._modified = Stat.loopCount;
+        this._graphicBounds?.reset();
+        if (!this.owner)
+            return true;
+
+        let renderer = this.owner._graphicsRenderer;
+        renderer?._checkDisplay();
+        if (renderer && renderer._queueCommandReplacement(index, oldCmd, newCmd)) {
+            this.owner.repaint();
+            return true;
+        }
+        return false;
+    }
+
     /**
      * @internal
      * @en Get the count of commands that need to respond to layout changes.
@@ -281,6 +296,7 @@ export class Graphics {
      */
     replaceCmd<T extends IGraphicsCmd>(oldCmd: IGraphicsCmd, newCmd: T, recover?: boolean): T {
         let index = this._cmds.indexOf(oldCmd);
+        let replaceExisting = index !== -1 && newCmd != null;
         
         if (oldCmd && oldCmd.needsLayoutRepaint) {
             this._layoutRepaintCount -= oldCmd.needsLayoutRepaint();
@@ -296,7 +312,8 @@ export class Graphics {
                 this._layoutRepaintCount += newCmd.needsLayoutRepaint();
             }
             
-            this.repaint();
+            if (!replaceExisting || !this._repaintCommandReplacement(index, oldCmd, newCmd))
+                this.repaint();
         }
         else if (index != -1) {
             this._cmds.splice(index, 1);
@@ -309,6 +326,34 @@ export class Graphics {
         }
 
         return newCmd;
+    }
+
+    /** @internal */
+    patchFrameAnimationCmd(oldCmd: DrawTextureCmd, newCmd: DrawTextureCmd): boolean {
+        let index = this._cmds.indexOf(oldCmd);
+        if (index < 0 || !newCmd || oldCmd.cmdID !== newCmd.cmdID || !this.owner)
+            return false;
+
+        let renderer = this.owner._graphicsRenderer;
+        if (!renderer || !renderer._patchTextureQuadCommand(index, oldCmd, newCmd))
+            return false;
+
+        if (oldCmd.needsLayoutRepaint)
+            this._layoutRepaintCount -= oldCmd.needsLayoutRepaint();
+        this._cmds[index] = newCmd;
+        if (newCmd.needsLayoutRepaint)
+            this._layoutRepaintCount += newCmd.needsLayoutRepaint();
+
+        this._graphicBounds?.reset();
+        this.owner.repaint();
+        return true;
+    }
+
+    /** @internal */
+    preRegisterFrameAnimationCmds(cmds: ReadonlyArray<DrawTextureCmd> | null): void {
+        if (!this.owner)
+            return;
+        this.owner._graphicsRenderer?._preRegisterTextureQuadCommands(cmds);
     }
 
 
@@ -448,7 +493,7 @@ export class Graphics {
      * @param color （可选）颜色变换。默认为null。
      * @param blendMode （可选）混合模式。默认为null。
      */
-    drawTriangles(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array, matrix: Matrix | null = null,
+    drawTriangles(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array | Uint32Array, matrix: Matrix | null = null,
         alpha: number = 1, color: string | number = null, blendMode: string | null = null): DrawTrianglesCmd {
         return this.addCmd(DrawTrianglesCmd.create(texture, x, y, vertices, uvs, indices, matrix, alpha, color, blendMode));
     }
@@ -495,7 +540,8 @@ export class Graphics {
      * @param height 剪裁区域的高度
      */
     clipRect(x: number, y: number, width: number, height: number): ClipRectCmd {
-        return this.addCmd(ClipRectCmd.create(x, y, width, height));
+        console.warn("Graphics.clipRect command is no longer supported. Use Sprite clip/scrollRect so clipping is handled by the render struct.");
+        return null;
     }
 
     /**
@@ -653,7 +699,6 @@ export class Graphics {
      * @param color 新的颜色
      */
     replaceTextColor(color: string): void {
-        this.repaint();
         let cmds = this._cmds;
         for (let i = cmds.length - 1; i > -1; i--) {
             let cmd = cmds[i];
@@ -667,6 +712,7 @@ export class Graphics {
                     break;
             }
         }
+        this.repaint();
     }
 
     /**

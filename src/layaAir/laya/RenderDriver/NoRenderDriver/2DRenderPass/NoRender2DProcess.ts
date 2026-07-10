@@ -13,13 +13,10 @@ import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderG
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { NoRenderSetRenderData, NoRenderSetShaderDefine } from "../DriverDevice/NoRenderDeviceFactory";
-import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, I2DGraphicWholeBuffer, I2DGraphicIndexDataView, I2DGraphicVertexDataView, I2DGraphicBufferDataView, IGraphics2DBufferBlock, IGraphics2DVertexBlock } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, IGraphicsOp2DFactory } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import {
-	NoRenderGraphics2DBufferBlock, NoRenderGraphics2DVertexBlock,
-	NoRenderVertexDataView, NoRenderIndexDataView,
-	NoRenderGraphicVertexBuffer, NoRenderGraphicIndexBuffer,
 	NoRenderGlobalRenderData, NoRenderEmptyDataHandle,
 	NoRenderPrimitiveDataHandle, NoRenderBaseDataHandle,
 	NoRenderMeshDataHandle, NoRenderSpineDataHandle,
@@ -27,34 +24,13 @@ import {
 } from "./NoRender2DModuleData";
 import { ITransform2DMemoryFactory } from "../../../display/transform2d/ITransform2DMemory";
 import { NoRenderTransform2DMemoryFactory } from "./NoRenderTransform2DMemoryFactory";
+import { NoRenderGraphicsOp2DFactory } from "./NoRenderGraphicsOp2DFactory";
 
 
 export class NoRender2DProcess implements I2DRenderPassFactory {
     createTransform2DMemoryFactory(): ITransform2DMemoryFactory {
         return new NoRenderTransform2DMemoryFactory();
     }
-    createGraphic2DBufferBlock(): IGraphics2DBufferBlock {
-        return new NoRenderGraphics2DBufferBlock();
-    }
-
-    createGraphic2DVertexBlock(): IGraphics2DVertexBlock {
-        return new NoRenderGraphics2DVertexBlock();
-    }
-
-    create2DGraphicVertexDataView(wholeBuffer: I2DGraphicWholeBuffer, elementOffset: number, elementSize: number, stride: number): I2DGraphicVertexDataView {
-        return new NoRenderVertexDataView(wholeBuffer as NoRenderGraphicVertexBuffer, elementOffset, elementSize, stride);
-    }
-    create2DGraphicIndexDataView(wholeBuffer: I2DGraphicWholeBuffer, elementSize: number): I2DGraphicIndexDataView {
-        return new NoRenderIndexDataView(wholeBuffer as NoRenderGraphicIndexBuffer, elementSize);
-    }
-    create2DGraphicIndexBuffer(): I2DGraphicWholeBuffer {
-        return new NoRenderGraphicIndexBuffer();
-    }
-
-    create2DGraphicVertexBuffer(): I2DGraphicWholeBuffer {
-        return new NoRenderGraphicVertexBuffer();
-    }
-
     createRender2DPassManager(): IRender2DPassManager {
         return new NoRender2DPassManager();
     }
@@ -73,6 +49,9 @@ export class NoRender2DProcess implements I2DRenderPassFactory {
     }
     create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle {
         return new NoRenderPrimitiveDataHandle();
+    }
+    createGraphicsOp2DFactory(): IGraphicsOp2DFactory {
+        return new NoRenderGraphicsOp2DFactory();
     }
     create2DBaseRenderDataHandle(): I2DBaseRenderDataHandle {
         return new NoRenderBaseDataHandle();
@@ -110,8 +89,6 @@ export class NoRender2DProcess implements I2DRenderPassFactory {
 }
 
 export class NoRenderElement2D implements IRenderElement2D {
-    typeKey: number = 0;
-    textureKey: number = 0;
     type: number;
     owner: IRenderStruct2D;
     nodeCommonMap: string[];

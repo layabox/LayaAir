@@ -31,7 +31,8 @@ import { IRender2DPass } from "../RenderDriver/RenderModuleData/Design/2D/IRende
 import { BlendMode, BlendModeHandler } from "../webgl/canvas/BlendMode";
 import { Stat } from "../utils/Stat";
 import { Scene } from "./Scene";
-import { GraphicsRenderer, SubStructRender } from "./Scene2DSpecial/GraphicsUtils";
+import { SubStructRender } from "./Scene2DSpecial/GraphicsRenderPipeline/SubStructRender";
+import { GraphicsRenderer } from "./Scene2DSpecial/GraphicsRenderPipeline/GraphicsRenderer";
 import { PostProcess2D } from "./PostProcess2D";
 import { Render2DProcessor } from "./Render2DProcessor";
 import { Color } from "../maths/Color";
@@ -1828,7 +1829,7 @@ export class Sprite extends Node {
             }
 
             if (sprite._graphics) {
-                sprite._graphicsRenderer._render(runner, 0, 0);
+                sprite._graphicsRenderer._render(runner);
             }
 
             for (let i = 0, len = sprite._children.length; i < len; i++)
@@ -2168,7 +2169,7 @@ export class Sprite extends Node {
             if (this._renderType & SpriteConst.GRAPHICS) {
                 if (flag & RepaintFlag.Graphics) {
                     if (this._graphicsRenderer)
-                        this._graphicsRenderer.onModified();
+                        this._graphicsRenderer.invalidateGraphicsState();
                 }
                 this._globalTrans._notifyRenderSpriteTransChange();
             }
@@ -2532,26 +2533,9 @@ export class Sprite extends Node {
             return;
 
         let struct = this._struct;
-        // 渲染结构按 slot 从 Transform2DStore 直读 world，替代 SpriteGlobalTransform。
-        // Web 后端 struct.renderMatrix getter 自身也按 slot 直读 store(供顶点绘制)；
-        // 这里推一份给非 Web 后端 + bump modifiedFrame(Spine/clip 用) + 取包围盒用矩阵。
-        const store = Transform2DStore.instance;
-        const slot = this._globalTrans.slot;
-        if (store.dirtyM)
-            store.computeWorldMatrix(slot, _structWM6);
-        else
-            store.readWorldMatrix(slot, _structWM6);
-        const sm = _structMat;
-        sm.a = _structWM6[0]; sm.b = _structWM6[1]; sm.c = _structWM6[2];
-        sm.d = _structWM6[3]; sm.tx = _structWM6[4]; sm.ty = _structWM6[5];
-        sm._checkTransform();
-        struct.renderMatrix = sm;
-        if (this._subStruct)
-            this._subStruct.renderMatrix = sm;
-
-        let matrix = struct.renderMatrix;
         let rect = struct.rect;
         if (this._struct.inheritedEnableCulling || this._struct.inheritedDcOptimize) {
+            let matrix = struct.renderMatrix;
             this.getSelfBounds(rect, false);
             rect.transform(matrix, rect);
             struct.rect = rect;
@@ -2606,10 +2590,10 @@ export class Sprite extends Node {
     protected _setParent(value: Node, index: number = -1): void {
         this._globalTrans._spTransChanged(TransformKind.TRS);
 
+        this._setStructParent(value as Sprite, index);
         super._setParent(value, index);
 
         this._syncTransParent();
-        this._setStructParent(value as Sprite, index);
         this._processVisible();
 
         if (value && (this._mouseState === 2 || this._mouseState === 0 && this._getBit(NodeFlags.CHECK_INPUT))
@@ -2685,8 +2669,6 @@ export class Sprite extends Node {
         super._setDisplay(value);
         //默认有父节点改变，需要重绘 graphics
         if (this._needGraphicsUpdate()) {
-            if (this._graphicsRenderer)
-                this._graphicsRenderer.onModified();
             this.stage._graphicUpdateList.add(this);
             this._globalTrans._notifyRenderSpriteTransChange();
         }
