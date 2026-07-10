@@ -77,17 +77,6 @@ export class SpineSkeleton extends Sprite {
     }
 
     /**
-     * 非循环动画播放结束后是否停留在最后一帧
-     */
-    get stopAtLastFrame(): boolean {
-        return this._spineComponent.stopAtLastFrame;
-    }
-
-    set stopAtLastFrame(value: boolean) {
-        this._spineComponent.stopAtLastFrame = value;
-    }
-
-    /**
      * 得到动画模板的引用
      * @return templet
      */
@@ -185,11 +174,10 @@ export class SpineSkeleton extends Sprite {
     }
 
     /**
-     * 停止动画
-     * @param rewind 是否回退到起始帧，为false时停留在当前帧
+     * 停止动画，停留在当前帧
      */
-    stop(rewind: boolean = true): void {
-        this._spineComponent.stop(rewind);
+    stop(): void {
+        this._spineComponent.stop();
     }
 
     /**

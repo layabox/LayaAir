@@ -79,7 +79,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     private _skinName: string = "default";
     private _animationName: string;
     private _loop: boolean = true;
-    private _stopAtLastFrame: boolean = true;
     private _playState: ESpineRenderState = ESpineRenderState.Stopped;
 
     private _externalSkins: ExternalSkin[];
@@ -340,18 +339,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this._loop = value;
         if (this._templet)
             this.play(this._animationName, this._loop, true);
-    }
-
-    /**
-     * @zh 非循环动画播放结束后是否停留在最后一帧。为false时回退到起始帧。
-     * @en Whether a non-looping animation holds its last frame when finished. If false, it rewinds to the start frame.
-     */
-    get stopAtLastFrame(): boolean {
-        return this._stopAtLastFrame;
-    }
-
-    set stopAtLastFrame(value: boolean) {
-        this._stopAtLastFrame = value;
     }
 
 
@@ -625,7 +612,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
                     this._spineRender.complete();
                     this.owner.event(Event.COMPLETE);
                 } else { // 如果只播放一次，就发送stop事件
-                    this.stop(!this._stopAtLastFrame);
+                    this.stop();
                 }
             },
             event: (entry: any, event: any) => {
@@ -844,29 +831,20 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * @zh 停止动画
-     * @param rewind 是否回退到起始帧，为false时停留在当前帧
-     * @en Stop the animation.
-     * @param rewind Whether to rewind to the start frame. If false, the current frame is held.
+     * @zh 停止动画，停留在当前帧。
+     * @en Stop the animation, holding the current frame.
      */
-    stop(rewind: boolean = true): void {
-        if (!this._pause) {
-            this._pause = true;
-            this._needUpdate = false;
-            this._playState = ESpineRenderState.Stopped;
+    stop(): void {
+        if (this._playState === ESpineRenderState.Stopped)
+            return;
 
-            if (rewind) {
-                // 回退到开始位置
-                this._spineRender.update(-this._spineRender.currentTime);
-                this._spineRender.currentTime = 0;
-            } else {
-                this.owner.repaint(RepaintFlag.UpdateRT);
-            }
-            this.owner.event(Event.STOPPED);
+        this._pause = true;
+        this._needUpdate = false;
+        this._playState = ESpineRenderState.Stopped;
+        this.owner.event(Event.STOPPED);
 
-            if (this._soundChannelArr.length > 0) { // 有正在播放的声音
-                this._onAniSoundStoped(true);
-            }
+        if (this._soundChannelArr.length > 0) { // 有正在播放的声音
+            this._onAniSoundStoped(true);
         }
     }
 
