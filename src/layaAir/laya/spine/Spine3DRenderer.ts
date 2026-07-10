@@ -59,6 +59,8 @@ export class Spine3DRenderer extends BaseRender {
     private _skinName: string = "default";
     private _animationName: string;
     private _loop: boolean = true;
+    private _stopAtLastFrame: boolean = true;
+    private _playState: ESpineRenderState = ESpineRenderState.Stopped;
 
     private _useFastRender: boolean = true;
 
@@ -311,6 +313,18 @@ export class Spine3DRenderer extends BaseRender {
     }
 
     /**
+     * @zh 非循环动画播放结束后是否停留在最后一帧。为false时回退到起始帧。
+     * @en Whether a non-looping animation holds its last frame when finished. If false, it rewinds to the start frame.
+     */
+    get stopAtLastFrame(): boolean {
+        return this._stopAtLastFrame;
+    }
+
+    set stopAtLastFrame(value: boolean) {
+        this._stopAtLastFrame = value;
+    }
+
+    /**
      * @zh Spine动画模板的引用
      * @en The Spine template reference.
      */
@@ -350,10 +364,7 @@ export class Spine3DRenderer extends BaseRender {
      * @en Get the current play time.
      */
     get playState(): ESpineRenderState {
-        if (this._pause)
-            if (this.currentTime) return ESpineRenderState.Paused;
-            else return ESpineRenderState.Stopped;
-        return ESpineRenderState.Playing;
+        return this._playState;
     }
 
     /**
@@ -484,7 +495,7 @@ export class Spine3DRenderer extends BaseRender {
                     this._spineRender.complete();
                     this.owner.event(Event.COMPLETE);
                 } else {
-                    this.stop();
+                    this.stop(!this._stopAtLastFrame);
                 }
             },
             event: (entry: any, event: any) => {
@@ -582,6 +593,7 @@ export class Spine3DRenderer extends BaseRender {
                 this._pause = false;
                 this._needUpdate = true;
             }
+            this._playState = ESpineRenderState.Playing;
 
             this._update();
         }
@@ -669,14 +681,20 @@ export class Spine3DRenderer extends BaseRender {
 
     /**
      * @zh 停止动画
+     * @param rewind 是否回退到起始帧，为false时停留在当前帧
      * @en Stop the animation.
+     * @param rewind Whether to rewind to the start frame. If false, the current frame is held.
      */
-    stop(): void {
+    stop(rewind: boolean = true): void {
         if (!this._pause) {
             this._pause = true;
             this._needUpdate = false;
-            this._spineRender.update(-this._spineRender.currentTime);
-            this._spineRender.currentTime = 0;
+            this._playState = ESpineRenderState.Stopped;
+
+            if (rewind) {
+                this._spineRender.update(-this._spineRender.currentTime);
+                this._spineRender.currentTime = 0;
+            }
             this.owner.event(Event.STOPPED);
         }
     }
@@ -694,18 +712,20 @@ export class Spine3DRenderer extends BaseRender {
         if (!this._pause) {
             this._pause = true;
             this._needUpdate = false;
+            this._playState = ESpineRenderState.Paused;
             this.owner.event(Event.PAUSED);
         }
     }
 
     /**
-     * @zh 恢复动画的播放
-     * @en Resume the animation playback.
+     * @zh 恢复动画的播放。只有被paused暂停的动画才能恢复，已停止的动画需要调用play重新播放。
+     * @en Resume the animation playback. Only a paused animation can be resumed, a stopped one must be replayed with play.
      */
     resume(): void {
-        if (this._pause) {
+        if (this._playState === ESpineRenderState.Paused) {
             this._pause = false;
             this._needUpdate = true;
+            this._playState = ESpineRenderState.Playing;
         }
     }
 
@@ -817,6 +837,7 @@ export class Spine3DRenderer extends BaseRender {
         this._resetSkeletonPosition();
         this._pause = true;
         this._needUpdate = false;
+        this._playState = ESpineRenderState.Stopped;
     }
 
     /**
