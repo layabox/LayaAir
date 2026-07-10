@@ -1,4 +1,5 @@
 import { EventDispatcher } from "../events/EventDispatcher";
+import { Filter } from "../filters/Filter";
 import { LayaGL } from "../layagl/LayaGL";
 import { Vector2 } from "../maths/Vector2";
 import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
@@ -155,6 +156,11 @@ export class PostProcess2D extends EventDispatcher {
     * @param effect 要添加的后期处理效果。
     */
    addEffect<T extends PostProcess2DEffect>(effect: T): T | null {
+      // 兼容旧用法：允许直接传入 ColorFilter/GlowFilter/BlurFilter 等 Filter 外壳，自动解包为真正的 effect
+      if (effect instanceof Filter) {
+         effect = effect.getEffect() as unknown as T;
+      }
+
       if (effect.destroyed) {
          console.error("the target effect is destroyed", effect);
          return null;
