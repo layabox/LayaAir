@@ -260,9 +260,11 @@ export class WebRender2DPass implements IRender2DPass {
 
          if (this._mask) {
             let renderMask = this._mask.subStruct;
-            renderMask._handleInterData();
-            renderMask.renderUpdate(context);
-            context.drawRenderElementOne(renderMask.renderElements[0]);
+            if (renderMask) {
+               renderMask._handleInterData();
+               renderMask.renderUpdate(context);
+               context.drawRenderElementOne(renderMask.renderElements[0]);
+            }
          }
 
          // 处理后期处理
