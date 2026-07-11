@@ -215,15 +215,13 @@ export class Color implements IClone {
         if (value == null)
             value = 0;
 
-        if (typeof value !== 'string' && typeof value !== 'number') {
-            this.setValue(0, 0, 0, 1);
-            return this;
-        }
-
         if (typeof value === 'number') {
             if (value < 0 || isNaN(value))
                 value = 0;
             this.setRGB(value);
+        }
+        else if (typeof value !== 'string') {
+            this.setValue(0, 0, 0, 1);
         }
         else if (value.indexOf("rgba(") >= 0 || value.indexOf("rgb(") >= 0) {
             let p1 = value.indexOf("(");
