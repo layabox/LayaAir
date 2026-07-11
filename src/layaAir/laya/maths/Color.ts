@@ -220,6 +220,9 @@ export class Color implements IClone {
                 value = 0;
             this.setRGB(value);
         }
+        else if (typeof value !== 'string') {
+            this.setValue(0, 0, 0, 1);
+        }
         else if (value.indexOf("rgba(") >= 0 || value.indexOf("rgb(") >= 0) {
             let p1 = value.indexOf("(");
             let p2 = value.indexOf(")");
