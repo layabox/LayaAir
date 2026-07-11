@@ -15,7 +15,6 @@ import { Material } from "../resource/Material";
 /**
  * @en Base class for 2D animator components, provides shared clip playback logic.
  * @zh 2D 动画组件基类，提供共用的 clip 播放逻辑。
- * @internal
  */
 export class Animator2DBase extends Component {
     /**@internal */
