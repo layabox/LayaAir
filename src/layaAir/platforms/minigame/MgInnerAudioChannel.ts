@@ -36,12 +36,12 @@ export class MgInnerAudioChannel extends SoundChannel {
         });
         ctx.onEnded(() => this.onPlayEnd());
         let playSound = () => {
+            ctx.offCanplay(playSound);
             if (this._ctx && !this._paused) {
                 if (this.startTime != 0)
                     ctx.seek(this.startTime);
                 ctx.play();
             }
-            ctx.offCanplay(playSound);
         };
         ctx.onCanplay(playSound);
 
