@@ -1,4 +1,3 @@
-import { NodeFlags } from "../Const";
 import { Draw9GridTextureCmd } from "../display/cmd/Draw9GridTextureCmd";
 import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
 import { DrawTrianglesCmd } from "../display/cmd/DrawTrianglesCmd";
@@ -25,8 +24,7 @@ export class ImageRenderer {
 
     destroy() {
         if (this._tex) {
-            if (this._owner._getBit(NodeFlags.EDITING_NODE))
-                this._tex.off("reload", this, this.onTextureReload);
+            this._tex.off("reload", this, this.onTextureReload);
             this._tex = null;
         }
         if (this._drawCmd) {
@@ -36,13 +34,12 @@ export class ImageRenderer {
     }
 
     setTexture(value: Texture) {
-        if (this._tex && this._owner._getBit(NodeFlags.EDITING_NODE))
+        if (this._tex)
             this._tex.off("reload", this, this.onTextureReload);
 
         this._tex = value;
         if (value) {
-            if (this._owner._getBit(NodeFlags.EDITING_NODE))
-                value.on("reload", this, this.onTextureReload);
+            value.on("reload", this, this.onTextureReload);
 
             this.createCmd();
         }
