@@ -80,6 +80,8 @@ export class GraphicsRunner {
     //public var _vbs:Array = [];	//双buffer管理。TODO 临时删掉，需要mesh中加上
     private _transedPoints: number[] = new Array(8);	//临时的数组，用来计算4个顶点的转换后的位置。
     private _temp4Points: number[] = new Array(8);		//临时数组。用来保存4个顶点的位置。
+    private _appendDataIndexMap: number[] = [];
+    private _applyCachedIndexMap: number[] = [];
 
     _textureProcessor: ITextureProcessor = new EmptyTextureProcessor();
     _clipRect = SaveClipRect.MAX;
@@ -1164,7 +1166,8 @@ export class GraphicsRunner {
         blendMode?: BlendMode | string,
         colorNum?: number,
         colors?: Float32Array,
-        uvRange?: ArrayLike<number>): void {
+        uvRange?: ArrayLike<number>,
+        customs?: ArrayLike<number>): void {
 
         if (tex) {
             if (!this._getImageSource(tex)) { //source内调用tex.active();
@@ -1246,12 +1249,12 @@ export class GraphicsRunner {
             Matrix.mul(tmpMat, this._curMat, tmpMat);
             tmpMat._checkTransform();
             //由于2d动画部分的uvs是绝对的（例如图集的话就是相对图集的）所以最后不传uvrect了。
-            positions = this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, tmpMat, null, !!tex, colors, uvRange);
+            positions = this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, tmpMat, null, !!tex, colors, uvRange, customs);
         }
         else {
             // 这种情况是drawtexture转成的drawTriangle，直接使用matrix就行，传入的xy都是0
             let m = this._curMat == matrix ? (this._matrixChanged ? this._curMat : null) : matrix;
-            positions = this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, m, null, !!tex, colors, uvRange);
+            positions = this.appendData(vertices, indices, vertexResult, submit, uvs, rgba, m, null, !!tex, colors, uvRange, customs);
         }
         // this._curSubmit._numEle += indices.length;
         this._appendBlockInfo(vertexResult, positions);
@@ -2222,6 +2225,7 @@ export class GraphicsRunner {
         matrix: Matrix, uvrect: ArrayLike<number>, useTex: boolean,
         colors?: ArrayLike<number>,
         uvRange?: ArrayLike<number>,
+        customs?: ArrayLike<number>,
     ) {
         let vertexCount = vertices.length / 2;
         let uvminx = 0;
@@ -2254,11 +2258,12 @@ export class GraphicsRunner {
         let useClipByte = uvRange ? 0xff : 0;
         let dataViewIndex = 0;
         let vertexViews = result.vertexViews;
-        let indexsMap: number[] = [];
+        let indexsMap = this._appendDataIndexMap;
+        indexsMap.length = vertexCount;
         let dataView: I2DGraphicVertexDataView;
         let offset = 0;
 
-        let positions: number[] = [];
+        let positions: number[] = new Array(vertices.length);
         let vbdata: Float32Array = result.mesh._buffer._tempVertexData;
         let vertexLength = GraphicsMesh.stride;
 
@@ -2335,7 +2340,12 @@ export class GraphicsRunner {
             // @ts-ignore
             vbdata[vi + 11] = (submit && submit._internalInfo && submit._internalInfo.texArrayLayer) ? submit._internalInfo.texArrayLayer : 0;
 
-            if (uvRange) {
+            if (customs) {
+                vbdata[vi + 12] = customs[ci];
+                vbdata[vi + 13] = customs[ci + 1];
+                vbdata[vi + 14] = customs[ci + 2];
+                vbdata[vi + 15] = customs[ci + 3];
+            } else if (uvRange) {
                 vbdata[vi + 12] = uvRange[0];
                 vbdata[vi + 13] = uvRange[1];
                 vbdata[vi + 14] = uvRange[2];
@@ -2417,7 +2427,8 @@ export class GraphicsRunner {
         let vertexCount = chunk.vertexCount;
         let cachedVbdata = chunk.vbdata;
         let vbdata:Float32Array;
-        let indexsMap: number[] = [];
+        let indexsMap = this._applyCachedIndexMap;
+        indexsMap.length = vertexCount;
 
         let _localIndex = 0, localX: number, localY: number;
         for (let i = 0, vi = 0, pi = 0; i < vertexCount; i++) {
@@ -2568,4 +2579,3 @@ class ContextParams {
         return this === ContextParams.DEFAULT ? new ContextParams() : this;
     }
 }
-
