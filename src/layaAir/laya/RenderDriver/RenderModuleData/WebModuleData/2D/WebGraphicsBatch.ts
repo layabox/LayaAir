@@ -290,6 +290,8 @@ export class WebGraphicsBatch implements IBatch2DProvider {
             element.owner = null;
             element.renderStateIsBySprite = false;
             element.globalShaderData = null;
+            element.stencilClipState = null;
+            element.noBatch = false;
             element.typeKey = 0;
             element.textureKey = 0;
         });
@@ -442,6 +444,7 @@ export class WebGraphicsBatch implements IBatch2DProvider {
                 staticBatchRenderElement.renderStateIsBySprite = element.renderStateIsBySprite;
                 staticBatchRenderElement.primitiveShaderData = batchContext.primitiveShaderData;
                 staticBatchRenderElement.owner = element.owner;
+                staticBatchRenderElement.stencilClipState = element.stencilClipState;
                 staticBatchRenderElement.typeKey = batchContext.typeKey;
                 staticBatchRenderElement.textureKey = batchContext.textureKey;
             }

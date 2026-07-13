@@ -18,8 +18,8 @@ export class LayaXRenderElement2D implements IRenderElement2D, IRenderStateListe
 
     _nativeObj: any;
 
-    /** @internal Elem2DProps 共享块：JS 写、C++(RTGraphicsBatch) 读。槽 0=type 1=typeKey 2=textureKey (i32) */
-    protected _elem2dBuf = new ArrayBuffer(3 * 4);
+    /** @internal Elem2DProps 共享块：JS 写、C++(RTGraphicsBatch/RTRender2DPass) 读。槽 0=type 1=typeKey 2=textureKey 3=noBatch (i32) */
+    protected _elem2dBuf = new ArrayBuffer(4 * 4);
     protected _elem2dI32 = new Int32Array(this._elem2dBuf);
 
     protected init(): void {
@@ -150,6 +150,11 @@ export class LayaXRenderElement2D implements IRenderElement2D, IRenderStateListe
         if (this._renderStateIsBySprite === v) return;
         this._renderStateIsBySprite = v;
         this._nativeObj.renderStateIsBySprite = v;
+    }
+
+    get noBatch(): boolean { return this._elem2dI32[3] !== 0; }
+    set noBatch(v: boolean) {
+        this._elem2dI32[3] = v ? 1 : 0;
     }
 
     destroy(): void {

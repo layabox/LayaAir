@@ -54,6 +54,8 @@ export class SubStructRender {
       this._renderElement.nodeCommonMap = ["Sprite2D"];
       this._renderElement.geometry = Render2DProcessor.runner.inv_geometry;
       this._renderElement.renderStateIsBySprite = false;
+      // Sub-structure composites can share the empty-texture key but carry independent RT state.
+      this._renderElement.noBatch = true;
       BlendModeHandler.initBlendMode(this._spriteShaderData);
       this._renderElements = [this._renderElement];
    }
