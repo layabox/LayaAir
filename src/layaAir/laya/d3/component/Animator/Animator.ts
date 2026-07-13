@@ -1600,7 +1600,7 @@ export class Animator extends Component {
 
             var animatorState: AnimatorState = name ? controllerLayer.getAnimatorState(name) : defaultState;
             if (!animatorState || !animatorState._clip) {
-                throw new Error("Animator:must have clip value,please set clip property.");
+                console.warn("Animator:must have clip value,please set clip property.");
                 return;
             }
 
