@@ -141,7 +141,8 @@ export class Texture2DLoader implements IResourceLoader {
                             if (cls) {
                                 let mipmapRequested = constructParams?.[3] ?? true;
                                 let mipmap = mipmapRequested && ktxInfo.mipmapCount > 1;
-                                let tc = new cls(ktxInfo.width, ktxInfo.format, mipmap, ktxInfo.sRGB);
+                                let sRGB = constructParams ? !!constructParams[5] : ktxInfo.sRGB;
+                                let tc = new cls(ktxInfo.width, ktxInfo.format, mipmap, sRGB);
                                 tc.setKTXData(ktxInfo);
                                 tex = tc;
                             }
