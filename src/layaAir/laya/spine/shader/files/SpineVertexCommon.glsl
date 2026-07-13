@@ -1,7 +1,6 @@
 #if !defined(SpineVertexCommon_lib)
     #define SpineVertexCommon_lib
 
-uniform vec4 u_color;
 
 #ifdef SPINE_RB
     uniform vec4 u_sBone0;

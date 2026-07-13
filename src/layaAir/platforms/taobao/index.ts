@@ -8,4 +8,6 @@ MgBrowserAdapter.beforeInit = function () {
     Config.useWebGL2 = false;
     Browser.onTBMiniGame = true;
     PAL.g = (window as any).my;
+    if (!PAL.g.loadSubpackage && PAL.g.loadSubPackage)
+        PAL.g.loadSubpackage = PAL.g.loadSubPackage;
 };

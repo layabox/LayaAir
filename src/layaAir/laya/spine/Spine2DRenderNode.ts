@@ -707,7 +707,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     private _update(): void {
-        let timerDelta = Laya.timer.delta / 1000 * this._playbackRate;
+        let timerDelta = Laya.timer.delta / 1000;
         
         if (timerDelta > this._maxDeltaTime)
             timerDelta = this._maxDeltaTime;

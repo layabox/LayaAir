@@ -43,12 +43,14 @@ export class MgBrowserAdapter extends BrowserAdapter {
             this.webSocketClass = null;
 
         let platform: string = "";
+        let systemName: string = "";
         let systemInfo = PAL.hasAPI("getSystemInfoSync") ? PAL.g.getSystemInfoSync() : null;
 
         if (systemInfo) {
             this._pixelRatio = systemInfo.pixelRatio;
             this._orientation = systemInfo.deviceOrientation === "landscape" ? "landscape-primary" : "portrait-primary";
             platform = systemInfo.platform || "";
+            systemName = systemInfo.system || "";
         }
         else if (PAL.hasAPI("getWindowInfo")) {
             let windowInfo = PAL.g.getWindowInfo();
@@ -56,6 +58,7 @@ export class MgBrowserAdapter extends BrowserAdapter {
             if (PAL.g.getDeviceInfo) {
                 let deviceInfo = PAL.g.getDeviceInfo();
                 platform = deviceInfo.platform || "";
+                systemName = deviceInfo.system || "";
             }
         }
 
@@ -63,7 +66,7 @@ export class MgBrowserAdapter extends BrowserAdapter {
             this._pixelRatio = window.devicePixelRatio;
         }
 
-        this.setPlatform("", platform);
+        this.setPlatform("", this.normalizePlatform(platform, systemName));
 
         systemInfo = systemInfo || <any>{};
 
@@ -304,6 +307,30 @@ export class MgBrowserAdapter extends BrowserAdapter {
             if (PAL.g.offUnhandledRejection)
                 PAL.g.offUnhandledRejection(func);
         }
+    }
+
+    // Some mini-game platforms, such as Xiaomi, may return host version strings in platform.
+    protected normalizePlatform(platform: string, system: string): string {
+        let p = (platform || "").toLowerCase();
+
+        if (p.indexOf("openharmony") !== -1)
+            return "ohos";
+        if (p.indexOf("iphone") !== -1 || p.indexOf("ipad") !== -1)
+            return "ios";
+
+        if (p.indexOf("ios") !== -1 || p.indexOf("android") !== -1 || p.indexOf("ohos") !== -1
+            || p.indexOf("mac") !== -1 || p.indexOf("win") !== -1 || p === "devtools")
+            return platform;
+
+        let s = (system || "").toLowerCase();
+        if (s.indexOf("android") !== -1 || s.indexOf("adr") !== -1)
+            return "android";
+        if (s.indexOf("ios") !== -1 || s.indexOf("iphone") !== -1 || s.indexOf("ipad") !== -1)
+            return "ios";
+        if (s.indexOf("ohos") !== -1 || s.indexOf("openharmony") !== -1)
+            return "ohos";
+
+        return platform;
     }
 
     alert(msg: string): void {

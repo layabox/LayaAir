@@ -380,6 +380,10 @@ export class ReflectionProbe extends Volume {
      * @internal
      */
     protected _onDestroy() {
+        if (this._isScene) {
+            console.warn("Scene reflection probe can not be destroyed directly.");
+            return;
+        }
         this.iblTex = null;
         this._dataModule.destroy();
     }

@@ -821,6 +821,8 @@ export class BaseRender extends Component {
     _setUnBelongScene() {
         this._statRemove();
         this._scene._volumeManager.removeMotionObject(this);
+        this.probReflection = null;
+        this.lightProbe = null;
         let batch = this._batchRender;
         //this._batchRender && this._batchRender._removeOneRender(this);
         this._batchRender = batch;
