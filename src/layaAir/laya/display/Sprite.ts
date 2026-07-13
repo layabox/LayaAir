@@ -2158,6 +2158,7 @@ export class Sprite extends Node {
             if (this._renderType & SpriteConst.DRAW2RT) {
                 if (
                     !this._drawOriRT
+                    || this._drawOriRT === RenderTexture2D._empty
                     || this._subpassUpdateFlag
                     || flag & RepaintFlag.UpdateRT
                     || (this.transform && this._maskParent)
@@ -2622,7 +2623,8 @@ export class Sprite extends Node {
 
     private _checkSubRenderPass() {
         if (this._needUpdateSubpass()) {
-            if (this._subpassUpdateFlag || (this._renderType & SpriteConst.DRAW2RT && !this._drawOriRT)) {
+            if (this._subpassUpdateFlag 
+                || (this._renderType & SpriteConst.DRAW2RT && (!this._drawOriRT || this._drawOriRT === RenderTexture2D._empty))) {
                 this.setSubpassFlag(SubPassFlag.RenderTexture);
             }
         } else if (this._subpassUpdateFlag) {

@@ -305,29 +305,25 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
    /** @internal */
    _queueCommandReplacement(cmdIndex: number, oldCmd: IGraphicsCmd, newCmd: IGraphicsCmd): boolean {
       if (this._graphicsStateDirty)
-         return this._recordCommandReplacementQueueFail("graphics-state-dirty");
+         return false;
       if (this._renderedGraphicsModified === Number.MIN_SAFE_INTEGER)
-         return this._recordCommandReplacementQueueFail("not-built");
+         return false;
       if (!this.graphics)
-         return this._recordCommandReplacementQueueFail("no-graphics");
+         return false;
       if (!oldCmd || !newCmd)
-         return this._recordCommandReplacementQueueFail("missing-command");
+         return false;
       if (oldCmd.cmdID !== newCmd.cmdID)
-         return this._recordCommandReplacementQueueFail("cmd-id-changed");
+         return false;
 
       let range = this._commandTracker.getRange(cmdIndex);
       if (!range)
-         return this._recordCommandReplacementQueueFail("missing-range");
+         return false;
       if (!range.active || range.count <= 0)
-         return this._recordCommandReplacementQueueFail("inactive-range");
+         return false;
 
       if (this._pendingCommandReplacements.indexOf(cmdIndex) < 0)
          this._pendingCommandReplacements.push(cmdIndex);
       return true;
-   }
-
-   private _recordCommandReplacementQueueFail(reason: string): boolean {
-         return false;
    }
 
    private _clearPendingCommandReplacements(): void {
