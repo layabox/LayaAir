@@ -84,6 +84,10 @@ export class WebGLPrimitiveRenderElement2D extends WebGLRenderElement2D implemen
 
 
     override _render(context: WebglRenderContext2D) {
+        // 未就绪/已回收的元素(owner/subShader/缓存条目缺失, 常见于池化元素残留在 pass 的 _renderElements 里):
+        // 跳过, 避免 this.owner.getClipInfo() 等对 null 取属性崩溃(等 pass 重绘拿到有效元素再画)
+        if (!this.owner || !this._subShader || !this._curCacheEntry) return;
+
         let inss = this._curCacheEntry.shaderInss;
         let count = inss.length;
 

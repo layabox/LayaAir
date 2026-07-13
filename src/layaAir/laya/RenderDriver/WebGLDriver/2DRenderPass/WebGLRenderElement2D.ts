@@ -185,6 +185,10 @@ export class WebGLRenderElement2D implements IRenderElement2D {
     }
 
     _prepare(context: WebglRenderContext2D) {
+        // 元素未就绪(subShader 未配置): 常见于池化元素被回收/复用后仍残留在某 pass 的 _renderElements 缓存里,
+        // 此时跳过, 避免 _compileShader 读 this._subShader._passes 崩溃(等 pass 重绘拿到有效元素再画)
+        if (!this._subShader) return;
+
         this.globalShaderData = this.owner && this.owner._globalShaderData as WebGLShaderData;
 
         let entry = this._getOrCreateCacheEntry(context);
@@ -204,6 +208,9 @@ export class WebGLRenderElement2D implements IRenderElement2D {
     }
 
     _render(context: WebglRenderContext2D) {
+        // 未就绪/未编译的元素(subShader 空或无缓存条目): 跳过, 与 _prepare 的守卫配套
+        if (!this._subShader || !this._curCacheEntry) return;
+
         // 非 Primitive 元素打断快速路径链
         context._prevTypeKey = -1;
         context._prevTextureKey = -1;
