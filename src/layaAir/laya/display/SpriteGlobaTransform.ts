@@ -261,9 +261,8 @@ export class SpriteGlobalTransform {
      */
     _spTransChanged(kind: TransformKind) {
         const sp = this._sp;
-        Transform2DStore.instance.writeTRSByKind(
+        Transform2DStore.instance.writeTRSAll(
             this.slot,
-            kind,
             sp._x, sp._y, sp._scaleX, sp._scaleY,
             sp._rotation, sp._skewX, sp._skewY, sp._pivotX, sp._pivotY,
         );

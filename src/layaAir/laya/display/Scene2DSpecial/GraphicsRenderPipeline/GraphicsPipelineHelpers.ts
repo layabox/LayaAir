@@ -15,6 +15,8 @@ import {
 	type GraphicsOp2DTextureHost,
 } from "./GraphicsPipelineTypes";
 
+const GRAPHICS_ARC_MAX_SEGMENTS = 2048;
+
 function writeState(out: GraphicsCommandInfo): GraphicsCommandInfo {
 	out.dependency = GraphicsCommandDependency.None;
 	out.layoutRefresh = GraphicsCommandLayoutRefresh.None;
@@ -61,17 +63,30 @@ function getOwnerMaxScale(owner?: Sprite): number {
 
 	let scaleX = Math.sqrt(mat.a * mat.a + mat.b * mat.b);
 	let scaleY = Math.sqrt(mat.c * mat.c + mat.d * mat.d);
-	return Math.max(scaleX || 0, scaleY || 0, 1);
+	return Math.max(scaleX || 0, scaleY || 0);
+}
+
+function calcArcSegmentsWithScale(radius: number, scale: number, minNum: number = 20, segPixel: number = 5): number {
+	let safeRadius = Math.max(0, radius || 0);
+	let safeScale = isFinite(scale) ? Math.max(0, Math.abs(scale)) : 1;
+	let safeSegPixel = segPixel > 0 ? segPixel : 5;
+	let minSegments = Math.max(1, minNum | 0);
+	let segments = Math.max(minSegments, Math.floor(safeRadius * safeScale * Math.PI * 2 / safeSegPixel));
+	return Math.min(GRAPHICS_ARC_MAX_SEGMENTS, segments);
 }
 
 function calcArcSegments(radius: number, owner?: Sprite, minNum: number = 20, segPixel: number = 5): number {
-	let safeRadius = Math.max(0, radius || 0);
-	let safeSegPixel = segPixel > 0 ? segPixel : 5;
-	return Math.max(minNum | 0, Math.ceil(safeRadius * getOwnerMaxScale(owner) * Math.PI * 2 / safeSegPixel));
+	return calcArcSegmentsWithScale(radius, getOwnerMaxScale(owner), minNum, segPixel);
 }
 
 function combineRoundRectSegments(lt: number, rt: number, lb: number, rb: number, owner?: Sprite, minNum: number = 20, segPixel: number = 5): number {
-	return calcArcSegments(Math.max(lt || 0, rt || 0, lb || 0, rb || 0), owner, minNum, segPixel);
+	let scale = getOwnerMaxScale(owner);
+	let ltSegments = calcArcSegmentsWithScale(lt, scale, minNum, segPixel);
+	let rtSegments = calcArcSegmentsWithScale(rt, scale, minNum, segPixel);
+	let lbSegments = calcArcSegmentsWithScale(lb, scale, minNum, segPixel);
+	let rbSegments = calcArcSegmentsWithScale(rb, scale, minNum, segPixel);
+	let base = GRAPHICS_ARC_MAX_SEGMENTS + 1;
+	return ((ltSegments * base + rtSegments) * base + lbSegments) * base + rbSegments;
 }
 
 function getDefaultSubShader(): SubShader {
@@ -165,10 +180,12 @@ export const GraphicsCommandInfoHelper = {
 
 /** @internal */
 export const GraphicsGeometryHelper = {
+	ARC_MAX_SEGMENTS: GRAPHICS_ARC_MAX_SEGMENTS,
 	getOwnerWidth,
 	getOwnerHeight,
 	getOwnerMinSize,
 	getOwnerMaxScale,
+	calcArcSegmentsWithScale,
 	calcArcSegments,
 	combineRoundRectSegments,
 };

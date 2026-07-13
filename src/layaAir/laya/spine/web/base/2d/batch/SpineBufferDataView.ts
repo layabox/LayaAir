@@ -1,5 +1,4 @@
 import { IRenderGeometryElement } from "../../../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
-import { I2DGraphicBufferDataView } from "../../../../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { SpineWholeBuffer } from "./SpineWholeBuffer";
 import { WebRender2DPass } from "../../../../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRender2DPass";
 import { SpineConst } from "../../../../SpineConst";
@@ -9,7 +8,7 @@ import { Matrix } from "../../../../../maths/Matrix";
  * @en Unified Spine buffer view that holds its own vertex and index data
  * @zh 统一的 Spine 缓冲区视图，持有自己的顶点和索引数据
  */
-export class SpineBufferView implements I2DGraphicBufferDataView {
+export class SpineBufferView {
 
     /**
      * @en Step size for growing vertex array (in floats)
@@ -233,6 +232,4 @@ export class SpineBufferView implements I2DGraphicBufferDataView {
         this._prev = null;
     }
 
-    setData(_data: ArrayLike<number>): void {
-    }
 }

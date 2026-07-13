@@ -2,10 +2,9 @@ import { Vector2 } from "../../../../maths/Vector2";
 import { GraphicsDefines } from "../../../../webgl/shader/d2/GraphicsDefines";
 import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
-import { I2DGraphicWholeBuffer } from "../../Design/2D/IRender2DDataHandle";
 import { Web2DGraphicsBufferDataView, Web2DGraphic2DVertexDataView, Web2DGraphic2DIndexDataView, Web2DGraphic2DIndexCloneDataView } from "./Web2DGraphic2DBufferDataView";
 
-export abstract class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
+export abstract class Web2DGraphicWholeBuffer {
     buffer: IIndexBuffer | IVertexBuffer;
     _dataView: Float32Array | Uint16Array | Uint32Array;
     arrayBuffer: ArrayBuffer;

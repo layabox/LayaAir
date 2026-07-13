@@ -1,6 +1,5 @@
 import { IIndexBuffer } from "../../../../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
 import { IVertexBuffer } from "../../../../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
-import { I2DGraphicWholeBuffer } from "../../../../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { WebRender2DPass } from "../../../../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRender2DPass";
 import { SpineBufferView } from "./SpineBufferDataView";
 import { IBufferState } from "../../../../../RenderDriver/DriverDesign/RenderDevice/IBufferState";
@@ -10,7 +9,7 @@ import { SpineConst } from "../../../../SpineConst";
  * @en Unified Spine whole buffer that manages both vertex and index buffers
  * @zh 统一的 Spine 完整缓冲区，管理顶点和索引缓冲区
  */
-export class SpineWholeBuffer implements I2DGraphicWholeBuffer {
+export class SpineWholeBuffer {
     /**
      * @en Maximum vertices allowed per buffer
      * @zh 每个缓冲区允许的最大顶点数
@@ -58,8 +57,8 @@ export class SpineWholeBuffer implements I2DGraphicWholeBuffer {
     }
 
     /**
-     * @en Vertex buffer on GPU (also serves as the main buffer for I2DGraphicWholeBuffer interface)
-     * @zh GPU 上的顶点缓冲区（同时作为 I2DGraphicWholeBuffer 接口的主缓冲区）
+     * @en Vertex buffer on GPU
+     * @zh GPU 上的顶点缓冲区
      */
     vertexBuffer: IVertexBuffer;
 
@@ -80,14 +79,6 @@ export class SpineWholeBuffer implements I2DGraphicWholeBuffer {
      * @zh 当前顶点数，用于 65535 限制跟踪
      */
     currentVertexCount: number = 0;
-
-    /**
-     * @en Compatibility property for I2DGraphicWholeBuffer interface
-     * @zh I2DGraphicWholeBuffer 接口的兼容属性
-     */
-    get buffer(): IVertexBuffer | IIndexBuffer {
-        return this.vertexBuffer;
-    }
 
     /**
      * @en Current allocated vertex capacity in floats
@@ -145,15 +136,6 @@ export class SpineWholeBuffer implements I2DGraphicWholeBuffer {
         }
 
         this._needResetData = true;
-    }
-
-    /**
-     * @en Compatibility method for I2DGraphicWholeBuffer interface
-     * @zh I2DGraphicWholeBuffer 接口的兼容方法
-     */
-    resetData(byteLength: number): void {
-        let floatLength = byteLength / 4;
-        this.resetCapacity(floatLength, this._indexCapacity);
     }
 
     /**

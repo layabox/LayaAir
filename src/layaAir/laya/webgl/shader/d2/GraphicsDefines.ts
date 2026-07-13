@@ -24,7 +24,7 @@ export class GraphicsDefines{
     /** @internal */
     static vertexDeclarition: VertexDeclaration;
     /** @internal */
-    static stride: number = 0;
+    static stride: number = 16;
 
     static _factory: IGraphicsOp2DFactory = null;
 

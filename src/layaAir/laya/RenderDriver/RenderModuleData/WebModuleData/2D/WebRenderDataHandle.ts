@@ -81,26 +81,24 @@ export class WebEmptyRender2DDataHandle extends WebRender2DDataHandle {
 
 
 export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2DPrimitiveDataHandle {
+    private static _emptyGraphicsOps: ReadonlyArray<WebGraphicsOp2D> = [];
     logicMatrix: Matrix | null = null;
     mask: WebRenderStruct2D | null = null;
 
     private _opRuntime: WebGraphicsOp2DRuntime = null;
+    private _graphicsOpsActive: boolean = false;
     private _graphicsHandleUpdateBuffer: ArrayBuffer = null;
-    private _matrixScratch: Float32Array = new Float32Array(6);
     private _modifiedFrame: number = -1;
     private _globalAlpha: number = 1;
-
-    /** @internal */
-    public get lastShapeMismatchReason(): string {
-        return null;
-    }
 
     public set owner(value: WebRenderStruct2D) {
         if (this._owner === value)
             return;
         this._destroyGraphicsOpRuntime();
         super.owner = value;
+        this._setGraphicsOpsActive(false);
         this._createGraphicsOpRuntime();
+        this._invalidateMatrixCache();
     }
 
     public get owner(): WebRenderStruct2D {
@@ -121,7 +119,18 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             this._opRuntime = new WebGraphicsOp2DRuntime(this._owner);
             this._opRuntime.setGraphicsHandleUpdateBuffer(this._graphicsHandleUpdateBuffer);
         }
-        this.needUseMatrix = false;
+    }
+
+    private _setGraphicsOpsActive(value: boolean): void {
+        if (this._graphicsOpsActive === value)
+            return;
+        this._graphicsOpsActive = value;
+        this.needUseMatrix = !value;
+        this._invalidateMatrixCache();
+    }
+
+    private _invalidateMatrixCache(): void {
+        this._modifiedFrame = -1;
     }
 
     setGraphicsHandleUpdateBuffer(buffer: ArrayBuffer): void {
@@ -133,14 +142,18 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     }
 
     syncGraphicsOps(ops: ReadonlyArray<IGraphicsOp2D>): void {
-        this._createGraphicsOpRuntime();
-        if (this._opRuntime)
-            this._opRuntime.syncGraphicsOps(ops as ReadonlyArray<WebGraphicsOp2D>);
+        if (!ops || ops.length === 0) {
+            this._opRuntime.syncGraphicsOps(ops ? ops as ReadonlyArray<WebGraphicsOp2D> : WebPrimitiveDataHandle._emptyGraphicsOps);
+            this._setGraphicsOpsActive(false);
+            return;
+        }
+        this._opRuntime.syncGraphicsOps(ops as ReadonlyArray<WebGraphicsOp2D>);
+        this._setGraphicsOpsActive(true);
     }
 
     /** @internal */
     getGraphicsBatchEntry(index: number): WebGraphicsBatchEntry {
-        return this._opRuntime ? this._opRuntime.getGraphicsBatchEntry(index) : null;
+        return this._opRuntime.getGraphicsBatchEntry(index);
     }
 
     inheriteRenderData(context: IRenderContext2D): void {
@@ -153,9 +166,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             let alphaChanged = this._globalAlpha != globalAlpha;
 
             if (this._modifiedFrame !== matFrame) {
-                let mat: Matrix = null;
-                if (this.needUseMatrix || this.logicMatrix || (this._opRuntime && this._owner.transSlot < 0))
-                    mat = this._owner.renderMatrix;
+                let mat: Matrix = this._owner.renderMatrix;
                 if (this.needUseMatrix) {
                     if (this.logicMatrix) {
                         let temp = Matrix.TEMP;
@@ -170,21 +181,15 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                     data.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
                     data.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
                 }
-                if (this._opRuntime) {
-                    if (mat)
-                        this._opRuntime.updateTransform(mat, globalAlpha, alphaChanged);
-                    else {
-                        store.readWorldMatrix(this._owner.transSlot, this._matrixScratch);
-                        let m = this._matrixScratch;
-                        this._opRuntime.updateTransformValues(m[0], m[1], m[2], m[3], m[4], m[5], globalAlpha, alphaChanged);
-                    }
+                else if (this._graphicsOpsActive) {
+                    this._opRuntime.updateTransform(mat, globalAlpha, alphaChanged);
                 }
                 this._globalAlpha = globalAlpha;
                 this._modifiedFrame = matFrame;
             }
             else if (this._globalAlpha != globalAlpha) {
                 this._globalAlpha = globalAlpha;
-                if (this._opRuntime) {
+                if (this._graphicsOpsActive) {
                     this._opRuntime.updateGlobalAlpha(this._globalAlpha);
                 }
             }

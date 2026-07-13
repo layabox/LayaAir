@@ -68,6 +68,16 @@ export class RTPrimitiveDataHandle extends RTRender2DDataHandle implements I2DPr
         super(new (window as any).conchRTPrimitiveDataHandle());
     }
 
+    public get owner(): RTRenderStruct2D {
+        return super.owner;
+    }
+    public set owner(value: RTRenderStruct2D) {
+        if (this._owner === value)
+            return;
+        super.owner = value;
+        this.needUseMatrix = true;
+    }
+
     readonly autoGraphicsDirtySync: boolean = true;
 
     _mask: RTRenderStruct2D | null = null;
@@ -113,6 +123,7 @@ export class RTPrimitiveDataHandle extends RTRender2DDataHandle implements I2DPr
         for (let i = 0; i < count; i++)
             nativeOps[i] = (ops[i] as IGraphicsOp2D & RTGraphicsNativeOpCarrier)._nativeObj || null;
         this._nativeObj.syncGraphicsOps(nativeOps, count);
+        this.needUseMatrix = count === 0;
     }
     inheriteRenderData(context: GLESRenderContext2D): void {
         this._nativeObj.inheriteRenderData(context._nativeObj);

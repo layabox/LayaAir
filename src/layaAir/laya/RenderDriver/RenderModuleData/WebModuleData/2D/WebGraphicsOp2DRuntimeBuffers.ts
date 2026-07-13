@@ -4,7 +4,6 @@ import {
     GRAPHICS_INFO_INDEX_BLOCK_SIZE,
     GRAPHICS_INFO_VERTEX_BLOCK_SIZE,
 } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
-import { I2DGraphicIndexDataView, I2DGraphicVertexDataView, I2DGraphicWholeBuffer } from "../../Design/2D/IRender2DDataHandle";
 import { IBufferState } from "../../../DriverDesign/RenderDevice/IBufferState";
 import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
@@ -21,14 +20,14 @@ export interface WebGraphicsBatchEntry {
 
 /** @internal */
 export type WebGraphicsOpVertexAllocation = {
-	vertexViews: I2DGraphicVertexDataView[];
+	vertexViews: Web2DGraphic2DVertexDataView[];
 	vertexBlocks: number[];
 }
 
 /** @internal */
 export type WebGraphicsOpVIAllocation = WebGraphicsOpVertexAllocation & {
 	viStore: WebGraphicsOpVIStore;
-	indexView: I2DGraphicIndexDataView;
+	indexView: Web2DGraphic2DIndexDataView;
 }
 
 /** @internal */
@@ -36,9 +35,9 @@ export class WebGraphicsOpVIStore {
 	private _bufferState: IBufferState;
 	private _vertexBuffer: IVertexBuffer;
 	private _indexBuffer: IIndexBuffer;
-	private _wholeVertex: I2DGraphicWholeBuffer;
-	private _wholeIndex: I2DGraphicWholeBuffer;
-	private _vertexViews: I2DGraphicVertexDataView[] = [];
+	private _wholeVertex: Web2DGraphicsVertexBuffer;
+	private _wholeIndex: Web2DGraphicsIndexBuffer;
+	private _vertexViews: Web2DGraphic2DVertexDataView[] = [];
 	private _vertexFreeBlocks: number[] = [];
 	private _indexBufferLength: number = 0;
 	private _indexBufferMaxLength: number = 0;
@@ -78,7 +77,7 @@ export class WebGraphicsOpVIStore {
 			return null;
 
 		let vertexBlocks: number[] = [];
-		let vertexViews: I2DGraphicVertexDataView[] = [];
+		let vertexViews: Web2DGraphic2DVertexDataView[] = [];
 		while (requiredBlocks > 0 && this._vertexFreeBlocks.length > 0) {
 			let block = this._vertexFreeBlocks.pop();
 			vertexBlocks.push(block);
@@ -89,7 +88,7 @@ export class WebGraphicsOpVIStore {
 		while (requiredBlocks > 0) {
 			let block = this._vertexViews.length;
 			let view = new Web2DGraphic2DVertexDataView(
-				this._wholeVertex as Web2DGraphicsVertexBuffer,
+				this._wholeVertex,
 				block * this._vertexBlockLength,
 				this._vertexBlockLength,
 				GraphicsDefines.stride
@@ -103,10 +102,10 @@ export class WebGraphicsOpVIStore {
 		return { vertexViews, vertexBlocks };
 	}
 
-	checkIndex(indexCount: number): I2DGraphicIndexDataView {
+	checkIndex(indexCount: number): Web2DGraphic2DIndexDataView {
 		if (this._indexBufferLength + indexCount > this._indexBufferMaxLength)
 			this._extendIndexBuffer(indexCount);
-		let view = new Web2DGraphic2DIndexDataView(this._wholeIndex as Web2DGraphicsIndexBuffer, indexCount);
+		let view = new Web2DGraphic2DIndexDataView(this._wholeIndex, indexCount);
 		this._wholeIndex.addDataView(view);
 		this._indexBufferLength += indexCount;
 		return view;
@@ -117,7 +116,7 @@ export class WebGraphicsOpVIStore {
 			this._vertexFreeBlocks.push(...blocks);
 	}
 
-	releaseIndexView(indexView: I2DGraphicIndexDataView): void {
+	releaseIndexView(indexView: Web2DGraphic2DIndexDataView): void {
 		if (!indexView)
 			return;
 		this._indexBufferLength -= indexView.length;
@@ -201,15 +200,4 @@ export class WebGraphicsOpVIStorePool {
 			indexView,
 		};
 	}
-}
-
-/** @internal */
-export type WebGraphicsOpMutableVertexDataView = I2DGraphicVertexDataView & {
-	_getData(): Float32Array;
-	_modify(): void;
-}
-
-/** @internal */
-export type WebGraphicsOpRangeIndexDataView = I2DGraphicIndexDataView & {
-	setDataRange(data: ArrayLike<number>, length: number): void;
 }

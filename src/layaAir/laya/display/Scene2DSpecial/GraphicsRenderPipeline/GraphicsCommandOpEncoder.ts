@@ -41,9 +41,12 @@ import type {
 } from "../../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { GraphicsOp2DDirtyFlag, GraphicsOp2DKind, type GraphicsBlendModeInput, type GraphicsColorInput, type GraphicsDrawPathSegment, type GraphicsOp2DPatchResult, type GraphicsOp2DTextureHost } from "./GraphicsPipelineTypes";
 import { GraphicsOp2DList } from "./GraphicsOp2DList";
+import { GraphicsGeometryHelper } from "./GraphicsPipelineHelpers";
 import type { GraphicsRunner } from "../GraphicsRunner";
 
 const TEXTURE_QUAD_INDICES: number[] = [0, 2, 1, 0, 3, 2];
+const TWO_PI = Math.PI * 2;
+const DRAW_PATH_ARC_TO_SEGMENTS = 32;
 
 /** @internal */
 export interface GraphicsCommandOpEncoderHost {
@@ -303,7 +306,7 @@ export class GraphicsCommandOpEncoder {
       if (radius <= 0)
          return false;
       let wrote = false;
-      let segments = Math.max(12, Math.min(128, Math.ceil(radius * 2 * Math.PI / 5)));
+      let segments = GraphicsGeometryHelper.calcArcSegmentsWithScale(radius, this._getTessellationScale(runner), 40, 5);
       this._makeCirclePath(x, y, radius, segments);
       if (cmd.fillColor != null)
          wrote = this._appendCircleFillMesh(x, y, radius, segments, this._toABGR(cmd.fillColor), cmdIndex, runner) || wrote;
@@ -329,7 +332,7 @@ export class GraphicsCommandOpEncoder {
       ry -= offset;
       if (rx <= 0 || ry <= 0)
          return false;
-      let segments = Math.max(12, Math.min(128, Math.ceil(Math.max(rx, ry) * 2 * Math.PI / 5)));
+      let segments = GraphicsGeometryHelper.calcArcSegmentsWithScale(rx, this._getTessellationScale(runner), 40, 5);
       this._makeEllipsePath(x, y, rx, ry, segments);
       return this._appendPathFillAndStroke(this._shapePathScratch, cmd.fillColor, cmd.lineColor, cmd.lineWidth, true, cmdIndex, runner);
    }
@@ -344,8 +347,11 @@ export class GraphicsCommandOpEncoder {
          return false;
       let startAngle = cmd.startAngle * Math.PI / 180;
       let endAngle = cmd.endAngle * Math.PI / 180;
-      let arc = Math.abs(endAngle - startAngle);
-      let segments = Math.max(2, Math.min(128, Math.ceil(radius * arc / 5)));
+      if (startAngle > endAngle)
+         [startAngle, endAngle] = [endAngle, startAngle];
+      if (endAngle - startAngle > TWO_PI)
+         endAngle = startAngle + TWO_PI;
+      let segments = GraphicsGeometryHelper.calcArcSegmentsWithScale(radius, this._getTessellationScale(runner), 20, 5);
       this._makePiePath(x, y, radius, startAngle, endAngle, segments);
       return this._appendPathFillAndStroke(this._shapePathScratch, cmd.fillColor, cmd.lineColor, cmd.lineWidth, true, cmdIndex, runner);
    }
@@ -378,7 +384,7 @@ export class GraphicsCommandOpEncoder {
       height -= lineOffset;
       if (width <= 0 || height <= 0)
          return false;
-      this._makeRoundRectPath(x, y, width, height, cmd.lt, cmd.rt, cmd.rb, cmd.lb, cmd.minNum || 20, cmd.segPixel || 5);
+      this._makeRoundRectPath(x, y, width, height, cmd.lt, cmd.rt, cmd.rb, cmd.lb, cmd.minNum || 20, cmd.segPixel || 5, this._getTessellationScale(runner));
       return this._appendPathFillAndStroke(this._shapePathScratch, cmd.fillColor, cmd.lineColor, cmd.lineWidth, true, cmdIndex, runner);
    }
 
@@ -387,7 +393,7 @@ export class GraphicsCommandOpEncoder {
          return false;
       let path = this._shapePathScratch;
       path.length = 0;
-      Bezier.getPoints(cmd.points, 5, 2, path);
+      Bezier.getPoints(cmd.points, 30, 2, path);
       if (path.length < 4)
          return false;
       this._offsetPathPoints(path, cmd.x, cmd.y);
@@ -1088,19 +1094,41 @@ export class GraphicsCommandOpEncoder {
          this._appendDrawPathPoint(points, x1, y1);
          return;
       }
-      tangentDistance = Math.min(tangentDistance, len0, len1);
       let sx = x1 + v0x * tangentDistance;
       let sy = y1 + v0y * tangentDistance;
       let ex = x1 + v1x * tangentDistance;
       let ey = y1 + v1y * tangentDistance;
+
+      let bisectorX = v0x + v1x;
+      let bisectorY = v0y + v1y;
+      let bisectorLength = Math.sqrt(bisectorX * bisectorX + bisectorY * bisectorY);
+      if (bisectorLength <= 0.00001) {
+         this._appendDrawPathPoint(points, x1, y1);
+         return;
+      }
+      bisectorX /= bisectorLength;
+      bisectorY /= bisectorLength;
+      let centerDistance = Math.sqrt(tangentDistance * tangentDistance + radius * radius);
+      let centerX = x1 + bisectorX * centerDistance;
+      let centerY = y1 + bisectorY * centerDistance;
+
       this._appendDrawPathPoint(points, sx, sy);
 
-      let segments = Math.max(3, Math.min(24, Math.ceil(Math.abs(angle) * radius / 4)));
-      for (let i = 1; i <= segments; i++) {
-         let t = i / segments;
-         let inv = 1 - t;
-         let x = inv * inv * sx + 2 * inv * t * x1 + t * t * ex;
-         let y = inv * inv * sy + 2 * inv * t * y1 + t * t * ey;
+      let startAngle = Math.atan2(sy - centerY, sx - centerX);
+      let endAngle = Math.atan2(ey - centerY, ex - centerX);
+      let direction = v0x * v1y - v0y * v1x;
+      if (direction < 0) {
+         while (endAngle <= startAngle)
+            endAngle += TWO_PI;
+      } else {
+         while (endAngle >= startAngle)
+            endAngle -= TWO_PI;
+      }
+      let angleStep = (endAngle - startAngle) / DRAW_PATH_ARC_TO_SEGMENTS;
+      for (let i = 1; i <= DRAW_PATH_ARC_TO_SEGMENTS; i++) {
+         let currentAngle = startAngle + angleStep * i;
+         let x = centerX + Math.cos(currentAngle) * radius;
+         let y = centerY + Math.sin(currentAngle) * radius;
          this._appendDrawPathPoint(points, x, y);
       }
    }
@@ -1142,14 +1170,10 @@ export class GraphicsCommandOpEncoder {
       let path = this._shapePathScratch;
       path.length = 0;
       path.push(x, y);
-      for (let i = 0; i <= segments; i++) {
-         let t = i / segments;
-         let angle = startAngle + (endAngle - startAngle) * t;
-         path.push(x + Math.cos(angle) * radius, y + Math.sin(angle) * radius);
-      }
+      this._appendArcPoints(path, x, y, radius, startAngle, endAngle, segments);
    }
 
-   private _makeRoundRectPath(x: number, y: number, width: number, height: number, lt: number, rt: number, rb: number, lb: number, minNum: number, segPixel: number): void {
+   private _makeRoundRectPath(x: number, y: number, width: number, height: number, lt: number, rt: number, rb: number, lb: number, minNum: number, segPixel: number, scale: number): void {
       let maxRadius = Math.max(0, Math.min(width, height) / 2);
       lt = Math.min(Math.max(lt || 0, 0), maxRadius);
       rt = Math.min(Math.max(rt || 0, 0), maxRadius);
@@ -1157,25 +1181,44 @@ export class GraphicsCommandOpEncoder {
       lb = Math.min(Math.max(lb || 0, 0), maxRadius);
       let path = this._shapePathScratch;
       path.length = 0;
-      let segmentBase = Math.max(2, Math.ceil((minNum || 20) / 4));
-      this._appendArcPath(path, x + lt, y + lt, lt, Math.PI, Math.PI * 1.5, segmentBase, segPixel);
-      this._appendArcPath(path, x + width - rt, y + rt, rt, Math.PI * 1.5, Math.PI * 2, segmentBase, segPixel);
-      this._appendArcPath(path, x + width - rb, y + height - rb, rb, 0, Math.PI * 0.5, segmentBase, segPixel);
-      this._appendArcPath(path, x + lb, y + height - lb, lb, Math.PI * 0.5, Math.PI, segmentBase, segPixel);
+      this._appendArcPath(path, x + lt, y + lt, lt, Math.PI, Math.PI * 1.5, scale, minNum, segPixel);
+      this._appendArcPath(path, x + width - rt, y + rt, rt, Math.PI * 1.5, Math.PI * 2, scale, minNum, segPixel);
+      this._appendArcPath(path, x + width - rb, y + height - rb, rb, 0, Math.PI * 0.5, scale, minNum, segPixel);
+      this._appendArcPath(path, x + lb, y + height - lb, lb, Math.PI * 0.5, Math.PI, scale, minNum, segPixel);
    }
 
-   private _appendArcPath(path: number[], x: number, y: number, radius: number, startAngle: number, endAngle: number, minSegments: number, segPixel: number): void {
+   private _appendArcPath(path: number[], x: number, y: number, radius: number, startAngle: number, endAngle: number, scale: number, minNum: number, segPixel: number): void {
       if (radius <= 0) {
          path.push(x, y);
          return;
       }
-      let segments = Math.max(minSegments, Math.ceil(Math.abs(endAngle - startAngle) * radius / Math.max(segPixel || 5, 0.1)));
-      for (let i = 0; i <= segments; i++) {
-         if (path.length > 0 && i === 0)
-            continue;
-         let angle = startAngle + (endAngle - startAngle) * (i / segments);
-         path.push(x + Math.cos(angle) * radius, y + Math.sin(angle) * radius);
+      let segments = GraphicsGeometryHelper.calcArcSegmentsWithScale(radius, scale, minNum, segPixel);
+      this._appendArcPoints(path, x, y, radius, startAngle, endAngle, segments);
+   }
+
+   private _appendArcPoints(path: number[], x: number, y: number, radius: number, startAngle: number, endAngle: number, segments: number): void {
+      let startX = x + Math.cos(startAngle) * radius;
+      let startY = y + Math.sin(startAngle) * radius;
+      this._appendDrawPathPoint(path, startX, startY);
+
+      let stepAngle = TWO_PI / segments;
+      let currentAngle = Math.ceil(startAngle / stepAngle) * stepAngle;
+      if (Math.abs(currentAngle - startAngle) < 0.0000001)
+         currentAngle += stepAngle;
+      while (endAngle - currentAngle >= stepAngle) {
+         this._appendDrawPathPoint(path, x + Math.cos(currentAngle) * radius, y + Math.sin(currentAngle) * radius);
+         currentAngle += stepAngle;
       }
+
+      let endX = x + Math.cos(endAngle) * radius;
+      let endY = y + Math.sin(endAngle) * radius;
+      this._appendDrawPathPoint(path, endX, endY);
+   }
+
+   private _getTessellationScale(runner: GraphicsRunner): number {
+      if (!runner)
+         return 1;
+      return Math.max(runner.getCurrentScaleX(), runner.getCurrentScaleY());
    }
 
    private _getMatrixState(runner: GraphicsRunner): Matrix | null {

@@ -195,7 +195,15 @@ export class DrawRoundRectCmd implements IGraphicsCmd {
 
     /** @internal */
     getGraphicsCommandInfo(out: GraphicsCommandInfo, owner?: Sprite): GraphicsCommandInfo {
-        return GraphicsCommandInfoHelper.writeScaleTessellation(out, this.percent, GraphicsGeometryHelper.combineRoundRectSegments(this.lt, this.rt, this.lb, this.rb, owner, this.minNum, this.segPixel));
+        let lineOffset = this.lineColor ? this.lineWidth : 0;
+        let width = this.percent ? this.width * GraphicsGeometryHelper.getOwnerWidth(owner) : this.width;
+        let height = this.percent ? this.height * GraphicsGeometryHelper.getOwnerHeight(owner) : this.height;
+        let maxRadius = Math.max(0, Math.min(width - lineOffset, height - lineOffset) / 2);
+        let lt = Math.min(Math.max(this.lt || 0, 0), maxRadius);
+        let rt = Math.min(Math.max(this.rt || 0, 0), maxRadius);
+        let lb = Math.min(Math.max(this.lb || 0, 0), maxRadius);
+        let rb = Math.min(Math.max(this.rb || 0, 0), maxRadius);
+        return GraphicsCommandInfoHelper.writeScaleTessellation(out, this.percent, GraphicsGeometryHelper.combineRoundRectSegments(lt, rt, lb, rb, owner, this.minNum || 20, this.segPixel || 5));
     }
 
     /**

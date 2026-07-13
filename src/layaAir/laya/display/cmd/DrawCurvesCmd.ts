@@ -111,9 +111,9 @@ export class DrawCurvesCmd implements IGraphicsCmd {
 
     /** @internal */
     getGraphicsCommandInfo(out: GraphicsCommandInfo): GraphicsCommandInfo {
-        out.dependency = GraphicsCommandDependency.ScaleTessellation;
+        out.dependency = GraphicsCommandDependency.None;
         out.layoutRefresh = GraphicsCommandLayoutRefresh.None;
-        out.scaleTessellationKey = 1;
+        out.scaleTessellationKey = 0;
         out.isStateCommand = false;
         return out;
     }

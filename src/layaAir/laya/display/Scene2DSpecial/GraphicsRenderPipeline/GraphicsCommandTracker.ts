@@ -37,6 +37,7 @@ export class GraphicsCommandTracker {
    private _layoutDirtyCommands: number[] = [];
    private _sizeDirtyCommands: number[] = [];
    private _scaleTessellationCommands: number[] = [];
+   private _scaleTessellationDirtyCommands: number[] = [];
    private _textureCommandRanges: Map<number, number[]> = new Map();
    private _rangeScratch: GraphicsCommandRangeRecord = { cmdIndex: -1, start: -1, count: 0, active: false };
    private _activeCmdIndex: number = -1;
@@ -66,6 +67,7 @@ export class GraphicsCommandTracker {
       this._layoutDirtyCommands.length = 0;
       this._sizeDirtyCommands.length = 0;
       this._scaleTessellationCommands.length = 0;
+      this._scaleTessellationDirtyCommands.length = 0;
       this._textureCommandRanges.clear();
       this._activeCmdIndex = -1;
       this._activeCommandHadStateDependency = false;
@@ -190,7 +192,29 @@ export class GraphicsCommandTracker {
    }
 
    getScaleTessellationDirtyCommands(cmds: IGraphicsCmd[], owner: Sprite): number[] {
-      return this._scaleTessellationCommands;
+      let dirtyCommands = this._scaleTessellationDirtyCommands;
+      dirtyCommands.length = 0;
+      if (!cmds)
+         return dirtyCommands;
+
+      for (let i = 0, n = this._scaleTessellationCommands.length; i < n; i++) {
+         let cmdIndex = this._scaleTessellationCommands[i];
+         let cmd = cmdIndex >= 0 && cmdIndex < cmds.length ? cmds[cmdIndex] : null;
+         if (!cmd)
+            continue;
+
+         // State-dependent commands must be rebuilt with their preceding
+         // save/scale/transform stream so the effective scale stays correct.
+         if (this.hasStateDependency(cmdIndex)) {
+            dirtyCommands.push(cmdIndex);
+            continue;
+         }
+
+         let key = this._readCommandInfo(cmd, owner).scaleTessellationKey || 0;
+         if (key !== (this._scaleTessellationKeys[cmdIndex] || 0))
+            dirtyCommands.push(cmdIndex);
+      }
+      return dirtyCommands;
    }
 
    getOwnerTransformDependencyMask(): GraphicsOwnerTransformDependency {

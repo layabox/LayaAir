@@ -2,7 +2,6 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { ITransform2DMemoryFactory } from "./ITransform2DMemory";
 import { ITransform2DSweep } from "./ITransform2DSweep";
 import { TreeChunk } from "./TreeChunk";
-import { TransformKind } from "../SpriteConst";
 import {
     Channel, ChildrenStore, Chunk, Control, DirtyBitmap, LocalFlag, LocalTrs, SlotConst, SweepElem, WorldData, WorldFlag,
 } from "./Transform2DLayout";
@@ -23,52 +22,13 @@ const _accB = new Float32Array(6);
 function composeLocal(trs: Float32Array, base: number, out: Float32Array): void {
     const x = trs[base + LocalTrs.X], y = trs[base + LocalTrs.Y];
     const sx = trs[base + LocalTrs.ScaleX], sy = trs[base + LocalTrs.ScaleY];
-    const rot = trs[base + LocalTrs.Rotation];
-    const skx = trs[base + LocalTrs.SkewX];
-    const sky = trs[base + LocalTrs.SkewY];
+    const rot = trs[base + LocalTrs.Rotation] * DEG2RAD;
+    const skx = trs[base + LocalTrs.SkewX] * DEG2RAD;
+    const sky = trs[base + LocalTrs.SkewY] * DEG2RAD;
     const px = trs[base + LocalTrs.PivotX], py = trs[base + LocalTrs.PivotY];
-
-    if (rot === 0 && skx === 0 && sky === 0) {
-        if (sx === 1 && sy === 1 && px === 0 && py === 0) {
-            out[0] = 1;
-            out[1] = 0;
-            out[2] = 0;
-            out[3] = 1;
-            out[4] = x;
-            out[5] = y;
-            return;
-        }
-        out[0] = sx;
-        out[1] = 0;
-        out[2] = 0;
-        out[3] = sy;
-        out[4] = x - sx * px;
-        out[5] = y - sy * py;
-        return;
-    }
-
-    if (skx === 0 && sky === 0) {
-        const rotRad = rot * DEG2RAD;
-        const cosr = Math.cos(rotRad), sinr = Math.sin(rotRad);
-        const a = cosr * sx;
-        const b = sinr * sx;
-        const c = -sinr * sy;
-        const d = cosr * sy;
-        out[0] = a;
-        out[1] = b;
-        out[2] = c;
-        out[3] = d;
-        out[4] = x - a * px - c * py;
-        out[5] = y - b * px - d * py;
-        return;
-    }
-
-    const rotRad = rot * DEG2RAD;
-    const skxRad = skx * DEG2RAD;
-    const skyRad = sky * DEG2RAD;
-    const cosr = Math.cos(rotRad), sinr = Math.sin(rotRad);
-    const coskx = Math.cos(skxRad), sinkx = Math.sin(skxRad);
-    const cosky = Math.cos(skyRad), sinky = Math.sin(skyRad);
+    const cosr = Math.cos(rot), sinr = Math.sin(rot);
+    const coskx = Math.cos(skx), sinkx = Math.sin(skx);
+    const cosky = Math.cos(sky), sinky = Math.sin(sky);
     const a = (cosr * cosky - sinr * sinky) * sx;
     const b = (sinr * cosky + cosr * sinky) * sx;
     const c = (cosr * sinkx - sinr * coskx) * sy;
@@ -409,46 +369,6 @@ export class Transform2DStore {
         c.localTrs[tb + LocalTrs.SkewY] = skewY;
         c.localTrs[tb + LocalTrs.PivotX] = pivotX;
         c.localTrs[tb + LocalTrs.PivotY] = pivotY;
-        this._mark(c, li, Channel.Matrix);
-    }
-
-    writeTRSByKind(
-        slot: number, kind: TransformKind, x: number, y: number, sx: number, sy: number,
-        rotation: number, skewX: number, skewY: number, pivotX: number, pivotY: number,
-    ): void {
-        const c = this.chunks[slot >> Chunk.Shift];
-        const li = slot & Chunk.Mask;
-        const tb = li * LocalTrs.Stride;
-        if (kind === TransformKind.Pos) {
-            c.localTrs[tb + LocalTrs.X] = x;
-            c.localTrs[tb + LocalTrs.Y] = y;
-        }
-        else if (kind === TransformKind.Scale) {
-            c.localTrs[tb + LocalTrs.ScaleX] = sx;
-            c.localTrs[tb + LocalTrs.ScaleY] = sy;
-        }
-        else if (kind === TransformKind.Rotation) {
-            c.localTrs[tb + LocalTrs.Rotation] = rotation;
-        }
-        else if (kind === TransformKind.Skew) {
-            c.localTrs[tb + LocalTrs.SkewX] = skewX;
-            c.localTrs[tb + LocalTrs.SkewY] = skewY;
-        }
-        else if (kind === TransformKind.Anchor || ((kind & TransformKind.Size) !== 0 && (kind & ~TransformKind.Size) === 0)) {
-            c.localTrs[tb + LocalTrs.PivotX] = pivotX;
-            c.localTrs[tb + LocalTrs.PivotY] = pivotY;
-        }
-        else {
-            c.localTrs[tb + LocalTrs.X] = x;
-            c.localTrs[tb + LocalTrs.Y] = y;
-            c.localTrs[tb + LocalTrs.ScaleX] = sx;
-            c.localTrs[tb + LocalTrs.ScaleY] = sy;
-            c.localTrs[tb + LocalTrs.Rotation] = rotation;
-            c.localTrs[tb + LocalTrs.SkewX] = skewX;
-            c.localTrs[tb + LocalTrs.SkewY] = skewY;
-            c.localTrs[tb + LocalTrs.PivotX] = pivotX;
-            c.localTrs[tb + LocalTrs.PivotY] = pivotY;
-        }
         this._mark(c, li, Channel.Matrix);
     }
 

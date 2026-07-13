@@ -39,12 +39,10 @@ import { IPrimitiveRenderElement2D } from "../../../DriverDesign/2DRenderPass/IR
 import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
-import { Web2DGraphic2DIndexCloneDataView, Web2DGraphic2DIndexDataView } from "./Web2DGraphic2DBufferDataView";
+import { Web2DGraphic2DIndexCloneDataView, Web2DGraphic2DIndexDataView, Web2DGraphic2DVertexDataView } from "./Web2DGraphic2DBufferDataView";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 import {
 	WebGraphicsBatchEntry,
-	WebGraphicsOpMutableVertexDataView,
-	WebGraphicsOpRangeIndexDataView,
 	WebGraphicsOpVIAllocation,
 	WebGraphicsOpVIStore,
 	WebGraphicsOpVIStorePool,
@@ -68,8 +66,6 @@ type WebGraphicsOpRenderRange = {
 	count: number;
 };
 
-type WebGraphicsOpIndexDataView = Web2DGraphic2DIndexDataView & WebGraphicsOpRangeIndexDataView;
-
 /** @internal */
 export class WebGraphicsOp2DRuntime {
 	private _ops: ReadonlyArray<WebGraphicsOp2D> = [];
@@ -79,15 +75,13 @@ export class WebGraphicsOp2DRuntime {
 	private _textureGroups: WebGraphicsTextureGroup[] = [];
 	private _renderElements: IPrimitiveRenderElement2D[] = [];
 	private _viStores: WebGraphicsOpVIStore[] = [];
-	private _vertexViews: WebGraphicsOpMutableVertexDataView[][] = [];
+	private _vertexViews: Web2DGraphic2DVertexDataView[][] = [];
 	private _vertexBlocks: number[][] = [];
-	private _indexViews: WebGraphicsOpIndexDataView[] = [];
+	private _indexViews: Web2DGraphic2DIndexDataView[] = [];
 	private _geometries: IRenderGeometryElement[] = [];
 	private _primitiveShaderData: ShaderData[] = [];
 	private _batchEntries: WebGraphicsBatchEntry[] = [];
 	private _fillTextureRanges: Vector4[] = [];
-	private _tempVertexBlockData: Float32Array = new Float32Array(GRAPHICS_INFO_VERTEX_BLOCK_SIZE * GraphicsDefines.stride);
-	private _tempIndexData: Uint16Array | Uint32Array = new (GraphicsDefines.GRAPHICS_INDEX_ARRAY_TYPE)(6);
 	private _pointScratch: Float32Array = new Float32Array(2);
 	private _matrixScratch: Matrix = new Matrix();
 	private _singleTextureQuadRenderIndex: number = -1;
@@ -405,14 +399,14 @@ export class WebGraphicsOp2DRuntime {
 		geometry.indexFormat = GraphicsDefines.GRAPHICS_INDEX_FORMAT;
 		geometry.bufferState = allocation.viStore.bufferState;
 		element.geometry = geometry;
-		let indexView = allocation.indexView as WebGraphicsOpIndexDataView;
+		let indexView = allocation.indexView;
 		indexView.setGeometry(geometry);
 		let batchEntry = this._createGraphicsBatchEntry(indexView, allocation.viStore.vertexBuffer);
 		element._graphicsBatchEntry = batchEntry;
 		this._renderElements[renderIndex] = element;
 		this._renderOpRefs[renderIndex] = { op, opIndex, recordStart, recordCount };
 		this._viStores[renderIndex] = allocation.viStore;
-		this._vertexViews[renderIndex] = allocation.vertexViews as WebGraphicsOpMutableVertexDataView[];
+		this._vertexViews[renderIndex] = allocation.vertexViews;
 		this._vertexBlocks[renderIndex] = allocation.vertexBlocks;
 		this._indexViews[renderIndex] = indexView;
 		this._geometries[renderIndex] = geometry;
@@ -601,19 +595,23 @@ export class WebGraphicsOp2DRuntime {
 	}
 
 	private _writeMultiQuadRange(renderIndex: number, op: WebGraphicsMultiQuadOp2D, start: number, count: number, mat: Matrix, ownerAlpha: number, uvEnabled: boolean): void {
-		let blockData = this._tempVertexBlockData;
+		let view: Web2DGraphic2DVertexDataView = null;
+		let blockData: Float32Array = null;
 		let vertexIndex = 0;
 		let bodyOffset = GraphicsOpInfoField.WordCount;
 		for (let i = start, n = start + count; i < n; i++) {
-			if (vertexIndex % GRAPHICS_INFO_VERTEX_BLOCK_SIZE === 0)
+			if (vertexIndex % GRAPHICS_INFO_VERTEX_BLOCK_SIZE === 0) {
+				view = this._vertexViews[renderIndex][Math.floor(vertexIndex / GRAPHICS_INFO_VERTEX_BLOCK_SIZE)];
+				blockData = view._getData();
 				blockData.fill(0);
+			}
 			this._writeQuadVerticesInto(blockData, vertexIndex % GRAPHICS_INFO_VERTEX_BLOCK_SIZE, op._float32, op._int32, bodyOffset + i * GraphicsQuadPayloadWordCount, mat, uvEnabled, ownerAlpha);
 			vertexIndex += 4;
 			if (vertexIndex % GRAPHICS_INFO_VERTEX_BLOCK_SIZE === 0)
-				this._vertexViews[renderIndex][Math.floor((vertexIndex - 1) / GRAPHICS_INFO_VERTEX_BLOCK_SIZE)].setData(blockData);
+				view._modify();
 		}
 		if (vertexIndex % GRAPHICS_INFO_VERTEX_BLOCK_SIZE !== 0)
-			this._vertexViews[renderIndex][Math.floor((vertexIndex - 1) / GRAPHICS_INFO_VERTEX_BLOCK_SIZE)].setData(blockData);
+			view._modify();
 	}
 
 	private _collectTextureGroups(op: WebGraphicsMultiQuadOp2D | WebGraphicsTextOp2D): WebGraphicsTextureGroup[] {
@@ -668,7 +666,7 @@ export class WebGraphicsOp2DRuntime {
 		let int32 = op._int32;
 		let indexDataOffset = wordOffset + int32[wordOffset + GraphicsMeshPayloadWordOffset.IndexDataOffset];
 		let indexCount = int32[wordOffset + GraphicsMeshPayloadWordOffset.IndexCount];
-		let indexData = this._ensureTempIndexData(this._getIndexCount(op));
+		let indexData = this._indexViews[renderIndex]._getData();
 		let blocks = this._vertexBlocks[renderIndex];
 		for (let j = 0; j < indexCount; j++) {
 			let localVertex = int32[indexDataOffset + j];
@@ -676,7 +674,7 @@ export class WebGraphicsOp2DRuntime {
 			let vertexInBlock = localVertex - blockIndex * GRAPHICS_INFO_VERTEX_BLOCK_SIZE;
 			indexData[j] = blocks[blockIndex] * GRAPHICS_INFO_VERTEX_BLOCK_SIZE + vertexInBlock;
 		}
-		this._indexViews[renderIndex].setDataRange(indexData, indexCount);
+		this._indexViews[renderIndex]._modify();
 	}
 
 	private _writeMeshData(renderIndex: number, op: WebGraphicsMeshOp2D, wordOffset: number, ownerMat: Matrix, ownerAlpha: number): void {
@@ -698,11 +696,16 @@ export class WebGraphicsOp2DRuntime {
 		let y = float32[wordOffset + GraphicsMeshPayloadWordOffset.Y];
 		let textureLayer = int32[wordOffset + GraphicsMeshPayloadWordOffset.TextureLayer];
 		let texture = op._texture;
+		let modifiedView: Web2DGraphic2DVertexDataView = null;
 		for (let i = 0; i < vertexCount; i++) {
 			let globalVertex = i;
 			let blockIndex = Math.floor(globalVertex / GRAPHICS_INFO_VERTEX_BLOCK_SIZE);
 			let localVertex = globalVertex - blockIndex * GRAPHICS_INFO_VERTEX_BLOCK_SIZE;
 			let view = this._vertexViews[renderIndex][blockIndex];
+			if (view !== modifiedView) {
+				modifiedView && modifiedView._modify();
+				modifiedView = view;
+			}
 			let data = view._getData();
 			let vi = localVertex * GraphicsDefines.stride;
 			let vertexOffset = vertexDataOffset + i * 2;
@@ -735,21 +738,24 @@ export class WebGraphicsOp2DRuntime {
 			data[vi + 13] = float32[wordOffset + GraphicsMeshPayloadWordOffset.UVClipY];
 			data[vi + 14] = float32[wordOffset + GraphicsMeshPayloadWordOffset.UVClipWidth];
 			data[vi + 15] = float32[wordOffset + GraphicsMeshPayloadWordOffset.UVClipHeight];
-			view._modify();
 		}
+		modifiedView && modifiedView._modify();
 	}
 
 	private _writeSolidQuadVertexData(renderIndex: number, float32: Float32Array, int32: Int32Array, wordOffset: number, mat: Matrix, ownerAlpha: number): void {
-		this._tempVertexBlockData.fill(0);
-		this._writeQuadVerticesInto(this._tempVertexBlockData, 0, float32, int32, wordOffset, mat, false, ownerAlpha);
-		this._vertexViews[renderIndex][0].setData(this._tempVertexBlockData);
+		let view = this._vertexViews[renderIndex][0];
+		let data = view._getData();
+		data.fill(0);
+		this._writeQuadVerticesInto(data, 0, float32, int32, wordOffset, mat, false, ownerAlpha);
+		view._modify();
 	}
 
 	private _writeQuadVertexData(renderIndex: number, float32: Float32Array, int32: Int32Array, wordOffset: number, mat: Matrix, uvEnabled: boolean, ownerAlpha: number = this._owner ? this._owner.globalAlpha : 1): void {
-		let blockData = this._tempVertexBlockData;
-		blockData.fill(0);
-		this._writeQuadVerticesInto(blockData, 0, float32, int32, wordOffset, mat, uvEnabled, ownerAlpha);
-		this._vertexViews[renderIndex][0].setData(blockData);
+		let view = this._vertexViews[renderIndex][0];
+		let data = view._getData();
+		data.fill(0);
+		this._writeQuadVerticesInto(data, 0, float32, int32, wordOffset, mat, uvEnabled, ownerAlpha);
+		view._modify();
 	}
 
 	private _writeQuadTextureLayer(renderIndex: number, textureLayer: number): void {
@@ -844,7 +850,7 @@ export class WebGraphicsOp2DRuntime {
 	}
 
 	private _writeQuadIndex(renderIndex: number, quadCount: number): void {
-		let indexData = this._ensureTempIndexData(quadCount * 6);
+		let indexData = this._indexViews[renderIndex]._getData();
 		let blocks = this._vertexBlocks[renderIndex];
 		for (let i = 0; i < quadCount; i++) {
 			let vertexBase = i * 4;
@@ -853,16 +859,7 @@ export class WebGraphicsOp2DRuntime {
 			for (let j = 0; j < 6; j++)
 				indexData[i * 6 + j] = blockBase + GRAPHICS_INFO_DEFAULT_QUAD_INDICES[j];
 		}
-		this._indexViews[renderIndex].setDataRange(indexData, quadCount * 6);
-	}
-
-	private _updateSingleTextureQuadTransformOnly(mat: Matrix, globalAlpha: number, writeAlpha: boolean = true): boolean {
-		let op = this._singleTextureQuadOp;
-		if (!op || op.recordCount <= 0 || this._singleTextureQuadRenderIndex < 0)
-			return false;
-		if (mat)
-			return this._updateQuadTransformOnly(this._singleTextureQuadRenderIndex, op._float32, op._int32, GraphicsOpInfoField.WordCount, globalAlpha, mat, writeAlpha);
-		return this._updateQuadTransformValuesOnly(this._singleTextureQuadRenderIndex, op._float32, op._int32, GraphicsOpInfoField.WordCount, globalAlpha, 1, 0, 0, 1, 0, 0, writeAlpha);
+		this._indexViews[renderIndex]._modify();
 	}
 
 	private _updateSingleTextureQuadTransformValuesOnly(a: number, b: number, c: number, d: number, tx: number, ty: number, globalAlpha: number, writeAlpha: boolean = true): boolean {
@@ -970,7 +967,7 @@ export class WebGraphicsOp2DRuntime {
 		if (!views)
 			return true;
 		let bodyOffset = GraphicsOpInfoField.WordCount;
-		let currentView: WebGraphicsOpMutableVertexDataView = null;
+		let currentView: Web2DGraphic2DVertexDataView = null;
 		for (let i = start, n = start + count, vertexIndex = 0; i < n; i++) {
 			let alpha = op._float32[bodyOffset + i * GraphicsQuadPayloadWordCount + GraphicsQuadPayloadWordOffset.Alpha] * ownerAlpha;
 			for (let j = 0; j < 4; j++, vertexIndex++) {
@@ -999,7 +996,7 @@ export class WebGraphicsOp2DRuntime {
 			return true;
 		let vertexCount = op._int32[wordOffset + GraphicsMeshPayloadWordOffset.VertexCount];
 		let alpha = op._float32[wordOffset + GraphicsMeshPayloadWordOffset.Alpha] * ownerAlpha;
-		let currentView: WebGraphicsOpMutableVertexDataView = null;
+		let currentView: Web2DGraphic2DVertexDataView = null;
 		for (let i = 0; i < vertexCount; i++) {
 			let blockIndex = Math.floor(i / GRAPHICS_INFO_VERTEX_BLOCK_SIZE);
 			let view = views[blockIndex];
@@ -1143,12 +1140,6 @@ export class WebGraphicsOp2DRuntime {
 		}
 		range.setValue(u0, v0, u1 - u0, v1 - v0);
 		shaderData.setVector(ShaderDefines2D.UNIFORM_TEXRANGE, range);
-	}
-
-	private _ensureTempIndexData(length: number): Uint16Array | Uint32Array {
-		if (this._tempIndexData.length < length)
-			this._tempIndexData = new (GraphicsDefines.GRAPHICS_INDEX_ARRAY_TYPE)(length);
-		return this._tempIndexData;
 	}
 
 	private _cacheSingleTextureQuadFastPath(): void {

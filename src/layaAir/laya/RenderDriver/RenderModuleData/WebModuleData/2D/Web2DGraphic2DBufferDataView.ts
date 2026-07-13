@@ -1,11 +1,9 @@
 import { GraphicsDefines } from "../../../../webgl/shader/d2/GraphicsDefines";
 import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
-import { I2DGraphicVertexDataView, I2DGraphicIndexDataView, I2DGraphicBufferDataView } from "../../Design/2D/IRender2DDataHandle";
 import { Web2DGraphicsIndexBatchBuffer, Web2DGraphicsIndexBuffer, Web2DGraphicsVertexBuffer, Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBuffer";
 import { WebRender2DPass } from "./WebRender2DPass";
 
-export abstract class Web2DGraphicsBufferDataView implements I2DGraphicBufferDataView {
-    abstract setData(data: ArrayLike<number>): void;
+export abstract class Web2DGraphicsBufferDataView {
 
     /** IB 的 start 不可信，只有在提交时百分百正确 */
     start: number;//element start
@@ -19,7 +17,7 @@ export abstract class Web2DGraphicsBufferDataView implements I2DGraphicBufferDat
     _prev: Web2DGraphicsBufferDataView;
 }
 
-export class Web2DGraphic2DVertexDataView extends Web2DGraphicsBufferDataView implements I2DGraphicVertexDataView {
+export class Web2DGraphic2DVertexDataView extends Web2DGraphicsBufferDataView {
     private _view: Float32Array
 
     stride: number = 1;//element length
@@ -51,11 +49,6 @@ export class Web2DGraphic2DVertexDataView extends Web2DGraphicsBufferDataView im
         }
     }
 
-    setData(data: ArrayLike<number>): void {
-        this._view.set(data);
-        this._modify();
-    }
-
     constructor(owner: Web2DGraphicsVertexBuffer, start: number, length: number, stride: number = 1) {
         super();
         this.owner = owner;
@@ -69,7 +62,7 @@ export class Web2DGraphic2DVertexDataView extends Web2DGraphicsBufferDataView im
 
 }
 
-export class Web2DGraphic2DIndexDataView extends Web2DGraphicsBufferDataView implements I2DGraphicIndexDataView {
+export class Web2DGraphic2DIndexDataView extends Web2DGraphicsBufferDataView {
 
     protected _view: Uint16Array | Uint32Array;
 
@@ -86,21 +79,9 @@ export class Web2DGraphic2DIndexDataView extends Web2DGraphicsBufferDataView imp
     /** @internal */
     declare _prev: Web2DGraphic2DIndexDataView;
 
-    setData(data: ArrayLike<number>): void {
-        this._view.set(data);
-        this._modify();
-    }
-
-    setDataRange(data: ArrayLike<number>, length: number): void {
-        let count = Math.min(length, this.length, data.length);
-        if (data instanceof Uint16Array || data instanceof Uint32Array) {
-            this._view.set(data.length === count ? data : data.subarray(0, count));
-        }
-        else {
-            for (let i = 0; i < count; i++)
-                this._view[i] = data[i];
-        }
-        this._modify();
+    /** @internal */
+    _getData(): Uint16Array | Uint32Array {
+        return this._view;
     }
 
     constructor(owner: Web2DGraphicsIndexBuffer, length: number, create: boolean = true) {

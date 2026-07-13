@@ -6,9 +6,6 @@ import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Texture } from "../../../../resource/Texture";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
-import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
-import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { IRenderStruct2D } from "./IRenderStruct2D";
 import {
@@ -176,35 +173,6 @@ export interface I2DGlobalRenderData {
     renderLayerMask: number;
     globalShaderData: ShaderData;
 }
-
-/** @blueprintIgnore */
-export interface I2DGraphicBufferDataView {
-    setData(data: ArrayLike<number>): void;
-}
-
-/** @blueprintIgnore */
-export interface I2DGraphicVertexDataView extends I2DGraphicBufferDataView {
-    length: number;
-    start: number;
-    stride: number;
-}
-
-export interface I2DGraphicIndexDataView extends I2DGraphicBufferDataView {
-    length: number;
-    setDataRange?(data: ArrayLike<number>, length: number): void;
-    setGeometry(value: IRenderGeometryElement): void;
-    destroy(): void;
-}
-
-/** @blueprintIgnore */
-export interface I2DGraphicWholeBuffer {
-    buffer: IVertexBuffer | IIndexBuffer
-    resetData(byteLength: number): void;
-    addDataView?(dataView: I2DGraphicBufferDataView): void;
-    removeDataView(dataView: I2DGraphicBufferDataView): void;
-    destroy(): void;
-}
-
 
 /**
  * @zh Primitive 渲染数据处理接口。
