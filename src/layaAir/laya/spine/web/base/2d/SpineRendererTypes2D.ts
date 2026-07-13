@@ -8,6 +8,7 @@ import { WebSpineRenderDataHandle } from "../../../../RenderDriver/RenderModuleD
 import { Transform2DStore } from "../../../../display/transform2d/Transform2DStore";
 import { SpineOptimizeRender2D } from "./SpineOptimizeRender2D";
 import { WebRenderStruct2D } from "../../../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
+import { ISpineRenderDataHandle } from "../../../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 
 
 export class BakedSpine2DRenderer extends BakedSpineRenderer {
@@ -91,8 +92,8 @@ export class StandardSpine2DRenderer extends StandardSpineRenderer{
         // 矩阵与变更帧号按 slot 直接问 Transform2DStore(不再依赖 struct 自存的 trans)。
         const matFrame = Transform2DStore.instance.getMatrixFrame(this._struct.transSlot);
         if (this._updateFrame < matFrame) {
-            let renderMatrix = (this._struct as WebRenderStruct2D).renderMatrix;
-            let offset = (this._struct.renderDataHandler as WebSpineRenderDataHandle).offset;
+            let renderMatrix = this._struct.renderMatrix;
+            let offset = (this._struct.renderDataHandler as ISpineRenderDataHandle).offset;
             let mat = this.normalUpdater.matrix
             renderMatrix.copyTo(mat);
             if (offset) {

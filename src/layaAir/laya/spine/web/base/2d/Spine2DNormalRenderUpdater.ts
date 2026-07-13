@@ -268,8 +268,8 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
                 let vertexStride = SpineConst.VERTEX_TWOCOLOR;
                 let vertexBufferLength = batch.view.vertexBufferLength;
                 
-                // 正向变换矩阵形式：[x']   [  a   c ] [x]   [tx]
-                //                  [y'] = [ -b  -d ] [y] + [ty]
+                // Spine 坐标系的正向变换：[x']   [ a  -c ] [x]   [tx]
+                //                         [y'] = [ b  -d ] [y] + [ty]
                 let data = new Float32Array(vertexBufferLength);
                 let a = this.matrix.a;
                 let b = this.matrix.b;
@@ -281,8 +281,8 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
                 let det = -a * d + b * c;
 
                 let inv_a = -d / det;
-                let inv_c = -c / det;
-                let inv_b = b / det;
+                let inv_c = c / det;
+                let inv_b = -b / det;
                 let inv_d = a / det;
                 let inv_tx = -(inv_a * tx + inv_c * ty);
                 let inv_ty = -(inv_b * tx + inv_d * ty);
@@ -442,8 +442,8 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
             //pos
             let x = vertices[j] + offsetX;
             let y = vertices[j + 1] + offsetY;
-            vertexData[vlen + 6] = a * x + c * y + tx;
-            vertexData[vlen + 7] = - b * x - d * y + ty;
+            vertexData[vlen + 6] = a * x - c * y + tx;
+            vertexData[vlen + 7] = b * x - d * y + ty;
             // vertexData[vlen + 6] = x;
             // vertexData[vlen + 7] = y;
             //two color
@@ -524,8 +524,8 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
             // POS
             let x = positions[v] + offsetX;
             let y = positions[v + 1] + offsetY;
-            vertexData[pos + 6] = a * x + c * y + tx;
-            vertexData[pos + 7] = - b * x - d * y + ty;
+            vertexData[pos + 6] = a * x - c * y + tx;
+            vertexData[pos + 7] = b * x - d * y + ty;
             // vertexData[pos + 6] = x;
             // vertexData[pos + 7] = y;
             // TWO COLOR

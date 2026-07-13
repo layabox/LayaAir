@@ -285,8 +285,8 @@ export class SpineWholeBuffer implements I2DGraphicWholeBuffer {
                            
                             let x = cacheVertex[i + 6] + offsetX;
                             let y = cacheVertex[i + 7] + offsetY;
-                            vertexData[index + 6] = a * x + c * y + tx;
-                            vertexData[index + 7] = -b * x - d * y + ty;
+                            vertexData[index + 6] = a * x - c * y + tx;
+                            vertexData[index + 7] = b * x - d * y + ty;
                         }
                     }
 
