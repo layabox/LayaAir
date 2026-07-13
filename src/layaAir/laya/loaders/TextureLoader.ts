@@ -137,7 +137,8 @@ export class Texture2DLoader implements IResourceLoader {
                             //这里在core模块，不能直接引用d3里的TextureCube
                             let cls = ClassUtils.getClass("TextureCube");
                             if (cls) {
-                                let tc = new cls(ktxInfo.width, ktxInfo.format, ktxInfo.mipmapCount > 1, ktxInfo.sRGB);
+                                let sRGB = constructParams ? !!constructParams[5] : ktxInfo.sRGB;
+                                let tc = new cls(ktxInfo.width, ktxInfo.format, ktxInfo.mipmapCount > 1, sRGB);
                                 tc.setKTXData(ktxInfo);
                                 tex = tc;
                             }
