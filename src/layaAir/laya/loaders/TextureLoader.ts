@@ -103,6 +103,15 @@ export class Texture2DLoader implements IResourceLoader {
             propertyParams = task.options.propertyParams;
         }
 
+        const applyTextureCubeProperties = (texture: BaseTexture) => {
+            if (!propertyParams)
+                return;
+            texture.wrapModeU = propertyParams.wrapModeU;
+            texture.wrapModeV = propertyParams.wrapModeV;
+            texture.filterMode = propertyParams.filterMode;
+            texture.anisoLevel = propertyParams.anisoLevel;
+        };
+
         let compress = compressedFormats.indexOf(ext) != -1 ? ext : null;
         if (compress != null) {
             return task.loader.fetch(url, "arraybuffer", task.progress.createCallback(), task.options).then(data => {
@@ -118,8 +127,10 @@ export class Texture2DLoader implements IResourceLoader {
                             let cls = ClassUtils.getClass("TextureCube");
                             if (cls) {
                                 let srgb = constructParams ? !!constructParams[5] : false;
-                                let tc = new cls(ddsInfo.width, ddsInfo.format, ddsInfo.mipmapCount > 1, srgb);
+                                let premultiplyAlpha = propertyParams ? propertyParams.premultiplyAlpha : false;
+                                let tc = new cls(ddsInfo.width, ddsInfo.format, ddsInfo.mipmapCount > 1, srgb, premultiplyAlpha);
                                 tc.setDDSData(ddsInfo);
+                                applyTextureCubeProperties(tc);
                                 tex = tc;
                             }
                             else {
@@ -138,8 +149,10 @@ export class Texture2DLoader implements IResourceLoader {
                             let cls = ClassUtils.getClass("TextureCube");
                             if (cls) {
                                 let sRGB = constructParams ? !!constructParams[5] : ktxInfo.sRGB;
-                                let tc = new cls(ktxInfo.width, ktxInfo.format, ktxInfo.mipmapCount > 1, sRGB);
+                                let premultiplyAlpha = propertyParams ? propertyParams.premultiplyAlpha : false;
+                                let tc = new cls(ktxInfo.width, ktxInfo.format, ktxInfo.mipmapCount > 1, sRGB, premultiplyAlpha);
                                 tc.setKTXData(ktxInfo);
+                                applyTextureCubeProperties(tc);
                                 tex = tc;
                             }
                             else
