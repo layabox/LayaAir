@@ -13,6 +13,9 @@ import { ColorUtils } from "../../utils/ColorUtils";
 import { Config } from "../../../Config";
 import { TextureArrayRegistry2D } from "../utils/TextureArrayRegistry2D";
 
+const ITALIC_ANGLE = 13;
+const ITALIC_SKEW_RATIO = 0.231; // Math.tan(13 * Math.PI / 180)
+const FONT_OVERHANG_RATIO = 0.08;
 
 /** @ignore @blueprintIgnore */
 export class TextRender {
@@ -60,8 +63,8 @@ export class TextRender {
         fontSizeOffY = Math.ceil(info.yoff * k) + emojiAdjustY;
         fontSizeH = Math.ceil((hasEmoji ? info.ebbxh : info.bbxh) * k);
         fontScale = TextRenderConfig.fontScale;
-        let italicDeg = italic ? 13 : 0;
-        let cacheKey = (curFont.id * 10000) + fontSize + (bold ? "b_" : "_");
+        let italicDeg = italic ? ITALIC_ANGLE : 0;
+        let cacheKey = (curFont.id * 10000) + fontSize + (bold ? "b" : "") + (italic ? "i" : "") + "_";
         let colorNum = ColorUtils.create(color).numColor;
         if (letterSpacing > 0) //有字间距时，强制字符模式
             charMode = true;
@@ -117,7 +120,7 @@ export class TextRender {
                 let ri = this.charMap.get(key);
                 if (!ri) {
                     let width = ctx.measureText(cc).width;
-                    ri = this.drawOffscreen(ctx, cc, width, fontSize, stroke, true);
+                    ri = this.drawOffscreen(ctx, cc, width, fontSize, stroke, italic, true);
                     ri.key = key;
                     ri.isChar = true;
                     this.charMap.set(key, ri);
@@ -144,7 +147,7 @@ export class TextRender {
             if (!ri) {
                 if (preMeasuredWidth == null)
                     preMeasuredWidth = ctx.measureText(text).width;
-                ri = this.drawOffscreen(ctx, text, preMeasuredWidth, fontSize, stroke, false);
+                ri = this.drawOffscreen(ctx, text, preMeasuredWidth, fontSize, stroke, italic, false);
                 ri.key = key;
                 ri.ref = 1;
                 this.textMap.set(key, ri);
@@ -163,7 +166,7 @@ export class TextRender {
         return renderInfo;
     }
 
-    private drawOffscreen(ctx: CanvasRenderingContext2D, text: string, width: number, height: number, lineWidth: number, charMode: boolean): ITextRenderInfo {
+    private drawOffscreen(ctx: CanvasRenderingContext2D, text: string, width: number, height: number, lineWidth: number, italic: boolean, charMode: boolean): ITextRenderInfo {
         let offsetLeft = 0, offsetTop = 0, offsetRight = 0, offsetBottom = 0;
         if (ctx.shadowOffsetX > 0)
             offsetRight = ctx.shadowOffsetX;
@@ -176,7 +179,8 @@ export class TextRender {
         let margin = height / 3 | 0 + lineWidth + Math.max(offsetLeft, offsetTop);
         let rectX = ((margin - fontSizeOffX - lineWidth - offsetLeft) * fontScale | 0) - blockGap;
         let rectY = ((margin - fontSizeOffY - lineWidth - offsetTop) * fontScale | 0) - blockGap;
-        let correctionW = height * 0.08; //某些字体（例如华文行楷，华文隶书，自带斜体效果，测算的宽度可能不够，这里补一些，0.08是经验值
+        //FONT_OVERHANG_RATIO用于字体自身的右侧溢出，斜体还需要预留13度剪切产生的宽度。
+        let correctionW = height * (FONT_OVERHANG_RATIO + (italic ? ITALIC_SKEW_RATIO : 0));
         let rectW = Math.ceil((width + fontSizeOffX + lineWidth * 2 + offsetLeft + offsetRight + correctionW) * fontScale) + blockGap * 2;
         let rectH = Math.ceil((fontSizeH + lineWidth * 2 + offsetTop + offsetBottom + 1) * fontScale) + blockGap * 2;
 

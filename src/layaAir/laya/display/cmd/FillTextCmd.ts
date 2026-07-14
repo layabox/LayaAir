@@ -8,6 +8,8 @@ import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 import { Render2DProcessor } from "../Render2DProcessor";
 
 const className = "FillTextCmd";
+const ITALIC_SKEW_RATIO = 0.231; // Math.tan(13 * Math.PI / 180)
+const FONT_OVERHANG_RATIO = 0.08;
 
 /**
  * @en Draw text command
@@ -298,7 +300,8 @@ export class FillTextCmd implements IGraphicsCmd {
         //留一些余量
         x -= 4;
         y -= this.fontSize / 2;
-        Rectangle.TEMP.setTo(x, y, tw + 8, this.fontSize * 2).getBoundPoints(assembler.points);
+        let correctionW = this.fontSize * (FONT_OVERHANG_RATIO + (this.italic ? ITALIC_SKEW_RATIO : 0));
+        Rectangle.TEMP.setTo(x, y, tw + 8 + correctionW, this.fontSize * 2).getBoundPoints(assembler.points);
     }
 
 }
