@@ -248,17 +248,6 @@ export class InputManager {
         }
 
         let doc = Browser.document;
-        let win = Browser.window;
-        win.addEventListener("blur", () => {
-            inst.clearPressedKeys();
-        });
-        win.addEventListener("pagehide", () => {
-            inst.clearPressedKeys();
-        });
-        doc.addEventListener("visibilitychange", () => {
-            if (doc.hidden)
-                inst.clearPressedKeys();
-        });
         doc.addEventListener("keydown", ev => {
             inst.handleKeys(ev);
         }, true);
