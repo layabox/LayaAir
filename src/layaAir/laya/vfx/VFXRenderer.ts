@@ -648,6 +648,45 @@ export class VFXRenderer extends BaseRender {
     }
 
     /**
+     * 基础 mesh 纹理材质：无 shadergraph(.bps)时,用内置 VFXUnlit + 绑定 MainTexture 到 u_AlbedoTexture。
+     * 对齐 Unity —— Output Mesh 自带 Main Texture,默认材质即可显示纹理,不依赖 Shader Graph。
+     * 按 (blendMode, 纹理 uuid, uvMode, flipbook) 缓存,避免共享材质被不同纹理互相覆盖。
+     */
+    static getMeshTexturedMaterial(blendMode: string = "Alpha", mainTextureUuid: string = "", uvMode: string = "Default", flipbookSize: Vector2 = null): Material {
+        // IDE Texture2D 字段存裸 assetId,转换器存 res://uuid —— 统一补前缀
+        if (mainTextureUuid && mainTextureUuid.indexOf("://") < 0)
+            mainTextureUuid = "res://" + mainTextureUuid;
+        const fbKey = flipbookSize ? `${flipbookSize.x}x${flipbookSize.y}` : "";
+        const key = `__meshtex__${blendMode}__${mainTextureUuid}__${uvMode}__${fbKey}`;
+        let mat = VFXRenderer._customShaderMaterialCache.get(key);
+        if (mat) return mat;
+        const shader = Shader3D.find("VFXUnlit");
+        if (!shader) {
+            console.error("[VFX Renderer] built-in 'VFXUnlit' shader not registered");
+            return null as any;
+        }
+        mat = new Material();
+        mat.setShaderName("VFXUnlit");
+        const vfxDef = Shader3D.getDefineByName("VFX_INSTANCED");
+        if (vfxDef) mat.addDefine(vfxDef);
+        const colorDef = Shader3D.getDefineByName("COLOR");
+        if (colorDef) mat.addDefine(colorDef);
+        mat.setColor("u_Color", new Color(1, 1, 1, 1));
+        mat.setTexture("u_AlbedoTexture", VFXRenderer.getDefaultDotTexture());
+        mat.renderQueue = 3000;
+        mat.cull = RenderState.CULL_NONE;
+        applyBlendMode(mat, blendMode);
+        applyFlipbook(mat, uvMode, flipbookSize);
+        VFXRenderer._customShaderMaterialCache.set(key, mat);
+        if (mainTextureUuid) {
+            VFXRenderer._tryLoadTextureOnce(mainTextureUuid, tex => {
+                if (mat) mat.setTexture("u_AlbedoTexture", tex);
+            });
+        }
+        return mat;
+    }
+
+    /**
      * 按 blendMode 获取/创建 strip 材质（缓存共享）
      * blendMode: "Alpha" | "Additive" | "Premultiplied" | "Opaque"
      *
@@ -1003,8 +1042,13 @@ export class VFXRenderer extends BaseRender {
                 else if (!meshMaterial && outType === "outputBillboard") {
                     element.material = VFXRenderer.getBillboardMaterial(mode);
                 } else if (!meshMaterial) {
-                    // outputMesh / outputStaticMesh 等：自动创建 VFXUnlit 默认材质
-                    element.material = VFXRenderer.getCustomShaderMaterial("VFXUnlit", mode);
+                    // 无 shadergraph(.bps)材质的 mesh 输出:有 MainTexture 时用基础 VFXUnlit + 绑纹理(对齐 Unity Output Mesh 自带 Main Texture),否则纯默认材质
+                    const meshMainTex = (geometry as any).mainTexture as string || "";
+                    if (meshMainTex) {
+                        element.material = VFXRenderer.getMeshTexturedMaterial(mode, meshMainTex, (geometry as any).uvMode || "Default", (geometry as any).flipbookSize);
+                    } else {
+                        element.material = VFXRenderer.getCustomShaderMaterial("VFXUnlit", mode);
+                    }
                 } else {
                     if (meshMaterial) {
                         applyBlendMode(meshMaterial, mode);
@@ -1026,6 +1070,23 @@ export class VFXRenderer extends BaseRender {
                             if (!existing) {
                                 meshMaterial.setTexture("u_AlbedoTexture", VFXRenderer.getDefaultDotTexture());
                             }
+                        }
+                    }
+                    // mesh 输出(shadergraph 或基础):把 Output Mesh 的 MainTexture 字段直接绑到渲染材质。
+                    // 对齐 Unity —— Main Texture 字段驱动纹理,不依赖 shaderName/shadergraph 属性绑定(shaderName 常被 IDE 留空)。
+                    // 绑多个 sampler 名覆盖 .bps(MainTexture/_MainTexture)和基础材质(u_AlbedoTexture)。
+                    if (meshMaterial && outType !== "outputBillboard") {
+                        let meshFieldTex = (geometry as any).mainTexture as string;
+                        if (meshFieldTex && meshFieldTex.indexOf("://") < 0)
+                            meshFieldTex = "res://" + meshFieldTex;
+                        if (meshFieldTex) {
+                            VFXRenderer._tryLoadTextureOnce(meshFieldTex, tex => {
+                                if (tex) {
+                                    meshMaterial.setTexture("MainTexture", tex);
+                                    meshMaterial.setTexture("_MainTexture", tex);
+                                    meshMaterial.setTexture("u_AlbedoTexture", tex);
+                                }
+                            });
                         }
                     }
                     // Soft Particle / Flipbook / SubpixelAA
