@@ -670,13 +670,6 @@ export class VisualEffect extends Script {
 
     /// lifecycle methods
     onStart(): void {
-        console.log("VisualEffect onStart", this, this.asset);
-        console.log(`[VFX-DBG] VE onStart systems=${this.systems.length}`,
-            this.systems.map((s: any, i: number) => {
-                const cap = (s as any).capacity ?? (s.desc && (s.desc as any).capacity);
-                const t = s.constructor.name;
-                return `${i}:${t}${cap != null ? `(cap=${cap})` : ""}`;
-            }).join(","));
     }
 
     // Strip 专用子节点和 Renderer（避免与 Mesh instancing 的渲染管线冲突）
