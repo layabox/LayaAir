@@ -314,7 +314,7 @@ export class Text extends Sprite {
         let rect = this._scrollRect || new Rectangle();
         let rectWidth = this._isWidthSet ? this._width : this._textWidth;
         let rectHeight = this._isHeightSet ? this._height : this._textHeight;
-        rect.setTo(0, 0, rectWidth, rectHeight);
+        rect.setTo(0, 0, Math.max(0, rectWidth - this._padding[1]), Math.max(0, rectHeight - this._padding[2]));
         this.scrollRect = rect;
     }
 
@@ -1788,7 +1788,7 @@ export class Text extends Sprite {
                 let rect = this._objContainer.scrollRect || new Rectangle();
                 let rectWidth = this._isWidthSet ? this._width : this._textWidth;
                 let rectHeight = this._isHeightSet ? this._height : this._textHeight;
-                this._objContainer.scrollRect = rect.setTo(0, 0, rectWidth, rectHeight);
+                this._objContainer.scrollRect = rect.setTo(0, 0, Math.max(0, rectWidth - padding[1]), Math.max(0, rectHeight - padding[2]));
             }
             else
                 this._objContainer.scrollRect = null;
@@ -1821,8 +1821,7 @@ export class Text extends Sprite {
         let letterSpacing = this._textStyle.letterSpacing;
         let shadow = this._textStyle.shadowOffsetX !== 0 || this._textStyle.shadowOffsetY !== 0;
 
-        rectWidth -= (padding[3] + padding[1]);
-        rectHeight -= (padding[0] + padding[2]);
+        let contentWidth = Math.max(0, rectWidth - padding[1]);
 
         let x = 0, y = 0;
         let lines = this._lines;
@@ -1910,7 +1909,7 @@ export class Text extends Sprite {
             }
 
             if (curLink) {
-                curLink.addRect(linkStartX, y, rectWidth - linkStartX + paddingLeft, line.height);
+                curLink.addRect(linkStartX, y, contentWidth - linkStartX, line.height);
                 linkStartX = paddingLeft;
             }
         }
