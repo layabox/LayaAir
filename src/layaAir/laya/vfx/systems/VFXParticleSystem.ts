@@ -909,6 +909,20 @@ export class VFXParticleSystem extends VFXSystem {
         this.setupOutputEventBuffers();
     }
 
+    /**
+     * 运行时更换 mesh 输出的 mesh（VFX 组件级 Mesh 属性 override）。
+     * 仅对 mesh 输出（geometry 为 VFXGeometry）生效；strip/point/line/billboard 无 setMesh 自动跳过。
+     */
+    setMesh(mesh: Mesh): void {
+        if (!mesh) return;
+        const geo: any = this.geometry;
+        // 仅 mesh 输出（geometry 是 VFXGeometry，有 setMesh）才换；billboard/strip/point/line 无 setMesh → 跳过
+        if (geo && typeof geo.setMesh === "function") {
+            this.mesh = mesh;
+            geo.setMesh(mesh);
+        }
+    }
+
     receiveInitializeEvent(attr: VFXEventAttribute): void {
         let spawnCount = Math.floor(attr.getFloat("spawnCount"));
         if (spawnCount <= 0) {

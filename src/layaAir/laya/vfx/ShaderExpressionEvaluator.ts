@@ -107,9 +107,12 @@ export class ShaderExpressionEvaluator {
                 //     避免 lifetime>1s 的 sample (UNI VFX2 1.4s) 让 curve fade 循环 ("ring 2 圈")
                 //   ConstantRate/PeriodicBurst: mod(totalTime, 1) — 让 cycle 持续循环
                 //     避免 cap 后 totalTime>1 让 Disappear=curve(1)=1 让所有粒子永远不可见 (UNI VFX6 不显示)
-                result = ctx.hasContinuousSpawn
+                // n.continuous: 转换器按 per-system spawn 类型注入(整合多系统时全局 ctx.hasContinuousSpawn 会
+                //   把单 burst 的 materialize 误判成连续→mod 循环闪烁);有则优先用,缺省回退全局。
+                // n.duration: 单 burst 粒子 lifetime(秒)。materialize lifetime=4s 不除会 1 秒跑完(快 4 倍)。
+                result = (((n as any).continuous != null) ? (n as any).continuous : ctx.hasContinuousSpawn)
                     ? (ctx.totalTime - Math.floor(ctx.totalTime))
-                    : Math.min(ctx.totalTime, 1);
+                    : Math.min(ctx.totalTime / ((n as any).duration || 1), 1);
                 break;
             case "Random": {
                 // Unity 端 Random(min, max, seed) 是 per-particle random, Laya material uniform 是 per-system 一份不能 per-particle.

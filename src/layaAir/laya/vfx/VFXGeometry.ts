@@ -87,6 +87,9 @@ export class VFXGeometry extends GeometryElement {
 
     private _mesh: Mesh;
 
+    // 保存 particle 实例顶点缓冲，供运行时 setMesh 重绑 bufferState（mesh 换、particle 实例缓冲不变）
+    private _particleVertex: any = null;
+
     get mesh(): Mesh {
         return this._mesh;
     }
@@ -122,6 +125,7 @@ export class VFXGeometry extends GeometryElement {
         this.indexFormat = params.mesh.indexFormat;
 
         const particleVertex = params.particleBuffer;
+        this._particleVertex = particleVertex;
 
         // 使用公开 API 访问 Mesh 的顶点/索引缓冲区（Mesh.vertexBuffer / indexBuffer）
         // 如公开 API 不可用则回退到私有属性（兼容旧引擎版本）
@@ -160,6 +164,36 @@ export class VFXGeometry extends GeometryElement {
         this.clearRenderParams();
 
         this._geometryElementOBj.setIndirectDrawBuffer(this.indirectBuffer.deviceBuffer, 0);
+    }
+
+    /**
+     * 运行时更换 mesh（VFX 组件级 Mesh 属性 override）。
+     * 重绑新 mesh 的 GPU 顶点/索引缓冲到 bufferState（particle 实例缓冲不变），更新 indirect indexCount + indexFormat。
+     * instanceCount 由 output compute shader 下一帧重写，故更换瞬间一帧不可见可接受。
+     * 失败（新 mesh 无 VB/IB）时保持原 mesh 不变。
+     */
+    setMesh(mesh: Mesh): void {
+        if (!mesh || mesh === this._mesh) return;
+        const meshIndexBuffer = (mesh as any).indexBuffer ?? (mesh as any)._indexBuffer;
+        const meshVertexBuffer = (mesh as any).vertexBuffer ?? (mesh as any)._vertexBuffer;
+        if (!meshIndexBuffer || !meshVertexBuffer) {
+            console.warn("[VFX] VFXGeometry.setMesh: 新 mesh 无 vertex/index buffer，跳过", mesh);
+            return;
+        }
+        // 引用计数：新 mesh +1（防 GC），旧 mesh -1（释放占用）。destroy 会对当前 _mesh 再 -1。
+        try { (mesh as any)._addReference?.(); } catch { }
+        try { this._mesh?._removeReference?.(); } catch { }
+        this._mesh = mesh;
+        this.indexFormat = mesh.indexFormat;
+        // 重绑 bufferState：新 mesh VB/IB + 原 particle 实例 VB
+        const oldState = this.bufferState;
+        this.bufferState = new BufferState();
+        this.bufferState.applyState([meshVertexBuffer, this._particleVertex], meshIndexBuffer);
+        try { oldState?.destroy(); } catch { }
+        // 更新 indirect：indexCount 用新 mesh 的（instanceCount 由 output compute 下帧重写）
+        const indirectData = new Uint32Array(5);
+        indirectData[0] = meshIndexBuffer.indexCount;
+        this.indirectBuffer.deviceBuffer.setData(indirectData.buffer, 0, 0, indirectData.byteLength);
     }
 
     destroy(): void {

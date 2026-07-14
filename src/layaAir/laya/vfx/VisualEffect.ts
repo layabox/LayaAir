@@ -178,6 +178,11 @@ export class VisualEffect extends Script {
     // 标记静态 vertex 属性（pos/idx/weight/normal）是否已烘焙过（每个 sourceName 一份）
     private _skinnedMeshVertexBaked: Set<string> = new Set();
 
+    // SkinnedMeshTransform/VFXTransform 注册表 — transformPosition block 通过 transformSource 引用。
+    // 注册一个场景节点（骨骼/Transform），其世界矩阵每帧驱动对应 transformSource 的粒子位置变换
+    // （position = matrix * position），实现 bolts/sparks/surge 跟随该骨骼动画（对齐 Unity）。
+    private _transformSources: Map<string, any> = new Map();
+
     /**
      * 注册 SkinnedMesh source — sampleSkinnedMeshXxx operator 通过 sourceName 引用
      * @param name      与 .vfx 中 sampleSkinnedMeshXxx operator 的 Source Name 一致
@@ -196,6 +201,20 @@ export class VisualEffect extends Script {
         const tex = this._skinnedMeshBoneTextures.get(name);
         if (tex) tex.destroy();
         this._skinnedMeshBoneTextures.delete(name);
+    }
+
+    /**
+     * 注册 SkinnedMeshTransform/VFXTransform source — transformPosition block 通过 transformSource 引用。
+     * @param name  与 .vfx 中 Transform 暴露属性名一致（如 "SkinnedMeshTransform"）
+     * @param node  场景节点（骨骼/Transform），其世界矩阵每帧驱动粒子位置变换
+     */
+    setTransformSource(name: string, node: any): void {
+        this._transformSources.set(name, node);
+    }
+
+    /** 移除 TransformSource 注册 */
+    clearTransformSource(name: string): void {
+        this._transformSources.delete(name);
     }
 
     /**
@@ -492,6 +511,9 @@ export class VisualEffect extends Script {
                 type: prop.type,
                 value: Array.isArray(v) ? [...v] : [],
                 cached,
+                // 默认 cached/stops 备份：组件级 override(Gradient/Texture2D)被取消时恢复，见 _applyPropertyOverrides
+                defaultCached: cached,
+                defaultRawGradientStops: prop.type === VFXPropertyType.Gradient ? (prop.gradientStops || []) : undefined,
                 // raw 字段：Gradient 的 baked Texture 不可 CPU sample，evaluator 用这里的 stops/curve 数据
                 // gradientStops 格式：[{ time, r, g, b, a }]（已 normalize 到 0-1 time）
                 // 期望：随后 _applyPropertyOverrides / setPropertyXxx 时若 override 也更新这里
@@ -559,8 +581,28 @@ export class VisualEffect extends Script {
      * @internal
      */
     private _applyPropertyOverrides(): void {
+        // 先恢复资产默认值：被取消/删除的 override 须回到默认，不残留旧值
+        if (this.asset && this._propertyValues) {
+            for (const prop of this.asset.properties) {
+                const entry = this._propertyValues.get(prop.name) as any;
+                if (!entry) continue;
+                if (Array.isArray(prop.default) && Array.isArray(entry.value)) {
+                    for (let i = 0; i < entry.value.length && i < prop.default.length; i++)
+                        entry.value[i] = prop.default[i];
+                }
+                // Gradient/Texture2D：cached(纹理)被 override 改过，恢复到 default 备份并重新绑定。
+                // (Gradient 的 applyProperties 每帧重绑 entry.id；这里恢复 cached + 别名绑定即可)
+                if (entry.type === VFXPropertyType.Gradient || entry.type === VFXPropertyType.Texture2D) {
+                    if (entry.defaultCached !== undefined) {
+                        entry.cached = entry.defaultCached;
+                        if (entry.type === VFXPropertyType.Gradient) entry.rawGradientStops = entry.defaultRawGradientStops;
+                        this._bindPropertyTextureToShaders(prop.name, entry.id, entry.cached);
+                    }
+                }
+            }
+        }
         if (!this.propertyOverrides) return;
-        let overrides: { [name: string]: number[] };
+        let overrides: { [name: string]: any };
         try {
             // 兼容老版本场景里 propertyOverrides 可能是 object 不是 string
             overrides = typeof this.propertyOverrides === "string"
@@ -573,12 +615,26 @@ export class VisualEffect extends Script {
         if (!overrides || typeof overrides !== "object") return;
         for (const name in overrides) {
             const value = overrides[name];
-            if (!Array.isArray(value)) continue;
-            switch (value.length) {
-                case 1: this.setPropertyFloat(name, value[0]); break;
-                case 2: this.setPropertyVec2(name, value[0], value[1]); break;
-                case 3: this.setPropertyVec3(name, value[0], value[1], value[2]); break;
-                case 4: this.setPropertyVec4(name, value[0], value[1], value[2], value[3]); break;
+            if (Array.isArray(value)) {
+                // 数值类：float/vec2/vec3/vec4(color 也走 vec4)
+                switch (value.length) {
+                    case 1: this.setPropertyFloat(name, value[0]); break;
+                    case 2: this.setPropertyVec2(name, value[0], value[1]); break;
+                    case 3: this.setPropertyVec3(name, value[0], value[1], value[2]); break;
+                    case 4: this.setPropertyVec4(name, value[0], value[1], value[2], value[3]); break;
+                }
+            } else if (typeof value === "string" && value) {
+                // string override = 资源引用(res://uuid)：Texture2D 或 Mesh。按属性类型分流
+                // （转换器 Mesh 属性 type 写 "Mesh"，大小写不敏感比较）。
+                const _entry: any = this._propertyValues.get(name);
+                if (_entry && String(_entry.type).toLowerCase() === "mesh") {
+                    this.setPropertyMesh(name, value);
+                } else {
+                    this.setPropertyTexture(name, value);   // Texture2D
+                }
+            } else if (value && typeof value === "object" && Array.isArray(value.stops)) {
+                // Gradient override：{ stops:[{t,color:{r,g,b,a}}] }
+                this.setPropertyGradient(name, value.stops);
             }
         }
     }
@@ -1012,6 +1068,8 @@ export class VisualEffect extends Script {
 
         // Phase 0.6: SkinnedMesh texture 烘焙/刷新（首次烘焙静态 vertex 属性，每帧刷 bones 矩阵）
         this._updateSkinnedMeshTextures();
+        // Phase 0.7: SkinnedMeshTransform/VFXTransform — 每帧把注册骨骼/节点世界矩阵绑到粒子位置变换 uniform
+        this._updateTransformSources();
 
         // 计算 emitter 世界矩阵
         state.emitterWorldMatrix = this.owner.transform.worldMatrix;
@@ -1259,6 +1317,92 @@ export class VisualEffect extends Script {
     }
 
     /**
+     * 把纹理(Gradient 烘焙纹理 / Texture2D)绑到所有粒子系统的 shaderData。
+     * 绑 entry.id(u_VfxProp_<name>) + shaderPropertyBindings 别名(Unity OutputContext binding → shader uniform，如 _MaskTexture)。
+     * @internal
+     */
+    private _bindPropertyTextureToShaders(name: string, id: number, texture: Texture2D): void {
+        if (!texture) return;
+        for (const sys of this.systems) {
+            if (!(sys instanceof VFXParticleSystem)) continue;
+            const bindings = (sys as any).shaderPropertyBindings;
+            const shaderUniformName = bindings ? bindings[name] : null;
+            const aliasIds = shaderUniformName
+                ? [id, Shader3D.propertyNameToID(shaderUniformName)]
+                : [id];
+            for (const sd of sys.getAllShaderDatas()) {
+                for (const aid of aliasIds) sd.setTexture(aid, texture);
+            }
+        }
+    }
+
+    /**
+     * Texture2D 属性 override：异步 load res://uuid → 解包 → 更新 cached + 绑定。
+     * (applyProperties 不处理 Texture2D，必须在此显式重绑)
+     */
+    setPropertyTexture(name: string, url: string): void {
+        const entry = this._propertyValues.get(name) as any;
+        if (!entry || !url) return;
+        Laya.loader.load(url).then((res: any) => {
+            // loader 对 PNG 返回 Texture wrapper，取其 bitmap (Texture2D) 用来 bind shader sampler（同 VFXAssetParser property 路径）
+            const tex = res ? (res.bitmap || res._image || res._source || res) : null;
+            if (!tex) {
+                console.warn(`[VFX] setPropertyTexture('${name}') load returned null: ${url}`);
+                return;
+            }
+            entry.cached = tex;
+            this._bindPropertyTextureToShaders(name, entry.id, tex);
+        }, (err: any) => {
+            console.warn(`[VFX] setPropertyTexture('${name}') load failed: ${url}`, err);
+        });
+    }
+
+    /**
+     * Mesh 属性 override：load mesh → 换所有 mesh 输出系统的 mesh（particle VFXGeometry 重绑 GPU 几何 + static mesh 换 sharedMesh）。
+     * 系统的 setMesh 内部已判类型（仅 mesh 输出生效），故这里对所有 system 调用即可。
+     * ⚠ 当前对【所有】mesh 输出应用（一个 Mesh 属性 → 一个 mesh 输出的常见情形成立）；
+     *    多 mesh 输出需精确区分时要靠转换器 mesh-property 绑定（后续）。
+     */
+    setPropertyMesh(name: string, url: string): void {
+        const entry = this._propertyValues.get(name) as any;
+        if (!entry || !url) return;
+        const meshUrl = url.startsWith("res://") ? url : "res://" + url;
+        Laya.loader.load(meshUrl).then((mesh: any) => {
+            if (!mesh) {
+                console.warn(`[VFX] setPropertyMesh('${name}') load returned null: ${meshUrl}`);
+                return;
+            }
+            entry.cached = mesh;
+            for (const system of this.systems) {
+                if (typeof (system as any).setMesh === "function") (system as any).setMesh(mesh);
+            }
+        }, (err: any) => {
+            console.warn(`[VFX] setPropertyMesh('${name}') load failed: ${meshUrl}`, err);
+        });
+    }
+
+    /**
+     * Gradient 属性 override：重烘 HDR 渐变纹理 → 更新 cached/rawGradientStops + 绑定。
+     * stops 接受 color 为 {r,g,b,a} 对象(面板/资产格式)或 [r,g,b,a] 数组(引擎内部)，统一归一成数组喂 bakeGradientTexture。
+     */
+    setPropertyGradient(name: string, stops: any[]): void {
+        const entry = this._propertyValues.get(name) as any;
+        if (!entry || !Array.isArray(stops)) return;
+        const engineStops = stops.map((s: any) => {
+            const c = s && s.color;
+            const color: [number, number, number, number] = Array.isArray(c)
+                ? [Number(c[0]) || 0, Number(c[1]) || 0, Number(c[2]) || 0, c[3] != null ? Number(c[3]) : 1]
+                : [Number(c && c.r) || 0, Number(c && c.g) || 0, Number(c && c.b) || 0, (c && c.a != null) ? Number(c.a) : 1];
+            return { t: Number(s && s.t) || 0, color };
+        });
+        engineStops.sort((a, b) => a.t - b.t);
+        entry.rawGradientStops = engineStops;
+        entry.cached = bakeGradientTexture(engineStops);
+        // applyProperties 每帧把 entry.cached 绑到 entry.id；这里再绑别名(若有 shaderPropertyBindings)
+        this._bindPropertyTextureToShaders(name, entry.id, entry.cached);
+    }
+
+    /**
      * 绑定外部 DeviceBuffer 到 VFX 系统（供 sampleGraphicsBuffer operator 使用）
      * @param name bufferUniforms 中的 propertyName
      * @param buffer 要绑定的 DeviceBuffer
@@ -1323,6 +1467,10 @@ export class VisualEffect extends Script {
             if (!textureUniforms || textureUniforms.length === 0) continue;
             const allDatas = system.getAllShaderDatas();
             for (const tu of textureUniforms) {
+                // transformSource 项是 Mat4 uniform（SkinnedMeshTransform/VFXTransform），不是纹理。
+                // 若在此 setTexture(whiteTexture)，会把该 uniform 槽注册成纹理 → _updateTransformSources
+                // 的 setMatrix4x4 往纹理上 cloneTo 崩（Cannot read 'set' of undefined）。必须跳过。
+                if ((tu as any).transformSource) continue;
                 const id = Shader3D.propertyNameToID(tu.uniformName);
                 // 空 texture fallback 到默认纹理，避免 compute shader bind group 读 null 崩溃
                 // （用户可通过 shaderData.setTexture 运行时覆盖）
@@ -1340,6 +1488,52 @@ export class VisualEffect extends Script {
                 for (const sd of allDatas) {
                     sd.setTexture(id, texture);
                 }
+            }
+        }
+
+        // 绑定 setPositionMesh 点云 storage buffer（mesh 表面/体积烘焙的 DeviceBuffer，对齐 Unity buffer 采样，
+        // 绕开 WebGPU compute 下动态现造 Texture2D 绑定失效的问题）。buffer 异步烘焙完成后此处绑定。
+        for (let i = 0; i < this.systems.length; i++) {
+            const system = this.systems[i];
+            const desc = descs[i] as any;
+            if (!(system instanceof VFXParticleSystem)) continue;
+            if (!desc?.meshPointBuffers || desc.meshPointBuffers.length === 0) continue;
+            const allDatas = system.getAllShaderDatas();
+            for (const mpb of desc.meshPointBuffers) {
+                if (!mpb.buffer) continue;
+                const id = Shader3D.propertyNameToID(mpb.uniformName + "Buffer");
+                for (const sd of allDatas) {
+                    sd.setDeviceBuffer(id, mpb.buffer.deviceBuffer);
+                }
+            }
+        }
+    }
+
+    /**
+     * 每帧把注册的 TransformSource（骨骼/Transform 节点）世界矩阵绑到对应 transformPosition 的
+     * Mat4 uniform（u_VfxProp_VfxTransform_<name>）。transformPosition block 的 initialize compute
+     * 里 position = matrix * position，让 bolts/sparks/surge 跟随该骨骼动画（对齐 Unity 的 mul(uniform,...)）。
+     */
+    private _updateTransformSources(): void {
+        if (this._transformSources.size === 0) return;
+        const asset = this.asset;
+        if (!asset) return;
+        const descs = (asset as any).systems;
+        for (let i = 0; i < this.systems.length; i++) {
+            const system = this.systems[i];
+            const desc = descs[i];
+            if (!(system instanceof VFXParticleSystem)) continue;
+            if (!desc?.textureUniforms) continue;
+            for (const tu of desc.textureUniforms as any[]) {
+                if (!tu.transformSource) continue;
+                const node = this._transformSources.get(tu.transformSource);
+                if (!node) continue;
+                const tr = node.transform || (node.owner && node.owner.transform);
+                if (!tr) continue;
+                const id = Shader3D.propertyNameToID(tu.uniformName);
+                const wm = tr.worldMatrix;
+                for (const sd of system.getAllShaderDatas())
+                    sd.setMatrix4x4(id, wm);
             }
         }
     }
