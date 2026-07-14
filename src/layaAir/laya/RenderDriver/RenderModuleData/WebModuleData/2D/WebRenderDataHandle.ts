@@ -12,9 +12,16 @@ import type { WebGraphicsOp2D } from "./WebGraphicsOp2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IGraphicsOp2D, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle } from "../../Design/2D/IRender2DDataHandle";
 import { WebGraphicsBatchEntry } from "./WebGraphicsOp2DRuntimeBuffers";
-import { WebGraphicsOp2DRuntime } from "./WebGraphicsOp2DRuntime";
+import { WebGraphicsOp2DRuntime, type WebGraphicsMaterialState } from "./WebGraphicsOp2DRuntime";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 import { Transform2DStore } from "../../../../display/transform2d/Transform2DStore";
+import type { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
+import type { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
+
+// Graphics-op transform fast path: synchronously filled from Transform2DStore then immediately
+// expanded to scalar arguments. It is intentionally module-shared to avoid one allocation per
+// graphics data handle; updateTransformValues never retains this buffer.
+const _worldMatrix6 = new Float32Array(6);
 
 export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     protected _owner: WebRenderStruct2D;
@@ -90,6 +97,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     private _graphicsHandleUpdateBuffer: ArrayBuffer = null;
     private _modifiedFrame: number = -1;
     private _globalAlpha: number = 1;
+    private _graphicsMaterialState: WebGraphicsMaterialState = { subShader: null, shaderData: null };
 
     public set owner(value: WebRenderStruct2D) {
         if (this._owner === value)
@@ -116,7 +124,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         if (!this._owner)
             return;
         if (!this._opRuntime) {
-            this._opRuntime = new WebGraphicsOp2DRuntime(this._owner);
+            this._opRuntime = new WebGraphicsOp2DRuntime(this._owner, this._graphicsMaterialState);
             this._opRuntime.setGraphicsHandleUpdateBuffer(this._graphicsHandleUpdateBuffer);
         }
     }
@@ -139,6 +147,24 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         this._graphicsHandleUpdateBuffer = buffer;
         if (this._opRuntime)
             this._opRuntime.setGraphicsHandleUpdateBuffer(buffer);
+    }
+
+    setGraphicsSubShader(value: SubShader | null): void {
+        value = value || null;
+        if (this._graphicsMaterialState.subShader === value)
+            return;
+        this._graphicsMaterialState.subShader = value;
+        if (this._opRuntime)
+            this._opRuntime.syncGraphicsSubShader();
+    }
+
+    setGraphicsShaderData(value: ShaderData | null): void {
+        value = value || null;
+        if (this._graphicsMaterialState.shaderData === value)
+            return;
+        this._graphicsMaterialState.shaderData = value;
+        if (this._opRuntime)
+            this._opRuntime.syncGraphicsShaderData();
     }
 
     syncGraphicsOps(ops: ReadonlyArray<IGraphicsOp2D>): void {
@@ -166,8 +192,8 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             let alphaChanged = this._globalAlpha != globalAlpha;
 
             if (this._modifiedFrame !== matFrame) {
-                let mat: Matrix = this._owner.renderMatrix;
                 if (this.needUseMatrix) {
+                    let mat: Matrix = this._owner.renderMatrix;
                     if (this.logicMatrix) {
                         let temp = Matrix.TEMP;
                         Matrix.mul(this.logicMatrix, mat.copyTo(temp), temp);
@@ -182,7 +208,18 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                     data.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
                 }
                 else if (this._graphicsOpsActive) {
-                    this._opRuntime.updateTransform(mat, globalAlpha, alphaChanged);
+                    const slot = this._owner.transSlot;
+                    if (slot >= 0) {
+                        store.readWorldMatrix(slot, _worldMatrix6);
+                        this._opRuntime.updateTransformValues(
+                            _worldMatrix6[0], _worldMatrix6[1], _worldMatrix6[2],
+                            _worldMatrix6[3], _worldMatrix6[4], _worldMatrix6[5],
+                            globalAlpha, alphaChanged);
+                    }
+                    else {
+                        // Temporary structs without a Transform2DStore slot retain the old fallback.
+                        this._opRuntime.updateTransform(this._owner.renderMatrix, globalAlpha, alphaChanged);
+                    }
                 }
                 this._globalAlpha = globalAlpha;
                 this._modifiedFrame = matFrame;
@@ -198,6 +235,8 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
 
     destroy(): void {
         this._destroyGraphicsOpRuntime();
+        this._graphicsMaterialState.subShader = null;
+        this._graphicsMaterialState.shaderData = null;
         super.destroy();
     }
 }

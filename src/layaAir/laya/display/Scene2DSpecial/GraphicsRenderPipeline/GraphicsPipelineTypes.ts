@@ -169,9 +169,9 @@ export const enum GraphicsOp2DDirtyFlag {
 	Structure = 1 << 0,
 	Geometry = 1 << 1,
 	Texture = 1 << 2,
-	Material = 1 << 3,
+	// Bit 3 is reserved for the removed per-op material flag to preserve the TS/C++ buffer ABI.
 	State = 1 << 4,
-	All = Structure | Geometry | Texture | Material | State,
+	All = Structure | Geometry | Texture | State,
 }
 
 /** @internal */

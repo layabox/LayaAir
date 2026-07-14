@@ -357,13 +357,12 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
     }
 
     set mode(value: ESpineRenderMode) {
-        if (this._mode === value) return;
-
-        this._mode = value;
-
         // Update native layer
         if (this._nativeRender && this._nativeRender.setMode) {
             this._nativeRender.setMode(value);
+            this._mode = this._nativeRender.getMode ? this._nativeRender.getMode() : value;
+        } else {
+            this._mode = value;
         }
     }
 
@@ -384,9 +383,11 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
         this._nativeRender.resetBakeData();
 
         if (!obj) {
-            this._mode = ESpineRenderMode.Optimize;
             if (this._nativeRender.setMode) {
                 this._nativeRender.setMode(ESpineRenderMode.Optimize);
+                this._mode = this._nativeRender.getMode ? this._nativeRender.getMode() : ESpineRenderMode.Optimize;
+            } else {
+                this._mode = ESpineRenderMode.Optimize;
             }
             return;
         }
@@ -404,7 +405,7 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
         if (this._nativeRender.initBake) {
             this._nativeRender.initBake();
         }
-        this._mode = ESpineRenderMode.Bake;
+        this._mode = this._nativeRender.getMode ? this._nativeRender.getMode() : ESpineRenderMode.Bake;
     }
 
     setEventListener(listeners: {

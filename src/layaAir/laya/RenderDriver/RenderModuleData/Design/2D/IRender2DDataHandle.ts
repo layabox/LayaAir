@@ -36,8 +36,6 @@ export interface IGraphicsOp2D {
     readonly commandIndex: number;
     readonly commandId: GraphicsCommandId;
     texture: GraphicsOp2DTextureHost | null;
-    subShader: SubShader | null;
-    shaderData: ShaderData | null;
     readonly buffer: ArrayBuffer;
     dirtyFlags: GraphicsOp2DDirtyFlag;
     canUpdate(commandId: GraphicsCommandId): boolean;
@@ -148,6 +146,8 @@ export interface IGraphicsOp2DFactory {
 
 export interface IGraphicsOp2DHandle {
     setGraphicsHandleUpdateBuffer?(buffer: ArrayBuffer): void;
+    setGraphicsSubShader(value: SubShader | null): void;
+    setGraphicsShaderData(value: ShaderData | null): void;
     readonly autoGraphicsDirtySync?: boolean;
     syncGraphicsOps(ops: ReadonlyArray<IGraphicsOp2D>): void;
 }

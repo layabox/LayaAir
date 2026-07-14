@@ -1,5 +1,3 @@
-import type { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
-import type { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import type {
 	IGraphicsFillTextureOp2D,
 	IGraphicsMeshOp2D,
@@ -17,15 +15,7 @@ import {
 	GraphicsOp2DKind,
 	GraphicsOp2DDirtyFlag,
 } from "./GraphicsPipelineTypes";
-import { GraphicsOpRenderStateHelper } from "./GraphicsPipelineHelpers";
 import { GraphicsDefines } from "../../../webgl/shader/d2/GraphicsDefines";
-
-type GraphicsMaterialLike = {
-	shader?: {
-		getSubShaderAt?(index: number): SubShader;
-	};
-	shaderData?: ShaderData | null;
-};
 
 /** @internal */
 export class GraphicsOp2DList {
@@ -117,18 +107,6 @@ export class GraphicsOp2DList {
 	}
 
 	setOwnerSize(_width: number, _height: number): void {
-	}
-
-	setMaterial(material: GraphicsMaterialLike | null): void {
-		let subShader = material && material.shader && material.shader.getSubShaderAt ? material.shader.getSubShaderAt(0) : GraphicsOpRenderStateHelper.getDefaultSubShader();
-		let shaderData = material ? material.shaderData : null;
-		for (let i = 0, n = this.ops.length; i < n; i++) {
-			let op = this.ops[i];
-			if (op.subShader !== subShader || op.shaderData !== shaderData)
-				op.markDirty(GraphicsOp2DDirtyFlag.Material);
-			op.subShader = subShader;
-			op.shaderData = shaderData;
-		}
 	}
 
 	getTextureQuadTargetOp(): IGraphicsTextureQuadOp2D | IGraphicsMultiQuadOp2D | IGraphicsTextOp2D {

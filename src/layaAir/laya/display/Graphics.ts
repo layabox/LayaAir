@@ -397,9 +397,12 @@ export class Graphics {
             return;
         this._material && this._material._removeReference();
         this._material = value;
-        this.repaint();
         if (value != null)
             value._addReference();
+        if (this.owner) {
+            this.owner._graphicsRenderer?._materialChanged();
+            this.owner.repaint();
+        }
     }
 
     /**

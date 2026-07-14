@@ -3,7 +3,6 @@ import { Matrix } from "../../maths/Matrix";
 import { Point } from "../../maths/Point";
 import { Vector4 } from "../../maths/Vector4";
 import { BaseTexture } from "../../resource/BaseTexture";
-import { Material } from "../../resource/Material";
 import { Texture } from "../../resource/Texture";
 import { Texture2D } from "../../resource/Texture2D";
 import { BlendMode } from "../../webgl/canvas/BlendMode";
@@ -46,8 +45,6 @@ function getDrawTexToQuadIndex(): Uint16Array | Uint32Array {
 /** @ignore @blueprintIgnore */
 export class GraphicsRunner {
 	private _alpha = 1.0;
-
-	_material: Material = null;
 
     private _fillStyle: DrawStyle = DrawStyle.DEFAULT;
     private _strokeStyle: DrawStyle = DrawStyle.DEFAULT;
@@ -747,7 +744,6 @@ export class GraphicsRunner {
 		let submit = this._drawState;
 		submit.clear();
 		submit.update(this);
-		submit.material = this._material;
 		return submit;
 	}
 

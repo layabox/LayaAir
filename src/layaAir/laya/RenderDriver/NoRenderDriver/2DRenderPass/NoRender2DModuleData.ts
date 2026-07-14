@@ -18,6 +18,7 @@ import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
+import type { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { IClipInfo, IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import { I2DBaseRenderDataHandle, I2DGlobalRenderData, I2DPrimitiveDataHandle, IGraphicsOp2D, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
@@ -72,8 +73,18 @@ export class NoRenderPrimitiveDataHandle extends NoRenderDataHandleBase implemen
 
     private _modifiedFrame: number = -1;
     private _globalAlpha: number = 1;
+    private _graphicsSubShader: SubShader | null = null;
+    private _graphicsShaderData: ShaderData | null = null;
 
     setGraphicsHandleUpdateBuffer(_buffer: ArrayBuffer): void {
+    }
+
+    setGraphicsSubShader(value: SubShader | null): void {
+        this._graphicsSubShader = value || null;
+    }
+
+    setGraphicsShaderData(value: ShaderData | null): void {
+        this._graphicsShaderData = value || null;
     }
 
     syncGraphicsOps(_ops: ReadonlyArray<IGraphicsOp2D>): void {
@@ -105,6 +116,8 @@ export class NoRenderPrimitiveDataHandle extends NoRenderDataHandleBase implemen
     }
 
     destroy(): void {
+        this._graphicsSubShader = null;
+        this._graphicsShaderData = null;
         super.destroy();
     }
 }
@@ -465,7 +478,9 @@ export class NoRenderStruct2D implements IRenderStruct2D {
     _clipRect: Rectangle = null;
     _clipInfo: IClipInfo = null;
 
-    setRenderUpdateCallback(func: Function): void { this._rnUpdateFun = func; }
+    setRenderUpdateCallback(func: Function): void {
+        this._rnUpdateFun = func;
+    }
 
     _handleInterData(): void {
         let rect = this._clipRect;
@@ -756,7 +771,6 @@ export class NoRender2DPass implements IRender2DPass {
         if (this.repaint && this.root) {
             this._walkAndRenderUpdate(context, this.root);
         }
-
         this.repaint = false;
     }
 

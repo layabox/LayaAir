@@ -10,6 +10,8 @@ import { RTRenderStruct2D } from "./RTRenderStruct2D";
 import { Vector2 } from "../../../../maths/Vector2";
 import { Matrix } from "../../../../maths/Matrix";
 import { Vector4 } from "../../../../maths/Vector4";
+import type { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
+import type { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 
 type RTGraphicsNativeOpCarrier = {
     _nativeObj?: any;
@@ -64,6 +66,10 @@ export class RTEmptyRender2DDataHandle extends RTRender2DDataHandle {
 }
 
 export class RTPrimitiveDataHandle extends RTRender2DDataHandle implements I2DPrimitiveDataHandle {
+
+    private _graphicsSubShader: SubShader | null = null;
+    private _graphicsShaderData: ShaderData | null = null;
+
     constructor() {
         super(new (window as any).conchRTPrimitiveDataHandle());
     }
@@ -79,6 +85,24 @@ export class RTPrimitiveDataHandle extends RTRender2DDataHandle implements I2DPr
     }
 
     readonly autoGraphicsDirtySync: boolean = true;
+
+    setGraphicsSubShader(value: SubShader | null): void {
+        value = value || null;
+        if (this._graphicsSubShader === value)
+            return;
+        this._graphicsSubShader = value;
+        let holder: any = value;
+        this._nativeObj.setGraphicsSubShader(holder ? holder.moduleData?._nativeObj || holder._nativeObj || null : null);
+    }
+
+    setGraphicsShaderData(value: ShaderData | null): void {
+        value = value || null;
+        if (this._graphicsShaderData === value)
+            return;
+        this._graphicsShaderData = value;
+        let holder: any = value;
+        this._nativeObj.setGraphicsShaderData(holder ? holder._nativeObj || null : null);
+    }
 
     _mask: RTRenderStruct2D | null = null;
     get mask(): RTRenderStruct2D | null {
@@ -130,6 +154,8 @@ export class RTPrimitiveDataHandle extends RTRender2DDataHandle implements I2DPr
     }
 
     destroy(): void {
+        this._graphicsSubShader = null;
+        this._graphicsShaderData = null;
         super.destroy();
         this._graphicsNativeOps.length = 0;
     }

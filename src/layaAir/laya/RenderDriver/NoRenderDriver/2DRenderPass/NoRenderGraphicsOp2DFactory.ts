@@ -1,6 +1,4 @@
 import type { Matrix } from "../../../maths/Matrix";
-import type { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
-import type { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import {
 	GraphicsOp2DDirtyFlag,
 	GraphicsOp2DKind,
@@ -25,8 +23,6 @@ class NoRenderGraphicsOp2D implements IGraphicsTextureQuadOp2D, IGraphicsSolidQu
 	dirtyFlags: GraphicsOp2DDirtyFlag = GraphicsOp2DDirtyFlag.All;
 	recordCount: number = 0;
 	texture: GraphicsOp2DTextureHost | null = null;
-	subShader: SubShader | null = null;
-	shaderData: ShaderData | null = null;
 	textures: GraphicsOp2DTextureHost[] = [];
 
 	constructor(readonly kind: GraphicsOp2DKind, readonly commandIndex: number, readonly commandId: GraphicsCommandId) {
@@ -112,8 +108,6 @@ class NoRenderGraphicsOp2D implements IGraphicsTextureQuadOp2D, IGraphicsSolidQu
 
 	destroy(): void {
 		this.texture = null;
-		this.subShader = null;
-		this.shaderData = null;
 	}
 }
 

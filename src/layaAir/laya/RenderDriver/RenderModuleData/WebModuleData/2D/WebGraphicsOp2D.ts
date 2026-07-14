@@ -1,6 +1,4 @@
 import type { Matrix } from "../../../../maths/Matrix";
-import type { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
-import type { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { GraphicsOpInfoField, GraphicsOpProfile } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
 import { GraphicsOp2DDirtyFlag, GraphicsOp2DKind, type GraphicsCommandId, type GraphicsOp2DTextureHost, type GraphicsOp2DType } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
 import { GraphicsOpRenderStateHelper } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineHelpers";
@@ -13,8 +11,6 @@ export abstract class WebGraphicsOp2D implements IGraphicsOp2D {
 	dirtyFlags: GraphicsOp2DDirtyFlag = GraphicsOp2DDirtyFlag.All;
 	protected _version: number = 0;
 	_texture: GraphicsOp2DTextureHost | null = null;
-	_subShader: SubShader | null = null;
-	_shaderData: ShaderData | null = null;
 	_buffer: ArrayBuffer;
 	_float32: Float32Array;
 	_int32: Int32Array;
@@ -66,32 +62,6 @@ export abstract class WebGraphicsOp2D implements IGraphicsOp2D {
 		this._refreshOpRenderStateBuffer();
 	}
 
-	get subShader(): SubShader | null {
-		return this._subShader;
-	}
-
-	set subShader(value: SubShader | null) {
-		value = value || null;
-		if (this._subShader === value)
-			return;
-		this._subShader = value;
-		this.markDirty(GraphicsOp2DDirtyFlag.Material);
-		this._refreshOpRenderStateBuffer();
-	}
-
-	get shaderData(): ShaderData | null {
-		return this._shaderData;
-	}
-
-	set shaderData(value: ShaderData | null) {
-		value = value || null;
-		if (this._shaderData === value)
-			return;
-		this._shaderData = value;
-		this.markDirty(GraphicsOp2DDirtyFlag.Material);
-		this._refreshOpRenderStateBuffer();
-	}
-
 	canUpdate(commandId: GraphicsCommandId): boolean {
 		return this.commandId === commandId;
 	}
@@ -117,8 +87,6 @@ export abstract class WebGraphicsOp2D implements IGraphicsOp2D {
 
 	destroy(): void {
 		this._texture = null;
-		this._subShader = null;
-		this._shaderData = null;
 	}
 
 	protected _reserveBufferWords(bodyWordCount: number): void {
@@ -143,14 +111,14 @@ export abstract class WebGraphicsOp2D implements IGraphicsOp2D {
 	protected _writeOpRenderStateBuffer(changeMask: number, version: number,
 		vertexCount: number, indexCount: number, blendMode: number, texture: GraphicsOp2DTextureHost | null, fillTexture: boolean,
 		packedColor: number, localAlpha: number, bodyWordCount: number): void {
-		let renderState = GraphicsOpRenderStateHelper.getRenderState(texture, blendMode, fillTexture, this._shaderData != null, false, this._renderStateScratch);
+		let renderState = GraphicsOpRenderStateHelper.getRenderState(texture, blendMode, fillTexture, false, false, this._renderStateScratch);
 		this._writeOpInfoBuffer(changeMask, version, vertexCount, indexCount, renderState.stateKey, renderState.typeKey, renderState.textureKey, packedColor, localAlpha, bodyWordCount);
 	}
 
 	protected _refreshOpRenderStateBuffer(fillTexture: boolean = this.kind === GraphicsOp2DKind.FillTexture): void {
 		if (!this._int32 || this._int32[GraphicsOpInfoField.BodyWordCount] <= 0)
 			return;
-		let renderState = GraphicsOpRenderStateHelper.getRenderState(this._texture, this._int32[GraphicsOpInfoField.StateKey], fillTexture, this._shaderData != null, false, this._renderStateScratch);
+		let renderState = GraphicsOpRenderStateHelper.getRenderState(this._texture, this._int32[GraphicsOpInfoField.StateKey], fillTexture, false, false, this._renderStateScratch);
 		this._int32[GraphicsOpInfoField.StateKey] = renderState.stateKey;
 		this._int32[GraphicsOpInfoField.TypeKey] = renderState.typeKey;
 		this._int32[GraphicsOpInfoField.TextureKey] = renderState.textureKey;

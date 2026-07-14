@@ -179,6 +179,10 @@ export class SpineRenderUpdater {
 
         let isFirst = lastFrame < 0;
         let needUpload = false;
+        
+        let indexFrameData = isFirst && !frameData.ib
+            ? this._getPreviousIndexFrameData(skindata, frame)
+            : frameData;
 
         if (isFirst) {
             this._resetVertexBuffers(slots, skindata);
@@ -213,16 +217,25 @@ export class SpineRenderUpdater {
         }
 
         if (frameData.ib || isFirst) {
-            this.uploadIndexBuffer(frameData, mesh);
+            this.uploadIndexBuffer(indexFrameData, mesh);
         }
 
-        let needUpdate = SpineMeshUtils._updateSpineSubMesh(mesh, frameData);
-        needUpdate = this.handleRender(skindata, frame, mesh) || needUpdate;
+        let needUpdate = SpineMeshUtils._updateSpineSubMesh(mesh, indexFrameData);
+        needUpdate = this.handleRender(skindata, frame, mesh, indexFrameData) || needUpdate;
         return needUpdate;
     }
 
-    private handleRender(skindata: SkinAniRenderData, frame: number,  mesh: Mesh2D): boolean {
-        let frameData = skindata.getFrameData(frame);
+    private _getPreviousIndexFrameData(skindata: SkinAniRenderData, frame: number): FrameRenderData {
+        for (let i = frame - 1; i >= 0; i--) {
+            let previousFrameData = skindata.getFrameData(i);
+            if (previousFrameData.ib) {
+                return previousFrameData;
+            }
+        }
+        return skindata._defaultFrameData;
+    }
+
+    private handleRender(skindata: SkinAniRenderData, frame: number, mesh: Mesh2D, frameData: FrameRenderData = skindata.getFrameData(frame)): boolean {
         let needUpdate = false;
         let mulitRenderData = frameData.mulitRenderData;
         if (mulitRenderData) {

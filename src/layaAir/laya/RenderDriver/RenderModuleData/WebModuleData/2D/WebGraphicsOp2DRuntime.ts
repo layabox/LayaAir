@@ -3,7 +3,6 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
 import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
-import { Shader2D } from "../../../../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { BlendModeHandler } from "../../../../webgl/canvas/BlendMode";
 import { BlendMode } from "../../../../webgl/canvas/BlendMode";
@@ -39,6 +38,7 @@ import { IPrimitiveRenderElement2D } from "../../../DriverDesign/2DRenderPass/IR
 import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
+import type { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { Web2DGraphic2DIndexCloneDataView, Web2DGraphic2DIndexDataView, Web2DGraphic2DVertexDataView } from "./Web2DGraphic2DBufferDataView";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 import {
@@ -66,6 +66,12 @@ type WebGraphicsOpRenderRange = {
 	count: number;
 };
 
+/** @internal Shared Graphics material state owned by the primitive data handle. */
+export type WebGraphicsMaterialState = {
+	subShader: SubShader | null;
+	shaderData: ShaderData | null;
+};
+
 /** @internal */
 export class WebGraphicsOp2DRuntime {
 	private _ops: ReadonlyArray<WebGraphicsOp2D> = [];
@@ -91,7 +97,27 @@ export class WebGraphicsOp2DRuntime {
 	private _handleUpdateFloat32: Float32Array = null;
 	private _renderStateScratch: GraphicsOp2DRenderState = { stateKey: 0, typeKey: 0, textureKey: 0, texture: null };
 
-	constructor(private _owner: WebRenderStruct2D) {
+	constructor(private _owner: WebRenderStruct2D, private _materialState: WebGraphicsMaterialState) {
+	}
+
+	syncGraphicsSubShader(): void {
+		let subShader = this._materialState.subShader;
+		for (let element of this._renderElements)
+			if (element)
+				element.subShader = subShader;
+	}
+
+	syncGraphicsShaderData(): void {
+		let shaderData = this._materialState.shaderData;
+		let customMaterial = shaderData != null;
+		for (let element of this._renderElements) {
+			if (!element)
+				continue;
+			element.materialShaderData = shaderData;
+			element.typeKey = customMaterial
+				? element.typeKey | ShaderDefines2D.TYPEKEY_CUSTOM_MATERIAL
+				: element.typeKey & ~ShaderDefines2D.TYPEKEY_CUSTOM_MATERIAL;
+		}
 	}
 
 	setGraphicsHandleUpdateBuffer(buffer: ArrayBuffer): void {
@@ -390,8 +416,8 @@ export class WebGraphicsOp2DRuntime {
 		element.value2DShaderData = this._owner.spriteShaderData;
 		element.globalShaderData = this._owner.globalRenderData ? this._owner.globalRenderData.globalShaderData : null;
 		element.primitiveShaderData = primitiveShaderData;
-		element.subShader = op._subShader || Shader2D.graphicsShader.getSubShaderAt(0);
-		element.materialShaderData = op._shaderData;
+		element.subShader = this._materialState.subShader;
+		element.materialShaderData = this._materialState.shaderData;
 		element.renderStateIsBySprite = false;
 		element.typeKey = 0;
 		element.textureKey = 0;
@@ -428,8 +454,7 @@ export class WebGraphicsOp2DRuntime {
 			return;
 		let wordOffset = GraphicsOpInfoField.WordCount;
 		let texture = op._texture;
-		let hasCustomMaterial = op._shaderData != null;
-		this._syncMaterial(renderIndex, op);
+		let hasCustomMaterial = this._materialState.shaderData != null;
 		this._syncTexture(renderIndex, texture, 0, op._int32[wordOffset + GraphicsQuadPayloadWordOffset.BlendMode], hasCustomMaterial);
 		this._writeQuadVertexData(renderIndex, op._float32, op._int32, wordOffset, mat, texture != null, ownerAlpha);
 		this._writeQuadIndex(renderIndex, 1);
@@ -445,10 +470,8 @@ export class WebGraphicsOp2DRuntime {
 		}
 		let wordOffset = GraphicsOpInfoField.WordCount;
 		let texture = op._texture;
-		let hasCustomMaterial = op._shaderData != null;
-		if ((dirtyFlags & GraphicsOp2DDirtyFlag.Material) !== 0)
-			this._syncMaterial(renderIndex, op);
-		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.Material | GraphicsOp2DDirtyFlag.State)) !== 0) {
+		let hasCustomMaterial = this._materialState.shaderData != null;
+		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.State)) !== 0) {
 			this._syncTexture(renderIndex, texture, 0, op._int32[wordOffset + GraphicsQuadPayloadWordOffset.BlendMode], hasCustomMaterial);
 			if ((dirtyFlags & GraphicsOp2DDirtyFlag.Geometry) === 0 && op.textureLayerDirty)
 				this._writeQuadTextureLayer(renderIndex, op._int32[wordOffset + GraphicsQuadPayloadWordOffset.TextureLayer]);
@@ -466,10 +489,8 @@ export class WebGraphicsOp2DRuntime {
 			return;
 		}
 		let wordOffset = GraphicsOpInfoField.WordCount;
-		if ((dirtyFlags & GraphicsOp2DDirtyFlag.Material) !== 0)
-			this._syncMaterial(renderIndex, op);
-		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Material | GraphicsOp2DDirtyFlag.State)) !== 0)
-			this._syncTexture(renderIndex, null, 0, op._int32[wordOffset + GraphicsQuadPayloadWordOffset.BlendMode], op._shaderData != null);
+		if ((dirtyFlags & GraphicsOp2DDirtyFlag.State) !== 0)
+			this._syncTexture(renderIndex, null, 0, op._int32[wordOffset + GraphicsQuadPayloadWordOffset.BlendMode], this._materialState.shaderData != null);
 		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Geometry | GraphicsOp2DDirtyFlag.State)) !== 0)
 			this._writeSolidQuadVertexData(renderIndex, op._float32, op._int32, wordOffset, mat, ownerAlpha);
 	}
@@ -478,8 +499,7 @@ export class WebGraphicsOp2DRuntime {
 		if (op.recordCount <= 0)
 			return;
 		let wordOffset = GraphicsOpInfoField.WordCount;
-		this._syncMaterial(renderIndex, op);
-		this._syncTexture(renderIndex, null, 0, op._int32[wordOffset + GraphicsQuadPayloadWordOffset.BlendMode], op._shaderData != null);
+		this._syncTexture(renderIndex, null, 0, op._int32[wordOffset + GraphicsQuadPayloadWordOffset.BlendMode], this._materialState.shaderData != null);
 		this._writeSolidQuadVertexData(renderIndex, op._float32, op._int32, wordOffset, mat, ownerAlpha);
 		this._writeQuadIndex(renderIndex, 1);
 	}
@@ -487,12 +507,11 @@ export class WebGraphicsOp2DRuntime {
 	private _writeFillTexture(renderIndex: number, op: WebGraphicsFillTextureOp2D, mat: Matrix, ownerAlpha: number): void {
 		if (op.recordCount <= 0)
 			return;
-		this._syncMaterial(renderIndex, op);
 		let wordOffset = GraphicsOpInfoField.WordCount;
 		let f32 = op._float32;
 		let i32 = op._int32;
 		let texture = op._texture;
-		this._syncTexture(renderIndex, texture, ShaderDefines2D.DEFINE_BIT_FILLTEXTURE, i32[wordOffset + GraphicsQuadPayloadWordOffset.BlendMode], op._shaderData != null);
+		this._syncTexture(renderIndex, texture, ShaderDefines2D.DEFINE_BIT_FILLTEXTURE, i32[wordOffset + GraphicsQuadPayloadWordOffset.BlendMode], this._materialState.shaderData != null);
 		this._syncFillTextureRange(renderIndex,
 			f32[wordOffset + GraphicsQuadPayloadWordOffset.TexRangeX],
 			f32[wordOffset + GraphicsQuadPayloadWordOffset.TexRangeY],
@@ -514,10 +533,8 @@ export class WebGraphicsOp2DRuntime {
 		let f32 = op._float32;
 		let i32 = op._int32;
 		let texture = op._texture;
-		if ((dirtyFlags & GraphicsOp2DDirtyFlag.Material) !== 0)
-			this._syncMaterial(renderIndex, op);
-		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.Material | GraphicsOp2DDirtyFlag.State)) !== 0)
-			this._syncTexture(renderIndex, texture, ShaderDefines2D.DEFINE_BIT_FILLTEXTURE, i32[wordOffset + GraphicsQuadPayloadWordOffset.BlendMode], op._shaderData != null);
+		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.State)) !== 0)
+			this._syncTexture(renderIndex, texture, ShaderDefines2D.DEFINE_BIT_FILLTEXTURE, i32[wordOffset + GraphicsQuadPayloadWordOffset.BlendMode], this._materialState.shaderData != null);
 		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.Geometry)) !== 0)
 			this._syncFillTextureRange(renderIndex,
 				f32[wordOffset + GraphicsQuadPayloadWordOffset.TexRangeX],
@@ -531,11 +548,10 @@ export class WebGraphicsOp2DRuntime {
 	private _writeMultiQuad(renderIndex: number, op: WebGraphicsMultiQuadOp2D, start: number = 0, count: number = op.recordCount, mat: Matrix = this._owner ? this._owner.renderMatrix : null, ownerAlpha: number = this._owner ? this._owner.globalAlpha : 1): void {
 		if (count <= 0)
 			return;
-		this._syncMaterial(renderIndex, op);
 		let bodyOffset = GraphicsOpInfoField.WordCount;
 		let group = this._textureGroups[renderIndex];
 		let texture = group ? group.texture : op._texture;
-		this._syncTexture(renderIndex, texture, 0, op._int32[bodyOffset + start * GraphicsQuadPayloadWordCount + GraphicsQuadPayloadWordOffset.BlendMode], op._shaderData != null);
+		this._syncTexture(renderIndex, texture, 0, op._int32[bodyOffset + start * GraphicsQuadPayloadWordCount + GraphicsQuadPayloadWordOffset.BlendMode], this._materialState.shaderData != null);
 		this._writeMultiQuadRange(renderIndex, op, start, count, mat, ownerAlpha, texture != null);
 		this._writeQuadIndex(renderIndex, count);
 	}
@@ -551,10 +567,8 @@ export class WebGraphicsOp2DRuntime {
 		let bodyOffset = GraphicsOpInfoField.WordCount;
 		let group = this._textureGroups[renderIndex];
 		let texture = group ? group.texture : op._texture;
-		if ((dirtyFlags & GraphicsOp2DDirtyFlag.Material) !== 0)
-			this._syncMaterial(renderIndex, op);
-		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.Material | GraphicsOp2DDirtyFlag.State)) !== 0)
-			this._syncTexture(renderIndex, texture, 0, op._int32[bodyOffset + start * GraphicsQuadPayloadWordCount + GraphicsQuadPayloadWordOffset.BlendMode], op._shaderData != null);
+		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.State)) !== 0)
+			this._syncTexture(renderIndex, texture, 0, op._int32[bodyOffset + start * GraphicsQuadPayloadWordCount + GraphicsQuadPayloadWordOffset.BlendMode], this._materialState.shaderData != null);
 		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Geometry | GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.State)) !== 0)
 			this._writeMultiQuadRange(renderIndex, op, start, count, mat, ownerAlpha, texture != null);
 	}
@@ -566,9 +580,8 @@ export class WebGraphicsOp2DRuntime {
 		}
 		if (!group)
 			return;
-		this._syncMaterial(renderIndex, op);
 		let bodyOffset = GraphicsOpInfoField.WordCount;
-		this._syncTexture(renderIndex, group.texture, 0, op.recordCount > 0 ? op._int32[bodyOffset + group.start * GraphicsQuadPayloadWordCount + GraphicsQuadPayloadWordOffset.BlendMode] : 0, op._shaderData != null);
+		this._syncTexture(renderIndex, group.texture, 0, op.recordCount > 0 ? op._int32[bodyOffset + group.start * GraphicsQuadPayloadWordCount + GraphicsQuadPayloadWordOffset.BlendMode] : 0, this._materialState.shaderData != null);
 		this._writeMultiQuadRange(renderIndex, op, group.start, group.count, mat, ownerAlpha, group.texture != null);
 		this._writeQuadIndex(renderIndex, group.count);
 	}
@@ -586,10 +599,8 @@ export class WebGraphicsOp2DRuntime {
 			return;
 		}
 		let bodyOffset = GraphicsOpInfoField.WordCount;
-		if ((dirtyFlags & GraphicsOp2DDirtyFlag.Material) !== 0)
-			this._syncMaterial(renderIndex, op);
-		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.Material | GraphicsOp2DDirtyFlag.State)) !== 0)
-			this._syncTexture(renderIndex, group.texture, 0, op.recordCount > 0 ? op._int32[bodyOffset + group.start * GraphicsQuadPayloadWordCount + GraphicsQuadPayloadWordOffset.BlendMode] : 0, op._shaderData != null);
+		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.State)) !== 0)
+			this._syncTexture(renderIndex, group.texture, 0, op.recordCount > 0 ? op._int32[bodyOffset + group.start * GraphicsQuadPayloadWordCount + GraphicsQuadPayloadWordOffset.BlendMode] : 0, this._materialState.shaderData != null);
 		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Geometry | GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.State)) !== 0)
 			this._writeMultiQuadRange(renderIndex, op, group.start, group.count, mat, ownerAlpha, group.texture != null);
 	}
@@ -636,10 +647,9 @@ export class WebGraphicsOp2DRuntime {
 	}
 
 	private _writeMesh(renderIndex: number, op: WebGraphicsMeshOp2D, mat: Matrix, ownerAlpha: number): void {
-		this._syncMaterial(renderIndex, op);
 		let wordOffset = GraphicsOpInfoField.WordCount;
 		let int32 = op._int32;
-		this._syncTexture(renderIndex, op._texture, 0, int32[wordOffset + GraphicsMeshPayloadWordOffset.BlendMode], op._shaderData != null);
+		this._syncTexture(renderIndex, op._texture, 0, int32[wordOffset + GraphicsMeshPayloadWordOffset.BlendMode], this._materialState.shaderData != null);
 		this._writeMeshData(renderIndex, op, wordOffset, mat, ownerAlpha);
 		this._writeMeshIndex(renderIndex, op, wordOffset);
 	}
@@ -652,10 +662,8 @@ export class WebGraphicsOp2DRuntime {
 		}
 		let wordOffset = GraphicsOpInfoField.WordCount;
 		let int32 = op._int32;
-		if ((dirtyFlags & GraphicsOp2DDirtyFlag.Material) !== 0)
-			this._syncMaterial(renderIndex, op);
-		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.Material | GraphicsOp2DDirtyFlag.State)) !== 0)
-			this._syncTexture(renderIndex, op._texture, 0, int32[wordOffset + GraphicsMeshPayloadWordOffset.BlendMode], op._shaderData != null);
+		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.State)) !== 0)
+			this._syncTexture(renderIndex, op._texture, 0, int32[wordOffset + GraphicsMeshPayloadWordOffset.BlendMode], this._materialState.shaderData != null);
 		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Geometry | GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.State)) !== 0)
 			this._writeMeshData(renderIndex, op, wordOffset, mat, ownerAlpha);
 		if ((dirtyFlags & GraphicsOp2DDirtyFlag.Geometry) !== 0)
@@ -1103,14 +1111,6 @@ export class WebGraphicsOp2DRuntime {
 		return true;
 	}
 
-	private _syncMaterial(renderIndex: number, op: WebGraphicsOp2D): void {
-		let element = this._renderElements[renderIndex];
-		if (!element)
-			return;
-		element.subShader = op._subShader || Shader2D.graphicsShader.getSubShaderAt(0);
-		element.materialShaderData = op._shaderData;
-	}
-
 	private _syncTexture(renderIndex: number, value: GraphicsOp2DTextureHost, featureBits: number, blendMode: number, useCustomMaterial: boolean = false): void {
 		let element = this._renderElements[renderIndex];
 		let shaderData = this._primitiveShaderData[renderIndex];
@@ -1222,14 +1222,6 @@ export class WebGraphicsOp2DRuntime {
 				return false;
 		}
 		return true;
-	}
-
-	private _syncRenderElementOps(mat: Matrix = null, ownerAlpha: number = this._owner ? this._owner.globalAlpha : 1): void {
-		let ownerMat = mat || (this._owner ? this._owner.renderMatrix : null);
-		for (let renderIndex = 0, n = this._renderOpRefs.length; renderIndex < n; renderIndex++) {
-			let ref = this._renderOpRefs[renderIndex];
-			this.syncOp(ref ? ref.op : null, renderIndex, ownerMat, ownerAlpha);
-		}
 	}
 
 	private _syncRenderElementTransforms(mat: Matrix = null, ownerAlpha: number = this._owner ? this._owner.globalAlpha : 1, writeAlpha: boolean = true): void {

@@ -1,7 +1,5 @@
 import type { Matrix } from "../../../../maths/Matrix";
-import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
-import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { GraphicsOpInfoField, GraphicsOpProfile } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
 import { GraphicsOp2DDirtyFlag, GraphicsOp2DKind, type GraphicsCommandId, type GraphicsOp2DTextureHost, type GraphicsOp2DType } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
 import { GraphicsOpRenderStateHelper } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineHelpers";
@@ -17,17 +15,9 @@ type NativeTextureCarrier = {
 	_nativeObj?: NativeHandle;
 };
 
-type NativeModuleCarrier = {
-	moduleData?: {
-		_nativeObj?: NativeHandle;
-	};
-	_nativeObj?: NativeHandle;
-};
-
 type RTGraphicsNativeOp = {
 	setPayload(buffer: ArrayBuffer): void;
 	setTexture(texture: NativeHandle, textureId: number): void;
-	setMaterialResources(subShader: NativeHandle, shaderData: NativeHandle): void;
 	setTextureArray(textures: NativeHandle[], textureIds: number[]): void;
 	destroy(): void;
 };
@@ -58,16 +48,6 @@ function getTextureId(value: GraphicsOp2DTextureHost | null): number {
 	return value ? value.id : 0;
 }
 
-function getNativeSubShader(value: SubShader | null): NativeHandle {
-	let holder = value as NativeModuleCarrier;
-	return holder ? holder.moduleData?._nativeObj || holder._nativeObj || null : null;
-}
-
-function getNativeShaderData(value: ShaderData | null): NativeHandle {
-	let holder = value as NativeModuleCarrier;
-	return holder ? holder._nativeObj || null : null;
-}
-
 function getNativeWindow(): RTGraphicsNativeWindow {
 	return window as RTGraphicsNativeWindow;
 }
@@ -78,8 +58,6 @@ export abstract class RTGraphicsOp2D implements IGraphicsOp2D {
 	protected _nativeObj: RTGraphicsNativeOp | null = null;
 	protected _version: number = 0;
 	private _texture: GraphicsOp2DTextureHost | null = null;
-	private _subShader: SubShader | null = null;
-	private _shaderData: ShaderData | null = null;
 	private _buffer: ArrayBuffer;
 	private _float32: Float32Array;
 	private _int32: Int32Array;
@@ -89,8 +67,6 @@ export abstract class RTGraphicsOp2D implements IGraphicsOp2D {
 	private _nativePayloadBuffer: ArrayBuffer | null = null;
 	private _nativeTexture: NativeHandle = undefined;
 	private _nativeTextureId: number = -1;
-	private _nativeSubShader: NativeHandle = undefined;
-	private _nativeShaderData: NativeHandle = undefined;
 
 	constructor(
 		readonly kind: GraphicsOp2DKind,
@@ -145,34 +121,6 @@ export abstract class RTGraphicsOp2D implements IGraphicsOp2D {
 			this._syncNativeTextureIfChanged();
 	}
 
-	get subShader(): SubShader | null {
-		return this._subShader;
-	}
-
-	set subShader(value: SubShader | null) {
-		value = value || null;
-		let wrapperChanged = this._subShader !== value;
-		this._subShader = value;
-		if (wrapperChanged)
-			this.markDirty(GraphicsOp2DDirtyFlag.Material);
-		this._refreshOpRenderStateBuffer();
-		this._syncNativeMaterialIfChanged();
-	}
-
-	get shaderData(): ShaderData | null {
-		return this._shaderData;
-	}
-
-	set shaderData(value: ShaderData | null) {
-		value = value || null;
-		let wrapperChanged = this._shaderData !== value;
-		this._shaderData = value;
-		if (wrapperChanged)
-			this.markDirty(GraphicsOp2DDirtyFlag.Material);
-		this._refreshOpRenderStateBuffer();
-		this._syncNativeMaterialIfChanged();
-	}
-
 	canUpdate(commandId: GraphicsCommandId): boolean {
 		return this.commandId === commandId;
 	}
@@ -205,15 +153,11 @@ export abstract class RTGraphicsOp2D implements IGraphicsOp2D {
 			this._nativeObj.destroy();
 		this._nativeObj = null;
 		this._texture = null;
-		this._subShader = null;
-		this._shaderData = null;
 		this._nativeTextureArray.length = 0;
 		this._nativeTextureIdArray.length = 0;
 		this._nativePayloadBuffer = null;
 		this._nativeTexture = undefined;
 		this._nativeTextureId = -1;
-		this._nativeSubShader = undefined;
-		this._nativeShaderData = undefined;
 	}
 
 	protected _reserveBufferWords(bodyWordCount: number): void {
@@ -239,14 +183,14 @@ export abstract class RTGraphicsOp2D implements IGraphicsOp2D {
 	protected _writeOpRenderStateBuffer(changeMask: number, version: number,
 		vertexCount: number, indexCount: number, blendMode: number, texture: GraphicsOp2DTextureHost | null, fillTexture: boolean,
 		packedColor: number, localAlpha: number, bodyWordCount: number): void {
-		let renderState = GraphicsOpRenderStateHelper.getRenderState(texture, blendMode, fillTexture, this._shaderData != null, false, this._renderStateScratch);
+		let renderState = GraphicsOpRenderStateHelper.getRenderState(texture, blendMode, fillTexture, false, false, this._renderStateScratch);
 		this._writeOpInfoBuffer(changeMask, version, vertexCount, indexCount, renderState.stateKey, renderState.typeKey, renderState.textureKey, packedColor, localAlpha, bodyWordCount);
 	}
 
 	protected _refreshOpRenderStateBuffer(fillTexture: boolean = this.kind === GraphicsOp2DKind.FillTexture): void {
 		if (!this._int32 || this._int32[GraphicsOpInfoField.BodyWordCount] <= 0)
 			return;
-		let renderState = GraphicsOpRenderStateHelper.getRenderState(this._texture, this._int32[GraphicsOpInfoField.StateKey], fillTexture, this._shaderData != null, false, this._renderStateScratch);
+		let renderState = GraphicsOpRenderStateHelper.getRenderState(this._texture, this._int32[GraphicsOpInfoField.StateKey], fillTexture, false, false, this._renderStateScratch);
 		this._int32[GraphicsOpInfoField.StateKey] = renderState.stateKey;
 		this._int32[GraphicsOpInfoField.TypeKey] = renderState.typeKey;
 		this._int32[GraphicsOpInfoField.TextureKey] = renderState.textureKey;
@@ -265,29 +209,13 @@ export abstract class RTGraphicsOp2D implements IGraphicsOp2D {
 		if (!nativeObj)
 			return;
 		let texture = getNativeTexture(this._texture);
-		let textureId = getTextureId(this._texture);
 		let nativeChanged = this._nativeTexture !== texture;
-		let idChanged = this._nativeTextureId !== textureId;
-		let textureChanged = nativeChanged || idChanged;
-		if (!textureChanged)
+		if (!nativeChanged)
 			return;
 		this._nativeTexture = texture;
+		let textureId = getTextureId(this._texture);
 		this._nativeTextureId = textureId;
 		nativeObj.setTexture(texture, textureId);
-	}
-
-	protected _syncNativeMaterialIfChanged(): void {
-		let nativeObj = this._nativeObj;
-		if (!nativeObj)
-			return;
-		let subShader = getNativeSubShader(this._subShader);
-		let shaderData = getNativeShaderData(this._shaderData);
-		let materialChanged = this._nativeSubShader !== subShader || this._nativeShaderData !== shaderData;
-		if (!materialChanged)
-			return;
-		this._nativeSubShader = subShader;
-		this._nativeShaderData = shaderData;
-		nativeObj.setMaterialResources(subShader, shaderData);
 	}
 
 	protected _syncNativeTextureArrayIfChanged(textures: ReadonlyArray<NativeHandle>, textureIds: ReadonlyArray<number>): boolean {
@@ -297,28 +225,20 @@ export abstract class RTGraphicsOp2D implements IGraphicsOp2D {
 			if (last[i] !== textures[i])
 				texturesChanged = true;
 		}
-		let lastIds = this._nativeTextureIdArray;
-		let textureIdsChanged = lastIds.length !== textureIds.length;
-		for (let i = 0, n = textureIds.length; i < n; i++) {
-			if (lastIds[i] !== textureIds[i])
-				textureIdsChanged = true;
-		}
-		if (!texturesChanged && !textureIdsChanged)
+		if (!texturesChanged)
 			return false;
 		if (texturesChanged) {
 			last.length = textures.length;
 			for (let i = 0, n = textures.length; i < n; i++)
 				last[i] = textures[i];
 		}
-		if (textureIdsChanged) {
-			lastIds.length = textureIds.length;
-			for (let i = 0, n = textureIds.length; i < n; i++)
-				lastIds[i] = textureIds[i];
-		}
-		let nativeObj = this._nativeObj;
-		if (nativeObj)
-			nativeObj.setTextureArray(textures as NativeHandle[], textureIds as number[]);
-		return texturesChanged || textureIdsChanged;
+
+		let lastIds = this._nativeTextureIdArray;
+		for (let i = 0, n = textureIds.length; i < n; i++)
+			lastIds[i] = textureIds[i];
+
+		this._nativeObj.setTextureArray(textures as NativeHandle[], textureIds as number[]);
+		return texturesChanged;
 	}
 
 	protected get _bodyWordOffset(): number {

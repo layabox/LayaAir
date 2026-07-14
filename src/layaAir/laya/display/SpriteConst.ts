@@ -2,6 +2,7 @@
  * @ignore
  */
 export class SpriteConst {
+    /** Sprite 渲染能力位集合。现有位值和保留空洞不可重排。 */
     static TEXT = 0x01;
     static AREA2D = 0x02;
     static CANVAS = 0x08;
@@ -56,8 +57,11 @@ export enum SubPassFlag {
     PostProcess = 0x1,
     CacheAsBitmap = 0x2,
     Mask = 0x4,
+    /** RT 边界、尺寸或偏移失效，需要重新计算并重绘。 */
     RenderTexture = 0x8,
-    
+    /** RT 尺寸和偏移不变，仅内容需要重绘。 */
+    RenderTextureContent = 0x10,
+
     /** @internal */
-    UPDATE_POSTPROCESS = RenderTexture | PostProcess,
+    UPDATE_POSTPROCESS = RenderTexture | RenderTextureContent | PostProcess,
 }

@@ -213,6 +213,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     /** @ignore @blueprintIgnore */
     renderUpdate(context: IRenderContext2D) {
         this._updateLight();
+        if (this._spineRender) {
+            this._spineRender.render(this._spineRender.currentTime, this.physicsUpdate);
+            this._updateBones();
+        }
     }
 
     /**
@@ -714,7 +718,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
         let delta = timerDelta * this._playbackRate;
 
-        let currentPlayTime = this._spineRender.currentTime;
+        // let currentPlayTime = this._spineRender.currentTime;
 
         // 使用当前动画和事件设置骨架
         this._spineRender.update(delta);
@@ -724,10 +728,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             return;
         }
 
-        
-        this._spineRender.render(currentPlayTime, this.physicsUpdate);
-        this._updateBones();
-        
+        // this._spineRender.render(currentPlayTime, this.physicsUpdate);
+        // this._updateBones();
         this.owner.repaint(RepaintFlag.UpdateRT);
     }
 

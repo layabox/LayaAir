@@ -23,6 +23,7 @@ import { GraphicsCommandOpEncoder, GraphicsCommandOpEncoderHost } from "./Graphi
 import { GraphicsOp2DList } from "./GraphicsOp2DList";
 import { GraphicsRunner } from "../GraphicsRunner";
 import { GraphicsOp2DDirtyFlag, GraphicsOp2DKind } from "./GraphicsPipelineTypes";
+import { GraphicsOpRenderStateHelper } from "./GraphicsPipelineHelpers";
 
 /** @internal */
 export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
@@ -41,6 +42,8 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
    }> = new Map();
 
    _display: boolean = false;
+   /** @internal Whether the current display state has been applied to the render struct. */
+   private _structDisplay: boolean = false;
 
    private _renderDataHandle: I2DPrimitiveDataHandle;
    private _handleUpdateBuffer: ArrayBuffer = new ArrayBuffer(GraphicsHandleUpdateField.WordCount * 4);
@@ -53,6 +56,7 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
    private _destroyed: boolean = false;
    private _renderedGraphicsModified: number = Number.MIN_SAFE_INTEGER;
    private _graphicsStateDirty: boolean = true;
+   private _materialDirty: boolean = true;
    private _pendingCommandReplacements: number[] = [];
    private _localRefreshRunner: GraphicsRunner = null;
    private _ownerTransformListenerActive: boolean = false;
@@ -163,6 +167,7 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
    setGraphics(graphics: Graphics): void {
       if (this.graphics !== graphics) {
          this._graphicsStateDirty = true;
+         this._materialDirty = true;
          this._renderedGraphicsModified = Number.MIN_SAFE_INTEGER;
          this._clearPendingCommandReplacements();
       }
@@ -175,8 +180,15 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
      * @internal
      */
    _render(runner: GraphicsRunner): void {
-      if (!this.owner || !this.graphics || this.owner.destroyed || this.owner._struct.renderType !== BaseRender2DType.graphics)
+      if (!this.owner || !this.graphics || this.owner.destroyed)
          return;
+
+      this._syncStructDisplayState();
+      if (!this._display)
+         return;
+
+      if (this._materialDirty)
+         this._syncMaterialToHandle();
 
       if (!this._graphicsStateDirty && this._pendingCommandReplacements.length > 0) {
          if (this._refreshPendingCommandReplacements(runner))
@@ -203,7 +215,6 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       runner.sprite = this.owner;
       runner._renderer = this;
 
-      runner._material = this.graphics.material;
       let oldBlendMode = runner.globalCompositeOperation;
       runner.globalCompositeOperation = this.owner._struct.blendMode;
 
@@ -222,7 +233,6 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
          this._commandTracker.endCommand(i, opStart, opEnd, cmd, this.owner);
       }
       this._appendSpriteTextureRecord();
-      this._opListBuilder.setMaterial(this.graphics.material);
       this._commandTracker.endBuild();
       this._syncOwnerTransformInterest(true);
       this._sweepTextureRefs();
@@ -230,7 +240,6 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       this._syncGraphicsOpsToHandle();
 
       runner.globalCompositeOperation = oldBlendMode;
-      runner._material = null;
       runner._renderer = null;
       runner.sprite = null;
    }
@@ -256,10 +265,8 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
                runner.clear();
                runner.sprite = this.owner;
                runner._renderer = this;
-               runner._material = this.graphics ? this.graphics.material : null;
                runner.globalCompositeOperation = this.owner._struct.blendMode;
                let patchResult = this._commandOpEncoder.patchTextureQuadOp(opIndex, existing as IGraphicsTextureQuadOp2D, newCmd, runner);
-               runner._material = null;
                runner._renderer = null;
                runner.sprite = null;
                if (patchResult.success) {
@@ -347,7 +354,6 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       runner.clear();
       runner.sprite = this.owner;
       runner._renderer = this;
-      runner._material = this.graphics.material;
       let oldBlendMode = runner.globalCompositeOperation;
       runner.globalCompositeOperation = this.owner._struct.blendMode;
 
@@ -357,7 +363,6 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       for (let i = 0, n = cmdIndices.length; i < n; i++) {
          if (!this._refreshCommandOp(cmdIndices[i], runner)) {
             runner.globalCompositeOperation = oldBlendMode;
-            runner._material = null;
             runner._renderer = null;
             runner.sprite = null;
             this._renderedGraphicsModified = oldRenderedModified;
@@ -377,7 +382,6 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       }
 
       runner.globalCompositeOperation = oldBlendMode;
-      runner._material = null;
       runner._renderer = null;
       runner.sprite = null;
 
@@ -408,7 +412,6 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       if (!this._opListBuilder.finishRewriteCommand())
          return this._rebuildGraphicsOps();
 
-      this._opListBuilder.setMaterial(this.graphics.material);
       if (!this._commandTracker.refreshCommandMetadata(cmdIndex, opIndex, opIndex + range.count, cmd, this.owner))
          return this._rebuildGraphicsOps();
 
@@ -437,26 +440,42 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
 
       this._display = value;
 
-      let struct = this.owner._struct;
       if (value) {
          this._graphicsStateDirty = true;
          this._renderedGraphicsModified = Number.MIN_SAFE_INTEGER;
          this._clearPendingCommandReplacements();
          this.owner._initShaderData();
          this.owner._renderType |= SpriteConst.GRAPHICS;
-         struct.renderType = BaseRender2DType.graphics;
-         struct.renderDataHandler = this._renderDataHandle;
-         this.owner._updateStruct();
       } else {
          this.owner._renderType &= ~SpriteConst.GRAPHICS;
          this._graphicsStateDirty = true;
          this._renderedGraphicsModified = Number.MIN_SAFE_INTEGER;
          this._clearPendingCommandReplacements();
-         struct.renderType = -1;
-         struct.renderDataHandler = null;
-         struct.renderElements = GraphicsRenderer._emptyList;
       }
       this._syncOwnerTransformInterest(false);
+   }
+
+   /** @internal Apply the final Graphics display state to the Struct once per render update. */
+   private _syncStructDisplayState(): void {
+      if (this._structDisplay === this._display)
+         return;
+
+      this._structDisplay = this._display;
+      const owner = this.owner;
+      const struct = this._struct;
+      if (!owner || !struct)
+         return;
+
+      if (this._display) {
+         struct.renderType = BaseRender2DType.graphics;
+         struct.renderDataHandler = this._renderDataHandle;
+         owner._updateStruct();
+      }
+      else if (struct.renderDataHandler === this._renderDataHandle) {
+         struct.renderDataHandler = null;
+         struct.renderElements = GraphicsRenderer._emptyList;
+         struct.renderType = -1;
+      }
    }
 
    clear(): void {
@@ -468,6 +487,9 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
          return;
       this._destroyed = true;
       this._setOwnerTransformListener(0);
+
+      this._display = false;
+      this._syncStructDisplayState();
 
       this.clear();
       this._opListBuilder.clear();
@@ -485,6 +507,26 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       this._renderDataHandle.destroy();
       this._renderDataHandle = null;
       this.owner = null;
+   }
+
+   /** @internal Whether this renderer must participate in the current graphics update. */
+   get needRenderUpdate(): boolean {
+      return this._display || this._structDisplay !== this._display;
+   }
+
+   /** @internal */
+   _materialChanged(): void {
+      this._materialDirty = true;
+   }
+
+   private _syncMaterialToHandle(): void {
+      let material = this.graphics ? this.graphics.material : null;
+      let subShader = material && material.shader && material.shader.getSubShaderAt
+         ? material.shader.getSubShaderAt(0)
+         : GraphicsOpRenderStateHelper.getDefaultSubShader();
+      this._renderDataHandle.setGraphicsSubShader(subShader);
+      this._renderDataHandle.setGraphicsShaderData(material ? material.shaderData : null);
+      this._materialDirty = false;
    }
 
    private _syncGraphicsOpsToHandle(flags: GraphicsHandleDirtyFlag = GraphicsHandleDirtyFlag.OpPayload | GraphicsHandleDirtyFlag.OpResource | GraphicsHandleDirtyFlag.OpState, opStart: number = 0, opCount: number = this._opListBuilder.opCount, fullSync: boolean = true): void {
@@ -514,7 +556,7 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       let result = GraphicsHandleDirtyFlag.None;
       if ((flags & GraphicsOp2DDirtyFlag.Geometry) !== 0)
          result |= GraphicsHandleDirtyFlag.OpPayload;
-      if ((flags & (GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.Material)) !== 0)
+      if ((flags & GraphicsOp2DDirtyFlag.Texture) !== 0)
          result |= GraphicsHandleDirtyFlag.OpResource;
       if ((flags & GraphicsOp2DDirtyFlag.State) !== 0)
          result |= GraphicsHandleDirtyFlag.OpState;

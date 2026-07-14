@@ -294,6 +294,11 @@ export class BaseRenderNode2D extends Component {
      */
     renderUpdate?(context: IRenderContext2D): void;
 
+    /** @internal 保留方法形式，供渲染节点查询其持续更新偏好。 */
+    getRenderUpdateMode(): boolean {
+        return this._lightReceive;
+    }
+
     protected _onAdded(): void {
         this.owner._initShaderData();
         this.owner.renderNode2D = this;
