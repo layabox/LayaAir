@@ -546,8 +546,13 @@ export class VFXRenderer extends BaseRender {
      * 反查到 res:// url 异步加载（每次只 kick off 一次），返回 VFXUnlit fallback；
      * .bps 加载完成后下一次 getCustomShaderMaterial 调用会命中已注册 shader。
      */
-    static getCustomShaderMaterial(shaderName: string, blendMode: string = "Alpha"): Material {
-        const key = `${shaderName}__${blendMode}`;
+    static getCustomShaderMaterial(shaderName: string, blendMode: string = "Alpha", instanceKey: string = ""): Material {
+        // instanceKey: per-system 材质实例标识。多个粒子系统共用同一 custom shader(如 UNI-Masked)时,
+        // 共享材质会让各 system 的 per-system uniform(shaderPropertyDefaults 的 _MaskTexture、
+        // per-particle 烘焙的 Alpha_Multiplier 年龄曲线/Disappear 曲线/颜色渐变)每帧互相覆盖
+        // (Barrier rings 的 mask/alpha 被 walls 覆盖 → 顶部亮环变暗的根因)。
+        // Unity 每个 output 是独立 material 实例,这里用 system 级 key 对齐。
+        const key = `${shaderName}__${blendMode}__${instanceKey}`;
         let mat = VFXRenderer._customShaderMaterialCache.get(key);
         if (mat) return mat;
 
@@ -571,7 +576,7 @@ export class VFXRenderer extends BaseRender {
                     .catch((err: any) => console.warn(`[VFX Renderer] custom shader '${shaderName}' load failed`, err));
             }
             // Shader 还没注册：返回 VFXUnlit fallback，不缓存（让下一帧重试）
-            return VFXRenderer.getCustomShaderMaterial("VFXUnlit", blendMode);
+            return VFXRenderer.getCustomShaderMaterial("VFXUnlit", blendMode, instanceKey);
         }
 
         mat = new Material();
@@ -599,6 +604,45 @@ export class VFXRenderer extends BaseRender {
         mat.cull = RenderState.CULL_NONE;
         applyBlendMode(mat, blendMode);
         VFXRenderer._customShaderMaterialCache.set(key, mat);
+        return mat;
+    }
+
+    /**
+     * 基础 mesh 纹理材质：无 shadergraph(.bps)时,用内置 VFXUnlit + 绑定 MainTexture 到 u_AlbedoTexture。
+     * 对齐 Unity —— Output Mesh 自带 Main Texture,默认材质即可显示纹理,不依赖 Shader Graph。
+     * 按 (blendMode, 纹理 uuid, uvMode, flipbook) 缓存,避免共享材质被不同纹理互相覆盖。
+     */
+    static getMeshTexturedMaterial(blendMode: string = "Alpha", mainTextureUuid: string = "", uvMode: string = "Default", flipbookSize: Vector2 = null): Material {
+        // IDE Texture2D 字段存裸 assetId,转换器存 res://uuid —— 统一补前缀
+        if (mainTextureUuid && mainTextureUuid.indexOf("://") < 0)
+            mainTextureUuid = "res://" + mainTextureUuid;
+        const fbKey = flipbookSize ? `${flipbookSize.x}x${flipbookSize.y}` : "";
+        const key = `__meshtex__${blendMode}__${mainTextureUuid}__${uvMode}__${fbKey}`;
+        let mat = VFXRenderer._customShaderMaterialCache.get(key);
+        if (mat) return mat;
+        const shader = Shader3D.find("VFXUnlit");
+        if (!shader) {
+            console.error("[VFX Renderer] built-in 'VFXUnlit' shader not registered");
+            return null as any;
+        }
+        mat = new Material();
+        mat.setShaderName("VFXUnlit");
+        const vfxDef = Shader3D.getDefineByName("VFX_INSTANCED");
+        if (vfxDef) mat.addDefine(vfxDef);
+        const colorDef = Shader3D.getDefineByName("COLOR");
+        if (colorDef) mat.addDefine(colorDef);
+        mat.setColor("u_Color", new Color(1, 1, 1, 1));
+        mat.setTexture("u_AlbedoTexture", VFXRenderer.getDefaultDotTexture());
+        mat.renderQueue = 3000;
+        mat.cull = RenderState.CULL_NONE;
+        applyBlendMode(mat, blendMode);
+        applyFlipbook(mat, uvMode, flipbookSize);
+        VFXRenderer._customShaderMaterialCache.set(key, mat);
+        if (mainTextureUuid) {
+            VFXRenderer._tryLoadTextureOnce(mainTextureUuid, tex => {
+                if (mat) mat.setTexture("u_AlbedoTexture", tex);
+            });
+        }
         return mat;
     }
 
@@ -877,7 +921,7 @@ export class VFXRenderer extends BaseRender {
 
                 // outputShaderGraphQuad 或用户指定了自定义 shader
                 if (customShaderName) {
-                    const mat = VFXRenderer.getCustomShaderMaterial(customShaderName, mode);
+                    const mat = VFXRenderer.getCustomShaderMaterial(customShaderName, mode, (geometry as any).matInstanceKey || "");
                     element.material = mat;
                     // (旧 P1 临时方案: 这里手动 mat.setColor u_AmbientColor / setFloat
                     // u_AmbientIntensity / u_ReflectionIntensity 给 fake IBL fallback 用.
@@ -944,8 +988,13 @@ export class VFXRenderer extends BaseRender {
                 else if (!meshMaterial && outType === "outputBillboard") {
                     element.material = VFXRenderer.getBillboardMaterial(mode);
                 } else if (!meshMaterial) {
-                    // outputMesh / outputStaticMesh 等：自动创建 VFXUnlit 默认材质
-                    element.material = VFXRenderer.getCustomShaderMaterial("VFXUnlit", mode);
+                    // 无 shadergraph(.bps)材质的 mesh 输出:有 MainTexture 时用基础 VFXUnlit + 绑纹理(对齐 Unity Output Mesh 自带 Main Texture),否则纯默认材质
+                    const meshMainTex = (geometry as any).mainTexture as string || "";
+                    if (meshMainTex) {
+                        element.material = VFXRenderer.getMeshTexturedMaterial(mode, meshMainTex, (geometry as any).uvMode || "Default", (geometry as any).flipbookSize);
+                    } else {
+                        element.material = VFXRenderer.getCustomShaderMaterial("VFXUnlit", mode);
+                    }
                 } else {
                     if (meshMaterial) {
                         applyBlendMode(meshMaterial, mode);
@@ -967,6 +1016,23 @@ export class VFXRenderer extends BaseRender {
                             if (!existing) {
                                 meshMaterial.setTexture("u_AlbedoTexture", VFXRenderer.getDefaultDotTexture());
                             }
+                        }
+                    }
+                    // mesh 输出(shadergraph 或基础):把 Output Mesh 的 MainTexture 字段直接绑到渲染材质。
+                    // 对齐 Unity —— Main Texture 字段驱动纹理,不依赖 shaderName/shadergraph 属性绑定(shaderName 常被 IDE 留空)。
+                    // 绑多个 sampler 名覆盖 .bps(MainTexture/_MainTexture)和基础材质(u_AlbedoTexture)。
+                    if (meshMaterial && outType !== "outputBillboard") {
+                        let meshFieldTex = (geometry as any).mainTexture as string;
+                        if (meshFieldTex && meshFieldTex.indexOf("://") < 0)
+                            meshFieldTex = "res://" + meshFieldTex;
+                        if (meshFieldTex) {
+                            VFXRenderer._tryLoadTextureOnce(meshFieldTex, tex => {
+                                if (tex) {
+                                    meshMaterial.setTexture("MainTexture", tex);
+                                    meshMaterial.setTexture("_MainTexture", tex);
+                                    meshMaterial.setTexture("u_AlbedoTexture", tex);
+                                }
+                            });
                         }
                     }
                     // Soft Particle / Flipbook / SubpixelAA
