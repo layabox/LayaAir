@@ -99,10 +99,13 @@ export class VFXSpawnerSingleBurst extends VFXSpawnerTask {
     }
 
     internalInit(rand: Rand): void {
-        // ⚠ 不要 reset sleeping — Unity SingleBurst 整个 VFX 生命周期只 fire 一次 (含 Infinite loop 模式).
-        // 之前每个 newLoop 重置 sleeping=false 让 durationMode=Infinite + SingleBurst 每个 loop 重新 fire
-        // → 看起来 "粒子播放 2 次" (实际是无限次重 fire). UNI VFX1/2/3 都受影响.
-        // 只在 VFX 完整重置 (init / play) 时才重置 sleeping.
+        // internalInit 在 newLoop(每个 loop 开始)时被 VFXSpawnerTask.update 调用。这里重置 sleeping=false,
+        // 让【有限循环】(durationMode=Constant, loopDuration>0, loop 会周期性重启)的 SingleBurst 每个 loop 重新 fire,
+        // 对齐 Unity(有限 loop 的 Single Burst 每个 loop 触发一次)。BarrierVFX7 底圈脉冲依赖此行为。
+        // 为何不会重蹈旧 bug(Infinite + 无限重 fire): durationMode=Infinite → loopDuration=-1,
+        // VFXSpawnerState.endUpdate 对 currentMaximumDuration<0 不转换 loop 状态 → loop 永不重启 → newLoop 只第一次 true
+        // → Infinite 模式仍只 fire 一次。所以重置 sleeping 对 Infinite/Finite 两种都正确。
+        this.sleeping = false;
         this.nextTriggerTime = sampleRange(this.delay, rand);
         this.sampledCount = Math.round(sampleRange(this.count, rand));
     }

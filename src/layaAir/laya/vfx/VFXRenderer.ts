@@ -551,8 +551,13 @@ export class VFXRenderer extends BaseRender {
      * 反查到 res:// url 异步加载（每次只 kick off 一次），返回 VFXUnlit fallback；
      * .bps 加载完成后下一次 getCustomShaderMaterial 调用会命中已注册 shader。
      */
-    static getCustomShaderMaterial(shaderName: string, blendMode: string = "Alpha"): Material {
-        const key = `${shaderName}__${blendMode}`;
+    static getCustomShaderMaterial(shaderName: string, blendMode: string = "Alpha", instanceKey: string = ""): Material {
+        // instanceKey: per-system 材质实例标识。多个粒子系统共用同一 custom shader(如 UNI-Masked)时,
+        // 共享材质会让各 system 的 per-system uniform(shaderPropertyDefaults 的 _MaskTexture、
+        // per-particle 烘焙的 Alpha_Multiplier 年龄曲线/Disappear 曲线/颜色渐变)每帧互相覆盖
+        // (Barrier rings 的 mask/alpha 被 walls 覆盖 → 顶部亮环变暗的根因)。
+        // Unity 每个 output 是独立 material 实例,这里用 system 级 key 对齐。
+        const key = `${shaderName}__${blendMode}__${instanceKey}`;
         let mat = VFXRenderer._customShaderMaterialCache.get(key);
         if (mat) return mat;
 
@@ -576,7 +581,7 @@ export class VFXRenderer extends BaseRender {
                     .catch((err: any) => console.warn(`[VFX Renderer] custom shader '${shaderName}' load failed`, err));
             }
             // Shader 还没注册：返回 VFXUnlit fallback，不缓存（让下一帧重试）
-            return VFXRenderer.getCustomShaderMaterial("VFXUnlit", blendMode);
+            return VFXRenderer.getCustomShaderMaterial("VFXUnlit", blendMode, instanceKey);
         }
 
         mat = new Material();
@@ -885,7 +890,7 @@ export class VFXRenderer extends BaseRender {
 
                 // outputShaderGraphQuad 或用户指定了自定义 shader
                 if (customShaderName) {
-                    const mat = VFXRenderer.getCustomShaderMaterial(customShaderName, mode);
+                    const mat = VFXRenderer.getCustomShaderMaterial(customShaderName, mode, (geometry as any).matInstanceKey || "");
                     element.material = mat;
                     // (旧 P1 临时方案: 这里手动 mat.setColor u_AmbientColor / setFloat
                     // u_AmbientIntensity / u_ReflectionIntensity 给 fake IBL fallback 用.
