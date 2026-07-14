@@ -121,7 +121,8 @@ export class MediaAdapter {
         for (let channel of medias) {
             if (channel instanceof WebAudioChannel && !checkCtx) {
                 checkCtx = true;
-                if (this.audioCtx.state === "suspended") {
+                let state = this.audioCtx.state as string;
+                if (state === "suspended" || state === "interrupted") {
                     return this.audioCtx.resume().catch(e => { });
                 }
             }
