@@ -29,12 +29,13 @@
     //   下面所有 a_AttrPosition 等 attribute 引用完全从源码消失，GLSL→SPIR-V 编译器不会保留
     //   未使用 in 变量声明，WebGPU pipeline 创建不会要求绑定 instance buffer。
     //   不加 #ifdef 包裹时函数定义体保留 attribute 引用，依赖编译器 DCE 行为不可靠。
-    #ifdef VFX_INSTANCED
-
 // Per-particle data 通过 varying 传 fragment shader,
 // 让 ShaderGraph 内部用 uniform Float (如 MaskFlipbookIndex) 的 property 能改成 per-particle value.
 // ShaderBuild post-process 把 FS 内 uniform name `MaskFlipbookIndex` 等替换成 `v_TexIndex`.
 // 转换器 init context 加 setAttribute(texIndex, Random(0, range)) 让 GPU 每粒子写 unique value 到 a_AttrScale.w.
+// ⭐声明在 #ifdef VFX_INSTANCED 之外：FS 的 per-particle 替换是无条件文本替换，strip 材质变体
+//   (VFX_INSTANCED off，粒子属性走顶点流而非实例 buffer) 下声明若被剥掉而引用仍在 → 编译炸。
+//   非实例分支由 ShaderBuild 注入的 #else 写默认值（v_TexIndex=0/v_NormalizedAge=0/v_MainTexRand=0）。
 varying float v_TexIndex;
 
 // per-particle ageOverLifetime: 让 SG Disappear/Lifetime/Age 等 uniform 走 per-particle 路径
@@ -42,6 +43,8 @@ varying float v_TexIndex;
 // 直接 0→1 linear 跟随粒子 age, 不是 sampleCurve V 形 (粒子生 visible/老化 fade-out, 没 fade-in 阶段)
 // 完整 curve sample 路径后续优化 (vertex 端 sample 256x1 curve texture)
 varying float v_NormalizedAge;
+
+    #ifdef VFX_INSTANCED
 
 struct VFXParticle {
     vec3 position;

@@ -137,6 +137,8 @@ export class VisualEffect extends Script {
         return this._initialEvent;
     }
     public set initialEvent(value: string) {
+        // 空值回退资产默认（再退 OnPlay）：场景里序列化空字符串时避免派发空事件名 → 整个特效静默不播
+        if (!value) value = (this._asset && this._asset.initialEventName) || "OnPlay";
         this._initialEvent = value;
         this.initialEventID = Shader3D.propertyNameToID(this._initialEvent);
     }
@@ -589,7 +591,9 @@ export class VisualEffect extends Script {
             const customShaderName = (sys as any).customShaderName as string;
             const blendMode = (sys as any).blendMode as string || "Alpha";
             if (customShaderName) {
-                const mat = VFXRenderer.getCustomShaderMaterial(customShaderName, blendMode, (sys as any).matInstanceKey || "");
+                // strip 输出用无 VFX_INSTANCED 的材质变体（与 VFXRenderer 渲染用同一实例，defaults 才能生效）
+                const variant = VisualEffect._matVariantOf(sys);
+                const mat = VFXRenderer.getCustomShaderMaterial(customShaderName, blendMode, (sys as any).matInstanceKey || "", variant);
                 if (mat && mat.shaderData && allDatas.indexOf(mat.shaderData) === -1) allDatas.push(mat.shaderData);
             }
             for (const uniformName in defaults) {
@@ -709,6 +713,13 @@ export class VisualEffect extends Script {
         this.initialEvent = "OnPlay";
     }
 
+    /** strip 族输出（普通顶点流几何）→ 自定义 shader 材质取 "strip" 变体（无 VFX_INSTANCED）；其它取实例化变体 */
+    private static _matVariantOf(sys: any): "instanced" | "strip" {
+        const t = sys.outputType as string;
+        return (t === "outputTrail" || t === "outputParticleStripSGQuad" || t === "outputPoint" || t === "outputLine" || t === "outputLineStrip")
+            ? "strip" : "instanced";
+    }
+
     /// lifecycle methods
     onStart(): void {
     }
@@ -731,6 +742,18 @@ export class VisualEffect extends Script {
         const isNonMeshOutput = (t: string) => t === "outputTrail" || t === "outputParticleStripSGQuad" || t === "outputPoint" || t === "outputLine";
         let hasStrip = false;
         let hasMesh = false;
+        // ⭐define 同步必须在首帧渲染前完成：渲染元素的 shader 实例按"首次编译时的 define 集合"缓存，
+        // 之后材质 define 变更不触发重编译（失效管线被无限复用）。这里在任何 draw 之前按 mesh 顶点能力定型。
+        // per-system 材质实例（matInstanceKey）：不同系统共用同一 custom shader 时各自独立材质，
+        // define 同步/uniform 才不会互相覆盖。
+        for (let system of this.systems) {
+            const sysAny = system as any;
+            if (system instanceof VFXParticleSystem && sysAny.geometry && sysAny.customShaderName
+                && !isNonMeshOutput(sysAny.outputType)) {
+                const _m = VFXRenderer.getCustomShaderMaterial(sysAny.customShaderName, sysAny.blendMode || "Alpha", sysAny.matInstanceKey || "");
+                VFXRenderer._syncMeshAttrDefines(_m, sysAny.geometry);
+            }
+        }
         for (let system of this.systems) {
             if (system instanceof VFXParticleSystem && system.geometry) {
                 if (isNonMeshOutput(system.outputType)) {
@@ -978,7 +1001,10 @@ export class VisualEffect extends Script {
     }
 
     processInitialize(evt: VFXEvent, state: VFXState) {
-
+        // Initialize 事件在 asset setter(initAssetData)时刻入队，但场景反序列化是先 asset 后 initialEvent，
+        // 入队时捕获的 id 永远是 asset 默认值，组件 Inspector 设置的 initialEvent 被吞掉。
+        // 处理时刻(首帧 simulate)重新解析当前 initialEventID 让组件 override 生效。
+        evt.id = this.initialEventID;
         this.processEvent(evt, state);
 
         this.asset.prewarmDeltaTime;
@@ -1055,7 +1081,9 @@ export class VisualEffect extends Script {
             const customShaderName = (sys as any).customShaderName as string;
             const blendMode = (sys as any).blendMode as string || "Alpha";
             if (customShaderName) {
-                const mat = VFXRenderer.getCustomShaderMaterial(customShaderName, blendMode, (sys as any).matInstanceKey || "");
+                // strip 输出用无 VFX_INSTANCED 的材质变体（与 VFXRenderer 渲染用同一实例，表达式 uniform 才能生效）
+                const variant = VisualEffect._matVariantOf(sys);
+                const mat = VFXRenderer.getCustomShaderMaterial(customShaderName, blendMode, (sys as any).matInstanceKey || "", variant);
                 if (mat && mat.shaderData && allDatas.indexOf(mat.shaderData) === -1) allDatas.push(mat.shaderData);
             }
             for (const uniformName in expressions) {
@@ -1773,31 +1801,41 @@ export class VisualEffect extends Script {
  * 按关键帧烘焙 256×1 RGBA8 Gradient Texture2D
  * 用于 sampleGradient 在 VFX shader 里 textureLod(tex, vec2(t, 0.5), 0) 采样
  */
+// float32 → float16 bits（渐变 HDR 烘焙用；R16G16B16A16=rgba16float 原始字节直传）
+const _veF16F32 = new Float32Array(1);
+const _veF16U32 = new Uint32Array(_veF16F32.buffer);
+function _veF32ToF16(v: number): number {
+    _veF16F32[0] = v;
+    const bits = _veF16U32[0];
+    const sign = (bits >> 16) & 0x8000;
+    const exp = ((bits >> 23) & 0xff) - 127 + 15;
+    const frac = bits & 0x7fffff;
+    if (exp <= 0) {
+        if (exp < -10) return sign;
+        const m = (frac | 0x800000) >> (1 - exp);
+        return sign | (m >> 13);
+    }
+    if (exp >= 31) return sign | 0x7c00;
+    return sign | (exp << 10) | (frac >> 13);
+}
+
 function bakeGradientTexture(stops: { t: number; color: [number, number, number, number] }[]): Texture2D {
     const width = 256;
-    const data = new Uint8Array(width * 4);
+    const data = new Uint16Array(width * 4);
 
     // 保底至少两个关键帧
     const rawKeys = stops.length >= 2 ? stops : [
         { t: 0, color: [1, 1, 1, 1] as [number, number, number, number] },
         { t: 1, color: [1, 1, 1, 0] as [number, number, number, number] },
     ];
-    // Unity HDR color picker 让 gradient stops 含 >1 值；之前 per-channel clamp 让 (1.22, 5.66, 3.62) 全 >1
-    // 的 HDR teal 变成 (1,1,1) 纯白丢 chroma。修：per-stop max-normalize 保留 chroma 方向
-    const normalizeStop = (c: number[]): [number, number, number, number] => {
-        const r = Math.max(0, c[0]);
-        const g = Math.max(0, c[1]);
-        const b = Math.max(0, c[2]);
-        const a = Math.max(0, Math.min(1, c[3]));
-        const maxRGB = Math.max(r, g, b);
-        if (maxRGB > 1) {
-            return [r / maxRGB, g / maxRGB, b / maxRGB, a];
-        }
-        return [r, g, b, a];
-    };
+    // ⭐2026-06-11 HDR 直通：烘到 R16G16B16A16 半精度浮点，不再 max-normalize（LDR 时代 crutch，
+    // 保 chroma 丢强度 → Unity HDR 红压不过低强度橙）。enableHDR 场景下直通才是 Unity 语义。
+    const sanitizeStop = (c: number[]): [number, number, number, number] => [
+        Math.max(0, c[0]), Math.max(0, c[1]), Math.max(0, c[2]), Math.max(0, Math.min(1, c[3])),
+    ];
     const keys = rawKeys.map(k => ({
         t: k.t,
-        color: normalizeStop(k.color),
+        color: sanitizeStop(k.color),
     }));
 
     for (let i = 0; i < width; i++) {
@@ -1817,13 +1855,13 @@ function bakeGradientTexture(stops: { t: number; color: [number, number, number,
         const g = a.color[1] + (b.color[1] - a.color[1]) * u;
         const bB = a.color[2] + (b.color[2] - a.color[2]) * u;
         const aA = a.color[3] + (b.color[3] - a.color[3]) * u;
-        data[i * 4] = Math.round(r * 255);
-        data[i * 4 + 1] = Math.round(g * 255);
-        data[i * 4 + 2] = Math.round(bB * 255);
-        data[i * 4 + 3] = Math.round(aA * 255);
+        data[i * 4] = _veF32ToF16(r);
+        data[i * 4 + 1] = _veF32ToF16(g);
+        data[i * 4 + 2] = _veF32ToF16(bB);
+        data[i * 4 + 3] = _veF32ToF16(aA);
     }
 
-    const tex = new Texture2D(width, 1, TextureFormat.R8G8B8A8, false, false, false, false);
+    const tex = new Texture2D(width, 1, TextureFormat.R16G16B16A16, false, false, false, false);
     tex.setPixelsData(data, false, false);
     tex.wrapModeU = WrapMode.Clamp;
     tex.wrapModeV = WrapMode.Clamp;
