@@ -354,13 +354,12 @@ export class VFXRenderer extends BaseRender {
         if (VFXRenderer._patchedTextureUrls.has(url)) return;
         VFXRenderer._patchedTextureUrls.add(url);
         try {
-            // 不能直接 fetch(res://...)，浏览器不认 res: scheme。
-            // 改走 Laya.loader.load(url, BUFFER) 拿 ArrayBuffer：
-            //   - Loader 内部把 res:// 解析成实际 IDE preview server URL (http://localhost:xxx/library/...)
-            //   - 同一 url 加载有 cache，不会触发二次实际下载
-            const buffer = await Laya.loader.load(url, Loader.BUFFER);
+            // ⚠不能用 loader.load(url, BUFFER)：同 url 已按 Texture 加载过时，资产缓存按 url 直接命中
+            // 返回 Texture 对象（请求类型被忽略）→ "non-ArrayBuffer: object"，alpha 修补静默失效。
+            // 改用 loader.fetch：内部走 AssetDb.resolveURL 解析 res://，纯下载字节不进资产缓存。
+            const buffer = await (Laya.loader as any).fetch(url, "arraybuffer");
             if (!buffer || !(buffer instanceof ArrayBuffer)) {
-                console.warn("[VFX alpha] loader returned non-ArrayBuffer:", typeof buffer);
+                console.warn("[VFX alpha] fetch returned non-ArrayBuffer:", typeof buffer);
                 return;
             }
             // 只处理 PNG (其它格式如 KTX/DDS 通常带正确 alpha)
@@ -546,8 +545,46 @@ export class VFXRenderer extends BaseRender {
      * 反查到 res:// url 异步加载（每次只 kick off 一次），返回 VFXUnlit fallback；
      * .bps 加载完成后下一次 getCustomShaderMaterial 调用会命中已注册 shader。
      */
-    static getCustomShaderMaterial(shaderName: string, blendMode: string = "Alpha"): Material {
-        const key = `${shaderName}__${blendMode}`;
+    /** mesh 顶点能力 → 材质 define 同步（COLOR=slot1 / UV=slot2 / TANGENT=slot4）。
+     *  WebGPU 要求 shader 引用的顶点槽必须出现在 VertexState；mesh 缺元素时必须关掉对应 define。 */
+    static _syncMeshAttrDefines(mat: Material, geometry: any): void {
+        try {
+            const mesh = geometry && (geometry._mesh || geometry.mesh);
+            if (!mesh || !mat) return;
+            const vb = mesh.vertexBuffer || mesh._vertexBuffer;
+            const decl = vb && vb.vertexDeclaration;
+            const elems = decl && (decl._vertexElements || decl.vertexElements);
+            if (!elems || !elems.length) return;
+            const usages = new Set<number>();
+            for (const e of elems) usages.add(e.elementUsage !== undefined ? e.elementUsage : e._elementUsage);
+            // 官方 mesh define 集合（MeshUtil.getMeshDefine 与 MeshRenderer 同源），加上手动 usage 双保险
+            let meshDefs: any[] | null = null;
+            try {
+                meshDefs = [];
+                MeshUtil.getMeshDefine(mesh, meshDefs as any);
+            } catch (e) { meshDefs = null; }
+            const sync = (defName: string, usage: number) => {
+                const def = Shader3D.getDefineByName(defName);
+                if (!def) return;
+                const has = meshDefs ? meshDefs.indexOf(def) >= 0 : usages.has(usage);
+                if (has || usages.has(usage)) mat.addDefine(def);
+                else mat.removeDefine(def);
+            };
+            sync("COLOR", 1);
+            sync("UV", 2);
+            sync("UV1", 7);
+            sync("TANGENT", 4);
+        } catch (e) { }
+    }
+
+    static getCustomShaderMaterial(shaderName: string, blendMode: string = "Alpha", instanceKey: string = "", variant: "instanced" | "strip" = "instanced"): Material {
+        // instanceKey: per-system 材质实例标识。多个粒子系统共用同一 custom shader(如 UNI-Masked)时,
+        // 共享材质会让各 system 的 per-system uniform(shaderPropertyDefaults 的 _MaskTexture、
+        // per-particle 烘焙的 Alpha_Multiplier 年龄曲线/Disappear 曲线/颜色渐变)每帧互相覆盖
+        // (Barrier rings 的 mask/alpha 被 walls 覆盖 → 顶部亮环变暗的根因)。
+        // Unity 每个 output 是独立 material 实例,这里用 system 级 key 对齐。
+        // variant="strip": strip 几何是普通顶点流,绝不能加 VFX_INSTANCED(否则 p.scale 读 0 退化不可见)。
+        const key = `${shaderName}__${blendMode}__${instanceKey}__${variant}`;
         let mat = VFXRenderer._customShaderMaterialCache.get(key);
         if (mat) return mat;
 
@@ -571,15 +608,25 @@ export class VFXRenderer extends BaseRender {
                     .catch((err: any) => console.warn(`[VFX Renderer] custom shader '${shaderName}' load failed`, err));
             }
             // Shader 还没注册：返回 VFXUnlit fallback，不缓存（让下一帧重试）
-            return VFXRenderer.getCustomShaderMaterial("VFXUnlit", blendMode);
+            return VFXRenderer.getCustomShaderMaterial("VFXUnlit", blendMode, instanceKey, variant);
         }
 
         mat = new Material();
         mat.setShaderName(shaderName);
         // 蓝图 shader 启 supportVFX 后用 VFX_INSTANCED define 选 vfxTransformVertex 分支
         // (普通 mesh 用 shader 时此 define 关，VS 走原始 path)。
-        const vfxDef = Shader3D.getDefineByName("VFX_INSTANCED");
-        if (vfxDef) mat.addDefine(vfxDef);
+        // ⚠ strip 变体绝不能加 VFX_INSTANCED：strip 几何是普通顶点流(a_Position/a_Color/a_Texcoord0/a_Normal)
+        //   没有实例属性 a_AttrScale/a_AttrColor 等 → p.scale 读 0 → 顶点全缩到 pivot 退化不可见且零报错
+        //   (Buff VFX4 UNI-Masked 丝带不显示根因)。strip 的粒子色走标准 a_Color → vertex.vertexColor 通道。
+        if (variant !== "strip") {
+            const vfxDef = Shader3D.getDefineByName("VFX_INSTANCED");
+            if (vfxDef) mat.addDefine(vfxDef);
+        } else {
+            // strip 顶点流自带 a_Texcoord0，但 UV define 通常由 Mesh 顶点声明自动推导——strip 几何
+            // 不是 Mesh 不走那条路，必须显式开，否则 Vertex 结构无 texCoord0 字段（SG 纹理采样退化到 (0,0) 单点）
+            const uvDef = Shader3D.getDefineByName("UV");
+            if (uvDef) mat.addDefine(uvDef);
+        }
         // 同步强制开 COLOR define：让蓝图 #ifdef COLOR 路径启用，FS 端 pixel.vertexColor
         // 能拿到 vfxTransformVertex 写入的 p.color (instance a_AttrColor)。
         // 不强制的话 Laya 按 mesh 是否有顶点色决定 COLOR，让粒子色全链路断 → 蓝图算
@@ -599,6 +646,45 @@ export class VFXRenderer extends BaseRender {
         mat.cull = RenderState.CULL_NONE;
         applyBlendMode(mat, blendMode);
         VFXRenderer._customShaderMaterialCache.set(key, mat);
+        return mat;
+    }
+
+    /**
+     * 基础 mesh 纹理材质：无 shadergraph(.bps)时,用内置 VFXUnlit + 绑定 MainTexture 到 u_AlbedoTexture。
+     * 对齐 Unity —— Output Mesh 自带 Main Texture,默认材质即可显示纹理,不依赖 Shader Graph。
+     * 按 (blendMode, 纹理 uuid, uvMode, flipbook) 缓存,避免共享材质被不同纹理互相覆盖。
+     */
+    static getMeshTexturedMaterial(blendMode: string = "Alpha", mainTextureUuid: string = "", uvMode: string = "Default", flipbookSize: Vector2 = null): Material {
+        // IDE Texture2D 字段存裸 assetId,转换器存 res://uuid —— 统一补前缀
+        if (mainTextureUuid && mainTextureUuid.indexOf("://") < 0)
+            mainTextureUuid = "res://" + mainTextureUuid;
+        const fbKey = flipbookSize ? `${flipbookSize.x}x${flipbookSize.y}` : "";
+        const key = `__meshtex__${blendMode}__${mainTextureUuid}__${uvMode}__${fbKey}`;
+        let mat = VFXRenderer._customShaderMaterialCache.get(key);
+        if (mat) return mat;
+        const shader = Shader3D.find("VFXUnlit");
+        if (!shader) {
+            console.error("[VFX Renderer] built-in 'VFXUnlit' shader not registered");
+            return null as any;
+        }
+        mat = new Material();
+        mat.setShaderName("VFXUnlit");
+        const vfxDef = Shader3D.getDefineByName("VFX_INSTANCED");
+        if (vfxDef) mat.addDefine(vfxDef);
+        const colorDef = Shader3D.getDefineByName("COLOR");
+        if (colorDef) mat.addDefine(colorDef);
+        mat.setColor("u_Color", new Color(1, 1, 1, 1));
+        mat.setTexture("u_AlbedoTexture", VFXRenderer.getDefaultDotTexture());
+        mat.renderQueue = 3000;
+        mat.cull = RenderState.CULL_NONE;
+        applyBlendMode(mat, blendMode);
+        applyFlipbook(mat, uvMode, flipbookSize);
+        VFXRenderer._customShaderMaterialCache.set(key, mat);
+        if (mainTextureUuid) {
+            VFXRenderer._tryLoadTextureOnce(mainTextureUuid, tex => {
+                if (mat) mat.setTexture("u_AlbedoTexture", tex);
+            });
+        }
         return mat;
     }
 
@@ -767,12 +853,12 @@ export class VFXRenderer extends BaseRender {
         if (!supportedCompute)
             return;
 
-        const shaderData = this._baseRenderNode.shaderData;
-
-        // 更新 mesh defines: 先清除旧的，再添加所有 geometry 的
+        // ⭐不再把各 mesh 的能力 define 并集到【节点级】shaderData（原 addMeshDefines）：
+        // 多 mesh 能力不同时（实心 mesh 有色/切线 + 内置 quad 无），节点级并集会让无色/无切线
+        // 元素的 shader 变体强制引用缺失顶点槽 → WebGPU CreateRenderPipeline 失败（Detonation 根因）。
+        // mesh define 现由 _syncMeshAttrDefines 按【系统材质实例】精确管理（onAwake 预同步+每帧幂等）。
         for (const geo of this._geometries) {
             if (geo instanceof VFXGeometry) {
-                addMeshDefines(geo.mesh, shaderData);
                 // 跑 mesh smooth: 让相邻 face 共享 vertex normal → 消除 fragment shading 跳变三角形
                 // alternating; vc smooth 让区域边界 baseColor 过渡柔和.
                 VFXRenderer.smoothMeshNormals(geo.mesh);
@@ -835,7 +921,7 @@ export class VFXRenderer extends BaseRender {
                 const mode = (geometry as any).blendMode || "Alpha";
                 const stripCustomShader = (geometry as any).customShaderName || "";
                 if (stripCustomShader && stripCustomShader !== "VFXStrip") {
-                    element.material = VFXRenderer.getCustomShaderMaterial(stripCustomShader, mode);
+                    element.material = VFXRenderer.getCustomShaderMaterial(stripCustomShader, mode, (geometry as any).matInstanceKey || "", "strip");
                 } else {
                     const stripMainTex = ((geometry as any).mainTexture as string) || "";
                     const stripColorMapping = ((geometry as any).stripColorMapping as string) || "Default";
@@ -877,7 +963,11 @@ export class VFXRenderer extends BaseRender {
 
                 // outputShaderGraphQuad 或用户指定了自定义 shader
                 if (customShaderName) {
-                    const mat = VFXRenderer.getCustomShaderMaterial(customShaderName, mode);
+                    const mat = VFXRenderer.getCustomShaderMaterial(customShaderName, mode, (geometry as any).matInstanceKey || "");
+                    // mesh 顶点能力 → define 同步：WebGPU 严格校验 shader 引用的顶点槽必须在 VertexState 里，
+                    // mesh 缺 color/tangent 元素时不关 define 会 CreateRenderPipeline 失败（Detonation 根因）。
+                    // 现已由 per-system 材质实例（matInstanceKey 参数）隔离，不同 mesh 系统不再互相覆盖 define。
+                    VFXRenderer._syncMeshAttrDefines(mat, geometry);
                     element.material = mat;
                     // (旧 P1 临时方案: 这里手动 mat.setColor u_AmbientColor / setFloat
                     // u_AmbientIntensity / u_ReflectionIntensity 给 fake IBL fallback 用.
@@ -944,8 +1034,13 @@ export class VFXRenderer extends BaseRender {
                 else if (!meshMaterial && outType === "outputBillboard") {
                     element.material = VFXRenderer.getBillboardMaterial(mode);
                 } else if (!meshMaterial) {
-                    // outputMesh / outputStaticMesh 等：自动创建 VFXUnlit 默认材质
-                    element.material = VFXRenderer.getCustomShaderMaterial("VFXUnlit", mode);
+                    // 无 shadergraph(.bps)材质的 mesh 输出:有 MainTexture 时用基础 VFXUnlit + 绑纹理(对齐 Unity Output Mesh 自带 Main Texture),否则纯默认材质
+                    const meshMainTex = (geometry as any).mainTexture as string || "";
+                    if (meshMainTex) {
+                        element.material = VFXRenderer.getMeshTexturedMaterial(mode, meshMainTex, (geometry as any).uvMode || "Default", (geometry as any).flipbookSize);
+                    } else {
+                        element.material = VFXRenderer.getCustomShaderMaterial("VFXUnlit", mode);
+                    }
                 } else {
                     if (meshMaterial) {
                         applyBlendMode(meshMaterial, mode);
@@ -967,6 +1062,23 @@ export class VFXRenderer extends BaseRender {
                             if (!existing) {
                                 meshMaterial.setTexture("u_AlbedoTexture", VFXRenderer.getDefaultDotTexture());
                             }
+                        }
+                    }
+                    // mesh 输出(shadergraph 或基础):把 Output Mesh 的 MainTexture 字段直接绑到渲染材质。
+                    // 对齐 Unity —— Main Texture 字段驱动纹理,不依赖 shaderName/shadergraph 属性绑定(shaderName 常被 IDE 留空)。
+                    // 绑多个 sampler 名覆盖 .bps(MainTexture/_MainTexture)和基础材质(u_AlbedoTexture)。
+                    if (meshMaterial && outType !== "outputBillboard") {
+                        let meshFieldTex = (geometry as any).mainTexture as string;
+                        if (meshFieldTex && meshFieldTex.indexOf("://") < 0)
+                            meshFieldTex = "res://" + meshFieldTex;
+                        if (meshFieldTex) {
+                            VFXRenderer._tryLoadTextureOnce(meshFieldTex, tex => {
+                                if (tex) {
+                                    meshMaterial.setTexture("MainTexture", tex);
+                                    meshMaterial.setTexture("_MainTexture", tex);
+                                    meshMaterial.setTexture("u_AlbedoTexture", tex);
+                                }
+                            });
                         }
                     }
                     // Soft Particle / Flipbook / SubpixelAA
