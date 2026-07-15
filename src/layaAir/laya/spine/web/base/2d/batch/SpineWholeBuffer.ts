@@ -198,6 +198,29 @@ export class SpineWholeBuffer {
     }
 
     /**
+     * @en Detach every data view while retaining the GPU buffer allocation for reuse.
+     * @zh 移除全部数据视图，同时保留 GPU 缓冲区分配以便复用。
+     */
+    clearDataViews(): void {
+        let view = this._first;
+        while (view) {
+            const next = view._next;
+            view.owner = null;
+            view._prev = null;
+            view._next = null;
+            view = next;
+        }
+
+        this._first = null;
+        this._last = null;
+        this._num = 0;
+        this.currentVertexCount = 0;
+        this._needResetData = true;
+        //@ts-ignore
+        WebRender2DPass.setBuffer(this);
+    }
+
+    /**
      * @en Check if buffer has space for more vertices
      * @zh 检查缓冲区是否有空间容纳更多顶点
      * @param vertexCount Number of vertices to add

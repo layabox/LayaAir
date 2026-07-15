@@ -348,6 +348,7 @@ export class SpineNormalBatch implements IBatch2DProvider {
     reset(): void {
         // Recycle batch buffers
         for (let batchBuffer of this._activeBatchBuffers) {
+            batchBuffer.wholeBuffer.clearDataViews();
             batchBuffer.views.length = 0;
             this._batchBufferPool.push(batchBuffer);
         }

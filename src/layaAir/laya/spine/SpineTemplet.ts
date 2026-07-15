@@ -353,10 +353,8 @@ export class SpineTemplet extends Resource {
      * @zh 释放纹理和材质
      */
     protected _disposeResource(): void {
-
-        this._parser.destroy();
-
         this.optimize.destroy();
+        this._parser.destroy();
 
         for (let k in this._textures) {
             let tex = this._textures[k];
