@@ -249,6 +249,7 @@ export class SpineTemplet extends Resource {
         let tex2d = texture.bitmap as Texture2D;
         if (!tex2d) return;
 
+        tex2d._addReference();
         this.setTexture(texture.url, tex2d);
     }
 
