@@ -79,6 +79,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     private _skinName: string = "default";
     private _animationName: string;
     private _loop: boolean = true;
+    private _playState: ESpineRenderState = ESpineRenderState.Stopped;
 
     private _externalSkins: ExternalSkin[];
     private _skin: string;
@@ -414,10 +415,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @en Get the current play time.
      */
     get playState(): ESpineRenderState {
-        if (this._pause)
-            if (this.currentTime) return ESpineRenderState.Paused;
-            else return ESpineRenderState.Stopped;
-        return ESpineRenderState.Playing;
+        return this._playState;
     }
 
 
@@ -458,7 +456,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         }
         this.boundsChange = true;
 
-        if (this.playState !== Spine2DRenderNode.PLAYING) {
+        if (this.playState !== ESpineRenderState.Playing) {
             this.owner.repaint(RepaintFlag.UpdateRT);
         }
     }
@@ -705,13 +703,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
                 this._pause = false;
                 this._needUpdate = true;
             }
+            this._playState = ESpineRenderState.Playing;
             this._update();
             this.owner.event(Event.PLAYED);
         }
     }
 
     private _update(): void {
-        let timerDelta = Laya.timer.delta / 1000;
+        let timerDelta = Laya.timer.delta / 1000 * this._playbackRate;
         
         if (timerDelta > this._maxDeltaTime)
             timerDelta = this._maxDeltaTime;
@@ -728,8 +727,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             return;
         }
 
+        
         // this._spineRender.render(currentPlayTime, this.physicsUpdate);
         // this._updateBones();
+        
         this.owner.repaint(RepaintFlag.UpdateRT);
     }
 
@@ -834,21 +835,20 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * @zh 停止动画
-     * @en Stop the animation.
+     * @zh 停止动画，停留在当前帧。
+     * @en Stop the animation, holding the current frame.
      */
     stop(): void {
-        if (!this._pause) {
-            this._pause = true;
-            this._needUpdate = false;
-            // 回退到开始位置
-            this._spineRender.update(-this._spineRender.currentTime);
-            this._spineRender.currentTime = 0;
-            this.owner.event(Event.STOPPED);
+        if (this._playState === ESpineRenderState.Stopped)
+            return;
 
-            if (this._soundChannelArr.length > 0) { // 有正在播放的声音
-                this._onAniSoundStoped(true);
-            }
+        this._pause = true;
+        this._needUpdate = false;
+        this._playState = ESpineRenderState.Stopped;
+        this.owner.event(Event.STOPPED);
+
+        if (this._soundChannelArr.length > 0) { // 有正在播放的声音
+            this._onAniSoundStoped(true);
         }
     }
 
@@ -865,6 +865,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (!this._pause) {
             this._pause = true;
             this._needUpdate = false;
+            this._playState = ESpineRenderState.Paused;
             this.owner.event(Event.PAUSED);
             if (this._soundChannelArr.length > 0) { // 有正在播放的声音
                 for (let len = this._soundChannelArr.length, i = 0; i < len; i++) {
@@ -878,13 +879,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * @zh 恢复动画的播放
-     * @en Resume the animation playback.
+     * @zh 恢复动画的播放。只有被paused暂停的动画才能恢复，已停止的动画需要调用play重新播放。
+     * @en Resume the animation playback. Only a paused animation can be resumed, a stopped one must be replayed with play.
      */
     resume(): void {
-        if (this._pause) {
+        if (this._playState === ESpineRenderState.Paused) {
             this._pause = false;
             this._needUpdate = true;
+            this._playState = ESpineRenderState.Playing;
             if (this._soundChannelArr.length > 0) { // 有正在播放的声音
                 for (let len = this._soundChannelArr.length, i = 0; i < len; i++) {
                     let channel = this._soundChannelArr[i];
@@ -927,6 +929,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this._templet = null;
         this._pause = true;
         this._needUpdate = false;
+        this._playState = ESpineRenderState.Stopped;
         if (this._soundChannelArr.length > 0)
             this._onAniSoundStoped(true);
         this.owner.repaint();
