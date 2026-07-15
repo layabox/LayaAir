@@ -9,6 +9,7 @@ import { ShaderData } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData
 import { SpriteConst } from "./SpriteConst";
 import { Matrix } from "../maths/Matrix";
 import { LayaEnv } from "../../LayaEnv";
+import { ILaya } from "../../ILaya";
 
 export class Area2D extends Sprite {
     private _mainCamera: Camera2D;
@@ -107,8 +108,8 @@ export class Area2D extends Sprite {
 
         let halfWidth = RenderState2D.width * 0.5;
         let halfHeight = RenderState2D.height * 0.5;
-        let c_x = x - halfWidth;
-        let c_y = y - halfHeight;
+        let c_x = x * ILaya.stage.clientScaleX - halfWidth;
+        let c_y = y * ILaya.stage.clientScaleY - halfHeight;
         // 获取相机的变换矩阵
         this._mainCamera._getCameraTransform();
         let cameraMatrix = this._mainCamera.cameraMatrix;
@@ -121,6 +122,50 @@ export class Area2D extends Sprite {
         this._globalTrans.getMatrixInv(matrix);
         out.x = matrix.a * newX + matrix.c * newY + matrix.tx;
         out.y = matrix.b * newX + matrix.d * newY + matrix.ty;
+
+        return out;
+    }
+
+    /**
+     * @en Convert Area2D internal UI coordinates to screen coordinates (inverse of transformPoint).
+     * @param x The x axis of Area2D internal coordinates.
+     * @param y The y axis of Area2D internal coordinates.
+     * @param out The output point. If not passed, a new point will be created.
+     * @returns The output point.
+     * @zh 将Area2D内部UI坐标转换为屏幕坐标（transformPoint的逆操作）
+     * @param x Area2D内部坐标的x轴.
+     * @param y Area2D内部坐标的y轴.
+     * @param out 输出点，如果不传入，则会创建一个新的点。
+     * @returns 输出点。
+     */
+    inverseTransformPoint(x: number, y: number, out?: Point): Point {
+        out = out || new Point();
+        out.setTo(x, y);
+
+        if (!this._mainCamera) {
+            return out;
+        }
+
+        // Apply Area2D global transform (local → world)
+        let globalMatrix = Matrix.TEMP;
+        this._globalTrans.getMatrix(globalMatrix);
+        let worldX = globalMatrix.a * x + globalMatrix.c * y + globalMatrix.tx;
+        let worldY = globalMatrix.b * x + globalMatrix.d * y + globalMatrix.ty;
+
+        // Apply view matrix (world → screen offset). _getCameraTransform() returns the inverse camera matrix.
+        let viewMatrix = this._mainCamera._getCameraTransform();
+        let ve = viewMatrix.elements;
+
+        let camX = ve[0] * worldX + ve[3] * worldY + ve[6];
+        let camY = ve[1] * worldX + ve[4] * worldY + ve[7];
+
+        // Convert from camera space to screen coordinates
+        let halfWidth = RenderState2D.width * 0.5;
+        let halfHeight = RenderState2D.height * 0.5;
+        let scaleX = ILaya.stage.clientScaleX;
+        let scaleY = ILaya.stage.clientScaleY;
+        out.x = (camX + halfWidth) / scaleX;
+        out.y = (camY + halfHeight) / scaleY;
 
         return out;
     }
