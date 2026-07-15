@@ -97,6 +97,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     private _graphicsHandleUpdateBuffer: ArrayBuffer = null;
     private _modifiedFrame: number = -1;
     private _globalAlpha: number = 1;
+    private _globalAlphaValid: boolean = false;
     private _graphicsMaterialState: WebGraphicsMaterialState = { subShader: null, shaderData: null };
 
     public set owner(value: WebRenderStruct2D) {
@@ -106,6 +107,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         super.owner = value;
         this._setGraphicsOpsActive(false);
         this._createGraphicsOpRuntime();
+        this._globalAlphaValid = false;
         this._invalidateMatrixCache();
     }
 
@@ -174,6 +176,9 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             return;
         }
         this._opRuntime.syncGraphicsOps(ops as ReadonlyArray<WebGraphicsOp2D>);
+        // Partial op synchronization can leave untouched vertices at the previously cached alpha.
+        // Force the next inherit pass to reconcile alpha across every render op.
+        this._globalAlphaValid = false;
         this._setGraphicsOpsActive(true);
     }
 
@@ -189,7 +194,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             let store = Transform2DStore.instance;
             let matFrame = store.getMatrixFrame(this._owner.transSlot);
             let globalAlpha = this._owner.globalAlpha;
-            let alphaChanged = this._globalAlpha != globalAlpha;
+            let alphaChanged = !this._globalAlphaValid || this._globalAlpha != globalAlpha;
 
             if (this._modifiedFrame !== matFrame) {
                 if (this.needUseMatrix) {
@@ -222,10 +227,12 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                     }
                 }
                 this._globalAlpha = globalAlpha;
+                this._globalAlphaValid = true;
                 this._modifiedFrame = matFrame;
             }
-            else if (this._globalAlpha != globalAlpha) {
+            else if (!this._globalAlphaValid || this._globalAlpha != globalAlpha) {
                 this._globalAlpha = globalAlpha;
+                this._globalAlphaValid = true;
                 if (this._graphicsOpsActive) {
                     this._opRuntime.updateGlobalAlpha(this._globalAlpha);
                 }

@@ -36,24 +36,19 @@ export class SpineWholeBuffer {
     private static _globalTempIndexData: Uint16Array = new Uint16Array(SpineWholeBuffer.ARRAY_GROWTH_STEP_INDEX);
 
      /**
-     * @en Grow global arrays dynamically during traversal if needed
+     * @en Grow global assembly arrays before upload if needed
      * @zh 在遍历过程中如果需要则动态增长全局数组
      */
-    private static _growGlobalArraysIfNeeded(requiredVertexFloats: number, requiredIndexCount: number): boolean {
-        let result = false;
+    private static _growGlobalArraysIfNeeded(requiredVertexFloats: number, requiredIndexCount: number): void {
         if (requiredVertexFloats > SpineWholeBuffer._globalTempVertexData.length) {
             const newSize = Math.ceil(requiredVertexFloats / SpineWholeBuffer.ARRAY_GROWTH_STEP_VERTEX) * SpineWholeBuffer.ARRAY_GROWTH_STEP_VERTEX;
             SpineWholeBuffer._globalTempVertexData = new Float32Array(newSize);
-            result = true;
         }
 
         if (requiredIndexCount > SpineWholeBuffer._globalTempIndexData.length) {
             const newSize = Math.ceil(requiredIndexCount / SpineWholeBuffer.ARRAY_GROWTH_STEP_INDEX) * SpineWholeBuffer.ARRAY_GROWTH_STEP_INDEX;
             SpineWholeBuffer._globalTempIndexData = new Uint16Array(newSize);
-            result = true;
         }
-
-        return result;
     }
 
     /**
@@ -91,6 +86,12 @@ export class SpineWholeBuffer {
      * @zh 当前分配的索引容量
      */
     private _indexCapacity: number = 0;
+
+    /** Current total vertex data length of all attached views, in floats. */
+    private _vertexFloatCount: number = 0;
+
+    /** Current total index data length of all attached views. */
+    private _indexCount: number = 0;
 
     /**
      * @en Flag indicating if buffer needs to be reuploaded
@@ -138,6 +139,21 @@ export class SpineWholeBuffer {
         this._needResetData = true;
     }
 
+    /** Ensure temporary assembly arrays and GPU buffers before upload starts. */
+    private _ensureCapacityForViews(): void {
+        SpineWholeBuffer._growGlobalArraysIfNeeded(this._vertexFloatCount, this._indexCount);
+
+        if (this._vertexFloatCount > this._vertexCapacity || this._indexCount > this._indexCapacity) {
+            const vertexCapacity = this._vertexFloatCount > this._vertexCapacity
+                ? Math.max(this._vertexFloatCount, this._vertexCapacity * 2)
+                : this._vertexCapacity;
+            const indexCapacity = this._indexCount > this._indexCapacity
+                ? Math.max(this._indexCount, this._indexCapacity * 2)
+                : this._indexCapacity;
+            this.resetCapacity(vertexCapacity, indexCapacity);
+        }
+    }
+
     /**
      * @en Add a view to the linked list
      * @zh 将视图添加到链表中
@@ -160,6 +176,10 @@ export class SpineWholeBuffer {
         this._num++;
 
         this.currentVertexCount += view.vertexCount;
+        this._vertexFloatCount += view.vertexBufferLength;
+        this._indexCount += view.indexBufferLength;
+
+        this._ensureCapacityForViews();
 
         this._needResetData = true;
         //@ts-ignore
@@ -191,6 +211,8 @@ export class SpineWholeBuffer {
         this._num--;
 
         this.currentVertexCount -= view.vertexCount;
+        this._vertexFloatCount -= view.vertexBufferLength;
+        this._indexCount -= view.indexBufferLength;
 
         this._needResetData = true;
         //@ts-ignore
@@ -215,6 +237,8 @@ export class SpineWholeBuffer {
         this._last = null;
         this._num = 0;
         this.currentVertexCount = 0;
+        this._vertexFloatCount = 0;
+        this._indexCount = 0;
         this._needResetData = true;
         //@ts-ignore
         WebRender2DPass.setBuffer(this);
@@ -240,33 +264,30 @@ export class SpineWholeBuffer {
     /**
      * @en Upload data to GPU by reassembling all views with proper offsets
      * @zh 通过重组所有视图并应用正确的偏移将数据上传到 GPU
-     * Optimized: single pass through linked list, using global shared arrays with dynamic growth
+     * View totals and capacities are maintained before upload, so this method only assembles once.
      */
     _upload(): void {
         if (!this._needResetData) return;
         if (!this._first) return;
 
-        let totalVertexFloats = 0;
-        let totalIndices = 0;
+        const totalVertexFloats = this._vertexFloatCount;
+        const totalIndices = this._indexCount;
+
+        if (totalVertexFloats === 0 || totalIndices === 0) {
+            this._needResetData = false;
+            return;
+        }
+
+        const vertexData = SpineWholeBuffer._globalTempVertexData;
+        const indexData = SpineWholeBuffer._globalTempIndexData;
+        const vertexStride = 12; // VERTEX_TWOCOLOR
         let vertexOffset = 0;
         let indexOffset = 0;
-        let currentVertexIndex = 0; 
+        let currentVertexIndex = 0;
         let view = this._first;
 
-        let requiredVertexFloats = 0;
-        let requiredIndexCount = 0;
-        let vertexData = SpineWholeBuffer._globalTempVertexData;
-        let indexData = SpineWholeBuffer._globalTempIndexData;
-        const vertexStride = 12; // VERTEX_TWOCOLOR
         while (view) {
             if (view.vertexBufferLength > 0) {
-                requiredVertexFloats = vertexOffset + view.vertexBufferLength;
-                requiredIndexCount = indexOffset + view.indexBufferLength;
-
-                if (SpineWholeBuffer._growGlobalArraysIfNeeded(requiredVertexFloats, requiredIndexCount)) {
-                    vertexData = SpineWholeBuffer._globalTempVertexData;
-                    indexData = SpineWholeBuffer._globalTempIndexData;
-                }
 
                 if (view.cacheVertex) {
                     let cacheVertex = view.cacheVertex;
@@ -314,26 +335,12 @@ export class SpineWholeBuffer {
                     view.geometry.setDrawElemenParams(view.indexCount, indexOffset * 2);
                 }
 
-                totalVertexFloats = requiredVertexFloats;
-                totalIndices = requiredIndexCount;
                 vertexOffset += view.vertexBufferLength;
                 indexOffset += view.indexBufferLength;
                 currentVertexIndex += view.vertexCount;
             }
 
             view = view._next;
-        }
-
-        if (totalVertexFloats === 0 || totalIndices === 0) {
-            this._needResetData = false;
-            return;
-        }
-
-        if (totalVertexFloats > this._vertexCapacity || totalIndices > this._indexCapacity) {
-            this.resetCapacity(
-                Math.max(totalVertexFloats, this._vertexCapacity * 2),
-                Math.max(totalIndices, this._indexCapacity * 2)
-            );
         }
 
         this.vertexBuffer.setData(
