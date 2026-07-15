@@ -148,6 +148,11 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    /** @internal renderMatrix 每帧从 store 读一次的缓存帧标记 */
    private _rmFrame: number = -1;
 
+   /** @internal */
+   public getRenderMatrixVersion(): number {
+      return Transform2DStore.instance.getMatrixFrame(this.transSlot);
+   }
+
    public get renderMatrix(): Matrix {
       // Web struct 只把 transSlot 当身份：矩阵按 slot 从 Transform2DStore 读，缓存 key 用 SoA 的 matrixFrame
       // (不是 Stat.loopCount)——否则同帧 update() 前先读过一次后，update() 改了矩阵也不会刷新、拿旧值。
@@ -436,16 +441,15 @@ export class WebRenderStruct2D implements IRenderStruct2D {
 
       if (rect) {
          let info = this._clipInfo;
-         // 矩阵与变更帧号按 slot 直接问 Transform2DStore(不再依赖 struct 自存的 trans)。
-         let matFrame = this.transSlot >= 0 ? Transform2DStore.instance.getMatrixFrame(this.transSlot) : 0;
+         let matrixVersion = this.getRenderMatrixVersion();
          let clipInfo = this._currentData.clipInfo;
          let parentClipUpdateFrame = clipInfo && clipInfo !== _DefaultClipInfo ? clipInfo._updateFrame : -1;
 
          if (this.transSlot >= 0) {
-            if (this._clipMatFrame !== matFrame
+            if (this._clipMatFrame !== matrixVersion
                || this._clipParentUpdateFrame !== parentClipUpdateFrame
                || this._clipRectAppliedFrame !== this._clipRectUpdateFrame) {
-               this._clipMatFrame = matFrame;
+               this._clipMatFrame = matrixVersion;
                this._clipParentUpdateFrame = parentClipUpdateFrame;
                this._clipRectAppliedFrame = this._clipRectUpdateFrame;
                let mat = this.renderMatrix;

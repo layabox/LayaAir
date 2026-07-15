@@ -56,6 +56,8 @@ export interface IRenderStruct2D {
    /** @zh 本节点在 Transform2DStore(SoA) 中的 slot。渲染底层据此按 slot 直读 world 数据。 */
    transSlot: number;
    renderMatrix: Matrix;
+   /** @internal Negative while the Transform2DStore matrix channel is pending. */
+   getRenderMatrixVersion(): number;
    /** 非即时数据 */
    readonly globalAlpha: number;
 

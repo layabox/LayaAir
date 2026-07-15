@@ -350,6 +350,7 @@ export class NoRenderStruct2D implements IRenderStruct2D {
 
     trans: StructTransform;
 
+    getRenderMatrixVersion(): number { return 0; }
     get renderMatrix(): Matrix { return this.trans.matrix; }
     set renderMatrix(value: Matrix) {
         if (!this.trans)

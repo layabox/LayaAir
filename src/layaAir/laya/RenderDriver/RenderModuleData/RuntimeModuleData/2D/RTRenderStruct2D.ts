@@ -268,6 +268,10 @@ export class RTRenderStruct2D implements IRenderStruct2D {
 
    private _renderMatrix: Matrix = new Matrix();
    private _rmFrame: number = -1;
+   /** @internal */
+   getRenderMatrixVersion(): number {
+      return Transform2DStore.instance.getMatrixFrame(this._transSlot);
+   }
    set renderMatrix(value: Matrix) {
    }
    get renderMatrix(): Matrix {

@@ -14,14 +14,8 @@ import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IGraphicsOp2D, IMesh2D
 import { WebGraphicsBatchEntry } from "./WebGraphicsOp2DRuntimeBuffers";
 import { WebGraphicsOp2DRuntime, type WebGraphicsMaterialState } from "./WebGraphicsOp2DRuntime";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
-import { Transform2DStore } from "../../../../display/transform2d/Transform2DStore";
 import type { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import type { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
-
-// Graphics-op transform fast path: synchronously filled from Transform2DStore then immediately
-// expanded to scalar arguments. It is intentionally module-shared to avoid one allocation per
-// graphics data handle; updateTransformValues never retains this buffer.
-const _worldMatrix6 = new Float32Array(6);
 
 export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     protected _owner: WebRenderStruct2D;
@@ -60,13 +54,10 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
         if (!data)
             return;
         if (this._needUseMatrix) {
-            let slot = this._owner.transSlot;
-            if (slot >= 0) {
-                let matFrame = Transform2DStore.instance.getMatrixFrame(slot);
-                if (this._matUploadFrame === matFrame)
-                    return;
-                this._matUploadFrame = matFrame;
-            }
+            let matrixVersion = this._owner.getRenderMatrixVersion();
+            if (matrixVersion >= 0 && this._matUploadFrame === matrixVersion)
+                return;
+            this._matUploadFrame = matrixVersion;
             let mat = this._owner.renderMatrix;
             this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
             this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
@@ -191,12 +182,11 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
         let data = this._owner.spriteShaderData;
 
         if (data) {
-            let store = Transform2DStore.instance;
-            let matFrame = store.getMatrixFrame(this._owner.transSlot);
+            let matrixVersion = this._owner.getRenderMatrixVersion();
             let globalAlpha = this._owner.globalAlpha;
             let alphaChanged = !this._globalAlphaValid || this._globalAlpha != globalAlpha;
 
-            if (this._modifiedFrame !== matFrame) {
+            if (this._modifiedFrame !== matrixVersion) {
                 if (this.needUseMatrix) {
                     let mat: Matrix = this._owner.renderMatrix;
                     if (this.logicMatrix) {
@@ -213,22 +203,11 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
                     data.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
                 }
                 else if (this._graphicsOpsActive) {
-                    const slot = this._owner.transSlot;
-                    if (slot >= 0) {
-                        store.readWorldMatrix(slot, _worldMatrix6);
-                        this._opRuntime.updateTransformValues(
-                            _worldMatrix6[0], _worldMatrix6[1], _worldMatrix6[2],
-                            _worldMatrix6[3], _worldMatrix6[4], _worldMatrix6[5],
-                            globalAlpha, alphaChanged);
-                    }
-                    else {
-                        // Temporary structs without a Transform2DStore slot retain the old fallback.
-                        this._opRuntime.updateTransform(this._owner.renderMatrix, globalAlpha, alphaChanged);
-                    }
+                    this._opRuntime.updateTransform(this._owner.renderMatrix, globalAlpha, alphaChanged);
                 }
                 this._globalAlpha = globalAlpha;
                 this._globalAlphaValid = true;
-                this._modifiedFrame = matFrame;
+                this._modifiedFrame = matrixVersion;
             }
             else if (!this._globalAlphaValid || this._globalAlpha != globalAlpha) {
                 this._globalAlpha = globalAlpha;

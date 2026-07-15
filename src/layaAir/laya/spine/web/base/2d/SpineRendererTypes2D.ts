@@ -4,10 +4,7 @@ import { BakedSpineRenderer, StandardSpineRenderer } from "../optimize/SpineRend
 import { BaseRender2DType } from "../../../../display/SpriteConst";
 import { SpineShaderInit } from "../../../shader/SpineShaderInit";
 import { Spine2DNormalRenderUpdater } from "./Spine2DNormalRenderUpdater";
-import { WebSpineRenderDataHandle } from "../../../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
-import { Transform2DStore } from "../../../../display/transform2d/Transform2DStore";
 import { SpineOptimizeRender2D } from "./SpineOptimizeRender2D";
-import { WebRenderStruct2D } from "../../../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 import { ISpineRenderDataHandle } from "../../../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 
 
@@ -89,9 +86,8 @@ export class StandardSpine2DRenderer extends StandardSpineRenderer{
     render(curTime: number, offsetX: number = 0, offsetY: number = 0): void {
         let skinData = this.updater?.currentData;
 
-        // 矩阵与变更帧号按 slot 直接问 Transform2DStore(不再依赖 struct 自存的 trans)。
-        const matFrame = Transform2DStore.instance.getMatrixFrame(this._struct.transSlot);
-        if (this._updateFrame < matFrame) {
+        const matrixVersion = this._struct.getRenderMatrixVersion();
+        if (matrixVersion < 0 || this._updateFrame < matrixVersion) {
             let renderMatrix = this._struct.renderMatrix;
             let offset = (this._struct.renderDataHandler as ISpineRenderDataHandle).offset;
             let mat = this.normalUpdater.matrix
@@ -100,7 +96,7 @@ export class StandardSpine2DRenderer extends StandardSpineRenderer{
                 mat.tx = mat.tx + mat.a * offset.x + mat.c * offset.y;
                 mat.ty = mat.ty + mat.b * offset.x + mat.d * offset.y;
             }
-            this._updateFrame = matFrame;
+            this._updateFrame = matrixVersion;
         }
 
         if (skinData && (skinData.hasRenderCache || this.normalUpdater.autoCacheEnabled)) {
