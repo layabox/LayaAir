@@ -569,10 +569,11 @@ export class Texture extends Resource {
      * @param callback 位图恢复后调用的可选回调函数。
      */
     recoverBitmap(callback?: () => void): void {
-        var url = this._bitmap.url;
+        var url = this._bitmap?.url;
         if (!this._destroyed && (!this._bitmap || this._bitmap.destroyed) && url) {
             ILaya.loader.load(url, "image").then((tex: Texture) => {
-                this.bitmap = tex.bitmap;
+                if (!this._destroyed && tex && tex.bitmap)
+                    this.bitmap = tex.bitmap;
                 callback && callback();
             });
         }
