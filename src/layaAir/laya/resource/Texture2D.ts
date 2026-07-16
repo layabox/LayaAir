@@ -240,7 +240,10 @@ export class Texture2D extends BaseTexture {
         texture.setDDSData(ddsInfo);
         if (propertyParams){
             texture.setProperties(propertyParams);
-            texture._premultiplyAlpha = propertyParams.premultiplyAlpha;
+            // Compressed textures cannot be premultiplied during GPU upload
+            // (compressedTexImage2D does not support UNPACK_PREMULTIPLY_ALPHA_WEBGL),
+            // so the flag must remain false regardless of the property setting.
+            texture._premultiplyAlpha = false;
         }
 
         return texture;
@@ -257,7 +260,10 @@ export class Texture2D extends BaseTexture {
         texture.setKTXData(ktxInfo);
         if (propertyParams){
             texture.setProperties(propertyParams);
-            texture._premultiplyAlpha = propertyParams.premultiplyAlpha;
+            // Compressed textures cannot be premultiplied during GPU upload
+            // (compressedTexImage2D does not support UNPACK_PREMULTIPLY_ALPHA_WEBGL),
+            // so the flag must remain false regardless of the property setting.
+            texture._premultiplyAlpha = false;
         }
         return texture;
     }
