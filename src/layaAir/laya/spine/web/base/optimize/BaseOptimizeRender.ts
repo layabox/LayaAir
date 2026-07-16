@@ -313,7 +313,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
      * @param time 要渲染动画的时间。
      */
     render(time: number, physicsUpdate: number): void {
-        if (!Stat.enableSpine) return
+        if (!Stat.enableSpine || !this.renderProxy) return
 
         this._skeleton.update && this._skeleton.update(time);
 
