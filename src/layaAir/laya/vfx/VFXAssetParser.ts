@@ -24,9 +24,6 @@ export class VFXAssetParser {
 
         const vfxAsset = new VFXAsset();
 
-        console.log(`[VFX-DBG] runtime parse systems=${(data.systems || []).length}`,
-            (data.systems || []).map((s: any, i: number) => `${i}:${s.type}${s.capacity != null ? `(cap=${s.capacity})` : ""}`).join(","));
-
         // 解析 updateMode
         let updateMode = VFXUpdateMode.FixedDeltaTime;
         if (data.fixedDeltaTime === false) {
@@ -735,34 +732,41 @@ export class VFXAssetParser {
  * 用于 sampleGradient operator 的 inline gradient 分支（textureLod(tex, vec2(t, 0.5), 0)）
  * 与 VisualEffect.bakeGradientTexture（Graph Property 用）算法一致但独立定义避免跨文件耦合
  */
+// float32 → float16 bits（渐变 HDR 烘焙用；R16G16B16A16=rgba16float 原始字节直传）
+const _f16ScratchF32 = new Float32Array(1);
+const _f16ScratchU32 = new Uint32Array(_f16ScratchF32.buffer);
+function _f32ToF16(v: number): number {
+    _f16ScratchF32[0] = v;
+    const bits = _f16ScratchU32[0];
+    const sign = (bits >> 16) & 0x8000;
+    const exp = ((bits >> 23) & 0xff) - 127 + 15;
+    const frac = bits & 0x7fffff;
+    if (exp <= 0) {
+        if (exp < -10) return sign;
+        const m = (frac | 0x800000) >> (1 - exp);
+        return sign | (m >> 13);
+    }
+    if (exp >= 31) return sign | 0x7c00;
+    return sign | (exp << 10) | (frac >> 13);
+}
+
 function bakeInlineGradientTexture(stops: { t: number; color: [number, number, number, number] }[]): Texture2D {
     const width = 256;
-    const data = new Uint8Array(width * 4);
+    const data = new Uint16Array(width * 4);
     const rawKeys = stops.length >= 2 ? stops : [
         { t: 0, color: [1, 1, 1, 1] as [number, number, number, number] },
         { t: 1, color: [1, 1, 1, 0] as [number, number, number, number] },
     ];
-    // Unity Gradient editor 用 HDR color picker 输出值 (e.g., 0,89.97,46.39) → 没 HDR pipeline 时需 clamp 到 [0,1]
-    // 之前 per-channel clamp 让所有三通道都 >1 的 HDR 颜色（如 (1.22, 5.66, 3.62) HDR teal）变成 (1,1,1) 纯白
-    // 丢失 chroma → TexIndexAdvanced Core Cube 这种 stop 该显示 teal 但 Laya 显示纯白
-    // 修：per-stop 用 max-channel 归一化保留 chroma 方向，仅 max>1 时缩放（max<=1 保留原值）
-    //   (1.22, 5.66, 3.62) max=5.66 → (0.216, 1.0, 0.640) 保留 teal-green chroma
-    //   (2.95, 0.012, 0.24) max=2.95 → (1.0, 0.004, 0.081) 保留 red chroma
-    // 副作用：失去 Unity HDR 强度信息（bloom glow 不可见），但 chroma 准确
-    const normalizeStop = (c: number[]): [number, number, number, number] => {
-        const r = Math.max(0, c[0]);
-        const g = Math.max(0, c[1]);
-        const b = Math.max(0, c[2]);
-        const a = Math.max(0, Math.min(1, c[3]));
-        const maxRGB = Math.max(r, g, b);
-        if (maxRGB > 1) {
-            return [r / maxRGB, g / maxRGB, b / maxRGB, a];
-        }
-        return [r, g, b, a];
-    };
+    // ⭐2026-06-11 HDR 直通：烘到 R16G16B16A16 半精度浮点纹理，不再 max-channel 归一化。
+    // 归一化是 LDR framebuffer 时代的 crutch——保了 chroma 但丢强度，让 Unity 的 HDR 红(23.97,0,0)
+    // 在 additive 下永远压不过低强度橙 → Buff 爆心橙白 vs Unity 饱和红的根因。
+    // 场景 enableHDR(浮点 framebuffer)下直通才是 Unity 语义(LDR 场景 clip 爆白同样是 Unity 行为)。
+    const sanitizeStop = (c: number[]): [number, number, number, number] => [
+        Math.max(0, c[0]), Math.max(0, c[1]), Math.max(0, c[2]), Math.max(0, Math.min(1, c[3])),
+    ];
     const keys = rawKeys.map(k => ({
         t: k.t,
-        color: normalizeStop(k.color),
+        color: sanitizeStop(k.color),
     }));
     for (let i = 0; i < width; i++) {
         const t = i / (width - 1);
@@ -776,12 +780,12 @@ function bakeInlineGradientTexture(stops: { t: number; color: [number, number, n
         const g = a.color[1] + (b.color[1] - a.color[1]) * u;
         const bB = a.color[2] + (b.color[2] - a.color[2]) * u;
         const aA = a.color[3] + (b.color[3] - a.color[3]) * u;
-        data[i * 4]     = Math.round(r * 255);
-        data[i * 4 + 1] = Math.round(g * 255);
-        data[i * 4 + 2] = Math.round(bB * 255);
-        data[i * 4 + 3] = Math.round(aA * 255);
+        data[i * 4]     = _f32ToF16(r);
+        data[i * 4 + 1] = _f32ToF16(g);
+        data[i * 4 + 2] = _f32ToF16(bB);
+        data[i * 4 + 3] = _f32ToF16(aA);
     }
-    const tex = new Texture2D(width, 1, TextureFormat.R8G8B8A8, false, false, false, false);
+    const tex = new Texture2D(width, 1, TextureFormat.R16G16B16A16, false, false, false, false);
     tex.setPixelsData(data, false, false);
     tex.wrapModeU = WrapMode.Clamp;
     tex.wrapModeV = WrapMode.Clamp;

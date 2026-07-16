@@ -71,6 +71,7 @@ let ID: {
     u_VfxInvViewProjection: number;
     u_OrientCameraPos: number;
     u_OrientCameraDir: number;
+    u_OrientCameraUp: number;
     u_ParticlePerStrip: number;
     u_StripCapacity: number;
     StripDataBuffer: number;
@@ -113,6 +114,7 @@ export function ensureIDs(): void {
         u_VfxInvViewProjection: Shader3D.propertyNameToID("u_VfxInvViewProjection"),
         u_OrientCameraPos: Shader3D.propertyNameToID("u_OrientCameraPos"),
         u_OrientCameraDir: Shader3D.propertyNameToID("u_OrientCameraDir"),
+        u_OrientCameraUp: Shader3D.propertyNameToID("u_OrientCameraUp"),
         u_ParticlePerStrip: Shader3D.propertyNameToID("u_ParticlePerStrip"),
         u_StripCapacity: Shader3D.propertyNameToID("u_StripCapacity"),
         // SpawnState
@@ -200,6 +202,12 @@ export class VFXParticleSystem extends VFXSystem {
 
     // 混合模式 — 对齐 Unity VFX Graph BlendMode
     blendMode: import("../VFXAsset").VFXBlendMode = "Alpha" as any;
+
+    private static _matUidCounter = 0;
+    /** per-system 材质实例 key:custom shader 材质若按 shaderName+blendMode 全局共享,
+     *  各 system 的 per-system uniform(_MaskTexture/alpha 年龄曲线/Disappear 曲线/颜色渐变)会互相覆盖。
+     *  对齐 Unity 每 output 独立 material 实例。 */
+    readonly matInstanceKey: string = "s" + (VFXParticleSystem._matUidCounter++);
 
     // Soft Particle 淡出距离（eye 空间单位，0 = 关闭）
     softParticleFade: number = 0;
@@ -628,10 +636,11 @@ export class VFXParticleSystem extends VFXSystem {
     /**
      * 通过 cmd 设置当前渲染相机的位置和朝向到 output shader
      */
-    setOrientCamera(cmd: ComputeCommandBuffer, cameraWorldPos: Vector3, cameraForward: Vector3): void {
+    setOrientCamera(cmd: ComputeCommandBuffer, cameraWorldPos: Vector3, cameraForward: Vector3, cameraUp: Vector3): void {
         for (const sd of this.outputDatas) {
             cmd.addSetShaderDataCommand(sd, ID.u_OrientCameraPos, ShaderDataType.Vector3, cameraWorldPos);
             cmd.addSetShaderDataCommand(sd, ID.u_OrientCameraDir, ShaderDataType.Vector3, cameraForward);
+            cmd.addSetShaderDataCommand(sd, ID.u_OrientCameraUp, ShaderDataType.Vector3, cameraUp);
         }
         // Multi-Output: extra outputDatas 也需要 orient camera 数据,
         // 不然 extra orient block 算出 (0,0,0) 假相机位置 → quaternion 错 → 粒子 quad 朝怪方向 / size collapse → 不可见
@@ -640,6 +649,7 @@ export class VFXParticleSystem extends VFXSystem {
             if (esd) {
                 cmd.addSetShaderDataCommand(esd, ID.u_OrientCameraPos, ShaderDataType.Vector3, cameraWorldPos);
                 cmd.addSetShaderDataCommand(esd, ID.u_OrientCameraDir, ShaderDataType.Vector3, cameraForward);
+                cmd.addSetShaderDataCommand(esd, ID.u_OrientCameraUp, ShaderDataType.Vector3, cameraUp);
             }
         }
     }
@@ -845,6 +855,7 @@ export class VFXParticleSystem extends VFXSystem {
                     (this.geometry as any).subpixelAA = this.subpixelAA;
                     (this.geometry as any).customShaderName = this.customShaderName;
                 }
+                if (this.geometry) (this.geometry as any).matInstanceKey = this.matInstanceKey;
             } catch (e) {
                 console.warn("VFXParticleSystem: geometry creation failed, compute pipeline will still run.", e);
             }
