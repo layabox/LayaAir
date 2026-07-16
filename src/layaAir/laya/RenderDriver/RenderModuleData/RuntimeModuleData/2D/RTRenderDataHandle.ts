@@ -69,6 +69,7 @@ export class RTPrimitiveDataHandle extends RTRender2DDataHandle implements I2DPr
 
     private _graphicsSubShader: SubShader | null = null;
     private _graphicsShaderData: ShaderData | null = null;
+    private _graphicsUseSpriteState: boolean = true;
 
     constructor() {
         super(new (window as any).conchRTPrimitiveDataHandle());
@@ -86,22 +87,22 @@ export class RTPrimitiveDataHandle extends RTRender2DDataHandle implements I2DPr
 
     readonly autoGraphicsDirtySync: boolean = true;
 
-    setGraphicsSubShader(value: SubShader | null): void {
-        value = value || null;
-        if (this._graphicsSubShader === value)
+    setGraphicsMaterialState(subShader: SubShader | null, shaderData: ShaderData | null, useSpriteState: boolean): void {
+        subShader = subShader || null;
+        shaderData = shaderData || null;
+        if (this._graphicsSubShader === subShader
+            && this._graphicsShaderData === shaderData
+            && this._graphicsUseSpriteState === useSpriteState)
             return;
-        this._graphicsSubShader = value;
-        let holder: any = value;
-        this._nativeObj.setGraphicsSubShader(holder ? holder.moduleData?._nativeObj || holder._nativeObj || null : null);
-    }
-
-    setGraphicsShaderData(value: ShaderData | null): void {
-        value = value || null;
-        if (this._graphicsShaderData === value)
-            return;
-        this._graphicsShaderData = value;
-        let holder: any = value;
-        this._nativeObj.setGraphicsShaderData(holder ? holder._nativeObj || null : null);
+        this._graphicsSubShader = subShader;
+        this._graphicsShaderData = shaderData;
+        this._graphicsUseSpriteState = useSpriteState;
+        let subShaderHolder: any = subShader;
+        let shaderDataHolder: any = shaderData;
+        this._nativeObj.setGraphicsMaterialState(
+            subShaderHolder ? subShaderHolder.moduleData?._nativeObj || subShaderHolder._nativeObj || null : null,
+            shaderDataHolder ? shaderDataHolder._nativeObj || null : null,
+            useSpriteState);
     }
 
     _mask: RTRenderStruct2D | null = null;

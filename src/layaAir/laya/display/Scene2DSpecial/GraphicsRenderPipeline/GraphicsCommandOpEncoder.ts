@@ -52,6 +52,7 @@ const DRAW_PATH_ARC_TO_SEGMENTS = 32;
 export interface GraphicsCommandOpEncoderHost {
    owner: Sprite;
    addResRef(res: Resource): void;
+   onTextureResourceRecovered(): void;
 }
 
 /** @internal */
@@ -183,10 +184,12 @@ export class GraphicsCommandOpEncoder {
       let tex = owner ? owner._texture : null;
       if (!tex)
          return;
-      let width = owner._isWidthSet ? owner._width : tex.sourceWidth;
-      let height = owner._isHeightSet ? owner._height : tex.sourceHeight;
-      let wRate = width / (tex.sourceWidth || tex.width || 1);
-      let hRate = height / (tex.sourceHeight || tex.height || 1);
+      let sourceWidth = tex.sourceWidth || tex.width;
+      let sourceHeight = tex.sourceHeight || tex.height;
+      let width = owner._isWidthSet ? owner._width : sourceWidth;
+      let height = owner._isHeightSet ? owner._height : sourceHeight;
+      let wRate = width / (sourceWidth || 1);
+      let hRate = height / (sourceHeight || 1);
       let uv = tex._uv || tex.uv || Texture.DEF_UV;
       let textureResource = this._resolveGraphicsTextureResource(tex);
       this._writeTextureQuadValues(tex.offsetX * wRate, tex.offsetY * hRate, tex.width * wRate, tex.height * hRate,
@@ -568,9 +571,16 @@ export class GraphicsCommandOpEncoder {
       if (!texture)
          return null;
       this._host.addResRef(texture as Resource);
-      let resource: BaseTexture = texture instanceof Texture ? texture.bitmap : texture;
+      let resource: BaseTexture;
+      if (texture instanceof Texture) {
+         let source = texture._getSource(() => this._host.onTextureResourceRecovered());
+         resource = source ? texture.bitmap : null;
+      }
+      else {
+         resource = texture;
+      }
       let layer = 0;
-      let reg = TextureArrayRegistry2D.resolve(texture);
+      let reg = resource ? TextureArrayRegistry2D.resolve(texture) : null;
       if (reg && reg.array instanceof Texture2DArray) {
          resource = reg.array;
          layer = reg.layer | 0;

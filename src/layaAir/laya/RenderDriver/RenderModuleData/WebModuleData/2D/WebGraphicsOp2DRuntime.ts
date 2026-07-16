@@ -70,6 +70,7 @@ type WebGraphicsOpRenderRange = {
 export type WebGraphicsMaterialState = {
 	subShader: SubShader | null;
 	shaderData: ShaderData | null;
+	useSpriteState: boolean;
 };
 
 /** @internal */
@@ -1125,6 +1126,7 @@ export class WebGraphicsOp2DRuntime {
 		else
 			shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, texture);
 		BlendModeHandler.setShaderData(blendMode as BlendMode, shaderData);
+		element.renderStateIsBySprite = this._materialState.useSpriteState && blendMode === this._owner.blendMode;
 		element.textureKey = renderState.textureKey;
 		element.typeKey = renderState.typeKey;
 	}

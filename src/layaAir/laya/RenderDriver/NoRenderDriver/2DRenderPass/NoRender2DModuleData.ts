@@ -79,12 +79,9 @@ export class NoRenderPrimitiveDataHandle extends NoRenderDataHandleBase implemen
     setGraphicsHandleUpdateBuffer(_buffer: ArrayBuffer): void {
     }
 
-    setGraphicsSubShader(value: SubShader | null): void {
-        this._graphicsSubShader = value || null;
-    }
-
-    setGraphicsShaderData(value: ShaderData | null): void {
-        this._graphicsShaderData = value || null;
+    setGraphicsMaterialState(subShader: SubShader | null, shaderData: ShaderData | null, _useSpriteState: boolean): void {
+        this._graphicsSubShader = subShader || null;
+        this._graphicsShaderData = shaderData || null;
     }
 
     syncGraphicsOps(_ops: ReadonlyArray<IGraphicsOp2D>): void {

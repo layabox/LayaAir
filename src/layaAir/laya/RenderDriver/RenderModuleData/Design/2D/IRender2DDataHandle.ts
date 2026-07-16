@@ -146,8 +146,7 @@ export interface IGraphicsOp2DFactory {
 
 export interface IGraphicsOp2DHandle {
     setGraphicsHandleUpdateBuffer?(buffer: ArrayBuffer): void;
-    setGraphicsSubShader(value: SubShader | null): void;
-    setGraphicsShaderData(value: ShaderData | null): void;
+    setGraphicsMaterialState(subShader: SubShader | null, shaderData: ShaderData | null, useSpriteState: boolean): void;
     readonly autoGraphicsDirtySync?: boolean;
     syncGraphicsOps(ops: ReadonlyArray<IGraphicsOp2D>): void;
 }

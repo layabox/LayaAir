@@ -89,7 +89,7 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     private _modifiedFrame: number = -1;
     private _globalAlpha: number = 1;
     private _globalAlphaValid: boolean = false;
-    private _graphicsMaterialState: WebGraphicsMaterialState = { subShader: null, shaderData: null };
+    private _graphicsMaterialState: WebGraphicsMaterialState = { subShader: null, shaderData: null, useSpriteState: true };
 
     public set owner(value: WebRenderStruct2D) {
         if (this._owner === value)
@@ -142,22 +142,20 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             this._opRuntime.setGraphicsHandleUpdateBuffer(buffer);
     }
 
-    setGraphicsSubShader(value: SubShader | null): void {
-        value = value || null;
-        if (this._graphicsMaterialState.subShader === value)
-            return;
-        this._graphicsMaterialState.subShader = value;
-        if (this._opRuntime)
-            this._opRuntime.syncGraphicsSubShader();
-    }
-
-    setGraphicsShaderData(value: ShaderData | null): void {
-        value = value || null;
-        if (this._graphicsMaterialState.shaderData === value)
-            return;
-        this._graphicsMaterialState.shaderData = value;
-        if (this._opRuntime)
-            this._opRuntime.syncGraphicsShaderData();
+    setGraphicsMaterialState(subShader: SubShader | null, shaderData: ShaderData | null, useSpriteState: boolean): void {
+        subShader = subShader || null;
+        shaderData = shaderData || null;
+        let subShaderChanged = this._graphicsMaterialState.subShader !== subShader;
+        let shaderDataChanged = this._graphicsMaterialState.shaderData !== shaderData;
+        this._graphicsMaterialState.subShader = subShader;
+        this._graphicsMaterialState.shaderData = shaderData;
+        this._graphicsMaterialState.useSpriteState = useSpriteState;
+        if (this._opRuntime) {
+            if (subShaderChanged)
+                this._opRuntime.syncGraphicsSubShader();
+            if (shaderDataChanged)
+                this._opRuntime.syncGraphicsShaderData();
+        }
     }
 
     syncGraphicsOps(ops: ReadonlyArray<IGraphicsOp2D>): void {

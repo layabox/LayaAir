@@ -4,6 +4,7 @@ import { IPrimitiveRenderElement2D } from "../../../RenderDriver/DriverDesign/2D
 import { GraphicsInfoDirtyFlag, I2DPrimitiveDataHandle, IGraphicsOp2D, IGraphicsTextureQuadOp2D } from "../../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRenderStruct2D } from "../../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 import { Resource } from "../../../resource/Resource";
+import { BaseTexture } from "../../../resource/BaseTexture";
 import { Texture } from "../../../resource/Texture";
 import { Stat } from "../../../utils/Stat";
 import { Graphics } from "../../Graphics";
@@ -38,6 +39,7 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
 
    texturesMap: Map<number, {
       texture: Texture;
+      bitmap: BaseTexture;
       time:number;
    }> = new Map();
 
@@ -57,6 +59,7 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
    private _renderedGraphicsModified: number = Number.MIN_SAFE_INTEGER;
    private _graphicsStateDirty: boolean = true;
    private _materialDirty: boolean = true;
+   private _graphicsUseSpriteState: boolean = true;
    private _pendingCommandReplacements: number[] = [];
    private _localRefreshRunner: GraphicsRunner = null;
    private _ownerTransformListenerActive: boolean = false;
@@ -187,8 +190,11 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       if (!this._display)
          return;
 
-      if (this._materialDirty)
+      if (this._materialDirty || this._graphicsUseSpriteState !== this.graphics._useSpriteState)
          this._syncMaterialToHandle();
+
+      if (!this._graphicsStateDirty && this._hasTextureBitmapChanged())
+         this._invalidateOpBuild();
 
       if (!this._graphicsStateDirty && this._pendingCommandReplacements.length > 0) {
          if (this._refreshPendingCommandReplacements(runner))
@@ -196,9 +202,8 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
          this._invalidateOpBuild();
       }
 
-      if (!this._graphicsStateDirty && this._renderedGraphicsModified === this.graphics._modified) {
+      if (!this._graphicsStateDirty && this._renderedGraphicsModified === this.graphics._modified)
          return;
-      }
 
       this._renderedGraphicsModified = this.graphics._modified;
       this._graphicsStateDirty = false;
@@ -524,8 +529,8 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       let subShader = material && material.shader && material.shader.getSubShaderAt
          ? material.shader.getSubShaderAt(0)
          : GraphicsOpRenderStateHelper.getDefaultSubShader();
-      this._renderDataHandle.setGraphicsSubShader(subShader);
-      this._renderDataHandle.setGraphicsShaderData(material ? material.shaderData : null);
+      this._renderDataHandle.setGraphicsMaterialState(subShader, material ? material.shaderData : null, this.graphics._useSpriteState);
+      this._graphicsUseSpriteState = this.graphics._useSpriteState;
       this._materialDirty = false;
    }
 
@@ -607,13 +612,34 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
                res.on(Event.CHANGE, this, this._resourceRepaint , [res.id]);
                this.texturesMap.set(res.id, {
                   texture: res,
+                  bitmap: res.bitmap,
                   time: this._renderedGraphicsModified
                });
-            } else
+            } else {
+               inf.bitmap = res.bitmap;
                inf.time = this._renderedGraphicsModified;
+            }
          }
          this._commandTracker.addTextureRef(res.id);
       }
+   }
+
+   onTextureResourceRecovered(): void {
+      if (this._destroyed || !this.owner || this.owner.destroyed)
+         return;
+      this._invalidateOpBuild();
+      if (this.owner._graphics)
+         this.owner._graphics.repaint();
+      else
+         this.owner.repaint();
+   }
+
+   private _hasTextureBitmapChanged(): boolean {
+      for (let inf of this.texturesMap.values()) {
+         if (inf.bitmap !== inf.texture.bitmap || inf.bitmap?.destroyed)
+            return true;
+      }
+      return false;
    }
 
    private _sweepTextureRefs(): void {
