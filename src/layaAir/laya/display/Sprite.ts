@@ -2465,11 +2465,6 @@ export class Sprite extends Node {
             rect.y += this._pivotY;
         }
 
-        // if (rect.width === 0 || rect.height === 0) {
-        //     this._drawOriRT = RenderTexture2D._empty;
-        //     rect.recover();
-        //     return false;
-        // }
         let scaleX = 1, scaleY = 1;
         let oldRT = this._drawOriRT;
         let maskRect = this._subStructRender._rtRect;
@@ -2481,18 +2476,13 @@ export class Sprite extends Node {
         if (Config.useRetinalCanvas) {
             scaleX = ILaya.stage._scaleX;
             scaleY = ILaya.stage._scaleY;
-            rect.width = Math.round(rect.width * scaleX);
-            rect.height = Math.round(rect.height * scaleY);
-            // if (rect.width >= 2048 || rect.height >= 2048) {
-            //     let detla = Math.max(2048 / rect.width, 2048 / rect.height);
-            //     rect.width = Math.round(rect.width * detla);
-            //     rect.height = Math.round(rect.height * detla);
-            //     scaleX *= detla;
-            //     scaleY *= detla;
-            // }
             rect.x = rect.x * scaleX;
             rect.y = rect.y * scaleY;
         }
+
+        // RT 尺寸必须是整数像素。保留逻辑尺寸在 oriRect 中，物理尺寸向上取整以避免裁剪边缘。
+        rect.width = Math.ceil(rect.width * scaleX);
+        rect.height = Math.ceil(rect.height * scaleY);
 
         //判断待考虑
         if (oldRT) {

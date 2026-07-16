@@ -21,6 +21,8 @@ import type { WebGraphicsBatchEntry } from "./WebGraphicsOp2DRuntimeBuffers";
 import { WebPrimitiveDataHandle } from "./WebRenderDataHandle";
 
 const _STEP_ = 1024;
+const TEXTURE_VARIANT_TYPE_MASK = ShaderDefines2D.DEFINE_BIT_GAMMATEXTURE
+    | ShaderDefines2D.DEFINE_BIT_USE_TEX_ARRAY;
 
 type RenderEngineWebGLProbe = {
     gl?: unknown;
@@ -133,6 +135,25 @@ abstract class BaseBatchContext {
      */
     abstract setHead(element: IPrimitiveRenderElement2D): void;
 
+    protected _isTypeKeyCompatible(element: IPrimitiveRenderElement2D): boolean {
+        if (this.typeKey === element.typeKey)
+            return true;
+
+        // Vertices without a texture use the same texture shader with useTex=0.
+        // They can adopt the gamma/texture-array variant of a textured neighbor.
+        if (this.textureId !== 0 && element.textureKey !== 0)
+            return false;
+
+        return ((this.typeKey ^ element.typeKey) & ~TEXTURE_VARIANT_TYPE_MASK) === 0;
+    }
+
+    protected _adoptTextureState(element: IPrimitiveRenderElement2D): void {
+        this.textureId = element.textureKey;
+        this.textureKey = element.textureKey;
+        this.typeKey = element.typeKey;
+        this.primitiveShaderData = element.primitiveShaderData;
+    }
+
     /**
      * 检查元素是否与批次兼容
      */
@@ -162,7 +183,7 @@ class WebGLBatchContext extends BaseBatchContext {
 
     isCompatible(element: IPrimitiveRenderElement2D): boolean {
         // typeKey comparison (blend+flags)
-        if (this.typeKey !== element.typeKey) {
+        if (!this._isTypeKeyCompatible(element)) {
             return false;
         }
 
@@ -191,9 +212,7 @@ class WebGLBatchContext extends BaseBatchContext {
         }
 
         if (this.textureId === 0 && elementTexId !== 0) {
-            this.textureId = elementTexId;
-            this.primitiveShaderData = element.primitiveShaderData;
-            this.textureKey = element.textureKey;
+            this._adoptTextureState(element);
         }
 
         return true;
@@ -223,7 +242,7 @@ class WebGPUBatchContext extends BaseBatchContext {
 
     isCompatible(element: IPrimitiveRenderElement2D): boolean {
         // typeKey comparison (blend+flags)
-        if (this.typeKey !== element.typeKey) {
+        if (!this._isTypeKeyCompatible(element)) {
             return false;
         }
 
@@ -253,9 +272,7 @@ class WebGPUBatchContext extends BaseBatchContext {
         }
 
         if (this.textureId === 0 && elementTexId !== 0) {
-            this.textureId = elementTexId;
-            this.primitiveShaderData = element.primitiveShaderData;
-            this.textureKey = element.textureKey;
+            this._adoptTextureState(element);
         }
 
         return true;
@@ -422,7 +439,6 @@ export class WebGraphicsBatch implements IBatch2DProvider {
     private merge(elementArray: Array<IPrimitiveRenderElement2D>, start: number, end: number, batchContext: BaseBatchContext, indice?: Int16Array): IPrimitiveRenderElement2D {
         if (start === end) {
             let element = elementArray[indice !== undefined ? indice[start] : start];
-            this._buffer.add(element);
             return element;
         }
 
