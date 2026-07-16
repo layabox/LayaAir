@@ -240,7 +240,7 @@ export class Texture2D extends BaseTexture {
         texture.setDDSData(ddsInfo);
         if (propertyParams){
             texture.setProperties(propertyParams);
-            texture._premultiplyAlpha = propertyParams.premultiplyAlpha;
+            texture._premultiplyAlpha = false;
         }
 
         return texture;
@@ -257,7 +257,7 @@ export class Texture2D extends BaseTexture {
         texture.setKTXData(ktxInfo);
         if (propertyParams){
             texture.setProperties(propertyParams);
-            texture._premultiplyAlpha = propertyParams.premultiplyAlpha;
+            texture._premultiplyAlpha = false;
         }
         return texture;
     }
