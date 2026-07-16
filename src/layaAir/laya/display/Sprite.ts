@@ -2186,7 +2186,7 @@ export class Sprite extends Node {
     _needGraphicsUpdate(): boolean {
         return !this._destroyed
             && this._struct.enabled
-            && this._renderType & SpriteConst.GRAPHICS
+            && !!this._graphicsRenderer?.needRenderUpdate
             && !!(this.displayedInStage || this._maskParent);
     }
 
