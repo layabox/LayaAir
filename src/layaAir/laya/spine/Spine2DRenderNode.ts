@@ -214,7 +214,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     /** @ignore @blueprintIgnore */
     renderUpdate(context: IRenderContext2D) {
         this._updateLight();
-        if (this._spineRender && this._status == ESpineRenderState.Playing) {
+        if (this._spineRender && this._playState == ESpineRenderState.Playing) {
             this._spineRender.render(this._spineRender.currentTime, this.physicsUpdate);
             this._updateBones();
         }
