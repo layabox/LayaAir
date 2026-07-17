@@ -31,7 +31,9 @@ export class MgDownloader extends Downloader {
 
         let old = URL.postFormatURL;
         URL.postFormatURL = url => {
-            url = this.checkSubpackagePrefix(url);
+            if (!Browser.onVVMiniGame) {
+                url = this.checkSubpackagePrefix(url);
+            }
             return old.call(this, url);
         };
 
