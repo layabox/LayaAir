@@ -1119,7 +1119,10 @@ export class btPhysicsManager implements IPhysicsManager {
         btStatics.bt.btCollisionWorld_removeCollisionObject(this._btCollisionWorld, character._btCollider);
         btStatics.bt.btDynamicsWorld_removeAction(this._btCollisionWorld, character._btKinematicCharacter);
         var characters: btCharacterCollider[] = this._characters;
-        characters.splice(characters.indexOf(character), 1);
+        // ⚠ 防御：indexOf 为 -1 时 splice(-1,1) 会误删列表最后一个元素（另一个活跃角色）。
+        // 根因已由 btCollider.setCollisionGroup/setCanCollideWith 的 _isSimulate 守卫消除，这里再兜底。
+        const idx = characters.indexOf(character);
+        if (idx !== -1) characters.splice(idx, 1);
     }
 
     // /**
