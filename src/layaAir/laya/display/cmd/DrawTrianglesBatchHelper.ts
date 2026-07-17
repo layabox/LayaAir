@@ -15,13 +15,14 @@ export function drawTrianglesBatched(
     x: number, y: number,
     vertices: Float32Array, uvs: Float32Array, indices: Uint16Array,
     matrix: Matrix | null, alpha: number, blendMode: string | null,
-    colorNum: number | null, colors: Float32Array | null, uvRange: ArrayLike<number> | null
+    colorNum: number | null, colors: Float32Array | null, uvRange: ArrayLike<number> | null,
+    customs?: Float32Array | null
 ): void {
     const vertexCount = vertices.length / 2;
     const maxBatchVertices = Graphic2DDynamicVIBuffer.MAX_VERTEX;
 
     if (vertexCount <= maxBatchVertices) {
-        runner.drawTriangles(tex, x, y, vertices, uvs, indices, matrix, alpha, blendMode, colorNum, colors, uvRange);
+        runner.drawTriangles(tex, x, y, vertices, uvs, indices, matrix, alpha, blendMode, colorNum, colors, uvRange, customs ?? undefined);
         return;
     }
 
@@ -54,6 +55,7 @@ export function drawTrianglesBatched(
         const batchVerts = new Float32Array(newVertCount * 2);
         const batchUVs = new Float32Array(newVertCount * 2);
         const batchColors = colors ? new Float32Array(newVertCount * 4) : null;
+        const batchCustoms = customs ? new Float32Array(newVertCount * 4) : null;
         const indexCount = (batchEnd - batchStart) * 3;
         const batchIndices = new Uint16Array(indexCount);
 
@@ -69,6 +71,12 @@ export function drawTrianglesBatched(
                 batchColors[newIdx * 4 + 2] = colors[oldIdx * 4 + 2];
                 batchColors[newIdx * 4 + 3] = colors[oldIdx * 4 + 3];
             }
+            if (customs && batchCustoms) {
+                batchCustoms[newIdx * 4] = customs[oldIdx * 4];
+                batchCustoms[newIdx * 4 + 1] = customs[oldIdx * 4 + 1];
+                batchCustoms[newIdx * 4 + 2] = customs[oldIdx * 4 + 2];
+                batchCustoms[newIdx * 4 + 3] = customs[oldIdx * 4 + 3];
+            }
         });
 
         // Fill remapped indices
@@ -80,7 +88,7 @@ export function drawTrianglesBatched(
         }
 
         runner.drawTriangles(tex, x, y, batchVerts, batchUVs, batchIndices,
-            matrix, alpha, blendMode, colorNum, batchColors, uvRange);
+            matrix, alpha, blendMode, colorNum, batchColors, uvRange, batchCustoms);
 
         batchStart = batchEnd;
     }
