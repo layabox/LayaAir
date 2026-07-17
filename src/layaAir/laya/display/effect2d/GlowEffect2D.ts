@@ -139,6 +139,7 @@ export class GlowEffect2D extends PostProcess2DEffect {
         //blitmat
         (!this._blitmat) && (this._blitmat = new Material());
         this._blitmat.setShaderName("ColorEffect2D");
+        this._blitmat.lock = true;
         if (!this._blitElement) {
             this._blitElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
             this._blitElement.geometry = Blit2DCMD.InvertQuadGeometry;
@@ -167,6 +168,7 @@ export class GlowEffect2D extends PostProcess2DEffect {
         //compositemat
         (!this._compositeMat) && (this._compositeMat = new Material());
         this._compositeMat.setShaderName("ColorEffect2D");
+        this._compositeMat.lock = true;
         if (!this._compositeElement) {
             this._compositeElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
             this._compositeElement.geometry = Blit2DCMD.InvertQuadGeometry;
