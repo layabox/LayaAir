@@ -152,6 +152,14 @@ export class SubStructRender {
       out.invert();
    }
 
+   /** @internal */
+   _clearRenderTexture() {
+      if (this._textureHost) {
+         this._primitiveShaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, Texture2D.whiteTexture);
+         this._textureHost = null;
+      }
+   }
+
    /**
     * @internal
     * @param oriRT
