@@ -531,19 +531,21 @@ export class Graphics {
     }
 
     /**
+     * @deprecated Use `Sprite.scrollRect` instead. Graphics command clipping is no longer supported.
      * @en Set the clipping area. Coordinates outside the clipping area will not be displayed.
      * @param x X-axis offset
      * @param y Y-axis offset
      * @param width Width of the clipping area
      * @param height Height of the clipping area
      * @zh 设置剪裁区域，超出剪裁区域的坐标不显示。
+     * @zh 已弃用。请改用 `Sprite.scrollRect`，Graphics 命令裁剪已不再支持。
      * @param x X轴偏移量
      * @param y Y轴偏移量
      * @param width 剪裁区域的宽度
      * @param height 剪裁区域的高度
      */
     clipRect(x: number, y: number, width: number, height: number): ClipRectCmd {
-        console.warn("Graphics.clipRect command is no longer supported. Use Sprite clip/scrollRect so clipping is handled by the render struct.");
+        console.warn("Graphics.clipRect is deprecated and no longer supported. Use Sprite.scrollRect so clipping is handled by the render struct.");
         return null;
     }
 

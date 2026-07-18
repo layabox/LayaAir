@@ -248,6 +248,27 @@ export class GraphicsCommandTracker {
          : analyzeTextureCommand(cmd, hasStateDependency);
    }
 
+   analyzeRefreshRanges(cmdIndices: number[], cmds: IGraphicsCmd[], reason: GraphicsInfoDirtyFlag): GraphicsRefreshAction {
+      if (!cmdIndices || cmdIndices.length === 0 || !cmds)
+         return GraphicsRefreshAction.NoEffect;
+
+      let result = GraphicsRefreshAction.NoEffect;
+      for (let i = 0, n = cmdIndices.length; i < n; i++) {
+         let cmdIndex = cmdIndices[i];
+         let cmd = cmdIndex >= 0 && cmdIndex < cmds.length ? cmds[cmdIndex] : null;
+         if (!cmd)
+            return GraphicsRefreshAction.StructuralRefresh;
+         let action = this.analyzeRefresh(cmdIndex, cmd, reason);
+         if (action === GraphicsRefreshAction.StructuralRefresh)
+            return action;
+         if (action === GraphicsRefreshAction.LocalRefresh)
+            result = action;
+         else
+            return GraphicsRefreshAction.StructuralRefresh;
+      }
+      return result;
+   }
+
    private _writeRange(cmdIndex: number, start: number, end: number): void {
       let count = end - start;
       this._rangeStarts[cmdIndex] = count > 0 ? start : -1;

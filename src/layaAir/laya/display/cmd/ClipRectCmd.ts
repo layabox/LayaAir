@@ -6,8 +6,10 @@ import { GraphicsCommandInfoHelper } from "../Scene2DSpecial/GraphicsRenderPipel
 const className = "ClipRectCmd";
 
 /**
+ * @deprecated Use `Sprite.scrollRect` instead. Graphics command clipping is no longer supported.
  * @en Clip command
  * @zh 裁剪命令
+ * @zh 已弃用。请改用 `Sprite.scrollRect`，Graphics 命令裁剪已不再支持。
  * @blueprintIgnore
  */
 export class ClipRectCmd implements IGraphicsCmd {
@@ -79,7 +81,7 @@ export class ClipRectCmd implements IGraphicsCmd {
      * @param gy 全局 y 坐标。
      */
     run(runner: GraphicsRunner, gx: number, gy: number): void {
-        console.warn("ClipRectCmd is no longer supported. Use Sprite clip/scrollRect so clipping is handled by the render struct.");
+        console.warn("ClipRectCmd is deprecated and no longer supported. Use Sprite.scrollRect so clipping is handled by the render struct.");
     }
 
     /**

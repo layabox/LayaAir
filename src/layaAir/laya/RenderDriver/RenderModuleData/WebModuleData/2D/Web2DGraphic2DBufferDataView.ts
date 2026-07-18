@@ -99,12 +99,6 @@ export class Web2DGraphic2DIndexDataView extends Web2DGraphicsBufferDataView {
         wholeData.set(this._view, this.start);
     }
 
-    /** @internal */
-    _writeTo(wholeData: Uint16Array | Uint32Array, targetStart: number, sourceStart: number = 0, sourceEnd: number = this.length) {
-        wholeData.set(this._view.subarray(sourceStart, sourceEnd), targetStart);
-    }
-
-
     /** @private */
     _modify() {
         this.owner._modifyOneView(this);

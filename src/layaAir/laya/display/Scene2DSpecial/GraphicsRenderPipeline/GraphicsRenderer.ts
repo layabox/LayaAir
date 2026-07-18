@@ -6,7 +6,6 @@ import { IRenderStruct2D } from "../../../RenderDriver/RenderModuleData/Design/2
 import { Resource } from "../../../resource/Resource";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Texture } from "../../../resource/Texture";
-import { Stat } from "../../../utils/Stat";
 import { Graphics } from "../../Graphics";
 import { Sprite } from "../../Sprite";
 import { BaseRender2DType, SpriteConst, TransformKind } from "../../SpriteConst";
@@ -61,6 +60,7 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
    private _materialDirty: boolean = true;
    private _graphicsUseSpriteState: boolean = true;
    private _pendingCommandReplacements: number[] = [];
+   private _recoveringTextureIds: Set<number> = new Set();
    private _localRefreshRunner: GraphicsRunner = null;
    private _ownerTransformListenerActive: boolean = false;
    private _ownerTransformMask: number = 0;
@@ -92,20 +92,22 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
    private _handleOwnerSizeChanged(): void {
       this._syncOwnerSize();
 
-      if (this._graphicsStateDirty) {
+      if (this._graphicsStateDirty)
+         return;
+
+      if (this._hasSpriteTextureUpdateTarget()) {
+         this._scheduleFullRebuild();
          return;
       }
 
-      if (this._hasSpriteTextureUpdateTarget())
-         this._refreshSpriteTexture(GraphicsInfoDirtyFlag.Layout | GraphicsInfoDirtyFlag.Texture, false);
-
-      if (!this.graphics) {
+      if (!this.graphics)
          return;
-      }
 
       let tracker = this._commandTracker;
-      if (tracker.hasLayoutDirtyCommands())
-         this._markCommandRangesDirty(tracker.getLayoutDirtyCommands(), GraphicsInfoDirtyFlag.Layout | GraphicsInfoDirtyFlag.Rebatch);
+      if (tracker.hasLayoutDirtyCommands()) {
+         this._scheduleFullRebuild();
+         return;
+      }
       if (tracker.hasSizeDirtyCommands())
          this._refreshCommandRanges(tracker.getSizeDirtyCommands(), GraphicsInfoDirtyFlag.Layout | GraphicsInfoDirtyFlag.Rebatch);
    }
@@ -292,19 +294,6 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       this._commandOpEncoder.preRegisterTextureQuadCommands(cmds);
    }
 
-   private _refreshSpriteTexture(reason: GraphicsInfoDirtyFlag, fallbackRepaint: boolean): boolean {
-      if (this._destroyed || !this.owner)
-         return false;
-
-      if (!this.owner._texture)
-         return false;
-
-      if (fallbackRepaint && this.owner && this.owner._graphics)
-         this.owner._graphics.repaint();
-      return this._invalidateOpBuild();
-   }
-
-
    /**
     * @internal
     */
@@ -364,6 +353,7 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
 
       let dirtyStart = Number.MAX_SAFE_INTEGER;
       let dirtyEnd = -1;
+      let opDirtyFlags = GraphicsOp2DDirtyFlag.None;
       let hasStructureDirty = false;
       for (let i = 0, n = cmdIndices.length; i < n; i++) {
          if (!this._refreshCommandOp(cmdIndices[i], runner)) {
@@ -378,9 +368,10 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
             dirtyStart = Math.min(dirtyStart, range.start);
             dirtyEnd = Math.max(dirtyEnd, range.start + range.count);
             for (let opIndex = range.start, end = range.start + range.count; opIndex < end; opIndex++) {
-               if ((this._opListBuilder.ops[opIndex].dirtyFlags & GraphicsOp2DDirtyFlag.Structure) !== 0) {
+               let dirtyFlags = this._opListBuilder.ops[opIndex].dirtyFlags;
+               opDirtyFlags |= dirtyFlags;
+               if ((dirtyFlags & GraphicsOp2DDirtyFlag.Structure) !== 0) {
                   hasStructureDirty = true;
-                  break;
                }
             }
          }
@@ -392,8 +383,9 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
 
       this._sweepTextureRefs();
       this._syncOwnerTransformInterest(true);
-      if (dirtyStart !== Number.MAX_SAFE_INTEGER)
-         this._syncGraphicsOpsToHandle(GraphicsHandleDirtyFlag.OpPayload | GraphicsHandleDirtyFlag.OpResource | GraphicsHandleDirtyFlag.OpState, dirtyStart, dirtyEnd - dirtyStart, hasStructureDirty);
+      let handleDirtyFlags = this._mapOpDirtyFlagsToHandleDirtyFlags(opDirtyFlags);
+      if (dirtyStart !== Number.MAX_SAFE_INTEGER && handleDirtyFlags !== GraphicsHandleDirtyFlag.None)
+         this._syncGraphicsOpsToHandle(handleDirtyFlags, dirtyStart, dirtyEnd - dirtyStart, hasStructureDirty);
       return true;
    }
 
@@ -408,17 +400,17 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       let opIndex = range.start;
 
       if (!this._opListBuilder.beginRewriteCommand(cmdIndex, cmd.cmdID, opIndex, range.count))
-         return this._rebuildGraphicsOps();
+         return false;
 
       this._commandTracker.beginLocalCommandRefresh(cmdIndex);
       this._commandOpEncoder.compileCommand(cmd, cmdIndex, runner);
       this._commandTracker.endLocalCommandRefresh();
 
       if (!this._opListBuilder.finishRewriteCommand())
-         return this._rebuildGraphicsOps();
+         return false;
 
       if (!this._commandTracker.refreshCommandMetadata(cmdIndex, opIndex, opIndex + range.count, cmd, this.owner))
-         return this._rebuildGraphicsOps();
+         return false;
 
       this._commandOps[cmdIndex] = range.count === 1 ? this._opListBuilder.ops[opIndex] : null;
       return true;
@@ -506,6 +498,7 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
          inf.texture.off(Event.CHANGE, this, this._resourceRepaint);
       });
       this.texturesMap.clear();
+      this._recoveringTextureIds.clear();
 
       this.graphics = null;
       this._localRefreshRunner = null;
@@ -624,14 +617,19 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       }
    }
 
-   onTextureResourceRecovered(): void {
-      if (this._destroyed || !this.owner || this.owner.destroyed)
+   requestTextureRecovery(texture: Texture): void {
+      if (this._destroyed || !this.owner || this.owner.destroyed || !texture || texture.destroyed || texture.valid)
          return;
-      this._invalidateOpBuild();
-      if (this.owner._graphics)
-         this.owner._graphics.repaint();
-      else
-         this.owner.repaint();
+      let bitmap = texture.bitmap;
+      if (!bitmap || !bitmap.url || this._recoveringTextureIds.has(texture.id))
+         return;
+
+      this._recoveringTextureIds.add(texture.id);
+      texture.recoverBitmap(() => {
+         this._recoveringTextureIds.delete(texture.id);
+         if (!this._destroyed && texture.valid)
+            this._scheduleFullRebuild();
+      });
    }
 
    private _hasTextureBitmapChanged(): boolean {
@@ -665,37 +663,37 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
          return;
       }
 
-      if (this.owner && inf.texture === this.owner._texture && this._refreshSpriteTexture(GraphicsInfoDirtyFlag.Texture | GraphicsInfoDirtyFlag.Rebatch, false))
+      if (!inf.texture.valid) {
+         this._scheduleFullRebuild();
          return;
-
-      if (this._refreshCommandRanges(this._commandTracker.getTextureCommandRanges(id), GraphicsInfoDirtyFlag.Texture | GraphicsInfoDirtyFlag.Rebatch))
-         return;
-
-      if (!this._invalidateOpBuild() && this.graphics)
-         this.graphics._modified = Stat.loopCount;
-   }
-
-   private _refreshCommandRanges(cmdIndices: number[], reason: GraphicsInfoDirtyFlag): boolean {
-      if (!cmdIndices || cmdIndices.length === 0)
-         return false;
-      if (this._graphicsStateDirty || !this.graphics || this._renderedGraphicsModified === Number.MIN_SAFE_INTEGER)
-         return this._invalidateOpBuild();
-      for (let i = 0, n = cmdIndices.length; i < n; i++) {
-         let cmdIndex = cmdIndices[i];
-         let cmd = cmdIndex >= 0 && cmdIndex < this.graphics.cmds.length ? this.graphics.cmds[cmdIndex] : null;
-         if (this._commandTracker.analyzeRefresh(cmdIndex, cmd, reason) !== GraphicsRefreshAction.LocalRefresh)
-            return this._invalidateOpBuild();
       }
-      if (!this._refreshCommandOps(cmdIndices, this._getLocalRefreshRunner()))
-         return this._invalidateOpBuild();
-      this.owner._struct.setRepaint();
-      return true;
+
+      if (inf.texture === this.owner._texture) {
+         this._scheduleFullRebuild();
+         return;
+      }
+
+      this._refreshCommandRanges(this._commandTracker.getTextureCommandRanges(id), GraphicsInfoDirtyFlag.Texture | GraphicsInfoDirtyFlag.Rebatch);
    }
 
-   private _markCommandRangesDirty(cmdIndices: number[], reason: GraphicsInfoDirtyFlag): boolean {
+   private _refreshCommandRanges(cmdIndices: number[], reason: GraphicsInfoDirtyFlag): GraphicsRefreshAction {
       if (!cmdIndices || cmdIndices.length === 0)
-         return false;
-      return this._invalidateOpBuild();
+         return GraphicsRefreshAction.NoEffect;
+      if (this._graphicsStateDirty || !this.graphics || this._renderedGraphicsModified === Number.MIN_SAFE_INTEGER) {
+         this._scheduleFullRebuild();
+         return GraphicsRefreshAction.StructuralRefresh;
+      }
+
+      let action = this._commandTracker.analyzeRefreshRanges(cmdIndices, this.graphics.cmds, reason);
+      if (action === GraphicsRefreshAction.NoEffect)
+         return action;
+      if (action === GraphicsRefreshAction.StructuralRefresh || !this._refreshCommandOps(cmdIndices, this._getLocalRefreshRunner())) {
+         this._scheduleFullRebuild();
+         return GraphicsRefreshAction.StructuralRefresh;
+      }
+
+      this.owner._struct.setRepaint();
+      return GraphicsRefreshAction.LocalRefresh;
    }
 
    private _invalidateOpBuild(): boolean {
@@ -708,8 +706,11 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       return true;
    }
 
-   private _rebuildGraphicsOps(): boolean {
-      return this._invalidateOpBuild();
+   private _scheduleFullRebuild(): boolean {
+      if (!this._invalidateOpBuild())
+         return false;
+      this.owner.repaint();
+      return true;
    }
 
 }

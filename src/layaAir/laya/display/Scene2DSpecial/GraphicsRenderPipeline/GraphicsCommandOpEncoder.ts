@@ -52,7 +52,7 @@ const DRAW_PATH_ARC_TO_SEGMENTS = 32;
 export interface GraphicsCommandOpEncoderHost {
    owner: Sprite;
    addResRef(res: Resource): void;
-   onTextureResourceRecovered(): void;
+   requestTextureRecovery(texture: Texture): void;
 }
 
 /** @internal */
@@ -158,6 +158,8 @@ export class GraphicsCommandOpEncoder {
    patchTextureQuadOp(opIndex: number, op: IGraphicsTextureQuadOp2D, cmd: DrawTextureCmd, runner: GraphicsRunner = null): GraphicsOp2DPatchResult {
       if (!op)
          return { success: false, opIndex: -1, dirtyFlags: GraphicsOp2DDirtyFlag.None };
+      if (!this._prepareGraphicsTexture(cmd.texture))
+         return { success: false, opIndex: -1, dirtyFlags: GraphicsOp2DDirtyFlag.None };
       if (!this._writeTextureQuadCommandValuesToOp(op, cmd, runner))
          return { success: false, opIndex: -1, dirtyFlags: GraphicsOp2DDirtyFlag.None };
       return { success: true, opIndex, dirtyFlags: op.dirtyFlags };
@@ -175,14 +177,14 @@ export class GraphicsCommandOpEncoder {
       for (let i = 0, n = cmds.length; i < n; i++) {
          let cmd = cmds[i];
          if (cmd && cmd.texture)
-            this._resolveGraphicsTextureResource(cmd.texture);
+            this._prepareGraphicsTexture(cmd.texture);
       }
    }
 
    appendSpriteTextureOp(): void {
       let owner = this._host.owner;
       let tex = owner ? owner._texture : null;
-      if (!tex)
+      if (!this._prepareGraphicsTexture(tex))
          return;
       let sourceWidth = tex.sourceWidth || tex.width;
       let sourceHeight = tex.sourceHeight || tex.height;
@@ -201,6 +203,8 @@ export class GraphicsCommandOpEncoder {
       let drawTextureCmd = cmd.cmdID === DrawTextureCmd.ID ? cmd as DrawTextureCmd : null;
       if (drawTextureCmd && drawTextureCmd.matrix)
          return this._tryAppendMatrixTextureMeshOp(drawTextureCmd, cmdIndex, runner);
+      if (!this._prepareGraphicsTexture(cmd.texture))
+         return false;
       let op = this._opList.getTextureQuadTargetOp();
       return this._writeTextureQuadCommandValuesToOp(op as IGraphicsTextureQuadOp2D, cmd, runner);
    }
@@ -208,7 +212,7 @@ export class GraphicsCommandOpEncoder {
    private _tryAppendDrawTexturesOps(cmd: DrawTexturesCmd, cmdIndex: number, runner: GraphicsRunner): boolean {
       let tex = cmd.texture;
       let pos = cmd.pos;
-      if (!tex || !pos || pos.length < 2)
+      if (!pos || pos.length < 2 || !this._prepareGraphicsTexture(tex))
          return false;
       let width = tex.width;
       let height = tex.height;
@@ -230,7 +234,7 @@ export class GraphicsCommandOpEncoder {
          this._writeTextureQuadValues(pos[p], pos[p + 1], width, height, u0, v0, u1, v1,
             typeof colors[i] === "number" ? colors[i] : 0xffffffff,
             this._getOpAlpha(runner, 1), this._getOpBlendMode(runner),
-            textureLayer, matrix, textureResource, this._getTextureUVClipRange(tex));
+            textureLayer, matrix, textureResource, uvClip);
       }
       return true;
    }
@@ -419,7 +423,7 @@ export class GraphicsCommandOpEncoder {
 
    private _tryAppendFillTextureOp(cmd: FillTextureCmd, cmdIndex: number, runner: GraphicsRunner): boolean {
       let tex = cmd.texture;
-      if (!tex)
+      if (!this._prepareGraphicsTexture(tex))
          return false;
       let owner = this._host.owner;
       let x = cmd.x, y = cmd.y, width = cmd.width, height = cmd.height;
@@ -475,6 +479,8 @@ export class GraphicsCommandOpEncoder {
       let vertexCount = cmd.vertices.length >> 1;
       if (vertexCount <= 0 || cmd.indices.length <= 0)
          return false;
+      if (cmd.texture && !this._prepareGraphicsTexture(cmd.texture))
+         return false;
       let textureResource = cmd.texture ? this._resolveGraphicsTextureResource(cmd.texture) : null;
       let textureLayer = cmd.texture ? this._resolvedTextureLayer : 0;
       return this._writeGenericMeshValues(cmd.x, cmd.y, cmd.vertices, cmd.uvs, cmd.indices, cmd.colors,
@@ -484,9 +490,9 @@ export class GraphicsCommandOpEncoder {
    }
 
    private _appendTextTextureOp(texture: BaseTexture, x: number, y: number, width: number, height: number, uv: ArrayLike<number>, color: number, italicDeg: number, pixelSnap: boolean, cmdIndex: number, runner: GraphicsRunner): void {
-      let textureResource = this._resolveGraphicsTextureResource(texture);
-      if (!textureResource)
+      if (!this._prepareGraphicsTexture(texture))
          return;
+      let textureResource = this._resolveGraphicsTextureResource(texture);
       if (!uv)
          uv = Texture.DEF_UV;
       let matrix = this._getMatrixState(runner);
@@ -506,9 +512,9 @@ export class GraphicsCommandOpEncoder {
    }
 
    private _tryAppend9GridTextureOps(cmd: Draw9GridTextureCmd, cmdIndex: number, runner: GraphicsRunner): boolean {
-      if (!cmd.texture)
-         return false;
       let tex = cmd.texture;
+      if (!this._prepareGraphicsTexture(tex))
+         return false;
       let owner = this._host.owner;
       let x = cmd.x, y = cmd.y, width = cmd.width, height = cmd.height;
       if (cmd.percent && owner) {
@@ -567,20 +573,22 @@ export class GraphicsCommandOpEncoder {
       return true;
    }
 
+   private _prepareGraphicsTexture(texture: Texture | BaseTexture): boolean {
+      if (!texture || texture.destroyed)
+         return false;
+      this._host.addResRef(texture);
+      if (!(texture instanceof Texture))
+         return true;
+      if (texture.valid)
+         return true;
+      this._host.requestTextureRecovery(texture);
+      return false;
+   }
+
    private _resolveGraphicsTextureResource(texture: Texture | BaseTexture): GraphicsOp2DTextureHost {
-      if (!texture)
-         return null;
-      this._host.addResRef(texture as Resource);
-      let resource: BaseTexture;
-      if (texture instanceof Texture) {
-         let source = texture._getSource(() => this._host.onTextureResourceRecovered());
-         resource = source ? texture.bitmap : null;
-      }
-      else {
-         resource = texture;
-      }
+      let resource = texture instanceof Texture ? texture.bitmap : texture;
       let layer = 0;
-      let reg = resource ? TextureArrayRegistry2D.resolve(texture) : null;
+      let reg = TextureArrayRegistry2D.resolve(texture);
       if (reg && reg.array instanceof Texture2DArray) {
          resource = reg.array;
          layer = reg.layer | 0;
@@ -746,6 +754,8 @@ export class GraphicsCommandOpEncoder {
       let mesh = cmd.mesh;
       if (!mesh)
          return false;
+      if (cmd.texture && !this._prepareGraphicsTexture(cmd.texture))
+         return false;
       let vb = VertexStream.pool.take(cmd.texture);
       let success = false;
       try {
@@ -868,7 +878,7 @@ export class GraphicsCommandOpEncoder {
 
    private _tryAppendMatrixTextureMeshOp(cmd: DrawTextureCmd, cmdIndex: number, runner: GraphicsRunner): boolean {
       let tex = cmd.texture;
-      if (!tex || !cmd.matrix)
+      if (!cmd.matrix || !this._prepareGraphicsTexture(tex))
          return false;
       let owner = this._host.owner;
       let x = cmd.x, y = cmd.y, w = cmd.width, h = cmd.height;
@@ -889,8 +899,6 @@ export class GraphicsCommandOpEncoder {
       if (w <= 0 || h <= 0)
          return false;
       let uv = cmd.uv || tex._uv || Texture.DEF_UV;
-      let textureResource = this._resolveGraphicsTextureResource(tex);
-      let textureLayer = this._resolvedTextureLayer;
       let mat = this._textureMeshMatrixScratch;
       mat.a = cmd.matrix.a;
       mat.b = cmd.matrix.b;
@@ -914,6 +922,8 @@ export class GraphicsCommandOpEncoder {
       uvs[5] = uv[5] == null ? uv[3] : uv[5];
       uvs[6] = uv[6] == null ? uv[0] : uv[6];
       uvs[7] = uv[7] == null ? uv[5] : uv[7];
+      let textureResource = this._resolveGraphicsTextureResource(tex);
+      let textureLayer = this._resolvedTextureLayer;
       this._writeGenericMeshValues(x, y,
          vertices,
          uvs,

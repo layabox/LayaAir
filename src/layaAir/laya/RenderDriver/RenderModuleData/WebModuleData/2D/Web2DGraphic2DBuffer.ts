@@ -154,7 +154,8 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
         let arrayType = GraphicsDefines.GRAPHICS_INDEX_ARRAY_TYPE;
         let scratch = Web2DGraphicsIndexBuffer._uploadScratch;
         if (!scratch || scratch.length < length || (scratch as any).constructor !== arrayType) {
-            Web2DGraphicsIndexBuffer._uploadScratch = scratch = new arrayType(length);
+            let capacity = scratch && (scratch as any).constructor === arrayType ? Math.max(length, scratch.length * 2) : length;
+            Web2DGraphicsIndexBuffer._uploadScratch = scratch = new arrayType(capacity);
         }
         return scratch;
     }
@@ -194,14 +195,12 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
 
     protected _copyViewsToScratch(rangeStart: number, rangeEnd: number, scratch: Uint16Array | Uint32Array): void {
         let view = this._first;
-        while (view) {
-            let viewStart = view.start;
-            let viewEnd = viewStart + view.length;
-            if (viewEnd > rangeStart && viewStart < rangeEnd) {
-                let copyStart = Math.max(rangeStart, viewStart);
-                let copyEnd = Math.min(rangeEnd, viewEnd);
-                view._writeTo(scratch, copyStart - rangeStart, copyStart - viewStart, copyEnd - viewStart);
-            }
+        while (view && view.start + view.length <= rangeStart)
+            view = view._next;
+
+        // Keep scratch in whole-buffer coordinates so each owned view can be copied directly.
+        while (view && view.start < rangeEnd) {
+            scratch.set(view._getData(), view.start);
             view = view._next;
         }
     }
@@ -214,10 +213,10 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
         let alignedByteStart = Math.floor(uploadByteStart / 4) * 4;
         let alignedStart = alignedByteStart / indexByteSize;
         let dataLength = uploadEnd * indexByteSize - alignedByteStart;
-        let scratch = Web2DGraphicsIndexBuffer._getUploadScratch(uploadEnd - alignedStart);
+        let scratch = Web2DGraphicsIndexBuffer._getUploadScratch(uploadEnd);
 
         this._copyViewsToScratch(alignedStart, uploadEnd, scratch);
-        this.buffer.setData(scratch.buffer as ArrayBuffer, alignedByteStart, 0, dataLength);
+        this.buffer.setData(scratch.buffer as ArrayBuffer, alignedByteStart, alignedByteStart, dataLength);
     }
 
     _upload() {
