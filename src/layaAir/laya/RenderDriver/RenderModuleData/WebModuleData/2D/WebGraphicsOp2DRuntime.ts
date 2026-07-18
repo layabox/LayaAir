@@ -66,6 +66,13 @@ type WebGraphicsOpRenderRange = {
 	count: number;
 };
 
+type WebGraphicsReusableRenderResource = {
+	element: IPrimitiveRenderElement2D;
+	geometry: IRenderGeometryElement;
+	primitiveShaderData: ShaderData;
+	fillTextureRange: Vector4;
+};
+
 /** @internal Shared Graphics material state owned by the primitive data handle. */
 export type WebGraphicsMaterialState = {
 	subShader: SubShader | null;
@@ -75,6 +82,8 @@ export type WebGraphicsMaterialState = {
 
 /** @internal */
 export class WebGraphicsOp2DRuntime {
+	private static _renderResourcePool: WebGraphicsReusableRenderResource[] = [];
+
 	private _ops: ReadonlyArray<WebGraphicsOp2D> = [];
 	private _renderOpRefs: WebGraphicsRenderOpRef[] = [];
 	private _opRenderRanges: WebGraphicsOpRenderRange[] = [];
@@ -89,6 +98,7 @@ export class WebGraphicsOp2DRuntime {
 	private _primitiveShaderData: ShaderData[] = [];
 	private _batchEntries: WebGraphicsBatchEntry[] = [];
 	private _fillTextureRanges: Vector4[] = [];
+	private _renderResources: WebGraphicsReusableRenderResource[] = [];
 	private _pointScratch: Float32Array = new Float32Array(2);
 	private _matrixScratch: Matrix = new Matrix();
 	private _singleTextureQuadRenderIndex: number = -1;
@@ -409,10 +419,23 @@ export class WebGraphicsOp2DRuntime {
 	}
 
 	private _createRenderElement(renderIndex: number, allocation: WebGraphicsOpVIAllocation, op: WebGraphicsOp2D, opIndex: number, recordStart: number, recordCount: number): void {
-		let primitiveShaderData = LayaGL.renderDeviceFactory.createShaderData();
-		BlendModeHandler.initBlendMode(primitiveShaderData);
-		let element = LayaGL.render2DRenderPassFactory.createPrimitiveRenderElement2D();
-		element.nodeCommonMap = ["Sprite2D"];
+		let reusableResource = WebGraphicsOp2DRuntime._renderResourcePool.pop();
+		if (!reusableResource) {
+			let primitiveShaderData = LayaGL.renderDeviceFactory.createShaderData();
+			let element = LayaGL.render2DRenderPassFactory.createPrimitiveRenderElement2D();
+			BlendModeHandler.initBlendMode(primitiveShaderData);
+			element.nodeCommonMap = ["Sprite2D"];
+			reusableResource = {
+				element,
+				geometry: LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement),
+				primitiveShaderData,
+				fillTextureRange: new Vector4(),
+			};
+		}
+		let element = reusableResource.element;
+		let geometry = reusableResource.geometry;
+		let primitiveShaderData = reusableResource.primitiveShaderData;
+		let fillTextureRange = reusableResource.fillTextureRange;
 		element.owner = this._owner;
 		element.value2DShaderData = this._owner.spriteShaderData;
 		element.globalShaderData = this._owner.globalRenderData ? this._owner.globalRenderData.globalShaderData : null;
@@ -422,7 +445,6 @@ export class WebGraphicsOp2DRuntime {
 		element.renderStateIsBySprite = false;
 		element.typeKey = 0;
 		element.textureKey = 0;
-		let geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
 		geometry.indexFormat = GraphicsDefines.GRAPHICS_INDEX_FORMAT;
 		geometry.bufferState = allocation.viStore.bufferState;
 		element.geometry = geometry;
@@ -439,7 +461,9 @@ export class WebGraphicsOp2DRuntime {
 		this._geometries[renderIndex] = geometry;
 		this._primitiveShaderData[renderIndex] = primitiveShaderData;
 		this._batchEntries[renderIndex] = batchEntry;
-		this._fillTextureRanges[renderIndex] = new Vector4(0, 0, 1, 1);
+		fillTextureRange.setValue(0, 0, 1, 1);
+		this._fillTextureRanges[renderIndex] = fillTextureRange;
+		this._renderResources[renderIndex] = reusableResource;
 	}
 
 	private _createGraphicsBatchEntry(sourceIndexView: Web2DGraphic2DIndexDataView, vertexBuffer: IVertexBuffer): WebGraphicsBatchEntry {
@@ -1187,17 +1211,12 @@ export class WebGraphicsOp2DRuntime {
 				viStore.releaseVertexBlocks(this._vertexBlocks[i]);
 				this._indexViews[i] && viStore.releaseIndexView(this._indexViews[i]);
 			}
-			if (element) {
-				element.geometry = null;
-				element.primitiveShaderData = null;
-				element.destroy();
-			}
-			let geometry = this._geometries[i];
-			if (geometry) {
+			let resource = this._renderResources[i];
+			let geometry = resource && resource.geometry;
+			if (geometry)
 				geometry.bufferState = null;
-				geometry.destroy();
-			}
-			this._primitiveShaderData[i] && this._primitiveShaderData[i].destroy();
+			if (resource)
+				this._recycleRenderResource(resource);
 		}
 		this._renderElements.length = 0;
 		this._renderOpRefs.length = 0;
@@ -1211,9 +1230,23 @@ export class WebGraphicsOp2DRuntime {
 		this._primitiveShaderData.length = 0;
 		this._batchEntries.length = 0;
 		this._fillTextureRanges.length = 0;
+		this._renderResources.length = 0;
 		this._textureGroups.length = 0;
 		this._singleTextureQuadRenderIndex = -1;
 		this._singleTextureQuadOp = null;
+	}
+
+	private _recycleRenderResource(resource: WebGraphicsReusableRenderResource): void {
+		let element = resource.element;
+		element.owner = null;
+		element.value2DShaderData = null;
+		element.globalShaderData = null;
+		element.materialShaderData = null;
+		element.subShader = null;
+		element.renderStateIsBySprite = false;
+		element.typeKey = 0;
+		element.textureKey = 0;
+		WebGraphicsOp2DRuntime._renderResourcePool.push(resource);
 	}
 
 	private _sameOpRefs(ops: ReadonlyArray<WebGraphicsOp2D>): boolean {
