@@ -367,6 +367,8 @@ export class SpineWholeBuffer {
     destroy(): void {
         this._first = null;
         this._last = null;
+        this.vertexBuffer?.destroy();
+        this.indexBuffer?.destroy();
         this.vertexBuffer = null;
         this.indexBuffer = null;
     }

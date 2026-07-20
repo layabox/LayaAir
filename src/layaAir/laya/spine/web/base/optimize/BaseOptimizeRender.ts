@@ -87,6 +87,8 @@ export abstract class BaseOptimizeRender implements ISpineRender {
     /** @internal */
     _enableCache: boolean = false;
 
+    _destroyed = false;
+
     /** 
      * @en Current render mode.
      * @zh 当前渲染模式。
@@ -224,7 +226,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
     }
     
     update(delta: number): void {
-        if (!Stat.enableSpine) return
+        if (!Stat.enableSpine || this._destroyed) return
         
         this._state.update(delta);
         this.currentTime = this.trackEntry.getAnimationTime();
@@ -266,7 +268,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
             }
         }
 
-        this.updater.cacheFrameIndex = cacheFrameIndex;
+        !this._destroyed && (this.updater.cacheFrameIndex = cacheFrameIndex);
     }
 
     _updateCacheEvent(delta: number) {
@@ -313,7 +315,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
      * @param time 要渲染动画的时间。
      */
     render(time: number, physicsUpdate: number): void {
-        if (!Stat.enableSpine || !this.renderProxy) return
+        if (!Stat.enableSpine || !this.renderProxy || this._destroyed) return
 
         this._skeleton.update && this._skeleton.update(time);
 
@@ -384,6 +386,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
 
         this.updater.destroy();
         this.updater = null;
+        this._destroyed = true;
     }
 
     /**

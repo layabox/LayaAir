@@ -344,6 +344,7 @@ export class ColorEffect2D extends PostProcess2DEffect {
     }
 
     clearRT(context: PostProcessRenderContext2D): void {
+        this._mat && this._mat.setTexture("u_MainTex", null);
         if (this._destRT && this._destRT !== context.destination) {
             RenderTexture2D.recoverToPool(this._destRT);
             this._destRT = null;
