@@ -274,8 +274,14 @@ export class btCollider implements ICollider {
     setCollisionGroup(value: number) {
         if (value != this._collisionGroup && this._btColliderShape) {
             this._collisionGroup = value;
-            this._physicsManager.removeCollider(this);
-            this._physicsManager.addCollider(this);
+            // 仅在已加入物理模拟时才重新注册（Bullet 改碰撞组需 remove+add）。
+            // ⚠ initCollider 初始化阶段也会设 collisionGroup，此时 collider 还没正式 addCollider
+            // (_isSimulate=false)，若无条件 remove 会触发 _removeCharacter(indexOf=-1) → splice(-1) 误删
+            // 列表里已有的其他角色（动态加载/新增 CC 破坏已有 CC 的根因）。初始 addCollider 会带正确 group。
+            if (this._isSimulate) {
+                this._physicsManager.removeCollider(this);
+                this._physicsManager.addCollider(this);
+            }
         }
     }
 
@@ -288,8 +294,12 @@ export class btCollider implements ICollider {
     setCanCollideWith(value: number) {
         if (value != this._canCollideWith && this._btColliderShape) {
             this._canCollideWith = value;
-            this._physicsManager.removeCollider(this);
-            this._physicsManager.addCollider(this);
+            // 同 setCollisionGroup：仅在已加入模拟时才重新注册，避免 initCollider 阶段
+            // (_isSimulate=false) 无条件 remove 触发 _removeCharacter(indexOf=-1) 误删其他角色。
+            if (this._isSimulate) {
+                this._physicsManager.removeCollider(this);
+                this._physicsManager.addCollider(this);
+            }
         }
     }
 
