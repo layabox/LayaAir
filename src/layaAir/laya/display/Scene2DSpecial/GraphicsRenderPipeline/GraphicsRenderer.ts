@@ -24,6 +24,7 @@ import { GraphicsOp2DList } from "./GraphicsOp2DList";
 import { GraphicsRunner } from "../GraphicsRunner";
 import { GraphicsOp2DDirtyFlag, GraphicsOp2DKind } from "./GraphicsPipelineTypes";
 import { GraphicsOpRenderStateHelper } from "./GraphicsPipelineHelpers";
+import { Render2DProcessor } from "../../Render2DProcessor";
 
 /** @internal */
 export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
@@ -61,7 +62,6 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
    private _graphicsUseSpriteState: boolean = true;
    private _pendingCommandReplacements: number[] = [];
    private _recoveringTextureIds: Set<number> = new Set();
-   private _localRefreshRunner: GraphicsRunner = null;
    private _ownerTransformListenerActive: boolean = false;
    private _ownerTransformMask: number = 0;
 
@@ -268,7 +268,7 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
          if (range && range.active && range.count === 1 && existing && existing.kind === GraphicsOp2DKind.TextureQuad) {
             let opIndex = this._opListBuilder.getOpIndex(existing);
             if (opIndex >= 0) {
-               let runner = this._getLocalRefreshRunner();
+               let runner = Render2DProcessor.runner;
                runner.clear();
                runner.sprite = this.owner;
                runner._renderer = this;
@@ -416,9 +416,6 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       return true;
    }
 
-   private _getLocalRefreshRunner(): GraphicsRunner {
-      return this._localRefreshRunner || (this._localRefreshRunner = new GraphicsRunner());
-   }
 
    /** @internal */
    _checkDisplay() {
@@ -491,8 +488,6 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       this.clear();
       this._opListBuilder.clear();
       this._commandOps.length = 0;
-      if (this._localRefreshRunner)
-         this._localRefreshRunner.destroy();
 
       this.texturesMap.forEach(inf => {
          inf.texture.off(Event.CHANGE, this, this._resourceRepaint);
@@ -501,7 +496,6 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       this._recoveringTextureIds.clear();
 
       this.graphics = null;
-      this._localRefreshRunner = null;
       this._renderDataHandle.destroy();
       this._renderDataHandle = null;
       this.owner = null;
@@ -687,7 +681,7 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       let action = this._commandTracker.analyzeRefreshRanges(cmdIndices, this.graphics.cmds, reason);
       if (action === GraphicsRefreshAction.NoEffect)
          return action;
-      if (action === GraphicsRefreshAction.StructuralRefresh || !this._refreshCommandOps(cmdIndices, this._getLocalRefreshRunner())) {
+      if (action === GraphicsRefreshAction.StructuralRefresh || !this._refreshCommandOps(cmdIndices, Render2DProcessor.runner)) {
          this._scheduleFullRebuild();
          return GraphicsRefreshAction.StructuralRefresh;
       }

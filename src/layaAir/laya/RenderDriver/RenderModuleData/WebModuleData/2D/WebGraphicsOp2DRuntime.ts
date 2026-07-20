@@ -9,6 +9,7 @@ import { BlendMode } from "../../../../webgl/canvas/BlendMode";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { GraphicsDefines } from "../../../../webgl/shader/d2/GraphicsDefines";
 import { TextureDimension } from "../../../../RenderEngine/RenderEnum/TextureDimension";
+import { IPool, Pool } from "../../../../utils/Pool";
 import { GraphicsOpRenderStateHelper } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineHelpers";
 import type { GraphicsOp2DRenderState } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
 import {
@@ -82,7 +83,61 @@ export type WebGraphicsMaterialState = {
 
 /** @internal */
 export class WebGraphicsOp2DRuntime {
-	private static _renderResourcePool: WebGraphicsReusableRenderResource[] = [];
+	private static readonly _renderResourcePool: IPool<WebGraphicsReusableRenderResource> = Pool.createPool2<WebGraphicsReusableRenderResource>(
+		() => {
+			let primitiveShaderData = LayaGL.renderDeviceFactory.createShaderData();
+			let element = LayaGL.render2DRenderPassFactory.createPrimitiveRenderElement2D();
+			BlendModeHandler.initBlendMode(primitiveShaderData);
+			element.nodeCommonMap = ["Sprite2D"];
+			return {
+				element,
+				geometry: LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement),
+				primitiveShaderData,
+				fillTextureRange: new Vector4(),
+			};
+		},
+		null,
+		resource => {
+			let element = resource.element;
+			resource.geometry.clearRenderParams();
+			resource.geometry.bufferState = null;
+			element.owner = null;
+			element.value2DShaderData = null;
+			element.globalShaderData = null;
+			element.materialShaderData = null;
+			element.subShader = null;
+			element.renderStateIsBySprite = false;
+			element.stencilClipState = null;
+			element.noBatch = false;
+			element.typeKey = 0;
+			element.textureKey = 0;
+			element._index = null;
+			element._graphicsBatchEntry = null;
+		}
+	);
+
+	private static readonly _batchEntryPool: IPool<WebGraphicsBatchEntry> = Pool.createPool2<WebGraphicsBatchEntry>(
+		() => {
+			let cloneIndexView = new Web2DGraphic2DIndexCloneDataView(null, 0, false);
+			cloneIndexView._geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
+			cloneIndexView._geometry.indexFormat = GraphicsDefines.GRAPHICS_INDEX_FORMAT;
+			return { vertexBuffer: null, sourceIndexView: null, cloneIndexView };
+		},
+		null,
+		entry => {
+			let cloneIndexView = entry.cloneIndexView;
+			let owner = cloneIndexView.owner;
+			if (owner && (cloneIndexView._prev || cloneIndexView._next || owner._first === cloneIndexView || owner._last === cloneIndexView))
+				owner.removeDataView(cloneIndexView);
+			cloneIndexView._geometry.clearRenderParams();
+			cloneIndexView._geometry.bufferState = null;
+			cloneIndexView.owner = null;
+			cloneIndexView._prev = null;
+			cloneIndexView._next = null;
+			entry.vertexBuffer = null;
+			entry.sourceIndexView = null;
+		}
+	);
 
 	private _ops: ReadonlyArray<WebGraphicsOp2D> = [];
 	private _renderOpRefs: WebGraphicsRenderOpRef[] = [];
@@ -243,7 +298,7 @@ export class WebGraphicsOp2DRuntime {
 				if (!entry || entry.sourceIndexView !== indexView) {
 					if (entry && element && element._graphicsBatchEntry === entry)
 						element._graphicsBatchEntry = null;
-					this._destroyBatchEntry(entry);
+					this._recycleBatchEntry(entry);
 					entry = this._createGraphicsBatchEntry(indexView, viStore.vertexBuffer);
 					this._batchEntries[renderElementIndex] = entry;
 					if (element)
@@ -254,7 +309,7 @@ export class WebGraphicsOp2DRuntime {
 				let staleEntry = this._batchEntries[renderElementIndex];
 				if (element)
 					element._graphicsBatchEntry = null;
-				this._destroyBatchEntry(staleEntry);
+				this._recycleBatchEntry(staleEntry);
 				this._batchEntries[renderElementIndex] = null;
 			}
 		}
@@ -419,19 +474,7 @@ export class WebGraphicsOp2DRuntime {
 	}
 
 	private _createRenderElement(renderIndex: number, allocation: WebGraphicsOpVIAllocation, op: WebGraphicsOp2D, opIndex: number, recordStart: number, recordCount: number): void {
-		let reusableResource = WebGraphicsOp2DRuntime._renderResourcePool.pop();
-		if (!reusableResource) {
-			let primitiveShaderData = LayaGL.renderDeviceFactory.createShaderData();
-			let element = LayaGL.render2DRenderPassFactory.createPrimitiveRenderElement2D();
-			BlendModeHandler.initBlendMode(primitiveShaderData);
-			element.nodeCommonMap = ["Sprite2D"];
-			reusableResource = {
-				element,
-				geometry: LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement),
-				primitiveShaderData,
-				fillTextureRange: new Vector4(),
-			};
-		}
+		let reusableResource = WebGraphicsOp2DRuntime._renderResourcePool.take();
 		let element = reusableResource.element;
 		let geometry = reusableResource.geometry;
 		let primitiveShaderData = reusableResource.primitiveShaderData;
@@ -467,11 +510,12 @@ export class WebGraphicsOp2DRuntime {
 	}
 
 	private _createGraphicsBatchEntry(sourceIndexView: Web2DGraphic2DIndexDataView, vertexBuffer: IVertexBuffer): WebGraphicsBatchEntry {
-		let cloneIndexView = sourceIndexView._clone(false, false) as Web2DGraphic2DIndexCloneDataView;
+		let entry = WebGraphicsOp2DRuntime._batchEntryPool.take();
+		let cloneIndexView = entry.cloneIndexView;
+		entry.vertexBuffer = vertexBuffer;
+		entry.sourceIndexView = sourceIndexView;
 		sourceIndexView._cloneView(cloneIndexView);
-		cloneIndexView._geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
-		cloneIndexView._geometry.indexFormat = GraphicsDefines.GRAPHICS_INDEX_FORMAT;
-		return { vertexBuffer, sourceIndexView, cloneIndexView };
+		return entry;
 	}
 
 	private _writeTextureQuad(renderIndex: number, op: WebGraphicsTextureQuadOp2D, mat: Matrix, ownerAlpha: number): void {
@@ -1186,18 +1230,10 @@ export class WebGraphicsOp2DRuntime {
 			this._owner.renderElements = this._renderElements;
 	}
 
-	private _destroyBatchEntry(entry: WebGraphicsBatchEntry): void {
+	private _recycleBatchEntry(entry: WebGraphicsBatchEntry): void {
 		if (!entry)
 			return;
-		let cloneIndexView = entry.cloneIndexView;
-		if (cloneIndexView) {
-			let owner = cloneIndexView.owner;
-			if (owner && (cloneIndexView._prev || cloneIndexView._next || owner._first === cloneIndexView || owner._last === cloneIndexView))
-				owner.removeDataView(cloneIndexView);
-			if (cloneIndexView._geometry)
-				cloneIndexView._geometry.destroy();
-			cloneIndexView.destroy();
-		}
+		WebGraphicsOp2DRuntime._batchEntryPool.recover(entry);
 	}
 
 	private _clearRenderOps(): void {
@@ -1205,7 +1241,7 @@ export class WebGraphicsOp2DRuntime {
 			let element = this._renderElements[i];
 			if (element)
 				element._graphicsBatchEntry = null;
-			this._destroyBatchEntry(this._batchEntries[i]);
+			this._recycleBatchEntry(this._batchEntries[i]);
 			let viStore = this._viStores[i];
 			if (viStore) {
 				viStore.releaseVertexBlocks(this._vertexBlocks[i]);
@@ -1237,16 +1273,7 @@ export class WebGraphicsOp2DRuntime {
 	}
 
 	private _recycleRenderResource(resource: WebGraphicsReusableRenderResource): void {
-		let element = resource.element;
-		element.owner = null;
-		element.value2DShaderData = null;
-		element.globalShaderData = null;
-		element.materialShaderData = null;
-		element.subShader = null;
-		element.renderStateIsBySprite = false;
-		element.typeKey = 0;
-		element.textureKey = 0;
-		WebGraphicsOp2DRuntime._renderResourcePool.push(resource);
+		WebGraphicsOp2DRuntime._renderResourcePool.recover(resource);
 	}
 
 	private _sameOpRefs(ops: ReadonlyArray<WebGraphicsOp2D>): boolean {

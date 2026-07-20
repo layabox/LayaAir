@@ -39,6 +39,7 @@ export class WebGraphicsOpVIStore {
 	private _wholeIndex: Web2DGraphicsIndexBuffer;
 	private _vertexViews: Web2DGraphic2DVertexDataView[] = [];
 	private _vertexFreeBlocks: number[] = [];
+	private _indexViewPool: Map<number, Web2DGraphic2DIndexDataView[]> = new Map();
 	private _indexBufferLength: number = 0;
 	private _indexBufferMaxLength: number = 0;
 	private _canVertexBlockCount: number = 0;
@@ -105,7 +106,10 @@ export class WebGraphicsOpVIStore {
 	checkIndex(indexCount: number): Web2DGraphic2DIndexDataView {
 		if (this._indexBufferLength + indexCount > this._indexBufferMaxLength)
 			this._extendIndexBuffer(indexCount);
-		let view = new Web2DGraphic2DIndexDataView(this._wholeIndex, indexCount);
+		let pool = this._indexViewPool.get(indexCount);
+		let view = pool && pool.pop();
+		if (!view)
+			view = new Web2DGraphic2DIndexDataView(this._wholeIndex, indexCount);
 		this._wholeIndex.addDataView(view);
 		this._indexBufferLength += indexCount;
 		return view;
@@ -121,12 +125,23 @@ export class WebGraphicsOpVIStore {
 			return;
 		this._indexBufferLength -= indexView.length;
 		this._wholeIndex.removeDataView(indexView);
-		indexView.destroy();
+		indexView.setGeometry(null);
+		let pool = this._indexViewPool.get(indexView.length);
+		if (!pool) {
+			pool = [];
+			this._indexViewPool.set(indexView.length, pool);
+		}
+		pool.push(indexView);
 	}
 
 	destroy(): void {
 		this._vertexViews.length = 0;
 		this._vertexFreeBlocks.length = 0;
+		this._indexViewPool.forEach(pool => {
+			for (let i = 0, n = pool.length; i < n; i++)
+				pool[i].destroy();
+		});
+		this._indexViewPool.clear();
 		this._bufferState && this._bufferState.destroy();
 		this._vertexBuffer && this._vertexBuffer.destroy();
 		this._indexBuffer && this._indexBuffer.destroy();
