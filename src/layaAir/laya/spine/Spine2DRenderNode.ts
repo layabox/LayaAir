@@ -63,6 +63,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     private _pause: boolean = true;
     private _needUpdate: boolean = false;
+    /** @internal 是否已在 onDisable 释放渲染资源(避免重复释放,init 重建时复位) */
+    private _leakReleased: boolean = false;
+    /** @internal onDisable 释放时保留的 templet 普通引用(不加引用计数,允许其被自动销毁),供 onEnable 就地重建 */
+    private _releasedTemplet: SpineTemplet = null;
     /** 动画播放的起始时间位置*/
     private _playStart: number;
     /** 动画播放的结束时间位置*/
@@ -528,6 +532,13 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     onEnable(): void {
         this.owner.on(Event.TRANSFORM_CHANGED, this, this.onTransformChanged);
 
+        // 标准"禁用释放、启用重建":若上次 onDisable 释放过渲染资源,且保留的 templet 仍存活
+        // (未被 destroyUnusedResources 自动销毁),重新加入场景时就地重建 _spineRender,使 play
+        // 可直接用。若 templet 已被自动销毁,则跳过——由业务层重设 templet 触发 init 重建。
+        if (this._leakReleased && this._releasedTemplet && !this._releasedTemplet.destroyed && !this._spineRender && !this.destroyed) {
+            this.init(this._releasedTemplet);
+        }
+
         if (this._spineRender && LayaEnv.isPlaying && this._animationName !== undefined)
             this.play(this._animationName, this._loop, true);
     }
@@ -535,6 +546,22 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     /** @ignore @blueprintIgnore */
     onDisable(): void {
         this.owner.off(Event.TRANSFORM_CHANGED, this, this.onTransformChanged);
+        // 节点移出场景(如被业务对象池回收)时释放骨架(每实例 Bone/Slot)与渲染资源,避免长期
+        // 占用内存/显存。仅保留一个普通引用(不加引用计数),让 templet 引用计数正常下降——
+        // 回收后若无人使用即可被 destroyUnusedResources 自动销毁;若仍存活,onEnable 可就地重建。
+        if (!this.destroyed && this._templet && this._spineRender && !this._leakReleased) {
+            this._leakReleased = true;
+            this._releasedTemplet = this._templet;
+            if (this._renderHandle) (this._renderHandle as any).skeleton = null;
+            this.clear(); // reset(): _spineRender.reset + _templet._removeReference + _templet=null
+            this._spineRender.destroy();
+            this._spineRender = null;
+            if (this._rootBone) {
+                this._rootBone.destroy();
+                this._rootBone = null;
+                this._bones = null;
+            }
+        }
     }
 
     /**
@@ -545,6 +572,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      */
     protected init(templet: SpineTemplet): void {
         if (this.destroyed) return;
+        this._leakReleased = false; // 重建后允许再次在 onDisable 释放
+        // 清掉 onDisable 保留的普通引用(无论走 onEnable 重建还是业务层重设 templet);
+        // 未加引用计数,故无需 _removeReference。
+        this._releasedTemplet = null;
         if (this._templet) {
             this.clear();
         }
@@ -1037,7 +1068,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @en Get skeleton information (deprecated, only accurate object in Web)
      */
     getSkeleton():any {
-        return this._spineRender.getSkeleton();
+        // null 安全:onDisable 释放后 _spineRender 为 null,业务层回收时若再访问返回 null 而非崩溃
+        return this._spineRender ? this._spineRender.getSkeleton() : null;
     }
 
     /**
@@ -1096,6 +1128,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @en Destroy the current object.
      */
     onDestroy(): void {
+        this._releasedTemplet = null; // 普通引用,直接清掉即可
         if (this._templet) {
             this.clear();
         }

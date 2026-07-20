@@ -29,6 +29,16 @@ export class SpineOptimizeRender2D extends BaseOptimizeRender {
     /** @ignore @blueprintIgnore */
     static _pool: IRenderElement2D[] = [];
 
+    /**
+     * @ignore @blueprintIgnore
+     * @en Max size of the static render-element pool. Elements recovered beyond this
+     * cap are destroyed instead of pooled, to avoid the pool growing to the peak
+     * spine count and permanently retaining their shader data (Float32Array/ArrayBuffer).
+     * @zh 静态渲染元素池上限。超过此上限被回收的元素将被销毁而非入池,避免池随峰值 spine 数
+     * 无限增长并永久持有其 shaderData(Float32Array/ArrayBuffer)造成内存泄漏。
+     */
+    static _maxPoolSize: number = 64;
+
     /** @ignore @blueprintIgnore */
     static createRenderElement2D() {
         let element: IRenderElement2D;
@@ -49,7 +59,13 @@ export class SpineOptimizeRender2D extends BaseOptimizeRender {
             value.geometry = null;
             value.subShader = null;
             value.owner = null;
-            this._pool.push(value);
+            // 静态池加上限:超限直接销毁(释放其 value2DShaderData,内含 Float32Array/ArrayBuffer),
+            // 避免峰值后静态池无限囤积渲染元素导致内存泄漏。
+            if (this._pool.length < this._maxPoolSize) {
+                this._pool.push(value);
+            } else {
+                value.destroy();
+            }
         }
     }
 
