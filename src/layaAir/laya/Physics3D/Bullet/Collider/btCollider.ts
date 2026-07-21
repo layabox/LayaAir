@@ -274,8 +274,10 @@ export class btCollider implements ICollider {
     setCollisionGroup(value: number) {
         if (value != this._collisionGroup && this._btColliderShape) {
             this._collisionGroup = value;
-            this._physicsManager.removeCollider(this);
-            this._physicsManager.addCollider(this);
+            if (this._isSimulate) {
+                this._physicsManager.removeCollider(this);
+                this._physicsManager.addCollider(this);
+            }
         }
     }
 
@@ -288,8 +290,10 @@ export class btCollider implements ICollider {
     setCanCollideWith(value: number) {
         if (value != this._canCollideWith && this._btColliderShape) {
             this._canCollideWith = value;
-            this._physicsManager.removeCollider(this);
-            this._physicsManager.addCollider(this);
+            if (this._isSimulate) {
+                this._physicsManager.removeCollider(this);
+                this._physicsManager.addCollider(this);
+            }
         }
     }
 
