@@ -423,7 +423,9 @@ export class TrailGeometry {
         this._geometryElementOBj.clearRenderParams();
         var start: number = this._activeIndex * 2;
         var count: number = this._endIndex * 2 - start;
-        this._geometryElementOBj.setDrawArrayParams(start, count);
+        if (count > 0) {
+            this._geometryElementOBj.setDrawArrayParams(start, count);
+        }
     }
 
     /**
