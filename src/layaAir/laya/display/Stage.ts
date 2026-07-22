@@ -734,22 +734,31 @@ export class Stage extends Sprite {
      * @param timestamp 当前时间戳
      */
     render(timestamp: number): void {
+        let profileZone = Profiler.start("stage/call_laters");
         if (!this._visible) {
             Timer.callLaters._update(timestamp);
+            Profiler.end(profileZone);
             Stat.loopCount++;
             this._runComponents();
+
+            profileZone = Profiler.start("stage/update_timers");
             this._updateTimers(timestamp);
+            Profiler.end(profileZone);
             return;
         }
 
         Timer.callLaters._update(timestamp);
+        Profiler.end(profileZone);
         Stat.loopCount++;
         Render2DProcessor.renderTime += (ILaya.timer?.delta || 0) * 0.001;
+
+        profileZone = Profiler.start("stage/start_frame");
         LayaGL.renderEngine.startFrame();
+        Profiler.end(profileZone);
 
         if (this.renderingEnabled) {
 
-            let profileZone = Profiler.start("stage/run_components");
+            profileZone = Profiler.start("stage/run_components");
             this._runComponents();
             Profiler.end(profileZone);
 
@@ -789,11 +798,17 @@ export class Stage extends Sprite {
         else
             this._runComponents();
 
+        profileZone = Profiler.start("stage/update_timers");
         this._updateTimers(timestamp);
+        Profiler.end(profileZone);
 
+        profileZone = Profiler.start("stage/stat_render");
         Stat.render();
+        Profiler.end(profileZone);
 
+        profileZone = Profiler.start("stage/end_frame");
         LayaGL.renderEngine.endFrame();
+        Profiler.end(profileZone);
     }
 
     /** @ignore */
