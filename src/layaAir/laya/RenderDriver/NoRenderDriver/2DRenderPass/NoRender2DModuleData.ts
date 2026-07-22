@@ -706,7 +706,11 @@ export class NoRenderStruct2D implements IRenderStruct2D {
         this._setBlendMode();
     }
 
-    constructor() { }
+    constructor() {
+        // A render struct can be traversed before Sprite._updateStruct assigns its
+        // world matrix. Data handles still require a valid transform in that frame.
+        this.trans = { matrix: new Matrix(), modifiedFrame: Stat.loopCount };
+    }
 
     _clipRect: Rectangle = null;
     _clipInfo: IClipInfo = null;
