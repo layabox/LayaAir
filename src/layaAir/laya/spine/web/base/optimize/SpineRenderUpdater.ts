@@ -42,6 +42,9 @@ export class SpineRenderUpdater {
      */
     cacheMaterials: Material[][] = [];
 
+    /** @internal Incremented whenever instance material lookup caches must be rebuilt. */
+    materialCacheVersion: number = 0;
+
     vChanges: IVBChange[] = [];
 
     private _animator: AnimationRender = null;
@@ -503,6 +506,7 @@ export class SpineRenderUpdater {
 
     _clearCacheMaterials() {
         this.cacheMaterials.length = 0;
+        this.materialCacheVersion++;
     }
 
     /**

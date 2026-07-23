@@ -1,4 +1,4 @@
-import { ISpineRenderDataHandle } from "../../../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { ISpineRenderDataHandle } from "../../../interface/ISpineRenderDataHandle";
 import { IRenderElement2D } from "../../../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IRenderStruct2D } from "../../../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 import { IRenderGeometryElement } from "../../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
@@ -14,7 +14,7 @@ import { ERenderProxyType, IRender, IRenderBatch } from "../../IWebSpine";
 import { OptimizedSpineRenderer, StandardSpineRenderer, RigidBodySpineRenderer, BakedSpineRenderer } from "../optimize/SpineRendererTypes";
 import { BakedSpine2DRenderer, StandardSpine2DRenderer } from "./SpineRendererTypes2D";
 import { Spine2DNormalRenderUpdater } from "./Spine2DNormalRenderUpdater";
-import { WebSpineRenderDataHandle } from "../../../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
+import { WebSpineRenderDataHandle } from "./WebSpineRenderDataHandle";
 import { SpineConst } from "../../../SpineConst";
 import { SpineNormalRenderUpdater } from "../optimize/SpineNormalRenderUpdater";
 
@@ -102,7 +102,7 @@ export class SpineOptimizeRender2D extends BaseOptimizeRender {
             let renderNormal = new StandardSpine2DRenderer(this._owner._struct);
             renderNormal.normalUpdater = new Spine2DNormalRenderUpdater;
             renderNormal.normalUpdater.autoCacheEnabled = this._enableCache;
-            (this._handle as WebSpineRenderDataHandle).normalUpdater = renderNormal.normalUpdater;
+            (this._handle as WebSpineRenderDataHandle).bindNormalRender(renderNormal);
             this.renderProxyMap.set(ERenderProxyType.RenderNormal, renderNormal);
         } else {
             let renderNormal = new StandardSpineRenderer(shaderData);
@@ -265,5 +265,6 @@ export class SpineOptimizeRender2D extends BaseOptimizeRender {
     _getRenderHandle(): any {
         return this._handle;
     }
+
 }
 

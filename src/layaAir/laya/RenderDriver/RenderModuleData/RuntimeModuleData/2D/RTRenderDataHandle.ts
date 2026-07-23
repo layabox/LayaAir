@@ -2,12 +2,10 @@
 import { BaseRenderNode2D } from "../../../../NodeRender2D/BaseRenderNode2D";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Texture2D } from "../../../../resource/Texture2D";
-import { SpineShaderInit } from "../../../../spine/shader/SpineShaderInit";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
-import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, IGraphicsOp2D } from "../../Design/2D/IRender2DDataHandle";
+import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, IGraphicsOp2D } from "../../Design/2D/IRender2DDataHandle";
 import { GLESRenderContext2D } from "../../../OpenGLESDriver/2DRenderPass/GLESRenderContext2D";
 import { RTRenderStruct2D } from "./RTRenderStruct2D";
-import { Vector2 } from "../../../../maths/Vector2";
 import { Matrix } from "../../../../maths/Matrix";
 import { Vector4 } from "../../../../maths/Vector4";
 import type { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
@@ -291,58 +289,3 @@ export class RTMesh2DRenderDataHandle extends RTBaseRenderDataHandle implements 
     }
 }
 
-export class RTSpineRenderDataHandle extends RTBaseRenderDataHandle implements ISpineRenderDataHandle {
-    private _offset: Vector2 = new Vector2();
-    skeleton: spine.Skeleton;
-
-    private _baseColor: Color = new Color(1, 1, 1, 1);
-
-    public get baseColor(): Color {
-        return this._baseColor;
-    }
-
-    public set baseColor(value: Color) {
-        if (value != this._baseColor && this._baseColor.equal(value))
-            return
-        value = value ? value : Color.BLACK;
-        value.cloneTo(this._baseColor);
-        this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._baseColor);
-        this._nativeObj.setBaseColor(this._baseColor);
-    }
-
-    constructor() {
-        super(new (window as any).conchRTSpineRenderDataHandle());
-    }
-
-    public get owner(): RTRenderStruct2D {
-        return this._owner;
-    }
-
-    public set owner(value: RTRenderStruct2D) {
-        if (value == this.owner) return;
-        if (this._owner) {
-            let shaderData = this._owner.spriteShaderData;
-            shaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
-            shaderData.removeDefine(SpineShaderInit.SPINE_UV);
-            shaderData.removeDefine(SpineShaderInit.SPINE_COLOR);
-        }
-        this._owner = value;
-        this._nativeObj.setOwner(this._owner._nativeObj);
-        if (this._owner) {
-            let shaderData = this._owner.spriteShaderData;
-            shaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
-            shaderData.addDefine(SpineShaderInit.SPINE_UV);
-            shaderData.addDefine(SpineShaderInit.SPINE_COLOR);
-        }
-
-    }
-
-
-    public get offset(): Vector2 {
-        return this._offset;
-    }
-    public set offset(value: Vector2) {
-        this._offset = value;
-        this._nativeObj.setOffset(this._offset);
-    }
-}

@@ -8,12 +8,11 @@ import { Handler } from "../utils/Handler";
 import { ExternalSkin } from "./ExternalSkin";
 import { SpineTemplet } from "./SpineTemplet";
 import { Event } from "../events/Event";
-import { LayaGL } from "../layagl/LayaGL";
 import { SpineShaderInit } from "./shader/SpineShaderInit";
 import { Material } from "../resource/Material";
 import { ClassUtils } from "../utils/ClassUtils";
 import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
-import { ISpineRenderDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { ISpineRenderDataHandle } from "./interface/ISpineRenderDataHandle";
 import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
 import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
@@ -89,6 +88,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     private _skin: string;
     private _renderOffset: Vector2 = new Vector2();
     private _offset: Vector2 = new Vector2();
+    /** @internal Transform events only mark dirty; skeleton world position is synchronized once in update. */
+    private _transformDirty: boolean = true;
     private _setPreAlphaFlag = false;
     private _premultipliedAlpha = true;
 
@@ -120,8 +121,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     protected _createRenderHandle(): ISpineRenderDataHandle {
-        let handle = LayaGL.render2DRenderPassFactory.createSpineRenderDataHandle();
-        return handle;
+        return SpineConst.factory.createSpineRenderDataHandle();
     }
 
     /**
@@ -218,10 +218,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     /** @ignore @blueprintIgnore */
     renderUpdate(context: IRenderContext2D) {
         this._updateLight();
-        if (this._spineRender && this._playState == ESpineRenderState.Playing) {
-            this._spineRender.render(this._spineRender.currentTime, this.physicsUpdate);
-            this._updateBones();
-        }
     }
 
     /**
@@ -530,6 +526,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     /** @ignore @blueprintIgnore */
     onEnable(): void {
+        this._transformDirty = true;
         this.owner.on(Event.TRANSFORM_CHANGED, this, this.onTransformChanged);
 
         // 标准"禁用释放、启用重建":若上次 onDisable 释放过渲染资源,且保留的 templet 仍存活
@@ -741,28 +738,36 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     private _update(): void {
-        let timerDelta = Laya.timer.delta / 1000 * this._playbackRate;
-        
-        if (timerDelta > this._maxDeltaTime)
-            timerDelta = this._maxDeltaTime;
-
-        let delta = timerDelta * this._playbackRate;
-
-        // let currentPlayTime = this._spineRender.currentTime;
-
-        // 使用当前动画和事件设置骨架
-        this._spineRender.update(delta);
-
-        // spine在state.apply中发送事件，开发者可能会在事件中进行destroy等操作，导致无法继续执行
-        if (this.destroyed) {
-            return;
-        }
-
-        
-        // this._spineRender.render(currentPlayTime, this.physicsUpdate);
-        // this._updateBones();
-        
         this.owner.repaint(RepaintFlag.UpdateRT);
+    }
+
+    onPreRender(): void {
+        if (this._needUpdate) {
+            // JIT 需要 update render 在一起
+            if (this._transformDirty) {
+                let matrix = this.owner.globalTrans.getMatrix();
+                this._spineRender.setSkeletonPosition(matrix.tx, matrix.ty);
+                this._transformDirty = false;
+            }
+
+            let timerDelta = Laya.timer.delta / 1000;
+        
+            if (timerDelta > this._maxDeltaTime)
+                timerDelta = this._maxDeltaTime;
+
+            let delta = timerDelta * this._playbackRate;
+
+            // 使用当前动画和事件设置骨架
+            this._spineRender.update(delta);
+
+            // spine在state.apply中发送事件，开发者可能会在事件中进行destroy等操作，导致无法继续执行
+            if (this.destroyed) {
+                return;
+            }
+
+            this._spineRender.render(this._spineRender.currentTime, this.physicsUpdate);
+            this._updateBones();
+        }
     }
 
     private _updateBones() {
@@ -1089,13 +1094,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @en Transform changed, update the skeleton position.
      */
     private onTransformChanged() {
-        if (this._spineRender) {
-            let matrix = this.owner.globalTrans.getMatrix();
-            this._spineRender.setSkeletonPosition(
-                matrix.tx,
-                matrix.ty
-            );
-        }
+        this._transformDirty = true;
     }
     
     /**

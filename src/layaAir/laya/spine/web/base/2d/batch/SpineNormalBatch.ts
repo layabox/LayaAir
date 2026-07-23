@@ -3,7 +3,7 @@ import { IRenderElement2D } from "../../../../../RenderDriver/DriverDesign/2DRen
 import { IBatch2DProvider } from "../../../../../RenderDriver/RenderModuleData/WebModuleData/2D/BatchManager";
 import { FastSinglelist } from "../../../../../utils/SingletonList";
 import { WebRenderStruct2D } from "../../../../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
-import { WebSpineRenderDataHandle } from "../../../../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
+import { WebSpineRenderDataHandle } from "../WebSpineRenderDataHandle";
 import { SpineConst } from "../../../../SpineConst";
 import { BufferUsage } from "../../../../../RenderEngine/RenderEnum/BufferTargetType";
 import { SpineShaderInit } from "../../../../shader/SpineShaderInit";
@@ -78,7 +78,6 @@ class SpineBatchContext {
 interface BatchBuffer {
     wholeBuffer: SpineWholeBuffer;
     bufferState: any;  // Use bufferState instead of Mesh2D (lower-level concept)
-    views: SpineBufferView[];
 }
 
 /**
@@ -138,6 +137,7 @@ export class SpineNormalBatch implements IBatch2DProvider {
      * @zh 当前帧中活跃的批次缓冲区
      */
     private _activeBatchBuffers: BatchBuffer[] = [];
+    private _activeBatchBufferCount: number = 0;
 
     /**
      * @en Batch context to avoid GC from temporary objects
@@ -150,6 +150,7 @@ export class SpineNormalBatch implements IBatch2DProvider {
      * @zh 当前帧中合并的元素（在 reset 时回收）
      */
     private _merged: IRenderElement2D[] = [];
+    private _mergedCount: number = 0;
 
     /**
      * @en Batch render elements according to IBatch2DProvider interface
@@ -289,13 +290,12 @@ export class SpineNormalBatch implements IBatch2DProvider {
             if (!view) continue;
 
             view.transferToBuffer(batchBuffer.wholeBuffer);
-            batchBuffer.views.push(view);
         }
 
         let firstElement = elementArray[batchStart];
 
         let batchElement = SpineNormalBatch._pool.take();
-        this._merged.push(batchElement);
+        this._merged[this._mergedCount++] = batchElement;
 
         let geometry = batchElement.geometry;
         geometry.bufferState = batchBuffer.bufferState;
@@ -332,12 +332,11 @@ export class SpineNormalBatch implements IBatch2DProvider {
 
             batchBuffer = {
                 wholeBuffer,
-                bufferState,
-                views: []
+                bufferState
             };
         }
 
-        this._activeBatchBuffers.push(batchBuffer);
+        this._activeBatchBuffers[this._activeBatchBufferCount++] = batchBuffer;
         return batchBuffer;
     }
 
@@ -347,15 +346,18 @@ export class SpineNormalBatch implements IBatch2DProvider {
      */
     reset(): void {
         // Recycle batch buffers
-        for (let batchBuffer of this._activeBatchBuffers) {
+        for (let i = 0; i < this._activeBatchBufferCount; i++) {
+            let batchBuffer = this._activeBatchBuffers[i];
             batchBuffer.wholeBuffer.clearDataViews();
-            batchBuffer.views.length = 0;
             this._batchBufferPool.push(batchBuffer);
         }
-        this._activeBatchBuffers.length = 0;
+        this._activeBatchBufferCount = 0;
 
         // Recycle merged elements to static pool (like WebGraphicsBatch)
-        SpineNormalBatch._pool.recover(this._merged);
+        for (let i = 0; i < this._mergedCount; i++) {
+            SpineNormalBatch._pool.recover(this._merged[i]);
+        }
+        this._mergedCount = 0;
     }
 
     /**
@@ -368,7 +370,8 @@ export class SpineNormalBatch implements IBatch2DProvider {
             batchBuffer.bufferState.destroy();
         }
 
-        for (let batchBuffer of this._activeBatchBuffers) {
+        for (let i = 0; i < this._activeBatchBufferCount; i++) {
+            let batchBuffer = this._activeBatchBuffers[i];
             batchBuffer.wholeBuffer.destroy();
             batchBuffer.bufferState.destroy();
         }
@@ -376,6 +379,10 @@ export class SpineNormalBatch implements IBatch2DProvider {
         this._batchBufferPool = [];
         this._activeBatchBuffers = [];
 
-        SpineNormalBatch._pool.recover(this._merged);
+        for (let i = 0; i < this._mergedCount; i++) {
+            SpineNormalBatch._pool.recover(this._merged[i]);
+        }
+        this._merged.length = 0;
+        this._mergedCount = 0;
     }
 }

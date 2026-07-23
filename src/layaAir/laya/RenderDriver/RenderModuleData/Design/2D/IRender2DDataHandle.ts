@@ -1,6 +1,5 @@
 import { Color } from "../../../../maths/Color";
 import { Matrix } from "../../../../maths/Matrix";
-import { Vector2 } from "../../../../maths/Vector2";
 import { Vector4 } from "../../../../maths/Vector4";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Texture } from "../../../../resource/Texture";
@@ -201,11 +200,3 @@ export interface IMesh2DRenderDataHandle extends I2DBaseRenderDataHandle {
     tilingOffset: Vector4;
 }
 
-/**
- * @blueprintIgnore
- */
-export interface ISpineRenderDataHandle extends I2DBaseRenderDataHandle {
-    baseColor: Color;
-    skeleton: spine.Skeleton;
-    offset: Vector2;
-}

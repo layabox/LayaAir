@@ -3,11 +3,11 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { I2DRenderPassFactory } from "../../DriverDesign/2DRenderPass/I2DRenderPassFactory";
 import { Blit2DQuadCMD, Draw2DElementCMD, SetRendertarget2DCMD } from "../../DriverDesign/2DRenderPass/IRender2DCMD";
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
-import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, IGraphicsOp2DFactory } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
+import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, IGraphicsOp2DFactory } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import { RTRender2DPass, RTRender2DPassManager } from "../../RenderModuleData/RuntimeModuleData/2D/RTRender2DPass";
-import { RTBaseRenderDataHandle, RTEmptyRender2DDataHandle, RTMesh2DRenderDataHandle, RTPrimitiveDataHandle, RTRender2DDataHandle, RTSpineRenderDataHandle } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderDataHandle";
+import { RTBaseRenderDataHandle, RTEmptyRender2DDataHandle, RTMesh2DRenderDataHandle, RTPrimitiveDataHandle, RTRender2DDataHandle } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderDataHandle";
 import { RTGlobalRenderData, RTRenderStruct2D } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderStruct2D";
 import { ITransform2DMemoryFactory } from "../../../display/transform2d/ITransform2DMemory";
 import { GLESSetRenderData, GLESSetShaderDefine } from "../RenderDevice/GLESRenderCMD";
@@ -33,9 +33,6 @@ export class GLESRender2DProcess implements I2DRenderPassFactory {
     }
     create2DGlobalRenderDataHandle(): I2DGlobalRenderData {
         return new RTGlobalRenderData();
-    }
-    createSpineRenderDataHandle(): ISpineRenderDataHandle {
-        return new RTSpineRenderDataHandle();
     }
     create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle {
         return new RTPrimitiveDataHandle();

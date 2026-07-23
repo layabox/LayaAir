@@ -20,10 +20,9 @@ import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderG
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import type { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { IClipInfo, IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
-import { I2DBaseRenderDataHandle, I2DGlobalRenderData, I2DPrimitiveDataHandle, IGraphicsOp2D, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DBaseRenderDataHandle, I2DGlobalRenderData, I2DPrimitiveDataHandle, IGraphicsOp2D, IMesh2DRenderDataHandle, IRender2DDataHandle } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { Stat } from "../../../utils/Stat";
-import { SpineShaderInit } from "../../../spine/shader/SpineShaderInit";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { RenderState2D } from "../../../webgl/utils/RenderState2D";
 import { PostProcess2D } from "../../../display/PostProcess2D";
@@ -202,66 +201,6 @@ export class NoRenderMeshDataHandle extends NoRenderBaseDataHandle implements IM
     inheriteRenderData(context: IRenderContext2D): void {
         super.inheriteRenderData(context);
         if (this._owner && this._renderAlpha !== this._owner.globalAlpha) {
-            let a = this._owner.globalAlpha * this._baseColor.a;
-            _setRenderColor.setValue(this._baseColor.r, this._baseColor.g, this._baseColor.b, a);
-            this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, _setRenderColor);
-            this._renderAlpha = this._owner.globalAlpha;
-        }
-    }
-}
-
-export class NoRenderSpineDataHandle extends NoRenderBaseDataHandle implements ISpineRenderDataHandle {
-    private _renderAlpha = -1;
-    private _baseColor: Color = new Color(1, 1, 1, 1);
-    skeleton: spine.Skeleton;
-    private _offset: Vector2;
-
-    get baseColor(): Color { return this._baseColor; }
-    set baseColor(value: Color) {
-        if (value !== this._baseColor && this._baseColor.equal(value)) return;
-        value = value ? value : Color.BLACK;
-        value.cloneTo(this._baseColor);
-        this._renderAlpha = -1;
-        this._owner?.spriteShaderData?.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._baseColor);
-    }
-
-    get offset(): Vector2 { return this._offset; }
-    set offset(value: Vector2) { this._offset = value; }
-
-    get owner(): NoRenderStruct2D { return this._owner; }
-    set owner(value: NoRenderStruct2D) {
-        if (value === this._owner) return;
-        if (this._owner?.spriteShaderData) {
-            let sd = this._owner.spriteShaderData;
-            sd.removeDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
-            sd.removeDefine(SpineShaderInit.SPINE_UV);
-            sd.removeDefine(SpineShaderInit.SPINE_COLOR);
-        }
-        this._owner = value;
-        if (this._owner?.spriteShaderData) {
-            let sd = this._owner.spriteShaderData;
-            sd.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
-            sd.addDefine(SpineShaderInit.SPINE_UV);
-            sd.addDefine(SpineShaderInit.SPINE_COLOR);
-        }
-    }
-
-    inheriteRenderData(context: IRenderContext2D): void {
-        if (!this._owner?.spriteShaderData || !this.skeleton) return;
-        let shaderData = this._owner.spriteShaderData;
-        let mat = this._owner.renderMatrix;
-        if (this._offset) {
-            let ofx = this._offset.x, ofy = this._offset.y;
-            this._nMatrix_0.setValue(mat.a, mat.c, mat.tx + mat.a * ofx + mat.c * ofy);
-            this._nMatrix_1.setValue(mat.b, mat.d, mat.ty + mat.b * ofx + mat.d * ofy);
-        } else {
-            this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
-            this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
-        }
-        shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
-        shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
-
-        if (this._renderAlpha !== this._owner.globalAlpha) {
             let a = this._owner.globalAlpha * this._baseColor.a;
             _setRenderColor.setValue(this._baseColor.r, this._baseColor.g, this._baseColor.b, a);
             this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, _setRenderColor);

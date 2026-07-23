@@ -179,8 +179,6 @@ export class SpineWholeBuffer {
         this._vertexFloatCount += view.vertexBufferLength;
         this._indexCount += view.indexBufferLength;
 
-        this._ensureCapacityForViews();
-
         this._needResetData = true;
         //@ts-ignore
         WebRender2DPass.setBuffer(this);
@@ -262,8 +260,8 @@ export class SpineWholeBuffer {
     }
 
     /**
-     * @en Upload data to GPU by reassembling all views with proper offsets
-     * @zh 通过重组所有视图并应用正确的偏移将数据上传到 GPU
+     * @en Upload final world-space vertex data by reassembling all views.
+     * @zh 通过重组所有 view 上传最终世界坐标顶点数据。
      * View totals and capacities are maintained before upload, so this method only assembles once.
      */
     _upload(): void {
@@ -278,9 +276,12 @@ export class SpineWholeBuffer {
             return;
         }
 
+        // Views may be transferred to a batch buffer after addDataView().
+        // Grow only for the final set that is actually uploaded by this buffer.
+        this._ensureCapacityForViews();
+
         const vertexData = SpineWholeBuffer._globalTempVertexData;
         const indexData = SpineWholeBuffer._globalTempIndexData;
-        const vertexStride = 12; // VERTEX_TWOCOLOR
         let vertexOffset = 0;
         let indexOffset = 0;
         let currentVertexIndex = 0;
@@ -289,45 +290,11 @@ export class SpineWholeBuffer {
         while (view) {
             if (view.vertexBufferLength > 0) {
 
-                if (view.cacheVertex) {
-                    let cacheVertex = view.cacheVertex;
-                    vertexData.set(
-                        cacheVertex.subarray(0, view.vertexBufferLength),
-                        vertexOffset
-                    );
+                let sourceIndex = view.cacheIndex || view.indexData;
+                vertexData.set(view.getUploadVertexData(), vertexOffset);
 
-                    if (view.matrix) {
-                        let a = view.matrix.a;
-                        let b = view.matrix.b;
-                        let c = view.matrix.c;
-                        let d = view.matrix.d;
-                        let tx = view.matrix.tx;
-                        let ty = view.matrix.ty;
-                        let offsetX = view.offsetX;
-                        let offsetY = view.offsetY;
-
-                        for (let i = 0; i < view.vertexBufferLength; i += vertexStride) {
-                            let index = vertexOffset + i;
-                           
-                            let x = cacheVertex[i + 6] + offsetX;
-                            let y = cacheVertex[i + 7] + offsetY;
-                            vertexData[index + 6] = a * x - c * y + tx;
-                            vertexData[index + 7] = b * x - d * y + ty;
-                        }
-                    }
-
-                    for (let i = 0; i < view.indexCount; i++) {
-                        indexData[indexOffset + i] = view.cacheIndex[i] + currentVertexIndex;
-                    }
-                } else {
-                    vertexData.set(
-                        view.vertexData.subarray(0, view.vertexBufferLength),
-                        vertexOffset
-                    );
-
-                    for (let i = 0; i < view.indexCount; i++) {
-                        indexData[indexOffset + i] = view.indexData[i] + currentVertexIndex;
-                    }
+                for (let i = 0; i < view.indexCount; i++) {
+                    indexData[indexOffset + i] = sourceIndex[i] + currentVertexIndex;
                 }
 
                 if (view.geometry) {

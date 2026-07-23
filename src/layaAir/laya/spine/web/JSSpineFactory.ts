@@ -1,16 +1,21 @@
 
 import { IBaseRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { ISpineRenderDataHandle } from "../interface/ISpineRenderDataHandle";
 import { ISpineFactory } from "../interface/ISpineFactory";
 import { ISpineTempletParser } from "../interface/ISpineParse";
 import { ISpineRender } from "../interface/ISpineRender";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { SpineOptimizeRender2D } from "./base/2d/SpineOptimizeRender2D";
+import { WebSpineRenderDataHandle } from "./base/2d/WebSpineRenderDataHandle";
 import { SpineOptimizeRender3D } from "./base/3d/SpineOptimizeRender3D";
 import { WebSpineTempletParser } from "./WebSpineTempletParser";
 
 export class JSSpineFactory implements ISpineFactory {
     createSpineTempletParser(): ISpineTempletParser {
         return new WebSpineTempletParser();
+    }
+    createSpineRenderDataHandle(): ISpineRenderDataHandle {
+        return new WebSpineRenderDataHandle();
     }
     /**
      * @zh 创建Spine渲染器，统一使用SpineOptimizeRender2D，通过mode属性切换不同实现

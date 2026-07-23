@@ -5,7 +5,9 @@ import { BaseRender2DType } from "../../../../display/SpriteConst";
 import { SpineShaderInit } from "../../../shader/SpineShaderInit";
 import { Spine2DNormalRenderUpdater } from "./Spine2DNormalRenderUpdater";
 import { SpineOptimizeRender2D } from "./SpineOptimizeRender2D";
-import { ISpineRenderDataHandle } from "../../../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { ISpineRenderDataHandle } from "../../../interface/ISpineRenderDataHandle";
+import { Matrix } from "../../../../maths/Matrix";
+import { Vector2 } from "../../../../maths/Vector2";
 
 
 export class BakedSpine2DRenderer extends BakedSpineRenderer {
@@ -44,7 +46,6 @@ export class StandardSpine2DRenderer extends StandardSpineRenderer{
      /** @internal */
     protected _struct: IRenderStruct2D;
 
-    private _updateFrame = -1;
     normalUpdater: Spine2DNormalRenderUpdater;
 
     /**
@@ -62,13 +63,32 @@ export class StandardSpine2DRenderer extends StandardSpineRenderer{
         super.change();
         this._struct.renderType = BaseRender2DType.spinenormal;
         this._shaderData.addDefine(SpineShaderInit.SPINE_NORMAL_2D);
-        this._updateFrame = -1;
+        let handle = this._struct.renderDataHandler as ISpineRenderDataHandle;
+        handle.needUseMatrix = false;
+        handle.renderMatrixVersion = -1;
     }
 
     leave() {
         super.leave();
         this._struct.renderType = BaseRender2DType.spine;
         this._shaderData.removeDefine(SpineShaderInit.SPINE_NORMAL_2D);
+        let handle = this._struct.renderDataHandler as ISpineRenderDataHandle;
+        handle.needUseMatrix = true;
+        handle.renderMatrixVersion = -1;
+    }
+
+    /** @internal Synchronize the final render matrix and optionally reproject existing views. */
+    updateRenderMatrix(renderMatrix: Matrix, offset: Vector2, applyToViews: boolean): void {
+        let matrix = this.normalUpdater.matrix;
+        renderMatrix.copyTo(matrix);
+        if (offset) {
+            matrix.tx += matrix.a * offset.x + matrix.c * offset.y;
+            matrix.ty += matrix.b * offset.x + matrix.d * offset.y;
+        }
+        (this._struct.renderDataHandler as ISpineRenderDataHandle).renderMatrixVersion = this._struct.getRenderMatrixVersion();
+        if (applyToViews) {
+            this.normalUpdater.applyRenderMatrixToViews();
+        }
     }
 
     /**
@@ -86,17 +106,12 @@ export class StandardSpine2DRenderer extends StandardSpineRenderer{
     render(curTime: number, offsetX: number = 0, offsetY: number = 0): void {
         let skinData = this.updater?.currentData;
 
-        const matrixVersion = this._struct.getRenderMatrixVersion();
-        if (matrixVersion < 0 || this._updateFrame < matrixVersion) {
-            let renderMatrix = this._struct.renderMatrix;
-            let offset = (this._struct.renderDataHandler as ISpineRenderDataHandle).offset;
-            let mat = this.normalUpdater.matrix
-            renderMatrix.copyTo(mat);
-            if (offset) {
-                mat.tx = mat.tx + mat.a * offset.x + mat.c * offset.y;
-                mat.ty = mat.ty + mat.b * offset.x + mat.d * offset.y;
-            }
-            this._updateFrame = matrixVersion;
+        // Keep the final traversal matrix on the updater. The normal vertex
+        // writer fuses this matrix into its existing append loop.
+        let handle = this._struct.renderDataHandler as ISpineRenderDataHandle;
+        let matrixVersion = this._struct.getRenderMatrixVersion();
+        if (matrixVersion < 0 || handle.renderMatrixVersion !== matrixVersion) {
+            this.updateRenderMatrix(this._struct.renderMatrix, handle.offset, false);
         }
 
         if (skinData && (skinData.hasRenderCache || this.normalUpdater.autoCacheEnabled)) {

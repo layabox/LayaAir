@@ -1,16 +1,14 @@
 import { Color } from "../../../../maths/Color";
 import { Matrix } from "../../../../maths/Matrix";
-import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { BaseRenderNode2D } from "../../../../NodeRender2D/BaseRenderNode2D";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Texture2D } from "../../../../resource/Texture2D";
-import { SpineShaderInit } from "../../../../spine/shader/SpineShaderInit";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import type { WebGraphicsOp2D } from "./WebGraphicsOp2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IGraphicsOp2D, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle } from "../../Design/2D/IRender2DDataHandle";
+import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IGraphicsOp2D, IMesh2DRenderDataHandle, IRender2DDataHandle } from "../../Design/2D/IRender2DDataHandle";
 import { WebGraphicsBatchEntry } from "./WebGraphicsOp2DRuntimeBuffers";
 import { WebGraphicsOp2DRuntime, type WebGraphicsMaterialState } from "./WebGraphicsOp2DRuntime";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
@@ -356,80 +354,3 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
     }
 }
 
-export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implements ISpineRenderDataHandle {
-    private _renderAlpha = -1;
-    private _baseColor: Color = new Color(1, 1, 1, 1);
-
-    public get baseColor(): Color {
-        return this._baseColor;
-    }
-    public set baseColor(value: Color) {
-        if (value != this._baseColor && this._baseColor.equal(value))
-            return
-        value = value ? value : Color.BLACK;
-        value.cloneTo(this._baseColor);
-        this._renderAlpha = -1;
-        this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._baseColor);
-    }
-
-    skeleton: spine.Skeleton;
-
-    normalUpdater: any = null;
-
-    private _offset: Vector2;
-
-    public get owner(): WebRenderStruct2D {
-        return this._owner;
-    }
-    public set owner(value: WebRenderStruct2D) {
-        if (value == this.owner) return;
-        if (this._owner) {
-            let shaderData = this._owner.spriteShaderData;
-            shaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
-            shaderData.removeDefine(SpineShaderInit.SPINE_UV);
-            shaderData.removeDefine(SpineShaderInit.SPINE_COLOR);
-        }
-        this._owner = value;
-        if (this._owner) {
-            let shaderData = this._owner.spriteShaderData;
-            shaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
-            shaderData.addDefine(SpineShaderInit.SPINE_UV);
-            shaderData.addDefine(SpineShaderInit.SPINE_COLOR);
-        }
-
-    }
-
-    public get offset(): Vector2 {
-        return this._offset;
-    }
-    public set offset(value: Vector2) {
-        this._offset = value;
-    }
-
-    inheriteRenderData(context: IRenderContext2D): void {
-        if (!this._owner || !this._owner.spriteShaderData || !this.skeleton)
-            return
-        let shaderData = this.owner.spriteShaderData;
-        let trans = this.owner.renderMatrix;
-        let mat = trans;
-        if (this._offset) {
-            let ofx = this._offset.x;
-            let ofy = this._offset.y;
-            this._nMatrix_0.setValue(mat.a, mat.c, mat.tx + mat.a * ofx + mat.c * ofy);
-            this._nMatrix_1.setValue(mat.b, mat.d, mat.ty + mat.b * ofx + mat.d * ofy);
-        } else {
-            this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
-            this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
-        }
-
-        shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
-        shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
-
-        if (this._renderAlpha != this._owner.globalAlpha) {
-            let a = this._owner.globalAlpha * this._baseColor.a;
-            _setRenderColor.setValue(this._baseColor.r, this._baseColor.g, this._baseColor.b, a);
-            this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, _setRenderColor);
-            this._renderAlpha = this._owner.globalAlpha;
-        }
-    }
-}

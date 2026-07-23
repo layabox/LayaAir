@@ -5,10 +5,10 @@ import { Blit2DQuadCMD, Draw2DElementCMD, SetRendertarget2DCMD } from "../../Dri
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IPrimitiveRenderElement2D, IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
 import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
-import { I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, ISpineRenderDataHandle, I2DGlobalRenderData, IRender2DDataHandle, IGraphicsOp2DFactory } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, IRender2DDataHandle, IGraphicsOp2DFactory } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { WebRender2DPass, WebRender2DPassManager } from "../../RenderModuleData/WebModuleData/2D/WebRender2DPass";
-import { Web2DBaseRenderDataHandle, WebEmptyRender2DDataHandle, WebMesh2DRenderDataHandle, WebPrimitiveDataHandle, WebSpineRenderDataHandle } from "../../RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
+import { Web2DBaseRenderDataHandle, WebEmptyRender2DDataHandle, WebMesh2DRenderDataHandle, WebPrimitiveDataHandle } from "../../RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
 import { WebGlobalRenderData, WebRenderStruct2D } from "../../RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
 import { ITransform2DMemoryFactory } from "../../../display/transform2d/ITransform2DMemory";
 import { WebGLSetRenderData, WebGLSetShaderDefine } from "../RenderDevice/WebGLRenderCMD";
@@ -41,10 +41,6 @@ export class WebGLRender2DProcess implements I2DRenderPassFactory {
 
     create2DGlobalRenderDataHandle(): I2DGlobalRenderData {
         return new WebGlobalRenderData();
-    }
-
-    createSpineRenderDataHandle(): ISpineRenderDataHandle {
-        return new WebSpineRenderDataHandle();
     }
 
     create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle {

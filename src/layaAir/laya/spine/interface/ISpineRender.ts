@@ -109,7 +109,7 @@ export interface ISpineRender {
      * @param time 渲染动画的时间。
      */
     render(time: number , physicsUpdate: number): void;
-    
+
     /**
      * @zh 通过索引显示皮肤
      * @param skinIndex 皮肤索引

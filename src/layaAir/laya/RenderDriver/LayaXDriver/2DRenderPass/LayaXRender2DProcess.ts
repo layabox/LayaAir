@@ -11,7 +11,6 @@ import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2
 import {
     I2DBaseRenderDataHandle, I2DPrimitiveDataHandle,
     IMesh2DRenderDataHandle, I2DGlobalRenderData,
-    ISpineRenderDataHandle,
     IRender2DDataHandle, IGraphicsOp2DFactory
 } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 
@@ -19,8 +18,7 @@ import {
 import { RTRender2DPass, RTRender2DPassManager } from "../../RenderModuleData/RuntimeModuleData/2D/RTRender2DPass";
 import {
     RTBaseRenderDataHandle, RTEmptyRender2DDataHandle,
-    RTMesh2DRenderDataHandle, RTPrimitiveDataHandle,
-    RTSpineRenderDataHandle
+    RTMesh2DRenderDataHandle, RTPrimitiveDataHandle
 } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderDataHandle";
 import { RTGlobalRenderData, RTRenderStruct2D } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderStruct2D";
 import { ITransform2DMemoryFactory } from "../../../display/transform2d/ITransform2DMemory";
@@ -134,10 +132,6 @@ export class LayaXRender2DProcess implements I2DRenderPassFactory {
 
     createMesh2DRenderDataHandle(): IMesh2DRenderDataHandle {
         return new RTMesh2DRenderDataHandle();
-    }
-
-    createSpineRenderDataHandle(): ISpineRenderDataHandle {
-        return new RTSpineRenderDataHandle();
     }
 
     createEmptyRenderDataHandle(): IRender2DDataHandle {

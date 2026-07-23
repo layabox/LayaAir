@@ -769,6 +769,9 @@ export class Stage extends Sprite {
             for (let i = 0, n = this._scene3Ds.length; i < n; i++) {
                 this._scene3Ds[i]._update();
             }
+
+            this._preRender2d();
+
             Profiler.end(profileZone);
 
             profileZone = Profiler.start("stage/pre_render");
@@ -818,10 +821,7 @@ export class Stage extends Sprite {
     /** @ignore */
     _tranMatrixUpdateList: Set<Sprite> = new Set();
 
-    /**
-     * @perfTag PerformanceDefine.T_UIRender
-    */
-    private _render2d() {
+    private _preRender2d() {
         // context2D.render2dmgr.runProcess([])
         for (let i = 0, n = this._scene2Ds.length; i < n; i++) {
             this._scene2Ds[i].render(0, 0);
@@ -903,7 +903,12 @@ export class Stage extends Sprite {
                 sprite._graphicsRenderer._render(Render2DProcessor.runner);
             }
         }
+    }
 
+    /**
+     * @perfTag PerformanceDefine.T_UIRender
+    */
+    private _render2d() {
         Render2DProcessor.renderTime += (ILaya.timer?.delta || 0) * 0.001;
         this.passManager.apply(Render2DProcessor.rendercontext2D, Render2DProcessor.renderTime);
         PostProcess2D.postRenderAll();

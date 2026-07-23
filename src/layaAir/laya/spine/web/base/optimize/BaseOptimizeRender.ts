@@ -231,6 +231,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         this._state.update(delta);
         this.currentTime = this.trackEntry.getAnimationTime();
         let cacheFrameIndex = Math.floor(this.currentTime / SpineConst.SPINE_STEP);
+        this.updater.cacheFrameIndex = cacheFrameIndex
         
         if (
             (
@@ -267,8 +268,6 @@ export abstract class BaseOptimizeRender implements ISpineRender {
                 this._updateCacheEvent(delta);
             }
         }
-
-        !this._destroyed && (this.updater.cacheFrameIndex = cacheFrameIndex);
     }
 
     _updateCacheEvent(delta: number) {

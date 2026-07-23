@@ -2634,15 +2634,14 @@ export class Sprite extends Node {
                 ILaya.stage.passManager.addPass(this._oriRenderPass);
             }
             else {
+                if (this._oriRenderPass.postProcess) {
+                    this._oriRenderPass.postProcess.recoverAllRTS();
+                }
                 if (this._drawOriRT && this._drawOriRT !== RenderTexture2D._empty) {
                     this._subStructRender._clearRenderTexture();
                     RenderTexture2D.recoverToPool(this._drawOriRT);
                 }
                 this._drawOriRT = null;
-
-                if (this._oriRenderPass.postProcess) {
-                    this._oriRenderPass.postProcess.recoverAllRTS();
-                }
                 this._oriRenderPass.repaint = true;
                 ILaya.stage.passManager.removePass(this._oriRenderPass);
             }

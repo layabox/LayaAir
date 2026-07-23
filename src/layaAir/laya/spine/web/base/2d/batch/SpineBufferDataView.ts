@@ -2,7 +2,6 @@ import { IRenderGeometryElement } from "../../../../../RenderDriver/DriverDesign
 import { SpineWholeBuffer } from "./SpineWholeBuffer";
 import { WebRender2DPass } from "../../../../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRender2DPass";
 import { SpineConst } from "../../../../SpineConst";
-import { Matrix } from "../../../../../maths/Matrix";
 
 /**
  * @en Unified Spine buffer view that holds its own vertex and index data
@@ -21,12 +20,21 @@ export class SpineBufferView {
      * @zh 索引数组增长的步长（索引数量）
      */
     private static readonly ARRAY_GROWTH_STEP_INDEX = SpineConst.NORMAL_VERTEX_LENGTH * 3; // indices
+
+    /** @internal Growth step for the local XY sidecar, in floats. */
+    private static readonly ARRAY_GROWTH_STEP_LOCAL_POSITION = SpineConst.NORMAL_VERTEX_LENGTH * 2;
     
     /**
      * @en Own vertex data buffer (no offset, direct write)
      * @zh 自己的顶点数据缓冲区（无偏移，直接写入）
      */
     vertexData: Float32Array;
+
+    /**
+     * @internal Local XY for every vertex. The interleaved vertexData always contains
+     * final world-space positions ready for upload.
+     */
+    localPositions: Float32Array;
 
     /**
      * @en Own index data buffer (no offset, direct write)
@@ -39,6 +47,9 @@ export class SpineBufferView {
      * @zh 顶点容量（float 数量）
      */
     vertexCapacity: number;
+
+    /** @internal Local-position capacity in floats. */
+    localPositionCapacity: number;
 
     /**
      * @en Index capacity
@@ -82,35 +93,16 @@ export class SpineBufferView {
      */
     geometry: IRenderGeometryElement;
 
-    /**
-     * @en Cached raw vertex data (before matrix transformation)
-     * @zh 缓存的原始顶点数据（矩阵变换前）
-     */
-    cacheVertex: Float32Array = null;
+    /** Reused upload slice; avoids allocating a TypedArray view for every Spine on every frame. */
+    private _uploadVertexSource: Float32Array = null;
+    private _uploadVertexLength: number = -1;
+    private _uploadVertexView: Float32Array = null;
 
     /**
      * @en Cached raw index data
      * @zh 缓存的原始索引数据
      */
     cacheIndex: Uint16Array = null;
-
-    /**
-     * @en Transformation matrix for this view
-     * @zh 此视图的变换矩阵
-     */
-    matrix: Matrix = null;
-
-    /**
-     * @en X offset for transformation
-     * @zh X 轴偏移
-     */
-    offsetX: number = 0;
-
-    /**
-     * @en Y offset for transformation
-     * @zh Y 轴偏移
-     */
-    offsetY: number = 0;
 
     /** @internal */
     _next: SpineBufferView;
@@ -121,6 +113,8 @@ export class SpineBufferView {
         this.vertexCapacity = vertexCapacity;
         this.indexCapacity = indexCapacity;
         this.vertexData = new Float32Array(vertexCapacity);
+        this.localPositionCapacity = Math.ceil(vertexCapacity / SpineConst.VERTEX_TWOCOLOR) * 2;
+        this.localPositions = new Float32Array(this.localPositionCapacity);
         this.indexData = new Uint16Array(indexCapacity);
     }
 
@@ -138,6 +132,20 @@ export class SpineBufferView {
      */
     getIndexData(): Uint16Array {
         return this.indexData;
+    }
+
+    /** @internal Return the used final-vertex range without allocating every upload. */
+    getUploadVertexData(): Float32Array {
+        let source = this.vertexData;
+        if (source.length === this.vertexBufferLength) {
+            return source;
+        }
+        if (this._uploadVertexSource !== source || this._uploadVertexLength !== this.vertexBufferLength) {
+            this._uploadVertexSource = source;
+            this._uploadVertexLength = this.vertexBufferLength;
+            this._uploadVertexView = source.subarray(0, this.vertexBufferLength);
+        }
+        return this._uploadVertexView;
     }
 
     /**
@@ -168,11 +176,7 @@ export class SpineBufferView {
         this.indexBufferLength = 0;
 
         // 清理缓存数据
-        this.cacheVertex = null;
         this.cacheIndex = null;
-        this.matrix = null;
-        this.offsetX = 0;
-        this.offsetY = 0;
     }
 
     /**
@@ -200,6 +204,18 @@ export class SpineBufferView {
             this.vertexData = newData;
             this.vertexCapacity = newSize;
         }
+        this.ensureLocalPositionCapacity(Math.ceil(requiredFloats / SpineConst.VERTEX_TWOCOLOR) * 2);
+    }
+
+    /** @internal Ensure the reusable local XY sidecar can hold the requested float count. */
+    ensureLocalPositionCapacity(requiredFloats: number): void {
+        if (requiredFloats > this.localPositionCapacity) {
+            const newSize = Math.ceil(requiredFloats / SpineBufferView.ARRAY_GROWTH_STEP_LOCAL_POSITION) * SpineBufferView.ARRAY_GROWTH_STEP_LOCAL_POSITION;
+            let newData = new Float32Array(newSize);
+            newData.set(this.localPositions);
+            this.localPositions = newData;
+            this.localPositionCapacity = newSize;
+        }
     }
 
     /**
@@ -222,10 +238,11 @@ export class SpineBufferView {
      */
     destroy(): void {
         this.vertexData = null;
+        this.localPositions = null;
         this.indexData = null;
-        this.cacheVertex = null;
         this.cacheIndex = null;
-        this.matrix = null;
+        this._uploadVertexSource = null;
+        this._uploadVertexView = null;
         this.geometry = null;
         this.owner = null;
         this._next = null;

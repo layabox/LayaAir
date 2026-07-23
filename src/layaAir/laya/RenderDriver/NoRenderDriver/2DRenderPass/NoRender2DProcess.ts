@@ -13,13 +13,13 @@ import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderG
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { NoRenderSetRenderData, NoRenderSetShaderDefine } from "../DriverDevice/NoRenderDeviceFactory";
-import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, IGraphicsOp2DFactory } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, IGraphicsOp2DFactory } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import {
 	NoRenderGlobalRenderData, NoRenderEmptyDataHandle,
 	NoRenderPrimitiveDataHandle, NoRenderBaseDataHandle,
-	NoRenderMeshDataHandle, NoRenderSpineDataHandle,
+	NoRenderMeshDataHandle,
 	NoRenderStruct2D, NoRender2DPass, NoRender2DPassManager
 } from "./NoRender2DModuleData";
 import { ITransform2DMemoryFactory } from "../../../display/transform2d/ITransform2DMemory";
@@ -37,9 +37,6 @@ export class NoRender2DProcess implements I2DRenderPassFactory {
 
     create2DGlobalRenderDataHandle(): I2DGlobalRenderData {
         return new NoRenderGlobalRenderData();
-    }
-    createSpineRenderDataHandle(): ISpineRenderDataHandle {
-        return new NoRenderSpineDataHandle();
     }
     createRender2DPass(): IRender2DPass {
         return new NoRender2DPass();

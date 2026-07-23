@@ -13,9 +13,10 @@ import { SpineGlobalMeshManager } from "./SpineGlobalMeshManager";
 import { Matrix } from "../../../../maths/Matrix";
 import { SpineNormalRenderUpdater } from "../optimize/SpineNormalRenderUpdater";
 import { IRenderBatch, ISpineNormalUpdater } from "../../IWebSpine";
-import { Vector2 } from "../../../../maths/Vector2";
 import { SpineBufferView } from "./batch/SpineBufferDataView";
 import { FrameRenderCache } from "../optimize/AnimationRender";
+import { Stat } from "../../../../utils/Stat";
+import { Texture2D } from "../../../../resource/Texture2D";
 
 const QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
 
@@ -35,6 +36,10 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
     private clipper = new spine.SkeletonClipping();
 
     private _internalMaterials: Material[] = [];
+    /** Material lookup signature for each normal batch position. */
+    private _materialTextures: Texture2D[] = [];
+    private _materialBlendModes: number[] = [];
+    private _materialCacheVersion: number = -1;
     materials: Material[] = [];
 
     /** @internal */
@@ -79,8 +84,36 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
      * @zh 当前帧分配的 views（用于清理）
      */
     private _allocatedViewsThisFrame: SpineBufferView[] = [];
+    /** Number of live entries. The backing array is retained across frames. */
+    private _allocatedViewCount: number = 0;
 
     matrix: Matrix = new Matrix;
+
+    /** @internal Rebuild final world-space XY for existing views after a matrix-only change. */
+    applyRenderMatrixToViews(): void {
+        let matrix = this.matrix;
+        let a = matrix.a;
+        let b = matrix.b;
+        let c = matrix.c;
+        let d = matrix.d;
+        let tx = matrix.tx;
+        let ty = matrix.ty;
+
+        for (let i = 0; i <= this._currentBatchIndex; i++) {
+            let view = this.batches[i]?.view;
+            if (view) {
+                let vertexData = view.vertexData;
+                let localPositions = view.localPositions;
+                for (let vertexIndex = 0, pos = 0, localPos = 0; vertexIndex < view.vertexCount; vertexIndex++, pos += SpineConst.VERTEX_TWOCOLOR, localPos += 2) {
+                    let x = localPositions[localPos];
+                    let y = localPositions[localPos + 1];
+                    vertexData[pos + 6] = a * x - c * y + tx;
+                    vertexData[pos + 7] = b * x - d * y + ty;
+                }
+                view.markModified();
+            }
+        }
+    }
 
     renderUpdate(
         time: number,
@@ -91,6 +124,14 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
         offsetX: number = 0,
         offsetY: number = 0
     ): void {
+        if (this._materialCacheVersion !== updater.materialCacheVersion) {
+            this._materialCacheVersion = updater.materialCacheVersion;
+            this._internalMaterials.length = 0;
+            this._materialTextures.length = 0;
+            this._materialBlendModes.length = 0;
+            this.needUpdate = true;
+        }
+
         let clipper = this.clipper;
         let twoColorTint = true;
         let blendMode: spine.BlendMode | null = null;
@@ -115,15 +156,13 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
         this._currentBatchIndex = -1;
         this._currentGeometryVertexCount = 0;
 
-        for (let i = 0, n = this._allocatedViewsThisFrame.length; i < n; i++) {
+        for (let i = 0, n = this._allocatedViewCount; i < n; i++) {
             let view = this._allocatedViewsThisFrame[i];
             view.reset();
             this._viewPool.push(view);
         }
 
-        this._allocatedViewsThisFrame.length = 0;
-
-        this.batches.length = 0;
+        this._allocatedViewCount = 0;
 
         blendMode = null;
         spineTex = null;
@@ -216,7 +255,17 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
                 }
 
                 if (needNewMat) {
-                    this.addMaterial(updater.owner._getMaterial(texture.realTexture, blendMode));
+                    let materialIndex = this._materialIndex;
+                    let realTexture = texture.realTexture;
+                    let material = this._internalMaterials[materialIndex];
+                    if (this._materialTextures[materialIndex] !== realTexture
+                        || this._materialBlendModes[materialIndex] !== blendMode
+                        || !material) {
+                        material = updater.owner._getMaterial(realTexture, blendMode);
+                        this._materialTextures[materialIndex] = realTexture;
+                        this._materialBlendModes[materialIndex] = blendMode;
+                    }
+                    this.addMaterial(material);
                     this.createBatch();  
                 }
 
@@ -265,47 +314,14 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
             const batch = this.batches[i];
             if (batch) {
                 let vertexData = batch.view.vertexData;
-                let vertexStride = SpineConst.VERTEX_TWOCOLOR;
                 let vertexBufferLength = batch.view.vertexBufferLength;
                 
-                // Spine 坐标系的正向变换：[x']   [ a  -c ] [x]   [tx]
-                //                         [y'] = [ b  -d ] [y] + [ty]
                 let data = new Float32Array(vertexBufferLength);
-                let a = this.matrix.a;
-                let b = this.matrix.b;
-                let c = this.matrix.c;
-                let d = this.matrix.d;
-                let tx = this.matrix.tx;
-                let ty = this.matrix.ty;
-
-                let det = -a * d + b * c;
-
-                let inv_a = -d / det;
-                let inv_c = c / det;
-                let inv_b = -b / det;
-                let inv_d = a / det;
-                let inv_tx = -(inv_a * tx + inv_c * ty);
-                let inv_ty = -(inv_b * tx + inv_d * ty);
-                
-                // 复制所有数据，但反转位置变换
-                for (let j = 0; j < vertexBufferLength; j += vertexStride) {
-                    data[j] = vertexData[j];         // uv.x
-                    data[j + 1] = vertexData[j + 1]; // uv.y
-                    data[j + 2] = vertexData[j + 2]; // color.r
-                    data[j + 3] = vertexData[j + 3]; // color.g
-                    data[j + 4] = vertexData[j + 4]; // color.b
-                    data[j + 5] = vertexData[j + 5]; // color.a
-
-                    let transformedX = vertexData[j + 6];
-                    let transformedY = vertexData[j + 7];
-
-                    data[j + 6] = inv_a * transformedX + inv_c * transformedY + inv_tx;
-                    data[j + 7] = inv_b * transformedX + inv_d * transformedY + inv_ty;
-
-                    data[j + 8] = vertexData[j + 8];   // darkColor.r
-                    data[j + 9] = vertexData[j + 9];   // darkColor.g
-                    data[j + 10] = vertexData[j + 10]; // darkColor.b
-                    data[j + 11] = vertexData[j + 11]; // darkColor.a
+                data.set(vertexData.subarray(0, vertexBufferLength));
+                let localPositions = batch.view.localPositions;
+                for (let vertexIndex = 0, pos = 0, localPos = 0; vertexIndex < batch.view.vertexCount; vertexIndex++, pos += SpineConst.VERTEX_TWOCOLOR, localPos += 2) {
+                    data[pos + 6] = localPositions[localPos];
+                    data[pos + 7] = localPositions[localPos + 1];
                 }
 
                 renderBlocks.push({
@@ -360,7 +376,11 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
             this.batches[this._currentBatchIndex] = batch;
         } else {
             geometry = batch.geometry;
-            // geometry.clearRenderParams();
+            if (batch.material !== material || batch.materialIndex !== materialIndex) {
+                batch.material = material;
+                batch.materialIndex = materialIndex;
+                this.needUpdate = true;
+            }
         }
 
         let view: SpineBufferView;
@@ -374,15 +394,11 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
         }
 
         // 清理缓存数据
-        view.cacheVertex = null;
         view.cacheIndex = null;
-        view.matrix = null;
-        view.offsetX = 0;
-        view.offsetY = 0;
 
         view.geometry = geometry;
         batch.view = view;
-        this._allocatedViewsThisFrame.push(view);
+        this._allocatedViewsThisFrame[this._allocatedViewCount++] = view;
 
         this._currentGeometryVertexCount = 0;
 
@@ -390,8 +406,8 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
     }
 
     /**
-     * @en Append clipped vertices and indices (cache raw data, apply matrix on upload)
-     * @zh 附加裁剪后的顶点和索引（缓存原始数据，上传时应用矩阵）
+     * @en Append clipped vertices, retaining local XY while writing final world-space positions.
+     * @zh 附加裁剪后的顶点，保留局部 XY 并同时写入最终世界坐标。
      */
     appendVerticesClip(
         vertices: ArrayLike<number>,
@@ -418,19 +434,22 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
         currentView.ensureIndexCapacity(currentView.indexBufferLength + indicesLength);
 
         let vertexData = currentView.vertexData;
+        let localPositions = currentView.localPositions;
         let indexData = currentView.indexData;
         let vertexOffset = currentView.vertexBufferLength;
+        let localPositionOffset = currentView.vertexCount * 2;
         let indexOffset = currentView.indexBufferLength;
         let indexBase = currentView.vertexCount;
 
-        let a = this.matrix.a;
-        let b = this.matrix.b;
-        let c = this.matrix.c;
-        let d = this.matrix.d;
-        let tx = this.matrix.tx;
-        let ty = this.matrix.ty;
+        let matrix = this.matrix;
+        let a = matrix.a;
+        let b = matrix.b;
+        let c = matrix.c;
+        let d = matrix.d;
+        let tx = matrix.tx;
+        let ty = matrix.ty;
 
-        for (let j = 0, vlen = vertexOffset; j < verticesLength; vlen += stride, j += stride) {
+        for (let j = 0, vlen = vertexOffset, localPos = localPositionOffset; j < verticesLength; vlen += stride, j += stride, localPos += 2) {
             // uv
             vertexData[vlen] = vertices[j + 6];
             vertexData[vlen + 1] = vertices[j + 7];
@@ -439,13 +458,13 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
             vertexData[vlen + 3] = vertices[j + 3];
             vertexData[vlen + 4] = vertices[j + 4];
             vertexData[vlen + 5] = vertices[j + 5];
-            //pos
+            // Local position sidecar and final world-space position.
             let x = vertices[j] + offsetX;
             let y = vertices[j + 1] + offsetY;
+            localPositions[localPos] = x;
+            localPositions[localPos + 1] = y;
             vertexData[vlen + 6] = a * x - c * y + tx;
             vertexData[vlen + 7] = b * x - d * y + ty;
-            // vertexData[vlen + 6] = x;
-            // vertexData[vlen + 7] = y;
             //two color
             vertexData[vlen + 8] = vertices[j + 8];
             vertexData[vlen + 9] = vertices[j + 9];
@@ -466,8 +485,8 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
     }
 
     /**
-     * @en Append vertices and indices (cache raw data, apply matrix on upload)
-     * @zh 附加顶点和索引（缓存原始数据，上传时应用矩阵）
+     * @en Append vertices, retaining local XY while writing final world-space positions.
+     * @zh 附加顶点，保留局部 XY 并同时写入最终世界坐标。
      */
     appendVertices(
         positions: spine.NumberArrayLike,
@@ -498,19 +517,22 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
         currentView.ensureIndexCapacity(currentView.indexBufferLength + indicesLength);
 
         let vertexData = currentView.vertexData;
+        let localPositions = currentView.localPositions;
         let indexData = currentView.indexData;
         let vertexOffset = currentView.vertexBufferLength;
+        let localPositionOffset = currentView.vertexCount * 2;
         let indexOffset = currentView.indexBufferLength;
         let indexBase = currentView.vertexCount;
 
-        let a = this.matrix.a;
-        let b = this.matrix.b;
-        let c = this.matrix.c;
-        let d = this.matrix.d;
-        let tx = this.matrix.tx;
-        let ty = this.matrix.ty;
+        let matrix = this.matrix;
+        let a = matrix.a;
+        let b = matrix.b;
+        let c = matrix.c;
+        let d = matrix.d;
+        let tx = matrix.tx;
+        let ty = matrix.ty;
 
-        for (let u = 0, v = 0, n = verticesLength; v < n; v += stride, u += 2) {
+        for (let u = 0, v = 0, n = verticesLength, localPos = localPositionOffset; v < n; v += stride, u += 2, localPos += 2) {
             let pos = vertexOffset + v;
             // UV
             vertexData[pos] = uvs[u];
@@ -521,13 +543,13 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
             vertexData[pos + 4] = finalColor.b;
             vertexData[pos + 5] = finalColor.a;
             
-            // POS
+            // Local position sidecar and final world-space position.
             let x = positions[v] + offsetX;
             let y = positions[v + 1] + offsetY;
+            localPositions[localPos] = x;
+            localPositions[localPos + 1] = y;
             vertexData[pos + 6] = a * x - c * y + tx;
             vertexData[pos + 7] = b * x - d * y + ty;
-            // vertexData[pos + 6] = x;
-            // vertexData[pos + 7] = y;
             // TWO COLOR
             vertexData[pos + 8] = darkColor.r;
             vertexData[pos + 9] = darkColor.g;
@@ -579,9 +601,9 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
     }
 
     destroy() {
-        this._allocatedViewsThisFrame.forEach(view => {
-            view.reset();
-        });
+        for (let i = 0; i < this._allocatedViewCount; i++) {
+            this._allocatedViewsThisFrame[i].reset();
+        }
         this.batches.forEach(batch => {
             if (batch && batch.geometry) {
                 batch.geometry.destroy();
@@ -589,6 +611,11 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
         });
         this.batches.length = 0;
         this.subMeshes.length = 0;
+        this._internalMaterials.length = 0;
+        this._materialTextures.length = 0;
+        this._materialBlendModes.length = 0;
+        this._allocatedViewsThisFrame.length = 0;
+        this._allocatedViewCount = 0;
         this._allocatedViewsThisFrame = null;
         this._viewPool = null;
     }
@@ -606,13 +633,12 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
     restoreFromCache(cache: FrameRenderCache, offsetX: number = 0, offsetY: number = 0): void {
         if (!cache) return;
 
-        for (let view of this._allocatedViewsThisFrame) {
+        for (let i = 0; i < this._allocatedViewCount; i++) {
+            let view = this._allocatedViewsThisFrame[i];
             view.reset();
             this._viewPool.push(view);
         }
-        this._allocatedViewsThisFrame.length = 0;
-        this.batches.length = 0;
-
+        this._allocatedViewCount = 0;
         this.materials.length = cache.materials.length;
         for (let i = 0; i < cache.materials.length; i++) {
             this.materials[i] = cache.materials[i];
@@ -622,6 +648,8 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
         
         for (let i = 0; i < cache.renderBlocks.length; i++) {
             const renderBlock = cache.renderBlocks[i];
+            const vertexBufferLength =  renderBlock.vertexBufferLength;
+            const indexBufferLength =  renderBlock.indexBufferLength;
             this._currentBatchIndex++;
             
             let existingBatch = this.batches[this._currentBatchIndex];
@@ -650,40 +678,56 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
                 );
             }
 
-            view.ensureVertexCapacity(renderBlock.vertexBufferLength);
-            view.ensureIndexCapacity(renderBlock.indexBufferLength);
+            view.ensureVertexCapacity(vertexBufferLength);
+            view.ensureIndexCapacity(indexBufferLength);
 
-            view.cacheVertex = renderBlock.vertexData;
+            view.vertexData.set(renderBlock.vertexData.subarray(0, vertexBufferLength), 0);
             view.cacheIndex = renderBlock.indexData;
-            view.vertexBufferLength = renderBlock.vertexBufferLength;
-            view.indexBufferLength = renderBlock.indexBufferLength;
+            view.vertexBufferLength = vertexBufferLength;
+            view.indexBufferLength = indexBufferLength;
             view.vertexCount = renderBlock.vertexCount;
             view.indexCount = renderBlock.indexCount;
             view.geometry = geometry;
 
-            // 存储矩阵和偏移（在 _upload 时应用）
-            if (offsetX !== 0 || offsetY !== 0 || this._hasMatrixTransform()) {
-                view.matrix = this.matrix;
-                view.offsetX = offsetX;
-                view.offsetY = offsetY;
-            } else {
-                view.matrix = null;
-                view.offsetX = 0;
-                view.offsetY = 0;
+            // Frame caches stay local and shareable. Restore the local XY sidecar,
+            // then make vertexData instance-ready with the current world matrix.
+            let matrix = this.matrix;
+            let a = matrix.a;
+            let b = matrix.b;
+            let c = matrix.c;
+            let d = matrix.d;
+            let tx = matrix.tx;
+            let ty = matrix.ty;
+            let vertexData = view.vertexData;
+            let localPositions = view.localPositions;
+            for (let vertexIndex = 0, pos = 0, localPos = 0; vertexIndex < view.vertexCount; vertexIndex++, pos += SpineConst.VERTEX_TWOCOLOR, localPos += 2) {
+                let x = vertexData[pos + 6];
+                let y = vertexData[pos + 7];
+                localPositions[localPos] = x;
+                localPositions[localPos + 1] = y;
+                vertexData[pos + 6] = a * x - c * y + tx;
+                vertexData[pos + 7] = b * x - d * y + ty;
             }
 
             const materialIndex = i < cache.materials.length ? i : cache.materials.length - 1;
             const material = cache.materials[materialIndex] || null as any;
 
-            const batch: Spine2DRenderBatch = {
-                geometry: geometry,
-                view: view,
-                material: material,
-                materialIndex: materialIndex
-            };
-
-            this.batches[this._currentBatchIndex] = batch;
-            this._allocatedViewsThisFrame.push(view);
+            let batch = existingBatch;
+            if (batch) {
+                batch.geometry = geometry;
+                batch.view = view;
+                batch.material = material;
+                batch.materialIndex = materialIndex;
+            } else {
+                batch = {
+                    geometry: geometry,
+                    view: view,
+                    material: material,
+                    materialIndex: materialIndex
+                };
+                this.batches[this._currentBatchIndex] = batch;
+            }
+            this._allocatedViewsThisFrame[this._allocatedViewCount++] = view;
         }
 
         this._bindViewsToBuffers();
@@ -702,8 +746,4 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
         this.needUpdate = true;
     }
 
-    private _hasMatrixTransform(): boolean {
-        let m = this.matrix;
-        return m.a !== 1 || m.b !== 0 || m.c !== 0 || m.d !== 1 || m.tx !== 0 || m.ty !== 0;
-    }
 }
