@@ -3,7 +3,7 @@ import { BaseRenderNode2D } from "../../../../NodeRender2D/BaseRenderNode2D";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
-import { I2DBaseRenderDataHandle, IGraphicsSingleQuadDataHandle, IGraphicsCommandStreamDataHandle, ISubStructRenderDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, IGraphicsOp2D } from "../../Design/2D/IRender2DDataHandle";
+import { I2DBaseRenderDataHandle, IGraphicsSingleQuadDataHandle, IGraphicsCommandStreamDataHandle, ISubStructRenderDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, IGraphicsOp2D } from "../../Design/2D/IRender2DDataHandle";
 import { GLESRenderContext2D } from "../../../OpenGLESDriver/2DRenderPass/GLESRenderContext2D";
 import { RTRenderStruct2D } from "./RTRenderStruct2D";
 import { Matrix } from "../../../../maths/Matrix";

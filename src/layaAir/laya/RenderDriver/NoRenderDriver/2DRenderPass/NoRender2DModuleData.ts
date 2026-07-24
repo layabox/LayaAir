@@ -20,7 +20,7 @@ import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderG
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import type { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { IClipInfo, IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
-import { I2DBaseRenderDataHandle, I2DGlobalRenderData, IGraphicsSingleQuadDataHandle, IGraphicsCommandStreamDataHandle, ISubStructRenderDataHandle, IGraphicsOp2D, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DBaseRenderDataHandle, I2DGlobalRenderData, IGraphicsSingleQuadDataHandle, IGraphicsCommandStreamDataHandle, ISubStructRenderDataHandle, IGraphicsOp2D, IMesh2DRenderDataHandle, IRender2DDataHandle } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { Stat } from "../../../utils/Stat";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";

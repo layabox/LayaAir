@@ -8,7 +8,7 @@ import { Texture2D } from "../../../../resource/Texture2D";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import type { WebGraphicsOp2D } from "./WebGraphicsOp2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { I2DBaseRenderDataHandle, IGraphicsSingleQuadDataHandle, IGraphicsCommandStreamDataHandle, ISubStructRenderDataHandle, IGraphicsOp2D, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle } from "../../Design/2D/IRender2DDataHandle";
+import { I2DBaseRenderDataHandle, IGraphicsSingleQuadDataHandle, IGraphicsCommandStreamDataHandle, ISubStructRenderDataHandle, IGraphicsOp2D, IMesh2DRenderDataHandle, IRender2DDataHandle } from "../../Design/2D/IRender2DDataHandle";
 import { WebGraphicsBatchEntry } from "./WebGraphicsOp2DRuntimeBuffers";
 import { WebGraphicsOp2DRuntime, type WebGraphicsMaterialState } from "./WebGraphicsOp2DRuntime";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";

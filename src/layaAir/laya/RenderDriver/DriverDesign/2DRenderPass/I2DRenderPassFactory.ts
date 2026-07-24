@@ -4,7 +4,7 @@ import { IRenderContext2D } from "./IRenderContext2D";
 import { IPrimitiveRenderElement2D, IRenderElement2D } from "./IRenderElement2D";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
-import { I2DBaseRenderDataHandle, IGraphicsSingleQuadDataHandle, IGraphicsCommandStreamDataHandle, ISubStructRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, IRender2DDataHandle, IGraphicsOp2DFactory } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
+import { I2DBaseRenderDataHandle, IGraphicsSingleQuadDataHandle, IGraphicsCommandStreamDataHandle, ISubStructRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, IRender2DDataHandle, IGraphicsOp2DFactory } from "../../RenderModuleData/Design/2D/IRender2DDataHandle"
 import { ITransform2DMemoryFactory } from "../../../display/transform2d/ITransform2DMemory";
 
 export interface I2DRenderPassFactory {

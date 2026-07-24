@@ -19,7 +19,7 @@ import { RTRender2DPass, RTRender2DPassManager } from "../../RenderModuleData/Ru
 import {
     RTBaseRenderDataHandle, RTEmptyRender2DDataHandle,
     RTGraphicsSingleQuadDataHandle, RTGraphicsCommandStreamDataHandle, RTMesh2DRenderDataHandle,
-    RTSpineRenderDataHandle, RTSubStructRenderDataHandle
+    RTSubStructRenderDataHandle
 } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderDataHandle";
 import { RTGlobalRenderData, RTRenderStruct2D } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderStruct2D";
 import { ITransform2DMemoryFactory } from "../../../display/transform2d/ITransform2DMemory";
