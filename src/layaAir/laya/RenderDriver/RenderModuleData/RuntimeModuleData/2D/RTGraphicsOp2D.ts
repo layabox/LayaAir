@@ -20,15 +20,15 @@ type RTGraphicsNativeOp = {
 	destroy(): void;
 };
 
-type RTGraphicsNativeCtor = new (payload: ArrayBuffer) => RTGraphicsNativeOp;
+type RTGraphicsNativeCtor = new (owner: NativeHandle, commandIndex: number, payload: ArrayBuffer) => RTGraphicsNativeOp;
 
 type RTGraphicsNativeWindow = Window & {
-	conchRTGraphicsTextureQuadOp2D?: RTGraphicsNativeCtor;
-	conchRTGraphicsSolidQuadOp2D?: RTGraphicsNativeCtor;
-	conchRTGraphicsFillTextureOp2D?: RTGraphicsNativeCtor;
-	conchRTGraphicsMeshOp2D?: RTGraphicsNativeCtor;
-	conchRTGraphicsMultiQuadOp2D?: RTGraphicsNativeCtor;
-	conchRTGraphicsTextOp2D?: RTGraphicsNativeCtor;
+	conchRTTextureQuadGraphicsOp?: RTGraphicsNativeCtor;
+	conchRTSolidQuadGraphicsOp?: RTGraphicsNativeCtor;
+	conchRTFillTextureGraphicsOp?: RTGraphicsNativeCtor;
+	conchRTMeshGraphicsOp?: RTGraphicsNativeCtor;
+	conchRTMultiQuadGraphicsOp?: RTGraphicsNativeCtor;
+	conchRTTextGraphicsOp?: RTGraphicsNativeCtor;
 };
 
 function getNativeTexture(value: GraphicsOp2DTextureHost | null): NativeHandle {
@@ -314,24 +314,24 @@ export abstract class RTGraphicsOp2D implements IGraphicsOp2D {
 
 	private _createNativeObject(): RTGraphicsNativeOp | null {
 		let ctor = this._getNativeConstructor();
-		return ctor ? new ctor(this._buffer) : null;
+		return ctor ? new ctor(null, this.commandIndex, this._buffer) : null;
 	}
 
 	private _getNativeConstructor(): RTGraphicsNativeCtor | null {
 		let nativeWindow = getNativeWindow();
 		switch (this.kind) {
 			case GraphicsOp2DKind.TextureQuad:
-				return nativeWindow.conchRTGraphicsTextureQuadOp2D || null;
+				return nativeWindow.conchRTTextureQuadGraphicsOp || null;
 			case GraphicsOp2DKind.FillTexture:
-				return nativeWindow.conchRTGraphicsFillTextureOp2D || null;
+				return nativeWindow.conchRTFillTextureGraphicsOp || null;
 			case GraphicsOp2DKind.SolidQuad:
-				return nativeWindow.conchRTGraphicsSolidQuadOp2D || null;
+				return nativeWindow.conchRTSolidQuadGraphicsOp || null;
 			case GraphicsOp2DKind.Mesh:
-				return nativeWindow.conchRTGraphicsMeshOp2D || null;
+				return nativeWindow.conchRTMeshGraphicsOp || null;
 			case GraphicsOp2DKind.MultiQuad:
-				return nativeWindow.conchRTGraphicsMultiQuadOp2D || null;
+				return nativeWindow.conchRTMultiQuadGraphicsOp || null;
 			case GraphicsOp2DKind.Text:
-				return nativeWindow.conchRTGraphicsTextOp2D || null;
+				return nativeWindow.conchRTTextGraphicsOp || null;
 		}
 		return null;
 	}
