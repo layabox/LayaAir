@@ -10,12 +10,12 @@ import { Event } from "../../../events/Event";
 import { DrawTextureCmd } from "../../cmd/DrawTextureCmd";
 import type { IGraphicsCmd } from "../../IGraphics";
 import {
-	GraphicsHandleDirtyFlag,
-	GraphicsHandleUpdateField,
-	GraphicsCommandPatchResult,
-	GraphicsOp2DDirtyFlag,
-	GraphicsOwnerTransformDependency,
-	GraphicsRenderMode,
+   GraphicsHandleDirtyFlag,
+   GraphicsHandleUpdateField,
+   GraphicsCommandPatchResult,
+   GraphicsOp2DDirtyFlag,
+   GraphicsOwnerTransformDependency,
+   GraphicsRenderMode,
 } from "./GraphicsPipelineTypes";
 import { GraphicsCommandStreamMode } from "./GraphicsCommandStreamMode";
 import { GraphicsRunner } from "../GraphicsRunner";
@@ -227,24 +227,12 @@ export class GraphicsRenderer {
 
       let owner = this.owner;
       let oldMask = this._ownerTransformMask;
-      if (oldMask !== 0 && owner) {
-         if ((oldMask & TransformKind.Size) !== 0)
-            owner.off(SpriteGlobalTransform.SIZE_CHANGED, this, this._onOwnerTransformChanged);
-         if ((oldMask & TransformKind.Scale) !== 0) {
-            owner.off(Event.TRANSFORM_CHANGED, this, this._onOwnerDemandTransformChanged);
-            owner._refreshDemandTransEventUp();
-         }
-      }
+      if (oldMask !== 0 && owner)
+         owner.off(SpriteGlobalTransform.CHANGED, this, this._onOwnerTransformChanged);
 
       this._ownerTransformMask = transformMask;
-      if (transformMask !== 0 && owner && !this._destroyed) {
-         if ((transformMask & TransformKind.Size) !== 0)
-            owner.on(SpriteGlobalTransform.SIZE_CHANGED, this, this._onOwnerTransformChanged);
-         if ((transformMask & TransformKind.Scale) !== 0) {
-            owner.on(Event.TRANSFORM_CHANGED, this, this._onOwnerDemandTransformChanged);
-            owner._setDemandTransEvent();
-         }
-      }
+      if (transformMask !== 0 && owner && !this._destroyed)
+         owner.on(SpriteGlobalTransform.CHANGED, this, this._onOwnerTransformChanged);
    }
 
    /**
@@ -358,7 +346,7 @@ export class GraphicsRenderer {
    /**
     * @internal
     */
-   invalidateGraphicsState(){
+   invalidateGraphicsState() {
       if (this._commandStreamMode)
          this._commandStreamMode.consumeSpriteTexturePatch();
       this._invalidateSubmittedState();

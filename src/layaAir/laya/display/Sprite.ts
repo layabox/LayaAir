@@ -1537,11 +1537,11 @@ export class Sprite extends Node {
             if (this._getBit(NodeFlags.DEMAND_TRANS_EVENT))
                 notifyTransChanged(this);
         }
-        else {
-            // Size without an anchor does not dirty the matrix store, but size-dependent
-            // renderers still consume the semantic transform event.
-            this._globalTrans._notifyChanged(kind);
-        }
+        // else {
+        //     // Size without an anchor does not dirty the matrix store, but size-dependent
+        //     // renderers still consume the semantic transform event.
+        //     this._globalTrans._spTransChanged(kind);
+        // }
     }
 
     /**
