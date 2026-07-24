@@ -36,7 +36,7 @@ const enum GraphicsCommandTrackerFlag {
    StateCommand = 1 << 5,
    PendingReplacement = 1 << 6,
 }
-const enum GraphicsCommandIndexField {
+const enum GraphicsCommandMetadataField {
    OpStart,
    OpCount,
    Flags,
@@ -56,7 +56,7 @@ const SPRITE_TEXTURE_COMMAND_ID = "$spriteTexture";
 // Graphics compilation is synchronous and non-reentrant. Ops copy these values
 // before returning, so one module-level workspace replaces per-Mode scratch objects.
 const PATCH_RESULT: GraphicsOp2DPatchResult = { success: false, opIndex: -1, dirtyFlags: GraphicsOp2DDirtyFlag.None };
-const COMMAND_RANGE_SCRATCH: GraphicsCommandRangeRecord = { cmdIndex: -1, start: -1, count: 0, active: false };
+const COMMAND_RANGE_SCRATCH: GraphicsCommandRangeRecord = { commandIndex: -1, start: -1, count: 0, active: false };
 // Rebuild/rewrite are synchronous and non-reentrant. Keep their capacity at
 // module scope so many retained Modes share one high-water workspace.
 const REBUILD_OPS_SCRATCH: IGraphicsOp2D[] = [];
@@ -94,12 +94,14 @@ export class GraphicsCommandStreamMode {
    private _rebuildSpliceRemovedCount: number = 0;
    private _rebuildSpliceAddedCount: number = 0;
 
-   clear(): void {
+   clear(releaseHandle: boolean = false): void {
    	this._finishOrCancelRebuild(true);
    	for (let i = 0, n = this.ops.length; i < n; i++)
    		this.ops[i].destroy();
-   	this.ops.length = 0;
-   	this.resetState();
+      this.ops.length = 0;
+      this.resetState();
+      if (releaseHandle && this._dataHandle)
+         this._dataHandle.syncGraphicsOps(GraphicsCommandStreamMode._emptyOps);
    }
 
    private resetState(): void {
@@ -332,8 +334,9 @@ export class GraphicsCommandStreamMode {
    			return factory.createMeshOp(this._activeCommandIndex, this._activeCommandId);
    	}
    }
+   private static readonly _emptyOps: ReadonlyArray<IGraphicsOp2D> = [];
    private static readonly _emptyCommandList: number[] = [];
-   private _commandIndex: Int32Array = null;
+   private _commandMetadata: Int32Array = null;
    private _commandCapacity: number = 0;
    private _commandCount: number = 0;
    private _scopeIndex: Int32Array = null;
@@ -349,31 +352,30 @@ export class GraphicsCommandStreamMode {
    private _pendingEmptyTextureRecords: GraphicsCommandTextureRecord[] = null;
    private _commandTextureIds: Array<number | number[]> = null;
    private _textureBuildVersion: number = 0;
-   private _activeCmdIndex: number = -1;
    private _activeCommandHadStateDependency: boolean = false;
    private _hasStateDependency: boolean = false;
    private _ownerTransformDependencyMask: GraphicsOwnerTransformDependency = GraphicsOwnerTransformDependency.None;
 
-   private _refreshCommandMetadata(cmdIndex: number, cmd: IGraphicsCmd, owner?: Sprite): boolean {
+   private _refreshCommandMetadata(commandIndex: number, cmd: IGraphicsCmd, owner?: Sprite): boolean {
       let info = this._readCommandInfo(cmd, owner);
       if (info.isStateCommand)
          return false;
 
-      let hasStateDependency = this.hasStateDependency(cmdIndex);
-      this._removeCommandMetadata(cmdIndex);
-      this._writeCommandMetadata(cmdIndex, info, hasStateDependency);
+      let hasStateDependency = this.hasStateDependency(commandIndex);
+      this._removeCommandMetadata(commandIndex);
+      this._writeCommandMetadata(commandIndex, info, hasStateDependency);
       this._recomputeOwnerTransformDependencyMask();
       return true;
    }
 
-   getRange(cmdIndex: number): GraphicsCommandRangeRecord {
-      if (cmdIndex < 0 || cmdIndex >= this._commandCount)
+   getRange(commandIndex: number): GraphicsCommandRangeRecord {
+      if (commandIndex < 0 || commandIndex >= this._commandCount)
          return null;
 
-      let count = this._getCommandValue(cmdIndex, GraphicsCommandIndexField.OpCount);
-      let start = count > 0 ? this._getCommandValue(cmdIndex, GraphicsCommandIndexField.OpStart) : -1;
+      let count = this._getCommandValue(commandIndex, GraphicsCommandMetadataField.OpCount);
+      let start = count > 0 ? this._getCommandValue(commandIndex, GraphicsCommandMetadataField.OpStart) : -1;
       let out = COMMAND_RANGE_SCRATCH;
-      out.cmdIndex = cmdIndex;
+      out.commandIndex = commandIndex;
       out.start = start;
       out.count = count;
       out.active = count > 0 && start >= 0;
@@ -420,8 +422,8 @@ export class GraphicsCommandStreamMode {
       this._commandTextureIds.length = commandCount;
    }
 
-   hasStateDependency(cmdIndex: number): boolean {
-      return (this._getCommandValue(cmdIndex, GraphicsCommandIndexField.Flags) & GraphicsCommandTrackerFlag.StateDependency) !== 0;
+   hasStateDependency(commandIndex: number): boolean {
+      return (this._getCommandValue(commandIndex, GraphicsCommandMetadataField.Flags) & GraphicsCommandTrackerFlag.StateDependency) !== 0;
    }
 
    getSizeDirtyCommands(): number[] {
@@ -437,21 +439,21 @@ export class GraphicsCommandStreamMode {
       dirtyCommands.length = 0;
       let scaleCommands = this._scaleTessellationCommands;
       for (let i = 0, n = scaleCommands ? scaleCommands.length : 0; i < n; i++) {
-         let cmdIndex = scaleCommands[i];
-         let cmd = cmdIndex >= 0 && cmdIndex < cmds.length ? cmds[cmdIndex] : null;
+         let commandIndex = scaleCommands[i];
+         let cmd = commandIndex >= 0 && commandIndex < cmds.length ? cmds[commandIndex] : null;
          if (!cmd)
             continue;
 
          // State-dependent commands must be rebuilt with their preceding
          // save/scale/transform stream so the effective scale stays correct.
-         if (this.hasStateDependency(cmdIndex)) {
-            dirtyCommands.push(cmdIndex);
+         if (this.hasStateDependency(commandIndex)) {
+            dirtyCommands.push(commandIndex);
             continue;
          }
 
          let key = this._readCommandInfo(cmd, owner).scaleTessellationKey || 0;
-         if (key !== this._getCommandValue(cmdIndex, GraphicsCommandIndexField.TessellationKey))
-            dirtyCommands.push(cmdIndex);
+         if (key !== this._getCommandValue(commandIndex, GraphicsCommandMetadataField.TessellationKey))
+            dirtyCommands.push(commandIndex);
       }
       return dirtyCommands;
    }
@@ -469,31 +471,31 @@ export class GraphicsCommandStreamMode {
       return mask;
    }
 
-   private _writeRange(cmdIndex: number, start: number, end: number): void {
+   private _writeRange(commandIndex: number, start: number, end: number): void {
       let count = end - start;
-      this._ensureCommandCapacity(cmdIndex + 1);
-      if (cmdIndex >= this._commandCount)
-         this._commandCount = cmdIndex + 1;
-      this._setCommandValue(cmdIndex, GraphicsCommandIndexField.OpStart, count > 0 ? start : -1);
-      this._setCommandValue(cmdIndex, GraphicsCommandIndexField.OpCount, count);
+      this._ensureCommandCapacity(commandIndex + 1);
+      if (commandIndex >= this._commandCount)
+         this._commandCount = commandIndex + 1;
+      this._setCommandValue(commandIndex, GraphicsCommandMetadataField.OpStart, count > 0 ? start : -1);
+      this._setCommandValue(commandIndex, GraphicsCommandMetadataField.OpCount, count);
    }
 
-   isStateCommand(cmdIndex: number): boolean {
-      return (this._getCommandValue(cmdIndex, GraphicsCommandIndexField.Flags) & GraphicsCommandTrackerFlag.StateCommand) !== 0;
+   isStateCommand(commandIndex: number): boolean {
+      return (this._getCommandValue(commandIndex, GraphicsCommandMetadataField.Flags) & GraphicsCommandTrackerFlag.StateCommand) !== 0;
    }
 
    isStateCommandType(cmd: IGraphicsCmd, owner?: Sprite): boolean {
       return !!cmd && this._readCommandInfo(cmd, owner).isStateCommand;
    }
 
-   prepareLocalReplay(cmdIndex: number, context: GraphicsCompileContext, owner: Sprite, textRender: GraphicsCompileContext["_textRender"]): number {
-      if (!context || cmdIndex < 0 || cmdIndex >= this._commandCount)
+   prepareLocalReplay(commandIndex: number, context: GraphicsCompileContext, owner: Sprite, textRender: GraphicsCompileContext["_textRender"]): number {
+      if (!context || commandIndex < 0 || commandIndex >= this._commandCount)
          return -1;
-      if (!this.hasStateDependency(cmdIndex)) {
+      if (!this.hasStateDependency(commandIndex)) {
          context.reset(owner, this._rootBlendMode, textRender);
-         return cmdIndex;
+         return commandIndex;
       }
-      let scope = this._getCommandValue(cmdIndex, GraphicsCommandIndexField.StateScope);
+      let scope = this._getCommandValue(commandIndex, GraphicsCommandMetadataField.StateScope);
       if (this._scopeIndex && scope >= 0 && scope < this._scopeCount) {
          let frameOffset = scope * GRAPHICS_STATE_FRAME_STRIDE;
          context.loadStateFrom(this._scopeEntryFrames, frameOffset, owner, textRender);
@@ -503,36 +505,36 @@ export class GraphicsCommandStreamMode {
       return 0;
    }
 
-   getStateScopeCommandEnd(cmdIndex: number): number {
-      if (cmdIndex < 0 || cmdIndex >= this._commandCount)
+   getStateScopeCommandEnd(commandIndex: number): number {
+      if (commandIndex < 0 || commandIndex >= this._commandCount)
          return -1;
       if (!this._scopeIndex)
          return this._commandCount;
-      let scope = this._getCommandValue(cmdIndex, GraphicsCommandIndexField.StateScope);
+      let scope = this._getCommandValue(commandIndex, GraphicsCommandMetadataField.StateScope);
       return scope >= 0 && scope < this._scopeCount
          ? this._getScopeValue(scope, GraphicsStateScopeField.CommandEnd)
          : this._commandCount;
    }
 
-   refreshChildScopeEntry(cmdIndex: number, context: GraphicsCompileContext): void {
-      if (!context || !this._scopeIndex || cmdIndex < 0 || cmdIndex + 1 >= this._commandCount)
+   refreshChildScopeEntry(commandIndex: number, context: GraphicsCompileContext): void {
+      if (!context || !this._scopeIndex || commandIndex < 0 || commandIndex + 1 >= this._commandCount)
          return;
-      let parentScope = this._getCommandValue(cmdIndex, GraphicsCommandIndexField.StateScope);
-      let childScope = this._getCommandValue(cmdIndex + 1, GraphicsCommandIndexField.StateScope);
+      let parentScope = this._getCommandValue(commandIndex, GraphicsCommandMetadataField.StateScope);
+      let childScope = this._getCommandValue(commandIndex + 1, GraphicsCommandMetadataField.StateScope);
       if (childScope === parentScope || childScope <= 0 || childScope >= this._scopeCount)
          return;
       if (this._getScopeValue(childScope, GraphicsStateScopeField.ParentScope) !== parentScope
-         || this._getScopeValue(childScope, GraphicsStateScopeField.CommandStart) !== cmdIndex + 1)
+         || this._getScopeValue(childScope, GraphicsStateScopeField.CommandStart) !== commandIndex + 1)
          return;
       context.copyStateTo(this._scopeEntryFrames, childScope * GRAPHICS_STATE_FRAME_STRIDE);
    }
-   private _writeCommandMetadata(cmdIndex: number, info: GraphicsCommandInfo, hasStateDependency: boolean): void {
+   private _writeCommandMetadata(commandIndex: number, info: GraphicsCommandInfo, hasStateDependency: boolean): void {
       let dependency = info.dependency || GraphicsCommandDependency.None;
       let layoutRefresh = info.layoutRefresh || GraphicsCommandLayoutRefresh.None;
       let flags = hasStateDependency ? GraphicsCommandTrackerFlag.StateDependency : 0;
       // Every command-index field is overwritten during a full build. Reset the
       // only conditional field here instead of clearing the complete packed table.
-      this._setCommandValue(cmdIndex, GraphicsCommandIndexField.TessellationKey, 0);
+      this._setCommandValue(commandIndex, GraphicsCommandMetadataField.TessellationKey, 0);
       if (info.isStateCommand)
          flags |= GraphicsCommandTrackerFlag.StateCommand;
       this._ownerTransformDependencyMask |= this._getOwnerTransformDependencyMask(info);
@@ -549,34 +551,34 @@ export class GraphicsCommandStreamMode {
          }
           if (!this._sizeDirtyCommands)
              this._sizeDirtyCommands = [];
-          this._sizeDirtyCommands.push(cmdIndex);
+          this._sizeDirtyCommands.push(commandIndex);
       }
       if ((dependency & GraphicsCommandDependency.ScaleTessellation) !== 0) {
          if (!this._scaleTessellationCommands) {
             this._scaleTessellationCommands = [];
          }
          flags |= GraphicsCommandTrackerFlag.ScaleTessellation;
-         this._setCommandValue(cmdIndex, GraphicsCommandIndexField.TessellationKey, info.scaleTessellationKey || 0);
-         this._scaleTessellationCommands.push(cmdIndex);
+         this._setCommandValue(commandIndex, GraphicsCommandMetadataField.TessellationKey, info.scaleTessellationKey || 0);
+         this._scaleTessellationCommands.push(commandIndex);
       }
-      this._setCommandValue(cmdIndex, GraphicsCommandIndexField.Flags, flags);
+      this._setCommandValue(commandIndex, GraphicsCommandMetadataField.Flags, flags);
       if (info.isStateCommand)
          this._hasStateDependency = true;
    }
-   private _removeCommandMetadata(cmdIndex: number): void {
-      let flags = this._getCommandValue(cmdIndex, GraphicsCommandIndexField.Flags);
+   private _removeCommandMetadata(commandIndex: number): void {
+      let flags = this._getCommandValue(commandIndex, GraphicsCommandMetadataField.Flags);
       if ((flags & GraphicsCommandTrackerFlag.SizePayload) !== 0)
-         this._removeCommandIndex(this._sizeDirtyCommands, cmdIndex);
+         this._removeCommandIndex(this._sizeDirtyCommands, commandIndex);
       if ((flags & GraphicsCommandTrackerFlag.ScaleTessellation) !== 0) {
-         this._removeCommandIndex(this._scaleTessellationCommands, cmdIndex);
+         this._removeCommandIndex(this._scaleTessellationCommands, commandIndex);
       }
-      this._setCommandValue(cmdIndex, GraphicsCommandIndexField.TessellationKey, 0);
-      this._setCommandValue(cmdIndex, GraphicsCommandIndexField.Flags, 0);
+      this._setCommandValue(commandIndex, GraphicsCommandMetadataField.TessellationKey, 0);
+      this._setCommandValue(commandIndex, GraphicsCommandMetadataField.Flags, 0);
    }
-   private _removeCommandIndex(list: number[], cmdIndex: number): void {
+   private _removeCommandIndex(list: number[], commandIndex: number): void {
       if (!list)
          return;
-      let index = list.indexOf(cmdIndex);
+      let index = list.indexOf(commandIndex);
       if (index >= 0) {
          let last = list.pop();
          if (index < list.length)
@@ -591,19 +593,19 @@ export class GraphicsCommandStreamMode {
          mask |= GraphicsOwnerTransformDependency.ScaleTessellation;
       this._ownerTransformDependencyMask = mask;
    }
-   private _removeTextureRefsForCommand(cmdIndex: number): void {
-      let textureIds = this._commandTextureIds && this._commandTextureIds[cmdIndex];
+   private _removeTextureRefsForCommand(commandIndex: number): void {
+      let textureIds = this._commandTextureIds && this._commandTextureIds[commandIndex];
       if (!textureIds)
          return;
       if (typeof textureIds === "number") {
-         this._commandTextureIds[cmdIndex] = null;
-         this._removeTextureCommandIndex(textureIds, cmdIndex);
+         this._commandTextureIds[commandIndex] = null;
+         this._removeTextureCommandIndex(textureIds, commandIndex);
       } else {
          while (textureIds.length > 0)
-            this._removeTextureCommandIndex(textureIds.pop(), cmdIndex);
+            this._removeTextureCommandIndex(textureIds.pop(), commandIndex);
       }
    }
-   private _addTextureCommandIndex(texture: Texture, cmdIndex: number): GraphicsCommandTextureRecord {
+   private _addTextureCommandIndex(texture: Texture, commandIndex: number): GraphicsCommandTextureRecord {
       let firstRecord = this._textureCommandRecord;
       let record = firstRecord;
       let records = this._textureCommandRecords;
@@ -646,25 +648,25 @@ export class GraphicsCommandStreamMode {
       }
       let commandIndices = record.commandIndices;
       if (commandIndices == null)
-         record.commandIndices = cmdIndex;
+         record.commandIndices = commandIndex;
       else if (typeof commandIndices === "number") {
-         if (commandIndices !== cmdIndex)
-            record.commandIndices = [commandIndices, cmdIndex];
-      } else if (commandIndices.length === 0 || commandIndices[commandIndices.length - 1] !== cmdIndex)
-         commandIndices.push(cmdIndex);
+         if (commandIndices !== commandIndex)
+            record.commandIndices = [commandIndices, commandIndex];
+      } else if (commandIndices.length === 0 || commandIndices[commandIndices.length - 1] !== commandIndex)
+         commandIndices.push(commandIndex);
       let commandTextureIds = this._commandTextureIds || (this._commandTextureIds = []);
-      let textureIds = commandTextureIds[cmdIndex];
+      let textureIds = commandTextureIds[commandIndex];
       if (textureIds == null)
-         commandTextureIds[cmdIndex] = texture.id;
+         commandTextureIds[commandIndex] = texture.id;
       else if (typeof textureIds === "number") {
          if (textureIds !== texture.id)
-            commandTextureIds[cmdIndex] = [textureIds, texture.id];
+            commandTextureIds[commandIndex] = [textureIds, texture.id];
       } else if (textureIds.length === 0 || textureIds[textureIds.length - 1] !== texture.id) {
          textureIds.push(texture.id);
       }
       return record;
    }
-   private _removeTextureCommandIndex(textureId: number, cmdIndex: number): void {
+   private _removeTextureCommandIndex(textureId: number, commandIndex: number): void {
       let record = this._textureCommandRecord;
       if (!record || record.texture.id !== textureId)
          record = this._textureCommandRecords && this._textureCommandRecords.get(textureId);
@@ -672,11 +674,11 @@ export class GraphicsCommandStreamMode {
          return;
       let commandIndices = record.commandIndices;
       if (typeof commandIndices === "number") {
-         if (commandIndices !== cmdIndex)
+         if (commandIndices !== commandIndex)
             return;
          record.commandIndices = null;
       } else if (commandIndices && commandIndices.length > 0) {
-         let index = commandIndices.indexOf(cmdIndex);
+         let index = commandIndices.indexOf(commandIndex);
          if (index < 0)
             return;
          let lastCommandIndex = commandIndices.pop();
@@ -684,10 +686,10 @@ export class GraphicsCommandStreamMode {
             commandIndices[index] = lastCommandIndex;
       } else
          return;
-      let textureIds = this._commandTextureIds && this._commandTextureIds[cmdIndex];
+      let textureIds = this._commandTextureIds && this._commandTextureIds[commandIndex];
       if (typeof textureIds === "number") {
          if (textureIds === textureId)
-            this._commandTextureIds[cmdIndex] = null;
+            this._commandTextureIds[commandIndex] = null;
       } else if (textureIds) {
          let textureIndex = textureIds.indexOf(textureId);
          if (textureIndex >= 0) {
@@ -713,11 +715,11 @@ export class GraphicsCommandStreamMode {
          mask |= GraphicsOwnerTransformDependency.ScaleTessellation;
       return mask;
    }
-   private _analyzeLayoutCommand(cmdIndex: number, cmd: IGraphicsCmd): GraphicsRefreshAction {
+   private _analyzeLayoutCommand(commandIndex: number, cmd: IGraphicsCmd): GraphicsRefreshAction {
       if (!cmd)
          return GraphicsRefreshAction.NoEffect;
 
-      let flags = this._getCommandValue(cmdIndex, GraphicsCommandIndexField.Flags);
+      let flags = this._getCommandValue(commandIndex, GraphicsCommandMetadataField.Flags);
       if ((flags & (GraphicsCommandTrackerFlag.SizePayload | GraphicsCommandTrackerFlag.ScaleTessellation)) === 0)
          return GraphicsRefreshAction.NoEffect;
 
@@ -725,7 +727,7 @@ export class GraphicsCommandStreamMode {
          // A command that emitted no Op at the previous size may start emitting
          // one at the new size (for example a percent rect growing from zero).
          // That is an actual range/schema change and must take the rebuild path.
-         if (this._getCommandValue(cmdIndex, GraphicsCommandIndexField.OpCount) <= 0)
+         if (this._getCommandValue(commandIndex, GraphicsCommandMetadataField.OpCount) <= 0)
             return GraphicsRefreshAction.StructuralRefresh;
          return GraphicsRefreshAction.LocalRefresh;
       }
@@ -817,19 +819,19 @@ export class GraphicsCommandStreamMode {
       let capacity = Math.max(8, this._commandCapacity || 0);
       while (capacity < commandCount)
          capacity <<= 1;
-      let commandIndex = new Int32Array(capacity * GraphicsCommandIndexField.Stride);
-      if (this._commandIndex)
-         commandIndex.set(this._commandIndex);
-      this._commandIndex = commandIndex;
+      let commandMetadata = new Int32Array(capacity * GraphicsCommandMetadataField.Stride);
+      if (this._commandMetadata)
+         commandMetadata.set(this._commandMetadata);
+      this._commandMetadata = commandMetadata;
       this._commandCapacity = capacity;
    }
-   private _getCommandValue(cmdIndex: number, field: GraphicsCommandIndexField): number {
-      if (cmdIndex < 0 || cmdIndex >= this._commandCount || !this._commandIndex)
+   private _getCommandValue(commandIndex: number, field: GraphicsCommandMetadataField): number {
+      if (commandIndex < 0 || commandIndex >= this._commandCount || !this._commandMetadata)
          return 0;
-      return this._commandIndex[cmdIndex * GraphicsCommandIndexField.Stride + field];
+      return this._commandMetadata[commandIndex * GraphicsCommandMetadataField.Stride + field];
    }
-   private _setCommandValue(cmdIndex: number, field: GraphicsCommandIndexField, value: number): void {
-      this._commandIndex[cmdIndex * GraphicsCommandIndexField.Stride + field] = value;
+   private _setCommandValue(commandIndex: number, field: GraphicsCommandMetadataField, value: number): void {
+      this._commandMetadata[commandIndex * GraphicsCommandMetadataField.Stride + field] = value;
    }
    private _textureQuadPatchTarget: IGraphicsTextureQuadOp2D = null;
    private _textureQuadPatchWrote: boolean = false;
@@ -917,8 +919,8 @@ export class GraphicsCommandStreamMode {
       if (spriteTexture)
          this._syncSpriteTextureDependency(texture);
       else {
-         let record = this._activeCmdIndex >= 0
-            ? this._addTextureCommandIndex(texture, this._activeCmdIndex)
+         let record = this._activeCommandIndex >= 0
+            ? this._addTextureCommandIndex(texture, this._activeCommandIndex)
             : null;
          if (record)
             this._attachTextureDependencyRecord(record);
@@ -941,15 +943,15 @@ export class GraphicsCommandStreamMode {
    	if (this._textureQuadPatchTarget)
    		this._textureQuadPatchWrote = true;
    }
-   patchTextureQuadCommand(cmdIndex: number, oldCmd: DrawTextureCmd, newCmd: DrawTextureCmd): GraphicsCommandPatchResult {
+   patchTextureQuadCommand(commandIndex: number, oldCmd: DrawTextureCmd, newCmd: DrawTextureCmd): GraphicsCommandPatchResult {
    	let host = this._renderer;
    	if (host._graphicsStateDirty
    		|| host._renderedGraphicsModified === Number.MIN_SAFE_INTEGER
    		|| !oldCmd || !newCmd || oldCmd.cmdID !== newCmd.cmdID
-   		|| this.hasStateDependency(cmdIndex))
+		|| this.hasStateDependency(commandIndex))
    		return GraphicsCommandPatchResult.Failed;
 
-   	let range = this.getRange(cmdIndex);
+	let range = this.getRange(commandIndex);
    	let existing = range && range.count === 1 ? this.ops[range.start] : null;
    	if (!range || !range.active || range.count !== 1 || !existing || existing.kind !== GraphicsOp2DKind.TextureQuad)
    		return GraphicsCommandPatchResult.Failed;
@@ -971,14 +973,14 @@ export class GraphicsCommandStreamMode {
     	let textureRecord: GraphicsCommandTextureRecord = null;
     	if (oldTexture !== newTexture) {
     		if (oldTexture)
-    			this._removeTextureCommandIndex(oldTexture.id, cmdIndex);
-    		let textureIds = this._commandTextureIds && this._commandTextureIds[cmdIndex];
+			this._removeTextureCommandIndex(oldTexture.id, commandIndex);
+		let textureIds = this._commandTextureIds && this._commandTextureIds[commandIndex];
     		let tracked = newTexture && (typeof textureIds === "number"
     			? textureIds === newTexture.id
     			: !!textureIds && textureIds.indexOf(newTexture.id) >= 0);
     		textureRecord = newTexture && tracked
     			? this._getTextureCommandRecord(newTexture.id)
-    			: (newTexture ? this._addTextureCommandIndex(newTexture, cmdIndex) : null);
+			: (newTexture ? this._addTextureCommandIndex(newTexture, commandIndex) : null);
    	}
    	if (textureRecord)
    		this._attachTextureDependencyRecord(textureRecord);
@@ -1039,6 +1041,9 @@ export class GraphicsCommandStreamMode {
 
    refreshPendingCommandReplacements(runner: GraphicsRunner): boolean {
    	let spliceCount = this._pendingCommandSpliceAddedCount;
+	// Typical FontClip/damage-number redraw: clear N DrawImage commands and
+	// append N commands of the same shape. Rewrite the retained Ops in place
+	// and publish one payload range, without advancing topology.
    	if (this._pendingCommandSpliceIndex >= 0
    		&& spliceCount > 0
    		&& spliceCount === this._pendingCommandSpliceRemovedCount
@@ -1058,8 +1063,8 @@ export class GraphicsCommandStreamMode {
    	return true;
    }
 
-   refreshCommandRanges(cmdIndices: number[], reason: GraphicsInfoDirtyFlag): GraphicsRefreshAction {
-   	if (!cmdIndices || cmdIndices.length === 0)
+   refreshCommandRanges(commandIndices: number[], reason: GraphicsInfoDirtyFlag): GraphicsRefreshAction {
+	if (!commandIndices || commandIndices.length === 0)
    		return GraphicsRefreshAction.NoEffect;
    	let host = this._renderer;
    	if (host._graphicsStateDirty || !host.graphics || host._renderedGraphicsModified === Number.MIN_SAFE_INTEGER) {
@@ -1069,10 +1074,10 @@ export class GraphicsCommandStreamMode {
 
    	let cmds = host.graphics.cmds;
    	let checkLayout = (reason & GraphicsInfoDirtyFlag.Layout) !== 0;
-   	for (let i = 0, n = cmdIndices.length; i < n; i++) {
-   		let cmdIndex = cmdIndices[i];
-   		let cmd = cmdIndex >= 0 && cmdIndex < cmds.length ? cmds[cmdIndex] : null;
-   		if (!cmd || (checkLayout && this._analyzeLayoutCommand(cmdIndex, cmd) !== GraphicsRefreshAction.LocalRefresh)) {
+	for (let i = 0, n = commandIndices.length; i < n; i++) {
+		let commandIndex = commandIndices[i];
+		let cmd = commandIndex >= 0 && commandIndex < cmds.length ? cmds[commandIndex] : null;
+		if (!cmd || (checkLayout && this._analyzeLayoutCommand(commandIndex, cmd) !== GraphicsRefreshAction.LocalRefresh)) {
    			host._scheduleGraphicsFullRebuild();
    			return GraphicsRefreshAction.StructuralRefresh;
    		}
@@ -1082,7 +1087,7 @@ export class GraphicsCommandStreamMode {
    		host._scheduleGraphicsFullRebuild();
    		return GraphicsRefreshAction.StructuralRefresh;
    	}
-   	if (!this._refreshCommandOps(cmdIndices, sharedRunner._textRender)) {
+	if (!this._refreshCommandOps(commandIndices, sharedRunner._textRender)) {
    		host._scheduleGraphicsFullRebuild();
    		return GraphicsRefreshAction.StructuralRefresh;
    	}
@@ -1090,7 +1095,7 @@ export class GraphicsCommandStreamMode {
    	host.owner._struct.setRepaint();
    	return GraphicsRefreshAction.LocalRefresh;
    }
-   private _refreshCommandOps(cmdIndices: number[], textRender: GraphicsRunner["_textRender"], refreshStateCommands: boolean = false): boolean {
+   private _refreshCommandOps(commandIndices: number[], textRender: GraphicsRunner["_textRender"], refreshStateCommands: boolean = false): boolean {
    	let host = this._renderer;
    	let graphics = host.graphics;
    	let compileContext = this._beginCompileContext();
@@ -1101,34 +1106,34 @@ export class GraphicsCommandStreamMode {
    	let dirtyEnd = -1;
    	let opDirtyFlags = GraphicsOp2DDirtyFlag.None;
    	if (refreshStateCommands) {
-   		for (let i = 0, n = cmdIndices.length; i < n; i++) {
-   			let cmdIndex = cmdIndices[i];
-   			if (cmdIndex < 0 || !this.isStateCommand(cmdIndex))
+		for (let i = 0, n = commandIndices.length; i < n; i++) {
+			let commandIndex = commandIndices[i];
+			if (commandIndex < 0 || !this.isStateCommand(commandIndex))
    				continue;
-   			if (!this._refreshStateCommand(cmdIndex, textRender, compileContext)) {
+			if (!this._refreshStateCommand(commandIndex, textRender, compileContext)) {
    				host._renderedGraphicsModified = oldRenderedModified;
    				return false;
    			}
    			dirtyStart = Math.min(dirtyStart, REWRITE_DIRTY_START_SCRATCH);
    			dirtyEnd = Math.max(dirtyEnd, REWRITE_DIRTY_END_SCRATCH);
    			opDirtyFlags |= REWRITE_DIRTY_FLAGS_SCRATCH;
-   			this._setCommandValue(cmdIndex, GraphicsCommandIndexField.Flags,
-   				this._getCommandValue(cmdIndex, GraphicsCommandIndexField.Flags) & ~GraphicsCommandTrackerFlag.PendingReplacement);
-   			cmdIndices[i] = -1;
+			this._setCommandValue(commandIndex, GraphicsCommandMetadataField.Flags,
+				this._getCommandValue(commandIndex, GraphicsCommandMetadataField.Flags) & ~GraphicsCommandTrackerFlag.PendingReplacement);
+			commandIndices[i] = -1;
    		}
    	}
-   	for (let i = cmdIndices.length - 1; i >= 0; i--) {
-   		let cmdIndex = cmdIndices[i];
-   		if (cmdIndex < 0 || this.isStateCommand(cmdIndex))
+	for (let i = commandIndices.length - 1; i >= 0; i--) {
+		let commandIndex = commandIndices[i];
+		if (commandIndex < 0 || this.isStateCommand(commandIndex))
    			continue;
-   		let cmd = cmdIndex < graphics.cmds.length ? graphics.cmds[cmdIndex] : null;
-   		let replayStart = cmd ? this.prepareLocalReplay(cmdIndex, compileContext, host.owner, textRender) : -1;
+		let cmd = commandIndex < graphics.cmds.length ? graphics.cmds[commandIndex] : null;
+		let replayStart = cmd ? this.prepareLocalReplay(commandIndex, compileContext, host.owner, textRender) : -1;
    		if (replayStart < 0) {
    			host._renderedGraphicsModified = oldRenderedModified;
    			return false;
    		}
    		this.finalizeActiveCommandTextures();
-   		for (let replayIndex = replayStart; replayIndex < cmdIndex; replayIndex++) {
+		for (let replayIndex = replayStart; replayIndex < commandIndex; replayIndex++) {
    			if (!this.isStateCommand(replayIndex))
    				continue;
    			let stateCmd = graphics.cmds[replayIndex];
@@ -1138,7 +1143,7 @@ export class GraphicsCommandStreamMode {
    			}
    			compileContext.compileCommand(stateCmd, true);
    		}
-   		if (!this._rewriteCommandOp(cmdIndex, compileContext)) {
+		if (!this._rewriteCommandOp(commandIndex, compileContext)) {
    			host._renderedGraphicsModified = oldRenderedModified;
    			return false;
    		}
@@ -1152,14 +1157,14 @@ export class GraphicsCommandStreamMode {
    		compileContext.end();
    	}
    }
-   private _refreshStateCommand(cmdIndex: number, textRender: GraphicsRunner["_textRender"], compileContext: GraphicsCompileContext = Render2DProcessor.compileContext): boolean {
+   private _refreshStateCommand(commandIndex: number, textRender: GraphicsRunner["_textRender"], compileContext: GraphicsCompileContext = Render2DProcessor.compileContext): boolean {
    	let host = this._renderer;
    	let graphics = host.graphics;
-   	if (!this.isStateCommand(cmdIndex) || !graphics)
+	if (!this.isStateCommand(commandIndex) || !graphics)
    		return false;
-   	let replayStart = this.prepareLocalReplay(cmdIndex, compileContext, host.owner, textRender);
-   	let replayEnd = this.getStateScopeCommandEnd(cmdIndex);
-   	if (replayStart < 0 || replayEnd <= cmdIndex || replayEnd > graphics.cmds.length)
+	let replayStart = this.prepareLocalReplay(commandIndex, compileContext, host.owner, textRender);
+	let replayEnd = this.getStateScopeCommandEnd(commandIndex);
+	if (replayStart < 0 || replayEnd <= commandIndex || replayEnd > graphics.cmds.length)
    		return false;
 
    	let dirtyStart = Number.MAX_SAFE_INTEGER;
@@ -1174,7 +1179,7 @@ export class GraphicsCommandStreamMode {
    		if (this.isStateCommand(i)) {
    			compileContext.compileCommand(cmd, true);
    			this.refreshChildScopeEntry(i, compileContext);
-   			reachedTarget = reachedTarget || i === cmdIndex;
+			reachedTarget = reachedTarget || i === commandIndex;
    			continue;
    		}
    		if (!reachedTarget)
@@ -1196,23 +1201,23 @@ export class GraphicsCommandStreamMode {
    	REWRITE_DIRTY_FLAGS_SCRATCH = opDirtyFlags;
    	return true;
    }
-   private _rewriteCommandOp(cmdIndex: number, compileContext: GraphicsCompileContext): boolean {
+   private _rewriteCommandOp(commandIndex: number, compileContext: GraphicsCompileContext): boolean {
    	REWRITE_DIRTY_START_SCRATCH = Number.MAX_SAFE_INTEGER;
    	REWRITE_DIRTY_END_SCRATCH = -1;
    	REWRITE_DIRTY_FLAGS_SCRATCH = GraphicsOp2DDirtyFlag.None;
    	let host = this._renderer;
    	let graphics = host.graphics;
-   	let cmd = graphics && cmdIndex >= 0 && cmdIndex < graphics.cmds.length ? graphics.cmds[cmdIndex] : null;
+	let cmd = graphics && commandIndex >= 0 && commandIndex < graphics.cmds.length ? graphics.cmds[commandIndex] : null;
    	if (!cmd)
    		return false;
-   	let range = this.getRange(cmdIndex);
+	let range = this.getRange(commandIndex);
    	if (!range || !range.active || range.count <= 0)
    		return false;
    	let opStart = range.start;
    	let opCount = range.count;
    	if (opStart < 0 || opStart + opCount > this.ops.length)
    		return false;
-   	this.beginCommand(cmdIndex, cmd.cmdID);
+	this.beginCommand(commandIndex, cmd.cmdID);
    	this._rewriteStart = opStart;
    	this._rewriteEnd = opStart + opCount;
    	this._rewriteCursor = opStart;
@@ -1221,10 +1226,10 @@ export class GraphicsCommandStreamMode {
    	for (let i = 0; i < opCount; i++)
    		this.ops[opStart + i].writeStructureSignature(REWRITE_SIGNATURES_SCRATCH, i * 4);
 
-   	this._removeTextureRefsForCommand(cmdIndex);
-   	this._activeCmdIndex = cmdIndex;
+	this._removeTextureRefsForCommand(commandIndex);
+	this._activeCommandIndex = commandIndex;
    	compileContext.compileCommand(cmd);
-   	this._activeCmdIndex = -1;
+	this._activeCommandIndex = -1;
 
    	let success = !this._rewriteFailed && this._rewriteCursor === this._rewriteEnd;
    	for (let i = opStart; success && i < this._rewriteEnd; i++)
@@ -1245,7 +1250,7 @@ export class GraphicsCommandStreamMode {
    	this.endCommand();
    	if (!success)
    		return false;
-   	if (!this._refreshCommandMetadata(cmdIndex, cmd, host.owner)) {
+	if (!this._refreshCommandMetadata(commandIndex, cmd, host.owner)) {
    		return false;
    	}
    	REWRITE_DIRTY_START_SCRATCH = opStart;
@@ -1326,7 +1331,7 @@ export class GraphicsCommandStreamMode {
          : this._textureBuildVersion + 1;
       if (this._pendingEmptyTextureRecords)
          this._pendingEmptyTextureRecords.length = 0;
-      this._activeCmdIndex = -1;
+      this._activeCommandIndex = -1;
       this._activeCommandHadStateDependency = false;
       this._hasStateDependency = false;
       this._ownerTransformDependencyMask = GraphicsOwnerTransformDependency.None;
@@ -1342,14 +1347,14 @@ export class GraphicsCommandStreamMode {
       for (let i = 0; i < cmdsLength; i++) {
          let cmd = graphics.cmds[i];
          let opStart = this.ops.length;
-         this._activeCmdIndex = i;
+         this._activeCommandIndex = i;
          this._activeCommandHadStateDependency = this._hasStateDependency;
-         this._setCommandValue(i, GraphicsCommandIndexField.StateScope, this._currentScope);
+         this._setCommandValue(i, GraphicsCommandMetadataField.StateScope, this._currentScope);
          let isStateCommand = this._readCommandInfo(cmd, host.owner).isStateCommand;
          this.beginCommand(i, cmd ? cmd.cmdID : "");
          compileContext.compileCommand(cmd, isStateCommand);
          this.endCommand();
-         this._activeCmdIndex = -1;
+         this._activeCommandIndex = -1;
          this._writeRange(i, opStart, this.ops.length);
          this._writeCommandMetadata(i, COMMAND_INFO_SCRATCH, this._activeCommandHadStateDependency);
          if (cmd && cmd.cmdID === SaveCmd.ID)
@@ -1370,7 +1375,7 @@ export class GraphicsCommandStreamMode {
       } finally {
          compileContext.end();
       }
-      this._activeCmdIndex = -1;
+      this._activeCommandIndex = -1;
       this._activeCommandHadStateDependency = false;
       let topologyChanged = this._finishOrCancelRebuild(false);
       host._syncGraphicsOwnerTransformInterest(true);
@@ -1445,41 +1450,44 @@ export class GraphicsCommandStreamMode {
          || this._pendingCommandSpliceIndex !== -1;
    }
 
-   queueCommandReplacement(cmdIndex: number): void {
-      let flags = this._getCommandValue(cmdIndex, GraphicsCommandIndexField.Flags);
+   queueCommandReplacement(commandIndex: number): void {
+      let flags = this._getCommandValue(commandIndex, GraphicsCommandMetadataField.Flags);
       if ((flags & GraphicsCommandTrackerFlag.PendingReplacement) !== 0)
          return;
-      this._setCommandValue(cmdIndex, GraphicsCommandIndexField.Flags, flags | GraphicsCommandTrackerFlag.PendingReplacement);
+      this._setCommandValue(commandIndex, GraphicsCommandMetadataField.Flags, flags | GraphicsCommandTrackerFlag.PendingReplacement);
       if (!this._pendingCommandReplacements)
          this._pendingCommandReplacements = [];
-      this._pendingCommandReplacements.push(cmdIndex);
+      this._pendingCommandReplacements.push(commandIndex);
    }
    clearPendingCommandReplacements(): void {
       let pending = this._pendingCommandReplacements;
       if (!pending)
          return;
       for (let i = 0, n = pending.length; i < n; i++) {
-         let cmdIndex = pending[i];
-         if (cmdIndex < 0)
+         let commandIndex = pending[i];
+         if (commandIndex < 0)
             continue;
-         this._setCommandValue(cmdIndex, GraphicsCommandIndexField.Flags,
-            this._getCommandValue(cmdIndex, GraphicsCommandIndexField.Flags) & ~GraphicsCommandTrackerFlag.PendingReplacement);
+         this._setCommandValue(commandIndex, GraphicsCommandMetadataField.Flags,
+            this._getCommandValue(commandIndex, GraphicsCommandMetadataField.Flags) & ~GraphicsCommandTrackerFlag.PendingReplacement);
       }
       pending.length = 0;
    }
 
-   queueCommandSplice(cmdIndex: number, removedCount: number, addedCount: number): boolean {
+   queueCommandSplice(commandIndex: number, removedCount: number, addedCount: number): boolean {
       if (this._pendingCommandSpliceIndex === INVALID_COMMAND_SPLICE_INDEX)
          return false;
       if (this._pendingCommandSpliceIndex >= 0) {
+         // Coalesce clear(N) followed by sequential addCmd calls into one
+         // replacement splice. Unequal N/M counts remain a retained rebuild:
+         // the overlap maps to old Ops and only the tail changes topology.
          if (removedCount === 0
-            && cmdIndex >= this._pendingCommandSpliceIndex
-            && cmdIndex <= this._pendingCommandSpliceIndex + this._pendingCommandSpliceAddedCount) {
+            && commandIndex >= this._pendingCommandSpliceIndex
+            && commandIndex <= this._pendingCommandSpliceIndex + this._pendingCommandSpliceAddedCount) {
             this._pendingCommandSpliceAddedCount += addedCount;
             return true;
          }
          if (addedCount === 0 && this._pendingCommandSpliceAddedCount === 0
-            && cmdIndex === this._pendingCommandSpliceIndex) {
+            && commandIndex === this._pendingCommandSpliceIndex) {
             this._pendingCommandSpliceRemovedCount += removedCount;
             return true;
          }
@@ -1489,7 +1497,7 @@ export class GraphicsCommandStreamMode {
          return false;
       }
       this.clearPendingCommandReplacements();
-      this._pendingCommandSpliceIndex = cmdIndex;
+      this._pendingCommandSpliceIndex = commandIndex;
       this._pendingCommandSpliceRemovedCount = removedCount;
       this._pendingCommandSpliceAddedCount = addedCount;
       return true;

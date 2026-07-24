@@ -109,7 +109,7 @@ export enum GraphicsOwnerTransformDependency {
 
 /** @internal */
 export type GraphicsCommandRangeRecord = {
-	cmdIndex: number;
+	commandIndex: number;
 	start: number;
 	count: number;
 	active: boolean;

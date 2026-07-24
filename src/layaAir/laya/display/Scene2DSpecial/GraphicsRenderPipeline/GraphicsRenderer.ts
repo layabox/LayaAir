@@ -6,7 +6,6 @@ import { Graphics } from "../../Graphics";
 import { Sprite } from "../../Sprite";
 import { BaseRender2DType, SpriteConst, TransformKind } from "../../SpriteConst";
 import { SpriteGlobalTransform } from "../../SpriteGlobaTransform";
-import { Event } from "../../../events/Event";
 import { DrawTextureCmd } from "../../cmd/DrawTextureCmd";
 import type { IGraphicsCmd } from "../../IGraphics";
 import {
@@ -59,6 +58,10 @@ export class GraphicsRenderer {
    private _ownerTransformMask: number = 0;
    private _renderMode: GraphicsRenderMode = GraphicsRenderMode.Empty;
    private _singleQuadMode: GraphicsSingleQuadMode = null;
+   /** A committed SingleQuad received command mutations before the next render boundary. */
+   private _singleQuadMutationPending: boolean = false;
+   /** Empty-mode resources are released only after the Struct handle is detached. */
+   private _emptyModeCleanupPending: boolean = false;
    private _ownerSizePatchPending: boolean = false;
    graphics: Graphics = null;
 
@@ -86,7 +89,9 @@ export class GraphicsRenderer {
          || this._struct.renderType !== BaseRender2DType.graphics)
          return false;
       if (this._renderMode === GraphicsRenderMode.SingleQuad)
-         return !!this._singleQuadMode && handle === this._singleQuadMode.getDataHandle();
+         return !this._singleQuadMutationPending
+            && !!this._singleQuadMode
+            && handle === this._singleQuadMode.getDataHandle();
       if (this._renderMode === GraphicsRenderMode.CommandStream)
          return !!this._commandStreamMode
             && handle === this._commandStreamMode.getDataHandle()
@@ -126,23 +131,17 @@ export class GraphicsRenderer {
    }
 
    /** @internal */
-   private _onOwnerTransformChanged(type : number) {
-      let maskedType = type & this._ownerTransformMask;
-      if (maskedType === 0 || this._destroyed || !this.owner || !this.owner._struct)
+   private _onOwnerTransformChanged(kind: TransformKind): void {
+      let maskedKind = kind & this._ownerTransformMask;
+      if (maskedKind === 0 || this._destroyed || !this.owner || !this.owner._struct)
          return;
 
-      if ((maskedType & TransformKind.Size) !== 0)
+      if ((maskedKind & TransformKind.Size) !== 0)
          this._handleOwnerSizeChanged();
       if (!this._display || !this.owner._struct.enabled)
          return;
-      if ((maskedType & TransformKind.Scale) !== 0)
+      if ((maskedKind & TransformKind.Scale) !== 0)
          this._handleOwnerScaleChanged();
-   }
-
-   private _onOwnerDemandTransformChanged(): void {
-      if (this._destroyed || !this.owner || !this.owner._struct || !this._display || !this.owner._struct.enabled)
-         return;
-      this._handleOwnerScaleChanged();
    }
 
    private _handleOwnerSizeChanged(): void {
@@ -251,9 +250,9 @@ export class GraphicsRenderer {
 
    /**
      * @internal
-     */
+   */
    _render(runner: GraphicsRunner): void {
-      if (!this.owner || this.owner.destroyed || (!this.graphics && !this.owner._texture))
+      if (!this.owner || this.owner.destroyed)
          return;
 
       // Resolve the final mode only at the render boundary. This preserves a
@@ -261,6 +260,7 @@ export class GraphicsRenderer {
       this._checkDisplay();
       if (!this._display) {
          this._syncStructDisplayState();
+         this._releaseEmptyModeResources();
          return;
       }
 
@@ -327,9 +327,9 @@ export class GraphicsRenderer {
    }
 
    /** @internal */
-   _patchTextureQuadCommand(cmdIndex: number, oldCmd: DrawTextureCmd, newCmd: DrawTextureCmd): GraphicsCommandPatchResult {
+   _patchTextureQuadCommand(commandIndex: number, oldCmd: DrawTextureCmd, newCmd: DrawTextureCmd): GraphicsCommandPatchResult {
       return this._commandStreamMode
-         ? this._commandStreamMode.patchTextureQuadCommand(cmdIndex, oldCmd, newCmd)
+         ? this._commandStreamMode.patchTextureQuadCommand(commandIndex, oldCmd, newCmd)
          : GraphicsCommandPatchResult.Failed;
    }
    /** @internal */
@@ -374,19 +374,11 @@ export class GraphicsRenderer {
          if (!this.owner._texture && this._commandStreamMode)
             this._commandStreamMode.clearSpriteTextureDependency();
       }
-      else {
-         if (this._singleQuadMode)
-            this._singleQuadMode.clear();
-         if (this._commandStreamMode)
-            this._commandStreamMode.clearTextureDependencies();
-      }
       return false;
    }
 
    /** @internal */
-   _queueCommandReplacement(cmdIndex: number, oldCmd: IGraphicsCmd, newCmd: IGraphicsCmd): boolean {
-      if (!this._commandStreamMode)
-         return false;
+   _queueCommandReplacement(commandIndex: number, oldCmd: IGraphicsCmd, newCmd: IGraphicsCmd): boolean {
       if (this._graphicsStateDirty)
          return false;
       if (this._renderedGraphicsModified === Number.MIN_SAFE_INTEGER)
@@ -398,28 +390,43 @@ export class GraphicsRenderer {
       if (oldCmd.cmdID !== newCmd.cmdID)
          return false;
 
-      let range = this._commandStreamMode.getRange(cmdIndex);
+      if (this._renderMode === GraphicsRenderMode.SingleQuad) {
+         if (!GraphicsSingleQuadMode.canRender(this.owner._texture, this.graphics))
+            return false;
+         this._singleQuadMutationPending = true;
+         return true;
+      }
+      if (!this._commandStreamMode)
+         return false;
+
+      let range = this._commandStreamMode.getRange(commandIndex);
       if (!range)
          return false;
-      let isStateCommand = this._commandStreamMode.isStateCommand(cmdIndex);
+      let isStateCommand = this._commandStreamMode.isStateCommand(commandIndex);
       if (isStateCommand && !this._commandStreamMode.isStateCommandType(newCmd, this.owner))
          return false;
       if (!isStateCommand && (!range.active || range.count <= 0))
          return false;
 
-      this._commandStreamMode.queueCommandReplacement(cmdIndex);
+      this._commandStreamMode.queueCommandReplacement(commandIndex);
       return true;
    }
 
    /** @internal Retains shifted command ranges for one add/remove before the next render. */
-   _queueCommandSplice(cmdIndex: number, removedCount: number, addedCount: number): boolean {
-      if (!this._commandStreamMode || this._renderMode !== GraphicsRenderMode.CommandStream
-         || this._graphicsStateDirty || this._renderedGraphicsModified === Number.MIN_SAFE_INTEGER || !this.graphics)
+   _queueCommandSplice(commandIndex: number, removedCount: number, addedCount: number): boolean {
+      if (this._graphicsStateDirty || this._renderedGraphicsModified === Number.MIN_SAFE_INTEGER || !this.graphics)
          return false;
-      return this._commandStreamMode.queueCommandSplice(cmdIndex, removedCount, addedCount);
+      if (this._renderMode === GraphicsRenderMode.SingleQuad) {
+         this._singleQuadMutationPending = true;
+         return true;
+      }
+      if (!this._commandStreamMode || this._renderMode !== GraphicsRenderMode.CommandStream)
+         return false;
+      return this._commandStreamMode.queueCommandSplice(commandIndex, removedCount, addedCount);
    }
 
    private _clearPendingCommandChanges(): void {
+      this._singleQuadMutationPending = false;
       if (this._commandStreamMode)
          this._commandStreamMode.clearPendingCommandChanges();
    }
@@ -437,12 +444,7 @@ export class GraphicsRenderer {
       if (modeChanged) {
          this._renderMode = nextMode;
          this._invalidateSubmittedState();
-         if (nextMode === GraphicsRenderMode.Empty) {
-            if (this._singleQuadMode)
-               this._singleQuadMode.clear();
-            if (this._commandStreamMode)
-               this._commandStreamMode.clearTextureDependencies();
-         }
+         this._emptyModeCleanupPending = nextMode === GraphicsRenderMode.Empty;
       }
 
       let value = !this.owner._renderNode && nextMode !== GraphicsRenderMode.Empty;
@@ -459,6 +461,22 @@ export class GraphicsRenderer {
       else
          this.owner._renderType &= ~SpriteConst.GRAPHICS;
       this._syncGraphicsOwnerTransformInterest(false);
+   }
+
+   /** Release dormant mode data only after the active Struct handle is detached. */
+   private _releaseEmptyModeResources(): void {
+      if (!this._emptyModeCleanupPending
+         || this._renderMode !== GraphicsRenderMode.Empty
+         || this._structDisplay
+         || (this._struct && this._struct.renderDataHandler))
+         return;
+      this._emptyModeCleanupPending = false;
+      if (this._singleQuadMode)
+         this._singleQuadMode.clear();
+      if (this._commandStreamMode) {
+         this._commandStreamMode.clearTextureDependencies();
+         this._commandStreamMode.clear(true);
+      }
    }
 
    private _classifyRenderMode(): GraphicsRenderMode {
@@ -547,6 +565,8 @@ export class GraphicsRenderer {
       this._handleControlInt32 = null;
       this._handleControlFloat32 = null;
       this._singleQuadMode = null;
+      this._singleQuadMutationPending = false;
+      this._emptyModeCleanupPending = false;
       this._ownerSizePatchPending = false;
       this._commandStreamMode = null;
       this._recoveringTextureIds = null;
@@ -555,7 +575,9 @@ export class GraphicsRenderer {
 
    /** @internal Whether this renderer must participate in the current graphics update. */
    getNeedRenderUpdate(): boolean {
-      return this._display || this._structDisplay !== this._display;
+      return this._display
+         || this._structDisplay !== this._display
+         || this._emptyModeCleanupPending;
    }
 
    /** @internal */

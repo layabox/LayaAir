@@ -897,18 +897,17 @@ export class Stage extends Sprite {
         }
 
         this._updateMatrixList(this._tranMatrixUpdateList, Stat.loopCount);
-
-        for (let sprite of this._graphicUpdateList) {
-            if (sprite._needGraphicsUpdate()) {
-                sprite._graphicsRenderer?._render(Render2DProcessor.runner);
-            }
-        }
     }
 
     /**
      * @perfTag PerformanceDefine.T_UIRender
     */
     private _render2d() {
+        for (let sprite of this._graphicUpdateList) {
+            if (sprite._needGraphicsUpdate()) {
+                sprite._graphicsRenderer?._render(Render2DProcessor.runner);
+            }
+        }
         Render2DProcessor.renderTime += (ILaya.timer?.delta || 0) * 0.001;
         this.passManager.apply(Render2DProcessor.rendercontext2D, Render2DProcessor.renderTime);
         PostProcess2D.postRenderAll();
