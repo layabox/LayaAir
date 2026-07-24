@@ -14,7 +14,6 @@ import { IndexFormat } from "../../../../../RenderEngine/RenderEnum/IndexFormat"
 import { SpineBufferView } from "./SpineBufferDataView";
 import { SpineWholeBuffer } from "./SpineWholeBuffer";
 import { Spine2DNormalRenderUpdater } from "../Spine2DNormalRenderUpdater";
-import { SpineGlobalMeshManager } from "../SpineGlobalMeshManager";
 import { WebSpineRenderDataHandle } from "../../../../handle/WebSpineRenderDataHandle";
 
 /**
@@ -27,7 +26,6 @@ class SpineBatchContext {
     ownerStruct: WebRenderStruct2D = null;
     subShader: any = null;
     stencilClipState: any = null;
-    renderStateIsBySprite: boolean = false;
 
     /**
      * @en Initialize context from first element
@@ -39,7 +37,6 @@ class SpineBatchContext {
         this.materialShaderData = element.materialShaderData;
         this.subShader = element.subShader;
         this.stencilClipState = element.stencilClipState;
-        this.renderStateIsBySprite = element.renderStateIsBySprite;
         return true;
     }
 
@@ -56,8 +53,7 @@ class SpineBatchContext {
             return false;
         }
 
-        if (element.stencilClipState !== this.stencilClipState
-            || element.renderStateIsBySprite !== this.renderStateIsBySprite) {
+        if ( element.stencilClipState !== this.stencilClipState ) {
             return false;
         }
 
@@ -88,8 +84,6 @@ class SpineBatchContext {
 interface BatchBuffer {
     wholeBuffer: SpineWholeBuffer;
     bufferState: any;  // Use bufferState instead of Mesh2D (lower-level concept)
-    views: SpineBufferView[];
-    viewCount: number;
 }
 
 /**
@@ -123,7 +117,6 @@ export class SpineNormalBatch implements IBatch2DProvider {
             element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
             element.geometry.indexFormat = IndexFormat.UInt16;
             element.nodeCommonMap = ["Sprite2D"];
-            element.renderStateIsBySprite = false;
             return element;
         },
         null,
@@ -134,10 +127,6 @@ export class SpineNormalBatch implements IBatch2DProvider {
             element.value2DShaderData = null;
             element.subShader = null;
             element.owner = null;
-            element.renderStateIsBySprite = false;
-            element.globalShaderData = null;
-            element.stencilClipState = null;
-            element.noBatch = false;
         }
     );
 
@@ -305,7 +294,6 @@ export class SpineNormalBatch implements IBatch2DProvider {
             if (!view) continue;
 
             view.transferToBuffer(batchBuffer.wholeBuffer);
-            batchBuffer.views[batchBuffer.viewCount++] = view;
         }
 
         let firstElement = elementArray[batchStart];
@@ -323,8 +311,6 @@ export class SpineNormalBatch implements IBatch2DProvider {
         batchElement.value2DShaderData = firstElement.value2DShaderData;
         batchElement.renderStateIsBySprite = firstElement.renderStateIsBySprite;
         batchElement.nodeCommonMap = firstElement.nodeCommonMap;
-        batchElement.owner = firstElement.owner;
-        batchElement.stencilClipState = firstElement.stencilClipState;
 
         list.add(batchElement);
     }
@@ -350,13 +336,10 @@ export class SpineNormalBatch implements IBatch2DProvider {
 
             batchBuffer = {
                 wholeBuffer,
-                bufferState,
-                views: [],
-                viewCount: 0
+                bufferState
             };
         }
 
-        batchBuffer.viewCount = 0;
         this._activeBatchBuffers[this._activeBatchBufferCount++] = batchBuffer;
         return batchBuffer;
     }
@@ -366,21 +349,9 @@ export class SpineNormalBatch implements IBatch2DProvider {
      * @zh 为新帧重置批次状态
      */
     reset(): void {
-        let manager = SpineGlobalMeshManager.instance;
-
         // Recycle batch buffers
         for (let i = 0; i < this._activeBatchBufferCount; i++) {
             let batchBuffer = this._activeBatchBuffers[i];
-            for (let j = 0; j < batchBuffer.viewCount; j++) {
-                let view = batchBuffer.views[j];
-                if (view.owner === batchBuffer.wholeBuffer) {
-                    manager.assignViewToBuffer(view, view.vertexCount);
-                    if (view.geometry)
-                        view.geometry.bufferState = manager.outBufferState;
-                }
-                batchBuffer.views[j] = null;
-            }
-            batchBuffer.viewCount = 0;
             batchBuffer.wholeBuffer.clearDataViews();
             this._batchBufferPool.push(batchBuffer);
         }

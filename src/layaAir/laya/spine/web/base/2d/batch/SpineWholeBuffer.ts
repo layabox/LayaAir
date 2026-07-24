@@ -266,10 +266,7 @@ export class SpineWholeBuffer {
      */
     _upload(): void {
         if (!this._needResetData) return;
-        if (!this._first) {
-            this._needResetData = false;
-            return;
-        }
+        if (!this._first) return;
 
         const totalVertexFloats = this._vertexFloatCount;
         const totalIndices = this._indexCount;
