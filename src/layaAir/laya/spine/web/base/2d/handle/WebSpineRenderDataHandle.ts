@@ -51,8 +51,6 @@ export class WebSpineRenderDataHandle implements ISpineRenderDataHandle {
         if (this._lightReceive === value)
             return;
         this._lightReceive = value;
-        if (!this._owner?.spriteShaderData)
-            return;
         if (value)
             this._owner.spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
         else
@@ -87,8 +85,7 @@ export class WebSpineRenderDataHandle implements ISpineRenderDataHandle {
         value = value || Color.BLACK;
         value.cloneTo(this._baseColor);
         this._renderAlpha = -1;
-        if (this._owner?.spriteShaderData)
-            this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._baseColor);
+        this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._baseColor);
     }
 
     public get owner(): WebRenderStruct2D {
@@ -98,7 +95,7 @@ export class WebSpineRenderDataHandle implements ISpineRenderDataHandle {
     public set owner(value: WebRenderStruct2D) {
         if (value === this._owner)
             return;
-        if (this._owner) {
+        if (this._owner && this._owner.spriteShaderData) {
             let shaderData = this._owner.spriteShaderData;
             shaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
             shaderData.removeDefine(SpineShaderInit.SPINE_UV);
