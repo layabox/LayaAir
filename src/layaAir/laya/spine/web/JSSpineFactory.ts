@@ -7,11 +7,11 @@ import { ISpineTempletParser } from "../interface/ISpineParse";
 import { ISpineRender } from "../interface/ISpineRender";
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { SpineOptimizeRender2D } from "./base/2d/SpineOptimizeRender2D";
-import { WebSpineRenderDataHandle } from "./base/2d/handle/WebSpineRenderDataHandle";
+import { WebSpineRenderDataHandle } from "../handle/WebSpineRenderDataHandle";
 import { SpineOptimizeRender3D } from "./base/3d/SpineOptimizeRender3D";
 import { WebSpineTempletParser } from "./WebSpineTempletParser";
 import { LayaEnv } from "../../../LayaEnv";
-import { NativeSpineRenderDataHandle } from "./base/2d/handle/NativeSpineRenderDataHandle";
+import { NativeSpineRenderDataHandle } from "../handle/NativeSpineRenderDataHandle";
 
 export class JSSpineFactory implements ISpineFactory {
     createSpineTempletParser(): ISpineTempletParser {

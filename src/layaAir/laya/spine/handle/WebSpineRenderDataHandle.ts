@@ -1,13 +1,13 @@
-import { Color } from "../../../../../maths/Color";
-import { Vector2 } from "../../../../../maths/Vector2";
-import { Vector3 } from "../../../../../maths/Vector3";
-import { BaseRenderNode2D } from "../../../../../NodeRender2D/BaseRenderNode2D";
-import { IRenderContext2D } from "../../../../../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
-import { ISpineRenderDataHandle } from "../../../../interface/ISpineRenderDataHandle";
-import type { WebRenderStruct2D } from "../../../../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
-import { ShaderDefines2D } from "../../../../../webgl/shader/d2/ShaderDefines2D";
-import { SpineShaderInit } from "../../../../shader/SpineShaderInit";
-import type { StandardSpine2DRenderer } from "../SpineRendererTypes2D";
+import { Color } from "../../maths/Color";
+import { Vector2 } from "../../maths/Vector2";
+import { Vector3 } from "../../maths/Vector3";
+import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
+import { IRenderContext2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
+import { ISpineRenderDataHandle } from "../interface/ISpineRenderDataHandle";
+import type { WebRenderStruct2D } from "../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
+import { ShaderDefines2D } from "../../webgl/shader/d2/ShaderDefines2D";
+import { SpineShaderInit } from "../shader/SpineShaderInit";
+import type { StandardSpine2DRenderer } from "../web/base/2d/SpineRendererTypes2D";
 
 const _setRenderColor = new Color(1, 1, 1, 1);
 

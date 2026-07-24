@@ -7,7 +7,7 @@ import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { NativeSpineTempletParser } from "./NativeSpineTempletParser";
 import { NativeSpineOptimizeRender2D } from "./NativeSpineOptimizeRender2D";
 import { NativeSpineOptimizeRender3D } from "./NativeSpineOptimizeRender3D";
-import { NativeSpineRenderDataHandle } from "./NativeSpineRenderDataHandle";
+import { NativeSpineRenderDataHandle } from "../handle/NativeSpineRenderDataHandle";
 
 
 /**

@@ -15,7 +15,7 @@ import { SpineBufferView } from "./SpineBufferDataView";
 import { SpineWholeBuffer } from "./SpineWholeBuffer";
 import { Spine2DNormalRenderUpdater } from "../Spine2DNormalRenderUpdater";
 import { SpineGlobalMeshManager } from "../SpineGlobalMeshManager";
-import { WebSpineRenderDataHandle } from "../handle/WebSpineRenderDataHandle";
+import { WebSpineRenderDataHandle } from "../../../../handle/WebSpineRenderDataHandle";
 
 /**
  * @en Spine batch context to track batch state and avoid GC

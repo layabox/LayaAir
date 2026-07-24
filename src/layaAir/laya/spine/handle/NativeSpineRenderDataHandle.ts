@@ -1,10 +1,10 @@
-import { Color } from "../../../../../maths/Color";
-import { Vector2 } from "../../../../../maths/Vector2";
-import { BaseRenderNode2D } from "../../../../../NodeRender2D/BaseRenderNode2D";
-import { IRenderContext2D } from "../../../../../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
-import { RTRenderStruct2D } from "../../../../../RenderDriver/RenderModuleData/RuntimeModuleData/2D/RTRenderStruct2D";
-import { ISpineRenderDataHandle } from "../../../../interface/ISpineRenderDataHandle";
-import { SpineShaderInit } from "../../../../shader/SpineShaderInit";
+import { Color } from "../../maths/Color";
+import { Vector2 } from "../../maths/Vector2";
+import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
+import { IRenderContext2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
+import { RTRenderStruct2D } from "../../RenderDriver/RenderModuleData/RuntimeModuleData/2D/RTRenderStruct2D";
+import { ISpineRenderDataHandle } from "../interface/ISpineRenderDataHandle";
+import { SpineShaderInit } from "../shader/SpineShaderInit";
 
 
 /** @internal Native Spine handle backed by conchRTSpineRenderDataHandle. */
@@ -43,8 +43,6 @@ export class NativeSpineRenderDataHandle implements ISpineRenderDataHandle {
         if (this._lightReceive === value)
             return;
         this._lightReceive = value;
-        if (!this._owner?.spriteShaderData)
-            return;
         if (value)
             this._owner.spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_ENABLE);
         else
@@ -60,8 +58,7 @@ export class NativeSpineRenderDataHandle implements ISpineRenderDataHandle {
             return;
         value = value || Color.BLACK;
         value.cloneTo(this._baseColor);
-        if (this._owner?.spriteShaderData)
-            this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._baseColor);
+        this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._baseColor);
         this._nativeObj.setBaseColor(this._baseColor);
     }
 
@@ -80,7 +77,7 @@ export class NativeSpineRenderDataHandle implements ISpineRenderDataHandle {
     _setOwnerLocal(value: RTRenderStruct2D): void {
         if (value === this._owner)
             return;
-        if (this._owner) {
+        if (this._owner && this._owner.spriteShaderData) {
             let shaderData = this._owner.spriteShaderData;
             shaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
             shaderData.removeDefine(SpineShaderInit.SPINE_UV);
@@ -108,8 +105,7 @@ export class NativeSpineRenderDataHandle implements ISpineRenderDataHandle {
     }
 
     inheriteRenderData(context: IRenderContext2D): void {
-        if (this._nativeObj)
-            this._nativeObj.inheriteRenderData((context as any)._nativeObj);
+        this._nativeObj.inheriteRenderData((context as any)._nativeObj);
     }
 
     destroy(): void {
