@@ -158,8 +158,8 @@ export class WebSpineRenderDataHandle implements ISpineRenderDataHandle {
     }
 
     destroy(): void {
-        this.owner = null;
         this._normalRender = null;
         this.skeleton = null;
+        this.owner = null;
     }
 }
