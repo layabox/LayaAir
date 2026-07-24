@@ -370,7 +370,7 @@ export class RTRenderStruct2D implements IRenderStruct2D {
       this._renderDataHandler = value;
       this._nativeObj.setRenderDataHandler(value ? value._nativeObj : null);
       if (value)
-         this._renderDataHandler.owner = this;
+         this._renderDataHandler._setOwnerLocal(this);
    }
 
    private _globalRenderData: RTGlobalRenderData;

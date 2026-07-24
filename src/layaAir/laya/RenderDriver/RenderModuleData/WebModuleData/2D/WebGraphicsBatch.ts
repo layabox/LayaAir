@@ -18,7 +18,7 @@ import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { Vector4 } from "../../../../maths/Vector4";
 import { WebRender2DPass } from "./WebRender2DPass";
 import type { WebGraphicsBatchEntry } from "./WebGraphicsOp2DRuntimeBuffers";
-import { WebPrimitiveDataHandle } from "./WebRenderDataHandle";
+import { WebGraphicsCommandStreamDataHandle } from "./WebRenderDataHandle";
 
 const _STEP_ = 1024;
 const TEXTURE_VARIANT_TYPE_MASK = ShaderDefines2D.DEFINE_BIT_GAMMATEXTURE
@@ -50,22 +50,22 @@ class BatchBuffer {
         if (element._index != null) {
             let entry = element._graphicsBatchEntry as WebGraphicsBatchEntry;
             if (!entry) {
-                let handle = element.owner.renderDataHandler as WebPrimitiveDataHandle;
+                let handle = element.owner.renderDataHandler as WebGraphicsCommandStreamDataHandle;
                 entry = handle.getGraphicsBatchEntry(element._index);
             }
 
             if (entry) {
-                let cloneView = entry.cloneIndexView;
+                let sourceIndexView = entry.sourceIndexView;
+                geometry = entry.batchGeometry;
                 let bufferState = this.bindBuffer(entry.vertexBuffer);
-                this.indexCount += cloneView.length;
-                this.wholeBuffer._modifyOneView(cloneView);
+                this.indexCount += sourceIndexView.length;
+                this.updateBufLength();
+                this.wholeBuffer.appendIndexData(sourceIndexView._getData(), geometry);
 
-                if (cloneView._geometry.bufferState !== bufferState)
-                    cloneView._geometry.bufferState = bufferState;
+                if (geometry.bufferState !== bufferState)
+                    geometry.bufferState = bufferState;
 
                 WebRender2DPass.setBuffer(this.wholeBuffer);
-                this.updateBufLength();
-                geometry = cloneView._geometry;
             }
         }
         return geometry;

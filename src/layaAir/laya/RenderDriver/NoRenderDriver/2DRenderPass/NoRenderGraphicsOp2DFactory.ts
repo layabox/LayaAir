@@ -25,7 +25,11 @@ class NoRenderGraphicsOp2D implements IGraphicsTextureQuadOp2D, IGraphicsSolidQu
 	texture: GraphicsOp2DTextureHost | null = null;
 	textures: GraphicsOp2DTextureHost[] = [];
 
-	constructor(readonly kind: GraphicsOp2DKind, readonly commandIndex: number, readonly commandId: GraphicsCommandId) {
+	constructor(readonly kind: GraphicsOp2DKind, public commandIndex: number, readonly commandId: GraphicsCommandId) {
+	}
+
+	setCommandIndex(value: number): void {
+		this.commandIndex = value;
 	}
 
 	get opType(): GraphicsOp2DType {
@@ -70,8 +74,19 @@ class NoRenderGraphicsOp2D implements IGraphicsTextureQuadOp2D, IGraphicsSolidQu
 		this.recordCount = 0;
 	}
 
-	getStructureKey(): string {
-		return `${this.kind}:${this.recordCount}`;
+	writeStructureSignature(out: Int32Array, offset: number): void {
+		out[offset] = this.recordCount;
+		out[offset + 1] = 0;
+		out[offset + 2] = 0;
+		out[offset + 3] = 0;
+	}
+
+	matchesStructureSignature(source: Int32Array, offset: number): boolean {
+		return this.recordCount === source[offset] && source[offset + 3] === 0;
+	}
+
+	clearStructureDirty(): void {
+		this.dirtyFlags &= ~GraphicsOp2DDirtyFlag.Structure;
 	}
 
 	markDirty(flags: GraphicsOp2DDirtyFlag): void {

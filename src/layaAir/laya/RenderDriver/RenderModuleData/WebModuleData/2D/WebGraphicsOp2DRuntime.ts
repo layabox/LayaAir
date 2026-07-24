@@ -1,15 +1,10 @@
 import { Matrix } from "../../../../maths/Matrix";
 import { Vector4 } from "../../../../maths/Vector4";
-import { LayaGL } from "../../../../layagl/LayaGL";
-import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
-import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { BlendModeHandler } from "../../../../webgl/canvas/BlendMode";
 import { BlendMode } from "../../../../webgl/canvas/BlendMode";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { GraphicsDefines } from "../../../../webgl/shader/d2/GraphicsDefines";
-import { TextureDimension } from "../../../../RenderEngine/RenderEnum/TextureDimension";
-import { IPool, Pool } from "../../../../utils/Pool";
 import { GraphicsOpRenderStateHelper } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineHelpers";
 import type { GraphicsOp2DRenderState } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
 import {
@@ -18,7 +13,7 @@ import {
     GRAPHICS_INFO_VERTEX_FLAG_DISABLED,
     GRAPHICS_INFO_VERTEX_FLAG_ENABLED,
 } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
-import { GraphicsHandleDirtyFlag, GraphicsHandleUpdateField, GraphicsOpInfoField } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
+import { GraphicsHandleDirtyFlag, GraphicsHandleUpdateField, GraphicsOpInfoField, GraphicsOpProfile } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
 import type {
 	WebGraphicsFillTextureOp2D,
 	WebGraphicsMeshOp2D,
@@ -36,43 +31,15 @@ import {
 	GraphicsQuadPayloadWordOffset,
 } from "./WebGraphicsOp2DBufferSchema";
 import { IPrimitiveRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElement2D";
-import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
-import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import type { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
-import { Web2DGraphic2DIndexCloneDataView, Web2DGraphic2DIndexDataView, Web2DGraphic2DVertexDataView } from "./Web2DGraphic2DBufferDataView";
+import { Web2DGraphic2DVertexDataView } from "./Web2DGraphic2DBufferDataView";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 import {
 	WebGraphicsBatchEntry,
-	WebGraphicsOpVIAllocation,
-	WebGraphicsOpVIStore,
-	WebGraphicsOpVIStorePool,
+	WebGraphicsRenderUnit,
+	WebGraphicsRenderUnitPool,
 } from "./WebGraphicsOp2DRuntimeBuffers";
-
-type WebGraphicsTextureGroup = {
-	start: number;
-	count: number;
-	texture: GraphicsOp2DTextureHost;
-};
-
-type WebGraphicsRenderOpRef = {
-	op: WebGraphicsOp2D;
-	opIndex: number;
-	recordStart: number;
-	recordCount: number;
-};
-
-type WebGraphicsOpRenderRange = {
-	start: number;
-	count: number;
-};
-
-type WebGraphicsReusableRenderResource = {
-	element: IPrimitiveRenderElement2D;
-	geometry: IRenderGeometryElement;
-	primitiveShaderData: ShaderData;
-	fillTextureRange: Vector4;
-};
 
 /** @internal Shared Graphics material state owned by the primitive data handle. */
 export type WebGraphicsMaterialState = {
@@ -83,81 +50,35 @@ export type WebGraphicsMaterialState = {
 
 /** @internal */
 export class WebGraphicsOp2DRuntime {
-	private static readonly _renderResourcePool: IPool<WebGraphicsReusableRenderResource> = Pool.createPool2<WebGraphicsReusableRenderResource>(
-		() => {
-			let primitiveShaderData = LayaGL.renderDeviceFactory.createShaderData();
-			let element = LayaGL.render2DRenderPassFactory.createPrimitiveRenderElement2D();
-			BlendModeHandler.initBlendMode(primitiveShaderData);
-			element.nodeCommonMap = ["Sprite2D"];
-			return {
-				element,
-				geometry: LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement),
-				primitiveShaderData,
-				fillTextureRange: new Vector4(),
-			};
-		},
-		null,
-		resource => {
-			let element = resource.element;
-			resource.geometry.clearRenderParams();
-			resource.geometry.bufferState = null;
-			element.owner = null;
-			element.value2DShaderData = null;
-			element.globalShaderData = null;
-			element.materialShaderData = null;
-			element.subShader = null;
-			element.renderStateIsBySprite = false;
-			element.stencilClipState = null;
-			element.noBatch = false;
-			element.typeKey = 0;
-			element.textureKey = 0;
-			element._index = null;
-			element._graphicsBatchEntry = null;
-		}
-	);
-
-	private static readonly _batchEntryPool: IPool<WebGraphicsBatchEntry> = Pool.createPool2<WebGraphicsBatchEntry>(
-		() => {
-			let cloneIndexView = new Web2DGraphic2DIndexCloneDataView(null, 0, false);
-			cloneIndexView._geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
-			cloneIndexView._geometry.indexFormat = GraphicsDefines.GRAPHICS_INDEX_FORMAT;
-			return { vertexBuffer: null, sourceIndexView: null, cloneIndexView };
-		},
-		null,
-		entry => {
-			let cloneIndexView = entry.cloneIndexView;
-			let owner = cloneIndexView.owner;
-			if (owner && (cloneIndexView._prev || cloneIndexView._next || owner._first === cloneIndexView || owner._last === cloneIndexView))
-				owner.removeDataView(cloneIndexView);
-			cloneIndexView._geometry.clearRenderParams();
-			cloneIndexView._geometry.bufferState = null;
-			cloneIndexView.owner = null;
-			cloneIndexView._prev = null;
-			cloneIndexView._next = null;
-			entry.vertexBuffer = null;
-			entry.sourceIndexView = null;
-		}
-	);
-
 	private _ops: ReadonlyArray<WebGraphicsOp2D> = [];
-	private _renderOpRefs: WebGraphicsRenderOpRef[] = [];
-	private _opRenderRanges: WebGraphicsOpRenderRange[] = [];
+	private _opRenderRanges: Int32Array = null;
+	private _opRenderRangeCapacity: number = 0;
 	private _opRefs: WebGraphicsOp2D[] = [];
-	private _textureGroups: WebGraphicsTextureGroup[] = [];
 	private _renderElements: IPrimitiveRenderElement2D[] = [];
-	private _viStores: WebGraphicsOpVIStore[] = [];
-	private _vertexViews: Web2DGraphic2DVertexDataView[][] = [];
-	private _vertexBlocks: number[][] = [];
-	private _indexViews: Web2DGraphic2DIndexDataView[] = [];
-	private _geometries: IRenderGeometryElement[] = [];
-	private _primitiveShaderData: ShaderData[] = [];
-	private _batchEntries: WebGraphicsBatchEntry[] = [];
-	private _fillTextureRanges: Vector4[] = [];
-	private _renderResources: WebGraphicsReusableRenderResource[] = [];
+	private _renderUnits: WebGraphicsRenderUnit[] = [];
+	private _spareOpRenderRanges: Int32Array = null;
+	private _spareOpRenderRangeCapacity: number = 0;
+	private _spareOpRefs: WebGraphicsOp2D[] = null;
+	private _spareRenderElements: IPrimitiveRenderElement2D[] = null;
+	private _spareRenderUnits: WebGraphicsRenderUnit[] = null;
+	private _spareOpCursor: number = 0;
+	private _preferredSpareRenderStart: number = -1;
+	private _preferredSpareRenderEnd: number = -1;
+	private _active: boolean = false;
+	private _needsRematerialize: boolean = false;
 	private _pointScratch: Float32Array = new Float32Array(2);
 	private _matrixScratch: Matrix = new Matrix();
 	private _singleTextureQuadRenderIndex: number = -1;
 	private _singleTextureQuadOp: WebGraphicsTextureQuadOp2D = null;
+	private _singleTextureQuadVertexView: Web2DGraphic2DVertexDataView = null;
+	private _singleTextureQuadX0: number = 0;
+	private _singleTextureQuadY0: number = 0;
+	private _singleTextureQuadX1: number = 0;
+	private _singleTextureQuadY1: number = 0;
+	private _singleTextureQuadX2: number = 0;
+	private _singleTextureQuadY2: number = 0;
+	private _singleTextureQuadX3: number = 0;
+	private _singleTextureQuadY3: number = 0;
 	private _graphicsHandleUpdateBuffer: ArrayBuffer = null;
 	private _handleUpdateInt32: Int32Array = null;
 	private _handleUpdateFloat32: Float32Array = null;
@@ -196,68 +117,93 @@ export class WebGraphicsOp2DRuntime {
 
 	syncGraphicsOps(ops: ReadonlyArray<WebGraphicsOp2D>): void {
 		let nextOps = ops || [];
+		if (this._needsRematerialize) {
+			this._ops = nextOps;
+			this._rebuildRenderOps(true);
+			this._needsRematerialize = false;
+			this._publishOwnerElements();
+			this._markHandleUpdatesHandled();
+			return;
+		}
 		if (this._ops !== nextOps) {
 			this._ops = nextOps;
 			this._rebuildRenderOps();
 			this._publishOwnerElements();
+			this._markHandleUpdatesHandled();
 			return;
 		}
-		if (this._hasPendingDirtyRange() && this._syncDirtyOpsFromHandle())
-			return;
-		if (!this._sameOpRefs(nextOps)) {
-			this._rebuildRenderOps();
-			this._publishOwnerElements();
+		if (!this._handleUpdateInt32) {
+			if (!this._sameOpRefs(nextOps)) {
+				this._rebuildRenderOps();
+				this._publishOwnerElements();
+				return;
+			}
+			this._syncRenderElementTransforms();
+			this._cacheSingleTextureQuadFastPath();
 			return;
 		}
-		if (this._syncDirtyOpsFromHandle())
+		if (this._isHandleUpdateVersionHandled())
 			return;
-		this._syncRenderElementTransforms();
-		this._cacheSingleTextureQuadFastPath();
+		let update = this._handleUpdateInt32;
+		if (update[GraphicsHandleUpdateField.HandledTopologyVersion] === update[GraphicsHandleUpdateField.TopologyVersion]
+			&& this._syncDirtyOpsFromHandle())
+			return;
+		// Op identity/order/structure is only reconciled when the producer advances
+		// the explicit topology version. Payload-only ranges therefore stay O(range).
+		this._rebuildRenderOps();
+		this._publishOwnerElements();
+		this._markHandleUpdatesHandled();
 	}
 
-	syncOp(op: WebGraphicsOp2D, renderIndex: number = this._ops ? this._ops.indexOf(op) : -1, mat: Matrix = this._owner ? this._owner.renderMatrix : null, ownerAlpha: number = this._owner ? this._owner.globalAlpha : 1): void {
+	syncOp(op: WebGraphicsOp2D, renderIndex: number = this._ops ? this._ops.indexOf(op) : -1, mat: Matrix = this._owner ? this._owner.renderMatrix : null, ownerAlpha: number = this._owner ? this._owner.globalAlpha : 1, clearDirty: boolean = true): void {
 		if (!op || renderIndex < 0)
 			return;
-		let ref = this._renderOpRefs[renderIndex];
-		switch (op.opType) {
-			case "textureQuad":
+		let ref = this._renderUnits[renderIndex];
+		switch (op.opProfile) {
+			case GraphicsOpProfile.TextureQuadPixel:
+			case GraphicsOpProfile.TextureQuadPercent:
 				if (op.dirtyFlags === GraphicsOp2DDirtyFlag.None)
 					this._writeTextureQuad(renderIndex, op as WebGraphicsTextureQuadOp2D, mat, ownerAlpha);
 				else
 					this._syncTextureQuadDirtyOp(renderIndex, op as WebGraphicsTextureQuadOp2D, mat, ownerAlpha);
 				break;
-			case "fillTexture":
+			case GraphicsOpProfile.FillTexture:
 				if (op.dirtyFlags === GraphicsOp2DDirtyFlag.None)
 					this._writeFillTexture(renderIndex, op as WebGraphicsFillTextureOp2D, mat, ownerAlpha);
 				else
 					this._syncFillTextureDirtyOp(renderIndex, op as WebGraphicsFillTextureOp2D, mat, ownerAlpha);
 				break;
-			case "solidQuad":
+			case GraphicsOpProfile.SolidQuadPixel:
+			case GraphicsOpProfile.SolidQuadPercent:
 				if (op.dirtyFlags === GraphicsOp2DDirtyFlag.None)
 					this._writeSolidQuad(renderIndex, op as WebGraphicsSolidQuadOp2D, mat, ownerAlpha);
 				else
 					this._syncSolidQuadDirtyOp(renderIndex, op as WebGraphicsSolidQuadOp2D, mat, ownerAlpha);
 				break;
-			case "mesh":
+			case GraphicsOpProfile.GenericMesh:
 				if (op.dirtyFlags === GraphicsOp2DDirtyFlag.None)
 					this._writeMesh(renderIndex, op as WebGraphicsMeshOp2D, mat, ownerAlpha);
 				else
 					this._syncMeshDirtyOp(renderIndex, op as WebGraphicsMeshOp2D, mat, ownerAlpha);
 				break;
-			case "text":
+			case GraphicsOpProfile.Text: {
+				let textStart = ref ? ref.recordStart : 0;
+				let textCount = ref ? ref.recordCount : (op as WebGraphicsTextOp2D).recordCount;
 				if (op.dirtyFlags === GraphicsOp2DDirtyFlag.None)
-					this._writeText(renderIndex, op as WebGraphicsTextOp2D, this._textureGroups[renderIndex], mat, ownerAlpha);
+					this._writeText(renderIndex, op as WebGraphicsTextOp2D, textStart, textCount, mat, ownerAlpha);
 				else
-					this._syncTextDirtyOp(renderIndex, op as WebGraphicsTextOp2D, this._textureGroups[renderIndex], mat, ownerAlpha);
+					this._syncTextDirtyOp(renderIndex, op as WebGraphicsTextOp2D, textStart, textCount, mat, ownerAlpha);
 				break;
-			case "multiQuad":
+			}
+			case GraphicsOpProfile.MultiQuad:
 				if (op.dirtyFlags === GraphicsOp2DDirtyFlag.None)
 					this._writeMultiQuad(renderIndex, op as WebGraphicsMultiQuadOp2D, ref ? ref.recordStart : 0, ref ? ref.recordCount : (op as WebGraphicsMultiQuadOp2D).recordCount, mat, ownerAlpha);
 				else
 					this._syncMultiQuadDirtyOp(renderIndex, op as WebGraphicsMultiQuadOp2D, ref ? ref.recordStart : 0, ref ? ref.recordCount : (op as WebGraphicsMultiQuadOp2D).recordCount, mat, ownerAlpha);
 				break;
 		}
-		op.clearDirty();
+		if (clearDirty)
+			op.clearDirty();
 	}
 
 	updateTransform(mat: Matrix, globalAlpha: number, writeAlpha: boolean = true): void {
@@ -288,32 +234,20 @@ export class WebGraphicsOp2DRuntime {
 	}
 
 	getGraphicsBatchEntry(renderElementIndex: number): WebGraphicsBatchEntry {
-		let entry: WebGraphicsBatchEntry = null;
-		if (renderElementIndex != null && renderElementIndex >= 0) {
-			let indexView = this._indexViews[renderElementIndex];
-			let viStore = this._viStores[renderElementIndex];
-			let element = this._renderElements[renderElementIndex];
-			if (indexView && viStore) {
-				entry = this._batchEntries[renderElementIndex];
-				if (!entry || entry.sourceIndexView !== indexView) {
-					if (entry && element && element._graphicsBatchEntry === entry)
-						element._graphicsBatchEntry = null;
-					this._recycleBatchEntry(entry);
-					entry = this._createGraphicsBatchEntry(indexView, viStore.vertexBuffer);
-					this._batchEntries[renderElementIndex] = entry;
-					if (element)
-						element._graphicsBatchEntry = entry;
-				}
-			}
-			else {
-				let staleEntry = this._batchEntries[renderElementIndex];
-				if (element)
-					element._graphicsBatchEntry = null;
-				this._recycleBatchEntry(staleEntry);
-				this._batchEntries[renderElementIndex] = null;
-			}
+		if (renderElementIndex == null || renderElementIndex < 0)
+			return null;
+		let unit = this._renderUnits[renderElementIndex];
+		return unit && unit.sourceIndexView && unit.viStore ? unit : null;
+	}
+
+	syncGraphicsUseSpriteState(): void {
+		let useSpriteState = this._materialState.useSpriteState;
+		let ownerBlendMode = this._owner.blendMode;
+		let blendMask = ShaderDefines2D.TYPEKEY_CUSTOM_MATERIAL - 1;
+		for (let element of this._renderElements) {
+			if (element)
+				element.renderStateIsBySprite = useSpriteState && (element.typeKey & blendMask) === ownerBlendMode;
 		}
-		return entry;
 	}
 
 	private _syncDirtyOpsFromHandle(): boolean {
@@ -327,7 +261,7 @@ export class WebGraphicsOp2DRuntime {
 		let start = update[GraphicsHandleUpdateField.DirtyOpStart];
 		let count = update[GraphicsHandleUpdateField.DirtyOpCount];
 		if (dirtyFlags === GraphicsHandleDirtyFlag.None || start < 0 || count <= 0) {
-			update[GraphicsHandleUpdateField.HandledVersion] = updateVersion;
+			this._markHandleUpdatesHandled();
 			return true;
 		}
 		let end = Math.min(start + count, this._ops.length);
@@ -338,50 +272,79 @@ export class WebGraphicsOp2DRuntime {
 			if ((op.dirtyFlags & GraphicsOp2DDirtyFlag.Structure) !== 0) {
 				this._rebuildRenderOps();
 				this._publishOwnerElements();
-				update[GraphicsHandleUpdateField.HandledVersion] = updateVersion;
+				this._markHandleUpdatesHandled();
 				return true;
 			}
-			let range = this._opRenderRanges[opIndex];
-			if (!range || range.count <= 0)
+			let rangeOffset = opIndex * 2;
+			let rangeCount = this._opRenderRanges ? this._opRenderRanges[rangeOffset + 1] : 0;
+			if (rangeCount <= 0) {
+				op.clearDirty();
 				continue;
-			for (let renderIndex = range.start, n = range.start + range.count; renderIndex < n; renderIndex++)
-				this.syncOp(op, renderIndex, mat, ownerAlpha);
+			}
+			if (op.dirtyFlags === GraphicsOp2DDirtyFlag.None)
+				continue;
+			let rangeStart = this._opRenderRanges[rangeOffset];
+			for (let renderIndex = rangeStart, n = rangeStart + rangeCount; renderIndex < n; renderIndex++)
+				this.syncOp(op, renderIndex, mat, ownerAlpha, false);
+			op.clearDirty();
 		}
-		update[GraphicsHandleUpdateField.HandledVersion] = updateVersion;
+		this._markHandleUpdatesHandled();
 		this._cacheSingleTextureQuadFastPath();
 		return true;
 	}
 
-	private _hasPendingDirtyRange(): boolean {
-		let update = this._handleUpdateInt32;
-		if (!update)
-			return false;
-		let updateVersion = update[GraphicsHandleUpdateField.UpdateVersion];
-		return update[GraphicsHandleUpdateField.HandledVersion] !== updateVersion
-			&& update[GraphicsHandleUpdateField.DirtyFlags] !== GraphicsHandleDirtyFlag.None
-			&& update[GraphicsHandleUpdateField.DirtyOpStart] >= 0
-			&& update[GraphicsHandleUpdateField.DirtyOpCount] > 0;
-	}
-
 	destroy(): void {
+		this._active = false;
 		this._clearRenderOps();
 		this._ops = [];
 		this._owner = null;
 	}
 
-	private _rebuildRenderOps(): void {
-		this._clearRenderOps();
+	private _rebuildRenderOps(forceStructure: boolean = false): void {
+		let hasPreviousUnits = this._renderUnits.length > 0;
+		if (hasPreviousUnits)
+			this._snapshotRenderOpsToSpare();
+		else {
+			this._renderElements.length = 0;
+			this._opRefs.length = 0;
+			this._renderUnits.length = 0;
+		}
 		let renderIndex = 0;
+		this._spareOpCursor = 0;
 		for (let i = 0, n = this._ops.length; i < n; i++) {
 			let op = this._ops[i];
 			this._opRefs[i] = op;
-			if (op.opType === "text") {
+			this._preferredSpareRenderStart = -1;
+			this._preferredSpareRenderEnd = -1;
+			let oldOpIndex = hasPreviousUnits ? this._findSpareOpIndex(op) : -1;
+			if (!forceStructure && oldOpIndex >= 0 && (op.dirtyFlags & GraphicsOp2DDirtyFlag.Structure) === 0) {
+				let needsSync = op.dirtyFlags !== GraphicsOp2DDirtyFlag.None;
+				let oldRangeOffset = oldOpIndex * 2;
+				let oldRenderStart = this._spareOpRenderRanges[oldRangeOffset];
+				let count = this._spareOpRenderRanges[oldRangeOffset + 1];
+				this._setOpRenderRange(i, renderIndex, count);
+				for (let oldRenderIndex = oldRenderStart, end = oldRenderIndex + count; oldRenderIndex < end; oldRenderIndex++) {
+					this._reuseSpareRenderElement(oldRenderIndex, renderIndex, op, i);
+					if (needsSync)
+						this.syncOp(op, renderIndex, undefined, undefined, false);
+					renderIndex++;
+				}
+				if (needsSync || count === 0)
+					op.clearDirty();
+				continue;
+			}
+			if (oldOpIndex >= 0) {
+				let oldRangeOffset = oldOpIndex * 2;
+				this._preferredSpareRenderStart = this._spareOpRenderRanges[oldRangeOffset];
+				this._preferredSpareRenderEnd = this._preferredSpareRenderStart + this._spareOpRenderRanges[oldRangeOffset + 1];
+			}
+			if (op.opProfile === GraphicsOpProfile.Text) {
 				let startRenderIndex = renderIndex;
 				renderIndex = this._appendTextRenderElements(renderIndex, op as WebGraphicsTextOp2D, i);
 				this._setOpRenderRange(i, startRenderIndex, renderIndex - startRenderIndex);
 				continue;
 			}
-			if (op.opType === "multiQuad") {
+			if (op.opProfile === GraphicsOpProfile.MultiQuad) {
 				let startRenderIndex = renderIndex;
 				renderIndex = this._appendMultiQuadRenderElements(renderIndex, op as WebGraphicsMultiQuadOp2D, i);
 				this._setOpRenderRange(i, startRenderIndex, renderIndex - startRenderIndex);
@@ -389,18 +352,129 @@ export class WebGraphicsOp2DRuntime {
 			}
 			let vertexCount = this._getVertexCount(op);
 			let indexCount = this._getIndexCount(op);
-			if (vertexCount <= 0 || indexCount <= 0)
+			if (vertexCount <= 0 || indexCount <= 0) {
+				this._setOpRenderRange(i, renderIndex, 0);
+				op.clearDirty();
 				continue;
-			let allocation = WebGraphicsOpVIStorePool.allocate(vertexCount, indexCount);
-			if (!allocation)
+			}
+			if (!this._createRenderElement(renderIndex, vertexCount, indexCount, op, i, 0, 1)) {
+				this._setOpRenderRange(i, renderIndex, 0);
 				continue;
-			this._createRenderElement(renderIndex, allocation, op, i, 0, 1);
+			}
 			this._setOpRenderRange(i, renderIndex, 1);
 			this.syncOp(op, renderIndex);
 			renderIndex++;
 		}
+		this._destroyUnusedSpareRenderUnits();
 		this._cacheSingleTextureQuadFastPath();
 	}
+
+	private _isHandleUpdateVersionHandled(): boolean {
+		let update = this._handleUpdateInt32;
+		return !!update
+			&& update[GraphicsHandleUpdateField.HandledVersion] === update[GraphicsHandleUpdateField.UpdateVersion]
+			&& update[GraphicsHandleUpdateField.HandledTopologyVersion] === update[GraphicsHandleUpdateField.TopologyVersion];
+	}
+
+	private _markHandleUpdatesHandled(): void {
+		let update = this._handleUpdateInt32;
+		if (!update)
+			return;
+		update[GraphicsHandleUpdateField.HandledTopologyVersion] = update[GraphicsHandleUpdateField.TopologyVersion];
+		// Acknowledge last so the producer never merges against a partial commit.
+		update[GraphicsHandleUpdateField.HandledVersion] = update[GraphicsHandleUpdateField.UpdateVersion];
+	}
+
+	private _snapshotRenderOpsToSpare(): void {
+		if (!this._spareRenderUnits) {
+			this._spareOpRefs = [];
+			this._spareRenderElements = [];
+			this._spareRenderUnits = [];
+		}
+		for (let i = 0, n = this._renderUnits.length; i < n; i++) {
+			this._spareRenderUnits[i] = this._renderUnits[i];
+			this._spareRenderElements[i] = this._renderElements[i];
+		}
+		this._spareRenderUnits.length = this._renderUnits.length;
+		this._spareRenderElements.length = this._renderElements.length;
+		this._ensureSpareOpRenderRangeCapacity(this._opRefs.length);
+		for (let i = 0, n = this._opRefs.length; i < n; i++) {
+			this._spareOpRefs[i] = this._opRefs[i];
+			let rangeOffset = i * 2;
+			this._spareOpRenderRanges[rangeOffset] = this._opRenderRanges[rangeOffset];
+			this._spareOpRenderRanges[rangeOffset + 1] = this._opRenderRanges[rangeOffset + 1];
+		}
+		this._spareOpRefs.length = this._opRefs.length;
+		this._renderElements.length = 0;
+		this._opRefs.length = 0;
+		this._renderUnits.length = 0;
+	}
+
+	private _findSpareOpIndex(op: WebGraphicsOp2D): number {
+		let n = this._spareOpRefs.length;
+		while (this._spareOpCursor < n) {
+			let candidateIndex = this._spareOpCursor;
+			let candidate = this._spareOpRefs[candidateIndex];
+			if (candidate === op) {
+				this._spareOpCursor++;
+				return candidateIndex;
+			}
+			if (candidate.commandIndex < op.commandIndex) {
+				this._spareOpCursor++;
+				continue;
+			}
+			if (candidate.commandIndex > op.commandIndex)
+				return -1;
+			for (let i = candidateIndex + 1; i < n && this._spareOpRefs[i].commandIndex === op.commandIndex; i++) {
+				if (this._spareOpRefs[i] === op) {
+					this._spareOpCursor = i + 1;
+					return i;
+				}
+			}
+			return -1;
+		}
+		return -1;
+	}
+
+	private _reuseSpareRenderElement(oldRenderIndex: number, renderIndex: number, op: WebGraphicsOp2D, opIndex: number): void {
+		let unit = this._spareRenderUnits[oldRenderIndex];
+		unit.op = op;
+		unit.opIndex = opIndex;
+		this._renderUnits[renderIndex] = unit;
+		this._renderElements[renderIndex] = this._spareRenderElements[oldRenderIndex];
+		this._spareRenderUnits[oldRenderIndex] = null;
+	}
+
+	private _destroyUnusedSpareRenderUnits(): void {
+		if (!this._spareRenderUnits)
+			return;
+		for (let i = 0, n = this._spareRenderUnits.length; i < n; i++) {
+			let unit = this._spareRenderUnits[i];
+			if (!unit)
+				continue;
+			WebGraphicsRenderUnitPool.recover(unit);
+			this._spareRenderUnits[i] = null;
+			this._spareRenderElements[i] = null;
+		}
+		this._spareRenderUnits.length = 0;
+		this._spareRenderElements.length = 0;
+		this._spareOpRefs.length = 0;
+	}
+
+	private _takePreferredSpareRenderUnit(vertexCount: number, indexCount: number): WebGraphicsRenderUnit {
+		if (!this._spareRenderUnits || this._preferredSpareRenderStart < 0)
+			return null;
+		for (let i = this._preferredSpareRenderStart; i < this._preferredSpareRenderEnd; i++) {
+			let unit = this._spareRenderUnits[i];
+			if (!unit || !unit.canReuse(vertexCount, indexCount))
+				continue;
+			this._spareRenderUnits[i] = null;
+			unit.reactivate(this._owner, this._materialState.subShader, this._materialState.shaderData);
+			return unit;
+		}
+		return null;
+	}
+
 
 	private _appendMultiQuadRenderElements(renderIndex: number, op: WebGraphicsMultiQuadOp2D, opIndex: number): number {
 		return this._appendGroupedQuadRenderElements(renderIndex, op, opIndex);
@@ -411,39 +485,44 @@ export class WebGraphicsOp2DRuntime {
 	}
 
 	private _appendGroupedQuadRenderElements(renderIndex: number, op: WebGraphicsMultiQuadOp2D | WebGraphicsTextOp2D, opIndex: number): number {
-		let groups = this._collectTextureGroups(op);
-		for (let i = 0, n = groups.length; i < n; i++) {
-			let group = groups[i];
-			let maxRecords = this._getMaxQuadRecordsPerRenderElement();
-			for (let offset = 0; offset < group.count;) {
-				let count = Math.min(maxRecords, group.count - offset);
-				let allocation = WebGraphicsOpVIStorePool.allocate(count * 4, count * 6);
-				if (!allocation)
+		let maxRecords = this._getMaxQuadRecordsPerRenderElement();
+		let groupStart = 0;
+		let groupTexture: GraphicsOp2DTextureHost = op.recordCount > 0 ? op.textures[0] || null : null;
+		for (let i = 1, n = op.recordCount; i <= n; i++) {
+			let texture = i < n ? op.textures[i] || null : null;
+			if (i < n && texture === groupTexture)
+				continue;
+			let groupCount = i - groupStart;
+			for (let offset = 0; offset < groupCount;) {
+				let count = Math.min(maxRecords, groupCount - offset);
+				if (!this._createRenderElement(renderIndex, count * 4, count * 6, op, opIndex, groupStart + offset, count))
 					break;
-				let splitGroup = { start: group.start + offset, count, texture: group.texture };
-				this._createRenderElement(renderIndex, allocation, op, opIndex, splitGroup.start, splitGroup.count);
-				this._textureGroups[renderIndex] = splitGroup;
-				if (op.opType === "text")
-					this._writeText(renderIndex, op as WebGraphicsTextOp2D, splitGroup);
+				let recordStart = groupStart + offset;
+				if (op.opProfile === GraphicsOpProfile.Text)
+					this._writeText(renderIndex, op as WebGraphicsTextOp2D, recordStart, count);
 				else
-					this._writeMultiQuad(renderIndex, op as WebGraphicsMultiQuadOp2D, splitGroup.start, splitGroup.count);
+					this._writeMultiQuad(renderIndex, op as WebGraphicsMultiQuadOp2D, recordStart, count);
 				renderIndex++;
 				offset += count;
 			}
+			groupStart = i;
+			groupTexture = texture;
 		}
 		op.clearDirty();
 		return renderIndex;
 	}
 
 	private _getVertexCount(op: WebGraphicsOp2D): number {
-		switch (op.opType) {
-			case "textureQuad":
-			case "fillTexture":
-			case "solidQuad":
+		switch (op.opProfile) {
+			case GraphicsOpProfile.TextureQuadPixel:
+			case GraphicsOpProfile.TextureQuadPercent:
+			case GraphicsOpProfile.FillTexture:
+			case GraphicsOpProfile.SolidQuadPixel:
+			case GraphicsOpProfile.SolidQuadPercent:
 				return (op as WebGraphicsTextureQuadOp2D | WebGraphicsFillTextureOp2D | WebGraphicsSolidQuadOp2D).recordCount > 0 ? 4 : 0;
-			case "multiQuad":
+			case GraphicsOpProfile.MultiQuad:
 				return (op as WebGraphicsMultiQuadOp2D).recordCount * 4;
-			case "mesh":
+			case GraphicsOpProfile.GenericMesh:
 				return op._int32[GraphicsOpInfoField.WordCount + GraphicsMeshPayloadWordOffset.VertexCount];
 			default:
 				return 0;
@@ -451,14 +530,16 @@ export class WebGraphicsOp2DRuntime {
 	}
 
 	private _getIndexCount(op: WebGraphicsOp2D): number {
-		switch (op.opType) {
-			case "textureQuad":
-			case "fillTexture":
-			case "solidQuad":
+		switch (op.opProfile) {
+			case GraphicsOpProfile.TextureQuadPixel:
+			case GraphicsOpProfile.TextureQuadPercent:
+			case GraphicsOpProfile.FillTexture:
+			case GraphicsOpProfile.SolidQuadPixel:
+			case GraphicsOpProfile.SolidQuadPercent:
 				return (op as WebGraphicsTextureQuadOp2D | WebGraphicsFillTextureOp2D | WebGraphicsSolidQuadOp2D).recordCount > 0 ? 6 : 0;
-			case "multiQuad":
+			case GraphicsOpProfile.MultiQuad:
 				return (op as WebGraphicsMultiQuadOp2D).recordCount * 6;
-			case "mesh":
+			case GraphicsOpProfile.GenericMesh:
 				return op._int32[GraphicsOpInfoField.WordCount + GraphicsMeshPayloadWordOffset.IndexCount];
 			default:
 				return 0;
@@ -470,52 +551,76 @@ export class WebGraphicsOp2DRuntime {
 	}
 
 	private _setOpRenderRange(opIndex: number, start: number, count: number): void {
-		this._opRenderRanges[opIndex] = { start, count };
+		this._ensureOpRenderRangeCapacity(opIndex + 1);
+		let offset = opIndex * 2;
+		this._opRenderRanges[offset] = start;
+		this._opRenderRanges[offset + 1] = count;
 	}
 
-	private _createRenderElement(renderIndex: number, allocation: WebGraphicsOpVIAllocation, op: WebGraphicsOp2D, opIndex: number, recordStart: number, recordCount: number): void {
-		let reusableResource = WebGraphicsOp2DRuntime._renderResourcePool.take();
-		let element = reusableResource.element;
-		let geometry = reusableResource.geometry;
-		let primitiveShaderData = reusableResource.primitiveShaderData;
-		let fillTextureRange = reusableResource.fillTextureRange;
-		element.owner = this._owner;
-		element.value2DShaderData = this._owner.spriteShaderData;
-		element.globalShaderData = this._owner.globalRenderData ? this._owner.globalRenderData.globalShaderData : null;
-		element.primitiveShaderData = primitiveShaderData;
-		element.subShader = this._materialState.subShader;
-		element.materialShaderData = this._materialState.shaderData;
-		element.renderStateIsBySprite = false;
-		element.typeKey = 0;
-		element.textureKey = 0;
-		geometry.indexFormat = GraphicsDefines.GRAPHICS_INDEX_FORMAT;
-		geometry.bufferState = allocation.viStore.bufferState;
-		element.geometry = geometry;
-		let indexView = allocation.indexView;
-		indexView.setGeometry(geometry);
-		let batchEntry = this._createGraphicsBatchEntry(indexView, allocation.viStore.vertexBuffer);
-		element._graphicsBatchEntry = batchEntry;
-		this._renderElements[renderIndex] = element;
-		this._renderOpRefs[renderIndex] = { op, opIndex, recordStart, recordCount };
-		this._viStores[renderIndex] = allocation.viStore;
-		this._vertexViews[renderIndex] = allocation.vertexViews;
-		this._vertexBlocks[renderIndex] = allocation.vertexBlocks;
-		this._indexViews[renderIndex] = indexView;
-		this._geometries[renderIndex] = geometry;
-		this._primitiveShaderData[renderIndex] = primitiveShaderData;
-		this._batchEntries[renderIndex] = batchEntry;
-		fillTextureRange.setValue(0, 0, 1, 1);
-		this._fillTextureRanges[renderIndex] = fillTextureRange;
-		this._renderResources[renderIndex] = reusableResource;
+	private _ensureOpRenderRangeCapacity(opCount: number): void {
+		if (opCount <= this._opRenderRangeCapacity)
+			return;
+		let capacity = Math.max(8, this._opRenderRangeCapacity || 0);
+		while (capacity < opCount)
+			capacity <<= 1;
+		let ranges = new Int32Array(capacity * 2);
+		if (this._opRenderRanges)
+			ranges.set(this._opRenderRanges);
+		this._opRenderRanges = ranges;
+		this._opRenderRangeCapacity = capacity;
 	}
 
-	private _createGraphicsBatchEntry(sourceIndexView: Web2DGraphic2DIndexDataView, vertexBuffer: IVertexBuffer): WebGraphicsBatchEntry {
-		let entry = WebGraphicsOp2DRuntime._batchEntryPool.take();
-		let cloneIndexView = entry.cloneIndexView;
-		entry.vertexBuffer = vertexBuffer;
-		entry.sourceIndexView = sourceIndexView;
-		sourceIndexView._cloneView(cloneIndexView);
-		return entry;
+	private _ensureSpareOpRenderRangeCapacity(opCount: number): void {
+		if (opCount <= this._spareOpRenderRangeCapacity)
+			return;
+		let capacity = Math.max(8, this._spareOpRenderRangeCapacity || 0);
+		while (capacity < opCount)
+			capacity <<= 1;
+		this._spareOpRenderRanges = new Int32Array(capacity * 2);
+		this._spareOpRenderRangeCapacity = capacity;
+	}
+
+	private _createRenderElement(renderIndex: number, vertexCount: number, indexCount: number, op: WebGraphicsOp2D, opIndex: number, recordStart: number, recordCount: number): boolean {
+		let unit = this._takePreferredSpareRenderUnit(vertexCount, indexCount);
+		if (!unit)
+			unit = WebGraphicsRenderUnitPool.take(vertexCount, indexCount, this._owner,
+				this._materialState.subShader, this._materialState.shaderData);
+		if (!unit) {
+			unit = WebGraphicsRenderUnit.create(vertexCount, indexCount, this._owner, this._materialState.subShader, this._materialState.shaderData);
+			if (!unit)
+				return false;
+		}
+		this._renderElements[renderIndex] = unit.element;
+		unit.op = op;
+		unit.opIndex = opIndex;
+		unit.recordStart = recordStart;
+		unit.recordCount = recordCount;
+		this._renderUnits[renderIndex] = unit;
+		return true;
+	}
+
+	activate(): void {
+		this._active = true;
+		this._publishOwnerElements();
+	}
+
+	deactivate(): void {
+		if (!this._active)
+			return;
+		this._active = false;
+		this._releaseRenderUnitsToPool();
+		this._needsRematerialize = this._ops.length > 0;
+	}
+
+	private _releaseRenderUnitsToPool(): void {
+		for (let i = 0, n = this._renderUnits.length; i < n; i++) {
+			let unit = this._renderUnits[i];
+			if (unit)
+				WebGraphicsRenderUnitPool.recover(unit);
+		}
+		this._renderElements.length = 0;
+		this._renderUnits.length = 0;
+		this._opRefs.length = 0;
 	}
 
 	private _writeTextureQuad(renderIndex: number, op: WebGraphicsTextureQuadOp2D, mat: Matrix, ownerAlpha: number): void {
@@ -540,11 +645,8 @@ export class WebGraphicsOp2DRuntime {
 		let wordOffset = GraphicsOpInfoField.WordCount;
 		let texture = op._texture;
 		let hasCustomMaterial = this._materialState.shaderData != null;
-		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.State)) !== 0) {
-			this._syncTexture(renderIndex, texture, 0, op._int32[wordOffset + GraphicsQuadPayloadWordOffset.BlendMode], hasCustomMaterial);
-			if ((dirtyFlags & GraphicsOp2DDirtyFlag.Geometry) === 0 && op.textureLayerDirty)
-				this._writeQuadTextureLayer(renderIndex, op._int32[wordOffset + GraphicsQuadPayloadWordOffset.TextureLayer]);
-		}
+		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.State)) !== 0)
+			this._syncTextureOrState(renderIndex, dirtyFlags, texture, 0, op._int32[wordOffset + GraphicsQuadPayloadWordOffset.BlendMode], hasCustomMaterial);
 		if ((dirtyFlags & GraphicsOp2DDirtyFlag.Geometry) !== 0)
 			this._writeQuadVertexData(renderIndex, op._float32, op._int32, wordOffset, mat, texture != null, ownerAlpha);
 	}
@@ -559,7 +661,7 @@ export class WebGraphicsOp2DRuntime {
 		}
 		let wordOffset = GraphicsOpInfoField.WordCount;
 		if ((dirtyFlags & GraphicsOp2DDirtyFlag.State) !== 0)
-			this._syncTexture(renderIndex, null, 0, op._int32[wordOffset + GraphicsQuadPayloadWordOffset.BlendMode], this._materialState.shaderData != null);
+			this._syncTextureState(renderIndex, op._int32[wordOffset + GraphicsQuadPayloadWordOffset.BlendMode], this._materialState.shaderData != null);
 		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Geometry | GraphicsOp2DDirtyFlag.State)) !== 0)
 			this._writeSolidQuadVertexData(renderIndex, op._float32, op._int32, wordOffset, mat, ownerAlpha);
 	}
@@ -603,7 +705,7 @@ export class WebGraphicsOp2DRuntime {
 		let i32 = op._int32;
 		let texture = op._texture;
 		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.State)) !== 0)
-			this._syncTexture(renderIndex, texture, ShaderDefines2D.DEFINE_BIT_FILLTEXTURE, i32[wordOffset + GraphicsQuadPayloadWordOffset.BlendMode], this._materialState.shaderData != null);
+			this._syncTextureOrState(renderIndex, dirtyFlags, texture, ShaderDefines2D.DEFINE_BIT_FILLTEXTURE, i32[wordOffset + GraphicsQuadPayloadWordOffset.BlendMode], this._materialState.shaderData != null);
 		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.Geometry)) !== 0)
 			this._syncFillTextureRange(renderIndex,
 				f32[wordOffset + GraphicsQuadPayloadWordOffset.TexRangeX],
@@ -618,8 +720,7 @@ export class WebGraphicsOp2DRuntime {
 		if (count <= 0)
 			return;
 		let bodyOffset = GraphicsOpInfoField.WordCount;
-		let group = this._textureGroups[renderIndex];
-		let texture = group ? group.texture : op._texture;
+		let texture = op.textures[start] || null;
 		this._syncTexture(renderIndex, texture, 0, op._int32[bodyOffset + start * GraphicsQuadPayloadWordCount + GraphicsQuadPayloadWordOffset.BlendMode], this._materialState.shaderData != null);
 		this._writeMultiQuadRange(renderIndex, op, start, count, mat, ownerAlpha, texture != null);
 		this._writeQuadIndex(renderIndex, count);
@@ -634,44 +735,37 @@ export class WebGraphicsOp2DRuntime {
 			return;
 		}
 		let bodyOffset = GraphicsOpInfoField.WordCount;
-		let group = this._textureGroups[renderIndex];
-		let texture = group ? group.texture : op._texture;
+		let texture = op.textures[start] || null;
 		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.State)) !== 0)
-			this._syncTexture(renderIndex, texture, 0, op._int32[bodyOffset + start * GraphicsQuadPayloadWordCount + GraphicsQuadPayloadWordOffset.BlendMode], this._materialState.shaderData != null);
+			this._syncTextureOrState(renderIndex, dirtyFlags, texture, 0, op._int32[bodyOffset + start * GraphicsQuadPayloadWordCount + GraphicsQuadPayloadWordOffset.BlendMode], this._materialState.shaderData != null);
 		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Geometry | GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.State)) !== 0)
 			this._writeMultiQuadRange(renderIndex, op, start, count, mat, ownerAlpha, texture != null);
 	}
 
-	private _writeText(renderIndex: number, op: WebGraphicsTextOp2D, group: WebGraphicsTextureGroup = null, mat: Matrix = this._owner ? this._owner.renderMatrix : null, ownerAlpha: number = this._owner ? this._owner.globalAlpha : 1): void {
-		if (!group) {
-			let groups = this._collectTextureGroups(op);
-			group = groups.length > 0 ? groups[0] : null;
-		}
-		if (!group)
+	private _writeText(renderIndex: number, op: WebGraphicsTextOp2D, start: number, count: number, mat: Matrix = this._owner ? this._owner.renderMatrix : null, ownerAlpha: number = this._owner ? this._owner.globalAlpha : 1): void {
+		if (count <= 0)
 			return;
+		let texture = op.textures[start] || null;
 		let bodyOffset = GraphicsOpInfoField.WordCount;
-		this._syncTexture(renderIndex, group.texture, 0, op.recordCount > 0 ? op._int32[bodyOffset + group.start * GraphicsQuadPayloadWordCount + GraphicsQuadPayloadWordOffset.BlendMode] : 0, this._materialState.shaderData != null);
-		this._writeMultiQuadRange(renderIndex, op, group.start, group.count, mat, ownerAlpha, group.texture != null);
-		this._writeQuadIndex(renderIndex, group.count);
+		this._syncTexture(renderIndex, texture, 0, op._int32[bodyOffset + start * GraphicsQuadPayloadWordCount + GraphicsQuadPayloadWordOffset.BlendMode], this._materialState.shaderData != null);
+		this._writeMultiQuadRange(renderIndex, op, start, count, mat, ownerAlpha, texture != null);
+		this._writeQuadIndex(renderIndex, count);
 	}
 
-	private _syncTextDirtyOp(renderIndex: number, op: WebGraphicsTextOp2D, group: WebGraphicsTextureGroup = null, mat: Matrix = this._owner ? this._owner.renderMatrix : null, ownerAlpha: number = this._owner ? this._owner.globalAlpha : 1): void {
-		if (!group) {
-			let groups = this._collectTextureGroups(op);
-			group = groups.length > 0 ? groups[0] : null;
-		}
-		if (!group)
+	private _syncTextDirtyOp(renderIndex: number, op: WebGraphicsTextOp2D, start: number, count: number, mat: Matrix = this._owner ? this._owner.renderMatrix : null, ownerAlpha: number = this._owner ? this._owner.globalAlpha : 1): void {
+		if (count <= 0)
 			return;
 		let dirtyFlags = op.dirtyFlags;
 		if ((dirtyFlags & GraphicsOp2DDirtyFlag.Structure) !== 0) {
-			this._writeText(renderIndex, op, group, mat, ownerAlpha);
+			this._writeText(renderIndex, op, start, count, mat, ownerAlpha);
 			return;
 		}
+		let texture = op.textures[start] || null;
 		let bodyOffset = GraphicsOpInfoField.WordCount;
 		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.State)) !== 0)
-			this._syncTexture(renderIndex, group.texture, 0, op.recordCount > 0 ? op._int32[bodyOffset + group.start * GraphicsQuadPayloadWordCount + GraphicsQuadPayloadWordOffset.BlendMode] : 0, this._materialState.shaderData != null);
+			this._syncTextureOrState(renderIndex, dirtyFlags, texture, 0, op._int32[bodyOffset + start * GraphicsQuadPayloadWordCount + GraphicsQuadPayloadWordOffset.BlendMode], this._materialState.shaderData != null);
 		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Geometry | GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.State)) !== 0)
-			this._writeMultiQuadRange(renderIndex, op, group.start, group.count, mat, ownerAlpha, group.texture != null);
+			this._writeMultiQuadRange(renderIndex, op, start, count, mat, ownerAlpha, texture != null);
 	}
 
 	private _writeMultiQuadRange(renderIndex: number, op: WebGraphicsMultiQuadOp2D, start: number, count: number, mat: Matrix, ownerAlpha: number, uvEnabled: boolean): void {
@@ -681,7 +775,7 @@ export class WebGraphicsOp2DRuntime {
 		let bodyOffset = GraphicsOpInfoField.WordCount;
 		for (let i = start, n = start + count; i < n; i++) {
 			if (vertexIndex % GRAPHICS_INFO_VERTEX_BLOCK_SIZE === 0) {
-				view = this._vertexViews[renderIndex][Math.floor(vertexIndex / GRAPHICS_INFO_VERTEX_BLOCK_SIZE)];
+				view = this._renderUnits[renderIndex].vertexViews[Math.floor(vertexIndex / GRAPHICS_INFO_VERTEX_BLOCK_SIZE)];
 				blockData = view._getData();
 				blockData.fill(0);
 			}
@@ -692,27 +786,6 @@ export class WebGraphicsOp2DRuntime {
 		}
 		if (vertexIndex % GRAPHICS_INFO_VERTEX_BLOCK_SIZE !== 0)
 			view._modify();
-	}
-
-	private _collectTextureGroups(op: WebGraphicsMultiQuadOp2D | WebGraphicsTextOp2D): WebGraphicsTextureGroup[] {
-		let groups: WebGraphicsTextureGroup[] = [];
-		let start = 0;
-		let currentTexture: GraphicsOp2DTextureHost = null;
-		for (let i = 0, n = op.recordCount; i < n; i++) {
-			let texture = op.textures[i] || null;
-			if (i === 0) {
-				currentTexture = texture;
-				continue;
-			}
-			if (texture !== currentTexture) {
-				groups.push({ start, count: i - start, texture: currentTexture });
-				start = i;
-				currentTexture = texture;
-			}
-		}
-		if (op.recordCount > 0)
-			groups.push({ start, count: op.recordCount - start, texture: currentTexture });
-		return groups;
 	}
 
 	private _writeMesh(renderIndex: number, op: WebGraphicsMeshOp2D, mat: Matrix, ownerAlpha: number): void {
@@ -732,7 +805,7 @@ export class WebGraphicsOp2DRuntime {
 		let wordOffset = GraphicsOpInfoField.WordCount;
 		let int32 = op._int32;
 		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.State)) !== 0)
-			this._syncTexture(renderIndex, op._texture, 0, int32[wordOffset + GraphicsMeshPayloadWordOffset.BlendMode], this._materialState.shaderData != null);
+			this._syncTextureOrState(renderIndex, dirtyFlags, op._texture, 0, int32[wordOffset + GraphicsMeshPayloadWordOffset.BlendMode], this._materialState.shaderData != null);
 		if ((dirtyFlags & (GraphicsOp2DDirtyFlag.Geometry | GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.State)) !== 0)
 			this._writeMeshData(renderIndex, op, wordOffset, mat, ownerAlpha);
 		if ((dirtyFlags & GraphicsOp2DDirtyFlag.Geometry) !== 0)
@@ -743,15 +816,16 @@ export class WebGraphicsOp2DRuntime {
 		let int32 = op._int32;
 		let indexDataOffset = wordOffset + int32[wordOffset + GraphicsMeshPayloadWordOffset.IndexDataOffset];
 		let indexCount = int32[wordOffset + GraphicsMeshPayloadWordOffset.IndexCount];
-		let indexData = this._indexViews[renderIndex]._getData();
-		let blocks = this._vertexBlocks[renderIndex];
+		let unit = this._renderUnits[renderIndex];
+		let indexData = unit.sourceIndexView._getData();
+		let blocks = unit.vertexBlocks;
 		for (let j = 0; j < indexCount; j++) {
 			let localVertex = int32[indexDataOffset + j];
 			let blockIndex = Math.floor(localVertex / GRAPHICS_INFO_VERTEX_BLOCK_SIZE);
 			let vertexInBlock = localVertex - blockIndex * GRAPHICS_INFO_VERTEX_BLOCK_SIZE;
 			indexData[j] = blocks[blockIndex] * GRAPHICS_INFO_VERTEX_BLOCK_SIZE + vertexInBlock;
 		}
-		this._indexViews[renderIndex]._modify();
+		unit.sourceIndexView._modify();
 	}
 
 	private _writeMeshData(renderIndex: number, op: WebGraphicsMeshOp2D, wordOffset: number, ownerMat: Matrix, ownerAlpha: number): void {
@@ -778,7 +852,7 @@ export class WebGraphicsOp2DRuntime {
 			let globalVertex = i;
 			let blockIndex = Math.floor(globalVertex / GRAPHICS_INFO_VERTEX_BLOCK_SIZE);
 			let localVertex = globalVertex - blockIndex * GRAPHICS_INFO_VERTEX_BLOCK_SIZE;
-			let view = this._vertexViews[renderIndex][blockIndex];
+			let view = this._renderUnits[renderIndex].vertexViews[blockIndex];
 			if (view !== modifiedView) {
 				modifiedView && modifiedView._modify();
 				modifiedView = view;
@@ -820,7 +894,7 @@ export class WebGraphicsOp2DRuntime {
 	}
 
 	private _writeSolidQuadVertexData(renderIndex: number, float32: Float32Array, int32: Int32Array, wordOffset: number, mat: Matrix, ownerAlpha: number): void {
-		let view = this._vertexViews[renderIndex][0];
+		let view = this._renderUnits[renderIndex].vertexViews[0];
 		let data = view._getData();
 		data.fill(0);
 		this._writeQuadVerticesInto(data, 0, float32, int32, wordOffset, mat, false, ownerAlpha);
@@ -828,20 +902,10 @@ export class WebGraphicsOp2DRuntime {
 	}
 
 	private _writeQuadVertexData(renderIndex: number, float32: Float32Array, int32: Int32Array, wordOffset: number, mat: Matrix, uvEnabled: boolean, ownerAlpha: number = this._owner ? this._owner.globalAlpha : 1): void {
-		let view = this._vertexViews[renderIndex][0];
+		let view = this._renderUnits[renderIndex].vertexViews[0];
 		let data = view._getData();
 		data.fill(0);
 		this._writeQuadVerticesInto(data, 0, float32, int32, wordOffset, mat, uvEnabled, ownerAlpha);
-		view._modify();
-	}
-
-	private _writeQuadTextureLayer(renderIndex: number, textureLayer: number): void {
-		let view = this._vertexViews[renderIndex] && this._vertexViews[renderIndex][0];
-		if (!view)
-			return;
-		let data = view._getData();
-		for (let vertexIndex = 0; vertexIndex < 4; vertexIndex++)
-			data[vertexIndex * GraphicsDefines.stride + 11] = textureLayer;
 		view._modify();
 	}
 
@@ -927,8 +991,9 @@ export class WebGraphicsOp2DRuntime {
 	}
 
 	private _writeQuadIndex(renderIndex: number, quadCount: number): void {
-		let indexData = this._indexViews[renderIndex]._getData();
-		let blocks = this._vertexBlocks[renderIndex];
+		let unit = this._renderUnits[renderIndex];
+		let indexData = unit.sourceIndexView._getData();
+		let blocks = unit.vertexBlocks;
 		for (let i = 0; i < quadCount; i++) {
 			let vertexBase = i * 4;
 			let blockIndex = Math.floor(vertexBase / GRAPHICS_INFO_VERTEX_BLOCK_SIZE);
@@ -936,7 +1001,7 @@ export class WebGraphicsOp2DRuntime {
 			for (let j = 0; j < 6; j++)
 				indexData[i * 6 + j] = blockBase + GRAPHICS_INFO_DEFAULT_QUAD_INDICES[j];
 		}
-		this._indexViews[renderIndex]._modify();
+		unit.sourceIndexView._modify();
 	}
 
 	private _updateSingleTextureQuadTransformValuesOnly(a: number, b: number, c: number, d: number, tx: number, ty: number, globalAlpha: number, writeAlpha: boolean = true): boolean {
@@ -945,7 +1010,47 @@ export class WebGraphicsOp2DRuntime {
 			return false;
 		if (op.dirtyFlags !== GraphicsOp2DDirtyFlag.None)
 			return false;
-		return this._updateQuadTransformValuesOnly(this._singleTextureQuadRenderIndex, op._float32, op._int32, GraphicsOpInfoField.WordCount, globalAlpha, a, b, c, d, tx, ty, writeAlpha);
+		let view = this._singleTextureQuadVertexView;
+		if (!view)
+			return false;
+		let data = view._getData();
+		let x0 = this._singleTextureQuadX0;
+		let y0 = this._singleTextureQuadY0;
+		let x1 = this._singleTextureQuadX1;
+		let y1 = this._singleTextureQuadY1;
+		let x2 = this._singleTextureQuadX2;
+		let y2 = this._singleTextureQuadY2;
+		let x3 = this._singleTextureQuadX3;
+		let y3 = this._singleTextureQuadY3;
+		if (a === 1 && b === 0 && c === 0 && d === 1) {
+			data[0] = x0 + tx;
+			data[1] = y0 + ty;
+			data[16] = x1 + tx;
+			data[17] = y1 + ty;
+			data[32] = x2 + tx;
+			data[33] = y2 + ty;
+			data[48] = x3 + tx;
+			data[49] = y3 + ty;
+		}
+		else {
+			data[0] = x0 * a + y0 * c + tx;
+			data[1] = x0 * b + y0 * d + ty;
+			data[16] = x1 * a + y1 * c + tx;
+			data[17] = x1 * b + y1 * d + ty;
+			data[32] = x2 * a + y2 * c + tx;
+			data[33] = x2 * b + y2 * d + ty;
+			data[48] = x3 * a + y3 * c + tx;
+			data[49] = x3 * b + y3 * d + ty;
+		}
+		if (writeAlpha) {
+			let alpha = op._float32[GraphicsOpInfoField.WordCount + GraphicsQuadPayloadWordOffset.Alpha] * globalAlpha;
+			data[10] = alpha;
+			data[26] = alpha;
+			data[42] = alpha;
+			data[58] = alpha;
+		}
+		view._modify();
+		return true;
 	}
 
 	private _updateQuadTransformOnly(renderIndex: number, float32: Float32Array, int32: Int32Array, wordOffset: number, globalAlpha: number, mat: Matrix, writeAlpha: boolean = true): boolean {
@@ -953,9 +1058,8 @@ export class WebGraphicsOp2DRuntime {
 	}
 
 	private _updateQuadTransformValuesOnly(renderIndex: number, float32: Float32Array, int32: Int32Array, wordOffset: number, globalAlpha: number, a: number, b: number, c: number, d: number, tx: number, ty: number, writeAlpha: boolean): boolean {
-		if (int32[wordOffset + GraphicsQuadPayloadWordOffset.HasMatrix])
-			return false;
-		let view = this._vertexViews[renderIndex] && this._vertexViews[renderIndex][0];
+		let unit = this._renderUnits[renderIndex];
+		let view = unit && unit.vertexViews[0];
 		if (!view)
 			return true;
 		let data = view._getData();
@@ -967,6 +1071,52 @@ export class WebGraphicsOp2DRuntime {
 		let y0 = y;
 		let x1 = x + width;
 		let y1 = y + height;
+		if (int32[wordOffset + GraphicsQuadPayloadWordOffset.HasMatrix]) {
+			let la = float32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixA];
+			let lb = float32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixB];
+			let lc = float32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixC];
+			let ld = float32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixD];
+			let ltx = float32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixTx];
+			let lty = float32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixTy];
+			let px0 = x0, py0 = y0, px1 = x1, py1 = y1;
+			x0 = px0 * la + py0 * lc + ltx;
+			y0 = px0 * lb + py0 * ld + lty;
+			x1 = px1 * la + py1 * lc + ltx;
+			y1 = px1 * lb + py1 * ld + lty;
+			let topRightX = px1 * la + py0 * lc + ltx;
+			let topRightY = px1 * lb + py0 * ld + lty;
+			let bottomLeftX = px0 * la + py1 * lc + ltx;
+			let bottomLeftY = px0 * lb + py1 * ld + lty;
+			if (a === 1 && b === 0 && c === 0 && d === 1) {
+				data[0] = x0 + tx;
+				data[1] = y0 + ty;
+				data[16] = topRightX + tx;
+				data[17] = topRightY + ty;
+				data[32] = x1 + tx;
+				data[33] = y1 + ty;
+				data[48] = bottomLeftX + tx;
+				data[49] = bottomLeftY + ty;
+			}
+			else {
+				data[0] = x0 * a + y0 * c + tx;
+				data[1] = x0 * b + y0 * d + ty;
+				data[16] = topRightX * a + topRightY * c + tx;
+				data[17] = topRightX * b + topRightY * d + ty;
+				data[32] = x1 * a + y1 * c + tx;
+				data[33] = x1 * b + y1 * d + ty;
+				data[48] = bottomLeftX * a + bottomLeftY * c + tx;
+				data[49] = bottomLeftX * b + bottomLeftY * d + ty;
+			}
+			if (writeAlpha) {
+				let alpha = float32[wordOffset + GraphicsQuadPayloadWordOffset.Alpha] * globalAlpha;
+				data[10] = alpha;
+				data[26] = alpha;
+				data[42] = alpha;
+				data[58] = alpha;
+			}
+			view._modify();
+			return true;
+		}
 		if (a === 1 && b === 0 && c === 0 && d === 1) {
 			if (tx === 0 && ty === 0) {
 				data[0] = x0;
@@ -1023,11 +1173,22 @@ export class WebGraphicsOp2DRuntime {
 			return false;
 		if (op.dirtyFlags !== GraphicsOp2DDirtyFlag.None)
 			return false;
-		return this._updateQuadAlphaOnly(this._singleTextureQuadRenderIndex, op._float32[GraphicsOpInfoField.WordCount + GraphicsQuadPayloadWordOffset.Alpha] * globalAlpha);
+		let view = this._singleTextureQuadVertexView;
+		if (!view)
+			return false;
+		let data = view._getData();
+		let alpha = op._float32[GraphicsOpInfoField.WordCount + GraphicsQuadPayloadWordOffset.Alpha] * globalAlpha;
+		data[10] = alpha;
+		data[26] = alpha;
+		data[42] = alpha;
+		data[58] = alpha;
+		view._modify();
+		return true;
 	}
 
 	private _updateQuadAlphaOnly(renderIndex: number, alpha: number): boolean {
-		let view = this._vertexViews[renderIndex] && this._vertexViews[renderIndex][0];
+		let unit = this._renderUnits[renderIndex];
+		let view = unit && unit.vertexViews[0];
 		if (!view)
 			return true;
 		let data = view._getData();
@@ -1040,7 +1201,7 @@ export class WebGraphicsOp2DRuntime {
 	}
 
 	private _updateMultiQuadAlphaOnly(renderIndex: number, op: WebGraphicsMultiQuadOp2D | WebGraphicsTextOp2D, start: number, count: number, ownerAlpha: number): boolean {
-		let views = this._vertexViews[renderIndex];
+		let views = this._renderUnits[renderIndex].vertexViews;
 		if (!views)
 			return true;
 		let bodyOffset = GraphicsOpInfoField.WordCount;
@@ -1068,7 +1229,7 @@ export class WebGraphicsOp2DRuntime {
 	}
 
 	private _updateMeshAlphaOnly(renderIndex: number, op: WebGraphicsMeshOp2D, wordOffset: number, ownerAlpha: number): boolean {
-		let views = this._vertexViews[renderIndex];
+		let views = this._renderUnits[renderIndex].vertexViews;
 		if (!views)
 			return true;
 		let vertexCount = op._int32[wordOffset + GraphicsMeshPayloadWordOffset.VertexCount];
@@ -1093,14 +1254,15 @@ export class WebGraphicsOp2DRuntime {
 		return true;
 	}
 
-	private _syncOpTransformOnly(op: WebGraphicsOp2D, renderIndex: number, ref: WebGraphicsRenderOpRef, mat: Matrix, ownerAlpha: number, writeAlpha: boolean): boolean {
+	private _syncOpTransformOnly(op: WebGraphicsOp2D, renderIndex: number, ref: WebGraphicsRenderUnit, mat: Matrix, ownerAlpha: number, writeAlpha: boolean): boolean {
 		if (!op || renderIndex < 0)
 			return true;
 		if (op.dirtyFlags !== GraphicsOp2DDirtyFlag.None)
 			return false;
 		let wordOffset = GraphicsOpInfoField.WordCount;
-		switch (op.opType) {
-			case "textureQuad": {
+		switch (op.opProfile) {
+			case GraphicsOpProfile.TextureQuadPixel:
+			case GraphicsOpProfile.TextureQuadPercent: {
 				let textureOp = op as WebGraphicsTextureQuadOp2D;
 				if (textureOp.recordCount <= 0)
 					return true;
@@ -1111,66 +1273,151 @@ export class WebGraphicsOp2DRuntime {
 				this._writeQuadVertexData(renderIndex, textureOp._float32, textureOp._int32, wordOffset, mat, textureOp._texture != null, ownerAlpha);
 				return true;
 			}
-			case "fillTexture": {
+			case GraphicsOpProfile.FillTexture: {
 				let fillOp = op as WebGraphicsFillTextureOp2D;
 				if (fillOp.recordCount <= 0)
 					return true;
-				this._writeQuadVertexData(renderIndex, fillOp._float32, fillOp._int32, wordOffset, mat, fillOp._texture != null, ownerAlpha);
-				return true;
+				return mat
+					? this._updateQuadTransformOnly(renderIndex, fillOp._float32, fillOp._int32, wordOffset, ownerAlpha, mat, writeAlpha)
+					: this._updateQuadTransformValuesOnly(renderIndex, fillOp._float32, fillOp._int32, wordOffset, ownerAlpha, 1, 0, 0, 1, 0, 0, writeAlpha);
 			}
-			case "solidQuad": {
+			case GraphicsOpProfile.SolidQuadPixel:
+			case GraphicsOpProfile.SolidQuadPercent: {
 				let solidOp = op as WebGraphicsSolidQuadOp2D;
 				if (solidOp.recordCount <= 0)
 					return true;
-				this._writeSolidQuadVertexData(renderIndex, solidOp._float32, solidOp._int32, wordOffset, mat, ownerAlpha);
-				return true;
+				return mat
+					? this._updateQuadTransformOnly(renderIndex, solidOp._float32, solidOp._int32, wordOffset, ownerAlpha, mat, writeAlpha)
+					: this._updateQuadTransformValuesOnly(renderIndex, solidOp._float32, solidOp._int32, wordOffset, ownerAlpha, 1, 0, 0, 1, 0, 0, writeAlpha);
 			}
-			case "mesh":
-				this._writeMeshData(renderIndex, op as WebGraphicsMeshOp2D, wordOffset, mat, ownerAlpha);
+			case GraphicsOpProfile.GenericMesh:
+				this._updateMeshTransformOnly(renderIndex, op as WebGraphicsMeshOp2D, wordOffset, mat, ownerAlpha, writeAlpha);
 				return true;
-			case "text": {
+			case GraphicsOpProfile.Text: {
 				let textOp = op as WebGraphicsTextOp2D;
-				let group = this._textureGroups[renderIndex];
-				if (!group)
+				let start = ref ? ref.recordStart : 0;
+				let count = ref ? ref.recordCount : textOp.recordCount;
+				if (count <= 0)
 					return true;
-				this._writeMultiQuadRange(renderIndex, textOp, group.start, group.count, mat, ownerAlpha, group.texture != null);
+				this._updateMultiQuadTransformOnly(renderIndex, textOp, start, count, mat, ownerAlpha, writeAlpha);
 				return true;
 			}
-			case "multiQuad": {
+			case GraphicsOpProfile.MultiQuad: {
 				let multiOp = op as WebGraphicsMultiQuadOp2D;
 				let start = ref ? ref.recordStart : 0;
 				let count = ref ? ref.recordCount : multiOp.recordCount;
 				if (count <= 0)
 					return true;
-				let group = this._textureGroups[renderIndex];
-				let texture = group ? group.texture : multiOp._texture;
-				this._writeMultiQuadRange(renderIndex, multiOp, start, count, mat, ownerAlpha, texture != null);
+				this._updateMultiQuadTransformOnly(renderIndex, multiOp, start, count, mat, ownerAlpha, writeAlpha);
 				return true;
 			}
 		}
 		return true;
 	}
 
-	private _syncOpAlphaOnly(op: WebGraphicsOp2D, renderIndex: number, ref: WebGraphicsRenderOpRef, ownerAlpha: number): boolean {
+	private _updateMultiQuadTransformOnly(renderIndex: number, op: WebGraphicsMultiQuadOp2D, start: number, count: number, ownerMat: Matrix, ownerAlpha: number, writeAlpha: boolean): void {
+		let view: Web2DGraphic2DVertexDataView = null;
+		let blockData: Float32Array = null;
+		let vertexIndex = 0;
+		let bodyOffset = GraphicsOpInfoField.WordCount;
+		for (let i = start, n = start + count; i < n; i++) {
+			if (vertexIndex % GRAPHICS_INFO_VERTEX_BLOCK_SIZE === 0) {
+				view = this._renderUnits[renderIndex].vertexViews[Math.floor(vertexIndex / GRAPHICS_INFO_VERTEX_BLOCK_SIZE)];
+				blockData = view._getData();
+			}
+			this._updateQuadTransformInto(blockData, vertexIndex % GRAPHICS_INFO_VERTEX_BLOCK_SIZE, op._float32, op._int32,
+				bodyOffset + i * GraphicsQuadPayloadWordCount, ownerMat, ownerAlpha, writeAlpha);
+			vertexIndex += 4;
+			if (vertexIndex % GRAPHICS_INFO_VERTEX_BLOCK_SIZE === 0)
+				view._modify();
+		}
+		if (vertexIndex % GRAPHICS_INFO_VERTEX_BLOCK_SIZE !== 0)
+			view._modify();
+	}
+
+	private _updateQuadTransformInto(data: Float32Array, vertexStart: number, float32: Float32Array, int32: Int32Array,
+		wordOffset: number, ownerMat: Matrix, ownerAlpha: number, writeAlpha: boolean): void {
+		let x = float32[wordOffset + GraphicsQuadPayloadWordOffset.X];
+		let y = float32[wordOffset + GraphicsQuadPayloadWordOffset.Y];
+		let width = float32[wordOffset + GraphicsQuadPayloadWordOffset.Width];
+		let height = float32[wordOffset + GraphicsQuadPayloadWordOffset.Height];
+		let point = this._transformPayloadPoint(x, y, float32, int32, wordOffset, ownerMat);
+		let offset = vertexStart * GraphicsDefines.stride;
+		data[offset] = point[0];
+		data[offset + 1] = point[1];
+		point = this._transformPayloadPoint(x + width, y, float32, int32, wordOffset, ownerMat);
+		offset += GraphicsDefines.stride;
+		data[offset] = point[0];
+		data[offset + 1] = point[1];
+		point = this._transformPayloadPoint(x + width, y + height, float32, int32, wordOffset, ownerMat);
+		offset += GraphicsDefines.stride;
+		data[offset] = point[0];
+		data[offset + 1] = point[1];
+		point = this._transformPayloadPoint(x, y + height, float32, int32, wordOffset, ownerMat);
+		offset += GraphicsDefines.stride;
+		data[offset] = point[0];
+		data[offset + 1] = point[1];
+		if (writeAlpha) {
+			let alpha = float32[wordOffset + GraphicsQuadPayloadWordOffset.Alpha] * ownerAlpha;
+			offset = vertexStart * GraphicsDefines.stride + 10;
+			data[offset] = alpha;
+			data[offset + GraphicsDefines.stride] = alpha;
+			data[offset + GraphicsDefines.stride * 2] = alpha;
+			data[offset + GraphicsDefines.stride * 3] = alpha;
+		}
+	}
+
+	private _updateMeshTransformOnly(renderIndex: number, op: WebGraphicsMeshOp2D, wordOffset: number, ownerMat: Matrix, ownerAlpha: number, writeAlpha: boolean): void {
+		let float32 = op._float32;
+		let int32 = op._int32;
+		let vertexCount = int32[wordOffset + GraphicsMeshPayloadWordOffset.VertexCount];
+		let vertexDataOffset = wordOffset + int32[wordOffset + GraphicsMeshPayloadWordOffset.VertexDataOffset];
+		let x = float32[wordOffset + GraphicsMeshPayloadWordOffset.X];
+		let y = float32[wordOffset + GraphicsMeshPayloadWordOffset.Y];
+		let alpha = writeAlpha ? float32[wordOffset + GraphicsMeshPayloadWordOffset.Alpha] * ownerAlpha : 0;
+		let modifiedView: Web2DGraphic2DVertexDataView = null;
+		for (let i = 0; i < vertexCount; i++) {
+			let blockIndex = Math.floor(i / GRAPHICS_INFO_VERTEX_BLOCK_SIZE);
+			let localVertex = i - blockIndex * GRAPHICS_INFO_VERTEX_BLOCK_SIZE;
+			let view = this._renderUnits[renderIndex].vertexViews[blockIndex];
+			if (view !== modifiedView) {
+				modifiedView && modifiedView._modify();
+				modifiedView = view;
+			}
+			let data = view._getData();
+			let vi = localVertex * GraphicsDefines.stride;
+			let vertexOffset = vertexDataOffset + i * 2;
+			let point = this._transformMeshPayloadPoint(x + float32[vertexOffset], y + float32[vertexOffset + 1], float32, int32, wordOffset, ownerMat);
+			data[vi] = point[0];
+			data[vi + 1] = point[1];
+			if (writeAlpha)
+				data[vi + 10] = alpha;
+		}
+		modifiedView && modifiedView._modify();
+	}
+
+	private _syncOpAlphaOnly(op: WebGraphicsOp2D, renderIndex: number, ref: WebGraphicsRenderUnit, ownerAlpha: number): boolean {
 		if (!op || renderIndex < 0)
 			return true;
 		if (op.dirtyFlags !== GraphicsOp2DDirtyFlag.None)
 			return false;
 		let wordOffset = GraphicsOpInfoField.WordCount;
-		switch (op.opType) {
-			case "textureQuad":
-			case "fillTexture":
-			case "solidQuad":
+		switch (op.opProfile) {
+			case GraphicsOpProfile.TextureQuadPixel:
+			case GraphicsOpProfile.TextureQuadPercent:
+			case GraphicsOpProfile.FillTexture:
+			case GraphicsOpProfile.SolidQuadPixel:
+			case GraphicsOpProfile.SolidQuadPercent:
 				return this._updateQuadAlphaOnly(renderIndex, op._float32[wordOffset + GraphicsQuadPayloadWordOffset.Alpha] * ownerAlpha);
-			case "mesh":
+			case GraphicsOpProfile.GenericMesh:
 				return this._updateMeshAlphaOnly(renderIndex, op as WebGraphicsMeshOp2D, wordOffset, ownerAlpha);
-			case "text": {
-				let group = this._textureGroups[renderIndex];
-				if (!group)
-					return true;
-				return this._updateMultiQuadAlphaOnly(renderIndex, op as WebGraphicsTextOp2D, group.start, group.count, ownerAlpha);
+			case GraphicsOpProfile.Text: {
+				let textOp = op as WebGraphicsTextOp2D;
+				let start = ref ? ref.recordStart : 0;
+				let count = ref ? ref.recordCount : textOp.recordCount;
+				return this._updateMultiQuadAlphaOnly(renderIndex, textOp, start, count, ownerAlpha);
 			}
-			case "multiQuad": {
+			case GraphicsOpProfile.MultiQuad: {
 				let multiOp = op as WebGraphicsMultiQuadOp2D;
 				let start = ref ? ref.recordStart : 0;
 				let count = ref ? ref.recordCount : multiOp.recordCount;
@@ -1180,16 +1427,24 @@ export class WebGraphicsOp2DRuntime {
 		return true;
 	}
 
+	private _syncTextureOrState(renderIndex: number, dirtyFlags: GraphicsOp2DDirtyFlag, value: GraphicsOp2DTextureHost, featureBits: number, blendMode: number, useCustomMaterial: boolean): void {
+		if ((dirtyFlags & GraphicsOp2DDirtyFlag.Texture) !== 0)
+			this._syncTexture(renderIndex, value, featureBits, blendMode, useCustomMaterial);
+		else
+			this._syncTextureState(renderIndex, blendMode, useCustomMaterial);
+	}
+
 	private _syncTexture(renderIndex: number, value: GraphicsOp2DTextureHost, featureBits: number, blendMode: number, useCustomMaterial: boolean = false): void {
 		let element = this._renderElements[renderIndex];
-		let shaderData = this._primitiveShaderData[renderIndex];
+		let unit = this._renderUnits[renderIndex];
+		let shaderData = unit && unit.primitiveShaderData;
 		if (!element || !shaderData)
 			return;
 		let texture = value;
 		if (!texture)
 			texture = Texture2D.whiteTexture;
 		let renderState = GraphicsOpRenderStateHelper.syncShaderData(shaderData, value, blendMode, (featureBits & ShaderDefines2D.DEFINE_BIT_FILLTEXTURE) !== 0, useCustomMaterial, false, this._renderStateScratch);
-		if (texture && texture.dimension === TextureDimension.Texture2DArray)
+		if ((renderState.typeKey & ShaderDefines2D.DEFINE_BIT_USE_TEX_ARRAY) !== 0)
 			shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE_ARRAY, texture);
 		else
 			shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, texture);
@@ -1199,14 +1454,27 @@ export class WebGraphicsOp2DRuntime {
 		element.typeKey = renderState.typeKey;
 	}
 
+	private _syncTextureState(renderIndex: number, blendMode: number, useCustomMaterial: boolean): void {
+		let element = this._renderElements[renderIndex];
+		let unit = this._renderUnits[renderIndex];
+		let shaderData = unit && unit.primitiveShaderData;
+		if (!element || !shaderData)
+			return;
+		let defineBits = element.typeKey & ~((1 << ShaderDefines2D.TYPE_KEY_DEFINE_SHIFT) - 1);
+		element.typeKey = defineBits | blendMode | (useCustomMaterial ? ShaderDefines2D.TYPEKEY_CUSTOM_MATERIAL : 0);
+		BlendModeHandler.setShaderData(blendMode as BlendMode, shaderData);
+		element.renderStateIsBySprite = this._materialState.useSpriteState && blendMode === this._owner.blendMode;
+	}
+
 	private _syncFillTextureRange(renderIndex: number, u0: number, v0: number, u1: number, v1: number): void {
-		let shaderData = this._primitiveShaderData[renderIndex];
+		let unit = this._renderUnits[renderIndex];
+		let shaderData = unit && unit.primitiveShaderData;
 		if (!shaderData)
 			return;
-		let range = this._fillTextureRanges[renderIndex];
+		let range = unit.fillTextureRange;
 		if (!range) {
 			range = new Vector4();
-			this._fillTextureRanges[renderIndex] = range;
+			unit.fillTextureRange = range;
 		}
 		range.setValue(u0, v0, u1 - u0, v1 - v0);
 		shaderData.setVector(ShaderDefines2D.UNIFORM_TEXRANGE, range);
@@ -1215,13 +1483,47 @@ export class WebGraphicsOp2DRuntime {
 	private _cacheSingleTextureQuadFastPath(): void {
 		this._singleTextureQuadRenderIndex = -1;
 		this._singleTextureQuadOp = null;
+		this._singleTextureQuadVertexView = null;
 		if (this._ops.length !== 1)
 			return;
 		let op = this._ops[0];
-		let wordOffset = GraphicsOpInfoField.WordCount;
-		if (op.opType === "textureQuad" && (op as WebGraphicsTextureQuadOp2D).recordCount > 0 && !op._int32[wordOffset + GraphicsQuadPayloadWordOffset.HasMatrix]) {
+		if ((op.opProfile === GraphicsOpProfile.TextureQuadPixel || op.opProfile === GraphicsOpProfile.TextureQuadPercent)
+			&& (op as WebGraphicsTextureQuadOp2D).recordCount > 0) {
 			this._singleTextureQuadRenderIndex = 0;
 			this._singleTextureQuadOp = op as WebGraphicsTextureQuadOp2D;
+			let wordOffset = GraphicsOpInfoField.WordCount;
+			let unit = this._renderUnits[0];
+			this._singleTextureQuadVertexView = unit && unit.vertexViews[0];
+			let x0 = op._float32[wordOffset + GraphicsQuadPayloadWordOffset.X];
+			let y0 = op._float32[wordOffset + GraphicsQuadPayloadWordOffset.Y];
+			let x1 = x0 + op._float32[wordOffset + GraphicsQuadPayloadWordOffset.Width];
+			let y1 = y0 + op._float32[wordOffset + GraphicsQuadPayloadWordOffset.Height];
+			if (op._int32[wordOffset + GraphicsQuadPayloadWordOffset.HasMatrix]) {
+				let a = op._float32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixA];
+				let b = op._float32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixB];
+				let c = op._float32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixC];
+				let d = op._float32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixD];
+				let tx = op._float32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixTx];
+				let ty = op._float32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixTy];
+				this._singleTextureQuadX0 = x0 * a + y0 * c + tx;
+				this._singleTextureQuadY0 = x0 * b + y0 * d + ty;
+				this._singleTextureQuadX1 = x1 * a + y0 * c + tx;
+				this._singleTextureQuadY1 = x1 * b + y0 * d + ty;
+				this._singleTextureQuadX2 = x1 * a + y1 * c + tx;
+				this._singleTextureQuadY2 = x1 * b + y1 * d + ty;
+				this._singleTextureQuadX3 = x0 * a + y1 * c + tx;
+				this._singleTextureQuadY3 = x0 * b + y1 * d + ty;
+			}
+			else {
+				this._singleTextureQuadX0 = x0;
+				this._singleTextureQuadY0 = y0;
+				this._singleTextureQuadX1 = x1;
+				this._singleTextureQuadY1 = y0;
+				this._singleTextureQuadX2 = x1;
+				this._singleTextureQuadY2 = y1;
+				this._singleTextureQuadX3 = x0;
+				this._singleTextureQuadY3 = y1;
+			}
 		}
 	}
 
@@ -1230,50 +1532,20 @@ export class WebGraphicsOp2DRuntime {
 			this._owner.renderElements = this._renderElements;
 	}
 
-	private _recycleBatchEntry(entry: WebGraphicsBatchEntry): void {
-		if (!entry)
-			return;
-		WebGraphicsOp2DRuntime._batchEntryPool.recover(entry);
-	}
-
 	private _clearRenderOps(): void {
-		for (let i = 0, n = this._renderElements.length; i < n; i++) {
-			let element = this._renderElements[i];
-			if (element)
-				element._graphicsBatchEntry = null;
-			this._recycleBatchEntry(this._batchEntries[i]);
-			let viStore = this._viStores[i];
-			if (viStore) {
-				viStore.releaseVertexBlocks(this._vertexBlocks[i]);
-				this._indexViews[i] && viStore.releaseIndexView(this._indexViews[i]);
-			}
-			let resource = this._renderResources[i];
-			let geometry = resource && resource.geometry;
-			if (geometry)
-				geometry.bufferState = null;
-			if (resource)
-				this._recycleRenderResource(resource);
+		for (let i = 0, n = this._renderUnits.length; i < n; i++) {
+			let unit = this._renderUnits[i];
+			if (unit)
+				WebGraphicsRenderUnitPool.recover(unit);
 		}
+		this._destroyUnusedSpareRenderUnits();
 		this._renderElements.length = 0;
-		this._renderOpRefs.length = 0;
-		this._opRenderRanges.length = 0;
 		this._opRefs.length = 0;
-		this._viStores.length = 0;
-		this._vertexViews.length = 0;
-		this._vertexBlocks.length = 0;
-		this._indexViews.length = 0;
-		this._geometries.length = 0;
-		this._primitiveShaderData.length = 0;
-		this._batchEntries.length = 0;
-		this._fillTextureRanges.length = 0;
-		this._renderResources.length = 0;
-		this._textureGroups.length = 0;
+		this._renderUnits.length = 0;
 		this._singleTextureQuadRenderIndex = -1;
 		this._singleTextureQuadOp = null;
-	}
-
-	private _recycleRenderResource(resource: WebGraphicsReusableRenderResource): void {
-		WebGraphicsOp2DRuntime._renderResourcePool.recover(resource);
+		this._singleTextureQuadVertexView = null;
+		this._needsRematerialize = false;
 	}
 
 	private _sameOpRefs(ops: ReadonlyArray<WebGraphicsOp2D>): boolean {
@@ -1288,8 +1560,8 @@ export class WebGraphicsOp2DRuntime {
 
 	private _syncRenderElementTransforms(mat: Matrix = null, ownerAlpha: number = this._owner ? this._owner.globalAlpha : 1, writeAlpha: boolean = true): void {
 		let ownerMat = mat || (this._owner ? this._owner.renderMatrix : null);
-		for (let renderIndex = 0, n = this._renderOpRefs.length; renderIndex < n; renderIndex++) {
-			let ref = this._renderOpRefs[renderIndex];
+		for (let renderIndex = 0, n = this._renderUnits.length; renderIndex < n; renderIndex++) {
+			let ref = this._renderUnits[renderIndex];
 			if (!this._syncOpTransformOnly(ref ? ref.op : null, renderIndex, ref, ownerMat, ownerAlpha, writeAlpha))
 				this.syncOp(ref ? ref.op : null, renderIndex, ownerMat, ownerAlpha);
 		}
@@ -1297,8 +1569,8 @@ export class WebGraphicsOp2DRuntime {
 
 	private _syncRenderElementAlphaOnly(ownerAlpha: number = this._owner ? this._owner.globalAlpha : 1): void {
 		let ownerMat: Matrix = null;
-		for (let renderIndex = 0, n = this._renderOpRefs.length; renderIndex < n; renderIndex++) {
-			let ref = this._renderOpRefs[renderIndex];
+		for (let renderIndex = 0, n = this._renderUnits.length; renderIndex < n; renderIndex++) {
+			let ref = this._renderUnits[renderIndex];
 			if (!this._syncOpAlphaOnly(ref ? ref.op : null, renderIndex, ref, ownerAlpha)) {
 				if (!ownerMat)
 					ownerMat = this._owner ? this._owner.renderMatrix : null;

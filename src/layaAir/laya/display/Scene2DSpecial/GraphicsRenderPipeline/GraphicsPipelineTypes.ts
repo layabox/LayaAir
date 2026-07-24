@@ -2,6 +2,66 @@ import type { BaseTexture } from "../../../resource/BaseTexture";
 import { GraphicsDefines } from "../../../webgl/shader/d2/GraphicsDefines";
 import type { BlendMode } from "../../../webgl/canvas/BlendMode";
 
+/** @internal Product-level Graphics renderer mode selected without compiling commands. */
+export const enum GraphicsRenderMode {
+	Empty = 0,
+	SingleQuad = 1,
+	CommandStream = 2,
+}
+
+/** @internal Fixed SingleQuad payload kind shared by Web and Native. */
+export const enum GraphicsSingleQuadKind {
+	TextureQuad = 1,
+	FillTexture = 2,
+	SolidQuad = 3,
+}
+
+/** @internal Composable flags stored in GraphicsSingleQuadPayloadField.Flags. */
+export const enum GraphicsSingleQuadFlag {
+	None = 0,
+	Percent = 1,
+	HasLocalMatrix = 1 << 1,
+	RepeatX = 1 << 2,
+	RepeatY = 1 << 3,
+}
+
+/** @internal Fixed 32-word / 128-byte SingleQuad numeric ABI. */
+export const enum GraphicsSingleQuadPayloadField {
+	Kind = 0,
+	Flags = 1,
+	PackedColor = 2,
+	BlendMode = 3,
+	TextureLayer = 4,
+	LocalAlpha = 5,
+	X = 6,
+	Y = 7,
+	Width = 8,
+	Height = 9,
+	U0 = 10,
+	V0 = 11,
+	U1 = 12,
+	V1 = 13,
+	U2 = 14,
+	V2 = 15,
+	U3 = 16,
+	V3 = 17,
+	MatrixA = 18,
+	MatrixB = 19,
+	MatrixC = 20,
+	MatrixD = 21,
+	MatrixTx = 22,
+	MatrixTy = 23,
+	Aux0 = 24,
+	Aux1 = 25,
+	Aux2 = 26,
+	Aux3 = 27,
+	Aux4 = 28,
+	Aux5 = 29,
+	Aux6 = 30,
+	Aux7 = 31,
+	WordCount = 32,
+}
+
 /** @internal */
 export const enum GraphicsCommandDependency {
 	None = 0,
@@ -30,6 +90,13 @@ export const enum GraphicsRefreshAction {
 	NoEffect = 0,
 	LocalRefresh = 1,
 	StructuralRefresh = 2,
+}
+
+/** @internal Result of an immediate retained command patch. */
+export const enum GraphicsCommandPatchResult {
+	Failed = -1,
+	NoChange = 0,
+	Changed = 1,
 }
 
 /** @internal */
@@ -93,8 +160,14 @@ export const enum GraphicsHandleUpdateField {
 
 	OwnerWidth = 5,
 	OwnerHeight = 6,
+	/** Shared-buffer publish version for the fixed SingleQuad payload. */
+	SingleQuadVersion = 7,
+	/** Command-stream Op identity/order/structure version. */
+	TopologyVersion = 8,
+	/** Last topology version reconciled by the render runtime. */
+	HandledTopologyVersion = 9,
 
-	WordCount = 8,
+	WordCount = 10,
 }
 
 /** @internal */

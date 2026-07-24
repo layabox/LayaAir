@@ -39,6 +39,7 @@ import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/Shader
 import { IGraphicsCmd } from "./IGraphics";
 import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
 import { Stat } from "../utils/Stat";
+import { GraphicsCommandPatchResult } from "./Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
 /**
  * @en The Graphics class is used to create drawing display objects. Graphics can draw multiple bitmaps or vector graphics simultaneously, and can also combine instructions such as save, restore, transform, scale, rotate, translate, alpha, etc. to change the drawing effect.
  * Graphics is stored as a command stream and can be accessed through the cmds property. Graphics is a lighter object than Sprite, and proper use can improve application performance (for example, changing a large number of node drawings to a collection of Graphics commands of one node can reduce the consumption of creating a large number of nodes).
@@ -137,6 +138,7 @@ export class Graphics {
     clear(recoverCmds?: boolean, exclude?: IGraphicsCmd): void {
         if (this._cmds.length === 0)
             return;
+        let removedCount = this._cmds.length;
 
         if (recoverCmds || recoverCmds == null) {
             for (let cmd of this._cmds) {
@@ -159,7 +161,10 @@ export class Graphics {
             this._layoutRepaintCount = 0;
         }
 
-        this.repaint();
+        if (exclude)
+            this.repaint();
+        else
+            this._repaintCommandSplice(0, removedCount, 0);
     }
 
     /** @deprecated Use repaint */
@@ -175,24 +180,48 @@ export class Graphics {
         this._modified = Stat.loopCount;
         this._graphicBounds?.reset();
         if (this.owner) {
-            this.owner._graphicsRenderer._checkDisplay();
+            this.owner._ensureGraphicsRenderer()._checkDisplay();
             this.owner.repaint(RepaintFlag.Graphics);
         }
     }
 
-    private _repaintCommandReplacement(index: number, oldCmd: IGraphicsCmd, newCmd: IGraphicsCmd): boolean {
+    /** @internal Owner size changed without changing the command stream. */
+    _ownerSizeChanged(): void {
+        this._graphicBounds?.reset();
+    }
+
+    private _finishCommandMutation(owner: Sprite, retained: boolean): void {
+        if (retained) {
+            owner.repaint();
+            return;
+        }
+        owner._ensureGraphicsRenderer()._checkDisplay();
+        owner.repaint(RepaintFlag.Graphics);
+    }
+
+    private _repaintCommandReplacement(index: number, oldCmd: IGraphicsCmd, newCmd: IGraphicsCmd): void {
         this._modified = Stat.loopCount;
         this._graphicBounds?.reset();
-        if (!this.owner)
-            return true;
+        let owner = this.owner;
+        if (!owner)
+            return;
 
-        let renderer = this.owner._graphicsRenderer;
+        let renderer = owner._graphicsRenderer;
         renderer?._checkDisplay();
-        if (renderer && renderer._queueCommandReplacement(index, oldCmd, newCmd)) {
-            this.owner.repaint();
-            return true;
-        }
-        return false;
+        this._finishCommandMutation(owner,
+            !!renderer && renderer._queueCommandReplacement(index, oldCmd, newCmd));
+    }
+
+    private _repaintCommandSplice(index: number, removedCount: number, addedCount: number): void {
+        this._modified = Stat.loopCount;
+        this._graphicBounds?.reset();
+        let owner = this.owner;
+        if (!owner)
+            return;
+
+        let renderer = owner._graphicsRenderer;
+        this._finishCommandMutation(owner,
+            !!renderer && renderer._queueCommandSplice(index, removedCount, addedCount));
     }
 
     /**
@@ -244,17 +273,20 @@ export class Graphics {
         if (cmd == null)
             throw new Error("null cmd");
 
-        if (index == null || index >= this._cmds.length)
+        let commandCount = this._cmds.length;
+        let insertIndex = index == null || index >= commandCount
+            ? commandCount
+            : index < 0 ? Math.max(0, commandCount + index) : index;
+        if (insertIndex >= this._cmds.length)
             this._cmds.push(cmd);
         else
-            this._cmds.splice(index, 0, cmd);
+            this._cmds.splice(insertIndex, 0, cmd);
         
         if (cmd.needsLayoutRepaint) {
             this._layoutRepaintCount += cmd.needsLayoutRepaint();
         }
         
-        // this.repaint();
-        this.repaint();
+        this._repaintCommandSplice(insertIndex, 0, 1);
         return cmd;
     }
 
@@ -275,7 +307,7 @@ export class Graphics {
                 this._layoutRepaintCount -= cmd.needsLayoutRepaint();
             }
             
-            this.repaint();
+            this._repaintCommandSplice(i, 1, 0);
         }
 
         if (recover) {
@@ -312,12 +344,14 @@ export class Graphics {
                 this._layoutRepaintCount += newCmd.needsLayoutRepaint();
             }
             
-            if (!replaceExisting || !this._repaintCommandReplacement(index, oldCmd, newCmd))
+            if (replaceExisting)
+                this._repaintCommandReplacement(index, oldCmd, newCmd);
+            else
                 this.repaint();
         }
         else if (index != -1) {
             this._cmds.splice(index, 1);
-            this.repaint();
+            this._repaintCommandSplice(index, 1, 0);
         }
 
         if (oldCmd && recover) {
@@ -335,7 +369,10 @@ export class Graphics {
             return false;
 
         let renderer = this.owner._graphicsRenderer;
-        if (!renderer || !renderer._patchTextureQuadCommand(index, oldCmd, newCmd))
+        let patchResult = renderer
+            ? renderer._patchTextureQuadCommand(index, oldCmd, newCmd)
+            : GraphicsCommandPatchResult.Failed;
+        if (patchResult === GraphicsCommandPatchResult.Failed)
             return false;
 
         if (oldCmd.needsLayoutRepaint)
@@ -344,8 +381,10 @@ export class Graphics {
         if (newCmd.needsLayoutRepaint)
             this._layoutRepaintCount += newCmd.needsLayoutRepaint();
 
-        this._graphicBounds?.reset();
-        this.owner.repaint();
+        if (patchResult === GraphicsCommandPatchResult.Changed) {
+            this._graphicBounds?.reset();
+            this.owner.repaint();
+        }
         return true;
     }
 

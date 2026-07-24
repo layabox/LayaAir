@@ -5,12 +5,16 @@ import { GraphicsOpRenderStateHelper } from "../../../../display/Scene2DSpecial/
 import type { GraphicsOp2DRenderState } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
 import { GraphicsMeshPayloadWordCount, GraphicsMeshPayloadWordOffset, GraphicsQuadPayloadWordCount, GraphicsQuadPayloadWordOffset, writeFillTexturePayloadValues, writeMeshPayloadValues, writeOpInfoBuffer, writeQuadPayloadValues } from "./WebGraphicsOp2DBufferSchema";
 import type { IGraphicsFillTextureOp2D, IGraphicsMeshOp2D, IGraphicsMultiQuadOp2D, IGraphicsOp2D, IGraphicsSolidQuadOp2D, IGraphicsTextOp2D, IGraphicsTextureQuadOp2D } from "../../Design/2D/IRender2DDataHandle";
+import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
+import type { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
 
 /** @internal */
 export abstract class WebGraphicsOp2D implements IGraphicsOp2D {
 	dirtyFlags: GraphicsOp2DDirtyFlag = GraphicsOp2DDirtyFlag.All;
 	protected _version: number = 0;
+	protected _retainedRecordCount: number = 0;
 	_texture: GraphicsOp2DTextureHost | null = null;
+	protected _textureInternal: InternalTexture = null;
 	_buffer: ArrayBuffer;
 	_float32: Float32Array;
 	_int32: Int32Array;
@@ -20,7 +24,7 @@ export abstract class WebGraphicsOp2D implements IGraphicsOp2D {
 		readonly kind: GraphicsOp2DKind,
 		readonly opType: GraphicsOp2DType,
 		readonly opProfile: GraphicsOpProfile,
-		readonly commandIndex: number,
+		public commandIndex: number,
 		readonly commandId: GraphicsCommandId,
 		initialBodyWordCount: number,
 	) {
@@ -45,6 +49,10 @@ export abstract class WebGraphicsOp2D implements IGraphicsOp2D {
 		return this._int32[GraphicsOpInfoField.RecordCount] || 0;
 	}
 
+	setCommandIndex(value: number): void {
+		this.commandIndex = value;
+	}
+
 	set recordCount(value: number) {
 		this._int32[GraphicsOpInfoField.RecordCount] = value | 0;
 	}
@@ -55,11 +63,12 @@ export abstract class WebGraphicsOp2D implements IGraphicsOp2D {
 
 	set texture(value: GraphicsOp2DTextureHost | null) {
 		value = value || null;
-		if (this._texture === value)
+		let internalTexture = value ? value._texture : null;
+		if (this._texture === value && this._textureInternal === internalTexture)
 			return;
 		this._texture = value;
+		this._textureInternal = internalTexture;
 		this.markDirty(GraphicsOp2DDirtyFlag.Texture);
-		this._refreshOpRenderStateBuffer();
 	}
 
 	canUpdate(commandId: GraphicsCommandId): boolean {
@@ -67,10 +76,27 @@ export abstract class WebGraphicsOp2D implements IGraphicsOp2D {
 	}
 
 	resetRecords(): void {
+		this._retainedRecordCount = this.recordCount;
+		this.recordCount = 0;
 	}
 
-	getStructureKey(): string {
-		return `${this.kind}:${this._int32[GraphicsOpInfoField.VertexCount]}:${this._int32[GraphicsOpInfoField.IndexCount]}:${this._int32[GraphicsOpInfoField.BodyWordCount]}`;
+	writeStructureSignature(out: Int32Array, offset: number): void {
+		out[offset] = this._int32[GraphicsOpInfoField.VertexCount];
+		out[offset + 1] = this._int32[GraphicsOpInfoField.IndexCount];
+		out[offset + 2] = this._int32[GraphicsOpInfoField.BodyWordCount];
+		out[offset + 3] = 0;
+	}
+
+	matchesStructureSignature(source: Int32Array, offset: number): boolean {
+		return this._int32[GraphicsOpInfoField.VertexCount] === source[offset]
+			&& this._int32[GraphicsOpInfoField.IndexCount] === source[offset + 1]
+			&& this._int32[GraphicsOpInfoField.BodyWordCount] === source[offset + 2]
+			&& source[offset + 3] === 0;
+	}
+
+	clearStructureDirty(): void {
+		this.dirtyFlags &= ~GraphicsOp2DDirtyFlag.Structure;
+		this._int32[GraphicsOpInfoField.ChangeMask] &= ~GraphicsOp2DDirtyFlag.Structure;
 	}
 
 	markDirty(flags: GraphicsOp2DDirtyFlag): void {
@@ -87,6 +113,7 @@ export abstract class WebGraphicsOp2D implements IGraphicsOp2D {
 
 	destroy(): void {
 		this._texture = null;
+		this._textureInternal = null;
 	}
 
 	protected _reserveBufferWords(bodyWordCount: number): void {
@@ -111,6 +138,13 @@ export abstract class WebGraphicsOp2D implements IGraphicsOp2D {
 	protected _writeOpRenderStateBuffer(changeMask: number, version: number,
 		vertexCount: number, indexCount: number, blendMode: number, texture: GraphicsOp2DTextureHost | null, fillTexture: boolean,
 		packedColor: number, localAlpha: number, bodyWordCount: number): void {
+		changeMask |= this.dirtyFlags | this._int32[GraphicsOpInfoField.ChangeMask];
+		if (this._int32[GraphicsOpInfoField.BodyWordCount] > 0 && (changeMask & GraphicsOp2DDirtyFlag.Texture) === 0) {
+			let defineBits = this._int32[GraphicsOpInfoField.TypeKey] & ~((1 << ShaderDefines2D.TYPE_KEY_DEFINE_SHIFT) - 1);
+			this._writeOpInfoBuffer(changeMask, version, vertexCount, indexCount, blendMode, defineBits | blendMode,
+				this._int32[GraphicsOpInfoField.TextureKey], packedColor, localAlpha, bodyWordCount);
+			return;
+		}
 		let renderState = GraphicsOpRenderStateHelper.getRenderState(texture, blendMode, fillTexture, false, false, this._renderStateScratch);
 		this._writeOpInfoBuffer(changeMask, version, vertexCount, indexCount, renderState.stateKey, renderState.typeKey, renderState.textureKey, packedColor, localAlpha, bodyWordCount);
 	}
@@ -127,90 +161,82 @@ export abstract class WebGraphicsOp2D implements IGraphicsOp2D {
 	protected get _bodyWordOffset(): number {
 		return GraphicsOpInfoField.WordCount;
 	}
+
+	protected _getQuadPayloadChangeMask(recordIndex: number, wordOffset: number,
+		x: number, y: number, width: number, height: number,
+		u0: number, v0: number, u1: number, v1: number,
+		packedColor: number, alpha: number, blendMode: number, textureLayer: number,
+		matrix: Matrix | null, uvClip?: ArrayLike<number> | null,
+		repeatX?: number, repeatY?: number, offsetX?: number, offsetY?: number,
+		texRangeX?: number, texRangeY?: number, texRangeWidth?: number, texRangeHeight?: number): GraphicsOp2DDirtyFlag {
+		let hadRecord = recordIndex < this._retainedRecordCount || recordIndex < this.recordCount;
+		if (!hadRecord)
+			return GraphicsOp2DDirtyFlag.All;
+		let f32 = this._float32;
+		let i32 = this._int32;
+		let fround = Math.fround;
+		let changeMask = this.dirtyFlags & GraphicsOp2DDirtyFlag.Texture;
+		let nextHasMatrix = matrix ? 1 : 0;
+		let nextUVClipEnabled = uvClip ? 1 : 0;
+		if (f32[wordOffset + GraphicsQuadPayloadWordOffset.X] !== fround(x)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.Y] !== fround(y)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.Width] !== fround(width)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.Height] !== fround(height)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.U0] !== fround(u0)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.V0] !== fround(v0)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.U1] !== fround(u1)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.V1] !== fround(v1)
+			|| i32[wordOffset + GraphicsQuadPayloadWordOffset.TextureLayer] !== (textureLayer || 0)
+			|| i32[wordOffset + GraphicsQuadPayloadWordOffset.HasMatrix] !== nextHasMatrix
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixA] !== fround(matrix ? matrix.a : 1)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixB] !== fround(matrix ? matrix.b : 0)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixC] !== fround(matrix ? matrix.c : 0)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixD] !== fround(matrix ? matrix.d : 1)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixTx] !== fround(matrix ? matrix.tx : 0)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixTy] !== fround(matrix ? matrix.ty : 0)
+			|| i32[wordOffset + GraphicsQuadPayloadWordOffset.UVClipEnabled] !== nextUVClipEnabled
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.UVClipX] !== fround(uvClip ? uvClip[0] : 0)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.UVClipY] !== fround(uvClip ? uvClip[1] : 0)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.UVClipWidth] !== fround(uvClip ? uvClip[2] : 1)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.UVClipHeight] !== fround(uvClip ? uvClip[3] : 1))
+			changeMask |= GraphicsOp2DDirtyFlag.Geometry;
+		if (repeatX != null && (f32[wordOffset + GraphicsQuadPayloadWordOffset.RepeatX] !== fround(repeatX)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.RepeatY] !== fround(repeatY)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.OffsetX] !== fround(offsetX)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.OffsetY] !== fround(offsetY)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.TexRangeX] !== fround(texRangeX)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.TexRangeY] !== fround(texRangeY)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.TexRangeWidth] !== fround(texRangeWidth)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.TexRangeHeight] !== fround(texRangeHeight)))
+			changeMask |= GraphicsOp2DDirtyFlag.Geometry;
+		if (i32[wordOffset + GraphicsQuadPayloadWordOffset.BlendMode] !== blendMode)
+			changeMask |= GraphicsOp2DDirtyFlag.State;
+		if (i32[wordOffset + GraphicsQuadPayloadWordOffset.PackedColor] !== packedColor
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.Alpha] !== fround(alpha))
+			changeMask |= GraphicsOp2DDirtyFlag.State | GraphicsOp2DDirtyFlag.Geometry;
+		return changeMask;
+	}
 }
 
 /** @internal */
 export class WebGraphicsTextureQuadOp2D extends WebGraphicsOp2D implements IGraphicsTextureQuadOp2D {
-	textureLayerDirty: boolean = false;
-
 	constructor(kind: GraphicsOp2DKind, commandIndex: number, commandId: GraphicsCommandId) {
 		super(kind, "textureQuad", GraphicsOpProfile.TextureQuadPixel, commandIndex, commandId, GraphicsQuadPayloadWordCount);
-	}
-
-	resetRecords(): void {
-		this.recordCount = 0;
 	}
 
 	writeRecord(x: number, y: number, width: number, height: number,
 		u0: number, v0: number, u1: number, v1: number,
 		packedColor: number, alpha: number, blendMode: number, textureLayer: number, matrix: Matrix | null, uvClip?: ArrayLike<number> | null): void {
-		let wasEmpty = this.recordCount <= 0;
 		let wordOffset = this._bodyWordOffset;
 		this._reserveBufferWords(GraphicsQuadPayloadWordCount);
-		let textureChanged = (this.dirtyFlags & GraphicsOp2DDirtyFlag.Texture) !== 0;
-		let nextLayer = textureLayer || 0;
-		let nextHasMatrix = matrix ? 1 : 0;
-		let nextMatrixA = matrix ? matrix.a : 1;
-		let nextMatrixB = matrix ? matrix.b : 0;
-		let nextMatrixC = matrix ? matrix.c : 0;
-		let nextMatrixD = matrix ? matrix.d : 1;
-		let nextMatrixTx = matrix ? matrix.tx : 0;
-		let nextMatrixTy = matrix ? matrix.ty : 0;
-		let previousLayer = this.int32[wordOffset + GraphicsQuadPayloadWordOffset.TextureLayer];
-		let previousBlendMode = this.int32[wordOffset + GraphicsQuadPayloadWordOffset.BlendMode];
-		let previousColor = this.int32[wordOffset + GraphicsQuadPayloadWordOffset.PackedColor];
-		let previousAlpha = this.float32[wordOffset + GraphicsQuadPayloadWordOffset.Alpha];
-		let previousX = this.float32[wordOffset + GraphicsQuadPayloadWordOffset.X];
-		let previousY = this.float32[wordOffset + GraphicsQuadPayloadWordOffset.Y];
-		let previousWidth = this.float32[wordOffset + GraphicsQuadPayloadWordOffset.Width];
-		let previousHeight = this.float32[wordOffset + GraphicsQuadPayloadWordOffset.Height];
-		let previousU0 = this.float32[wordOffset + GraphicsQuadPayloadWordOffset.U0];
-		let previousV0 = this.float32[wordOffset + GraphicsQuadPayloadWordOffset.V0];
-		let previousU1 = this.float32[wordOffset + GraphicsQuadPayloadWordOffset.U1];
-		let previousV1 = this.float32[wordOffset + GraphicsQuadPayloadWordOffset.V1];
-		let previousHasMatrix = this.int32[wordOffset + GraphicsQuadPayloadWordOffset.HasMatrix];
-		let previousUVClipEnabled = this.int32[wordOffset + GraphicsQuadPayloadWordOffset.UVClipEnabled];
-		let previousUVClipX = this.float32[wordOffset + GraphicsQuadPayloadWordOffset.UVClipX];
-		let previousUVClipY = this.float32[wordOffset + GraphicsQuadPayloadWordOffset.UVClipY];
-		let previousUVClipWidth = this.float32[wordOffset + GraphicsQuadPayloadWordOffset.UVClipWidth];
-		let previousUVClipHeight = this.float32[wordOffset + GraphicsQuadPayloadWordOffset.UVClipHeight];
-		let previousMatrixA = this.float32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixA];
-		let previousMatrixB = this.float32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixB];
-		let previousMatrixC = this.float32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixC];
-		let previousMatrixD = this.float32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixD];
-		let previousMatrixTx = this.float32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixTx];
-		let previousMatrixTy = this.float32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixTy];
-		writeQuadPayloadValues(this.float32, this.int32, wordOffset, x, y, width, height, u0, v0, u1, v1, packedColor, alpha, blendMode, nextLayer, matrix, uvClip);
+		let changeMask = this._getQuadPayloadChangeMask(0, wordOffset, x, y, width, height, u0, v0, u1, v1,
+			packedColor, alpha, blendMode, textureLayer, matrix, uvClip);
 		this.recordCount = 1;
-		let nextUVClipEnabled = uvClip ? 1 : 0;
-		let nextUVClipX = uvClip ? uvClip[0] : 0;
-		let nextUVClipY = uvClip ? uvClip[1] : 0;
-		let nextUVClipWidth = uvClip ? uvClip[2] : 1;
-		let nextUVClipHeight = uvClip ? uvClip[3] : 1;
-		let changeMask = wasEmpty ? GraphicsOp2DDirtyFlag.All : GraphicsOp2DDirtyFlag.None;
-		if (!wasEmpty) {
-			if (textureChanged || previousLayer !== nextLayer)
-				changeMask |= GraphicsOp2DDirtyFlag.Texture;
-			if (previousX !== x || previousY !== y || previousWidth !== width || previousHeight !== height
-				|| previousU0 !== u0 || previousV0 !== v0 || previousU1 !== u1 || previousV1 !== v1
-				|| previousHasMatrix !== nextHasMatrix
-				|| previousMatrixA !== nextMatrixA || previousMatrixB !== nextMatrixB
-				|| previousMatrixC !== nextMatrixC || previousMatrixD !== nextMatrixD
-				|| previousMatrixTx !== nextMatrixTx || previousMatrixTy !== nextMatrixTy
-				|| previousUVClipEnabled !== nextUVClipEnabled
-				|| previousUVClipX !== nextUVClipX || previousUVClipY !== nextUVClipY
-				|| previousUVClipWidth !== nextUVClipWidth || previousUVClipHeight !== nextUVClipHeight)
-				changeMask |= GraphicsOp2DDirtyFlag.Geometry;
-			if (previousBlendMode !== blendMode)
-				changeMask |= GraphicsOp2DDirtyFlag.State;
-			if (previousColor !== packedColor || previousAlpha !== alpha)
-				changeMask |= GraphicsOp2DDirtyFlag.State | GraphicsOp2DDirtyFlag.Geometry;
-		}
-		this.textureLayerDirty = previousLayer !== nextLayer;
-		if (changeMask !== GraphicsOp2DDirtyFlag.None || wasEmpty) {
-			this.markDirty(changeMask);
-			this._writeOpRenderStateBuffer(changeMask, ++this._version, 4, 6, blendMode, this.texture, false, packedColor, alpha, GraphicsQuadPayloadWordCount);
-		}
+		if (changeMask === GraphicsOp2DDirtyFlag.None)
+			return;
+		writeQuadPayloadValues(this.float32, this.int32, wordOffset, x, y, width, height, u0, v0, u1, v1, packedColor, alpha, blendMode, textureLayer, matrix, uvClip);
+		this.markDirty(changeMask);
+		this._writeOpRenderStateBuffer(changeMask, ++this._version, 4, 6, blendMode, this.texture, false, packedColor, alpha, GraphicsQuadPayloadWordCount);
 	}
 }
 
@@ -220,15 +246,14 @@ export class WebGraphicsSolidQuadOp2D extends WebGraphicsOp2D implements IGraphi
 		super(kind, "solidQuad", GraphicsOpProfile.SolidQuadPixel, commandIndex, commandId, GraphicsQuadPayloadWordCount);
 	}
 
-	resetRecords(): void {
-		this.recordCount = 0;
-	}
-
 	writeRecord(x: number, y: number, width: number, height: number,
 		packedColor: number, alpha: number, blendMode: number, matrix: Matrix | null): void {
-		let changeMask = GraphicsOp2DDirtyFlag.Geometry | GraphicsOp2DDirtyFlag.State;
-		writeQuadPayloadValues(this.float32, this.int32, this._bodyWordOffset, x, y, width, height, 0, 0, 0, 0, packedColor, alpha, blendMode, 0, matrix, null);
+		let changeMask = this._getQuadPayloadChangeMask(0, this._bodyWordOffset, x, y, width, height, 0, 0, 0, 0,
+			packedColor, alpha, blendMode, 0, matrix, null);
 		this.recordCount = 1;
+		if (changeMask === GraphicsOp2DDirtyFlag.None)
+			return;
+		writeQuadPayloadValues(this.float32, this.int32, this._bodyWordOffset, x, y, width, height, 0, 0, 0, 0, packedColor, alpha, blendMode, 0, matrix, null);
 		this.markDirty(changeMask);
 		this._writeOpRenderStateBuffer(changeMask, ++this._version, 4, 6, blendMode, null, false, packedColor, alpha, GraphicsQuadPayloadWordCount);
 	}
@@ -240,20 +265,20 @@ export class WebGraphicsFillTextureOp2D extends WebGraphicsOp2D implements IGrap
 		super(kind, "fillTexture", GraphicsOpProfile.FillTexture, commandIndex, commandId, GraphicsQuadPayloadWordCount);
 	}
 
-	resetRecords(): void {
-		this.recordCount = 0;
-	}
-
 	writeRecord(x: number, y: number, width: number, height: number,
 		u0: number, v0: number, u1: number, v1: number,
 		repeatX: number, repeatY: number, offsetX: number, offsetY: number,
 		texRangeX: number, texRangeY: number, texRangeWidth: number, texRangeHeight: number,
 		packedColor: number, alpha: number, blendMode: number, textureLayer: number, matrix: Matrix | null, uvClip?: ArrayLike<number> | null): void {
-		let changeMask = GraphicsOp2DDirtyFlag.Geometry | GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.State;
+		let changeMask = this._getQuadPayloadChangeMask(0, this._bodyWordOffset, x, y, width, height, u0, v0, u1, v1,
+			packedColor, alpha, blendMode, textureLayer, matrix, uvClip,
+			repeatX, repeatY, offsetX, offsetY, texRangeX, texRangeY, texRangeWidth, texRangeHeight);
+		this.recordCount = 1;
+		if (changeMask === GraphicsOp2DDirtyFlag.None)
+			return;
 		writeFillTexturePayloadValues(this.float32, this.int32, this._bodyWordOffset,
 			x, y, width, height, u0, v0, u1, v1, packedColor, alpha, blendMode, textureLayer, matrix,
 			repeatX, repeatY, offsetX, offsetY, texRangeX, texRangeY, texRangeWidth, texRangeHeight, uvClip);
-		this.recordCount = 1;
 		this.markDirty(changeMask);
 		this._writeOpRenderStateBuffer(changeMask, ++this._version, 4, 6, blendMode, this.texture, true, packedColor, alpha, GraphicsQuadPayloadWordCount);
 	}
@@ -296,6 +321,11 @@ export class WebGraphicsMeshOp2D extends WebGraphicsOp2D implements IGraphicsMes
 		let bodyWordCount = colorDataOffset + colorWordCount;
 		let bodyOffset = this._bodyWordOffset;
 		this._reserveBufferWords(bodyWordCount);
+		if (this._meshPayloadMatches(bodyOffset, bodyWordCount, x, y, vertices, vertexOffset, vertexCount, uvs, uvOffset,
+			indices, indexOffset, indexCount, colors, colorOffset, packedColor, alpha, blendMode, textureLayer, matrix, uvClip)) {
+			this.recordCount = 1;
+			return;
+		}
 		writeMeshPayloadValues(this.float32, this.int32, bodyOffset,
 			x, y, packedColor, alpha, blendMode, textureLayer, matrix,
 			vertexCount, indexCount, !!uvs, !!colors,
@@ -312,6 +342,68 @@ export class WebGraphicsMeshOp2D extends WebGraphicsOp2D implements IGraphicsMes
 		this._writeOpRenderStateBuffer(changeMask, ++this._version, vertexCount, indexCount, blendMode, this.texture, false, packedColor, alpha, bodyWordCount);
 	}
 
+	private _meshPayloadMatches(bodyOffset: number, bodyWordCount: number,
+		x: number, y: number, vertices: ArrayLike<number>, vertexOffset: number, vertexCount: number,
+		uvs: ArrayLike<number> | null, uvOffset: number, indices: ArrayLike<number>, indexOffset: number, indexCount: number,
+		colors: ArrayLike<number> | null, colorOffset: number, packedColor: number, alpha: number, blendMode: number,
+		textureLayer: number, matrix: Matrix | null, uvClip?: ArrayLike<number> | null): boolean {
+		if (this._retainedRecordCount <= 0 && this.recordCount <= 0
+			|| this.dirtyFlags !== GraphicsOp2DDirtyFlag.None
+			|| this.int32[GraphicsOpInfoField.BodyWordCount] !== bodyWordCount)
+			return false;
+		let f32 = this.float32;
+		let i32 = this.int32;
+		let fround = Math.fround;
+		let vertexDataOffset = GraphicsMeshPayloadWordCount;
+		let uvDataOffset = vertexDataOffset + vertexCount * 2;
+		let indexDataOffset = uvDataOffset + (uvs ? vertexCount * 2 : 0);
+		let colorDataOffset = indexDataOffset + indexCount;
+		if (f32[bodyOffset + GraphicsMeshPayloadWordOffset.X] !== fround(x)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.Y] !== fround(y)
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.PackedColor] !== packedColor
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.Alpha] !== fround(alpha)
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.BlendMode] !== blendMode
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.TextureLayer] !== (textureLayer || 0)
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.HasMatrix] !== (matrix ? 1 : 0)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.MatrixA] !== fround(matrix ? matrix.a : 1)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.MatrixB] !== fround(matrix ? matrix.b : 0)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.MatrixC] !== fround(matrix ? matrix.c : 0)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.MatrixD] !== fround(matrix ? matrix.d : 1)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.MatrixTx] !== fround(matrix ? matrix.tx : 0)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.MatrixTy] !== fround(matrix ? matrix.ty : 0)
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.VertexCount] !== vertexCount
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.IndexCount] !== indexCount
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.HasUV] !== (uvs ? 1 : 0)
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.HasColors] !== (colors ? 1 : 0)
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.VertexDataOffset] !== vertexDataOffset
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.UVDataOffset] !== (uvs ? uvDataOffset : 0)
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.IndexDataOffset] !== indexDataOffset
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.ColorDataOffset] !== (colors ? colorDataOffset : 0)
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.UVClipEnabled] !== (uvClip ? 1 : 0)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.UVClipX] !== fround(uvClip ? uvClip[0] : 0)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.UVClipY] !== fround(uvClip ? uvClip[1] : 0)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.UVClipWidth] !== fround(uvClip ? uvClip[2] : 1)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.UVClipHeight] !== fround(uvClip ? uvClip[3] : 1))
+			return false;
+		for (let i = 0, count = vertexCount * 2; i < count; i++) {
+			if (f32[bodyOffset + vertexDataOffset + i] !== fround(vertices[vertexOffset + i]))
+				return false;
+			if (uvs && f32[bodyOffset + uvDataOffset + i] !== fround(uvs[uvOffset + i]))
+				return false;
+		}
+		for (let i = 0; i < indexCount; i++) {
+			if (i32[bodyOffset + indexDataOffset + i] !== (indices[indexOffset + i] | 0))
+				return false;
+		}
+		if (colors) {
+			for (let i = 0, count = vertexCount * 4; i < count; i++) {
+				if (f32[bodyOffset + colorDataOffset + i] !== fround(colors[colorOffset + i]))
+					return false;
+			}
+		}
+		return true;
+	}
+
 	private _copyNumberValues(source: ArrayLike<number>, sourceOffset: number, target: Float32Array | Int32Array, targetOffset: number, count: number): void {
 		for (let i = 0; i < count; i++)
 			target[targetOffset + i] = source[sourceOffset + i];
@@ -321,95 +413,77 @@ export class WebGraphicsMeshOp2D extends WebGraphicsOp2D implements IGraphicsMes
 /** @internal */
 export class WebGraphicsMultiQuadOp2D extends WebGraphicsOp2D implements IGraphicsMultiQuadOp2D {
 	textures: GraphicsOp2DTextureHost[] = [];
-	private _textureGroupSignature: string = "";
-	private _textureGroupStarts: number[] = [];
-	private _textureGroupCounts: number[] = [];
-	private _textureGroupTextures: GraphicsOp2DTextureHost[] = [];
+	private _textureGroupLayoutVersion: number = 0;
 
 	constructor(kind: GraphicsOp2DKind, commandIndex: number, commandId: GraphicsCommandId, opType: "multiQuad" | "text" = "multiQuad", opProfile: GraphicsOpProfile = GraphicsOpProfile.MultiQuad) {
 		super(kind, opType, opProfile, commandIndex, commandId, GraphicsQuadPayloadWordCount);
 	}
 
-	resetRecords(): void {
-		this.recordCount = 0;
+	writeStructureSignature(out: Int32Array, offset: number): void {
+		super.writeStructureSignature(out, offset);
+		out[offset + 3] = this._textureGroupLayoutVersion;
+	}
+
+	matchesStructureSignature(source: Int32Array, offset: number): boolean {
+		return this._int32[GraphicsOpInfoField.VertexCount] === source[offset]
+			&& this._int32[GraphicsOpInfoField.IndexCount] === source[offset + 1]
+			&& this._int32[GraphicsOpInfoField.BodyWordCount] === source[offset + 2]
+			&& this._textureGroupLayoutVersion === source[offset + 3];
 	}
 
 	setTextures(textures: ReadonlyArray<GraphicsOp2DTextureHost>, count: number = textures ? textures.length : 0): void {
-		let changed = this.textures.length !== count;
+		let previousCount = this.textures.length;
+		let changed = previousCount !== count;
+		let groupChanged = previousCount !== count;
+		let previousOldTexture: GraphicsOp2DTextureHost = null;
+		let previousNewTexture: GraphicsOp2DTextureHost = null;
 		for (let i = 0; i < count; i++) {
+			let oldTexture = this.textures[i] || null;
 			let texture = textures[i] || null;
-			if (this.textures[i] !== texture)
+			if (oldTexture !== texture)
 				changed = true;
+			if (i > 0 && (oldTexture !== previousOldTexture) !== (texture !== previousNewTexture))
+				groupChanged = true;
 			this.textures[i] = texture;
+			previousOldTexture = oldTexture;
+			previousNewTexture = texture;
 		}
 		this.textures.length = count;
 		let firstTexture = count > 0 ? this.textures[0] : null;
-		if (this.texture !== firstTexture)
+		let firstTextureChanged = this.texture !== firstTexture || this._textureInternal !== (firstTexture ? firstTexture._texture : null);
+		if (firstTextureChanged)
 			changed = true;
 		this.texture = firstTexture;
-		this._refreshOpRenderStateBuffer(false);
-		let groupChanged = this._updateTextureGroupSignature();
+		if (firstTextureChanged)
+			this._refreshOpRenderStateBuffer(false);
 		if (changed)
 			this.markDirty(GraphicsOp2DDirtyFlag.Texture);
-		if (groupChanged)
+		if (groupChanged) {
+			this._textureGroupLayoutVersion++;
 			this.markDirty(GraphicsOp2DDirtyFlag.Structure);
+		}
 	}
 
 	addRecord(x: number, y: number, width: number, height: number,
 		u0: number, v0: number, u1: number, v1: number,
 		packedColor: number, alpha: number, blendMode: number, textureLayer: number, matrix: Matrix | null, uvClip?: ArrayLike<number> | null): void {
-		let recordIndex = this.recordCount++;
-		let bodyWordCount = this.recordCount * GraphicsQuadPayloadWordCount;
+		let recordIndex = this.recordCount;
+		let bodyWordCount = (this.recordCount + 1) * GraphicsQuadPayloadWordCount;
 		this._reserveBufferWords(bodyWordCount);
-		writeQuadPayloadValues(this.float32, this.int32, this._bodyWordOffset + recordIndex * GraphicsQuadPayloadWordCount,
-			x, y, width, height, u0, v0, u1, v1, packedColor, alpha, blendMode, textureLayer, matrix, uvClip);
-		let changeMask = GraphicsOp2DDirtyFlag.Geometry | GraphicsOp2DDirtyFlag.State;
-		this.markDirty(changeMask);
-		this._writeOpRenderStateBuffer(changeMask, ++this._version, this.recordCount * 4, this.recordCount * 6, blendMode, this.texture, false, packedColor, alpha, bodyWordCount);
+		let wordOffset = this._bodyWordOffset + recordIndex * GraphicsQuadPayloadWordCount;
+		let changeMask = this._getQuadPayloadChangeMask(recordIndex, wordOffset, x, y, width, height, u0, v0, u1, v1,
+			packedColor, alpha, blendMode, textureLayer, matrix, uvClip);
+		if (changeMask !== GraphicsOp2DDirtyFlag.None)
+			writeQuadPayloadValues(this.float32, this.int32, wordOffset,
+				x, y, width, height, u0, v0, u1, v1, packedColor, alpha, blendMode, textureLayer, matrix, uvClip);
+		this.recordCount++;
+		if (changeMask !== GraphicsOp2DDirtyFlag.None) {
+			this.markDirty(changeMask);
+			this._version++;
+		}
+		this._writeOpRenderStateBuffer(this.dirtyFlags, this._version, this.recordCount * 4, this.recordCount * 6, blendMode, this.texture, false, packedColor, alpha, bodyWordCount);
 	}
 
-	private _updateTextureGroupSignature(): boolean {
-		let groupIndex = 0;
-		let start = 0;
-		let currentTexture: GraphicsOp2DTextureHost = null;
-		let changed = false;
-		for (let i = 0, n = this.recordCount; i < n; i++) {
-			let texture = this.textures[i] || null;
-			if (i === 0) {
-				currentTexture = texture;
-				continue;
-			}
-			if (texture !== currentTexture) {
-				if (this._textureGroupStarts[groupIndex] !== start || this._textureGroupCounts[groupIndex] !== i - start || this._textureGroupTextures[groupIndex] !== currentTexture)
-					changed = true;
-				this._textureGroupStarts[groupIndex] = start;
-				this._textureGroupCounts[groupIndex] = i - start;
-				this._textureGroupTextures[groupIndex] = currentTexture;
-				groupIndex++;
-				start = i;
-				currentTexture = texture;
-			}
-		}
-		if (this.recordCount > 0) {
-			if (this._textureGroupStarts[groupIndex] !== start || this._textureGroupCounts[groupIndex] !== this.recordCount - start || this._textureGroupTextures[groupIndex] !== currentTexture)
-				changed = true;
-			this._textureGroupStarts[groupIndex] = start;
-			this._textureGroupCounts[groupIndex] = this.recordCount - start;
-			this._textureGroupTextures[groupIndex] = currentTexture;
-			groupIndex++;
-		}
-		if (this._textureGroupStarts.length !== groupIndex)
-			changed = true;
-		this._textureGroupStarts.length = groupIndex;
-		this._textureGroupCounts.length = groupIndex;
-		this._textureGroupTextures.length = groupIndex;
-		let signature = `${this.recordCount}:${groupIndex}`;
-		if (this._textureGroupSignature !== signature) {
-			this._textureGroupSignature = signature;
-			changed = true;
-		}
-		return changed;
-	}
 }
 
 /** @internal */

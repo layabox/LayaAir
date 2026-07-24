@@ -13,12 +13,12 @@ import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderG
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { NoRenderSetRenderData, NoRenderSetShaderDefine } from "../DriverDevice/NoRenderDeviceFactory";
-import { IRender2DDataHandle, I2DPrimitiveDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, IGraphicsOp2DFactory } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { IRender2DDataHandle, IGraphicsSingleQuadDataHandle, IGraphicsCommandStreamDataHandle, ISubStructRenderDataHandle, I2DBaseRenderDataHandle, IMesh2DRenderDataHandle, I2DGlobalRenderData, ISpineRenderDataHandle, IGraphicsOp2DFactory } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import {
 	NoRenderGlobalRenderData, NoRenderEmptyDataHandle,
-	NoRenderPrimitiveDataHandle, NoRenderBaseDataHandle,
+	NoRenderGraphicsSingleQuadDataHandle, NoRenderGraphicsCommandStreamDataHandle, NoRenderSubStructDataHandle, NoRenderBaseDataHandle,
 	NoRenderMeshDataHandle,
 	NoRenderStruct2D, NoRender2DPass, NoRender2DPassManager
 } from "./NoRender2DModuleData";
@@ -44,8 +44,14 @@ export class NoRender2DProcess implements I2DRenderPassFactory {
     createRenderStruct2D(): IRenderStruct2D {
         return new NoRenderStruct2D();
     }
-    create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle {
-        return new NoRenderPrimitiveDataHandle();
+    createSubStructRenderDataHandle(): ISubStructRenderDataHandle {
+        return new NoRenderSubStructDataHandle();
+    }
+    createGraphicsSingleQuadDataHandle(): IGraphicsSingleQuadDataHandle {
+        return new NoRenderGraphicsSingleQuadDataHandle();
+    }
+    createGraphicsCommandStreamDataHandle(): IGraphicsCommandStreamDataHandle {
+        return new NoRenderGraphicsCommandStreamDataHandle();
     }
     createGraphicsOp2DFactory(): IGraphicsOp2DFactory {
         return new NoRenderGraphicsOp2DFactory();

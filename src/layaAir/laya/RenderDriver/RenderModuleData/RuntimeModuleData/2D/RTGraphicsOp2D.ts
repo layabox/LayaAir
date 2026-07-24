@@ -1,28 +1,26 @@
 import type { Matrix } from "../../../../maths/Matrix";
-import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
+import type { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
 import { GraphicsOpInfoField, GraphicsOpProfile } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
 import { GraphicsOp2DDirtyFlag, GraphicsOp2DKind, type GraphicsCommandId, type GraphicsOp2DTextureHost, type GraphicsOp2DType } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
 import { GraphicsOpRenderStateHelper } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineHelpers";
 import type { GraphicsOp2DRenderState } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
-import { GraphicsMeshPayloadWordCount, GraphicsQuadPayloadWordCount, writeFillTexturePayloadValues, writeMeshPayloadValues, writeOpInfoBuffer, writeQuadPayloadValues } from "./RTGraphicsOp2DBufferSchema";
+import { GraphicsMeshPayloadWordCount, GraphicsMeshPayloadWordOffset, GraphicsQuadPayloadWordCount, GraphicsQuadPayloadWordOffset, writeFillTexturePayloadValues, writeMeshPayloadValues, writeOpInfoBuffer, writeQuadPayloadValues } from "./RTGraphicsOp2DBufferSchema";
 import type { IGraphicsFillTextureOp2D, IGraphicsMeshOp2D, IGraphicsMultiQuadOp2D, IGraphicsOp2D, IGraphicsSolidQuadOp2D, IGraphicsTextOp2D, IGraphicsTextureQuadOp2D } from "../../Design/2D/IRender2DDataHandle";
+import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 
 type NativeHandle = unknown;
 
-type NativeTextureCarrier = {
-	_texture?: NativeTextureCarrier;
-	_textures?: NativeTextureCarrier[];
-	_nativeObj?: NativeHandle;
-};
+type NativeInternalTexture = InternalTexture & { _nativeObj?: NativeHandle };
 
 type RTGraphicsNativeOp = {
 	setPayload(buffer: ArrayBuffer): void;
 	setTexture(texture: NativeHandle, textureId: number): void;
 	setTextureArray(textures: NativeHandle[], textureIds: number[]): void;
+	finalizePayloadAndTextures(buffer: ArrayBuffer, textures: NativeHandle[], textureIds: number[]): void;
 	destroy(): void;
 };
 
-type RTGraphicsNativeCtor = new (owner: NativeHandle, commandIndex: number) => RTGraphicsNativeOp;
+type RTGraphicsNativeCtor = new (owner: NativeHandle, commandIndex: number, payload: ArrayBuffer) => RTGraphicsNativeOp;
 
 type RTGraphicsNativeWindow = Window & {
 	conchRTTextureQuadGraphicsOp?: RTGraphicsNativeCtor;
@@ -33,14 +31,10 @@ type RTGraphicsNativeWindow = Window & {
 	conchRTTextGraphicsOp?: RTGraphicsNativeCtor;
 };
 
-function getNativeTexture(value: GraphicsOp2DTextureHost | InternalTexture | null): NativeHandle {
+function getNativeTexture(value: GraphicsOp2DTextureHost | null): NativeHandle {
 	if (!value)
 		return null;
-	let textureSource = value as NativeTextureCarrier;
-	let texture = textureSource._texture || textureSource;
-	let colorTextures = texture._textures;
-	if (colorTextures && colorTextures.length > 0)
-		texture = colorTextures[0];
+	let texture = value._texture as NativeInternalTexture;
 	return texture ? texture._nativeObj || null : null;
 }
 
@@ -57,29 +51,38 @@ export abstract class RTGraphicsOp2D implements IGraphicsOp2D {
 	dirtyFlags: GraphicsOp2DDirtyFlag = GraphicsOp2DDirtyFlag.All;
 	protected _nativeObj: RTGraphicsNativeOp | null = null;
 	protected _version: number = 0;
+	protected _retainedRecordCount: number = 0;
 	private _texture: GraphicsOp2DTextureHost | null = null;
+	protected _textureInternal: InternalTexture = null;
 	private _buffer: ArrayBuffer;
 	private _float32: Float32Array;
 	private _int32: Int32Array;
 	private _renderStateScratch: GraphicsOp2DRenderState = { stateKey: 0, typeKey: 0, textureKey: 0, texture: null };
-	private _nativeTextureArray: NativeHandle[] = [];
-	private _nativeTextureIdArray: number[] = [];
-	private _nativePayloadBuffer: ArrayBuffer | null = null;
-	private _nativeTexture: NativeHandle = undefined;
-	private _nativeTextureId: number = -1;
+	protected _nativeTextureArray: NativeHandle[] = [];
+	protected _nativeTextureIdArray: number[] = [];
+	protected _nativePayloadBuffer: ArrayBuffer | null = null;
+	private _nativeTexture: NativeHandle = null;
+	private _nativeTextureId: number = 0;
 
 	constructor(
 		readonly kind: GraphicsOp2DKind,
 		readonly opType: GraphicsOp2DType,
 		readonly opProfile: GraphicsOpProfile,
-		readonly commandIndex: number,
+		public commandIndex: number,
 		readonly commandId: GraphicsCommandId,
 		initialBodyWordCount: number,
 	) {
 		this._buffer = new ArrayBuffer((GraphicsOpInfoField.WordCount + initialBodyWordCount) * 4);
 		this._float32 = new Float32Array(this._buffer);
 		this._int32 = new Int32Array(this._buffer);
+		// Native snapshots whether the payload has a header when the ArrayBuffer is bound.
+		// Publish a valid empty header before constructing the native Op.
+		this._int32[GraphicsOpInfoField.Profile] = opProfile;
+		this._int32[GraphicsOpInfoField.BodyWordOffset] = GraphicsOpInfoField.WordCount;
 		this._nativeObj = this._createNativeObject();
+		if (this._nativeObj) {
+			this._nativePayloadBuffer = this._buffer;
+		}
 	}
 
 	get buffer(): ArrayBuffer {
@@ -98,6 +101,12 @@ export abstract class RTGraphicsOp2D implements IGraphicsOp2D {
 		return this._int32[GraphicsOpInfoField.RecordCount] || 0;
 	}
 
+	setCommandIndex(value: number): void {
+		// Native Runtime consumes the final Op array order. commandIndex is retained
+		// by the TS compiler/reconcile layer and can change after a command splice.
+		this.commandIndex = value;
+	}
+
 	set recordCount(value: number) {
 		this._int32[GraphicsOpInfoField.RecordCount] = value | 0;
 	}
@@ -112,13 +121,14 @@ export abstract class RTGraphicsOp2D implements IGraphicsOp2D {
 
 	protected _setTexture(value: GraphicsOp2DTextureHost | null, syncNative: boolean): void {
 		value = value || null;
-		let wrapperChanged = this._texture !== value;
+		let internalTexture = value ? value._texture : null;
+		let wrapperChanged = this._texture !== value || this._textureInternal !== internalTexture;
 		this._texture = value;
+		this._textureInternal = internalTexture;
 		if (wrapperChanged)
 			this.markDirty(GraphicsOp2DDirtyFlag.Texture);
-		this._refreshOpRenderStateBuffer();
-		if (syncNative)
-			this._syncNativeTextureIfChanged();
+		if (syncNative && this._syncNativeTextureIfChanged())
+			this.markDirty(GraphicsOp2DDirtyFlag.Texture);
 	}
 
 	canUpdate(commandId: GraphicsCommandId): boolean {
@@ -126,10 +136,27 @@ export abstract class RTGraphicsOp2D implements IGraphicsOp2D {
 	}
 
 	resetRecords(): void {
+		this._retainedRecordCount = this.recordCount;
+		this.recordCount = 0;
 	}
 
-	getStructureKey(): string {
-		return `${this.kind}:${this._int32[GraphicsOpInfoField.VertexCount]}:${this._int32[GraphicsOpInfoField.IndexCount]}:${this._int32[GraphicsOpInfoField.BodyWordCount]}`;
+	writeStructureSignature(out: Int32Array, offset: number): void {
+		out[offset] = this._int32[GraphicsOpInfoField.VertexCount];
+		out[offset + 1] = this._int32[GraphicsOpInfoField.IndexCount];
+		out[offset + 2] = this._int32[GraphicsOpInfoField.BodyWordCount];
+		out[offset + 3] = 0;
+	}
+
+	matchesStructureSignature(source: Int32Array, offset: number): boolean {
+		return this.int32[GraphicsOpInfoField.VertexCount] === source[offset]
+			&& this.int32[GraphicsOpInfoField.IndexCount] === source[offset + 1]
+			&& this.int32[GraphicsOpInfoField.BodyWordCount] === source[offset + 2]
+			&& source[offset + 3] === 0;
+	}
+
+	clearStructureDirty(): void {
+		this.dirtyFlags &= ~GraphicsOp2DDirtyFlag.Structure;
+		this._int32[GraphicsOpInfoField.ChangeMask] &= ~GraphicsOp2DDirtyFlag.Structure;
 	}
 
 	markDirty(flags: GraphicsOp2DDirtyFlag): void {
@@ -153,11 +180,12 @@ export abstract class RTGraphicsOp2D implements IGraphicsOp2D {
 			this._nativeObj.destroy();
 		this._nativeObj = null;
 		this._texture = null;
+		this._textureInternal = null;
 		this._nativeTextureArray.length = 0;
 		this._nativeTextureIdArray.length = 0;
 		this._nativePayloadBuffer = null;
-		this._nativeTexture = undefined;
-		this._nativeTextureId = -1;
+		this._nativeTexture = null;
+		this._nativeTextureId = 0;
 	}
 
 	protected _reserveBufferWords(bodyWordCount: number): void {
@@ -183,6 +211,13 @@ export abstract class RTGraphicsOp2D implements IGraphicsOp2D {
 	protected _writeOpRenderStateBuffer(changeMask: number, version: number,
 		vertexCount: number, indexCount: number, blendMode: number, texture: GraphicsOp2DTextureHost | null, fillTexture: boolean,
 		packedColor: number, localAlpha: number, bodyWordCount: number): void {
+		changeMask |= this.dirtyFlags | this._int32[GraphicsOpInfoField.ChangeMask];
+		if (this._int32[GraphicsOpInfoField.BodyWordCount] > 0 && (changeMask & GraphicsOp2DDirtyFlag.Texture) === 0) {
+			let defineBits = this._int32[GraphicsOpInfoField.TypeKey] & ~((1 << ShaderDefines2D.TYPE_KEY_DEFINE_SHIFT) - 1);
+			this._writeOpInfoBuffer(changeMask, version, vertexCount, indexCount, blendMode, defineBits | blendMode,
+				this._int32[GraphicsOpInfoField.TextureKey], packedColor, localAlpha, bodyWordCount);
+			return;
+		}
 		let renderState = GraphicsOpRenderStateHelper.getRenderState(texture, blendMode, fillTexture, false, false, this._renderStateScratch);
 		this._writeOpInfoBuffer(changeMask, version, vertexCount, indexCount, renderState.stateKey, renderState.typeKey, renderState.textureKey, packedColor, localAlpha, bodyWordCount);
 	}
@@ -204,50 +239,82 @@ export abstract class RTGraphicsOp2D implements IGraphicsOp2D {
 		this._nativePayloadBuffer = this.buffer;
 	}
 
-	protected _syncNativeTextureIfChanged(): void {
+	protected _syncNativeTextureIfChanged(): boolean {
 		let nativeObj = this._nativeObj;
 		if (!nativeObj)
-			return;
+			return false;
 		let texture = getNativeTexture(this._texture);
-		let nativeChanged = this._nativeTexture !== texture;
-		if (!nativeChanged)
-			return;
-		this._nativeTexture = texture;
 		let textureId = getTextureId(this._texture);
+		if (this._nativeTexture === texture && this._nativeTextureId === textureId)
+			return false;
+		this._nativeTexture = texture;
 		this._nativeTextureId = textureId;
 		nativeObj.setTexture(texture, textureId);
-	}
-
-	protected _syncNativeTextureArrayIfChanged(textures: ReadonlyArray<NativeHandle>, textureIds: ReadonlyArray<number>): boolean {
-		let last = this._nativeTextureArray;
-		let texturesChanged = last.length !== textures.length;
-		for (let i = 0, n = textures.length; i < n; i++) {
-			if (last[i] !== textures[i])
-				texturesChanged = true;
-		}
-		if (!texturesChanged)
-			return false;
-		if (texturesChanged) {
-			last.length = textures.length;
-			for (let i = 0, n = textures.length; i < n; i++)
-				last[i] = textures[i];
-		}
-
-		let lastIds = this._nativeTextureIdArray;
-		for (let i = 0, n = textureIds.length; i < n; i++)
-			lastIds[i] = textureIds[i];
-
-		this._nativeObj.setTextureArray(textures as NativeHandle[], textureIds as number[]);
-		return texturesChanged;
+		return true;
 	}
 
 	protected get _bodyWordOffset(): number {
 		return GraphicsOpInfoField.WordCount;
 	}
 
+	protected _getQuadPayloadChangeMask(recordIndex: number, wordOffset: number,
+		x: number, y: number, width: number, height: number,
+		u0: number, v0: number, u1: number, v1: number,
+		packedColor: number, alpha: number, blendMode: number, textureLayer: number,
+		matrix: Matrix | null, uvClip?: ArrayLike<number> | null,
+		repeatX?: number, repeatY?: number, offsetX?: number, offsetY?: number,
+		texRangeX?: number, texRangeY?: number, texRangeWidth?: number, texRangeHeight?: number): GraphicsOp2DDirtyFlag {
+		let hadRecord = recordIndex < this._retainedRecordCount || recordIndex < this.recordCount;
+		if (!hadRecord)
+			return GraphicsOp2DDirtyFlag.All;
+		let f32 = this._float32;
+		let i32 = this._int32;
+		let fround = Math.fround;
+		let changeMask = this.dirtyFlags & GraphicsOp2DDirtyFlag.Texture;
+		let nextHasMatrix = matrix ? 1 : 0;
+		let nextUVClipEnabled = uvClip ? 1 : 0;
+		if (f32[wordOffset + GraphicsQuadPayloadWordOffset.X] !== fround(x)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.Y] !== fround(y)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.Width] !== fround(width)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.Height] !== fround(height)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.U0] !== fround(u0)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.V0] !== fround(v0)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.U1] !== fround(u1)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.V1] !== fround(v1)
+			|| i32[wordOffset + GraphicsQuadPayloadWordOffset.TextureLayer] !== (textureLayer || 0)
+			|| i32[wordOffset + GraphicsQuadPayloadWordOffset.HasMatrix] !== nextHasMatrix
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixA] !== fround(matrix ? matrix.a : 1)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixB] !== fround(matrix ? matrix.b : 0)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixC] !== fround(matrix ? matrix.c : 0)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixD] !== fround(matrix ? matrix.d : 1)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixTx] !== fround(matrix ? matrix.tx : 0)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.MatrixTy] !== fround(matrix ? matrix.ty : 0)
+			|| i32[wordOffset + GraphicsQuadPayloadWordOffset.UVClipEnabled] !== nextUVClipEnabled
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.UVClipX] !== fround(uvClip ? uvClip[0] : 0)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.UVClipY] !== fround(uvClip ? uvClip[1] : 0)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.UVClipWidth] !== fround(uvClip ? uvClip[2] : 1)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.UVClipHeight] !== fround(uvClip ? uvClip[3] : 1))
+			changeMask |= GraphicsOp2DDirtyFlag.Geometry;
+		if (repeatX != null && (f32[wordOffset + GraphicsQuadPayloadWordOffset.RepeatX] !== fround(repeatX)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.RepeatY] !== fround(repeatY)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.OffsetX] !== fround(offsetX)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.OffsetY] !== fround(offsetY)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.TexRangeX] !== fround(texRangeX)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.TexRangeY] !== fround(texRangeY)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.TexRangeWidth] !== fround(texRangeWidth)
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.TexRangeHeight] !== fround(texRangeHeight)))
+			changeMask |= GraphicsOp2DDirtyFlag.Geometry;
+		if (i32[wordOffset + GraphicsQuadPayloadWordOffset.BlendMode] !== blendMode)
+			changeMask |= GraphicsOp2DDirtyFlag.State;
+		if (i32[wordOffset + GraphicsQuadPayloadWordOffset.PackedColor] !== packedColor
+			|| f32[wordOffset + GraphicsQuadPayloadWordOffset.Alpha] !== fround(alpha))
+			changeMask |= GraphicsOp2DDirtyFlag.State | GraphicsOp2DDirtyFlag.Geometry;
+		return changeMask;
+	}
+
 	private _createNativeObject(): RTGraphicsNativeOp | null {
 		let ctor = this._getNativeConstructor();
-		return ctor ? new ctor(null, this.commandIndex) : null;
+		return ctor ? new ctor(null, this.commandIndex, this._buffer) : null;
 	}
 
 	private _getNativeConstructor(): RTGraphicsNativeCtor | null {
@@ -269,20 +336,6 @@ export abstract class RTGraphicsOp2D implements IGraphicsOp2D {
 		return null;
 	}
 
-	protected _toNativeTextureArray(textures: ReadonlyArray<GraphicsOp2DTextureHost>, target: NativeHandle[] = []): NativeHandle[] {
-		let nativeTextures = target;
-		nativeTextures.length = textures.length;
-		for (let i = 0, n = textures.length; i < n; i++)
-			nativeTextures[i] = getNativeTexture(textures[i] || null);
-		return nativeTextures;
-	}
-
-	protected _toNativeTextureIdArray(textures: ReadonlyArray<GraphicsOp2DTextureHost>, target: number[] = []): number[] {
-		target.length = textures.length;
-		for (let i = 0, n = textures.length; i < n; i++)
-			target[i] = getTextureId(textures[i] || null);
-		return target;
-	}
 }
 
 /** @internal */
@@ -291,18 +344,17 @@ export class RTGraphicsTextureQuadOp2D extends RTGraphicsOp2D implements IGraphi
 		super(kind, "textureQuad", GraphicsOpProfile.TextureQuadPixel, commandIndex, commandId, GraphicsQuadPayloadWordCount);
 	}
 
-	resetRecords(): void {
-		this.recordCount = 0;
-	}
-
 	writeRecord(x: number, y: number, width: number, height: number,
 		u0: number, v0: number, u1: number, v1: number,
 		packedColor: number, alpha: number, blendMode: number, textureLayer: number, matrix: Matrix | null, uvClip?: ArrayLike<number> | null): void {
-		let changeMask = GraphicsOp2DDirtyFlag.Geometry | GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.State;
-		writeQuadPayloadValues(this.float32, this.int32, this._bodyWordOffset, x, y, width, height, u0, v0, u1, v1, packedColor, alpha, blendMode, textureLayer, matrix, uvClip);
+		let changeMask = this._getQuadPayloadChangeMask(0, this._bodyWordOffset, x, y, width, height, u0, v0, u1, v1,
+			packedColor, alpha, blendMode, textureLayer, matrix, uvClip);
 		this.recordCount = 1;
-		this.markDirty(changeMask);
-		this._writeOpRenderStateBuffer(changeMask, ++this._version, 4, 6, blendMode, this.texture, false, packedColor, alpha, GraphicsQuadPayloadWordCount);
+		if (changeMask !== GraphicsOp2DDirtyFlag.None) {
+			writeQuadPayloadValues(this.float32, this.int32, this._bodyWordOffset, x, y, width, height, u0, v0, u1, v1, packedColor, alpha, blendMode, textureLayer, matrix, uvClip);
+			this.markDirty(changeMask);
+			this._writeOpRenderStateBuffer(changeMask, ++this._version, 4, 6, blendMode, this.texture, false, packedColor, alpha, GraphicsQuadPayloadWordCount);
+		}
 		this._syncNativePayloadIfNeeded();
 	}
 }
@@ -313,17 +365,16 @@ export class RTGraphicsSolidQuadOp2D extends RTGraphicsOp2D implements IGraphics
 		super(kind, "solidQuad", GraphicsOpProfile.SolidQuadPixel, commandIndex, commandId, GraphicsQuadPayloadWordCount);
 	}
 
-	resetRecords(): void {
-		this.recordCount = 0;
-	}
-
 	writeRecord(x: number, y: number, width: number, height: number,
 		packedColor: number, alpha: number, blendMode: number, matrix: Matrix | null): void {
-		let changeMask = GraphicsOp2DDirtyFlag.Geometry | GraphicsOp2DDirtyFlag.State;
-		writeQuadPayloadValues(this.float32, this.int32, this._bodyWordOffset, x, y, width, height, 0, 0, 0, 0, packedColor, alpha, blendMode, 0, matrix, null);
+		let changeMask = this._getQuadPayloadChangeMask(0, this._bodyWordOffset, x, y, width, height, 0, 0, 0, 0,
+			packedColor, alpha, blendMode, 0, matrix, null);
 		this.recordCount = 1;
-		this.markDirty(changeMask);
-		this._writeOpRenderStateBuffer(changeMask, ++this._version, 4, 6, blendMode, null, false, packedColor, alpha, GraphicsQuadPayloadWordCount);
+		if (changeMask !== GraphicsOp2DDirtyFlag.None) {
+			writeQuadPayloadValues(this.float32, this.int32, this._bodyWordOffset, x, y, width, height, 0, 0, 0, 0, packedColor, alpha, blendMode, 0, matrix, null);
+			this.markDirty(changeMask);
+			this._writeOpRenderStateBuffer(changeMask, ++this._version, 4, 6, blendMode, null, false, packedColor, alpha, GraphicsQuadPayloadWordCount);
+		}
 		this._syncNativePayloadIfNeeded();
 	}
 }
@@ -334,22 +385,22 @@ export class RTGraphicsFillTextureOp2D extends RTGraphicsOp2D implements IGraphi
 		super(kind, "fillTexture", GraphicsOpProfile.FillTexture, commandIndex, commandId, GraphicsQuadPayloadWordCount);
 	}
 
-	resetRecords(): void {
-		this.recordCount = 0;
-	}
-
 	writeRecord(x: number, y: number, width: number, height: number,
 		u0: number, v0: number, u1: number, v1: number,
 		repeatX: number, repeatY: number, offsetX: number, offsetY: number,
 		texRangeX: number, texRangeY: number, texRangeWidth: number, texRangeHeight: number,
 		packedColor: number, alpha: number, blendMode: number, textureLayer: number, matrix: Matrix | null, uvClip?: ArrayLike<number> | null): void {
-		let changeMask = GraphicsOp2DDirtyFlag.Geometry | GraphicsOp2DDirtyFlag.Texture | GraphicsOp2DDirtyFlag.State;
-		writeFillTexturePayloadValues(this.float32, this.int32, this._bodyWordOffset,
-			x, y, width, height, u0, v0, u1, v1, packedColor, alpha, blendMode, textureLayer, matrix,
-			repeatX, repeatY, offsetX, offsetY, texRangeX, texRangeY, texRangeWidth, texRangeHeight, uvClip);
+		let changeMask = this._getQuadPayloadChangeMask(0, this._bodyWordOffset, x, y, width, height, u0, v0, u1, v1,
+			packedColor, alpha, blendMode, textureLayer, matrix, uvClip,
+			repeatX, repeatY, offsetX, offsetY, texRangeX, texRangeY, texRangeWidth, texRangeHeight);
 		this.recordCount = 1;
-		this.markDirty(changeMask);
-		this._writeOpRenderStateBuffer(changeMask, ++this._version, 4, 6, blendMode, this.texture, true, packedColor, alpha, GraphicsQuadPayloadWordCount);
+		if (changeMask !== GraphicsOp2DDirtyFlag.None) {
+			writeFillTexturePayloadValues(this.float32, this.int32, this._bodyWordOffset,
+				x, y, width, height, u0, v0, u1, v1, packedColor, alpha, blendMode, textureLayer, matrix,
+				repeatX, repeatY, offsetX, offsetY, texRangeX, texRangeY, texRangeWidth, texRangeHeight, uvClip);
+			this.markDirty(changeMask);
+			this._writeOpRenderStateBuffer(changeMask, ++this._version, 4, 6, blendMode, this.texture, true, packedColor, alpha, GraphicsQuadPayloadWordCount);
+		}
 		this._syncNativePayloadIfNeeded();
 	}
 }
@@ -391,6 +442,11 @@ export class RTGraphicsMeshOp2D extends RTGraphicsOp2D implements IGraphicsMeshO
 		let bodyWordCount = colorDataOffset + colorWordCount;
 		let bodyOffset = this._bodyWordOffset;
 		this._reserveBufferWords(bodyWordCount);
+		if (this._meshPayloadMatches(bodyOffset, bodyWordCount, x, y, vertices, vertexOffset, vertexCount, uvs, uvOffset,
+			indices, indexOffset, indexCount, colors, colorOffset, packedColor, alpha, blendMode, textureLayer, matrix, uvClip)) {
+			this.recordCount = 1;
+			return;
+		}
 		writeMeshPayloadValues(this.float32, this.int32, bodyOffset,
 			x, y, packedColor, alpha, blendMode, textureLayer, matrix,
 			vertexCount, indexCount, !!uvs, !!colors,
@@ -408,6 +464,68 @@ export class RTGraphicsMeshOp2D extends RTGraphicsOp2D implements IGraphicsMeshO
 		this._syncNativePayloadIfNeeded();
 	}
 
+	private _meshPayloadMatches(bodyOffset: number, bodyWordCount: number,
+		x: number, y: number, vertices: ArrayLike<number>, vertexOffset: number, vertexCount: number,
+		uvs: ArrayLike<number> | null, uvOffset: number, indices: ArrayLike<number>, indexOffset: number, indexCount: number,
+		colors: ArrayLike<number> | null, colorOffset: number, packedColor: number, alpha: number, blendMode: number,
+		textureLayer: number, matrix: Matrix | null, uvClip?: ArrayLike<number> | null): boolean {
+		if (this._retainedRecordCount <= 0 && this.recordCount <= 0
+			|| this.dirtyFlags !== GraphicsOp2DDirtyFlag.None
+			|| this.int32[GraphicsOpInfoField.BodyWordCount] !== bodyWordCount)
+			return false;
+		let f32 = this.float32;
+		let i32 = this.int32;
+		let fround = Math.fround;
+		let vertexDataOffset = GraphicsMeshPayloadWordCount;
+		let uvDataOffset = vertexDataOffset + vertexCount * 2;
+		let indexDataOffset = uvDataOffset + (uvs ? vertexCount * 2 : 0);
+		let colorDataOffset = indexDataOffset + indexCount;
+		if (f32[bodyOffset + GraphicsMeshPayloadWordOffset.X] !== fround(x)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.Y] !== fround(y)
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.PackedColor] !== packedColor
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.Alpha] !== fround(alpha)
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.BlendMode] !== blendMode
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.TextureLayer] !== (textureLayer || 0)
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.HasMatrix] !== (matrix ? 1 : 0)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.MatrixA] !== fround(matrix ? matrix.a : 1)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.MatrixB] !== fround(matrix ? matrix.b : 0)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.MatrixC] !== fround(matrix ? matrix.c : 0)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.MatrixD] !== fround(matrix ? matrix.d : 1)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.MatrixTx] !== fround(matrix ? matrix.tx : 0)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.MatrixTy] !== fround(matrix ? matrix.ty : 0)
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.VertexCount] !== vertexCount
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.IndexCount] !== indexCount
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.HasUV] !== (uvs ? 1 : 0)
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.HasColors] !== (colors ? 1 : 0)
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.VertexDataOffset] !== vertexDataOffset
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.UVDataOffset] !== (uvs ? uvDataOffset : 0)
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.IndexDataOffset] !== indexDataOffset
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.ColorDataOffset] !== (colors ? colorDataOffset : 0)
+			|| i32[bodyOffset + GraphicsMeshPayloadWordOffset.UVClipEnabled] !== (uvClip ? 1 : 0)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.UVClipX] !== fround(uvClip ? uvClip[0] : 0)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.UVClipY] !== fround(uvClip ? uvClip[1] : 0)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.UVClipWidth] !== fround(uvClip ? uvClip[2] : 1)
+			|| f32[bodyOffset + GraphicsMeshPayloadWordOffset.UVClipHeight] !== fround(uvClip ? uvClip[3] : 1))
+			return false;
+		for (let i = 0, count = vertexCount * 2; i < count; i++) {
+			if (f32[bodyOffset + vertexDataOffset + i] !== fround(vertices[vertexOffset + i]))
+				return false;
+			if (uvs && f32[bodyOffset + uvDataOffset + i] !== fround(uvs[uvOffset + i]))
+				return false;
+		}
+		for (let i = 0; i < indexCount; i++) {
+			if (i32[bodyOffset + indexDataOffset + i] !== (indices[indexOffset + i] | 0))
+				return false;
+		}
+		if (colors) {
+			for (let i = 0, count = vertexCount * 4; i < count; i++) {
+				if (f32[bodyOffset + colorDataOffset + i] !== fround(colors[colorOffset + i]))
+					return false;
+			}
+		}
+		return true;
+	}
+
 	private _copyNumberValues(source: ArrayLike<number>, sourceOffset: number, target: Float32Array | Int32Array, targetOffset: number, count: number): void {
 		for (let i = 0; i < count; i++)
 			target[targetOffset + i] = source[sourceOffset + i];
@@ -417,10 +535,7 @@ export class RTGraphicsMeshOp2D extends RTGraphicsOp2D implements IGraphicsMeshO
 /** @internal */
 export class RTGraphicsMultiQuadOp2D extends RTGraphicsOp2D implements IGraphicsMultiQuadOp2D {
 	textures: GraphicsOp2DTextureHost[] = [];
-	private _textureGroupSignature: string = "";
-	private _textureGroupStarts: number[] = [];
-	private _textureGroupCounts: number[] = [];
-	private _textureGroupTextures: GraphicsOp2DTextureHost[] = [];
+	private _textureGroupLayoutVersion: number = 0;
 	private _nativeTextures: NativeHandle[] = [];
 	private _nativeTextureIds: number[] = [];
 
@@ -428,91 +543,100 @@ export class RTGraphicsMultiQuadOp2D extends RTGraphicsOp2D implements IGraphics
 		super(kind, opType, opProfile, commandIndex, commandId, GraphicsQuadPayloadWordCount);
 	}
 
-	resetRecords(): void {
-		this.recordCount = 0;
+	writeStructureSignature(out: Int32Array, offset: number): void {
+		super.writeStructureSignature(out, offset);
+		out[offset + 3] = this._textureGroupLayoutVersion;
+	}
+
+	matchesStructureSignature(source: Int32Array, offset: number): boolean {
+		return this.int32[GraphicsOpInfoField.VertexCount] === source[offset]
+			&& this.int32[GraphicsOpInfoField.IndexCount] === source[offset + 1]
+			&& this.int32[GraphicsOpInfoField.BodyWordCount] === source[offset + 2]
+			&& this._textureGroupLayoutVersion === source[offset + 3];
 	}
 
 	setTextures(textures: ReadonlyArray<GraphicsOp2DTextureHost>, count: number = textures ? textures.length : 0): void {
-		let changed = this.textures.length !== count;
+		let previousCount = this.textures.length;
+		let changed = previousCount !== count;
+		let groupChanged = previousCount !== count;
+		let nativeArrayChanged = this._nativeTextureArray.length !== count || this._nativeTextureIdArray.length !== count;
+		let previousOldTexture: GraphicsOp2DTextureHost = null;
+		let previousNewTexture: GraphicsOp2DTextureHost = null;
+		this._nativeTextures.length = count;
+		this._nativeTextureIds.length = count;
 		for (let i = 0; i < count; i++) {
+			let oldTexture = this.textures[i] || null;
 			let texture = textures[i] || null;
-			if (this.textures[i] !== texture)
+			if (oldTexture !== texture)
 				changed = true;
+			if (i > 0 && (oldTexture !== previousOldTexture) !== (texture !== previousNewTexture))
+				groupChanged = true;
 			this.textures[i] = texture;
+			previousOldTexture = oldTexture;
+			previousNewTexture = texture;
+			let nativeTexture = getNativeTexture(texture);
+			let textureId = getTextureId(texture);
+			this._nativeTextures[i] = nativeTexture;
+			this._nativeTextureIds[i] = textureId;
+			if (this._nativeTextureArray[i] !== nativeTexture || this._nativeTextureIdArray[i] !== textureId)
+				nativeArrayChanged = true;
 		}
 		this.textures.length = count;
 		let firstTexture = count > 0 ? this.textures[0] : null;
-		if (this.texture !== firstTexture)
+		let firstTextureChanged = this.texture !== firstTexture || this._textureInternal !== (firstTexture ? firstTexture._texture : null);
+		if (firstTextureChanged)
 			changed = true;
 		this._setTexture(firstTexture, false);
-		this._refreshOpRenderStateBuffer(false);
-		let nativeArrayChanged = this._syncNativeTextureArrayIfChanged(
-			this._toNativeTextureArray(this.textures, this._nativeTextures),
-			this._toNativeTextureIdArray(this.textures, this._nativeTextureIds));
-		let groupChanged = this._updateTextureGroupSignature();
+		if (firstTextureChanged)
+			this._refreshOpRenderStateBuffer(false);
+		let payloadChanged = this._nativePayloadBuffer !== this.buffer;
+		if (nativeArrayChanged) {
+			if (this._nativeObj) {
+				if (payloadChanged) {
+					this._nativeObj.finalizePayloadAndTextures(this.buffer, this._nativeTextures, this._nativeTextureIds);
+					this._nativePayloadBuffer = this.buffer;
+				}
+				else {
+					this._nativeObj.setTextureArray(this._nativeTextures, this._nativeTextureIds);
+				}
+			}
+			let previousNativeTextures = this._nativeTextureArray;
+			let previousNativeTextureIds = this._nativeTextureIdArray;
+			this._nativeTextureArray = this._nativeTextures;
+			this._nativeTextureIdArray = this._nativeTextureIds;
+			this._nativeTextures = previousNativeTextures;
+			this._nativeTextureIds = previousNativeTextureIds;
+		}
 		if (changed || nativeArrayChanged)
 			this.markDirty(GraphicsOp2DDirtyFlag.Texture);
-		if (groupChanged)
+		if (groupChanged) {
+			this._textureGroupLayoutVersion++;
 			this.markDirty(GraphicsOp2DDirtyFlag.Structure);
-		this._syncNativePayloadIfNeeded();
+		}
+		if (!nativeArrayChanged || !payloadChanged)
+			this._syncNativePayloadIfNeeded();
 	}
 
 	addRecord(x: number, y: number, width: number, height: number,
 		u0: number, v0: number, u1: number, v1: number,
 		packedColor: number, alpha: number, blendMode: number, textureLayer: number, matrix: Matrix | null, uvClip?: ArrayLike<number> | null): void {
-		let recordIndex = this.recordCount++;
-		let bodyWordCount = this.recordCount * GraphicsQuadPayloadWordCount;
+		let recordIndex = this.recordCount;
+		let bodyWordCount = (this.recordCount + 1) * GraphicsQuadPayloadWordCount;
 		this._reserveBufferWords(bodyWordCount);
-		writeQuadPayloadValues(this.float32, this.int32, this._bodyWordOffset + recordIndex * GraphicsQuadPayloadWordCount,
-			x, y, width, height, u0, v0, u1, v1, packedColor, alpha, blendMode, textureLayer, matrix, uvClip);
-		let changeMask = GraphicsOp2DDirtyFlag.Geometry | GraphicsOp2DDirtyFlag.State;
-		this.markDirty(changeMask);
-		this._writeOpRenderStateBuffer(changeMask, ++this._version, this.recordCount * 4, this.recordCount * 6, blendMode, this.texture, false, packedColor, alpha, bodyWordCount);
-		this._syncNativePayloadIfNeeded();
+		let wordOffset = this._bodyWordOffset + recordIndex * GraphicsQuadPayloadWordCount;
+		let changeMask = this._getQuadPayloadChangeMask(recordIndex, wordOffset, x, y, width, height, u0, v0, u1, v1,
+			packedColor, alpha, blendMode, textureLayer, matrix, uvClip);
+		if (changeMask !== GraphicsOp2DDirtyFlag.None)
+			writeQuadPayloadValues(this.float32, this.int32, wordOffset,
+				x, y, width, height, u0, v0, u1, v1, packedColor, alpha, blendMode, textureLayer, matrix, uvClip);
+		this.recordCount++;
+		if (changeMask !== GraphicsOp2DDirtyFlag.None) {
+			this.markDirty(changeMask);
+			this._version++;
+		}
+		this._writeOpRenderStateBuffer(this.dirtyFlags, this._version, this.recordCount * 4, this.recordCount * 6, blendMode, this.texture, false, packedColor, alpha, bodyWordCount);
 	}
 
-	private _updateTextureGroupSignature(): boolean {
-		let groupIndex = 0;
-		let start = 0;
-		let currentTexture: GraphicsOp2DTextureHost = null;
-		let changed = false;
-		for (let i = 0, n = this.recordCount; i < n; i++) {
-			let texture = this.textures[i] || null;
-			if (i === 0) {
-				currentTexture = texture;
-				continue;
-			}
-			if (texture !== currentTexture) {
-				if (this._textureGroupStarts[groupIndex] !== start || this._textureGroupCounts[groupIndex] !== i - start || this._textureGroupTextures[groupIndex] !== currentTexture)
-					changed = true;
-				this._textureGroupStarts[groupIndex] = start;
-				this._textureGroupCounts[groupIndex] = i - start;
-				this._textureGroupTextures[groupIndex] = currentTexture;
-				groupIndex++;
-				start = i;
-				currentTexture = texture;
-			}
-		}
-		if (this.recordCount > 0) {
-			if (this._textureGroupStarts[groupIndex] !== start || this._textureGroupCounts[groupIndex] !== this.recordCount - start || this._textureGroupTextures[groupIndex] !== currentTexture)
-				changed = true;
-			this._textureGroupStarts[groupIndex] = start;
-			this._textureGroupCounts[groupIndex] = this.recordCount - start;
-			this._textureGroupTextures[groupIndex] = currentTexture;
-			groupIndex++;
-		}
-		if (this._textureGroupStarts.length !== groupIndex)
-			changed = true;
-		this._textureGroupStarts.length = groupIndex;
-		this._textureGroupCounts.length = groupIndex;
-		this._textureGroupTextures.length = groupIndex;
-		let signature = `${this.recordCount}:${groupIndex}`;
-		if (this._textureGroupSignature !== signature) {
-			this._textureGroupSignature = signature;
-			changed = true;
-		}
-		return changed;
-	}
 }
 
 /** @internal */

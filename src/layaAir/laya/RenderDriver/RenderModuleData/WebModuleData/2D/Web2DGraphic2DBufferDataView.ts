@@ -1,6 +1,6 @@
 import { GraphicsDefines } from "../../../../webgl/shader/d2/GraphicsDefines";
 import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
-import { Web2DGraphicsIndexBatchBuffer, Web2DGraphicsIndexBuffer, Web2DGraphicsVertexBuffer, Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBuffer";
+import { Web2DGraphicsIndexBuffer, Web2DGraphicsVertexBuffer, Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBuffer";
 import { WebRender2DPass } from "./WebRender2DPass";
 
 export abstract class Web2DGraphicsBufferDataView {
@@ -105,31 +105,6 @@ export class Web2DGraphic2DIndexDataView extends Web2DGraphicsBufferDataView {
         WebRender2DPass.setBuffer(this.owner);
     }
 
-    /**
-     * 只有 IB 的能clone
-     * @param cloneOwner 
-     * @param create 
-     * @returns 
-     */
-    _clone(cloneOwner = true, create = true) {
-        let owner = cloneOwner ? this.owner : null
-        // start 不确定， length 是固定的
-        let nview = new Web2DGraphic2DIndexCloneDataView(owner, this.length, create);
-        if (!create) {
-            this._cloneView(nview);
-        }
-        return nview;
-    }
-
-    /**
-     * 克隆视图
-     * @param view 
-     */
-    _cloneView(view: Web2DGraphic2DIndexDataView) {
-        view._view = this._view;
-        view.length = this.length;
-    }
-
     destroy(): void {
         this._view = null;
         this._geometry = null;
@@ -137,45 +112,4 @@ export class Web2DGraphic2DIndexDataView extends Web2DGraphicsBufferDataView {
         this._next = null;
         this._prev = null;
     }
-}
-
-export class Web2DGraphic2DIndexCloneDataView extends Web2DGraphic2DIndexDataView {
-    /** @internal */
-    // private static _idCounter = 0;
-    declare owner: Web2DGraphicsIndexBatchBuffer;
-    declare _next: Web2DGraphic2DIndexCloneDataView;
-    declare _prev: Web2DGraphic2DIndexCloneDataView;
-
-    /** @internal */
-    // _lastWholeData: Uint16Array;
-    // /** @internal */
-    // _lastStart: number = -1;
-    // /** @internal */
-    // _id = ++ Web2DGraphic2DIndexCloneDataView._idCounter;
-
-    // 更新数据视图
-    // _updateCloneView(wholeData: Uint16Array , mask:Record<number , number>) {
-    //     if (
-    //         this._lastWholeData !== wholeData
-    //         || this._lastStart !== this.start
-    //         || this._id != mask[this.start]
-    //     ) {
-    //         wholeData.set(this._view, this.start);
-    //         this._lastWholeData = wholeData;
-    //         this._lastStart = this.start;
-    //         mask[this.start] = this._id;
-    //         return true;
-    //     }
-
-    //     return false;
-    // }
-
-    destroy(): void {
-        super.destroy();
-        // this._lastWholeData = null;
-        // this._lastStart = 0;
-        // this._next = null;
-        // this._prev = null;
-    }
-
 }

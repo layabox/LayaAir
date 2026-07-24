@@ -20,13 +20,14 @@ import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderG
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import type { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { IClipInfo, IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
-import { I2DBaseRenderDataHandle, I2DGlobalRenderData, I2DPrimitiveDataHandle, IGraphicsOp2D, IMesh2DRenderDataHandle, IRender2DDataHandle } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DBaseRenderDataHandle, I2DGlobalRenderData, IGraphicsSingleQuadDataHandle, IGraphicsCommandStreamDataHandle, ISubStructRenderDataHandle, IGraphicsOp2D, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { Stat } from "../../../utils/Stat";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { RenderState2D } from "../../../webgl/utils/RenderState2D";
 import { PostProcess2D } from "../../../display/PostProcess2D";
 import { FastSinglelist } from "../../../utils/SingletonList";
+import { GraphicsHandleUpdateField } from "../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
 
 // ─── Global Render Data ───
 
@@ -66,26 +67,12 @@ export class NoRenderEmptyDataHandle extends NoRenderDataHandleBase {
     destroy(): void { }
 }
 
-export class NoRenderPrimitiveDataHandle extends NoRenderDataHandleBase implements I2DPrimitiveDataHandle {
+export class NoRenderSubStructDataHandle extends NoRenderDataHandleBase implements ISubStructRenderDataHandle {
     logicMatrix: Matrix | null = null;
     mask: NoRenderStruct2D | null = null;
 
     private _modifiedFrame: number = -1;
     private _globalAlpha: number = 1;
-    private _graphicsSubShader: SubShader | null = null;
-    private _graphicsShaderData: ShaderData | null = null;
-
-    setGraphicsHandleUpdateBuffer(_buffer: ArrayBuffer): void {
-    }
-
-    setGraphicsMaterialState(subShader: SubShader | null, shaderData: ShaderData | null, _useSpriteState: boolean): void {
-        this._graphicsSubShader = subShader || null;
-        this._graphicsShaderData = shaderData || null;
-    }
-
-    syncGraphicsOps(_ops: ReadonlyArray<IGraphicsOp2D>): void {
-    }
-
     inheriteRenderData(context: IRenderContext2D): void {
         let data = this._owner.spriteShaderData;
         if (!data) return;
@@ -111,11 +98,76 @@ export class NoRenderPrimitiveDataHandle extends NoRenderDataHandleBase implemen
         }
     }
 
-    destroy(): void {
-        this._graphicsSubShader = null;
-        this._graphicsShaderData = null;
-        super.destroy();
-    }
+}
+
+export class NoRenderGraphicsSingleQuadDataHandle extends NoRenderDataHandleBase implements IGraphicsSingleQuadDataHandle {
+	private _graphicsSubShader: SubShader | null = null;
+	private _graphicsShaderData: ShaderData | null = null;
+	private _singleQuadPayloadBuffer: ArrayBuffer = null;
+
+	setGraphicsHandleUpdateBuffer(_buffer: ArrayBuffer): void {
+	}
+
+	setGraphicsMaterialState(subShader: SubShader | null, shaderData: ShaderData | null, _useSpriteState: boolean): void {
+		this._graphicsSubShader = subShader || null;
+		this._graphicsShaderData = shaderData || null;
+	}
+
+	setSingleQuadPayloadBuffer(buffer: ArrayBuffer): void {
+		if (this._singleQuadPayloadBuffer === buffer)
+			return;
+		if (this._singleQuadPayloadBuffer)
+			throw new Error("SingleQuad payload buffer can only be bound once");
+		this._singleQuadPayloadBuffer = buffer;
+	}
+
+	syncSingleQuad(_texture: BaseTexture | null): boolean {
+		return !!this._singleQuadPayloadBuffer;
+	}
+
+	deactivateSingleQuad(): void {
+	}
+
+	destroy(): void {
+		this._graphicsSubShader = null;
+		this._graphicsShaderData = null;
+		this._singleQuadPayloadBuffer = null;
+		super.destroy();
+	}
+}
+
+export class NoRenderGraphicsCommandStreamDataHandle extends NoRenderDataHandleBase implements IGraphicsCommandStreamDataHandle {
+	readonly autoGraphicsDirtySync: boolean = false;
+	private _graphicsSubShader: SubShader | null = null;
+	private _graphicsShaderData: ShaderData | null = null;
+	private _graphicsHandleUpdateInt32: Int32Array = null;
+
+	setGraphicsHandleUpdateBuffer(buffer: ArrayBuffer): void {
+		this._graphicsHandleUpdateInt32 = buffer ? new Int32Array(buffer) : null;
+	}
+
+	setGraphicsMaterialState(subShader: SubShader | null, shaderData: ShaderData | null, _useSpriteState: boolean): void {
+		this._graphicsSubShader = subShader || null;
+		this._graphicsShaderData = shaderData || null;
+	}
+
+	syncGraphicsOps(_ops: ReadonlyArray<IGraphicsOp2D>): void {
+		let update = this._graphicsHandleUpdateInt32;
+		if (!update)
+			return;
+		update[GraphicsHandleUpdateField.HandledTopologyVersion] = update[GraphicsHandleUpdateField.TopologyVersion];
+		update[GraphicsHandleUpdateField.HandledVersion] = update[GraphicsHandleUpdateField.UpdateVersion];
+	}
+
+	deactivateGraphicsOps(): void {
+	}
+
+	destroy(): void {
+		this._graphicsSubShader = null;
+		this._graphicsShaderData = null;
+		this._graphicsHandleUpdateInt32 = null;
+		super.destroy();
+	}
 }
 
 export class NoRenderBaseDataHandle extends NoRenderDataHandleBase implements I2DBaseRenderDataHandle {

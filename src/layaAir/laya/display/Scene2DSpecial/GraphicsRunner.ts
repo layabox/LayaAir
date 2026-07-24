@@ -19,7 +19,6 @@ import { Earcut } from "../../webgl/shapes/Earcut";
 import { SubmitBase } from "../../webgl/submit/SubmitBase";
 import { TextRender } from "../../webgl/text/TextRender";
 import { Sprite } from "../Sprite";
-import type { GraphicsRenderer } from "./GraphicsRenderPipeline/GraphicsRenderer";
 import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { LayaGL } from "../../layagl/LayaGL";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
@@ -60,7 +59,6 @@ export class GraphicsRunner {
 	private _fillPathScratch: number[] = [];
 	private _fillIndexScratch: number[] = [];
 	private _drawState: SubmitBase = new SubmitBase();
-	_renderer: GraphicsRenderer = null;	// current render data used by shader path
 	private _transedPoints: number[] = new Array(8);
 	private _temp4Points: number[] = new Array(8);
 
@@ -668,7 +666,6 @@ export class GraphicsRunner {
         if (!this._getImageSource(texture)) {
             return;
         }
-        this._renderer.addResRef(texture);
         this._fillTexture(texture, texture.width, texture.height, texture.uvrect, x, y, width, height, type, offset.x, offset.y, color);
     }
 
@@ -756,7 +753,6 @@ export class GraphicsRunner {
             return;
         }
 
-        this._renderer.addResRef(tex);
         //TODO 还没实现
         var n = pos.length / 2;
         var ipos = 0;
@@ -773,7 +769,6 @@ export class GraphicsRunner {
         if (!this._getImageSource(tex)) { //source内调用tex.active();
             return false;
         }
-        this._renderer.addResRef(tex);
         return this._inner_drawTexture(tex, (tex.bitmap as Texture2D).id, x, y, width, height, m, uv, alpha, color);
     }
 
@@ -1014,7 +1009,6 @@ export class GraphicsRunner {
             if (!this._getImageSource(tex)) { //source内调用tex.active();
                 return;
             }
-            this._renderer.addResRef(tex);
         }
 
         if (alpha == null) alpha = 1.0;

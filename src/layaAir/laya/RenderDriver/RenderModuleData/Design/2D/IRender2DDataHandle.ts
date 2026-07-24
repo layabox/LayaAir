@@ -34,12 +34,15 @@ export interface IGraphicsOp2D {
     readonly opProfile: GraphicsOpProfile;
     readonly commandIndex: number;
     readonly commandId: GraphicsCommandId;
+    setCommandIndex(value: number): void;
     texture: GraphicsOp2DTextureHost | null;
     readonly buffer: ArrayBuffer;
     dirtyFlags: GraphicsOp2DDirtyFlag;
     canUpdate(commandId: GraphicsCommandId): boolean;
     resetRecords(): void;
-    getStructureKey(): string;
+    writeStructureSignature(out: Int32Array, offset: number): void;
+    matchesStructureSignature(source: Int32Array, offset: number): boolean;
+    clearStructureDirty(): void;
     markDirty(flags: GraphicsOp2DDirtyFlag): void;
     clearDirty(): void;
     clearDirtyFlagsOnly?(): void;
@@ -144,9 +147,9 @@ export interface IGraphicsOp2DFactory {
 }
 
 export interface IGraphicsOp2DHandle {
-    setGraphicsHandleUpdateBuffer?(buffer: ArrayBuffer): void;
+    setGraphicsHandleUpdateBuffer(buffer: ArrayBuffer): void;
     setGraphicsMaterialState(subShader: SubShader | null, shaderData: ShaderData | null, useSpriteState: boolean): void;
-    readonly autoGraphicsDirtySync?: boolean;
+    readonly autoGraphicsDirtySync: boolean;
     syncGraphicsOps(ops: ReadonlyArray<IGraphicsOp2D>): void;
 }
 
@@ -176,9 +179,33 @@ export interface I2DGlobalRenderData {
  * @zh Primitive 渲染数据处理接口。
  * @blueprintIgnore
  */
-export interface I2DPrimitiveDataHandle extends IRender2DDataHandle, IGraphicsOp2DHandle {
+export interface ISubStructRenderDataHandle extends IRender2DDataHandle {
     mask: IRenderStruct2D | null;
     logicMatrix: Matrix | null;
+}
+
+/**
+ * @internal Graphics-only primitive data handle.
+ * @blueprintIgnore
+ */
+export interface IGraphicsSingleQuadDataHandle extends IRender2DDataHandle {
+    setGraphicsHandleUpdateBuffer(buffer: ArrayBuffer): void;
+    setGraphicsMaterialState(subShader: SubShader | null, shaderData: ShaderData | null, useSpriteState: boolean): void;
+    /** @internal Bind the renderer-owned fixed SingleQuad payload once. */
+    setSingleQuadPayloadBuffer(buffer: ArrayBuffer): void;
+    /** @internal Submit the already-resolved texture resource for the fixed SingleQuad payload. */
+    syncSingleQuad(texture: BaseTexture | null): boolean;
+    /** @internal Deactivate SingleQuad and return its render unit to the backend pool. */
+    deactivateSingleQuad(): void;
+}
+
+/**
+ * @internal Graphics CommandStream data handle.
+ * @blueprintIgnore
+ */
+export interface IGraphicsCommandStreamDataHandle extends IRender2DDataHandle, IGraphicsOp2DHandle {
+    /** @internal Deactivate CommandStream and return its render units to the backend pool. */
+    deactivateGraphicsOps(): void;
 }
 
 /**

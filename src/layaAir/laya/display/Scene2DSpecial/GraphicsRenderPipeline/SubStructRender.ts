@@ -5,7 +5,7 @@ import { Rectangle } from "../../../maths/Rectangle";
 import { Vector4 } from "../../../maths/Vector4";
 import { IPrimitiveRenderElement2D } from "../../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { I2DPrimitiveDataHandle } from "../../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { ISubStructRenderDataHandle } from "../../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass } from "../../../RenderDriver/RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
@@ -27,7 +27,7 @@ export class SubStructRender {
    /** @internal 模拟sprite shaderdata */
    private _spriteShaderData: ShaderData = null;
    private _primitiveShaderData: ShaderData = null;
-   private _handle: I2DPrimitiveDataHandle = null;
+   private _handle: ISubStructRenderDataHandle = null;
    private _blendMode: number = -1;
    private _textureHost: RenderTexture2D = null;
    private _vertexSize: Vector4 = new Vector4();
@@ -46,7 +46,7 @@ export class SubStructRender {
       this._spriteShaderData = LayaGL.renderDeviceFactory.createShaderData();
       this._primitiveShaderData = LayaGL.renderDeviceFactory.createShaderData();
       this._initPrimitiveShaderData();
-      this._handle = LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle();
+      this._handle = LayaGL.render2DRenderPassFactory.createSubStructRenderDataHandle();
       this._renderElement = LayaGL.render2DRenderPassFactory.createPrimitiveRenderElement2D();
       this._renderElement.value2DShaderData = this._spriteShaderData;
       this._renderElement.subShader = Shader2D.graphicsShader.getSubShaderAt(0);

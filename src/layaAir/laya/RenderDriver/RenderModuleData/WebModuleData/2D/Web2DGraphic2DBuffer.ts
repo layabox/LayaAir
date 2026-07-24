@@ -1,8 +1,9 @@
 import { Vector2 } from "../../../../maths/Vector2";
 import { GraphicsDefines } from "../../../../webgl/shader/d2/GraphicsDefines";
 import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
+import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
-import { Web2DGraphicsBufferDataView, Web2DGraphic2DVertexDataView, Web2DGraphic2DIndexDataView, Web2DGraphic2DIndexCloneDataView } from "./Web2DGraphic2DBufferDataView";
+import { Web2DGraphicsBufferDataView, Web2DGraphic2DVertexDataView, Web2DGraphic2DIndexDataView } from "./Web2DGraphic2DBufferDataView";
 
 export abstract class Web2DGraphicWholeBuffer {
     buffer: IIndexBuffer | IVertexBuffer;
@@ -256,13 +257,56 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
 
 export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
 
-    declare _first: Web2DGraphic2DIndexCloneDataView;
-    declare _last: Web2DGraphic2DIndexCloneDataView;
+    private _batchData: Uint16Array | Uint32Array;
+    private _uploadData: Uint16Array | Uint32Array;
+    private _writeLength: number = 0;
     /** @internal */
     // _uploadMask: Record<number, number> = {};
 
+    /** @internal */
+    appendIndexData(data: Uint16Array | Uint32Array, geometry: IRenderGeometryElement): number {
+        let start = this._writeLength;
+        let end = start + data.length;
+        this._ensureBatchData(end);
+        this._batchData.set(data, start);
+        this._writeLength = end;
+        this._updateRange.x = Math.min(start, this._updateRange.x);
+        this._updateRange.y = Math.max(end, this._updateRange.y);
+
+        if (geometry) {
+            geometry.clearRenderParams();
+            geometry.setDrawElemenParams(data.length, start * GraphicsDefines.GRAPHICS_INDEX_BYTE_SIZE);
+        }
+        return start;
+    }
+
+    private _ensureBatchData(requiredLength: number): void {
+        let arrayType = GraphicsDefines.GRAPHICS_INDEX_ARRAY_TYPE;
+        let batchData = this._batchData;
+        if (batchData && batchData.length >= requiredLength && (batchData as any).constructor === arrayType)
+            return;
+
+        let capacity = batchData && (batchData as any).constructor === arrayType
+            ? Math.max(requiredLength, batchData.length * 2)
+            : requiredLength;
+        let newData = new arrayType(capacity);
+        if (batchData && (batchData as any).constructor === arrayType)
+            newData.set(batchData);
+        this._batchData = newData;
+        this._uploadData = null;
+    }
+
+    private _getUploadData(length: number): Uint16Array | Uint32Array {
+        let uploadData = this._uploadData;
+        if (!uploadData || uploadData.buffer !== this._batchData.buffer || uploadData.length !== length) {
+            let arrayType = GraphicsDefines.GRAPHICS_INDEX_ARRAY_TYPE;
+            this._uploadData = uploadData = new arrayType(this._batchData.buffer, 0, length);
+        }
+        return uploadData;
+    }
+
     _upload() {
-        if (!this._num) {
+        if (!this._writeLength) {
             this._needResetData = false;
             this._updateRange.setValue(100000000, -100000000);
             return;
@@ -273,37 +317,25 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
 
         let indexByteSize = GraphicsDefines.GRAPHICS_INDEX_BYTE_SIZE;
         let uploadStart = this._needResetData ? 0 : this._updateRange.x;
-        let totalLength = this._last.start + this._last.length;
+        let uploadEnd = Math.min(this._writeLength, this._updateRange.y);
 
-        uploadStart = Math.max(0, Math.min(uploadStart, totalLength));
+        uploadStart = Math.max(0, Math.min(uploadStart, uploadEnd));
 
-        this._uploadScratchRange(uploadStart, totalLength, indexByteSize);
+        if (uploadEnd > uploadStart) {
+            if (uploadStart === 0) {
+                this.buffer._setIndexData(this._getUploadData(uploadEnd), 0);
+            } else {
+                let uploadByteStart = uploadStart * indexByteSize;
+                let alignedByteStart = Math.floor(uploadByteStart / 4) * 4;
+                let dataLength = uploadEnd * indexByteSize - alignedByteStart;
+                this.buffer.setData(this._batchData.buffer as ArrayBuffer, alignedByteStart, alignedByteStart, dataLength);
+            }
+        }
         this._needResetData = false;
         this._updateRange.setValue(100000000, -100000000);
 
     }
 
-    _modifyOneView(view: Web2DGraphic2DIndexCloneDataView): void {
-
-        if (view.owner === this && (view._prev || view._next || this._first === view || this._last === view))
-            this.removeDataView(view);
-        this.addDataView(view);
-
-        // let startTimer = Date.now();
-        super._modifyOneView(view);
-        // let modifyOneViewTime = Date.now();
-        // TimeStatistics.instance.addToFrameTime("Web2DGraphic2DBuffer.super._modifyOneView", modifyOneViewTime - startTimer);
-        if (view._geometry) {
-            view._geometry.clearRenderParams();
-            // let clearRenderParamsTime = Date.now();
-            // TimeStatistics.instance.addToFrameTime("Web2DGraphic2DBuffer.clearRenderParams", clearRenderParamsTime - modifyOneViewTime);
-            view._geometry.setDrawElemenParams(view.length, view.start * GraphicsDefines.GRAPHICS_INDEX_BYTE_SIZE);
-            // let setDrawElemenParamsTime = Date.now();
-            // TimeStatistics.instance.addToFrameTime("Web2DGraphic2DBuffer.setDrawElemenParams", setDrawElemenParamsTime - clearRenderParamsTime);
-            // TimeStatistics.instance.addToFrameTime("Web2DGraphic2DBuffer._modifyOneView", setDrawElemenParamsTime - startTimer);
-        }
-    }
-    
     clearBufferViews() {//不清理,添加时处理
         let view = this._first;
         while (view) {
@@ -316,10 +348,18 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
         this._first = null;
         this._last = null;
         this._num = 0;
+        this._writeLength = 0;
         this._updateRange.setValue(100000000, -100000000);
     }
 
     _resetData(byteLength: number) {
         super.resetData(byteLength);
+    }
+
+    destroy(): void {
+        this._batchData = null;
+        this._uploadData = null;
+        this._writeLength = 0;
+        super.destroy();
     }
 }

@@ -1,167 +1,249 @@
-import { Event } from "../../../events/Event";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { IPrimitiveRenderElement2D } from "../../../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
-import { GraphicsInfoDirtyFlag, I2DPrimitiveDataHandle, IGraphicsOp2D, IGraphicsTextureQuadOp2D } from "../../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { GraphicsInfoDirtyFlag, IGraphicsSingleQuadDataHandle, IGraphicsCommandStreamDataHandle, IRender2DDataHandle } from "../../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRenderStruct2D } from "../../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
-import { Resource } from "../../../resource/Resource";
-import { BaseTexture } from "../../../resource/BaseTexture";
 import { Texture } from "../../../resource/Texture";
 import { Graphics } from "../../Graphics";
 import { Sprite } from "../../Sprite";
 import { BaseRender2DType, SpriteConst, TransformKind } from "../../SpriteConst";
 import { SpriteGlobalTransform } from "../../SpriteGlobaTransform";
+import { Event } from "../../../events/Event";
 import { DrawTextureCmd } from "../../cmd/DrawTextureCmd";
 import type { IGraphicsCmd } from "../../IGraphics";
 import {
 	GraphicsHandleDirtyFlag,
 	GraphicsHandleUpdateField,
+	GraphicsCommandPatchResult,
+	GraphicsOp2DDirtyFlag,
 	GraphicsOwnerTransformDependency,
-	GraphicsRefreshAction,
+	GraphicsRenderMode,
 } from "./GraphicsPipelineTypes";
-import { GraphicsCommandTracker } from "./GraphicsCommandTracker";
-import { GraphicsCommandOpEncoder, GraphicsCommandOpEncoderHost } from "./GraphicsCommandOpEncoder";
-import { GraphicsOp2DList } from "./GraphicsOp2DList";
+import { GraphicsCommandStreamMode } from "./GraphicsCommandStreamMode";
 import { GraphicsRunner } from "../GraphicsRunner";
-import { GraphicsOp2DDirtyFlag, GraphicsOp2DKind } from "./GraphicsPipelineTypes";
 import { GraphicsOpRenderStateHelper } from "./GraphicsPipelineHelpers";
-import { Render2DProcessor } from "../../Render2DProcessor";
+import { GraphicsSingleQuadMode } from "./GraphicsSingleQuadMode";
 
-/** @internal */
-export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
-
-   static __init__(): void {
-   }
-
+/**
+ * Graphics render-boundary coordinator.
+ *
+ * Flow:
+ * 1. Classify Empty / SingleQuad / CommandStream from the final frame state.
+ * 2. Attach exactly one mode-owned data handle and synchronize shared material/owner data.
+ * 3. Let SingleQuad submit its fixed payload, or let CommandStream patch/rewrite/rebuild retained Ops.
+ * 4. Commit the submitted mode/version only after its handle has been published.
+ *
+ * Renderer does not assemble command payloads or own retained Ops.
+ * @internal
+ */
+export class GraphicsRenderer {
    static _emptyList: IPrimitiveRenderElement2D[] = [];
    owner: Sprite;
 
    _struct: IRenderStruct2D;
 
-   texturesMap: Map<number, {
-      texture: Texture;
-      bitmap: BaseTexture;
-      time:number;
-   }> = new Map();
-
    _display: boolean = false;
    /** @internal Whether the current display state has been applied to the render struct. */
    private _structDisplay: boolean = false;
 
-   private _renderDataHandle: I2DPrimitiveDataHandle;
-   private _handleUpdateBuffer: ArrayBuffer = new ArrayBuffer(GraphicsHandleUpdateField.WordCount * 4);
-   private _handleUpdateInt32: Int32Array = new Int32Array(this._handleUpdateBuffer);
-   private _handleUpdateFloat32: Float32Array = new Float32Array(this._handleUpdateBuffer);
-   private _opListBuilder: GraphicsOp2DList;
-   private _commandOpEncoder: GraphicsCommandOpEncoder;
-   private _commandTracker: GraphicsCommandTracker = new GraphicsCommandTracker();
-   private _commandOps: IGraphicsOp2D[] = [];
+   private _handleControlBuffer: ArrayBuffer = null;
+   private _handleControlInt32: Int32Array = null;
+   private _handleControlFloat32: Float32Array = null;
+   private _commandStreamMode: GraphicsCommandStreamMode = null;
    private _destroyed: boolean = false;
-   private _renderedGraphicsModified: number = Number.MIN_SAFE_INTEGER;
-   private _graphicsStateDirty: boolean = true;
+   /** @internal */
+   _renderedGraphicsModified: number = Number.MIN_SAFE_INTEGER;
+   /** @internal */
+   _graphicsStateDirty: boolean = true;
    private _materialDirty: boolean = true;
    private _graphicsUseSpriteState: boolean = true;
-   private _pendingCommandReplacements: number[] = [];
-   private _recoveringTextureIds: Set<number> = new Set();
-   private _ownerTransformListenerActive: boolean = false;
+   private _recoveringTextureIds: Set<number> = null;
    private _ownerTransformMask: number = 0;
-
-   graphics:Graphics = null;
+   private _renderMode: GraphicsRenderMode = GraphicsRenderMode.Empty;
+   private _singleQuadMode: GraphicsSingleQuadMode = null;
+   private _ownerSizePatchPending: boolean = false;
+   graphics: Graphics = null;
 
    constructor(owner: Sprite) {
       this._destroyed = false;
       this.owner = owner;
       this._struct = owner._struct;
-      this._renderDataHandle = LayaGL.render2DRenderPassFactory.create2D2DPrimitiveDataHandle();
-      this._renderDataHandle.setGraphicsHandleUpdateBuffer(this._handleUpdateBuffer);
-      this._opListBuilder = new GraphicsOp2DList();
-      this._commandOpEncoder = new GraphicsCommandOpEncoder(this._opListBuilder, this);
+   }
+
+   private _invalidateSubmittedState(): void {
+      this._graphicsStateDirty = true;
+      this._renderedGraphicsModified = Number.MIN_SAFE_INTEGER;
+      this._clearPendingCommandChanges();
+   }
+
+   private _isCommittedStateStable(graphicsModified: number, useSpriteState: boolean): boolean {
+      let handle = this._struct && this._struct.renderDataHandler;
+      if (!this._display || !handle)
+         return false;
+      if (this._graphicsStateDirty || this._materialDirty || this._ownerSizePatchPending)
+         return false;
+      if (this._renderedGraphicsModified !== graphicsModified
+         || this._graphicsUseSpriteState !== useSpriteState
+         || this._structDisplay !== this._display
+         || this._struct.renderType !== BaseRender2DType.graphics)
+         return false;
+      if (this._renderMode === GraphicsRenderMode.SingleQuad)
+         return !!this._singleQuadMode && handle === this._singleQuadMode.getDataHandle();
+      if (this._renderMode === GraphicsRenderMode.CommandStream)
+         return !!this._commandStreamMode
+            && handle === this._commandStreamMode.getDataHandle()
+            && !this._commandStreamMode.hasPendingUpdates();
+      return false;
+   }
+
+   private _tryCommitStable(graphicsModified: number, useSpriteState: boolean): boolean {
+      if (!this._isCommittedStateStable(graphicsModified, useSpriteState))
+         return false;
+      return true;
+   }
+
+   private _ensureHandleControlBuffer(): ArrayBuffer {
+      if (this._handleControlBuffer)
+         return this._handleControlBuffer;
+
+      let buffer = new ArrayBuffer(GraphicsHandleUpdateField.WordCount * 4);
+      this._handleControlBuffer = buffer;
+      this._handleControlInt32 = new Int32Array(buffer);
+      this._handleControlFloat32 = new Float32Array(buffer);
+      return buffer;
+   }
+
+   private _ensureSingleQuadMode(): GraphicsSingleQuadMode {
+      if (!this._singleQuadMode)
+         this._singleQuadMode = new GraphicsSingleQuadMode(this, this._ensureHandleControlBuffer());
+      return this._singleQuadMode;
+   }
+
+   private _ensureCommandStreamMode(): GraphicsCommandStreamMode {
+      if (this._commandStreamMode)
+         return this._commandStreamMode;
+
+      this._commandStreamMode = new GraphicsCommandStreamMode(this, this._ensureHandleControlBuffer());
+      return this._commandStreamMode;
    }
 
    /** @internal */
    private _onOwnerTransformChanged(type : number) {
       let maskedType = type & this._ownerTransformMask;
-      if (maskedType === 0 || this._destroyed || !this.owner || !this.owner._struct || !this._display || !this.owner._struct.enabled)
+      if (maskedType === 0 || this._destroyed || !this.owner || !this.owner._struct)
          return;
 
       if ((maskedType & TransformKind.Size) !== 0)
          this._handleOwnerSizeChanged();
+      if (!this._display || !this.owner._struct.enabled)
+         return;
       if ((maskedType & TransformKind.Scale) !== 0)
          this._handleOwnerScaleChanged();
    }
 
+   private _onOwnerDemandTransformChanged(): void {
+      if (this._destroyed || !this.owner || !this.owner._struct || !this._display || !this.owner._struct.enabled)
+         return;
+      this._handleOwnerScaleChanged();
+   }
+
    private _handleOwnerSizeChanged(): void {
-      this._syncOwnerSize();
+      this.graphics?._ownerSizeChanged();
+      if (this._ownerSizePatchPending) {
+         return;
+      }
+      this._ownerSizePatchPending = true;
+      this.owner.repaint();
+   }
+
+   private _flushOwnerSizeChange(): void {
+      if (!this._ownerSizePatchPending)
+         return;
+      this._ownerSizePatchPending = false;
+      this._syncGraphicsOwnerSize();
 
       if (this._graphicsStateDirty)
          return;
 
-      if (this._hasSpriteTextureUpdateTarget()) {
-         this._scheduleFullRebuild();
+      if (this._renderMode === GraphicsRenderMode.SingleQuad && this._singleQuadMode && this._singleQuadMode.getDependsOnSize()) {
+         if (this._singleQuadMode.syncSizeChange())
+            this.owner._struct.setRepaint();
          return;
+      }
+
+      if (this.owner && this.owner._texture) {
+         if (this._renderMode !== GraphicsRenderMode.CommandStream
+            || !this._commandStreamMode
+            || !this._commandStreamMode.patchSpriteTextureRetained()) {
+            this._scheduleGraphicsFullRebuild();
+            return;
+         }
       }
 
       if (!this.graphics)
          return;
 
-      let tracker = this._commandTracker;
-      if (tracker.hasLayoutDirtyCommands()) {
-         this._scheduleFullRebuild();
+      let mode = this._commandStreamMode;
+      if (!mode)
          return;
-      }
-      if (tracker.hasSizeDirtyCommands())
-         this._refreshCommandRanges(tracker.getSizeDirtyCommands(), GraphicsInfoDirtyFlag.Layout | GraphicsInfoDirtyFlag.Rebatch);
+      let sizeDirtyCommands = mode.getSizeDirtyCommands();
+      if (sizeDirtyCommands.length > 0)
+         mode.refreshCommandRanges(sizeDirtyCommands, GraphicsInfoDirtyFlag.Layout | GraphicsInfoDirtyFlag.Rebatch);
    }
 
    private _handleOwnerScaleChanged(): void {
-      if (this._graphicsStateDirty || !this.graphics || !this._commandTracker.hasScaleTessellationCommands()) {
+      if (this._renderMode !== GraphicsRenderMode.CommandStream || this._graphicsStateDirty || !this.graphics || !this._commandStreamMode) {
          return;
       }
 
-      let scaleDirtyCmds = this._commandTracker.getScaleTessellationDirtyCommands(this.graphics.cmds, this.owner);
+      let scaleDirtyCmds = this._commandStreamMode.getScaleTessellationDirtyCommands(this.graphics.cmds, this.owner);
       if (scaleDirtyCmds.length > 0)
-         this._refreshCommandRanges(scaleDirtyCmds, GraphicsInfoDirtyFlag.Layout | GraphicsInfoDirtyFlag.Rebatch);
+         this._commandStreamMode.refreshCommandRanges(scaleDirtyCmds, GraphicsInfoDirtyFlag.Layout | GraphicsInfoDirtyFlag.Rebatch);
    }
 
-   private _hasSpriteTextureUpdateTarget(): boolean {
-      return !!(this.owner && this.owner._texture);
-   }
-
-   private _syncOwnerTransformInterest(useRenderedCommandSummary: boolean): void {
+   /** @internal Shared owner-transform subscription boundary. */
+   _syncGraphicsOwnerTransformInterest(useRenderedCommandSummary: boolean): void {
       let transformMask = 0;
       if (this._display && this.owner && !this.owner.destroyed) {
-         let dependencyMask = useRenderedCommandSummary
-            ? this._commandTracker.getOwnerTransformDependencyMask()
-            : this._commandTracker.collectOwnerTransformDependencyMask(this.graphics ? this.graphics.cmds : null, this.owner);
-         if (this._hasSpriteTextureUpdateTarget())
+         let dependencyMask = GraphicsOwnerTransformDependency.None;
+         if (this._renderMode === GraphicsRenderMode.CommandStream && this._commandStreamMode) {
+            dependencyMask = useRenderedCommandSummary
+               ? this._commandStreamMode.getOwnerTransformDependencyMask()
+               : this._commandStreamMode.collectOwnerTransformDependencyMask(this.graphics ? this.graphics.cmds : null, this.owner);
+         }
+         if (this.owner._texture)
             dependencyMask |= GraphicsOwnerTransformDependency.SpriteTextureSize;
-         transformMask = this._toTransformMask(dependencyMask);
+         if (this._renderMode === GraphicsRenderMode.SingleQuad && this._singleQuadMode && this._singleQuadMode.getDependsOnSize())
+            dependencyMask |= GraphicsOwnerTransformDependency.SizeLayout;
+         if ((dependencyMask & (GraphicsOwnerTransformDependency.SizeLayout | GraphicsOwnerTransformDependency.SpriteTextureSize)) !== 0)
+            transformMask |= TransformKind.Size;
+         if ((dependencyMask & GraphicsOwnerTransformDependency.ScaleTessellation) !== 0)
+            transformMask |= TransformKind.Scale;
       }
       this._setOwnerTransformListener(transformMask);
    }
 
-   private _toTransformMask(dependencyMask: GraphicsOwnerTransformDependency): number {
-      let transformMask = 0;
-      if ((dependencyMask & (GraphicsOwnerTransformDependency.SizeLayout | GraphicsOwnerTransformDependency.SpriteTextureSize)) !== 0)
-         transformMask |= TransformKind.Size;
-      if ((dependencyMask & GraphicsOwnerTransformDependency.ScaleTessellation) !== 0)
-         transformMask |= TransformKind.Scale;
-      return transformMask;
-   }
-
    private _setOwnerTransformListener(transformMask: number): void {
-      if (this._ownerTransformMask === transformMask && this._ownerTransformListenerActive === (transformMask !== 0))
+      if (this._ownerTransformMask === transformMask)
          return;
 
       let owner = this.owner;
-      if (this._ownerTransformListenerActive && owner)
-         owner.off(SpriteGlobalTransform.CHANGED, this, this._onOwnerTransformChanged);
+      let oldMask = this._ownerTransformMask;
+      if (oldMask !== 0 && owner) {
+         if ((oldMask & TransformKind.Size) !== 0)
+            owner.off(SpriteGlobalTransform.SIZE_CHANGED, this, this._onOwnerTransformChanged);
+         if ((oldMask & TransformKind.Scale) !== 0) {
+            owner.off(Event.TRANSFORM_CHANGED, this, this._onOwnerDemandTransformChanged);
+            owner._refreshDemandTransEventUp();
+         }
+      }
 
-      this._ownerTransformListenerActive = false;
       this._ownerTransformMask = transformMask;
-
       if (transformMask !== 0 && owner && !this._destroyed) {
-         owner.on(SpriteGlobalTransform.CHANGED, this, this._onOwnerTransformChanged);
-         this._ownerTransformListenerActive = true;
+         if ((transformMask & TransformKind.Size) !== 0)
+            owner.on(SpriteGlobalTransform.SIZE_CHANGED, this, this._onOwnerTransformChanged);
+         if ((transformMask & TransformKind.Scale) !== 0) {
+            owner.on(Event.TRANSFORM_CHANGED, this, this._onOwnerDemandTransformChanged);
+            owner._setDemandTransEvent();
+         }
       }
    }
 
@@ -171,140 +253,152 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
     */
    setGraphics(graphics: Graphics): void {
       if (this.graphics !== graphics) {
-         this._graphicsStateDirty = true;
          this._materialDirty = true;
-         this._renderedGraphicsModified = Number.MIN_SAFE_INTEGER;
-         this._clearPendingCommandReplacements();
+         this._invalidateSubmittedState();
       }
       this.graphics = graphics;
       this._checkDisplay();
-      this._syncOwnerTransformInterest(false);
+      this._syncGraphicsOwnerTransformInterest(false);
    }
 
    /**
      * @internal
      */
    _render(runner: GraphicsRunner): void {
-      if (!this.owner || !this.graphics || this.owner.destroyed)
+      if (!this.owner || this.owner.destroyed || (!this.graphics && !this.owner._texture))
+         return;
+
+      // Resolve the final mode only at the render boundary. This preserves a
+      // clear + redraw retained replacement as one command mutation.
+      this._checkDisplay();
+      if (!this._display) {
+         this._syncStructDisplayState();
+         return;
+      }
+
+      let graphicsModified = this.graphics ? this.graphics._modified : 0;
+      let useSpriteState = this.graphics ? this.graphics._useSpriteState : true;
+      if (this._tryCommitStable(graphicsModified, useSpriteState))
          return;
 
       this._syncStructDisplayState();
-      if (!this._display)
-         return;
-
-      if (this._materialDirty || this._graphicsUseSpriteState !== this.graphics._useSpriteState)
+      this.owner._initShaderData();
+      this._flushOwnerSizeChange();
+      if (this._materialDirty || this._graphicsUseSpriteState !== useSpriteState)
          this._syncMaterialToHandle();
 
-      if (!this._graphicsStateDirty && this._hasTextureBitmapChanged())
-         this._invalidateOpBuild();
-
-      if (!this._graphicsStateDirty && this._pendingCommandReplacements.length > 0) {
-         if (this._refreshPendingCommandReplacements(runner))
-            return;
-         this._invalidateOpBuild();
-      }
-
-      if (!this._graphicsStateDirty && this._renderedGraphicsModified === this.graphics._modified)
+      // Material/owner-size may have been the only pending work.
+      if (this._tryCommitStable(graphicsModified, useSpriteState))
          return;
 
-      this._renderedGraphicsModified = this.graphics._modified;
-      this._graphicsStateDirty = false;
-      this._clearPendingCommandReplacements();
-
-      this.clear();
-      this._opListBuilder.clear();
-      this._commandOps.length = 0;
-      this._commandOpEncoder.clearBuildState();
-      this._commandOpEncoder.preRegisterTextureQuadResources();
-      this._syncOwnerSize();
-      this._commandTracker.beginBuild();
-      runner.clear();
-      runner.sprite = this.owner;
-      runner._renderer = this;
-
-      let oldBlendMode = runner.globalCompositeOperation;
-      runner.globalCompositeOperation = this.owner._struct.blendMode;
-
-      let cmdsLength = this.graphics.cmds.length;
-      let cmd:IGraphicsCmd
-
-      for (let i = 0; i < cmdsLength; i++) {
-         cmd = this.graphics.cmds[i];
-         let opStart = this._opListBuilder.opCount;
-         this._commandTracker.beginCommand(i);
-         this._opListBuilder.beginCommand(i, cmd ? cmd.cmdID : "");
-         this._commandOpEncoder.compileCommand(cmd, i, runner);
-         this._opListBuilder.endCommand();
-         let opEnd = this._opListBuilder.opCount;
-         this._commandOps[i] = opEnd - opStart === 1 ? this._opListBuilder.ops[opStart] : null;
-         this._commandTracker.endCommand(i, opStart, opEnd, cmd, this.owner);
-      }
-      this._appendSpriteTextureRecord();
-      this._commandTracker.endBuild();
-      this._syncOwnerTransformInterest(true);
-      this._sweepTextureRefs();
-
-      this._syncGraphicsOpsToHandle();
-
-      runner.globalCompositeOperation = oldBlendMode;
-      runner._renderer = null;
-      runner.sprite = null;
+      if (this._renderMode === GraphicsRenderMode.SingleQuad
+         && this._renderSingleQuad(graphicsModified, useSpriteState))
+         return;
+      this._renderCommandStream(runner, graphicsModified, useSpriteState);
    }
 
-   private _appendSpriteTextureRecord(): void {
-      if (this.graphics)
-         this._commandOpEncoder.appendSpriteTextureOp();
+   /** SingleQuad owns payload assembly and one direct handle sync. */
+   private _renderSingleQuad(graphicsModified: number, useSpriteState: boolean): boolean {
+      let mode = this._ensureSingleQuadMode();
+      this._activateRenderDataHandle(mode.getDataHandle());
+      if (!mode.render(this.graphics))
+         return false;
+
+      this._renderedGraphicsModified = graphicsModified;
+      this._graphicsStateDirty = false;
+      this._clearPendingCommandChanges();
+      if (this._commandStreamMode)
+         this._commandStreamMode.clearTextureDependencies();
+      this._syncGraphicsOwnerTransformInterest(true);
+      this._tryCommitStable(graphicsModified, useSpriteState);
+      return true;
+   }
+
+   /** CommandStream owns retained patch/rewrite/rebuild; Renderer only selects the transaction. */
+   private _renderCommandStream(runner: GraphicsRunner, graphicsModified: number, useSpriteState: boolean): void {
+      let mode = this._ensureCommandStreamMode();
+      this._activateRenderDataHandle(mode.getDataHandle());
+
+      if (mode.consumeSpriteTexturePatch())
+         this._spriteTextureChanged();
+
+      if (!this._graphicsStateDirty && !mode.refreshPendingCommandReplacements(runner))
+         this._invalidateOpBuild();
+
+      if (!this._graphicsStateDirty
+         && this._renderedGraphicsModified === graphicsModified
+         && this._tryCommitStable(graphicsModified, useSpriteState))
+         return;
+
+      this._renderedGraphicsModified = graphicsModified;
+      this._graphicsStateDirty = false;
+      mode.rebuild(runner);
+      if (this._singleQuadMode)
+         this._singleQuadMode.clear();
+      this._tryCommitStable(graphicsModified, useSpriteState);
    }
 
    /** @internal */
-   _patchTextureQuadCommand(cmdIndex: number, oldCmd: DrawTextureCmd, newCmd: DrawTextureCmd): boolean {
-      let result = false;
-      if (!this._graphicsStateDirty
-         && this._renderedGraphicsModified !== Number.MIN_SAFE_INTEGER
-         && oldCmd && newCmd && oldCmd.cmdID === newCmd.cmdID
-         && !this._commandTracker.hasStateDependency(cmdIndex)) {
-         let range = this._commandTracker.getRange(cmdIndex);
-         let existing = this._commandOps[cmdIndex];
-         if (range && range.active && range.count === 1 && existing && existing.kind === GraphicsOp2DKind.TextureQuad) {
-            let opIndex = this._opListBuilder.getOpIndex(existing);
-            if (opIndex >= 0) {
-               let runner = Render2DProcessor.runner;
-               runner.clear();
-               runner.sprite = this.owner;
-               runner._renderer = this;
-               runner.globalCompositeOperation = this.owner._struct.blendMode;
-               let patchResult = this._commandOpEncoder.patchTextureQuadOp(opIndex, existing as IGraphicsTextureQuadOp2D, newCmd, runner);
-               runner._renderer = null;
-               runner.sprite = null;
-               if (patchResult.success) {
-                  let handleDirtyFlags = this._mapOpDirtyFlagsToHandleDirtyFlags(patchResult.dirtyFlags);
-                  if (handleDirtyFlags !== GraphicsHandleDirtyFlag.None)
-                     this._syncGraphicsOpsToHandle(handleDirtyFlags, patchResult.opIndex, 1, (patchResult.dirtyFlags & GraphicsOp2DDirtyFlag.Structure) !== 0);
-                  this.owner._struct.setRepaint();
-                  result = true;
-               }
-            }
-         }
-      }
-      return result;
+   _patchTextureQuadCommand(cmdIndex: number, oldCmd: DrawTextureCmd, newCmd: DrawTextureCmd): GraphicsCommandPatchResult {
+      return this._commandStreamMode
+         ? this._commandStreamMode.patchTextureQuadCommand(cmdIndex, oldCmd, newCmd)
+         : GraphicsCommandPatchResult.Failed;
    }
-
    /** @internal */
    _preRegisterTextureQuadCommands(cmds: ReadonlyArray<DrawTextureCmd> | null): void {
-      this._commandOpEncoder.preRegisterTextureQuadCommands(cmds);
+      if (!cmds)
+         return;
+      for (let i = 0, n = cmds.length; i < n; i++) {
+         let texture = cmds[i] && cmds[i].texture;
+         if (texture && !texture.valid)
+            this.requestTextureRecovery(texture);
+      }
    }
 
    /**
     * @internal
     */
    invalidateGraphicsState(){
-      this._graphicsStateDirty = true;
-      this._clearPendingCommandReplacements();
-      this._syncOwnerTransformInterest(false);
+      if (this._commandStreamMode)
+         this._commandStreamMode.consumeSpriteTexturePatch();
+      this._invalidateSubmittedState();
+      this._syncGraphicsOwnerTransformInterest(false);
+   }
+
+   /** @internal Sprite.texture changed; returns true when the current render state was patched in place. */
+   _spriteTextureChanged(): boolean {
+      let previousMode = this._renderMode;
+      this._checkDisplay();
+      if (previousMode === GraphicsRenderMode.CommandStream
+         && this._renderMode === GraphicsRenderMode.CommandStream
+         && this.owner._texture
+         && this._commandStreamMode
+         && this._commandStreamMode.patchSpriteTextureRetained())
+         return true;
+
+      this.invalidateGraphicsState();
+      if (this._renderMode === GraphicsRenderMode.SingleQuad && this.owner._texture) {
+         this._ensureSingleQuadMode().trackTexture(this.owner._texture);
+         if (this._commandStreamMode)
+            this._commandStreamMode.clearTextureDependencies();
+      }
+      else if (this._renderMode === GraphicsRenderMode.CommandStream) {
+         if (!this.owner._texture && this._commandStreamMode)
+            this._commandStreamMode.clearSpriteTextureDependency();
+      }
+      else {
+         if (this._singleQuadMode)
+            this._singleQuadMode.clear();
+         if (this._commandStreamMode)
+            this._commandStreamMode.clearTextureDependencies();
+      }
+      return false;
    }
 
    /** @internal */
    _queueCommandReplacement(cmdIndex: number, oldCmd: IGraphicsCmd, newCmd: IGraphicsCmd): boolean {
+      if (!this._commandStreamMode)
+         return false;
       if (this._graphicsStateDirty)
          return false;
       if (this._renderedGraphicsModified === Number.MIN_SAFE_INTEGER)
@@ -316,106 +410,31 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       if (oldCmd.cmdID !== newCmd.cmdID)
          return false;
 
-      let range = this._commandTracker.getRange(cmdIndex);
+      let range = this._commandStreamMode.getRange(cmdIndex);
       if (!range)
          return false;
-      if (!range.active || range.count <= 0)
+      let isStateCommand = this._commandStreamMode.isStateCommand(cmdIndex);
+      if (isStateCommand && !this._commandStreamMode.isStateCommandType(newCmd, this.owner))
+         return false;
+      if (!isStateCommand && (!range.active || range.count <= 0))
          return false;
 
-      if (this._pendingCommandReplacements.indexOf(cmdIndex) < 0)
-         this._pendingCommandReplacements.push(cmdIndex);
+      this._commandStreamMode.queueCommandReplacement(cmdIndex);
       return true;
    }
 
-   private _clearPendingCommandReplacements(): void {
-      this._pendingCommandReplacements.length = 0;
+   /** @internal Retains shifted command ranges for one add/remove before the next render. */
+   _queueCommandSplice(cmdIndex: number, removedCount: number, addedCount: number): boolean {
+      if (!this._commandStreamMode || this._renderMode !== GraphicsRenderMode.CommandStream
+         || this._graphicsStateDirty || this._renderedGraphicsModified === Number.MIN_SAFE_INTEGER || !this.graphics)
+         return false;
+      return this._commandStreamMode.queueCommandSplice(cmdIndex, removedCount, addedCount);
    }
 
-   private _refreshPendingCommandReplacements(runner: GraphicsRunner): boolean {
-      if (!this.graphics || this._pendingCommandReplacements.length === 0)
-         return true;
-
-      if (!this._refreshCommandOps(this._pendingCommandReplacements, runner))
-         return false;
-      this._clearPendingCommandReplacements();
-      return true;
+   private _clearPendingCommandChanges(): void {
+      if (this._commandStreamMode)
+         this._commandStreamMode.clearPendingCommandChanges();
    }
-
-   private _refreshCommandOps(cmdIndices: number[], runner: GraphicsRunner): boolean {
-      let oldRenderedModified = this._renderedGraphicsModified;
-      this._renderedGraphicsModified = this.graphics._modified;
-
-      runner.clear();
-      runner.sprite = this.owner;
-      runner._renderer = this;
-      let oldBlendMode = runner.globalCompositeOperation;
-      runner.globalCompositeOperation = this.owner._struct.blendMode;
-
-      let dirtyStart = Number.MAX_SAFE_INTEGER;
-      let dirtyEnd = -1;
-      let opDirtyFlags = GraphicsOp2DDirtyFlag.None;
-      let hasStructureDirty = false;
-      for (let i = 0, n = cmdIndices.length; i < n; i++) {
-         if (!this._refreshCommandOp(cmdIndices[i], runner)) {
-            runner.globalCompositeOperation = oldBlendMode;
-            runner._renderer = null;
-            runner.sprite = null;
-            this._renderedGraphicsModified = oldRenderedModified;
-            return false;
-         }
-         let range = this._commandTracker.getRange(cmdIndices[i]);
-         if (range && range.active) {
-            dirtyStart = Math.min(dirtyStart, range.start);
-            dirtyEnd = Math.max(dirtyEnd, range.start + range.count);
-            for (let opIndex = range.start, end = range.start + range.count; opIndex < end; opIndex++) {
-               let dirtyFlags = this._opListBuilder.ops[opIndex].dirtyFlags;
-               opDirtyFlags |= dirtyFlags;
-               if ((dirtyFlags & GraphicsOp2DDirtyFlag.Structure) !== 0) {
-                  hasStructureDirty = true;
-               }
-            }
-         }
-      }
-
-      runner.globalCompositeOperation = oldBlendMode;
-      runner._renderer = null;
-      runner.sprite = null;
-
-      this._sweepTextureRefs();
-      this._syncOwnerTransformInterest(true);
-      let handleDirtyFlags = this._mapOpDirtyFlagsToHandleDirtyFlags(opDirtyFlags);
-      if (dirtyStart !== Number.MAX_SAFE_INTEGER && handleDirtyFlags !== GraphicsHandleDirtyFlag.None)
-         this._syncGraphicsOpsToHandle(handleDirtyFlags, dirtyStart, dirtyEnd - dirtyStart, hasStructureDirty);
-      return true;
-   }
-
-   private _refreshCommandOp(cmdIndex: number, runner: GraphicsRunner): boolean {
-      let cmd = this.graphics && cmdIndex >= 0 && cmdIndex < this.graphics.cmds.length ? this.graphics.cmds[cmdIndex] : null;
-      if (!cmd)
-         return false;
-
-      let range = this._commandTracker.getRange(cmdIndex);
-      if (!range || !range.active || range.count <= 0)
-         return false;
-      let opIndex = range.start;
-
-      if (!this._opListBuilder.beginRewriteCommand(cmdIndex, cmd.cmdID, opIndex, range.count))
-         return false;
-
-      this._commandTracker.beginLocalCommandRefresh(cmdIndex);
-      this._commandOpEncoder.compileCommand(cmd, cmdIndex, runner);
-      this._commandTracker.endLocalCommandRefresh();
-
-      if (!this._opListBuilder.finishRewriteCommand())
-         return false;
-
-      if (!this._commandTracker.refreshCommandMetadata(cmdIndex, opIndex, opIndex + range.count, cmd, this.owner))
-         return false;
-
-      this._commandOps[cmdIndex] = range.count === 1 ? this._opListBuilder.ops[opIndex] : null;
-      return true;
-   }
-
 
    /** @internal */
    _checkDisplay() {
@@ -425,55 +444,98 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
          return;
       }
 
-      let cmd = this.graphics && this.graphics.cmds && this.graphics.cmds.length > 0;
-      let value = !this.owner._renderNode && (cmd || this.owner._texture != null);
+      let nextMode = this._classifyRenderMode();
+      let modeChanged = this._renderMode !== nextMode;
+      if (modeChanged) {
+         this._renderMode = nextMode;
+         this._invalidateSubmittedState();
+         if (nextMode === GraphicsRenderMode.Empty) {
+            if (this._singleQuadMode)
+               this._singleQuadMode.clear();
+            if (this._commandStreamMode)
+               this._commandStreamMode.clearTextureDependencies();
+         }
+      }
+
+      let value = !this.owner._renderNode && nextMode !== GraphicsRenderMode.Empty;
       if (this._display === value) {
-         this._syncOwnerTransformInterest(false);
+         if (modeChanged)
+            this._syncGraphicsOwnerTransformInterest(false);
          return;
       }
 
       this._display = value;
-
-      if (value) {
-         this._graphicsStateDirty = true;
-         this._renderedGraphicsModified = Number.MIN_SAFE_INTEGER;
-         this._clearPendingCommandReplacements();
-         this.owner._initShaderData();
+      this._invalidateSubmittedState();
+      if (value)
          this.owner._renderType |= SpriteConst.GRAPHICS;
-      } else {
+      else
          this.owner._renderType &= ~SpriteConst.GRAPHICS;
-         this._graphicsStateDirty = true;
-         this._renderedGraphicsModified = Number.MIN_SAFE_INTEGER;
-         this._clearPendingCommandReplacements();
-      }
-      this._syncOwnerTransformInterest(false);
+      this._syncGraphicsOwnerTransformInterest(false);
+   }
+
+   private _classifyRenderMode(): GraphicsRenderMode {
+      let spriteTexture = this.owner._texture;
+      let commandCount = this.graphics && this.graphics.cmds ? this.graphics.cmds.length : 0;
+      if (!spriteTexture && commandCount === 0)
+         return GraphicsRenderMode.Empty;
+      return GraphicsSingleQuadMode.canRender(spriteTexture, this.graphics)
+         ? GraphicsRenderMode.SingleQuad
+         : GraphicsRenderMode.CommandStream;
+   }
+
+   private _deactivateRenderDataHandle(handle: IRender2DDataHandle): void {
+      if (this._singleQuadMode && handle === this._singleQuadMode.getDataHandle())
+         this._singleQuadMode.deactivate();
+      else if (this._commandStreamMode && handle === this._commandStreamMode.getDataHandle())
+         this._commandStreamMode.deactivate();
+   }
+
+   private _activateRenderDataHandle(handle: IRender2DDataHandle): void {
+      let struct = this._struct;
+      if (!handle || !struct)
+         return;
+      let current = struct.renderDataHandler;
+      if (current === handle)
+         return;
+      if (current)
+         this._deactivateRenderDataHandle(current);
+      this._materialDirty = true;
+      struct.renderDataHandler = handle;
    }
 
    /** @internal Apply the final Graphics display state to the Struct once per render update. */
    private _syncStructDisplayState(): void {
-      if (this._structDisplay === this._display)
-         return;
-
-      this._structDisplay = this._display;
       const owner = this.owner;
       const struct = this._struct;
       if (!owner || !struct)
          return;
 
       if (this._display) {
+         let handle = this._renderMode === GraphicsRenderMode.SingleQuad
+            ? this._ensureSingleQuadMode().getDataHandle()
+            : this._ensureCommandStreamMode().getDataHandle();
+         if (this._structDisplay === this._display
+            && struct.renderType === BaseRender2DType.graphics
+            && struct.renderDataHandler === handle)
+            return;
+         let firstAttach = !this._structDisplay;
+         this._structDisplay = true;
          struct.renderType = BaseRender2DType.graphics;
-         struct.renderDataHandler = this._renderDataHandle;
-         owner._updateStruct();
+         this._activateRenderDataHandle(handle);
+         if (firstAttach)
+            owner._updateStruct();
       }
-      else if (struct.renderDataHandler === this._renderDataHandle) {
+      else {
+         let handle = struct.renderDataHandler;
+         if (!this._structDisplay && !handle)
+            return;
+         this._structDisplay = false;
+         if (handle)
+            this._deactivateRenderDataHandle(handle);
          struct.renderDataHandler = null;
          struct.renderElements = GraphicsRenderer._emptyList;
          struct.renderType = -1;
       }
-   }
-
-   clear(): void {
-      this._setOwnerTransformListener(0);
    }
 
    destroy(): void {
@@ -485,24 +547,26 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       this._display = false;
       this._syncStructDisplayState();
 
-      this.clear();
-      this._opListBuilder.clear();
-      this._commandOps.length = 0;
-
-      this.texturesMap.forEach(inf => {
-         inf.texture.off(Event.CHANGE, this, this._resourceRepaint);
-      });
-      this.texturesMap.clear();
-      this._recoveringTextureIds.clear();
+      if (this._commandStreamMode)
+         this._commandStreamMode.destroy();
+      if (this._recoveringTextureIds)
+         this._recoveringTextureIds.clear();
+      if (this._singleQuadMode)
+         this._singleQuadMode.destroy();
 
       this.graphics = null;
-      this._renderDataHandle.destroy();
-      this._renderDataHandle = null;
+      this._handleControlBuffer = null;
+      this._handleControlInt32 = null;
+      this._handleControlFloat32 = null;
+      this._singleQuadMode = null;
+      this._ownerSizePatchPending = false;
+      this._commandStreamMode = null;
+      this._recoveringTextureIds = null;
       this.owner = null;
    }
 
    /** @internal Whether this renderer must participate in the current graphics update. */
-   get needRenderUpdate(): boolean {
+   getNeedRenderUpdate(): boolean {
       return this._display || this._structDisplay !== this._display;
    }
 
@@ -511,36 +575,50 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       this._materialDirty = true;
    }
 
-   private _syncMaterialToHandle(): void {
+   private _syncMaterialToHandle(handle: IGraphicsSingleQuadDataHandle | IGraphicsCommandStreamDataHandle =
+      (this._struct ? this._struct.renderDataHandler : null) as IGraphicsSingleQuadDataHandle | IGraphicsCommandStreamDataHandle): void {
+      if (!handle)
+         return;
       let material = this.graphics ? this.graphics.material : null;
-      let subShader = material && material.shader && material.shader.getSubShaderAt
+      let useSpriteState = this.graphics ? this.graphics._useSpriteState : true;
+      let subShader = material
          ? material.shader.getSubShaderAt(0)
          : GraphicsOpRenderStateHelper.getDefaultSubShader();
-      this._renderDataHandle.setGraphicsMaterialState(subShader, material ? material.shaderData : null, this.graphics._useSpriteState);
-      this._graphicsUseSpriteState = this.graphics._useSpriteState;
+      handle.setGraphicsMaterialState(subShader, material ? material.shaderData : null, useSpriteState);
+      this._graphicsUseSpriteState = useSpriteState;
       this._materialDirty = false;
    }
 
-   private _syncGraphicsOpsToHandle(flags: GraphicsHandleDirtyFlag = GraphicsHandleDirtyFlag.OpPayload | GraphicsHandleDirtyFlag.OpResource | GraphicsHandleDirtyFlag.OpState, opStart: number = 0, opCount: number = this._opListBuilder.opCount, fullSync: boolean = true): void {
-      let submitted = this._submitHandleDirty(flags, opStart, opCount);
-      if (fullSync || !this._renderDataHandle.autoGraphicsDirtySync) {
-         this._renderDataHandle.syncGraphicsOps(this._opListBuilder.ops);
+   /** @internal CommandStream submit boundary. */
+   _syncGraphicsOps(flags: GraphicsHandleDirtyFlag = GraphicsHandleDirtyFlag.OpPayload | GraphicsHandleDirtyFlag.OpResource | GraphicsHandleDirtyFlag.OpState, opStart: number = 0, opCount: number = -1, fullSync: boolean = true, topologyChanged: boolean = fullSync): void {
+      let mode = this._ensureCommandStreamMode();
+      let handle = mode.getDataHandle();
+      if (opCount < 0)
+         opCount = mode.ops.length;
+      this._activateRenderDataHandle(handle);
+      let useSpriteState = this.graphics ? this.graphics._useSpriteState : true;
+      if (this._materialDirty || this._graphicsUseSpriteState !== useSpriteState)
+         this._syncMaterialToHandle(handle);
+      let submitted = this._submitHandleDirty(flags, opStart, opCount, topologyChanged);
+      if (topologyChanged || !handle.autoGraphicsDirtySync) {
+         handle.syncGraphicsOps(mode.ops);
          if (fullSync)
-            this._opListBuilder.clearDirty();
+            mode.clearDirty();
          else
-            this._opListBuilder.clearDirtyRange(opStart, opCount);
+            mode.clearDirty(opStart, opCount);
          return;
       }
 
       if (!submitted)
          return;
       if (fullSync)
-         this._opListBuilder.clearDirtyFlagsOnly();
+         mode.clearDirtyFlagsOnly();
       else
-         this._opListBuilder.clearDirtyFlagsOnlyRange(opStart, opCount);
+         mode.clearDirtyFlagsOnly(opStart, opCount);
    }
 
-   private _mapOpDirtyFlagsToHandleDirtyFlags(flags: GraphicsOp2DDirtyFlag): GraphicsHandleDirtyFlag {
+   /** @internal CommandStream update boundary. */
+   _mapGraphicsOpDirtyFlags(flags: GraphicsOp2DDirtyFlag): GraphicsHandleDirtyFlag {
       if (flags === GraphicsOp2DDirtyFlag.None)
          return GraphicsHandleDirtyFlag.None;
       if ((flags & GraphicsOp2DDirtyFlag.Structure) !== 0)
@@ -555,152 +633,76 @@ export class GraphicsRenderer implements GraphicsCommandOpEncoderHost {
       return result;
    }
 
-   private _syncOwnerSize(): void {
+   /** @internal Shared mode boundary. */
+   _syncGraphicsOwnerSize(): void {
       let width = this.owner ? this.owner.width : 0;
       let height = this.owner ? this.owner.height : 0;
-      this._handleUpdateFloat32[GraphicsHandleUpdateField.OwnerWidth] = width;
-      this._handleUpdateFloat32[GraphicsHandleUpdateField.OwnerHeight] = height;
-      this._opListBuilder.setOwnerSize(width, height);
+      if (this._handleControlFloat32) {
+         this._handleControlFloat32[GraphicsHandleUpdateField.OwnerWidth] = width;
+         this._handleControlFloat32[GraphicsHandleUpdateField.OwnerHeight] = height;
+      }
    }
 
-   private _submitHandleDirty(flags: GraphicsHandleDirtyFlag, opStart: number, opCount: number): boolean {
-      if (flags === GraphicsHandleDirtyFlag.None)
+   private _submitHandleDirty(flags: GraphicsHandleDirtyFlag, opStart: number, opCount: number, topologyChanged: boolean): boolean {
+      if (flags === GraphicsHandleDirtyFlag.None && !topologyChanged)
          return false;
       opStart = Math.max(0, opStart | 0);
-      opCount = Math.min(opCount | 0, this._opListBuilder.opCount - opStart);
-      if (opCount <= 0)
+      opCount = Math.max(0, Math.min(opCount | 0, this._commandStreamMode.ops.length - opStart));
+      if (opCount <= 0 && !topologyChanged)
          return false;
 
-      let updateVersion = this._handleUpdateInt32[GraphicsHandleUpdateField.UpdateVersion];
-      if (this._handleUpdateInt32[GraphicsHandleUpdateField.HandledVersion] !== updateVersion) {
-         let oldStart = this._handleUpdateInt32[GraphicsHandleUpdateField.DirtyOpStart];
-         let oldCount = this._handleUpdateInt32[GraphicsHandleUpdateField.DirtyOpCount];
+      let updateVersion = this._handleControlInt32[GraphicsHandleUpdateField.UpdateVersion];
+      if (this._handleControlInt32[GraphicsHandleUpdateField.HandledVersion] !== updateVersion) {
+         let oldStart = this._handleControlInt32[GraphicsHandleUpdateField.DirtyOpStart];
+         let oldCount = this._handleControlInt32[GraphicsHandleUpdateField.DirtyOpCount];
          if (oldStart >= 0 && oldCount > 0) {
             let oldEnd = oldStart + oldCount;
             let newEnd = opStart + opCount;
             opStart = Math.min(oldStart, opStart);
             opCount = Math.max(oldEnd, newEnd) - opStart;
-            flags |= this._handleUpdateInt32[GraphicsHandleUpdateField.DirtyFlags];
+            flags |= this._handleControlInt32[GraphicsHandleUpdateField.DirtyFlags];
          }
       }
 
-      this._handleUpdateInt32[GraphicsHandleUpdateField.UpdateVersion] = updateVersion + 1;
-      this._handleUpdateInt32[GraphicsHandleUpdateField.DirtyFlags] = flags;
-      this._handleUpdateInt32[GraphicsHandleUpdateField.DirtyOpStart] = opStart;
-      this._handleUpdateInt32[GraphicsHandleUpdateField.DirtyOpCount] = opCount;
+      this._handleControlInt32[GraphicsHandleUpdateField.DirtyFlags] = flags;
+      this._handleControlInt32[GraphicsHandleUpdateField.DirtyOpStart] = opStart;
+      this._handleControlInt32[GraphicsHandleUpdateField.DirtyOpCount] = opCount;
+      if (topologyChanged)
+         this._handleControlInt32[GraphicsHandleUpdateField.TopologyVersion]++;
+      // Publish last so every consumer observes a complete metadata snapshot.
+      this._handleControlInt32[GraphicsHandleUpdateField.UpdateVersion] = updateVersion + 1;
       return true;
-   }
-
-   addResRef(res: Resource) {
-      if (res instanceof Texture) {
-         if (this._commandTracker.collectDependencies) {
-            let inf = this.texturesMap.get(res.id);
-            if (!inf) {
-               res.on(Event.CHANGE, this, this._resourceRepaint , [res.id]);
-               this.texturesMap.set(res.id, {
-                  texture: res,
-                  bitmap: res.bitmap,
-                  time: this._renderedGraphicsModified
-               });
-            } else {
-               inf.bitmap = res.bitmap;
-               inf.time = this._renderedGraphicsModified;
-            }
-         }
-         this._commandTracker.addTextureRef(res.id);
-      }
    }
 
    requestTextureRecovery(texture: Texture): void {
       if (this._destroyed || !this.owner || this.owner.destroyed || !texture || texture.destroyed || texture.valid)
          return;
       let bitmap = texture.bitmap;
-      if (!bitmap || !bitmap.url || this._recoveringTextureIds.has(texture.id))
+      if (!bitmap || !bitmap.url || (this._recoveringTextureIds && this._recoveringTextureIds.has(texture.id)))
          return;
 
+      if (!this._recoveringTextureIds) {
+         this._recoveringTextureIds = new Set();
+      }
       this._recoveringTextureIds.add(texture.id);
       texture.recoverBitmap(() => {
-         this._recoveringTextureIds.delete(texture.id);
+         if (this._recoveringTextureIds)
+            this._recoveringTextureIds.delete(texture.id);
          if (!this._destroyed && texture.valid)
-            this._scheduleFullRebuild();
+            this._scheduleGraphicsFullRebuild();
       });
-   }
-
-   private _hasTextureBitmapChanged(): boolean {
-      for (let inf of this.texturesMap.values()) {
-         if (inf.bitmap !== inf.texture.bitmap || inf.bitmap?.destroyed)
-            return true;
-      }
-      return false;
-   }
-
-   private _sweepTextureRefs(): void {
-      this.texturesMap.forEach((inf, id) => {
-         if (inf.time === this._renderedGraphicsModified)
-            return;
-         this.texturesMap.delete(id);
-         inf.texture.off(Event.CHANGE, this, this._resourceRepaint);
-      });
-   }
-
-   private _resourceRepaint(id: number) {
-      if (this._destroyed || !this.owner)
-         return;
-
-      let inf = this.texturesMap.get(id);
-      if (!inf)
-         return;
-
-      if (inf.time !== this._renderedGraphicsModified) {
-         this.texturesMap.delete(id);
-         inf.texture.off(Event.CHANGE, this, this._resourceRepaint);
-         return;
-      }
-
-      if (!inf.texture.valid) {
-         this._scheduleFullRebuild();
-         return;
-      }
-
-      if (inf.texture === this.owner._texture) {
-         this._scheduleFullRebuild();
-         return;
-      }
-
-      this._refreshCommandRanges(this._commandTracker.getTextureCommandRanges(id), GraphicsInfoDirtyFlag.Texture | GraphicsInfoDirtyFlag.Rebatch);
-   }
-
-   private _refreshCommandRanges(cmdIndices: number[], reason: GraphicsInfoDirtyFlag): GraphicsRefreshAction {
-      if (!cmdIndices || cmdIndices.length === 0)
-         return GraphicsRefreshAction.NoEffect;
-      if (this._graphicsStateDirty || !this.graphics || this._renderedGraphicsModified === Number.MIN_SAFE_INTEGER) {
-         this._scheduleFullRebuild();
-         return GraphicsRefreshAction.StructuralRefresh;
-      }
-
-      let action = this._commandTracker.analyzeRefreshRanges(cmdIndices, this.graphics.cmds, reason);
-      if (action === GraphicsRefreshAction.NoEffect)
-         return action;
-      if (action === GraphicsRefreshAction.StructuralRefresh || !this._refreshCommandOps(cmdIndices, Render2DProcessor.runner)) {
-         this._scheduleFullRebuild();
-         return GraphicsRefreshAction.StructuralRefresh;
-      }
-
-      this.owner._struct.setRepaint();
-      return GraphicsRefreshAction.LocalRefresh;
    }
 
    private _invalidateOpBuild(): boolean {
       if (!this.owner || this.owner.destroyed)
          return false;
-      this._graphicsStateDirty = true;
-      this._renderedGraphicsModified = Number.MIN_SAFE_INTEGER;
-      this._clearPendingCommandReplacements();
+      this._invalidateSubmittedState();
       this.owner._struct.setRepaint();
       return true;
    }
 
-   private _scheduleFullRebuild(): boolean {
+   /** @internal CommandStream rebuild boundary. */
+   _scheduleGraphicsFullRebuild(): boolean {
       if (!this._invalidateOpBuild())
          return false;
       this.owner.repaint();

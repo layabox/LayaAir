@@ -199,7 +199,7 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
 
     /** @internal */
     getGraphicsCommandInfo(out: GraphicsCommandInfo): GraphicsCommandInfo {
-        return GraphicsCommandInfoHelper.writeSize(out, true, GraphicsCommandLayoutRefresh.RerunCommand);
+        return GraphicsCommandInfoHelper.writeSize(out, this.percent, GraphicsCommandLayoutRefresh.RerunCommand);
     }
 
     /**

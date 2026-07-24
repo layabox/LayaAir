@@ -733,6 +733,16 @@ export class Sprite extends Node {
     /** @internal */
     _graphicsRenderer: GraphicsRenderer;
 
+    /** @internal */
+    _ensureGraphicsRenderer(): GraphicsRenderer {
+        if (!this._graphicsRenderer) {
+            this._graphicsRenderer = new GraphicsRenderer(this);
+            if (this._graphics)
+                this._graphicsRenderer.setGraphics(this._graphics);
+        }
+        return this._graphicsRenderer;
+    }
+
     /**
      * @en The drawing object, which encapsulates the interfaces for drawing bitmaps and vector graphics. All drawing operations of Sprite are implemented through Graphics.
      * @zh 绘图对象。封装了绘制位图和矢量图的接口,Sprite 的所有绘图操作都是通过 Graphics 实现的。
@@ -771,17 +781,24 @@ export class Sprite extends Node {
         this._graphics = value;
 
         if (value) {
-            if (!this._graphicsRenderer)
-                this._graphicsRenderer = new GraphicsRenderer(this);
             value.owner = this;
-            this._graphicsRenderer.setGraphics(value);
+            if (this._graphicsRenderer) {
+                this._graphicsRenderer.setGraphics(value);
+            } else if (value.cmds.length > 0 || this._texture) {
+                this._ensureGraphicsRenderer();
+            }
         }
         else {
             if (this._graphicsRenderer) {
-                this._graphicsRenderer.destroy();
-                this._graphicsRenderer = null;
+                if (this._texture) {
+                    this._graphicsRenderer.setGraphics(null);
+                } else {
+                    this._graphicsRenderer.destroy();
+                    this._graphicsRenderer = null;
+                }
             }
-            this._renderType &= ~SpriteConst.GRAPHICS;
+            if (!this._texture)
+                this._renderType &= ~SpriteConst.GRAPHICS;
         }
 
         this.repaint(RepaintFlag.Graphics);
@@ -1235,11 +1252,9 @@ export class Sprite extends Node {
     }
 
     /**
-     * @en Set a Texture instance and display the image (if there are other drawings before, it will be cleared).
-     * Equivalent to graphics.clear();graphics.drawImage(), but with better performance.
+     * @en Set a Texture instance and display it through the optimized single-quad path. Existing Graphics commands remain and are rendered together with the texture.
      * You can also assign an image address, which will automatically load the image and then display it.
-     * @zh 设置一个Texture实例，并显示此图片（如果之前有其他绘制，则会被清除掉）。
-     * 等同于graphics.clear();graphics.drawImage()，但性能更高。
+     * @zh 设置一个 Texture 实例，并通过优化的单四边形路径显示。已有 Graphics 命令会保留，并与该纹理一起渲染。
      */
     get texture(): Texture {
         return this._texture;
@@ -1253,14 +1268,11 @@ export class Sprite extends Node {
         this._texture = value;
         if (value) {
             value._addReference();
-            this.graphics.repaint();
-        } else {
-            if (this._graphics) {
-                this._graphics.repaint();
-            } else {
-                this.repaint();
-            }
         }
+
+        let renderer = value ? this._ensureGraphicsRenderer() : this._graphicsRenderer;
+        let graphicsPatched = renderer && renderer._spriteTextureChanged();
+        this.repaint(graphicsPatched ? 0 : RepaintFlag.Graphics);
     }
 
     /**
@@ -1497,18 +1509,19 @@ export class Sprite extends Node {
             this._oriRenderPass.repaint = true;
 
         const parentPassRepaint = this._struct.inheritedEnableCulling || this._struct.inheritedDcOptimize;
+        let parent = this._parent as Sprite;
+        let parentPass = parent && parent._struct ? parent._struct.pass : null;
+        let hasEffectiveParentRepaint = parentPassRepaint || !!(parentPass && parentPass.renderTexture);
 
         if (kind !== TransformKind.Pos && kind !== TransformKind.Anchor) {
             this._tfChanged = true;
-            if ((kind & TransformKind.Size) !== 0 && this._graphics)
-                this._graphics.repaint();
-            else if ((this._renderType & SpriteConst.DRAW2RT) !== 0)
+            if ((this._renderType & SpriteConst.DRAW2RT) !== 0)
                 this.repaint();
-            else {
+            else if (hasEffectiveParentRepaint) {
                 this.parentRepaint(parentPassRepaint);
             }
         }
-        else {
+        else if (hasEffectiveParentRepaint) {
             this.parentRepaint(parentPassRepaint);
         }
 
@@ -1523,6 +1536,11 @@ export class Sprite extends Node {
 
             if (this._getBit(NodeFlags.DEMAND_TRANS_EVENT))
                 notifyTransChanged(this);
+        }
+        else {
+            // Size without an anchor does not dirty the matrix store, but size-dependent
+            // renderers still consume the semantic transform event.
+            this._globalTrans._notifyChanged(kind);
         }
     }
 
@@ -1828,7 +1846,7 @@ export class Sprite extends Node {
                     passSet.add(sprite._struct.pass);
             }
 
-            if (sprite._graphics) {
+            if (sprite._graphicsRenderer) {
                 sprite._graphicsRenderer._render(runner);
             }
 
@@ -2186,7 +2204,7 @@ export class Sprite extends Node {
     _needGraphicsUpdate(): boolean {
         return !this._destroyed
             && this._struct.enabled
-            && !!this._graphicsRenderer?.needRenderUpdate
+            && !!this._graphicsRenderer?.getNeedRenderUpdate()
             && !!(this.displayedInStage || this._maskParent);
     }
 
@@ -2316,9 +2334,18 @@ export class Sprite extends Node {
             }
         }
         else if (type === Event.TRANSFORM_CHANGED) {
-            this._setBit(NodeFlags.DEMAND_TRANS_EVENT, true);
-            this.setDemandTransEventUp();
+            this._setDemandTransEvent();
         }
+    }
+
+    /**
+     * @internal
+     * @en Ensures transform events propagate through this Sprite's ancestor branch.
+     * @zh 确保变换事件沿此 Sprite 的祖先分支按需传播。
+     */
+    _setDemandTransEvent(): void {
+        this._setBit(NodeFlags.DEMAND_TRANS_EVENT, true);
+        this.setDemandTransEventUp();
     }
 
     private setDemandTransEventUp() {
@@ -2328,6 +2355,30 @@ export class Sprite extends Node {
                 break;
 
             p = p._parent;
+        }
+    }
+
+    /**
+     * @internal
+     * @en Removes stale transform propagation flags after an internal listener is detached.
+     * @zh 内部监听解绑后，移除祖先分支上不再需要的变换传播标记。
+     */
+    _refreshDemandTransEventUp(): void {
+        let current: Sprite = this;
+        while (current && current !== ILaya.stage) {
+            let demand = current.hasListener(Event.TRANSFORM_CHANGED);
+            if (!demand) {
+                for (let child of current._children) {
+                    if (child instanceof Sprite && child._getBit(NodeFlags.DEMAND_TRANS_EVENT)) {
+                        demand = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!current._setBit(NodeFlags.DEMAND_TRANS_EVENT, demand))
+                break;
+            current = current._parent instanceof Sprite ? current._parent : null;
         }
     }
 
@@ -2579,6 +2630,7 @@ export class Sprite extends Node {
      * @ignore
      */
     protected _setParent(value: Node, index: number = -1): void {
+        let oldParent = this._parent instanceof Sprite ? this._parent : null;
         this._globalTrans._spTransChanged(TransformKind.TRS);
 
         this._setStructParent(value as Sprite, index);
@@ -2591,6 +2643,9 @@ export class Sprite extends Node {
             && !value._getBit(NodeFlags.CHECK_INPUT)) {
             this.setMouseEnabledUp();
         }
+
+        if (oldParent && oldParent !== value && this._getBit(NodeFlags.DEMAND_TRANS_EVENT))
+            oldParent._refreshDemandTransEventUp();
 
         if (value && this._getBit(NodeFlags.DEMAND_TRANS_EVENT) && !value._getBit(NodeFlags.DEMAND_TRANS_EVENT))
             this.setDemandTransEventUp();
@@ -2640,6 +2695,7 @@ export class Sprite extends Node {
                 if (this._drawOriRT && this._drawOriRT !== RenderTexture2D._empty) {
                     this._subStructRender._clearRenderTexture();
                     RenderTexture2D.recoverToPool(this._drawOriRT);
+                    this._subStructRender._clearRenderTexture();
                 }
                 this._drawOriRT = null;
                 this._oriRenderPass.repaint = true;

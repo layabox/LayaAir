@@ -8,12 +8,13 @@ import { Texture2D } from "../../../../resource/Texture2D";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import type { WebGraphicsOp2D } from "./WebGraphicsOp2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IGraphicsOp2D, IMesh2DRenderDataHandle, IRender2DDataHandle } from "../../Design/2D/IRender2DDataHandle";
+import { I2DBaseRenderDataHandle, IGraphicsSingleQuadDataHandle, IGraphicsCommandStreamDataHandle, ISubStructRenderDataHandle, IGraphicsOp2D, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle } from "../../Design/2D/IRender2DDataHandle";
 import { WebGraphicsBatchEntry } from "./WebGraphicsOp2DRuntimeBuffers";
 import { WebGraphicsOp2DRuntime, type WebGraphicsMaterialState } from "./WebGraphicsOp2DRuntime";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 import type { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import type { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
+import { WebSingleQuadPrimitiveData } from "./WebSingleQuadPrimitiveData";
 
 export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     protected _owner: WebRenderStruct2D;
@@ -76,14 +77,39 @@ export class WebEmptyRender2DDataHandle extends WebRender2DDataHandle {
 }
 
 
-export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2DPrimitiveDataHandle {
-    private static _emptyGraphicsOps: ReadonlyArray<WebGraphicsOp2D> = [];
-    logicMatrix: Matrix | null = null;
-    mask: WebRenderStruct2D | null = null;
+export class WebSubStructRenderDataHandle extends WebRender2DDataHandle implements ISubStructRenderDataHandle {
+	logicMatrix: Matrix | null = null;
+	mask: WebRenderStruct2D | null = null;
 
-    private _opRuntime: WebGraphicsOp2DRuntime = null;
-    private _graphicsOpsActive: boolean = false;
+	inheriteRenderData(context: IRenderContext2D): void {
+		let data = this._owner.spriteShaderData;
+		if (!data || !this.needUseMatrix)
+			return;
+		let matrixVersion = this._owner.getRenderMatrixVersion();
+		if (matrixVersion >= 0 && this._matUploadFrame === matrixVersion)
+			return;
+		this._matUploadFrame = matrixVersion;
+		let mat = this._owner.renderMatrix;
+		if (this.logicMatrix) {
+			let temp = Matrix.TEMP;
+			Matrix.mul(this.logicMatrix, mat.copyTo(temp), temp);
+			this._nMatrix_0.setValue(temp.a, temp.c, temp.tx);
+			this._nMatrix_1.setValue(temp.b, temp.d, temp.ty);
+		}
+		else {
+			this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
+			this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
+		}
+		data.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
+		data.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
+	}
+}
+
+export class WebGraphicsSingleQuadDataHandle extends WebRender2DDataHandle implements IGraphicsSingleQuadDataHandle {
+    private _singleQuadData: WebSingleQuadPrimitiveData = null;
+    private _singleQuadActive: boolean = false;
     private _graphicsHandleUpdateBuffer: ArrayBuffer = null;
+    private _singleQuadPayloadBuffer: ArrayBuffer = null;
     private _modifiedFrame: number = -1;
     private _globalAlpha: number = 1;
     private _globalAlphaValid: boolean = false;
@@ -92,86 +118,81 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
     public set owner(value: WebRenderStruct2D) {
         if (this._owner === value)
             return;
-        this._destroyGraphicsOpRuntime();
+        // A GraphicsRenderer owns its handle for life. Detaching the struct only makes the
+        // handle dormant; retaining the owner keeps Runtime/RenderUnit identities reusable.
+        if (!value) {
+            if (this._singleQuadData)
+                this._singleQuadData.deactivate();
+            this._singleQuadActive = false;
+            return;
+        }
+        if (this._singleQuadData)
+            this._singleQuadData.destroy();
+        this._singleQuadData = null;
         super.owner = value;
-        this._setGraphicsOpsActive(false);
-        this._createGraphicsOpRuntime();
         this._globalAlphaValid = false;
-        this._invalidateMatrixCache();
+        this._modifiedFrame = -1;
     }
 
     public get owner(): WebRenderStruct2D {
         return super.owner;
     }
 
-    private _destroyGraphicsOpRuntime(): void {
-        if (!this._opRuntime)
-            return;
-        this._opRuntime.destroy();
-        this._opRuntime = null;
-    }
-
-    private _createGraphicsOpRuntime(): void {
-        if (!this._owner)
-            return;
-        if (!this._opRuntime) {
-            this._opRuntime = new WebGraphicsOp2DRuntime(this._owner, this._graphicsMaterialState);
-            this._opRuntime.setGraphicsHandleUpdateBuffer(this._graphicsHandleUpdateBuffer);
-        }
-    }
-
-    private _setGraphicsOpsActive(value: boolean): void {
-        if (this._graphicsOpsActive === value)
-            return;
-        this._graphicsOpsActive = value;
-        this.needUseMatrix = !value;
-        this._invalidateMatrixCache();
-    }
-
-    private _invalidateMatrixCache(): void {
-        this._modifiedFrame = -1;
-    }
-
     setGraphicsHandleUpdateBuffer(buffer: ArrayBuffer): void {
         if (this._graphicsHandleUpdateBuffer === buffer)
             return;
         this._graphicsHandleUpdateBuffer = buffer;
-        if (this._opRuntime)
-            this._opRuntime.setGraphicsHandleUpdateBuffer(buffer);
+        if (this._singleQuadData)
+            this._singleQuadData.setHandleControlBuffer(buffer);
     }
 
     setGraphicsMaterialState(subShader: SubShader | null, shaderData: ShaderData | null, useSpriteState: boolean): void {
         subShader = subShader || null;
         shaderData = shaderData || null;
-        let subShaderChanged = this._graphicsMaterialState.subShader !== subShader;
-        let shaderDataChanged = this._graphicsMaterialState.shaderData !== shaderData;
         this._graphicsMaterialState.subShader = subShader;
         this._graphicsMaterialState.shaderData = shaderData;
         this._graphicsMaterialState.useSpriteState = useSpriteState;
-        if (this._opRuntime) {
-            if (subShaderChanged)
-                this._opRuntime.syncGraphicsSubShader();
-            if (shaderDataChanged)
-                this._opRuntime.syncGraphicsShaderData();
-        }
+        if (this._singleQuadData)
+            this._singleQuadData.setMaterialState(subShader, shaderData, useSpriteState);
     }
 
-    syncGraphicsOps(ops: ReadonlyArray<IGraphicsOp2D>): void {
-        if (!ops || ops.length === 0) {
-            this._opRuntime.syncGraphicsOps(ops ? ops as ReadonlyArray<WebGraphicsOp2D> : WebPrimitiveDataHandle._emptyGraphicsOps);
-            this._setGraphicsOpsActive(false);
+    setSingleQuadPayloadBuffer(buffer: ArrayBuffer): void {
+        if (this._singleQuadPayloadBuffer === buffer)
             return;
-        }
-        this._opRuntime.syncGraphicsOps(ops as ReadonlyArray<WebGraphicsOp2D>);
-        // Partial op synchronization can leave untouched vertices at the previously cached alpha.
-        // Force the next inherit pass to reconcile alpha across every render op.
-        this._globalAlphaValid = false;
-        this._setGraphicsOpsActive(true);
+        if (this._singleQuadPayloadBuffer)
+            throw new Error("SingleQuad payload buffer can only be bound once");
+        this._singleQuadPayloadBuffer = buffer;
     }
 
-    /** @internal */
-    getGraphicsBatchEntry(index: number): WebGraphicsBatchEntry {
-        return this._opRuntime.getGraphicsBatchEntry(index);
+    syncSingleQuad(texture: BaseTexture | null): boolean {
+        if (!this._ensureSingleQuadData())
+            return false;
+        if (!this._singleQuadData.sync(texture))
+            return false;
+        this._singleQuadActive = true;
+        this.needUseMatrix = false;
+        this._modifiedFrame = this._owner ? this._owner.getRenderMatrixVersion() : -1;
+        this._globalAlpha = this._owner ? this._owner.globalAlpha : 1;
+        this._globalAlphaValid = true;
+        return true;
+    }
+
+    private _ensureSingleQuadData(): boolean {
+        if (this._singleQuadData)
+            return true;
+        if (!this._singleQuadPayloadBuffer)
+            return false;
+        this._singleQuadData = new WebSingleQuadPrimitiveData(this._singleQuadPayloadBuffer);
+        this._singleQuadData.setOwner(this._owner);
+        this._singleQuadData.setHandleControlBuffer(this._graphicsHandleUpdateBuffer);
+        this._singleQuadData.setMaterialState(this._graphicsMaterialState.subShader, this._graphicsMaterialState.shaderData, this._graphicsMaterialState.useSpriteState);
+        return true;
+    }
+
+    deactivateSingleQuad(): void {
+        if (this._singleQuadData)
+            this._singleQuadData.deactivate();
+        this._singleQuadActive = false;
     }
 
     inheriteRenderData(context: IRenderContext2D): void {
@@ -181,46 +202,174 @@ export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2D
             let matrixVersion = this._owner.getRenderMatrixVersion();
             let globalAlpha = this._owner.globalAlpha;
             let alphaChanged = !this._globalAlphaValid || this._globalAlpha != globalAlpha;
-
             if (this._modifiedFrame !== matrixVersion) {
-                if (this.needUseMatrix) {
-                    let mat: Matrix = this._owner.renderMatrix;
-                    if (this.logicMatrix) {
-                        let temp = Matrix.TEMP;
-                        Matrix.mul(this.logicMatrix, mat.copyTo(temp), temp);
-                        this._nMatrix_0.setValue(temp.a, temp.c, temp.tx);
-                        this._nMatrix_1.setValue(temp.b, temp.d, temp.ty);
-                    }
-                    else {
-                        this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
-                        this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
-                    }
-                    data.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
-                    data.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
-                }
-                else if (this._graphicsOpsActive) {
-                    this._opRuntime.updateTransform(this._owner.renderMatrix, globalAlpha, alphaChanged);
+                if (this._singleQuadActive) {
+                    this._singleQuadData.updateTransform(this._owner.renderMatrix, globalAlpha, alphaChanged);
                 }
                 this._globalAlpha = globalAlpha;
                 this._globalAlphaValid = true;
                 this._modifiedFrame = matrixVersion;
             }
-            else if (!this._globalAlphaValid || this._globalAlpha != globalAlpha) {
+            else if (alphaChanged) {
                 this._globalAlpha = globalAlpha;
                 this._globalAlphaValid = true;
-                if (this._graphicsOpsActive) {
-                    this._opRuntime.updateGlobalAlpha(this._globalAlpha);
+                if (this._singleQuadActive) {
+                    this._singleQuadData.updateGlobalAlpha(this._globalAlpha);
                 }
             }
         }
     }
 
     destroy(): void {
-        this._destroyGraphicsOpRuntime();
+        if (this._singleQuadData)
+            this._singleQuadData.destroy();
+        this._singleQuadData = null;
+        this._singleQuadPayloadBuffer = null;
+        this._singleQuadActive = false;
         this._graphicsMaterialState.subShader = null;
         this._graphicsMaterialState.shaderData = null;
+        super.owner = null;
         super.destroy();
     }
+}
+
+export class WebGraphicsCommandStreamDataHandle extends WebRender2DDataHandle implements IGraphicsCommandStreamDataHandle {
+	readonly autoGraphicsDirtySync: boolean = false;
+	private static _emptyGraphicsOps: ReadonlyArray<WebGraphicsOp2D> = [];
+	private _opRuntime: WebGraphicsOp2DRuntime = null;
+	private _graphicsOpsActive: boolean = false;
+	private _graphicsHandleUpdateBuffer: ArrayBuffer = null;
+	private _modifiedFrame: number = -1;
+	private _globalAlpha: number = 1;
+	private _globalAlphaValid: boolean = false;
+	private _graphicsMaterialState: WebGraphicsMaterialState = { subShader: null, shaderData: null, useSpriteState: true };
+
+	public set owner(value: WebRenderStruct2D) {
+		if (this._owner === value)
+			return;
+		if (!value) {
+			this._setGraphicsOpsActive(false);
+			return;
+		}
+		this._destroyGraphicsOpRuntime();
+		super.owner = value;
+		this._graphicsOpsActive = false;
+		this._globalAlphaValid = false;
+		this._modifiedFrame = -1;
+	}
+
+	public get owner(): WebRenderStruct2D {
+		return super.owner;
+	}
+
+	private _destroyGraphicsOpRuntime(): void {
+		if (!this._opRuntime)
+			return;
+		this._opRuntime.destroy();
+		this._opRuntime = null;
+	}
+
+	private _createGraphicsOpRuntime(): void {
+		if (!this._owner || this._opRuntime)
+			return;
+		this._opRuntime = new WebGraphicsOp2DRuntime(this._owner, this._graphicsMaterialState);
+		this._opRuntime.setGraphicsHandleUpdateBuffer(this._graphicsHandleUpdateBuffer);
+	}
+
+	private _setGraphicsOpsActive(value: boolean): void {
+		if (value)
+			this._opRuntime && this._opRuntime.activate();
+		else
+			this._opRuntime && this._opRuntime.deactivate();
+		if (this._graphicsOpsActive === value)
+			return;
+		this._graphicsOpsActive = value;
+		this.needUseMatrix = !value;
+		this._modifiedFrame = -1;
+	}
+
+	setGraphicsHandleUpdateBuffer(buffer: ArrayBuffer): void {
+		if (this._graphicsHandleUpdateBuffer === buffer)
+			return;
+		this._graphicsHandleUpdateBuffer = buffer;
+		if (this._opRuntime)
+			this._opRuntime.setGraphicsHandleUpdateBuffer(buffer);
+	}
+
+	setGraphicsMaterialState(subShader: SubShader | null, shaderData: ShaderData | null, useSpriteState: boolean): void {
+		subShader = subShader || null;
+		shaderData = shaderData || null;
+		let subShaderChanged = this._graphicsMaterialState.subShader !== subShader;
+		let shaderDataChanged = this._graphicsMaterialState.shaderData !== shaderData;
+		let useSpriteStateChanged = this._graphicsMaterialState.useSpriteState !== useSpriteState;
+		this._graphicsMaterialState.subShader = subShader;
+		this._graphicsMaterialState.shaderData = shaderData;
+		this._graphicsMaterialState.useSpriteState = useSpriteState;
+		if (this._opRuntime) {
+			if (subShaderChanged)
+				this._opRuntime.syncGraphicsSubShader();
+			if (shaderDataChanged)
+				this._opRuntime.syncGraphicsShaderData();
+			if (useSpriteStateChanged)
+				this._opRuntime.syncGraphicsUseSpriteState();
+		}
+	}
+
+	syncGraphicsOps(ops: ReadonlyArray<IGraphicsOp2D>): void {
+		this._createGraphicsOpRuntime();
+		// Resolve pending transform dirtiness once so retained clean units are
+		// followed by the normal matrix-version update instead of keeping stale positions.
+		if (this._owner)
+			this._owner.renderMatrix;
+		if (!ops || ops.length === 0) {
+			this._opRuntime.syncGraphicsOps(ops ? ops as ReadonlyArray<WebGraphicsOp2D> : WebGraphicsCommandStreamDataHandle._emptyGraphicsOps);
+			this._setGraphicsOpsActive(false);
+			return;
+		}
+		this._opRuntime.syncGraphicsOps(ops as ReadonlyArray<WebGraphicsOp2D>);
+		this._globalAlphaValid = false;
+		this._setGraphicsOpsActive(true);
+	}
+
+	deactivateGraphicsOps(): void {
+		this._setGraphicsOpsActive(false);
+	}
+
+	/** @internal */
+	getGraphicsBatchEntry(index: number): WebGraphicsBatchEntry {
+		return this._opRuntime ? this._opRuntime.getGraphicsBatchEntry(index) : null;
+	}
+
+	inheriteRenderData(context: IRenderContext2D): void {
+		let data = this._owner.spriteShaderData;
+		if (!data)
+			return;
+		let matrixVersion = this._owner.getRenderMatrixVersion();
+		let globalAlpha = this._owner.globalAlpha;
+		let alphaChanged = !this._globalAlphaValid || this._globalAlpha != globalAlpha;
+		if (this._modifiedFrame !== matrixVersion) {
+			if (this._graphicsOpsActive)
+				this._opRuntime.updateTransform(this._owner.renderMatrix, globalAlpha, alphaChanged);
+			this._globalAlpha = globalAlpha;
+			this._globalAlphaValid = true;
+			this._modifiedFrame = matrixVersion;
+		}
+		else if (alphaChanged) {
+			this._globalAlpha = globalAlpha;
+			this._globalAlphaValid = true;
+			if (this._graphicsOpsActive)
+				this._opRuntime.updateGlobalAlpha(globalAlpha);
+		}
+	}
+
+	destroy(): void {
+		this._destroyGraphicsOpRuntime();
+		this._graphicsOpsActive = false;
+		this._graphicsMaterialState.subShader = null;
+		this._graphicsMaterialState.shaderData = null;
+		super.owner = null;
+		super.destroy();
+	}
 }
 
 export class Web2DBaseRenderDataHandle extends WebRender2DDataHandle implements I2DBaseRenderDataHandle {

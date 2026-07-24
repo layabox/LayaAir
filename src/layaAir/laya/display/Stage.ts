@@ -900,7 +900,7 @@ export class Stage extends Sprite {
 
         for (let sprite of this._graphicUpdateList) {
             if (sprite._needGraphicsUpdate()) {
-                sprite._graphicsRenderer._render(Render2DProcessor.runner);
+                sprite._graphicsRenderer?._render(Render2DProcessor.runner);
             }
         }
     }

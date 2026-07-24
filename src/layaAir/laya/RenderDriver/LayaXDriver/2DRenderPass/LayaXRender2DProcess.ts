@@ -9,7 +9,7 @@ import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderD
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import {
-    I2DBaseRenderDataHandle, I2DPrimitiveDataHandle,
+    I2DBaseRenderDataHandle, IGraphicsSingleQuadDataHandle, IGraphicsCommandStreamDataHandle, ISubStructRenderDataHandle,
     IMesh2DRenderDataHandle, I2DGlobalRenderData,
     IRender2DDataHandle, IGraphicsOp2DFactory
 } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
@@ -18,7 +18,8 @@ import {
 import { RTRender2DPass, RTRender2DPassManager } from "../../RenderModuleData/RuntimeModuleData/2D/RTRender2DPass";
 import {
     RTBaseRenderDataHandle, RTEmptyRender2DDataHandle,
-    RTMesh2DRenderDataHandle, RTPrimitiveDataHandle
+    RTGraphicsSingleQuadDataHandle, RTGraphicsCommandStreamDataHandle, RTMesh2DRenderDataHandle,
+    RTSpineRenderDataHandle, RTSubStructRenderDataHandle
 } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderDataHandle";
 import { RTGlobalRenderData, RTRenderStruct2D } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderStruct2D";
 import { ITransform2DMemoryFactory } from "../../../display/transform2d/ITransform2DMemory";
@@ -118,8 +119,15 @@ export class LayaXRender2DProcess implements I2DRenderPassFactory {
         return new RTGlobalRenderData();
     }
 
-    create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle {
-        return new RTPrimitiveDataHandle();
+    createSubStructRenderDataHandle(): ISubStructRenderDataHandle {
+        return new RTSubStructRenderDataHandle();
+    }
+
+    createGraphicsSingleQuadDataHandle(): IGraphicsSingleQuadDataHandle {
+        return new RTGraphicsSingleQuadDataHandle();
+    }
+    createGraphicsCommandStreamDataHandle(): IGraphicsCommandStreamDataHandle {
+        return new RTGraphicsCommandStreamDataHandle();
     }
 
     createGraphicsOp2DFactory(): IGraphicsOp2DFactory {

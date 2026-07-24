@@ -30,7 +30,6 @@ import { Mesh2DRender } from "./laya/display/Scene2DSpecial/Mesh2DRender";
 import { SequenceFrame2DRender } from "./laya/display/Scene2DSpecial/SequenceFrame2D/SequenceFrame2DRender";
 import { PostProcess2D } from "./laya/display/PostProcess2D";
 import { Render2DProcessor } from "./laya/display/Render2DProcessor";
-import { GraphicsRenderer } from "./laya/display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsRenderer";
 import { Blit2DCMD } from "./laya/display/Scene2DSpecial/RenderCMD2D/Blit2DCMD";
 import { Scene } from "./laya/display/Scene";
 import { RenderTexture2D } from "./laya/resource/RenderTexture2D";
@@ -216,7 +215,6 @@ export class Laya {
 
         Scene.__init__();
         Render2DProcessor.__init__();
-        (<any>GraphicsRenderer).__init__();
         BaseRenderNode2D.initBaseRender2DCommandEncoder();
         Blit2DCMD.__init__();
         PostProcess2D.init();
