@@ -145,5 +145,6 @@ Laya.addAfterInitCallback(() => {
 
     // SpineConst.ENABLE_WEB_BATCH = false;
     SpineConst.ENABLE_WEB_BATCH = (window as any).Laya.BatchManager != null;//!LayaEnv.isConch || (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() == 2);
+    SpineConst.ENABLE_WEB_BATCH = false;
     SpineShaderInit.init();
 });
