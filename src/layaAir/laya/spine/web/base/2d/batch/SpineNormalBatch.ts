@@ -3,7 +3,6 @@ import { IRenderElement2D } from "../../../../../RenderDriver/DriverDesign/2DRen
 import { IBatch2DProvider } from "../../../../../RenderDriver/RenderModuleData/WebModuleData/2D/BatchManager";
 import { FastSinglelist } from "../../../../../utils/SingletonList";
 import { WebRenderStruct2D } from "../../../../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
-import { WebSpineRenderDataHandle } from "../WebSpineRenderDataHandle";
 import { SpineConst } from "../../../../SpineConst";
 import { BufferUsage } from "../../../../../RenderEngine/RenderEnum/BufferTargetType";
 import { SpineShaderInit } from "../../../../shader/SpineShaderInit";
@@ -15,6 +14,8 @@ import { IndexFormat } from "../../../../../RenderEngine/RenderEnum/IndexFormat"
 import { SpineBufferView } from "./SpineBufferDataView";
 import { SpineWholeBuffer } from "./SpineWholeBuffer";
 import { Spine2DNormalRenderUpdater } from "../Spine2DNormalRenderUpdater";
+import { SpineGlobalMeshManager } from "../SpineGlobalMeshManager";
+import { WebSpineRenderDataHandle } from "../handle/WebSpineRenderDataHandle";
 
 /**
  * @en Spine batch context to track batch state and avoid GC
@@ -25,6 +26,8 @@ class SpineBatchContext {
     materialShaderData: ShaderData = null;
     ownerStruct: WebRenderStruct2D = null;
     subShader: any = null;
+    stencilClipState: any = null;
+    renderStateIsBySprite: boolean = false;
 
     /**
      * @en Initialize context from first element
@@ -35,6 +38,8 @@ class SpineBatchContext {
         this.ownerStruct = element.owner as WebRenderStruct2D;
         this.materialShaderData = element.materialShaderData;
         this.subShader = element.subShader;
+        this.stencilClipState = element.stencilClipState;
+        this.renderStateIsBySprite = element.renderStateIsBySprite;
         return true;
     }
 
@@ -51,6 +56,11 @@ class SpineBatchContext {
             return false;
         }
 
+        if (element.stencilClipState !== this.stencilClipState
+            || element.renderStateIsBySprite !== this.renderStateIsBySprite) {
+            return false;
+        }
+
         return true;
     }
 
@@ -63,7 +73,7 @@ class SpineBatchContext {
         this.ownerStruct = element.owner as WebRenderStruct2D;
         this.materialShaderData = element.materialShaderData;
 
-        let handle = this.ownerStruct.renderDataHandler as WebSpineRenderDataHandle;
+        let handle = element.owner.renderDataHandler as WebSpineRenderDataHandle;
         let normalUpdater = handle.normalUpdater as Spine2DNormalRenderUpdater;
 
         // Get the view associated with this element's geometry (1:1 relationship)
@@ -78,6 +88,8 @@ class SpineBatchContext {
 interface BatchBuffer {
     wholeBuffer: SpineWholeBuffer;
     bufferState: any;  // Use bufferState instead of Mesh2D (lower-level concept)
+    views: SpineBufferView[];
+    viewCount: number;
 }
 
 /**
@@ -123,6 +135,9 @@ export class SpineNormalBatch implements IBatch2DProvider {
             element.subShader = null;
             element.owner = null;
             element.renderStateIsBySprite = false;
+            element.globalShaderData = null;
+            element.stencilClipState = null;
+            element.noBatch = false;
         }
     );
 
@@ -269,7 +284,7 @@ export class SpineNormalBatch implements IBatch2DProvider {
 
         for (let i = batchStart; i <= batchEnd; i++) {
             let element = elementArray[i];
-            let handle = (element.owner as WebRenderStruct2D).renderDataHandler as WebSpineRenderDataHandle;
+            let handle = element.owner.renderDataHandler as WebSpineRenderDataHandle;
             let normalUpdater = handle.normalUpdater as Spine2DNormalRenderUpdater;
 
             let view = normalUpdater.getViewForGeometry(element.geometry);
@@ -283,13 +298,14 @@ export class SpineNormalBatch implements IBatch2DProvider {
 
         for (let i = batchStart; i <= batchEnd; i++) {
             let element = elementArray[i];
-            let handle = (element.owner as WebRenderStruct2D).renderDataHandler as WebSpineRenderDataHandle;
+            let handle = element.owner.renderDataHandler as WebSpineRenderDataHandle;
             let normalUpdater = handle.normalUpdater as Spine2DNormalRenderUpdater;
 
             let view = normalUpdater.getViewForGeometry(element.geometry);
             if (!view) continue;
 
             view.transferToBuffer(batchBuffer.wholeBuffer);
+            batchBuffer.views[batchBuffer.viewCount++] = view;
         }
 
         let firstElement = elementArray[batchStart];
@@ -307,6 +323,8 @@ export class SpineNormalBatch implements IBatch2DProvider {
         batchElement.value2DShaderData = firstElement.value2DShaderData;
         batchElement.renderStateIsBySprite = firstElement.renderStateIsBySprite;
         batchElement.nodeCommonMap = firstElement.nodeCommonMap;
+        batchElement.owner = firstElement.owner;
+        batchElement.stencilClipState = firstElement.stencilClipState;
 
         list.add(batchElement);
     }
@@ -332,10 +350,13 @@ export class SpineNormalBatch implements IBatch2DProvider {
 
             batchBuffer = {
                 wholeBuffer,
-                bufferState
+                bufferState,
+                views: [],
+                viewCount: 0
             };
         }
 
+        batchBuffer.viewCount = 0;
         this._activeBatchBuffers[this._activeBatchBufferCount++] = batchBuffer;
         return batchBuffer;
     }
@@ -345,9 +366,21 @@ export class SpineNormalBatch implements IBatch2DProvider {
      * @zh 为新帧重置批次状态
      */
     reset(): void {
+        let manager = SpineGlobalMeshManager.instance;
+
         // Recycle batch buffers
         for (let i = 0; i < this._activeBatchBufferCount; i++) {
             let batchBuffer = this._activeBatchBuffers[i];
+            for (let j = 0; j < batchBuffer.viewCount; j++) {
+                let view = batchBuffer.views[j];
+                if (view.owner === batchBuffer.wholeBuffer) {
+                    manager.assignViewToBuffer(view, view.vertexCount);
+                    if (view.geometry)
+                        view.geometry.bufferState = manager.outBufferState;
+                }
+                batchBuffer.views[j] = null;
+            }
+            batchBuffer.viewCount = 0;
             batchBuffer.wholeBuffer.clearDataViews();
             this._batchBufferPool.push(batchBuffer);
         }

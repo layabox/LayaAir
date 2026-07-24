@@ -42,7 +42,7 @@ export class SpineGlobalMeshManager {
      */
     assignViewToBuffer(view: SpineBufferView, vertexCount: number): void {
         let targetBuffer = this._findOrCreateBuffer(vertexCount);
-        targetBuffer.addDataView(view);
+        view.transferToBuffer(targetBuffer);
         this.outBufferState = targetBuffer.bufferState;
         this.outBufferIndex = this._buffers.indexOf(targetBuffer);
     }

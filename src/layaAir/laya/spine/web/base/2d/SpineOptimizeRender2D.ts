@@ -14,7 +14,7 @@ import { ERenderProxyType, IRender, IRenderBatch } from "../../IWebSpine";
 import { OptimizedSpineRenderer, StandardSpineRenderer, RigidBodySpineRenderer, BakedSpineRenderer } from "../optimize/SpineRendererTypes";
 import { BakedSpine2DRenderer, StandardSpine2DRenderer } from "./SpineRendererTypes2D";
 import { Spine2DNormalRenderUpdater } from "./Spine2DNormalRenderUpdater";
-import { WebSpineRenderDataHandle } from "./WebSpineRenderDataHandle";
+import { WebSpineRenderDataHandle } from "./handle/WebSpineRenderDataHandle";
 import { SpineConst } from "../../../SpineConst";
 import { SpineNormalRenderUpdater } from "../optimize/SpineNormalRenderUpdater";
 

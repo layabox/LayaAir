@@ -1,10 +1,11 @@
-import { Color } from "../../maths/Color";
-import { Vector2 } from "../../maths/Vector2";
-import { BaseRenderNode2D } from "../../NodeRender2D/BaseRenderNode2D";
-import { IRenderContext2D } from "../../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
-import { ISpineRenderDataHandle } from "../interface/ISpineRenderDataHandle";
-import type { RTRenderStruct2D } from "../../RenderDriver/RenderModuleData/RuntimeModuleData/2D/RTRenderStruct2D";
-import { SpineShaderInit } from "../shader/SpineShaderInit";
+import { Color } from "../../../../../maths/Color";
+import { Vector2 } from "../../../../../maths/Vector2";
+import { BaseRenderNode2D } from "../../../../../NodeRender2D/BaseRenderNode2D";
+import { IRenderContext2D } from "../../../../../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
+import { RTRenderStruct2D } from "../../../../../RenderDriver/RenderModuleData/RuntimeModuleData/2D/RTRenderStruct2D";
+import { ISpineRenderDataHandle } from "../../../../interface/ISpineRenderDataHandle";
+import { SpineShaderInit } from "../../../../shader/SpineShaderInit";
+
 
 /** @internal Native Spine handle backed by conchRTSpineRenderDataHandle. */
 export class NativeSpineRenderDataHandle implements ISpineRenderDataHandle {
