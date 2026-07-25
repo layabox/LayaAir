@@ -62,6 +62,8 @@ export class GraphicsRunner {
     private _strokeStyle: DrawStyle = DrawStyle.DEFAULT;
 
     private static SEGNUM = 32;
+    /** @internal reusable Vector4 for fillTexture trim rect */
+    private static _trimRectVec4: Vector4 = new Vector4(0, 0, 1, 1);
 
     private _tempUV = new Float32Array(8);
     private _drawTriUseAbsMatrix = false;	//drawTriange函数的矩阵是全局的，不用再乘以当前矩阵了。这是一个补丁。
@@ -756,7 +758,10 @@ export class GraphicsRunner {
             return;
         }
         this._renderer.addResRef(texture);
-        this._fillTexture(texture, texture.width, texture.height, texture.uvrect, x, y, width, height, type, offset.x, offset.y, color);
+        // Use sourceWidth/sourceHeight as tile period to account for trimmed atlas textures
+        let texw = texture.sourceWidth || texture.width;
+        let texh = texture.sourceHeight || texture.height;
+        this._fillTexture(texture, texw, texh, texture.uvrect, x, y, width, height, type, offset.x, offset.y, color);
     }
 
     /**@internal */
@@ -833,6 +838,16 @@ export class GraphicsRunner {
             var arry = texuvRect.concat();
             Vector4.TEMP.setValue(arry[0], arry[1], arry[2], arry[3]);
             material.u_TexRange = Vector4.TEMP;
+            // Set trim rect for atlas sub-textures with transparent pixel trimming
+            let srcW = texture.sourceWidth || texture.width;
+            let srcH = texture.sourceHeight || texture.height;
+            GraphicsRunner._trimRectVec4.setValue(
+                texture.offsetX / srcW,
+                texture.offsetY / srcH,
+                texture.width / srcW,
+                texture.height / srcH
+            );
+            material.u_TexTrimRect = GraphicsRunner._trimRectVec4;
 
             this._setClipInfo(material);
             submit.clipInfoID = this._clipInfoID;

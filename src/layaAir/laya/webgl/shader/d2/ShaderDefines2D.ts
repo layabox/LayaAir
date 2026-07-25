@@ -146,6 +146,7 @@ export class ShaderDefines2D {
     static UNIFORM_VERTEX_SIZE: number;// uniform vec4 u_vertexSize;
 
     static UNIFORM_TEXRANGE: number;//uniform vec4 u_TexRange;
+    static UNIFORM_TEXTRIMRECT: number;//uniform vec4 u_TexTrimRect;
     /**
      * 渲染矩阵第一个vector3属性ID
      */
@@ -245,6 +246,7 @@ export class ShaderDefines2D {
         ShaderDefines2D.UNIFORM_MATERIAL_CLIPMATPOS = Shader3D.propertyNameToID("u_mClipMatPos");
         ShaderDefines2D.UNIFORM_VERTEX_SIZE = Shader3D.propertyNameToID("u_vertexSize");
         ShaderDefines2D.UNIFORM_TEXRANGE = Shader3D.propertyNameToID("u_TexRange");
+        ShaderDefines2D.UNIFORM_TEXTRIMRECT = Shader3D.propertyNameToID("u_TexTrimRect");
         ShaderDefines2D.UNIFORM_SPRITETEXTURE = Shader3D.propertyNameToID("u_spriteTexture");
         ShaderDefines2D.UNIFORM_SPRITETEXTURE_ARRAY = Shader3D.propertyNameToID("u_spriteTextureArray");
 
@@ -253,6 +255,7 @@ export class ShaderDefines2D {
         graphicsUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_MATERIAL_CLIPMATPOS, "u_mClipMatPos", ShaderDataType.Vector4);
         graphicsUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_VERTEX_SIZE, "u_vertexSize", ShaderDataType.Vector4);
         graphicsUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_TEXRANGE, "u_TexRange", ShaderDataType.Vector4);
+        graphicsUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_TEXTRIMRECT, "u_TexTrimRect", ShaderDataType.Vector4);
         graphicsUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_SPRITETEXTURE, "u_spriteTexture", ShaderDataType.Texture2D);
         // 当启用 USE_TEX_ARRAY 宏时，材质将绑定该 uniform
         graphicsUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_SPRITETEXTURE_ARRAY, "u_spriteTextureArray", ShaderDataType.Texture2DArray);

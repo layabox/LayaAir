@@ -21,6 +21,7 @@ export class GraphicsShaderInfo {
    private _clipMatDir: Vector4 = null;
    private _clipMatPos: Vector4 = null;
    private _texRange: Vector4 = null;
+   private _texTrimRect: Vector4 = null;
    private _vertexSize: Vector4 = null;
    private _isTextrueReadGamma: boolean = false;
    private _bitmap: Texture2D | Texture2DArray;
@@ -171,6 +172,13 @@ export class GraphicsShaderInfo {
       this._texRange = value;
       this.shaderData.setVector(ShaderDefines2D.UNIFORM_TEXRANGE, value);
    }
+   public get u_TexTrimRect(): Vector4 {
+      return this._texTrimRect;
+   }
+   public set u_TexTrimRect(value: Vector4) {
+      this._texTrimRect = value;
+      this.shaderData.setVector(ShaderDefines2D.UNIFORM_TEXTRIMRECT, value);
+   }
    public set fillTexture(value: boolean) {
       if (value == this._fillTexture) return;
       this._fillTexture = value;
@@ -214,6 +222,7 @@ export class GraphicsShaderInfo {
       if (fill) {
          shaderData.addDefine(ShaderDefines2D.FILLTEXTURE);
          shaderData.setVector(ShaderDefines2D.UNIFORM_TEXRANGE, this.u_TexRange);
+         shaderData.setVector(ShaderDefines2D.UNIFORM_TEXTRIMRECT, this.u_TexTrimRect);
       } else {
          shaderData.removeDefine(ShaderDefines2D.FILLTEXTURE);
       }
