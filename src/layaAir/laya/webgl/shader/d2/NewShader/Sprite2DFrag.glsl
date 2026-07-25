@@ -37,12 +37,17 @@ vec4 transspaceColor(vec4 color)
 
     #ifdef FILLTEXTURE
         uniform vec4 u_TexRange; // startu,startv,urange, vrange
+        uniform vec4 u_TexTrimRect; // offsetX/sourceW, offsetY/sourceH, width/sourceW, height/sourceH
     #endif
 
     vec4 getSpriteTextureColor(){
         vec2 uv;
         #ifdef FILLTEXTURE
-            uv = fract(v_texcoordAlpha.xy) * u_TexRange.zw + u_TexRange.xy;
+            vec2 tileUV = fract(v_texcoordAlpha.xy);
+            vec2 trimmedUV = (tileUV - u_TexTrimRect.xy) / u_TexTrimRect.zw;
+            if (trimmedUV.x < 0.0 || trimmedUV.x > 1.0 || trimmedUV.y < 0.0 || trimmedUV.y > 1.0)
+                discard;
+            uv = trimmedUV * u_TexRange.zw + u_TexRange.xy;
         #else
             uv = v_texcoordAlpha.xy;
         #endif
