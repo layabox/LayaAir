@@ -18,6 +18,7 @@ import { IElementComponentManager } from "../../components/IScenceComponentManag
  */
 export class BaseNavigationManager implements IElementComponentManager {
 
+    private static _initializePromise: Promise<void> | null = null;
 
     /**
      * 初始化系统，由系统内部调用
@@ -25,20 +26,26 @@ export class BaseNavigationManager implements IElementComponentManager {
      */
     protected static _initialize(callback: () => void | Promise<void>): Promise<void> {
         if (NavigationUtils._getRecast() != null) {
-            callback && callback();
-            return Promise.resolve();
-        } else {
-            
-            if((window as any).Recast){
-                return (window as any).Recast().then((Recast: any) => {
-                    NavigationUtils._initialize(Recast);
-                    callback && callback();
-                    return Promise.resolve();
-                });
-            }else{
-                return Promise.resolve();
-            }
+            return Promise.resolve().then(callback);
         }
+
+        const Recast = (window as any).Recast;
+        if (!Recast) {
+            return Promise.resolve();
+        }
+
+        if (BaseNavigationManager._initializePromise == null) {
+            BaseNavigationManager._initializePromise = Recast()
+                .then((recast: any) => {
+                    NavigationUtils._initialize(recast);
+                })
+                .catch((error: unknown) => {
+                    BaseNavigationManager._initializePromise = null;
+                    throw error;
+                });
+        }
+
+        return BaseNavigationManager._initializePromise.then(callback);
     }
 
 
@@ -434,4 +441,3 @@ export class BaseNavigationManager implements IElementComponentManager {
     }
 
 }
-
