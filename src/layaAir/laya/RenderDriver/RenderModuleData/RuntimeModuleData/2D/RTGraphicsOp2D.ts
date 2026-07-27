@@ -171,10 +171,6 @@ export abstract class RTGraphicsOp2D implements IGraphicsOp2D {
 			this._int32[GraphicsOpInfoField.ChangeMask] = GraphicsOp2DDirtyFlag.None;
 	}
 
-	clearDirtyFlagsOnly(): void {
-		this.dirtyFlags = GraphicsOp2DDirtyFlag.None;
-	}
-
 	destroy(): void {
 		if (this._nativeObj)
 			this._nativeObj.destroy();

@@ -214,10 +214,12 @@ export class FontClip extends Clip {
     protected changeValue(): void {
         if (!this._sources) return;
         if (!this._valueArr) return;
-        this.graphics.clear(true);
         let texture: Texture;
         texture = this._sources[0];
-        if (!texture) return;
+        if (!texture) {
+            this.graphics.clear(true);
+            return;
+        }
         var isHorizontal: boolean = (this._direction === "horizontal");
         if (isHorizontal) {
             this._wordsW = this._valueArr.length * (texture.sourceWidth + this.spaceX);
@@ -236,22 +238,21 @@ export class FontClip extends Clip {
                     dX = this._width - this._wordsW;
                     break;
                 default:
-                    dX = 0;
+                dX = 0;
             }
         }
 
+        this.graphics.clear(true);
         for (let i = 0, sz = this._valueArr.length; i < sz; i++) {
             let index = this._indexMap[this._valueArr.charAt(i)];
             texture = this._sources[index];
             if (!texture)
                 continue;
-
             if (isHorizontal)
                 this.graphics.drawImage(texture, dX + i * (texture.sourceWidth + this.spaceX), 0, texture.sourceWidth, texture.sourceHeight);
             else
-                this.graphics.drawImage(texture, 0 + dX, i * (texture.sourceHeight + this.spaceY), texture.sourceWidth, texture.sourceHeight);
+                this.graphics.drawImage(texture, dX, i * (texture.sourceHeight + this.spaceY), texture.sourceWidth, texture.sourceHeight);
         }
-
         if (!this._isWidthSet) {
             this._widget.resetLayoutX();
             this.callLater(this._sizeChanged);

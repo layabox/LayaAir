@@ -37,8 +37,7 @@ import { FillTextureCmd } from "../../cmd/FillTextureCmd";
 import type { GraphicsRunner } from "../GraphicsRunner";
 import type { GraphicsCommandStreamMode } from "./GraphicsCommandStreamMode";
 import { GraphicsGeometryHelper, GraphicsOpRenderStateHelper, GraphicsTextureDataHelper } from "./GraphicsPipelineHelpers";
-import { GraphicsOp2DKind, type GraphicsBlendModeInput, type GraphicsColorInput, type GraphicsOp2DTextureHost } from "./GraphicsPipelineTypes";
-
+import { GraphicsCommandDependency, GraphicsCommandLayoutRefresh, GraphicsOp2DKind, GraphicsOwnerTransformDependency, type GraphicsBlendModeInput, type GraphicsColorInput, type GraphicsCommandInfo, type GraphicsOp2DTextureHost } from "./GraphicsPipelineTypes";
 const GRAPHICS_COMPILE_SAVE_STRIDE = 8;
 const COMPILE_FILL_RANGE: number[] = [0, 0, 1, 1];
 const COMPILE_FILL_GEOMETRY: number[] = new Array(12);
@@ -58,14 +57,13 @@ const COMPILE_TEXT_UVS: number[] = new Array(8);
 const COMPILE_GRID_RECT = new Rectangle();
 const EMPTY_SIZE_GRID: number[] = [0, 0, 0, 0, 0];
 const TWO_PI = Math.PI * 2;
-
+const COMPILE_COMMAND_INFO: GraphicsCommandInfo = { dependency: GraphicsCommandDependency.None, layoutRefresh: GraphicsCommandLayoutRefresh.None, scaleTessellationKey: 0, isStateCommand: false };
 /** Lightweight retained state context used only by Graphics CommandStream compilation. @internal */
 export class GraphicsCompileContext {
    _curMat: Matrix = new Matrix();
    _matrixChanged: boolean = false;
    sprite: Sprite = null;
    _textRender: GraphicsRunner["_textRender"] = null;
-
    private _alpha: number = 1;
    private _blendMode: BlendMode = BlendMode.normal;
    private _saveFrames: Float64Array = null;
@@ -75,27 +73,13 @@ export class GraphicsCompileContext {
    private _resolvedTextureSource: BaseTexture = null;
    private _resolvedTextureResource: GraphicsOp2DTextureHost = null;
    private _resolvedTextureLayer: number = 0;
+   private _ownerDependencyMask: GraphicsOwnerTransformDependency = GraphicsOwnerTransformDependency.None;
    private readonly _textTextureSink: TextRenderTextureSink =
       (texture, x, y, width, height, uv, color, italicDeg, pixelSnap) =>
          this._appendTextTexture(texture, x, y, width, height, uv, color, italicDeg, pixelSnap);
-
-   /** Bind this single shared context for one synchronous compile transaction. */
-   begin(mode: GraphicsCommandStreamMode): void {
-      if (this._mode)
-         throw new Error("GraphicsCompileContext is not reentrant");
+   /** Bind and reset this shared context for one synchronous compile transaction. */
+   begin(mode: GraphicsCommandStreamMode, sprite: Sprite, blendMode: BlendMode, textRender: GraphicsRunner["_textRender"]): void {
       this._mode = mode;
-   }
-
-   /** Release all renderer-owned references after a compile transaction. */
-   end(): void {
-      this._clearResolvedTexture();
-      this._mode = null;
-      this.sprite = null;
-      this._textRender = null;
-      this._saveDepth = 0;
-   }
-
-   reset(sprite: Sprite, blendMode: BlendMode, textRender: GraphicsRunner["_textRender"]): void {
       this.sprite = sprite;
       this._textRender = textRender;
       this._curMat.identity();
@@ -103,11 +87,18 @@ export class GraphicsCompileContext {
       this._alpha = 1;
       this._blendMode = blendMode == null ? BlendMode.normal : blendMode;
       this._saveDepth = 0;
+      this._ownerDependencyMask = GraphicsOwnerTransformDependency.None;
    }
-
-   loadStateFrom(source: Float64Array, offset: number, sprite: Sprite, textRender: GraphicsRunner["_textRender"]): void {
-      this.sprite = sprite;
-      this._textRender = textRender;
+   /** Release all renderer-owned references after a compile transaction. */
+   end(): void {
+      this._mode.endCompile();
+      this._clearResolvedTexture();
+      this._mode = null;
+      this.sprite = null;
+      this._textRender = null;
+      this._saveDepth = 0;
+   }
+   private _loadState(source: Float64Array, offset: number): void {
       let mat = this._curMat;
       mat.setTo(source[offset], source[offset + 1], source[offset + 2], source[offset + 3], source[offset + 4], source[offset + 5]);
       mat._checkTransform();
@@ -116,19 +107,58 @@ export class GraphicsCompileContext {
       this._blendMode = source[offset + 7];
       this._saveDepth = 0;
    }
-
    alpha(value: number): void {
       this.globalAlpha *= value;
    }
-
-   compileCommand(cmd: IGraphicsCmd, isStateCommand: boolean = false): void {
+   compileCommand(commandIndex: number, cmd: IGraphicsCmd, targetOp: IGraphicsTextureQuadOp2D = null): void {
       if (!cmd)
          return;
       let mode = this._mode;
-      if (isStateCommand) {
+      let binding = cmd._cacheData;
+      if (targetOp && binding && binding.kind === "FrameAnimation") {
+         this._loadState(binding.state, 0);
+         mode.beginCommand(commandIndex, cmd.cmdID, targetOp);
+         mode._beginActiveCommandTextures();
+         this._clearResolvedTexture();
+         cmd.run(this, 0, 0);
+         mode.finalizeActiveCommandTextures();
+         mode.endCommand();
+         return;
+      }
+      switch (cmd.cmdID) {
+         case "AlphaCmd":
+         case "ClipRectCmd":
+         case "RestoreCmd":
+         case "RotateCmd":
+         case "SaveCmd":
+         case "ScaleCmd":
+         case "TransformCmd":
+         case "TranslateCmd":
+            cmd.run(this, 0, 0);
+            return;
+      }
+      let info = COMPILE_COMMAND_INFO;
+      info.dependency = GraphicsCommandDependency.None;
+      info.layoutRefresh = GraphicsCommandLayoutRefresh.None;
+      info.scaleTessellationKey = 0;
+      info.isStateCommand = false;
+      if (cmd.getGraphicsCommandInfo)
+         cmd.getGraphicsCommandInfo(info, this.sprite);
+      else if (cmd.needsLayoutRepaint && cmd.needsLayoutRepaint() > 0)
+         info.dependency = GraphicsCommandDependency.SizePayload | GraphicsCommandDependency.ScaleTessellation;
+      if ((info.dependency & GraphicsCommandDependency.SizePayload) !== 0)
+         this._ownerDependencyMask |= GraphicsOwnerTransformDependency.SizeLayout;
+      if ((info.dependency & GraphicsCommandDependency.ScaleTessellation) !== 0)
+         this._ownerDependencyMask |= GraphicsOwnerTransformDependency.ScaleTessellation;
+      if (info.isStateCommand) {
          cmd.run(this, 0, 0);
          return;
       }
+      if (binding && binding.kind === "FrameAnimation") {
+         this._writeState(binding.state, 0);
+      }
+      let opStart = mode.opCount;
+      mode.beginCommand(commandIndex, cmd.cmdID, targetOp);
       mode._beginActiveCommandTextures();
       this._clearResolvedTexture();
       switch (cmd.cmdID) {
@@ -157,12 +187,21 @@ export class GraphicsCompileContext {
             break;
       }
       mode.finalizeActiveCommandTextures();
+      mode.endCommand();
+      if (binding && binding.kind === "FrameAnimation" && !targetOp) {
+         let count = mode.opCount - opStart;
+         binding.commandIndex = commandIndex;
+         binding.opStart = opStart;
+         binding.opCount = count;
+         binding.op = count === 1 && mode.getOp(opStart).kind === GraphicsOp2DKind.TextureQuad ? mode.getOp(opStart) : null;
+      }
    }
-
+   getOwnerDependencyMask(): GraphicsOwnerTransformDependency {
+      return this._ownerDependencyMask;
+   }
    drawTexture(texture: Texture, x: number, y: number, width: number, height: number, color: number = 0xffffffff): void {
       this._appendTextureQuad(texture, x, y, width, height, null, color, 1, null);
    }
-
    drawTextureWithTransform(texture: Texture, x: number, y: number, width: number, height: number,
       transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: BlendMode | string | null,
       uv?: ArrayLike<number>, color: number = 0xffffffff): void {
@@ -183,7 +222,6 @@ export class GraphicsCompileContext {
          resource, this._resolvedTextureLayer, color, this._opAlpha(alpha), this._opBlend(blendMode), mat,
          GraphicsTextureDataHelper.getUVClipRange(texture));
    }
-
    drawTextures(texture: Texture, pos: ArrayLike<number>, tx: number, ty: number, colors: number[]): void {
       let mode = this._mode;
       if (!pos || pos.length < 2 || !mode._prepareTexture(texture) || texture.width <= 0 || texture.height <= 0)
@@ -198,7 +236,6 @@ export class GraphicsCompileContext {
             this._opAlpha(1), this._opBlend(), this._resolvedTextureLayer, matrix, resource,
             GraphicsTextureDataHelper.getUVClipRange(texture));
    }
-
    drawRect(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number): void {
       if (width <= 0 || height <= 0)
          return;
@@ -211,7 +248,6 @@ export class GraphicsCompileContext {
          this._appendLineMesh(COMPILE_PATH, lineWidth, true, this._toABGR(lineColor));
       }
    }
-
    fillTexture(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point, color: number): void {
       let mode = this._mode;
       if (!mode._prepareTexture(texture))
@@ -227,7 +263,6 @@ export class GraphicsCompileContext {
          range[0], range[1], range[2], range[3], color, this._opAlpha(1), this._opBlend(),
          this._resolvedTextureLayer, this._matrixState(), resource, GraphicsTextureDataHelper.getUVClipRange(texture));
    }
-
    _drawLine(x: number, y: number, fromX: number, fromY: number, toX: number, toY: number,
       lineColor: any, lineWidth: number, vid: number): void {
       if (lineColor == null || lineWidth <= 0)
@@ -236,14 +271,12 @@ export class GraphicsCompileContext {
       COMPILE_PATH.push(fromX + x, fromY + y, toX + x, toY + y);
       this._appendLineMesh(COMPILE_PATH, lineWidth, false, this._toABGR(lineColor));
    }
-
    _drawLines(x: number, y: number, points: any[], lineColor: any, lineWidth: number, vid: number): void {
       if (!points || points.length < 4 || lineColor == null || lineWidth <= 0)
          return;
       GraphicsGeometryHelper.copyOffsetPoints(COMPILE_PATH, points, x, y);
       this._appendLineMesh(COMPILE_PATH, lineWidth, false, this._toABGR(lineColor));
    }
-
    _drawCircle(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void {
       if (radius <= 0)
          return;
@@ -256,7 +289,6 @@ export class GraphicsCompileContext {
       if (lineColor != null && lineWidth > 0)
          this._appendLineMesh(COMPILE_PATH, lineWidth, true, this._toABGR(lineColor));
    }
-
    _drawEllipse(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number): void {
       if (width <= 0 || height <= 0)
          return;
@@ -264,7 +296,6 @@ export class GraphicsCompileContext {
       GraphicsGeometryHelper.makeEllipsePath(COMPILE_PATH, x, y, width, height, segments);
       this._appendPathFillAndStroke(COMPILE_PATH, fillColor, lineColor, lineWidth, true);
    }
-
    _drawPie(x: number, y: number, radius: number, startAngle: number, endAngle: number,
       fillColor: any, lineColor: any, lineWidth: number, vid: number): void {
       if (radius <= 0)
@@ -280,14 +311,12 @@ export class GraphicsCompileContext {
       GraphicsGeometryHelper.makePiePath(COMPILE_PATH, x, y, radius, startAngle, endAngle, segments);
       this._appendPathFillAndStroke(COMPILE_PATH, fillColor, lineColor, lineWidth, true);
    }
-
    _drawPoly(x: number, y: number, points: any[], fillColor: any, lineColor: any, lineWidth: number, isConvexPolygon: boolean, vid: number): void {
       if (!points || points.length < 6)
          return;
       GraphicsGeometryHelper.copyOffsetPoints(COMPILE_PATH, points, x, y);
       this._appendPathFillAndStroke(COMPILE_PATH, fillColor, lineColor, lineWidth, true);
    }
-
    _drawRoundRect(x: number, y: number, width: number, height: number, lt: number, rt: number, lb: number, rb: number,
       fillColor: any, lineColor: any, lineWidth: number, minNum: number = 20, segPixel: number = 5): void {
       if (width <= 0 || height <= 0)
@@ -296,7 +325,6 @@ export class GraphicsCompileContext {
          lt, rt, rb, lb, minNum || 20, segPixel || 5, this._tessellationScale());
       this._appendPathFillAndStroke(COMPILE_PATH, fillColor, lineColor, lineWidth, true);
    }
-
    drawCurves(x: number, y: number, points: any[], lineColor: any, lineWidth: number): void {
       if (!points || points.length < 6 || lineColor == null || lineWidth <= 0)
          return;
@@ -307,7 +335,6 @@ export class GraphicsCompileContext {
       GraphicsGeometryHelper.offsetPoints(COMPILE_PATH, x, y);
       this._appendLineMesh(COMPILE_PATH, lineWidth, false, this._toABGR(lineColor));
    }
-
    _drawPath(x: number, y: number, paths: any[], brush: any, pen: any): void {
       let count = GraphicsGeometryHelper.collectDrawPathSubpaths(paths, x, y, COMPILE_SUBPATHS, COMPILE_SUBPATH_CLOSED);
       if (count === 0)
@@ -318,7 +345,6 @@ export class GraphicsCompileContext {
       for (let i = 0; i < count; i++)
          this._appendPathFillAndStroke(COMPILE_SUBPATHS[i], fillColor, lineColor, lineWidth, COMPILE_SUBPATH_CLOSED[i]);
    }
-
    drawTriangles(texture: Texture | BaseTexture, x: number, y: number,
       vertices: ArrayLike<number>, uvs: ArrayLike<number>, indices: ArrayLike<number>, matrix?: Matrix,
       alpha?: number, blendMode?: BlendMode | string, color?: number, colors?: ArrayLike<number>, uvRange?: ArrayLike<number>): void {
@@ -343,7 +369,6 @@ export class GraphicsCompileContext {
          color == null ? 0xffffffff : color, this._opAlpha(alpha == null ? 1 : alpha), this._opBlend(blendMode),
          GraphicsGeometryHelper.combineMatrix(COMPILE_MATRIX, matrix, this._curMat), uvRange);
    }
-
    private _appendTextureQuad(texture: Texture, x: number, y: number, width: number, height: number,
       uv: ArrayLike<number>, color: number, alpha: number, blendMode: GraphicsBlendModeInput): boolean {
       let mode = this._mode;
@@ -357,7 +382,6 @@ export class GraphicsCompileContext {
          this._matrixState(), resource, GraphicsTextureDataHelper.getUVClipRange(texture));
       return true;
    }
-
    private _appendTextTexture(texture: BaseTexture, x: number, y: number, width: number, height: number,
       uv: ArrayLike<number>, color: number, italicDeg: number, pixelSnap: boolean): void {
       if (!texture || texture.destroyed)
@@ -388,7 +412,6 @@ export class GraphicsCompileContext {
       this._writeMesh(0, 0, COMPILE_TEXT_VERTICES, COMPILE_TEXT_UVS, COMPILE_QUAD_INDICES, null,
          resource, this._resolvedTextureLayer, color, this._opAlpha(1), this._opBlend(), null, null);
    }
-
    private _draw9GridTexture(cmd: Draw9GridTextureCmd): void {
       let texture = cmd.texture;
       let mode = this._mode;
@@ -435,39 +458,34 @@ export class GraphicsCompileContext {
          }
       }
    }
-
    private _draw9GridMesh(cmd: Draw9GridTextureCmd, x: number, y: number, width: number, height: number,
       sizeGrid: number[], resource: GraphicsOp2DTextureHost): void {
       let vb = VertexStream.pool.take(cmd.texture);
-      try {
-         vb.contentRect.setTo(0, 0, width, height);
-         if (cmd.color)
-            vb.color.setABGR(cmd.color);
-         let sourceWidth = vb.mainTex.sourceWidth;
-         let sourceHeight = vb.mainTex.sourceHeight;
-         COMPILE_GRID_RECT.setTo(sizeGrid[3], sizeGrid[0],
-            sourceWidth - sizeGrid[1] - sizeGrid[3], sourceHeight - sizeGrid[0] - sizeGrid[2]);
-         genSliceMesh(vb, vb.contentRect, vb.uvRect, COMPILE_GRID_RECT, sizeGrid[4] === 1 ? 0xff : 0);
-         let vertices = vb.getVertices();
-         let uvs = vb.getUVs();
-         let indices: ArrayLike<number> = vb.getIndices();
-         let colors = vb.getColors();
-         let clip = GraphicsTextureDataHelper.getUVClipRange(cmd.texture);
-         if (cmd.texture.uvrect && Config.uvClipMode === "cpu") {
-            let clipped = UVClippingUtils.clipTrianglesByUVRange(vertices, indices, uvs, cmd.texture.uvrect, colors);
-            vertices = clipped.vertices;
-            uvs = clipped.uvs;
-            indices = clipped.indices;
-            colors = clipped.colors;
-            clip = null;
-         }
-         this._writeMesh(x, y, vertices, uvs, indices, colors,
-            resource, this._resolvedTextureLayer, cmd.color, this._opAlpha(1), this._opBlend(), this._matrixState(), clip);
-      } finally {
-         VertexStream.pool.recover(vb);
+      vb.contentRect.setTo(0, 0, width, height);
+      if (cmd.color)
+         vb.color.setABGR(cmd.color);
+      let sourceWidth = vb.mainTex.sourceWidth;
+      let sourceHeight = vb.mainTex.sourceHeight;
+      COMPILE_GRID_RECT.setTo(sizeGrid[3], sizeGrid[0],
+         sourceWidth - sizeGrid[1] - sizeGrid[3], sourceHeight - sizeGrid[0] - sizeGrid[2]);
+      genSliceMesh(vb, vb.contentRect, vb.uvRect, COMPILE_GRID_RECT, sizeGrid[4] === 1 ? 0xff : 0);
+      let vertices = vb.getVertices();
+      let uvs = vb.getUVs();
+      let indices: ArrayLike<number> = vb.getIndices();
+      let colors = vb.getColors();
+      let clip = GraphicsTextureDataHelper.getUVClipRange(cmd.texture);
+      if (cmd.texture.uvrect && Config.uvClipMode === "cpu") {
+         let clipped = UVClippingUtils.clipTrianglesByUVRange(vertices, indices, uvs, cmd.texture.uvrect, colors);
+         vertices = clipped.vertices;
+         uvs = clipped.uvs;
+         indices = clipped.indices;
+         colors = clipped.colors;
+         clip = null;
       }
+      this._writeMesh(x, y, vertices, uvs, indices, colors,
+         resource, this._resolvedTextureLayer, cmd.color, this._opAlpha(1), this._opBlend(), this._matrixState(), clip);
+      VertexStream.pool.recover(vb);
    }
-
    _writeSpriteTextureOp(op: IGraphicsTextureQuadOp2D, owner: Sprite, texture: Texture): boolean {
       if (!op || !owner || !texture)
          return false;
@@ -486,11 +504,9 @@ export class GraphicsCompileContext {
          GraphicsTextureDataHelper.getUVClipRange(texture));
       return true;
    }
-
    private _resolveTextureResource(texture: Texture): GraphicsOp2DTextureHost {
       return this._resolveBaseTextureResource(texture.bitmap);
    }
-
    private _resolveBaseTextureResource(source: BaseTexture): GraphicsOp2DTextureHost {
       if (source === this._resolvedTextureSource)
          return this._resolvedTextureResource;
@@ -506,13 +522,11 @@ export class GraphicsCompileContext {
       this._resolvedTextureLayer = layer;
       return resource;
    }
-
    private _clearResolvedTexture(): void {
       this._resolvedTextureSource = null;
       this._resolvedTextureResource = null;
       this._resolvedTextureLayer = 0;
    }
-
    private _writeTextureQuad(x: number, y: number, width: number, height: number,
       u0: number, v0: number, u1: number, v1: number, color: number, alpha: number, blendMode: number,
       textureLayer: number, matrix: Matrix, texture: GraphicsOp2DTextureHost, uvClip: ArrayLike<number> = null): void {
@@ -531,13 +545,11 @@ export class GraphicsCompileContext {
       }
       mode._markTextureQuadWritten();
    }
-
    private _writeSolidQuad(x: number, y: number, width: number, height: number,
       color: number, alpha: number, blendMode: number, matrix: Matrix): void {
       let op = this._mode._appendOp(GraphicsOp2DKind.SolidQuad) as IGraphicsSolidQuadOp2D;
       op.writeRecord(x, y, width, height, color, alpha, blendMode, matrix);
    }
-
    private _writeFillTexture(x: number, y: number, width: number, height: number,
       u0: number, v0: number, u1: number, v1: number, repeatX: number, repeatY: number, offsetX: number, offsetY: number,
       rangeX: number, rangeY: number, rangeWidth: number, rangeHeight: number, color: number, alpha: number, blendMode: number,
@@ -547,7 +559,6 @@ export class GraphicsCompileContext {
       op.writeRecord(x, y, width, height, u0, v0, u1, v1, repeatX, repeatY, offsetX, offsetY,
          rangeX, rangeY, rangeWidth, rangeHeight, color, alpha, blendMode, textureLayer || 0, matrix, uvClip);
    }
-
    private _writeMesh(x: number, y: number, vertices: ArrayLike<number>, uvs: ArrayLike<number>,
       indices: ArrayLike<number>, colors: ArrayLike<number>, texture: GraphicsOp2DTextureHost, textureLayer: number,
       color: number, alpha: number, blendMode: number, matrix: Matrix, uvClip: ArrayLike<number> = null,
@@ -561,7 +572,6 @@ export class GraphicsCompileContext {
       op.writeMesh(x, y, vertices, vertexOffset, vertexCount, uvs, uvOffset, indices, indexOffset, indexCount,
          colors, colorOffset, color, alpha, blendMode, textureLayer || 0, matrix, uvClip);
    }
-
    private _appendLineMesh(points: number[], lineWidth: number, loop: boolean, packedColor: number): boolean {
       if (!points || points.length < 4 || lineWidth <= 0)
          return false;
@@ -573,7 +583,6 @@ export class GraphicsCompileContext {
          0, geometry.vertexCount, 0, 0, geometry.indexCount);
       return true;
    }
-
    private _appendPathFillAndStroke(points: number[], fillColor: GraphicsColorInput,
       lineColor: GraphicsColorInput, lineWidth: number, loop: boolean): boolean {
       let wrote = false;
@@ -590,51 +599,40 @@ export class GraphicsCompileContext {
          wrote = this._appendLineMesh(points, lineWidth, loop, this._toABGR(lineColor)) || wrote;
       return wrote;
    }
-
    private _writeColorMesh(vertices: ArrayLike<number>, indices: ArrayLike<number>, color: number): void {
       this._writeMesh(0, 0, vertices, null, indices, null,
          null, 0, color, this._opAlpha(1), this._opBlend(), this._matrixState());
    }
-
    private _tessellationScale(): number {
       return Math.max(this.getCurrentScaleX(), this.getCurrentScaleY());
    }
-
    private _matrixState(): Matrix | null {
       let mat = this._curMat;
       return mat.a === 1 && mat.b === 0 && mat.c === 0 && mat.d === 1 && mat.tx === 0 && mat.ty === 0 ? null : mat;
    }
-
    private _opAlpha(localAlpha: number): number {
       return this.globalAlpha * (localAlpha == null ? 1 : localAlpha);
    }
-
    private _opBlend(override: GraphicsBlendModeInput = null): number {
       let value = override == null ? this.globalCompositeOperation : override;
       return typeof value === "string" ? GraphicsOpRenderStateHelper.parseBlendMode(value) : (value == null ? BlendMode.normal : value);
    }
-
    private _toABGR(value: GraphicsColorInput): number {
       return typeof value === "number" ? value : (value != null ? ColorUtils.create(value).numColor : 0xffffffff);
    }
-
    get globalAlpha(): number {
       return this._alpha;
    }
-
    set globalAlpha(value: number) {
       this._alpha = Math.floor(value * 1000) / 1000;
    }
-
    get globalCompositeOperation(): BlendMode {
       return this._blendMode;
    }
-
    set globalCompositeOperation(value: BlendMode) {
       if (value != null)
          this._blendMode = value;
    }
-
    save(): void {
       this._ensureSaveCapacity(this._saveDepth + 1);
       let offset = this._saveDepth * GRAPHICS_COMPILE_SAVE_STRIDE;
@@ -650,7 +648,6 @@ export class GraphicsCompileContext {
       frames[offset + 7] = this._blendMode;
       this._saveDepth++;
    }
-
    restore(): void {
       if (this._saveDepth <= 0)
          return;
@@ -663,7 +660,6 @@ export class GraphicsCompileContext {
       this._alpha = frames[offset + 6];
       this._blendMode = frames[offset + 7];
    }
-
    translate(x: number, y: number): void {
       if (x === 0 && y === 0)
          return;
@@ -677,41 +673,34 @@ export class GraphicsCompileContext {
       }
       this._matrixChanged = true;
    }
-
    transform(a: number, b: number, c: number, d: number, tx: number, ty: number): void {
       Matrix.mul(Matrix.TEMP.setTo(a, b, c, d, tx, ty), this._curMat, this._curMat);
       this._curMat._checkTransform();
       this._matrixChanged = true;
    }
-
    rotate(angle: number): void {
       this._curMat.rotateEx(angle);
       this._matrixChanged = true;
    }
-
    scale(scaleX: number, scaleY: number): void {
       this._curMat.scaleEx(scaleX, scaleY);
       this._matrixChanged = true;
    }
-
    _transform(mat: Matrix, pivotX: number, pivotY: number): void {
       this.translate(pivotX, pivotY);
       this.transform(mat.a, mat.b, mat.c, mat.d, mat.tx, mat.ty);
       this.translate(-pivotX, -pivotY);
    }
-
    _rotate(angle: number, pivotX: number, pivotY: number): void {
       this.translate(pivotX, pivotY);
       this.rotate(angle);
       this.translate(-pivotX, -pivotY);
    }
-
    _scale(scaleX: number, scaleY: number, pivotX: number, pivotY: number): void {
       this.translate(pivotX, pivotY);
       this.scale(scaleX, scaleY);
       this.translate(-pivotX, -pivotY);
    }
-
    getCurrentScaleX(): number {
       let scale = this._curMat.getScaleX();
       if (this.sprite && this.sprite.globalTrans) {
@@ -720,7 +709,6 @@ export class GraphicsCompileContext {
       }
       return Math.abs(scale);
    }
-
    getCurrentScaleY(): number {
       let scale = this._curMat.getScaleY();
       if (this.sprite && this.sprite.globalTrans) {
@@ -729,8 +717,7 @@ export class GraphicsCompileContext {
       }
       return Math.abs(scale);
    }
-
-   copyStateTo(out: Float64Array, offset: number): void {
+   private _writeState(out: Float64Array, offset: number): void {
       let mat = this._curMat;
       out[offset] = mat.a;
       out[offset + 1] = mat.b;
@@ -741,7 +728,6 @@ export class GraphicsCompileContext {
       out[offset + 6] = this._alpha;
       out[offset + 7] = this._blendMode;
    }
-
    private _ensureSaveCapacity(frameCount: number): void {
       if (frameCount <= this._saveCapacity)
          return;
