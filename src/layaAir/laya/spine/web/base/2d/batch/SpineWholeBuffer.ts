@@ -299,6 +299,7 @@ export class SpineWholeBuffer {
 
                 if (view.geometry) {
                     view.geometry.clearRenderParams();
+                    view.geometry.bufferState = this.bufferState;
                     view.geometry.setDrawElemenParams(view.indexCount, indexOffset * 2);
                 }
 
