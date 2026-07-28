@@ -314,17 +314,14 @@ let wasm_bindgen;
 
     wasm_bindgen = Object.assign(__wbg_init, { initSync }, __exports);
 
+    // 通用 wasm 加载适配，支持所有小游戏平台/native/web
     var _in__wbg_load = __wbg_load;
-    myWasmLoad = function (url, imp) {
-        if (!qg.instantiate) {
-            console.warn("不支持wasm加载使用");
+    __wbg_load = function (module, imports) {
+        if (typeof Laya !== 'undefined' && Laya.WasmAdapter && Laya.WasmAdapter.instantiateWasm) {
+            return Laya.WasmAdapter.instantiateWasm("nagabind_bg.wasm", imports);
         }
-        return qg.instantiate("libs/nagabind_bg.wasm", imp);
-    }
-    if (window.qg) {
-        __wbg_load = myWasmLoad;
-    } else {
-        __wbg_load = _in__wbg_load;
-    }
-})();
+        return _in__wbg_load(module, imports);
+    };
 
+})();
+window.wasm_bindgen = wasm_bindgen;
