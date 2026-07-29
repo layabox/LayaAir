@@ -55,4 +55,10 @@ export class TextRenderConfig {
      * @zh 设定字体全局缩放，如果设置了scaleFontWithCtx，则这个值会根据舞台比例自动设置。
      */
     static fontScale = 1;
+
+    /**
+     * @en Whether to use CPU-side premultiplied alpha for text textures. Enable this if GPU premultiply causes rendering artifacts on certain platforms (e.g. iOS 26).
+     * @zh 是否使用CPU端预乘Alpha。如果GPU预乘在某些平台（如iOS 26）上导致渲染异常，可以开启此选项。
+     */
+    static premultiplyAlpha = false;
 }

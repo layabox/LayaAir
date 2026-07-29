@@ -170,6 +170,21 @@ export class TextRender {
 
         let imgdt = ctx.getImageData(rectX, rectY, rectW, rectH);
 
+        //CPU端预乘Alpha，用于规避某些平台（如iOS 26）GPU预乘导致的渲染异常
+        if (TextRenderConfig.premultiplyAlpha) {
+            let pix = imgdt.data.length / 4;
+            let dt = imgdt.data;
+            for (let i = 0; i < pix; i++) {
+                let pos = i * 4;
+                let k = dt[pos + 3] / 255;
+                if (k > 0) {
+                    dt[pos] = dt[pos] * k;
+                    dt[pos + 1] = dt[pos + 1] * k;
+                    dt[pos + 2] = dt[pos + 2] * k;
+                }
+            }
+        }
+
         let ri: ITextRenderInfo = {
             x: - (fontSizeOffX + lineWidth),
             //这里不应该包含fontSizeOffY，否则文字绘制会向上突出
@@ -285,7 +300,7 @@ export class TextRender {
         if (data instanceof Uint8ClampedArray) //未知原因，是不是WebGL的texSubImage2D不支持Uint8ClampedArray？
             data = new Uint8Array(data.buffer);
 
-        LayaGL.textureContext.setTextureSubPixelsData(tex._texture, data, 0, false, x, y, imgdt.width, imgdt.height, true, false);
+        LayaGL.textureContext.setTextureSubPixelsData(tex._texture, data, 0, false, x, y, imgdt.width, imgdt.height, !TextRenderConfig.premultiplyAlpha, false);
 
         let u0 = (x + blockGap) / tex.width;
         let v0 = (y + blockGap) / tex.height;
