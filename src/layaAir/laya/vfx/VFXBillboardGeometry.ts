@@ -57,7 +57,7 @@ export class VFXBillboardGeometry extends GeometryElement {
     softParticleFade: number = 0;
     uvMode: string = "Default";
     flipbookSize: Vector2 = new Vector2(4, 4);
-    /** Atlas 模式专属：res:// uuid，VFXRenderer 加载后设到 BillboardMaterial.u_AlbedoTexture */
+    /** Atlas 模式专属资源，VFXRenderer 加载后设到 BillboardMaterial.u_AlbedoTexture */
     mainTexture: string = "";
     subpixelAA: boolean = false;
     customShaderName: string = "";

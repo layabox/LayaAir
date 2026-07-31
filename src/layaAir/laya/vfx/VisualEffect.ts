@@ -43,6 +43,7 @@ import { Texture2D } from "../resource/Texture2D";
 import { Texture2DArray } from "../resource/Texture2DArray";
 import { Texture3D } from "../resource/Texture3D";
 import { Laya } from "../../Laya";
+import { LayaEnv } from "../../LayaEnv";
 
 const globalRand = new Rand((Math.random() * 0xFFFFFFFF) >>> 0);
 const _tempCamForward = new Vector3();
@@ -669,7 +670,7 @@ export class VisualEffect extends Script {
                     case 4: this.setPropertyVec4(name, value[0], value[1], value[2], value[3]); break;
                 }
             } else if (typeof value === "string" && value) {
-                // string override = 资源引用(res://uuid)：Texture2D 或 Mesh。按属性类型分流
+                // string override = 资源引用：Texture2D 或 Mesh。按属性类型分流
                 // （转换器 Mesh 属性 type 写 "Mesh"，大小写不敏感比较）。
                 const _entry: any = this._propertyValues.get(name);
                 if (_entry && String(_entry.type).toLowerCase() === "mesh") {
@@ -1502,7 +1503,7 @@ export class VisualEffect extends Script {
     }
 
     /**
-     * Texture2D 属性 override：异步 load res://uuid → 解包 → 更新 cached + 绑定。
+     * Texture2D 属性 override：异步加载资源 → 解包 → 更新 cached + 绑定。
      * (applyProperties 不处理 Texture2D，必须在此显式重绑)
      */
     setPropertyTexture(name: string, url: string): void {
@@ -1531,10 +1532,9 @@ export class VisualEffect extends Script {
     setPropertyMesh(name: string, url: string): void {
         const entry = this._propertyValues.get(name) as any;
         if (!entry || !url) return;
-        const meshUrl = url.startsWith("res://") ? url : "res://" + url;
-        Laya.loader.load(meshUrl).then((mesh: any) => {
+        Laya.loader.load(url).then((mesh: any) => {
             if (!mesh) {
-                console.warn(`[VFX] setPropertyMesh('${name}') load returned null: ${meshUrl}`);
+                console.warn(`[VFX] setPropertyMesh('${name}') load returned null: ${url}`);
                 return;
             }
             entry.cached = mesh;
@@ -1542,7 +1542,7 @@ export class VisualEffect extends Script {
                 if (typeof (system as any).setMesh === "function") (system as any).setMesh(mesh);
             }
         }, (err: any) => {
-            console.warn(`[VFX] setPropertyMesh('${name}') load failed: ${meshUrl}`, err);
+            console.warn(`[VFX] setPropertyMesh('${name}') load failed: ${url}`, err);
         });
     }
 
@@ -1876,25 +1876,14 @@ export const VFXInit = () => {
     VFXShaderInit.init();
     ensureIDs();
 
-    // 预加载 vfx 内置默认 material/shader，触发 Shader3D.add 注册让 VFXRenderer
-    // fallback 路径能命中。资源位置：用户工程 assets/VfxEditor/runtime/ 下，
-    // UUID 与 .meta 一致（与 LayaIDE 插件提供的 .meta 保持同步）。
-    //
-    // 仅在浏览器/构建产物模式下执行 —— LayaIDE scene 进程会暴露 IEditorEnv 全局，
-    // IDE 模式下由 VfxEditor 插件的 Scene.ts @IEditorEnv.onPreload 触发加载（时机
-    // 晚于 AssetManager 扫描完成，UUID 能正确解析）。这里跳过 IDE 模式避免引擎
-    // init 抢跑 AssetManager 产生 5 个 "Failed to load" warning。
-    if (typeof (globalThis as any).IEditorEnv === "undefined") {
-        const builtinUuids = [
-            "13d6c5e4-ff1f-4739-b21d-0d64931564cb", // VFXUnlit.lmat
-            "356f6643-fab9-4626-b04f-9e07482f5b53", // VFXStrip.lmat
-            "046c3dc9-8ef4-4e3b-bce3-df93e11bd86e", // VFXBillboardProcedural.shader
-            "9e6cee89-5666-43e3-a064-7c26d8ce36d8", // VFXCubeProcedural.shader
-            "7b8f3d2e-a415-4c6b-9d8f-2e1a5c3b4d6a", // VFXDistortionQuad.shader
-        ];
-        for (const uuid of builtinUuids) {
-            Laya.loader.load("res://" + uuid).catch(() => { });
-        }
+    if (LayaEnv.isPlaying) {
+        Laya.loader.load([
+            "VFXBillboardProcedural.shader",
+            "VFXCubeProcedural.shader",
+            "VFXDistortionQuad.shader",
+            "VFXUnlit.shader",
+            "VFXStrip.shader",
+        ].map(s => "internal/vfx/" + s));
     }
 }
 

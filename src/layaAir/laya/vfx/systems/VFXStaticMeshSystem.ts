@@ -47,19 +47,18 @@ export class VFXStaticMeshSystem extends VFXSystem {
 
         if (this.desc.mesh) this._meshFilter.sharedMesh = this.desc.mesh;
 
-        // material 加载：UUID → res:// 路径（异步），加载完毕后 sharedMaterial 设置 + 立刻应用一次 binding
+        // material 异步加载完毕后设置 sharedMaterial，并立即应用一次 binding
         if (this.desc.materialUuid) {
-            const matUrl = this.desc.materialUuid.startsWith("res://") ? this.desc.materialUuid : "res://" + this.desc.materialUuid;
-            Laya.loader.load(matUrl).then((mat: Material) => {
+            Laya.loader.load(this.desc.materialUuid).then((mat: Material) => {
                 if (mat && this._meshRenderer) {
                     this._meshRenderer.sharedMaterial = mat;
                     this._applyBindings();
                 } else if (this._meshRenderer) {
-                    console.warn(`[VFXStaticMeshSystem] load returned null for ${matUrl}, fallback unlit`);
+                    console.warn(`[VFXStaticMeshSystem] load returned null for ${this.desc.materialUuid}, fallback unlit`);
                     this._applyFallbackMaterial();
                 }
             }).catch((e: any) => {
-                console.error(`[VFXStaticMeshSystem] load failed for ${matUrl}`, e);
+                console.error(`[VFXStaticMeshSystem] load failed for ${this.desc.materialUuid}`, e);
                 this._applyFallbackMaterial();
             });
         } else {

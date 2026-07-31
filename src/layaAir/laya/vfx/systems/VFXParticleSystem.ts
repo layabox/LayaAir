@@ -215,7 +215,7 @@ export class VFXParticleSystem extends VFXSystem {
     // Flipbook UV 模式 + 图集尺寸（对齐 Unity Output Context UV Mode）
     uvMode: string = "Default";
     flipbookSize: Vector2 = new Vector2(4, 4);
-    // Flipbook atlas 资源（res:// uuid），uvMode != Default 时由 runtime 加载到 BillboardMaterial.u_AlbedoTexture
+    // Flipbook atlas 资源，uvMode != Default 时由 runtime 加载到 BillboardMaterial.u_AlbedoTexture
     mainTexture: string = "";
 
     // Subpixel AA 开关

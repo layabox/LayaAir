@@ -19,10 +19,11 @@ import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "../resource/BaseTexture";
 import { Texture2D } from "../resource/Texture2D";
 import { Laya } from "../../Laya";
+import { URL } from "../net/URL";
 
 export class VFXAssetParser {
 
-    async parse(data: any): Promise<VFXAsset> {
+    async parse(data: any, baseUrl: string): Promise<VFXAsset> {
 
         const vfxAsset = new VFXAsset();
 
@@ -125,9 +126,11 @@ export class VFXAssetParser {
                 }
                 case VFXSystemType.Particle: {
                     const desc = new VFXParticleSystemDesc();
-                    const initializeUrl = sys.initializeShader as string;
-                    const updateUrl = sys.updateShader as string;
-                    const outputUrl = sys.outputShader as string;
+                    const initializeUrl = URL.join(baseUrl, sys.initializeShader as string);
+                    const updateUrl = URL.join(baseUrl, sys.updateShader as string);
+                    const outputUrl = URL.join(baseUrl, sys.outputShader as string);
+                    const prepareDispatchUrl = URL.join(baseUrl, sys.prepareDispatchShader as string);
+                    const updateStripsUrl = URL.join(baseUrl, sys.updateStripsShader as string);
 
                     desc.capacity = sys.capacity;
                     desc.attributeBytesPerParticle = sys.attributeBytesPerParticle;
@@ -173,17 +176,17 @@ export class VFXAssetParser {
                     }
                     // mainTexture (atlas)：Flipbook/FlipbookBlend 模式下作为 BillboardMaterial.u_AlbedoTexture
                     if (typeof sys.mainTexture === "string" && sys.mainTexture) {
-                        (desc as any).mainTexture = sys.mainTexture;
+                        (desc as any).mainTexture = URL.join(baseUrl, sys.mainTexture);
                     }
                     if (sys.subpixelAA) desc.subpixelAA = true;
                     if (typeof sys.customShaderName === "string" && sys.customShaderName) {
                         desc.customShaderName = sys.customShaderName;
                     }
-                    // customShaderRes: res://uuid of .bps blueprint shader asset
+                    // customShaderRes: .bps blueprint shader asset
                     // 让 Laya.loader 预加载 .bps 触发 Shader3D 注册（否则 mat.setShaderName 找不到会报 unknown shader name）
                     if (typeof sys.customShaderRes === "string" && sys.customShaderRes) {
-                        (desc as any).customShaderRes = sys.customShaderRes;
-                        const shaderUrl: string = sys.customShaderRes;
+                        const shaderUrl = URL.join(baseUrl, sys.customShaderRes);
+                        (desc as any).customShaderRes = shaderUrl;
                         loadPromises.push(
                             (Laya.loader.load(shaderUrl) as Promise<any>).then(
                                 () => { console.log(`[VFX Parser] preloaded custom shader '${sys.customShaderName}' from ${shaderUrl}`); },
@@ -195,7 +198,7 @@ export class VFXAssetParser {
                     if (sys.shaderPropertyBindings && typeof sys.shaderPropertyBindings === "object") {
                         (desc as any).shaderPropertyBindings = sys.shaderPropertyBindings;
                     }
-                    // ShaderGraph property inline defaults (shader uniform name → res://uuid) — wall mesh 等 outputCtx 给 shader 属性写的 inline 资源 default
+                    // ShaderGraph property inline defaults (shader uniform name → asset URL) — wall mesh 等 outputCtx 给 shader 属性写的 inline 资源 default
                     // .bps 编译时丢了这种 inline default，runtime 必须显式 setTexture 让 wall mesh 等用 uni_ring_warped 而非 .bps 内 white texture
                     if (sys.shaderPropertyDefaults && typeof sys.shaderPropertyDefaults === "object") {
                         const entries: { [uniformName: string]: { url: string, texture: any } } = {};
@@ -204,8 +207,9 @@ export class VFXAssetParser {
                             //    误当纹理 load → setTexture 把 Mesh 塞进纹理槽 → WebGPU _updateTextureState 崩
                             //    (mesh._texture._getSampleBindingLayout is not a function)。materialize 类特效会带这个键。
                             if (uniformName === "mesh") continue;
-                            const url: string = sys.shaderPropertyDefaults[uniformName];
-                            if (typeof url !== "string" || !url) continue;
+                            const path: string = sys.shaderPropertyDefaults[uniformName];
+                            if (typeof path !== "string" || !path) continue;
+                            const url = URL.join(baseUrl, path);
                             const entry = { url, texture: null as any };
                             entries[uniformName] = entry;
                             loadPromises.push(
@@ -297,11 +301,11 @@ export class VFXAssetParser {
                     if (outputUrl) {
                         shaderUrls.push(outputUrl);
                     }
-                    if (sys.prepareDispatchShader) {
-                        shaderUrls.push(sys.prepareDispatchShader as string);
+                    if (prepareDispatchUrl) {
+                        shaderUrls.push(prepareDispatchUrl);
                     }
-                    if (sys.updateStripsShader) {
-                        shaderUrls.push(sys.updateStripsShader as string);
+                    if (updateStripsUrl) {
+                        shaderUrls.push(updateStripsUrl);
                     }
                     const loadCompute = Laya.loader.load(shaderUrls).then((shaders: ComputeShader[]) => {
                         desc.initializeShader = shaders[0];
@@ -310,16 +314,16 @@ export class VFXAssetParser {
                         if (outputUrl) {
                             desc.outputShader = shaders[nextIdx++];
                         }
-                        if (sys.prepareDispatchShader && shaders[nextIdx]) {
+                        if (prepareDispatchUrl && shaders[nextIdx]) {
                             desc.prepareDispatchShader = shaders[nextIdx++];
                         }
-                        if (sys.updateStripsShader && shaders[nextIdx]) {
+                        if (updateStripsUrl && shaders[nextIdx]) {
                             desc.updateStripsShader = shaders[nextIdx];
                         }
                     });
                     loadPromises.push(loadCompute);
 
-                    const meshUrl = sys.mesh as string;
+                    const meshUrl = URL.join(baseUrl, sys.mesh as string);
                     // Billboard / Cube procedural 不需要 mesh（VFXBillboardGeometry 用 gl_VertexID 生成顶点）
                     const isProceduralGeometry = (desc.outputType === "outputBillboard" || desc.outputType === "outputCube" || desc.outputType === "outputDistortion") && !!desc.billboardPrimitive;
                     const buildMeshFallback = (): Mesh => {
@@ -347,16 +351,15 @@ export class VFXAssetParser {
                         const builtinName = meshUrl.slice(8);
                         desc.mesh = buildBuiltinMesh(builtinName) || buildMeshFallback();
                     } else if (meshUrl && !isProceduralGeometry) {
-                        const resolved = meshUrl.startsWith("res://") ? meshUrl : "res://" + meshUrl;
-                        const loadMesh = Laya.loader.load(resolved).then(mesh => {
+                        const loadMesh = Laya.loader.load(meshUrl).then(mesh => {
                             if (mesh) {
                                 desc.mesh = mesh as Mesh;
                             } else {
-                                console.error(`[VFX] mesh load returned null: ${resolved} (system mesh) — fallback to builtin`);
+                                console.error(`[VFX] mesh load returned null: ${meshUrl} (system mesh) — fallback to builtin`);
                                 desc.mesh = buildMeshFallback();
                             }
                         }).catch(err => {
-                            console.error(`[VFX] mesh load failed: ${resolved} (system mesh)`, err);
+                            console.error(`[VFX] mesh load failed: ${meshUrl} (system mesh)`, err);
                             desc.mesh = buildMeshFallback();
                         });
                         loadPromises.push(loadMesh);
@@ -423,6 +426,7 @@ export class VFXAssetParser {
 
                             // 空 uuid：保留 entry（texture=null），由 VisualEffect 初始化时绑默认纹理
                             if (!uuid) continue;
+                            const resourceUrl = URL.join(baseUrl, uuid);
                             // Mesh 属性烘焙：textureType 形如 "MeshPos"/"MeshPosition"/"MeshNormal"/"MeshTangent"/"MeshUv"/"MeshColor"
                             //   或 point cache 形如 "MeshSurfacePoints"/"MeshVolumePoints"
                             const meshPCMatch = /^Mesh(SurfacePoints|VolumePoints)$/.exec(textureType);
@@ -442,38 +446,34 @@ export class VFXAssetParser {
                                         : bakeMeshVolumePoints(builtinMesh, pointCount, meshScale);
                                     else console.warn(`[VFX] setPositionMesh(${pcRole}): unknown builtin mesh ${uuid}`);
                                 } else {
-                                    const meshUrl = uuid.startsWith("res://") ? uuid : "res://" + uuid;
-                                    const loadMeshTex = Laya.loader.load(meshUrl).then((mesh: Mesh) => {
+                                    const loadMeshTex = Laya.loader.load(resourceUrl).then((mesh: Mesh) => {
                                         if (mesh) entry.texture = pcRole === "surface"
                                             ? bakeMeshSurfacePoints(mesh, pointCount, meshScale)
                                             : bakeMeshVolumePoints(mesh, pointCount, meshScale);
-                                        else console.warn(`[VFX] setPositionMesh(${pcRole}): failed to load mesh ${meshUrl}`);
+                                        else console.warn(`[VFX] setPositionMesh(${pcRole}): failed to load mesh ${resourceUrl}`);
                                     });
                                     loadPromises.push(loadMeshTex);
                                 }
                             } else if (meshRoleMatch) {
                                 const role = meshRoleMatch[1].toLowerCase();
                                 const normalizedRole = role === "pos" ? "position" : (role === "uv" ? "uv" : role);
-                                const meshUrl = uuid.startsWith("res://") ? uuid : "res://" + uuid;
-                                const loadMeshTex = Laya.loader.load(meshUrl).then((mesh: Mesh) => {
+                                const loadMeshTex = Laya.loader.load(resourceUrl).then((mesh: Mesh) => {
                                     if (mesh) {
                                         entry.texture = bakeMeshAttributeTexture(mesh, normalizedRole as MeshRole);
                                     } else {
-                                        console.warn(`[VFX] sampleMesh: failed to load mesh ${meshUrl}`);
+                                        console.warn(`[VFX] sampleMesh: failed to load mesh ${resourceUrl}`);
                                     }
                                 });
                                 loadPromises.push(loadMeshTex);
                             } else if (pointCacheMatch) {
                                 const attrName = pointCacheMatch[1];
-                                const pcacheUrl = uuid.startsWith("res://") ? uuid : "res://" + uuid;
-                                const loadPCache = Laya.loader.fetch(pcacheUrl, "json", null).then((pcache: any) => {
+                                const loadPCache = Laya.loader.fetch(resourceUrl, "json", null).then((pcache: any) => {
                                     if (pcache) entry.texture = bakePointCacheTexture(pcache, attrName);
-                                    else console.warn(`[VFX] samplePointCache: failed to load ${pcacheUrl}`);
+                                    else console.warn(`[VFX] samplePointCache: failed to load ${resourceUrl}`);
                                 });
                                 loadPromises.push(loadPCache);
                             } else {
-                                const texUrl = uuid.startsWith("res://") ? uuid : "res://" + uuid;
-                                const loadTex = Laya.loader.load(texUrl).then((tex: BaseTexture) => {
+                                const loadTex = Laya.loader.load(resourceUrl).then((tex: BaseTexture) => {
                                     entry.texture = tex;
                                 });
                                 loadPromises.push(loadTex);
@@ -489,7 +489,7 @@ export class VFXAssetParser {
                                 const mpEntry: any = { uniformName: bu.uniformName as string, buffer: null };
                                 desc.meshPointBuffers.push(mpEntry);
                                 const pcUuid = String((bu as any).meshProp);
-                                const pcUrl = pcUuid.startsWith("res://") ? pcUuid : "res://" + pcUuid;
+                                const pcUrl = URL.join(baseUrl, pcUuid);
                                 const pcRole = String((bu as any).meshRole || "surfacePoints");
                                 const pcCount = Math.max(16, Math.min(8192, Number((bu as any).pointCount) || 1024));
                                 const pcScale = _resolveMeshScale(Number((bu as any).meshScale), pcUuid);
@@ -534,13 +534,13 @@ export class VFXAssetParser {
                                 extra.flipbookSize = new Vector2(eo.flipbookSize[0] || 4, eo.flipbookSize[1] || 4);
                             }
                             if (typeof eo.mainTexture === "string" && eo.mainTexture) {
-                                (extra as any).mainTexture = eo.mainTexture;
+                                (extra as any).mainTexture = URL.join(baseUrl, eo.mainTexture);
                             }
                             if (eo.subpixelAA) extra.subpixelAA = true;
                             if (eo.customShaderName) extra.customShaderName = eo.customShaderName;
                             if (typeof eo.customShaderRes === "string" && eo.customShaderRes) {
-                                (extra as any).customShaderRes = eo.customShaderRes;
-                                const exShaderUrl: string = eo.customShaderRes;
+                                const exShaderUrl = URL.join(baseUrl, eo.customShaderRes);
+                                (extra as any).customShaderRes = exShaderUrl;
                                 loadPromises.push(
                                     (Laya.loader.load(exShaderUrl) as Promise<any>).then(
                                         () => { console.log(`[VFX Parser] preloaded extra custom shader '${eo.customShaderName}' from ${exShaderUrl}`); },
@@ -563,13 +563,14 @@ export class VFXAssetParser {
                             extra.uvBias = eo.uvBias as any;
                             // 加载 output shader
                             if (eo.outputShader) {
-                                const loadExtraShader = Laya.loader.load(eo.outputShader as string).then((shader: ComputeShader) => {
+                                const outputShaderUrl = URL.join(baseUrl, eo.outputShader as string);
+                                const loadExtraShader = Laya.loader.load(outputShaderUrl).then((shader: ComputeShader) => {
                                     extra.outputShader = shader;
                                 });
                                 loadPromises.push(loadExtraShader);
                             }
                             // 加载 mesh
-                            const meshUrl = eo.mesh as string;
+                            const meshUrl = URL.join(baseUrl, eo.mesh as string);
                             const buildExtraMeshFallback = (): Mesh => {
                                 return extra.outputType === "outputMesh" || extra.outputType === "outputStaticMesh"
                                     ? PrimitiveMesh.createSphere(0.5, 12, 12)
@@ -580,16 +581,15 @@ export class VFXAssetParser {
                                 const builtinName = meshUrl.slice(8);
                                 extra.mesh = buildBuiltinMesh(builtinName) || buildExtraMeshFallback();
                             } else if (meshUrl) {
-                                const resolved = meshUrl.startsWith("res://") ? meshUrl : "res://" + meshUrl;
-                                const loadMesh = Laya.loader.load(resolved).then((mesh: Mesh) => {
+                                const loadMesh = Laya.loader.load(meshUrl).then((mesh: Mesh) => {
                                     if (mesh) {
                                         extra.mesh = mesh;
                                     } else {
-                                        console.error(`[VFX] mesh load returned null: ${resolved} (extra output) — fallback to builtin`);
+                                        console.error(`[VFX] mesh load returned null: ${meshUrl} (extra output) — fallback to builtin`);
                                         extra.mesh = buildExtraMeshFallback();
                                     }
                                 }).catch(err => {
-                                    console.error(`[VFX] mesh load failed: ${resolved} (extra output)`, err);
+                                    console.error(`[VFX] mesh load failed: ${meshUrl} (extra output)`, err);
                                     extra.mesh = buildExtraMeshFallback();
                                 });
                                 loadPromises.push(loadMesh);
@@ -605,11 +605,11 @@ export class VFXAssetParser {
                 }
                 case VFXSystemType.StaticMesh: {
                     const desc = new VFXStaticMeshSystemDesc();
-                    desc.materialUuid = String(sys.materialUuid || "");
+                    desc.materialUuid = URL.join(baseUrl, String(sys.materialUuid || ""));
                     if (Array.isArray(sys.bindings)) {
                         desc.bindings = sys.bindings as any;
                     }
-                    const meshUrl = sys.mesh as string;
+                    const meshUrl = URL.join(baseUrl, sys.mesh as string);
                     const buildStaticBuiltin = (name: string): Mesh | null => {
                         switch (name) {
                             case "Sphere":   return PrimitiveMesh.createSphere(0.5, 12, 12);
@@ -625,16 +625,15 @@ export class VFXAssetParser {
                     if (meshUrl && meshUrl.startsWith("builtin:")) {
                         desc.mesh = buildStaticBuiltin(meshUrl.slice(8)) || PrimitiveMesh.createSphere(0.5, 12, 12);
                     } else if (meshUrl) {
-                        const resolved = meshUrl.startsWith("res://") ? meshUrl : "res://" + meshUrl;
-                        const loadMesh = Laya.loader.load(resolved).then(mesh => {
+                        const loadMesh = Laya.loader.load(meshUrl).then(mesh => {
                             if (mesh) {
                                 desc.mesh = mesh as Mesh;
                             } else {
-                                console.error(`[VFX] mesh load returned null: ${resolved} (StaticMesh) — fallback to sphere`);
+                                console.error(`[VFX] mesh load returned null: ${meshUrl} (StaticMesh) — fallback to sphere`);
                                 desc.mesh = PrimitiveMesh.createSphere(0.5, 12, 12);
                             }
                         }).catch(err => {
-                            console.error(`[VFX] mesh load failed: ${resolved} (StaticMesh)`, err);
+                            console.error(`[VFX] mesh load failed: ${meshUrl} (StaticMesh)`, err);
                             desc.mesh = PrimitiveMesh.createSphere(0.5, 12, 12);
                         });
                         loadPromises.push(loadMesh);
@@ -700,12 +699,13 @@ export class VFXAssetParser {
                         break;
                     }
                     case VFXPropertyType.Texture2D: {
-                        // Texture2D property: d 是 string "res://uuid" 或 array ["res://uuid"] (转换器统一输出后者)
+                        // Texture2D property: d 是 string 或 string array（转换器统一输出后者）
                         // Unity VFX exposed prop 跟 ShaderGraph 内 shader uniform 是双命名空间，OutputContext 含 binding；
                         // 这里只 load 资源存到 desc.texture，setTexture 绑定 shader uniform 在 VisualEffect.onStart 用 binding 名做
-                        let url: string | null = null;
-                        if (Array.isArray(d) && typeof d[0] === "string") url = d[0];
-                        else if (typeof d === "string") url = d;
+                        let path: string | null = null;
+                        if (Array.isArray(d) && typeof d[0] === "string") path = d[0];
+                        else if (typeof d === "string") path = d;
+                        const url = path ? URL.join(baseUrl, path) : null;
                         desc.default = url ? [url] : [];
                         desc.texture = null;
                         if (url) {
@@ -754,7 +754,8 @@ export class VFXAssetParser {
 
         // 解析 bakedTexture
         if (data.bakedTexture) {
-            const loadBakedTex = Laya.loader.load(data.bakedTexture as string).then((tex: BaseTexture) => {
+            const bakedTextureUrl = URL.join(baseUrl, data.bakedTexture as string);
+            const loadBakedTex = Laya.loader.load(bakedTextureUrl).then((tex: BaseTexture) => {
                 vfxAsset.bakedTexture = tex;
             });
             loadPromises.push(loadBakedTex);

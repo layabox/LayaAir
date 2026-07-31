@@ -317,7 +317,7 @@ export class VFXRenderer extends BaseRender {
         }
     }
 
-    /** 共享 atlas texture 本地 cache（res:// uuid → BaseTexture），避免 Laya.loader 异步竞争 */
+    /** 共享 atlas texture 本地 cache（asset URL → BaseTexture），避免 Laya.loader 异步竞争 */
     private static _atlasTextureCache: Map<string, BaseTexture> = new Map();
     // 已尝试加载并失败的纹理 url；避免 missing 资源每帧重试导致 1000+ 行 "Failed to load" 日志刷屏
     private static _failedTextureUrls: Set<string> = new Set();
@@ -356,8 +356,8 @@ export class VFXRenderer extends BaseRender {
         try {
             // ⚠不能用 loader.load(url, BUFFER)：同 url 已按 Texture 加载过时，资产缓存按 url 直接命中
             // 返回 Texture 对象（请求类型被忽略）→ "non-ArrayBuffer: object"，alpha 修补静默失效。
-            // 改用 loader.fetch：内部走 AssetDb.resolveURL 解析 res://，纯下载字节不进资产缓存。
-            const buffer = await (Laya.loader as any).fetch(url, "arraybuffer");
+            // 改用 loader.fetch：由 loader 解析资源 URL，纯下载字节不进资产缓存。
+            const buffer = await Laya.loader.fetch(url, "arraybuffer");
             if (!buffer || !(buffer instanceof ArrayBuffer)) {
                 console.warn("[VFX alpha] fetch returned non-ArrayBuffer:", typeof buffer);
                 return;
@@ -542,7 +542,7 @@ export class VFXRenderer extends BaseRender {
      * 用于 outputShaderGraphQuad / outputShaderGraphMesh 等用户指定 shader 的 output context
      *
      * Shader 未注册时（例如 .bps 还没被 loader 加载）通过 AssetDb shaderNameMap
-     * 反查到 res:// url 异步加载（每次只 kick off 一次），返回 VFXUnlit fallback；
+     * 反查到资源 URL 异步加载（每次只 kick off 一次），返回 VFXUnlit fallback；
      * .bps 加载完成后下一次 getCustomShaderMaterial 调用会命中已注册 shader。
      */
     /** mesh 顶点能力 → 材质 define 同步（COLOR=slot1 / UV=slot2 / TANGENT=slot4）。
@@ -652,14 +652,11 @@ export class VFXRenderer extends BaseRender {
     /**
      * 基础 mesh 纹理材质：无 shadergraph(.bps)时,用内置 VFXUnlit + 绑定 MainTexture 到 u_AlbedoTexture。
      * 对齐 Unity —— Output Mesh 自带 Main Texture,默认材质即可显示纹理,不依赖 Shader Graph。
-     * 按 (blendMode, 纹理 uuid, uvMode, flipbook) 缓存,避免共享材质被不同纹理互相覆盖。
+     * 按 (blendMode, 纹理 URL, uvMode, flipbook) 缓存,避免共享材质被不同纹理互相覆盖。
      */
-    static getMeshTexturedMaterial(blendMode: string = "Alpha", mainTextureUuid: string = "", uvMode: string = "Default", flipbookSize: Vector2 = null): Material {
-        // IDE Texture2D 字段存裸 assetId,转换器存 res://uuid —— 统一补前缀
-        if (mainTextureUuid && mainTextureUuid.indexOf("://") < 0)
-            mainTextureUuid = "res://" + mainTextureUuid;
+    static getMeshTexturedMaterial(blendMode: string = "Alpha", mainTextureUrl: string = "", uvMode: string = "Default", flipbookSize: Vector2 = null): Material {
         const fbKey = flipbookSize ? `${flipbookSize.x}x${flipbookSize.y}` : "";
-        const key = `__meshtex__${blendMode}__${mainTextureUuid}__${uvMode}__${fbKey}`;
+        const key = `__meshtex__${blendMode}__${mainTextureUrl}__${uvMode}__${fbKey}`;
         let mat = VFXRenderer._customShaderMaterialCache.get(key);
         if (mat) return mat;
         const shader = Shader3D.find("VFXUnlit");
@@ -680,8 +677,8 @@ export class VFXRenderer extends BaseRender {
         applyBlendMode(mat, blendMode);
         applyFlipbook(mat, uvMode, flipbookSize);
         VFXRenderer._customShaderMaterialCache.set(key, mat);
-        if (mainTextureUuid) {
-            VFXRenderer._tryLoadTextureOnce(mainTextureUuid, tex => {
+        if (mainTextureUrl) {
+            VFXRenderer._tryLoadTextureOnce(mainTextureUrl, tex => {
                 if (mat) mat.setTexture("u_AlbedoTexture", tex);
             });
         }
@@ -1068,9 +1065,7 @@ export class VFXRenderer extends BaseRender {
                     // 对齐 Unity —— Main Texture 字段驱动纹理,不依赖 shaderName/shadergraph 属性绑定(shaderName 常被 IDE 留空)。
                     // 绑多个 sampler 名覆盖 .bps(MainTexture/_MainTexture)和基础材质(u_AlbedoTexture)。
                     if (meshMaterial && outType !== "outputBillboard") {
-                        let meshFieldTex = (geometry as any).mainTexture as string;
-                        if (meshFieldTex && meshFieldTex.indexOf("://") < 0)
-                            meshFieldTex = "res://" + meshFieldTex;
+                        const meshFieldTex = (geometry as any).mainTexture as string;
                         if (meshFieldTex) {
                             VFXRenderer._tryLoadTextureOnce(meshFieldTex, tex => {
                                 if (tex) {

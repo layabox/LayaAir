@@ -210,7 +210,7 @@ export class VFXParticleSystemDesc implements VFXSystemDesc {
     uvMode: string = "Default";
     // Flipbook atlas 的列数/行数（cols, rows），启用 Flipbook 时用
     flipbookSize: Vector2 = new Vector2(4, 4);
-    // Flipbook 模式专用 atlas 资源（res:// uuid），runtime 加载后设到 BillboardMaterial.u_AlbedoTexture
+    // Flipbook 模式专用 atlas 资源，runtime 加载后设到 BillboardMaterial.u_AlbedoTexture
     mainTexture: string = "";
 
     // Subpixel AA 开关（对齐 Unity subpixelAA block）
@@ -311,7 +311,7 @@ export class VFXPropertyDesc {
     name: string;           // 面向用户的属性名
     uniform: string;        // shader uniform 名
     type: VFXPropertyType;
-    default: number[] | string[];      // 标量/向量数字数组 (Float/Vec2/3/4/Color) 或资源 res:// 字符串数组 (Texture2D)
+    default: number[] | string[];      // 标量/向量数字数组 (Float/Vec2/3/4/Color) 或资源 URL 字符串数组 (Texture2D)
     gradientStops?: VFXGradientStop[];  // Gradient 类型：关键帧列表
     /** Texture2D 类型异步加载后存放的纹理实例 */
     texture?: any;
