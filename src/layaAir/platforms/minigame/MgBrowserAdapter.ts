@@ -291,6 +291,8 @@ export class MgBrowserAdapter extends BrowserAdapter {
     }
 
     createBufferURL(data: ArrayBuffer): string {
+        if (!this.supportArrayBufferURL)
+            return null;
         return PAL.g.createBufferURL(data);
     }
 
