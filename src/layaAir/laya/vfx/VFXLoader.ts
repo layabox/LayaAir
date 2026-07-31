@@ -1,15 +1,17 @@
 import { VFXAsset } from "./VFXAsset";
 import { VFXAssetParser } from "./VFXAssetParser";
 import { ILoadTask, IResourceLoader, Loader } from "../net/Loader";
+import { AssetDb } from "../resource/AssetDb";
 
 export class VFXLoader implements IResourceLoader {
 
     load(task: ILoadTask): Promise<VFXAsset> {
-        return task.loader.fetch(task.url, "json", task.progress.createCallback(0.5), task.options).then(data => {
+        let url = AssetDb.inst.getSubAssetURL(task.url, task.uuid, "0", "lvfx");
+        return task.loader.fetch(url, "json", task.progress.createCallback(), task.options).then(data => {
             return new VFXAssetParser().parse(data);
         });
     }
 
 }
 
-Loader.registerLoader(["lvfx"], VFXLoader, "LVFX");
+Loader.registerLoader(["vfx"], VFXLoader, "VFXGraph");
