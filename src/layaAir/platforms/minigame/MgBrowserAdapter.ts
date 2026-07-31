@@ -98,6 +98,17 @@ export class MgBrowserAdapter extends BrowserAdapter {
         });
         if (PAL.hasAPI("onWindowResize")) {
             PAL.g.onWindowResize(result => {
+                //旋转、分屏、PC拖窗、折叠屏等场景下窗口变化但屏幕不变，用屏幕尺寸会导致画布与实际显示区不匹配而被拉伸/剪裁。
+                let info = PAL.hasAPI("getWindowInfo") ? PAL.g.getWindowInfo()
+                    : (PAL.hasAPI("getSystemInfoSync") ? PAL.g.getSystemInfoSync() : null);
+                //回调参数优先，其次查询接口
+                let w = result ? result.windowWidth : 0;
+                let h = result ? result.windowHeight : 0;
+                if ((!w || !h) && info) { w = info.windowWidth; h = info.windowHeight; }
+                if (w && h) {
+                    window.innerWidth = w;
+                    window.innerHeight = h;
+                }
                 this.event(Event.RESIZE);
             });
         }
