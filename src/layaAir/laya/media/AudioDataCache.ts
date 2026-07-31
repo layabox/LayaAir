@@ -66,6 +66,14 @@ export class AudioDataCache {
             return;
         }
 
+        //check if already loaded by Loader (e.g. preloaded)
+        let buffer = Loader.getRes(url, Loader.SOUND);
+        if (buffer) {
+            this.add(url, buffer, buffer.__byteLength);
+            callback.call(callbackThis, buffer);
+            return;
+        }
+
         //不需要在Loader里cache
         ILaya.loader.load(url, { type: Loader.SOUND, cache: false }).then(buffer => {
             if (buffer)
