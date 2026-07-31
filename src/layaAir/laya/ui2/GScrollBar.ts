@@ -25,6 +25,7 @@ export class GScrollBar extends GWidget {
     private _vertical: boolean;
     private _scrollPerc: number = 0;
     private _fixedGripSize: boolean = false;
+    private _displayPerc: number = 0;
 
     private _dragOffset: Point;
     private _gripDragging: boolean;
@@ -45,6 +46,7 @@ export class GScrollBar extends GWidget {
 
     /** @ignore */
     setDisplayPerc(value: number) {
+        this._displayPerc = value;
         if (this._vertical) {
             if (!this._fixedGripSize)
                 this._gripButton.height = Math.max(Math.floor(value * this._bar.height), Math.min(MIN_GRIP_SIZE, this._bar.height));
@@ -90,7 +92,11 @@ export class GScrollBar extends GWidget {
     }
 
     set fixedGripSize(value: boolean) {
-        this._fixedGripSize = value;
+        if (this._fixedGripSize !== value) {
+            this._fixedGripSize = value;
+            if (this._gripButton && this._bar)
+                this.setDisplayPerc(this._displayPerc);
+        }
     }
 
     /** @internal */
