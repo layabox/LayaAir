@@ -108,6 +108,8 @@ class TbDownloader extends MgDownloader {
 
 MgBrowserAdapter.beforeInit = function () {
     PAL.g = (window as any).my;
+    if (!PAL.g.loadSubpackage && PAL.g.loadSubPackage)
+        PAL.g.loadSubpackage = PAL.g.loadSubPackage;
     // 淘宝高性能字段是 my.env.isHighPerformanceMode（不带 iOS，安卓也可能 true），存到通用的 Browser.isIOSHighPerformanceMode
     Browser.isIOSHighPerformanceMode = !!((PAL.g as any)?.env?.isHighPerformanceMode);
     if (!Browser.isIOSHighPerformanceMode) {
