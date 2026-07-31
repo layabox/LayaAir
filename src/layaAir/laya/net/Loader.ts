@@ -477,7 +477,7 @@ export class Loader extends EventDispatcher {
             else
                 options = Object.assign(options, { priority, cache, ignoreCache, group, useWorkerLoader });
         }
-        if (options.cache === false)
+        if (options.cache === false && options.ignoreCache == null)
             options.ignoreCache = true;
 
         let onProgress: ProgressCallback;
