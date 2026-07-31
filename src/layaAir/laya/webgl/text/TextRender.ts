@@ -131,7 +131,7 @@ export class TextRender {
                     cc.length > 1 ? 0xffffffff : drawColor, //emoji总是用白色绘制
                     italicDeg, true);
 
-                x += ri.advance + letterSpacing;
+                x += ri.advance + stroke + letterSpacing;
             }
         }
         else {
