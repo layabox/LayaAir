@@ -123,7 +123,7 @@ export class Scroller implements IScroller {
         this._decelerationRate = UIConfig2.defaultScrollDecelerationRate;
         this._barDisplay = UIConfig2.defaultScrollBarDisplay;
         this._touchEffect = UIConfig2.defaultScrollTouchEffect;
-        this._bouncebackEffect = UIConfig2.defaultScrollTouchEffect;
+        this._bouncebackEffect = UIConfig2.defaultScrollBounceEffect;
     }
 
     get owner() {
