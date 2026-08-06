@@ -12,8 +12,18 @@ import { Utils3D } from "../../../../utils/Utils3D";
 import { isTransformType } from "../isTransformType";
 import { LayerTask } from "../TaskSlot";
 
-/** RT 路径下复用 Web applier 时，'non-transform-only' 跳过 Transform 类型让 Native 处理。 */
-export type WebAnimatorApplierScope = 'all' | 'non-transform-only';
+/** Web 分阶段回写；RT 路径使用 'non-transform-only' 跳过已由 Native 处理的 Transform。 */
+export type WebAnimatorApplierScope = 'all' | 'transform-only' | 'non-transform-only';
+
+interface ApplyIndices {
+    transform: Int32Array;
+    nonTransform: Int32Array;
+}
+
+interface CrossApplyIndices extends ApplyIndices {
+    crossMark: number;
+    ownerCount: number;
+}
 
 const _tempVector31: Vector3 = new Vector3();
 const _tempColor: Color = new Color();
@@ -34,45 +44,87 @@ export class WebAnimatorApplier {
      * revertDefaultKeyframeNodes 用桶替代「全表扫描 + 内层 isTransformType 判断」。
      * Clip 是只读资源，桶一次构建后稳定。'all' 路径不使用桶。
      */
-    private _nonTransformIdxCache: WeakMap<AnimationClip, Int32Array> = new WeakMap();
+    private _applyIndicesCache: WeakMap<AnimationClip, ApplyIndices> = new WeakMap();
 
-    /** 取 clip 的非 Transform 索引桶，缺则按 clip._nodes 构建并缓存。 */
-    private _getNonTransformIndices(clip: AnimationClip): Int32Array {
-        let cached = this._nonTransformIdxCache.get(clip);
+    /** Cross owner 列表只在转场切换时重建，按 crossMark 缓存两类索引。 */
+    private _crossApplyIndicesCache: WeakMap<AnimatorControllerLayer, CrossApplyIndices> = new WeakMap();
+
+    /** 取 clip 的 Transform/非 Transform 索引桶，缺则构建并缓存。 */
+    private _getApplyIndices(clip: AnimationClip): ApplyIndices {
+        let cached = this._applyIndicesCache.get(clip);
         if (cached) return cached;
+        const transform: number[] = [];
+        const nonTransform: number[] = [];
+        let transformCount = 0;
+        let nonTransformCount = 0;
         const nodes = (clip as any)._nodes;
-        if (!nodes) {
-            cached = new Int32Array(0);
-        } else {
+        if (nodes) {
             const count = nodes.count;
-            const tmp: number[] = [];
             for (let i = 0; i < count; i++) {
-                if (!isTransformType(nodes.getNodeByIndex(i).type)) tmp.push(i);
+                if (isTransformType(nodes.getNodeByIndex(i).type)) transform[transformCount++] = i;
+                else nonTransform[nonTransformCount++] = i;
             }
-            cached = new Int32Array(tmp);
         }
-        this._nonTransformIdxCache.set(clip, cached);
+        cached = {
+            transform: new Int32Array(transform),
+            nonTransform: new Int32Array(nonTransform)
+        };
+        this._applyIndicesCache.set(clip, cached);
         return cached;
     }
 
-    applyNormal(layerTask: LayerTask, controllerLayer: AnimatorControllerLayer, isFirstLayer: boolean, updateMark: number): void {
-        this._applyNormal(controllerLayer, layerTask.state!, /*additive*/controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE, layerTask.weight, isFirstLayer, updateMark, this._scope === 'non-transform-only');
+    /** 取当前 scope 对应的 clip 索引；all 保持原全量路径。 */
+    private _getScopedIndices(clip: AnimationClip, scope: WebAnimatorApplierScope): Int32Array | null {
+        if (scope === 'all') return null;
+        const indices = this._getApplyIndices(clip);
+        return scope === 'transform-only' ? indices.transform : indices.nonTransform;
     }
 
-    applyCross(layerTask: LayerTask, controllerLayer: AnimatorControllerLayer, isFirstLayer: boolean, updateMark: number): void {
-        this._applyCross(controllerLayer, layerTask.state!, layerTask.destState!, layerTask.crossWeight, isFirstLayer, updateMark, this._scope === 'non-transform-only');
+    /** 取 CrossFade 当前 scope 对应的索引。 */
+    private _getCrossScopedIndices(controllerLayer: AnimatorControllerLayer, scope: WebAnimatorApplierScope): Int32Array | null {
+        if (scope === 'all') return null;
+        const ownerCount = controllerLayer._crossNodesOwnersCount;
+        let cached = this._crossApplyIndicesCache.get(controllerLayer);
+        if (!cached || cached.crossMark !== controllerLayer._crossMark || cached.ownerCount !== ownerCount) {
+            const transform: number[] = [];
+            const nonTransform: number[] = [];
+            let transformCount = 0;
+            let nonTransformCount = 0;
+            const owners = controllerLayer._crossNodesOwners;
+            for (let i = 0; i < ownerCount; i++) {
+                const owner = owners[i];
+                if (owner && isTransformType(owner.type)) transform[transformCount++] = i;
+                else nonTransform[nonTransformCount++] = i;
+            }
+            cached = {
+                crossMark: controllerLayer._crossMark,
+                ownerCount,
+                transform: new Int32Array(transform),
+                nonTransform: new Int32Array(nonTransform)
+            };
+            this._crossApplyIndicesCache.set(controllerLayer, cached);
+        }
+        return scope === 'transform-only' ? cached.transform : cached.nonTransform;
     }
 
-    applyFixedCross(layerTask: LayerTask, controllerLayer: AnimatorControllerLayer, isFirstLayer: boolean, updateMark: number): void {
-        this._applyFixedCross(controllerLayer, layerTask.destState!, layerTask.crossWeight, isFirstLayer, updateMark, this._scope === 'non-transform-only');
+    applyNormal(layerTask: LayerTask, controllerLayer: AnimatorControllerLayer, isFirstLayer: boolean, updateMark: number, scope: WebAnimatorApplierScope = this._scope): void {
+        this._applyNormal(controllerLayer, layerTask.state!, /*additive*/controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE, layerTask.weight, isFirstLayer, updateMark, scope);
+    }
+
+    applyCross(layerTask: LayerTask, controllerLayer: AnimatorControllerLayer, isFirstLayer: boolean, updateMark: number, scope: WebAnimatorApplierScope = this._scope): void {
+        this._applyCross(controllerLayer, layerTask.state!, layerTask.destState!, layerTask.crossWeight, isFirstLayer, updateMark, scope);
+    }
+
+    applyFixedCross(layerTask: LayerTask, controllerLayer: AnimatorControllerLayer, isFirstLayer: boolean, updateMark: number, scope: WebAnimatorApplierScope = this._scope): void {
+        this._applyFixedCross(controllerLayer, layerTask.destState!, layerTask.crossWeight, isFirstLayer, updateMark, scope);
     }
 
     updateDefaultValues(owners: KeyframeNodeOwner[]): void {
-        const skipTransform = this._scope === 'non-transform-only';
         for (let i = 0, n = owners.length; i < n; i++) {
             const nodeOwner = owners[i];
             if (!nodeOwner || !nodeOwner.propertyOwner || !nodeOwner.property) continue;
-            if (skipTransform && isTransformType(nodeOwner.type)) continue;
+            const transformType = isTransformType(nodeOwner.type);
+            if (this._scope === 'transform-only' ? !transformType : this._scope === 'non-transform-only' && transformType) continue;
 
             let pro = nodeOwner.propertyOwner;
 
@@ -136,17 +188,18 @@ export class WebAnimatorApplier {
     }
 
     revertDefaultKeyframeNodes(state: AnimatorState): void {
-        const skipTransform = this._scope === 'non-transform-only';
         const nodeOwners: KeyframeNodeOwner[] = state._nodeOwners;
         const clip = state._clip;
-        // skipTransform 且 clip 在 → 用桶；clip 缺失走原全量 + 内层 isTransformType 兜底
-        const indices: Int32Array | null = (skipTransform && clip) ? this._getNonTransformIndices(clip) : null;
+        const indices: Int32Array | null = clip ? this._getScopedIndices(clip, this._scope) : null;
         const loopCount = indices !== null ? indices.length : nodeOwners.length;
         for (let k = 0; k < loopCount; k++) {
             const i = indices !== null ? indices[k] : k;
             const nodeOwner = nodeOwners[i];
             if (!nodeOwner) continue;
-            if (skipTransform && indices === null && isTransformType(nodeOwner.type)) continue;
+            if (indices === null && this._scope !== 'all') {
+                const transformType = isTransformType(nodeOwner.type);
+                if (this._scope === 'transform-only' ? !transformType : transformType) continue;
+            }
             let pro: any = nodeOwner.propertyOwner;
             let value: string;
             if (!pro) continue;
@@ -293,15 +346,14 @@ export class WebAnimatorApplier {
         weight: number,
         isFirstLayer: boolean,
         updateMark: number,
-        skipTransform: boolean
+        scope: WebAnimatorApplierScope
     ): void {
         this._currentUpdateMark = updateMark;
         const realtimeDatas = stateInfo._realtimeDatas;
         const clip = stateInfo._clip!;
         const nodes = clip._nodes!;
         const nodeOwners: KeyframeNodeOwner[] = stateInfo._nodeOwners;
-        // skipTransform 走非 Transform 索引桶替代全表扫描；scope='all' 走原全量循环
-        const indices: Int32Array | null = skipTransform ? this._getNonTransformIndices(clip) : null;
+        const indices: Int32Array | null = this._getScopedIndices(clip, scope);
         const loopCount = indices !== null ? indices.length : nodes.count;
         for (let k = 0; k < loopCount; k++) {
             const i = indices !== null ? indices[k] : k;
@@ -476,7 +528,7 @@ export class WebAnimatorApplier {
         crossWeight: number,
         isFirstLayer: boolean,
         updateMark: number,
-        skipTransform: boolean
+        scope: WebAnimatorApplierScope
     ): void {
         this._currentUpdateMark = updateMark;
         const nodeOwners: KeyframeNodeOwner[] = controllerLayer._crossNodesOwners;
@@ -491,10 +543,12 @@ export class WebAnimatorApplier {
         const srcDataIndices: number[] = controllerLayer._srcCrossClipNodeIndices;
         const srcNodeOwners: KeyframeNodeOwner[] = srcState._nodeOwners;
 
-        for (let i: number = 0; i < ownerCount; i++) {
+        const indices = this._getCrossScopedIndices(controllerLayer, scope);
+        const loopCount = indices !== null ? indices.length : ownerCount;
+        for (let k: number = 0; k < loopCount; k++) {
+            const i = indices !== null ? indices[k] : k;
             const nodeOwner: KeyframeNodeOwner = nodeOwners[i];
             if (!nodeOwner) continue;
-            if (skipTransform && isTransformType(nodeOwner.type)) continue;
             const srcIndex: number = srcDataIndices[i];
             const destIndex: number = destDataIndices[i];
             if (-1 == srcIndex && -1 == destIndex) continue;
@@ -517,7 +571,7 @@ export class WebAnimatorApplier {
         crossWeight: number,
         isFirstLayer: boolean,
         updateMark: number,
-        skipTransform: boolean
+        scope: WebAnimatorApplierScope
     ): void {
         this._currentUpdateMark = updateMark;
         const nodeOwners: KeyframeNodeOwner[] = controllerLayer._crossNodesOwners;
@@ -527,10 +581,12 @@ export class WebAnimatorApplier {
         const destRealtimeDatas = destState._realtimeDatas;
         const destDataIndices: number[] = controllerLayer._destCrossClipNodeIndices;
 
-        for (let i: number = 0; i < ownerCount; i++) {
+        const indices = this._getCrossScopedIndices(controllerLayer, scope);
+        const loopCount = indices !== null ? indices.length : ownerCount;
+        for (let k: number = 0; k < loopCount; k++) {
+            const i = indices !== null ? indices[k] : k;
             const nodeOwner: KeyframeNodeOwner = nodeOwners[i];
             if (!nodeOwner) continue;
-            if (skipTransform && isTransformType(nodeOwner.type)) continue;
             const destIndex: number = destDataIndices[i];
             const srcValue: any = nodeOwner.crossFixedValue;
             let desValue;

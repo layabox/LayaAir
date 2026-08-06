@@ -7,7 +7,7 @@ import { AnimatorState } from "../../AnimatorState";
 import { AnimatorControllerLayer } from "../../AnimatorControllerLayer";
 import { AvatarMask } from "../../AvatarMask";
 import { KeyFrameValueType, KeyframeNodeOwner } from "../../KeyframeNodeOwner";
-import { ITaskSlot, LayerTaskType, TaskSlot } from "../TaskSlot";
+import { ITaskSlot, TaskSlot } from "../TaskSlot";
 import { WebAnimatorFactory } from "../web/WebAnimatorFactory";
 import { isTransformType } from "../isTransformType";
 import { IOwnerData, PlainOwnerData, registerOwnerDataCreator, registerClipDestroyCallback } from "../data/IAnimatorData";
@@ -101,11 +101,6 @@ export class RTAnimatorFactory implements IAnimatorFactory {
 
     /** Transform backend 嗅探结果。LayaX → 'layax'；OpenGLES → 'jsrt'；缺失则跳过 transform 绑定。 */
     private readonly _transformBackend: 'layax' | 'jsrt' | null;
-
-    /** state → 该 state 内 Transform-typed owner 的 propertyOwner 去重列表，_notifyJsTransformChanged 每帧消费。 */
-    private readonly _statePropertyOwnersCache: WeakMap<AnimatorState, any[]> = new WeakMap();
-    /** _notifyJsTransformChanged 的帧序号，每次调用自增；与 transform 上的 _notifyFrame 比对做整数去重。 */
-    private _notifyFrame: number = 0;
 
     /** 批量同步 buffer，仅在 _nativeEvaluator 存在时初始化。 */
     private _syncBuffer: RTBatchSyncBuffer | null = null;
@@ -231,7 +226,7 @@ export class RTAnimatorFactory implements IAnimatorFactory {
      * 步骤：
      *   1) Web 端 prepareStateOwners 填好 state._nodeOwners；
      *   2) 若 preparer 存在：上传 clip → 把 Transform 类 owner 补传 native → 建立 (ctx,state) 的 binding；
-     *   3) 若 applier 存在：重建该 state 的 propertyOwners 缓存（_notifyJsTransformChanged 用）。
+     *   3) WebFactory 同步维护 Web/Native 共用的 Transform 事件 owner 缓存。
      */
     prepareStateOwners(ctx: AnimatorBindContext, state: AnimatorState): void {
         this._web.prepareStateOwners(ctx, state);
@@ -243,9 +238,6 @@ export class RTAnimatorFactory implements IAnimatorFactory {
             const clipHandle = this._ensureClipUploaded(clip);
             this._syncOwnersToNative(ctx, state);
             this._ensureBindingUploaded(ctx, state, clipHandle);
-        }
-        if (this._nativeApplier) {
-            this._rebuildStateTransformPropertyOwners(state);
         }
     }
 
@@ -472,8 +464,8 @@ export class RTAnimatorFactory implements IAnimatorFactory {
     }
 
     /**
-     * sprite link/unlink 后同步 native owner 列表与 propertyOwners 缓存。
-     * 步骤：Web 端处理 link/unlink → 遍历本 ctx 已建 binding 的所有 state，逐个补传新 owner / 重建缓存。
+     * sprite link/unlink 后同步 native owner 列表。
+     * WebFactory 已统一重建事件 owner 缓存；这里只补传 Native owner。
      */
     handleSpriteOwnersBySprite(ctx: AnimatorBindContext, isLink: boolean, path: string[], sprite: Sprite3D): void {
         this._web.handleSpriteOwnersBySprite(ctx, isLink, path, sprite);
@@ -482,7 +474,6 @@ export class RTAnimatorFactory implements IAnimatorFactory {
         if (stateMap) {
             for (const state of stateMap.keys()) {
                 if (this._nativePreparer) this._syncOwnersToNative(ctx, state);
-                if (this._nativeApplier) this._rebuildStateTransformPropertyOwners(state);
             }
         }
     }
@@ -632,7 +623,7 @@ export class RTAnimatorFactory implements IAnimatorFactory {
     /**
      * 一帧回写入口。
      * 步骤：native applier flush 写完 Transform（并在 C++ 侧设好 WORLD 脏标志）→
-     * _notifyJsTransformChanged 派发 JS 端 TRANSFORM_CHANGED 事件 →
+     * WebFactory 公共通知器派发 JS 端 TRANSFORM_CHANGED 事件 →
      * Web 端 flushApply 处理 non-transform 类型，并清 dirtyList。
      *
      * WORLD 脏标志由 native applier 在 C++ 里设：_setTransformFlag 是虚函数，JSRTTransform
@@ -643,76 +634,10 @@ export class RTAnimatorFactory implements IAnimatorFactory {
     flushApply(): void {
         if (this._nativeApplier) {
             this._nativeApplier.flush();
-            // C++ 回写后 JS 侧补派发 TRANSFORM_CHANGED（Native 化后唯一留在 JS 的逐帧事件开销）。
-            this._notifyJsTransformChanged();
+            // C++ 回写后复用 WebFactory 的统一通知器派发 TRANSFORM_CHANGED。
+            this._web._notifyAnimatorTransformChanged();
         }
         this._web.flushApply();
-    }
-
-    /**
-     * 派发 JS 端 TRANSFORM_CHANGED 事件，驱动 SkinnedMeshRenderer / BaseRender 的 bounds 失效。
-     * 扫 active slot 内非 Idle layer 的 propertyOwner 列表，逐个 _dispatchTransformEvent 递归派发。
-     *
-     * 去重用 transform 上的 _notifyFrame 帧标记（整数比对，比 Set hash 去重快得多）：派发过即标记
-     * 为本帧序号，再遇到直接跳过；且因 _dispatchTransformEvent 返回时保证整棵子树都已派发，命中
-     * 标记时连子节点一起跳过。WORLD 脏标志已由 native applier 在 C++ 侧设好，此处只补事件派发。
-     */
-    private _notifyJsTransformChanged(): void {
-        const active = (this._web as any)._activeList as { length: number; elements: TaskSlot[] };
-        if (active.length === 0) return;
-
-        const frame = ++this._notifyFrame;
-        const cache = this._statePropertyOwnersCache;
-
-        for (let i = 0, n = active.length; i < n; i++) {
-            const slot = active.elements[i];
-            const layers = slot._layers;
-            for (let j = 0, m = layers.length; j < m; j++) {
-                const lt = layers[j];
-                if (lt.type === LayerTaskType.Idle) continue;
-                if (lt.state) {
-                    const list = cache.get(lt.state);
-                    if (list) for (let k = 0, kn = list.length; k < kn; k++) this._dispatchTransformEvent(list[k], frame);
-                }
-                if (lt.destState) {
-                    const list = cache.get(lt.destState);
-                    if (list) for (let k = 0, kn = list.length; k < kn; k++) this._dispatchTransformEvent(list[k], frame);
-                }
-            }
-        }
-    }
-
-    /**
-     * 递归派发 TRANSFORM_CHANGED：_notifyFrame 命中本帧 frame 即返回（它和整棵子树都派过了）；
-     * 否则标记本帧、派发事件、递归子节点。无 TRANSFORM_CHANGED 监听者的 transform 跳过 event
-     * 调用（_hasTransformChangedListener=false），但仍递归——子孙可能有监听者。
-     */
-    private _dispatchTransformEvent(pro: any, frame: number): void {
-        if (pro._notifyFrame === frame) return;
-        pro._notifyFrame = frame;
-        if (pro._hasTransformChangedListener) pro.event(Event.TRANSFORM_CHANGED, pro._RTtransformFlag);
-        const children = pro._children;
-        if (children) for (let i = 0, n = children.length; i < n; i++) {
-            this._dispatchTransformEvent(children[i], frame);
-        }
-    }
-
-    /** 重建一个 state 的 Transform-typed propertyOwner 去重列表到 _statePropertyOwnersCache（冷路径）。 */
-    private _rebuildStateTransformPropertyOwners(state: AnimatorState): void {
-        const owners = (state as any)._nodeOwners as KeyframeNodeOwner[] | undefined;
-        if (!owners) {
-            this._statePropertyOwnersCache.delete(state);
-            return;
-        }
-        const seen = new Set<any>();
-        const result: any[] = [];
-        for (let i = 0, n = owners.length; i < n; i++) {
-            const o = owners[i];
-            if (!o || !isTransformType(o.type)) continue;
-            const pro = o.propertyOwner;
-            if (pro && !seen.has(pro)) { seen.add(pro); result.push(pro); }
-        }
-        this._statePropertyOwnersCache.set(state, result);
     }
 
     // ==================== 冷路径 ====================
