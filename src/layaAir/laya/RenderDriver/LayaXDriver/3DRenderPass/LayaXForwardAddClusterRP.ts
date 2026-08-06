@@ -146,6 +146,11 @@ export class LayaXForwardAddClusterRP {
         this._f32[MSlot.CamPosX] = pos.x;
         this._f32[MSlot.CamPosY] = pos.y;
         this._f32[MSlot.CamPosZ] = pos.z;
+        // Refresh the native view every frame. The JSVM may relocate an
+        // ArrayBuffer backing store after allocation-heavy scene setup (for
+        // example NavMesh construction), so a pointer captured only in the
+        // constructor can become stale.
+        this._nativeObj.bindBuffer(this._buf);
     }
 
     setViewPort(value: Viewport): void {
