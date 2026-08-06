@@ -70,6 +70,12 @@ export class Config {
     static useGraphics2DIndexUInt32: boolean = true;
 
     /**
+     * @en Whether Sprite render textures enable anti-aliasing when the render backend supports MSAA.
+     * @zh Sprite 渲染纹理在渲染后端支持 MSAA 时是否开启抗锯齿。
+     */
+    static isSpriteRenderTextureAntialias: boolean = false;
+
+    /**
      * @en Default text size, default is 12
      * @zh 默认文本大小，默认为12
      */
