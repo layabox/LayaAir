@@ -288,8 +288,8 @@ ${fragmentCode}
             });
             if (wildUniforms.length > 0) {
                 console.error(
-                    `[LayaX] Shader "${shaderPassName}" declares uniforms in GLSL that are not registered in the material uniformMap. ` +
-                    `LayaX does not auto-append wild uniforms. Missing: ${wildUniforms.join(", ")}`
+                    `[LayaX] Shader "${shaderPassName}" declares uniforms in GLSL that are not registered before material creation. ` +
+                    `Missing: ${wildUniforms.join(", ")}`
                 );
             }
         }

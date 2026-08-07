@@ -22,6 +22,7 @@ const shaderDataOBJ: Record<string, ShaderDataType> = {
     "Vector2": ShaderDataType.Vector2,
     "Vector3": ShaderDataType.Vector3,
     "Vector4": ShaderDataType.Vector4,
+    "Vector4u": ShaderDataType.Vector4u,
     "Matrix4x4": ShaderDataType.Matrix4x4,
     "Matrix3x3": ShaderDataType.Matrix3x3,
     "Texture2D": ShaderDataType.Texture2D,
@@ -31,6 +32,27 @@ const shaderDataOBJ: Record<string, ShaderDataType> = {
     "StorageTexture2D": ShaderDataType.StorageTexture2D,
     "StorageBuffer": ShaderDataType.DeviceBuffer,
 };
+
+const glslUniformTypeOBJ: Record<string, string> = {
+    "float": "Float",
+    "int": "Int",
+    "bool": "Bool",
+    "vec2": "Vector2",
+    "vec3": "Vector3",
+    "vec4": "Vector4",
+    "uvec4": "Vector4u",
+    "mat3": "Matrix3x3",
+    "mat4": "Matrix4x4",
+    "sampler2D": "Texture2D",
+    "sampler2DShadow": "Texture2D",
+    "sampler3D": "Texture3D",
+    "samplerCube": "TextureCube",
+    "samplerCubeShadow": "TextureCube",
+    "sampler2DArray": "Texture2DArray",
+    "sampler2DArrayShadow": "Texture2DArray",
+};
+
+const glslUniformRegex = /\buniform\s+(?:(?:lowp|mediump|highp)\s+)?(\w+)\s+(\w+)\s*(?:\[\s*(\d+)\s*\])?\s*;/gm;
 
 //TODO 格式改变
 export class ShaderParser {
@@ -142,6 +164,7 @@ export class ShaderParser {
                 }
             });
         }
+        ShaderParser.appendDirectGlslUniforms(shaderObj);
         //attribute map trans
         let attributemap = shaderObj.attributeMap;
         if (attributemap) {
@@ -215,6 +238,48 @@ export class ShaderParser {
                 }
                 else
                     newUniformMap[k] = value;
+            }
+        }
+    }
+
+    /**
+     * Reflect uniforms declared directly in a shader resource's GLSL blocks.
+     * This runs before SubShader and material ShaderData are created, matching
+     * WebGL reflection without mutating an already-live native uniform layout.
+     */
+    private static appendDirectGlslUniforms(shaderObj: IShaderObjStructor): void {
+        const uniformMap = shaderObj.uniformMap;
+        const passes = shaderObj.shaderPass as Array<IShaderpassStructor>;
+        if (!uniformMap || !passes)
+            return;
+
+        const registered = new Set<string>();
+        for (const key in uniformMap) {
+            registered.add(key.replace(/\s*\[.*$/, ""));
+            const entry = uniformMap[key];
+            if (entry && typeof entry === "object" && entry.type == null) {
+                for (const blockName in entry)
+                    registered.add(blockName.replace(/\s*\[.*$/, ""));
+            }
+        }
+
+        for (const pass of passes) {
+            for (const source of [pass.VS, pass.FS]) {
+                if (!source)
+                    continue;
+                glslUniformRegex.lastIndex = 0;
+                let match: RegExpExecArray;
+                while ((match = glslUniformRegex.exec(source)) != null) {
+                    const [, glslType, name, arrayLength] = match;
+                    if (registered.has(name))
+                        continue;
+                    const shaderType = glslUniformTypeOBJ[glslType];
+                    if (!shaderType)
+                        continue;
+                    const key = arrayLength ? `${name}[${arrayLength}]` : name;
+                    uniformMap[key] = { type: shaderType };
+                    registered.add(name);
+                }
             }
         }
     }
