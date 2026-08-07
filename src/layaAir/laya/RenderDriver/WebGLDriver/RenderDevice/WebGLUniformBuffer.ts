@@ -1,13 +1,18 @@
 import { LayaGL } from "../../../layagl/LayaGL";
-import { StatElement } from "../../../layagl/StatisticsContext";
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
+import { UniformBufferWriter } from "../../DriverDesign/RenderDevice/UniformBufferManager/UniformBufferWriter";
 import { WebGLEngine } from "./WebGLEngine";
 import { GLBuffer } from "./WebGLEngine/GLBuffer";
-import { WebGLUniformBufferBase } from "./WebGLUniformBufferBase";
+import { IWebGLUniformBuffer } from "./IWebGLUniformBuffer";
 import { WebGLUniformBufferDescriptor } from "./WebGLUniformBufferDescriptor";
 
-export class WebGLUniformBuffer extends WebGLUniformBufferBase {
+/** 独立 UBO:自带 GLBuffer(非 cluster 块)。descriptor 收窄为具体类型,直接调 build 方法。 */
+export class WebGLUniformBuffer extends UniformBufferWriter implements IWebGLUniformBuffer {
+
+    declare descriptor: WebGLUniformBufferDescriptor;
+
+    destroyed: boolean = false;
 
     private _data: Float32Array;
 
@@ -41,9 +46,9 @@ export class WebGLUniformBuffer extends WebGLUniformBufferBase {
 
     /**
      * 添加 uniform
-     * @param index 
-     * @param type 
-     * @param arraySize 
+     * @param index
+     * @param type
+     * @param arraySize
      */
     addUniform(index: number, type: ShaderDataType, arraySize: number = 0) {
         this.descriptor.addUniform(index, type, arraySize);

@@ -1,84 +1,48 @@
-import { ShaderData, ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
-import { IUniformBufferUser } from "../../DriverDesign/RenderDevice/UniformBufferManager/IUniformBufferUser";
-import { UniformBufferAlone } from "../../DriverDesign/RenderDevice/UniformBufferManager/UniformBufferAlone";
+import { IUniformLayout } from "../../DriverDesign/RenderDevice/UniformBufferManager/IUniformLayout";
 import { UniformBufferBlock } from "../../DriverDesign/RenderDevice/UniformBufferManager/UniformBufferBlock";
-import { WebGLUniformBufferManager } from "./WebGLUniformBufferManager";
+import { UniformBufferCluster } from "../../DriverDesign/RenderDevice/UniformBufferManager/UniformBufferCluster";
 import { GLBuffer } from "./WebGLEngine/GLBuffer";
-import { WebGLUniformBufferBase } from "./WebGLUniformBufferBase";
-import { WebGLUniformBufferDescriptor } from "./WebGLUniformBufferDescriptor";
+import { IWebGLUniformBuffer } from "./IWebGLUniformBuffer";
 
-export class WebGLSubUniformBuffer extends WebGLUniformBufferBase implements IUniformBufferUser {
+/**
+ * 池化小块 + 写入器合体:本类即 UniformBufferBlock 子类,持 cluster 内 offset/size 与 setXxx 视图。
+ * WebGL 无 bindGroup/observer,搬迁后只需重建 view。释放走基类,不 override destroy()。
+ */
+export class WebGLSubUniformBuffer extends UniformBufferBlock implements IWebGLUniformBuffer {
 
-    uniformMap: Map<number, { id: number, propertyName: string, uniformtype: ShaderDataType, arrayLength: number }>;
+    constructor(cluster: UniformBufferCluster, index: number, size: number, alignedSize: number, descriptor: IUniformLayout) {
+        super(cluster, index, size, alignedSize);
+        this.descriptor = descriptor;
+        this._rebuildViews();
+        this.needUpload = true;
+        this.markDirty();
+    }
+
+    /** view 绑到 cluster.data 上 u.offset + block.offset 处 */
+    private _rebuildViews() {
+        this.descriptor.uniforms.forEach(u => {
+            let size = u.viewByteLength / u.dataView.BYTES_PER_ELEMENT;
+            u.view = new u.dataView(this.cluster.data, u.offset + this.offset, size);
+        });
+    }
+
+    bind(location: number): void {
+        (this.cluster.buffer as GLBuffer).bindBufferRange(location, this.offset, this.size);
+    }
+
+    onRelocated(info?: string): void {
+        super.onRelocated(info);
+        this._rebuildViews();
+        // 不变量:WebGL 只有 expand 是自愈的——新 buffer 已由 createGPUBuffer(data) 整体初始化、
+        // 且块 offset 不变。任何改变 offset 的 relocate(如空洞压缩 moveBlock)都会把数据搬到
+        // GPU 新位置,而新位置仍是旧内容,干净块也须重传,否则 GPU 读到脏数据。
+        if (info !== 'expand') {
+            this.needUpload = true;
+            this.markDirty();
+        }
+    }
 
     upload(): void {
-        this.needUpload && this.bufferBlock.needUpload();
-    }
-    bind(location: number): void {
-        let buffer = <GLBuffer>this.bufferBlock.cluster.buffer;
-        buffer.bindBufferRange(location, this.bufferBlock.offset, this.bufferBlock.size);
-    }
-
-    bufferBlock: UniformBufferBlock;
-    bufferAlone: UniformBufferAlone;
-    manager: WebGLUniformBufferManager;
-    data: ShaderData;
-    offset: number;
-
-    name: string;
-    size: number;
-
-    constructor(name: string, uniformMap: Map<number, { id: number, propertyName: string, uniformtype: ShaderDataType, arrayLength: number }>, mgr: WebGLUniformBufferManager, data: ShaderData) {
-        super();
-        this.name = name;
-        this.manager = mgr;
-        this.data = data;
-        this.uniformMap = uniformMap;
-
-        let descriptor = new WebGLUniformBufferDescriptor(name);
-        uniformMap.forEach(uniform => {
-            descriptor.addUniform(uniform.id, uniform.uniformtype, uniform.arrayLength);
-        });
-        descriptor.finish(this.manager.byteAlign / 4);
-        let bufferSize = descriptor.byteLength;
-        this.descriptor = descriptor;
-
-        this.size = bufferSize;
-        this.bufferBlock = mgr.getBlock(bufferSize, this);
-        this.needUpload = true;
-    }
-    updateOver(): void {
-        this.needUpload = false;
-    }
-
-    clearGPUBufferBind(): void {
-        // throw new NotImplementedError();
-    }
-
-    notifyGPUBufferChange(info?: string): void {
-
-        this.offset = this.bufferBlock.offset;
-        this.needUpload = true;
-
-        this.descriptor.uniforms.forEach(uniform => {
-
-            let size = uniform.viewByteLength / uniform.dataView.BYTES_PER_ELEMENT;
-            let offset = uniform.offset + this.bufferBlock.offset;
-
-            uniform.view = new uniform.dataView(this.bufferBlock.cluster.data, offset, size);
-        });
-        // this.needUpload = true;
-        // this.bufferBlock.cluster.upload();
-        this.needUpload = true;
-    }
-
-    destroy(): void {
-        this.name = null;
-        this.data = null;
-        this.uniformMap = null;
-        this.descriptor.destroy();
-        this.descriptor = null;
-        this.manager.freeBlock(this.bufferBlock);
-        this.destroyed = true;
+        this.needUpload && this.markDirty();
     }
 }
