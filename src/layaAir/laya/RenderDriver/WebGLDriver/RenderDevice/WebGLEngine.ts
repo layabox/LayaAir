@@ -29,8 +29,6 @@ import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { WebGLInternalTex } from "./WebGLInternalTex";
 import { EventDispatcher } from "../../../events/EventDispatcher";
 import { WebGLInternalRT } from "./WebGLInternalRT";
-import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
-import { Config3D } from "../../../../Config3D";
 import { WebGLUniformBufferManager } from "./WebGLUniformBufferManager";
 import { Config } from "../../../../Config";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
