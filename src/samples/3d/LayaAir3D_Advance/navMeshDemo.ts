@@ -28,6 +28,7 @@ import { Mesh } from "laya/d3/resource/models/Mesh";
 import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 import { MeshFilter } from "laya/d3/core/MeshFilter";
 import { MaterialRenderMode } from "laya/resource/Material";
+import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
 
 
 export class NavMeshDemo {
@@ -107,6 +108,10 @@ class NavMeshScript extends Script {
         this._scene.addChild(navSprite);
         let mat = new UnlitMaterial()
         mat.materialRenderMode = MaterialRenderMode.RENDERMODE_TRANSPARENT;
+        // The debug overlay is coplanar with the navigation surface. Equal depth
+        // values must pass here; changing backend-wide LESS semantics would hide
+        // resource mistakes in unrelated materials.
+        mat.depthTest = RenderState.DEPTHTEST_LEQUAL;
         mat.albedoColor = new Color(0, 0.75, 1, 0.3)
         navSpriterender.material = mat;
         Vector3.lerp(suface.min, suface.max, 0.5, tempV);
