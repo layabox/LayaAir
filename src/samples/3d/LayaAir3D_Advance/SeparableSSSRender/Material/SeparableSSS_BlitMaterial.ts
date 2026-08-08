@@ -43,6 +43,7 @@ export class SeparableSSS_BlitMaterial extends Material {
 			"u_blurDir": ShaderDataType.Vector2,
 			"u_sssWidth": ShaderDataType.Float,
 			"u_distanceToProjectionWindow": ShaderDataType.Float,
+			"u_kernel[17]": ShaderDataType.Vector4,
 		};
 		var shader: Shader3D = Shader3D.add("SeparableSSS", true, true);
 		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
