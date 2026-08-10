@@ -60,6 +60,7 @@ export class RTRender2DPass implements IRender2DPass {
    }
    postProcess: PostProcess2D = null;
    private _enablePostProcess: boolean = false;
+   private _postProcessShaderDataRef: GLESShaderData = null;
 
    private _mask: RTRenderStruct2D;
    public set mask(value: RTRenderStruct2D) {
@@ -170,7 +171,8 @@ export class RTRender2DPass implements IRender2DPass {
          // native fowardRender 在跑 _postProcessCMDs 前会缓存 context.passData，
          // 把它克隆到这块 shaderData 后切换 passData，再在结束时还原。
          // 等价于 TS CommandBuffer2D.apply() 的 passData 切换逻辑。
-         this._nativeObj.setPostProcessShaderData((command.shaderData as GLESShaderData)._nativeObj);
+         this._postProcessShaderDataRef = command.shaderData as GLESShaderData;
+         this._nativeObj.setPostProcessShaderData(this._postProcessShaderDataRef._nativeObj);
          this._nativeObj.setPostProcess(
             this._getRenderCMDArray(command._renderCMDs)
          );
@@ -178,6 +180,8 @@ export class RTRender2DPass implements IRender2DPass {
          this._enablePostProcess = true;
       } else if (this._enablePostProcess) {
          this._nativeObj.setEnablePostProcess(false);
+         this._nativeObj.setPostProcessShaderData(null);
+         this._postProcessShaderDataRef = null;
          this._enablePostProcess = false;
       }
    }
@@ -197,6 +201,7 @@ export class RTRender2DPass implements IRender2DPass {
       this.root = null;
       this.renderTexture = null;
       this.postProcess = null;
+      this._postProcessShaderDataRef = null;
       this.shaderData = null;
    }
 }
