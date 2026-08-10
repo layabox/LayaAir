@@ -286,16 +286,24 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
 
         const totalBatchCount = this._currentBatchIndex + 1;
         
-        this.subMeshes.length = totalBatchCount;
-        this.materials.length = totalBatchCount;
+        let renderBatchCount = 0;
         for (let i = 0; i < totalBatchCount; i++) {
             const batch = this.batches[i];
-            if (batch) {
-                this.subMeshes[i] = batch.geometry;
-                this.materials[i] = batch.material;
+            if (batch && batch.view && batch.view.vertexCount > 0 && batch.view.indexCount > 0) {
+                this.subMeshes[renderBatchCount] = batch.geometry;
+                this.materials[renderBatchCount] = batch.material;
+                renderBatchCount++;
+            } else if (batch && batch.geometry) {
+                // A material change may create a batch that receives no data
+                // (for example a transparent attachment or an empty clip).
+                // Geometry objects are reused, so their previous draw range
+                // must not survive into this frame.
+                batch.geometry.clearRenderParams();
             }
         }
-        this._materialIndex = totalBatchCount;
+        this.subMeshes.length = renderBatchCount;
+        this.materials.length = renderBatchCount;
+        this._materialIndex = renderBatchCount;
         this.needUpdate = true;
 
         if (this.autoCacheEnabled) {
@@ -312,7 +320,7 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
         let renderBlocks = [];
         for (let i = 0; i < totalBatchCount; i++) {
             const batch = this.batches[i];
-            if (batch) {
+            if (batch && batch.view && batch.view.vertexCount > 0 && batch.view.indexCount > 0) {
                 let vertexData = batch.view.vertexData;
                 let vertexBufferLength = batch.view.vertexBufferLength;
                 
@@ -580,8 +588,12 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
         for (let i = 0; i <= this._currentBatchIndex; i++) {
             const batch = this.batches[i];
             if (batch && batch.view) {
-                manager.assignViewToBuffer(batch.view, batch.view.vertexCount);
-                batch.geometry.bufferState = manager.outBufferState as any;
+                if (batch.view.vertexCount > 0 && batch.view.indexCount > 0) {
+                    manager.assignViewToBuffer(batch.view, batch.view.vertexCount);
+                    batch.geometry.bufferState = manager.outBufferState as any;
+                } else {
+                    batch.geometry.clearRenderParams();
+                }
             }
         }
     }
@@ -734,15 +746,19 @@ export class Spine2DNormalRenderUpdater implements ISpineNormalUpdater{
 
         const totalBatchCount = this._currentBatchIndex + 1;
         
-        this.subMeshes.length = totalBatchCount;
-        this.materials.length = totalBatchCount;
+        let renderBatchCount = 0;
         for (let i = 0; i < totalBatchCount; i++) {
             const batch = this.batches[i];
-            if (batch) {
-                this.subMeshes[i] = batch.geometry;
-                this.materials[i] = batch.material;
+            if (batch && batch.view && batch.view.vertexCount > 0 && batch.view.indexCount > 0) {
+                this.subMeshes[renderBatchCount] = batch.geometry;
+                this.materials[renderBatchCount] = batch.material;
+                renderBatchCount++;
+            } else if (batch && batch.geometry) {
+                batch.geometry.clearRenderParams();
             }
         }
+        this.subMeshes.length = renderBatchCount;
+        this.materials.length = renderBatchCount;
         this.needUpdate = true;
     }
 

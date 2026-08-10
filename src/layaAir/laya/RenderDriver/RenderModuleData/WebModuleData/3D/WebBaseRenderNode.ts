@@ -1,9 +1,11 @@
 import { ReflectionProbeMode } from "../../../../d3/component/Volume/reflectionProbe/ReflectionProbe";
 import { RenderableSprite3D } from "../../../../d3/core/RenderableSprite3D";
+import { Sprite3D } from "../../../../d3/core/Sprite3D";
 import { Transform3D } from "../../../../d3/core/Transform3D";
 import { IrradianceMode } from "../../../../d3/core/render/BaseRender";
 import { BoundFrustum } from "../../../../d3/math/BoundFrustum";
 import { Bounds } from "../../../../d3/math/Bounds";
+import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Material } from "../../../../resource/Material";
 import { IRenderContext3D, IRenderElement3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
@@ -104,6 +106,19 @@ export class WebBaseRenderNode implements IBaseRenderNode {
 
     _calculateBoundingBox() {
         this._caculateBoundingBoxFun.call(this._caculateBoundingBoxCall);
+    }
+
+    /**
+     * Transform uniform 更新入口。WebGPU render node 覆写为缓存 field 直写，
+     * 其他后端保留 ShaderData setter 语义。
+     */
+    protected _setTransformWorldMatrix(value: Matrix4x4): void {
+        this.shaderData.setMatrix4x4(Sprite3D.WORLDMATRIX, value);
+    }
+
+    /** @internal */
+    protected _setTransformWorldInvertFront(value: Vector4): void {
+        this.shaderData.setVector(Sprite3D.WORLDINVERTFRONT, value);
     }
 
     /**

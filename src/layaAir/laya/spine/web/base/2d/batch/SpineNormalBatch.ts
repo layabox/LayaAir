@@ -137,6 +137,12 @@ export class SpineNormalBatch implements IBatch2DProvider {
     private _batchBufferPool: BatchBuffer[] = [];
 
     /**
+     * Batch buffers that still own views from an earlier frame.
+     * They cannot be reused until every view has moved to another buffer.
+     */
+    private _retiredBatchBuffers: BatchBuffer[] = [];
+
+    /**
      * @en Active batch buffers in current frame
      * @zh 当前帧中活跃的批次缓冲区
      */
@@ -333,6 +339,7 @@ export class SpineNormalBatch implements IBatch2DProvider {
 
             let bufferState = LayaGL.renderDeviceFactory.createBufferState();
             bufferState.applyState([vertexBuffer], indexBuffer);
+            wholeBuffer.bufferState = bufferState;
 
             batchBuffer = {
                 wholeBuffer,
@@ -349,11 +356,22 @@ export class SpineNormalBatch implements IBatch2DProvider {
      * @zh 为新帧重置批次状态
      */
     reset(): void {
-        // Recycle batch buffers
+        // Recycle retired buffers only after their views have naturally moved
+        // away. Static/singleton Spine elements can keep rendering from the
+        // previous batch buffer without a full restore to the global buffers.
+        let retainedCount = 0;
+        for (let i = 0; i < this._retiredBatchBuffers.length; i++) {
+            let batchBuffer = this._retiredBatchBuffers[i];
+            if (batchBuffer.wholeBuffer._first) {
+                this._retiredBatchBuffers[retainedCount++] = batchBuffer;
+            } else {
+                this._batchBufferPool.push(batchBuffer);
+            }
+        }
+        this._retiredBatchBuffers.length = retainedCount;
+
         for (let i = 0; i < this._activeBatchBufferCount; i++) {
-            let batchBuffer = this._activeBatchBuffers[i];
-            batchBuffer.wholeBuffer.clearDataViews();
-            this._batchBufferPool.push(batchBuffer);
+            this._retiredBatchBuffers.push(this._activeBatchBuffers[i]);
         }
         this._activeBatchBufferCount = 0;
 
@@ -380,8 +398,14 @@ export class SpineNormalBatch implements IBatch2DProvider {
             batchBuffer.bufferState.destroy();
         }
 
+        for (let batchBuffer of this._retiredBatchBuffers) {
+            batchBuffer.wholeBuffer.destroy();
+            batchBuffer.bufferState.destroy();
+        }
+
         this._batchBufferPool = [];
         this._activeBatchBuffers = [];
+        this._retiredBatchBuffers = [];
 
         for (let i = 0; i < this._mergedCount; i++) {
             SpineNormalBatch._pool.recover(this._merged[i]);

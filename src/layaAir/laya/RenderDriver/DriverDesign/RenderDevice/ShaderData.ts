@@ -15,6 +15,8 @@ import { InternalTexture } from "./InternalTexture";
 import { IDeviceBuffer } from "./IDeviceBuffer";
 import { InternalRenderTarget } from "./InternalRenderTarget";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { UniformBufferField } from "./UniformBufferManager/UniformBufferField";
+import type { UniformBufferBlock } from "./UniformBufferManager/UniformBufferBlock";
 
 export enum ShaderDataType {
     None,
@@ -229,6 +231,36 @@ export class ShaderData implements IClone {
      */
     clearData(): void {
         throw new NotImplementedError();
+    }
+
+    /**
+     * @internal
+     * UBO 布局版本号:_uniformBuffersPropertyMap 变动(建块 / clearData)即 +1,供 UniformBufferField 廉价过期校验。
+     */
+    _uboLayoutVersion: number = 0;
+
+    /**
+     * @internal
+     * 取持有属性 index 的池化 cluster 块;独立 UBO 或不存在返回 null。仅供 UniformBufferField 重解析。
+     */
+    _getUniformBlockByProperty(index: number): UniformBufferBlock {
+        return null;
+    }
+
+    /**
+     * 取属性 index 的直写句柄(最优路径):跳过 _data 与逐属性 map 查找,直写块 view + 标脏。
+     * 句柄由调用方缓存复用,生命期跟绑定走;setXxx 返回 false 表示该属性当前未池化成 cluster 块
+     * (如 WebGL 节点变换、独立 UBO)或句柄失效,调用方据此回退 setXxx。
+     *
+     * 注意:通过返回的 field 写入不会同步 ShaderData 内部数据。之后调用 getXxx、getShaderData
+     * 或 clone 取得的仍是上一次普通 ShaderData setter 写入的值,可能已经过期或尚未初始化。
+     * field 仅适用于无需从 ShaderData 回读、并由调用方持续重推的属性。
+     */
+    getUniformField(index: number): UniformBufferField {
+        const field = new UniformBufferField();
+        field._owner = this;
+        field._index = index;
+        return field;
     }
 
 

@@ -14,6 +14,7 @@ import {
 	GraphicsSingleQuadFlag,
 	GraphicsSingleQuadKind,
 	GraphicsSingleQuadPayloadField,
+	GraphicsCommandPatchResult,
 } from "./GraphicsPipelineTypes";
 import { GraphicsOpRenderStateHelper } from "./GraphicsPipelineHelpers";
 import type { GraphicsRenderer } from "./GraphicsRenderer";
@@ -28,38 +29,45 @@ export class GraphicsSingleQuadMode {
 	private _payloadBuffer: ArrayBuffer = null;
 	private _payloadInt32: Int32Array = null;
 	private _payloadFloat32: Float32Array = null;
+	private _submittedPayload: Int32Array = null;
+	private _submittedResource: BaseTexture = null;
+	private _submittedResourceInternal: any = null;
+	private _submitted: boolean = false;
 	private _texture: Texture = null;
 	private _resource: BaseTexture = null;
 	private _dependsOnSize: boolean = false;
 
-	static canRender(spriteTexture: Texture, graphics: Graphics): boolean {
+	static classify(spriteTexture: Texture, graphics: Graphics): GraphicsSingleQuadKind | 0 {
 		let cmds = graphics && graphics.cmds;
 		let count = cmds ? cmds.length : 0;
 		if (spriteTexture)
-			return count === 0;
+			return count === 0 ? GraphicsSingleQuadKind.SpriteTexture : 0;
 		if (count !== 1)
-			return false;
+			return 0;
 		let cmd = cmds[0];
 		switch (cmd && cmd.cmdID) {
 			case DrawTextureCmd.ID:
 			case DrawImageCmd.ID:
-				return true;
+				return GraphicsSingleQuadKind.TextureQuad;
 			case FillTextureCmd.ID: {
 				let type = (cmd as FillTextureCmd).type;
-				return type === "repeat" || type === "repeat-x" || type === "repeat-y" || type === "no-repeat";
+				return type === "repeat" || type === "repeat-x" || type === "repeat-y" || type === "no-repeat"
+					? GraphicsSingleQuadKind.FillTexture : 0;
 			}
 			case DrawRectCmd.ID: {
 				let rect = cmd as DrawRectCmd;
-				return rect.fillColor != null && (rect.lineColor == null || rect.lineWidth <= 0);
+				return rect.fillColor != null && (rect.lineColor == null || rect.lineWidth <= 0)
+					? GraphicsSingleQuadKind.SolidQuad : 0;
 			}
 		}
-		return false;
+		return 0;
 	}
 
 	constructor(private _renderer: GraphicsRenderer, handleControlBuffer: ArrayBuffer) {
 		this._payloadBuffer = new ArrayBuffer(GraphicsSingleQuadPayloadField.WordCount * 4);
 		this._payloadInt32 = new Int32Array(this._payloadBuffer);
 		this._payloadFloat32 = new Float32Array(this._payloadBuffer);
+		this._submittedPayload = new Int32Array(GraphicsSingleQuadPayloadField.WordCount);
 		this._dataHandle = LayaGL.render2DRenderPassFactory.createGraphicsSingleQuadDataHandle();
 		this._dataHandle.setGraphicsHandleUpdateBuffer(handleControlBuffer);
 		this._dataHandle.setSingleQuadPayloadBuffer(this._payloadBuffer);
@@ -73,37 +81,39 @@ export class GraphicsSingleQuadMode {
 		return this._dependsOnSize;
 	}
 
-	render(graphics: Graphics): boolean {
-		let owner = this._renderer.owner;
-		if (owner._texture && (!graphics || graphics.cmds.length === 0))
+	render(graphics: Graphics, kind: GraphicsSingleQuadKind): boolean {
+		if (kind === GraphicsSingleQuadKind.SpriteTexture)
 			return this._renderSpriteTexture();
-		if (owner._texture || !graphics || graphics.cmds.length !== 1)
-			return false;
-
 		let cmd = graphics.cmds[0];
-		switch (cmd && cmd.cmdID) {
-			case DrawTextureCmd.ID:
-			case DrawImageCmd.ID:
+		let binding = cmd && cmd._cacheData;
+		if (binding && binding.kind === "FrameAnimation") {
+			binding.commandIndex = 0;
+			binding.opStart = -1;
+			binding.opCount = 0;
+			binding.op = null;
+		}
+		switch (kind) {
+			case GraphicsSingleQuadKind.TextureQuad:
 				return this._renderTextureCommand(cmd as DrawTextureCmd | DrawImageCmd);
-			case FillTextureCmd.ID:
+			case GraphicsSingleQuadKind.FillTexture:
 				return this._renderFillTextureCommand(cmd as FillTextureCmd);
-			case DrawRectCmd.ID:
+			default:
 				return this._renderSolidQuadCommand(cmd as DrawRectCmd);
 		}
-		return false;
 	}
 
-	syncSizeChange(): boolean {
-		return !!(this._dependsOnSize && this._payloadBuffer && this._dataHandle.syncSingleQuad(this._resource));
-	}
-
-	trackTexture(texture: Texture): void {
-		this._syncTextureRef(texture);
+	patchFrameAnimation(cmd: DrawTextureCmd): GraphicsCommandPatchResult {
+		return this._renderTextureCommand(cmd)
+			? GraphicsCommandPatchResult.Changed
+			: GraphicsCommandPatchResult.NoChange;
 	}
 
 	clear(): void {
 		this._clearTextureRef();
 		this._dependsOnSize = false;
+		this._submitted = false;
+		this._submittedResource = null;
+		this._submittedResourceInternal = null;
 	}
 
 	deactivate(): void {
@@ -118,6 +128,7 @@ export class GraphicsSingleQuadMode {
 		this._payloadBuffer = null;
 		this._payloadInt32 = null;
 		this._payloadFloat32 = null;
+		this._submittedPayload = null;
 		this._renderer = null;
 	}
 
@@ -247,7 +258,17 @@ export class GraphicsSingleQuadMode {
 	private _submitPayload(dependsOnSize: boolean): boolean {
 		this._dependsOnSize = dependsOnSize;
 		this._renderer._syncGraphicsOwnerSize();
-		return this._dataHandle.syncSingleQuad(this._resource);
+		let resourceInternal = this._resource ? this._resource._texture : null;
+		let changed = !this._submitted || this._submittedResource !== this._resource || this._submittedResourceInternal !== resourceInternal;
+		for (let i = 0; !changed && i < GraphicsSingleQuadPayloadField.WordCount; i++)
+			changed = this._submittedPayload[i] !== this._payloadInt32[i];
+		if (!changed)
+			return false;
+		this._submittedPayload.set(this._payloadInt32);
+		this._submittedResource = this._resource;
+		this._submittedResourceInternal = resourceInternal;
+		this._submitted = this._dataHandle.syncSingleQuad(this._resource);
+		return this._submitted;
 	}
 
 	private _writeUV(uv: ArrayLike<number>): void {
@@ -299,6 +320,6 @@ export class GraphicsSingleQuadMode {
 
 	private _onTextureChange(): void {
 		if (this._renderer)
-			this._renderer._scheduleGraphicsFullRebuild();
+			this._renderer._scheduleGraphicsPayloadUpdate();
 	}
 }

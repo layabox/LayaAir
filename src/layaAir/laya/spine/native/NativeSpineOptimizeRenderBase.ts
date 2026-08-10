@@ -51,9 +51,12 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
         this._templet.registerTexture(texture);
         let optimize = this._templet.optimize as NativeSkeletonOptimise;
 
-        optimize.registerTexture(texture);
+        let textureName = optimize.registerTexture(texture);
+        if (!textureName) {
+            return;
+        }
         let tex2d = texture.bitmap as any;
-        this._nativeRender.setSlotTexture(slotName, tex2d._id, createAttachment);
+        this._nativeRender.setSlotTexture(slotName, tex2d._id, textureName, createAttachment);
     }
 
     setTempletAttachment(templet: SpineTemplet, targetSlotName: string, skinName: string, attachmentName: string): void {
@@ -426,34 +429,61 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
         // Wrap listeners to convert native data to JS layer format
         if (listeners.start && this._nativeRender.setOnStart) {
             this._nativeRender.setOnStart((nativeEntry: any) => {
+                this._updateTrackEntry();
                 listeners.start!(this.trackEntry);
             });
         }
         if (listeners.interrupt && this._nativeRender.setOnInterrupt) {
             this._nativeRender.setOnInterrupt((nativeEntry: any) => {
+                this._updateTrackEntry();
                 listeners.interrupt!(this.trackEntry);
             });
         }
         if (listeners.end && this._nativeRender.setOnEnd) {
             this._nativeRender.setOnEnd((nativeEntry: any) => {
+                this._updateTrackEntry();
                 listeners.end!(this.trackEntry);
             });
         }
         if (listeners.dispose && this._nativeRender.setOnDispose) {
             this._nativeRender.setOnDispose((nativeEntry: any) => {
+                this._updateTrackEntry();
                 listeners.dispose!(this.trackEntry);
             });
         }
         if (listeners.complete && this._nativeRender.setOnComplete) {
             this._nativeRender.setOnComplete((nativeEntry: any) => {
+                this._updateTrackEntry();
                 listeners.complete!(this.trackEntry);
             });
         }
         if (listeners.event && this._nativeRender.setOnEvent) {
             this._nativeRender.setOnEvent((nativeEntry: any, nativeEvent: any) => {
-                listeners.event!(this.trackEntry, nativeEvent);
+                this._updateTrackEntry();
+                listeners.event!(this.trackEntry, this._normalizeNativeEvent(nativeEvent || nativeEntry));
             });
         }
+    }
+
+    private _normalizeNativeEvent(nativeEvent: any): any {
+        if (!nativeEvent) {
+            nativeEvent = {};
+        }
+
+        let name = nativeEvent.name || "";
+        let audioPath = nativeEvent.audioPath || "";
+        return {
+            data: {
+                name: name,
+                audioPath: audioPath
+            },
+            intValue: nativeEvent.intValue || 0,
+            floatValue: nativeEvent.floatValue || 0,
+            stringValue: nativeEvent.stringValue || "",
+            time: nativeEvent.time || 0,
+            balance: nativeEvent.balance || 0,
+            volume: nativeEvent.volume || 0
+        };
     }
  
     destroy(): void {

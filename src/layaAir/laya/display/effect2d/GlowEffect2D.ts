@@ -235,11 +235,15 @@ export class GlowEffect2D extends PostProcess2DEffect {
         }
     }
 
-    /** @ignore */
-    clearRT(context: PostProcessRenderContext2D): void {
+    /** @internal */
+    releaseInputTextureBindings(): void {
         this._blitmat && this._blitmat.setTexture("u_MainTex", null);
         this._glowMat && this._glowMat.setTexture("u_MainTex", null);
         this._compositeMat && this._compositeMat.setTexture("u_MainTex", null);
+    }
+
+    /** @ignore */
+    clearRT(context: PostProcessRenderContext2D): void {
         if (this._blitExtendRT && this._blitExtendRT !== context.destination) {
             RenderTexture2D.recoverToPool(this._blitExtendRT);
             this._blitExtendRT = null;

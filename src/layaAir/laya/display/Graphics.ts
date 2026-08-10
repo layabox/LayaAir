@@ -40,6 +40,16 @@ import { IGraphicsCmd } from "./IGraphics";
 import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
 import { Stat } from "../utils/Stat";
 import { GraphicsCommandPatchResult } from "./Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
+
+interface FrameAnimationGraphicsBinding {
+    kind: "FrameAnimation";
+    graphics: Graphics;
+    commandIndex: number;
+    state: Float64Array;
+    opStart: number;
+    opCount: number;
+    op: any;
+}
 /**
  * @en The Graphics class is used to create drawing display objects. Graphics can draw multiple bitmaps or vector graphics simultaneously, and can also combine instructions such as save, restore, transform, scale, rotate, translate, alpha, etc. to change the drawing effect.
  * Graphics is stored as a command stream and can be accessed through the cmds property. Graphics is a lighter object than Sprite, and proper use can improve application performance (for example, changing a large number of node drawings to a collection of Graphics commands of one node can reduce the consumption of creating a large number of nodes).
@@ -96,7 +106,10 @@ export class Graphics {
         if (this._useSpriteState == value)
             return;
         this._useSpriteState = value;
-        this.repaint();
+        if (this.owner) {
+            this.owner._graphicsRenderer?._materialChanged();
+            this.owner.repaint();
+        }
     }
 
     /** @internal 是否需要缓存 */
@@ -161,10 +174,7 @@ export class Graphics {
             this._layoutRepaintCount = 0;
         }
 
-        if (exclude)
-            this.repaint();
-        else
-            this._repaintCommandSplice(0, removedCount, 0);
+        this._commandsChanged(0, removedCount, exclude ? 1 : 0);
     }
 
     /** @deprecated Use repaint */
@@ -180,7 +190,7 @@ export class Graphics {
         this._modified = Stat.loopCount;
         this._graphicBounds?.reset();
         if (this.owner) {
-            this.owner._ensureGraphicsRenderer()._checkDisplay();
+            this.owner._ensureGraphicsRenderer().invalidateGraphicsState();
             this.owner.repaint(RepaintFlag.Graphics);
         }
     }
@@ -190,38 +200,27 @@ export class Graphics {
         this._graphicBounds?.reset();
     }
 
-    private _finishCommandMutation(owner: Sprite, retained: boolean): void {
-        if (retained) {
-            owner.repaint();
+    private _pendingCommandChange: number = 0;
+
+    private _commandsChanged(index: number, removedCount: number, addedCount: number): void {
+        let change = removedCount === addedCount ? 1 : 2;
+        if (change <= this._pendingCommandChange)
             return;
-        }
-        owner._ensureGraphicsRenderer()._checkDisplay();
-        owner.repaint(RepaintFlag.Graphics);
+        this._pendingCommandChange = change;
+        this._commitCommandsChanged(removedCount, addedCount);
     }
 
-    private _repaintCommandReplacement(index: number, oldCmd: IGraphicsCmd, newCmd: IGraphicsCmd): void {
+    /** @internal */
+    _commandsCommitted(): void { this._pendingCommandChange = 0; }
+
+    private _commitCommandsChanged(removedCount: number, addedCount: number): void {
         this._modified = Stat.loopCount;
         this._graphicBounds?.reset();
         let owner = this.owner;
         if (!owner)
             return;
-
-        let renderer = owner._graphicsRenderer;
-        renderer?._checkDisplay();
-        this._finishCommandMutation(owner,
-            !!renderer && renderer._queueCommandReplacement(index, oldCmd, newCmd));
-    }
-
-    private _repaintCommandSplice(index: number, removedCount: number, addedCount: number): void {
-        this._modified = Stat.loopCount;
-        this._graphicBounds?.reset();
-        let owner = this.owner;
-        if (!owner)
-            return;
-
-        let renderer = owner._graphicsRenderer;
-        this._finishCommandMutation(owner,
-            !!renderer && renderer._queueCommandSplice(index, removedCount, addedCount));
+        owner._ensureGraphicsRenderer()._commandsChanged(removedCount, addedCount);
+        owner.repaint();
     }
 
     /**
@@ -243,6 +242,7 @@ export class Graphics {
     }
 
     set cmds(value: IGraphicsCmd[]) {
+        let oldCount = this._cmds.length;
         if (this._cmds.length > 0) {
             this._cmds.filter(cmd => !value.includes(cmd)).forEach(cmd => {
                 if (!cmd.lock)
@@ -258,7 +258,7 @@ export class Graphics {
         }
         
         this._cmds = value;
-        this.repaint();
+        this._commandsChanged(0, oldCount, value.length);
     }
 
     /**
@@ -286,7 +286,7 @@ export class Graphics {
             this._layoutRepaintCount += cmd.needsLayoutRepaint();
         }
         
-        this._repaintCommandSplice(insertIndex, 0, 1);
+        this._commandsChanged(insertIndex, 0, 1);
         return cmd;
     }
 
@@ -307,7 +307,7 @@ export class Graphics {
                 this._layoutRepaintCount -= cmd.needsLayoutRepaint();
             }
             
-            this._repaintCommandSplice(i, 1, 0);
+            this._commandsChanged(i, 1, 0);
         }
 
         if (recover) {
@@ -330,13 +330,16 @@ export class Graphics {
         let index = this._cmds.indexOf(oldCmd);
         let replaceExisting = index !== -1 && newCmd != null;
         
-        if (oldCmd && oldCmd.needsLayoutRepaint) {
+        if (index !== -1 && oldCmd && oldCmd.needsLayoutRepaint) {
             this._layoutRepaintCount -= oldCmd.needsLayoutRepaint();
         }
         
         if (newCmd != null) {
-            if (index !== -1)
+            if (index !== -1) {
+                if (oldCmd && oldCmd._cacheData && oldCmd._cacheData.kind === "FrameAnimation" && oldCmd.cmdID === newCmd.cmdID)
+                    newCmd._cacheData = oldCmd._cacheData;
                 this._cmds[index] = newCmd;
+            }
             else
                 this._cmds.push(newCmd);
             
@@ -345,13 +348,13 @@ export class Graphics {
             }
             
             if (replaceExisting)
-                this._repaintCommandReplacement(index, oldCmd, newCmd);
+                this._commandsChanged(index, 1, 1);
             else
-                this.repaint();
+                this._commandsChanged(this._cmds.length - 1, 0, 1);
         }
         else if (index != -1) {
             this._cmds.splice(index, 1);
-            this._repaintCommandSplice(index, 1, 0);
+            this._commandsChanged(index, 1, 0);
         }
 
         if (oldCmd && recover) {
@@ -364,13 +367,15 @@ export class Graphics {
 
     /** @internal */
     patchFrameAnimationCmd(oldCmd: DrawTextureCmd, newCmd: DrawTextureCmd): boolean {
-        let index = this._cmds.indexOf(oldCmd);
-        if (index < 0 || !newCmd || oldCmd.cmdID !== newCmd.cmdID || !this.owner)
+        let binding = oldCmd && oldCmd._cacheData as FrameAnimationGraphicsBinding;
+        let index = binding ? binding.commandIndex : -1;
+        if (!binding || binding.kind !== "FrameAnimation" || binding.graphics !== this
+            || index < 0 || this._cmds[index] !== oldCmd || !newCmd || oldCmd.cmdID !== newCmd.cmdID || !this.owner)
             return false;
-
         let renderer = this.owner._graphicsRenderer;
+        newCmd._cacheData = binding;
         let patchResult = renderer
-            ? renderer._patchTextureQuadCommand(index, oldCmd, newCmd)
+            ? renderer._patchTextureQuadCommand(binding, oldCmd, newCmd)
             : GraphicsCommandPatchResult.Failed;
         if (patchResult === GraphicsCommandPatchResult.Failed)
             return false;
@@ -390,8 +395,24 @@ export class Graphics {
 
     /** @internal */
     preRegisterFrameAnimationCmds(cmds: ReadonlyArray<DrawTextureCmd> | null): void {
-        if (!this.owner)
+        if (!this.owner || !cmds || cmds.length === 0)
             return;
+        let commandIndex = -1;
+        for (let i = 0; i < cmds.length && commandIndex < 0; i++)
+            commandIndex = this._cmds.indexOf(cmds[i]);
+        if (commandIndex < 0)
+            return;
+        let binding: FrameAnimationGraphicsBinding = {
+            kind: "FrameAnimation",
+            graphics: this,
+            commandIndex,
+            state: new Float64Array(8),
+            opStart: -1,
+            opCount: 0,
+            op: null,
+        };
+        for (let i = 0; i < cmds.length; i++)
+            cmds[i]._cacheData = binding;
         this.owner._graphicsRenderer?._preRegisterTextureQuadCommands(cmds);
     }
 

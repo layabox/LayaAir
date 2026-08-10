@@ -45,7 +45,6 @@ export interface IGraphicsOp2D {
     clearStructureDirty(): void;
     markDirty(flags: GraphicsOp2DDirtyFlag): void;
     clearDirty(): void;
-    clearDirtyFlagsOnly?(): void;
     destroy(): void;
 }
 

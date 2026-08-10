@@ -98,8 +98,8 @@ export function WebSkinRenderNode() {//这么封装是为了避免此时WebBaseR
                 }
                 this._applyLightProb();
                 this._applyReflection();
-                this.shaderData.setMatrix4x4(Sprite3D.WORLDMATRIX, mat);
-                this.shaderData.setVector(Sprite3D.WORLDINVERTFRONT, worldParams);
+                this._setTransformWorldMatrix(mat);
+                this._setTransformWorldInvertFront(worldParams);
             }
 
         } as any;//这是为了不让ts报错，否则返回类的函数里的类必须全部是public的

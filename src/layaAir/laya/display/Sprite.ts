@@ -2514,6 +2514,7 @@ export class Sprite extends Node {
         let scaleX = 1, scaleY = 1;
         let oldRT = this._drawOriRT;
         let maskRect = this._subStructRender._rtRect;
+        let multiSamples = Config.isSpriteRenderTextureAntialias && LayaGL.renderEngine.getCapable(RenderCapable.MSAA) ? 4 : 1;
 
         rect.width = MathUtil.roundTo(rect.width);
         rect.height = MathUtil.roundTo(rect.height);
@@ -2532,7 +2533,7 @@ export class Sprite extends Node {
 
         //判断待考虑
         if (oldRT) {
-            if (maskRect.width === rect.width && maskRect.height === rect.height) {
+            if (maskRect.width === rect.width && maskRect.height === rect.height && (oldRT === RenderTexture2D._empty || oldRT.samples === multiSamples)) {
                 this._subStructRender._updateRenderOffset(rect, oriRect, scaleX, scaleY);
                 rect.recover();
                 oriRect.recover();
@@ -2548,7 +2549,6 @@ export class Sprite extends Node {
         if (rect.width === 0 || rect.height === 0) {
             this._drawOriRT = RenderTexture2D._empty;
         } else {
-            let multiSamples = LayaGL.renderEngine.getCapable(RenderCapable.MSAA) ? 4 : 1;
             let renderTexture = RenderTexture2D.createFromPool(rect.width, rect.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTHSTENCIL_24_8, multiSamples);
             renderTexture._invertY = LayaGL.renderEngine._screenInvertY;
             this._drawOriRT = renderTexture;

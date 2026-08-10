@@ -100,8 +100,12 @@ export class BlurEffect2D extends PostProcess2DEffect {
       }
    }
 
-   clearRT(context: PostProcessRenderContext2D): void {
+   /** @internal */
+   releaseInputTextureBindings(): void {
       this._mat && this._mat.setTexture("u_MainTex", null);
+   }
+
+   clearRT(context: PostProcessRenderContext2D): void {
       if (this._destRT && this._destRT !== context.destination) {
          RenderTexture2D.recoverToPool(this._destRT);
          this._destRT = null;

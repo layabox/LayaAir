@@ -727,22 +727,21 @@ export abstract class BaseOptimizeRender implements ISpineRender {
             return;
         }
         
+        if (!this._skeleton || !texture) return;
+
         let slot = this._skeleton.findSlot(slotName);
         if (!slot) return;
         let attachment = slot.getAttachment();
         if (!attachment) return;
 
         this._templet.registerTexture(texture);
-        this._optimize.registerTexture(texture);
+        let newRegion = this._optimize.registerTexture(texture);
+        if (!newRegion) return;
         
         if (createAttachment) {
             attachment = attachment.copy();
             slot.setAttachment(attachment);
         }
-
-        let pageName = texture.url;
-        let textureName = slotName;
-        let newRegion = this._optimize.getTextureRegion(pageName, textureName);
         
         if (attachment instanceof spine.RegionAttachment) {
             attachment.region = newRegion;

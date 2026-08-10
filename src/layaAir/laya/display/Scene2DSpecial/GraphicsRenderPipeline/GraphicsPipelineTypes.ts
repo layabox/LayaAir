@@ -9,11 +9,34 @@ export const enum GraphicsRenderMode {
 	CommandStream = 2,
 }
 
+/** @internal Renderer invalidation bits and their compile-time hot-path combinations. */
+export const enum RendererDirty {
+	None = 0,
+	Mode = 1,
+	Content = 2,
+	Material = 4,
+	Size = 8,
+	SpriteTexture = 16,
+	Rebuild = 32,
+	ContentRebuild = Content | Rebuild,
+	ModeContentRebuild = Mode | ContentRebuild,
+	ContentMaterialRebuild = ContentRebuild | Material,
+	ModeContentMaterialRebuild = Mode | ContentMaterialRebuild,
+	SizeContent = Size | Content,
+	SingleRender = Content | Size | SpriteTexture,
+	StreamRender = Rebuild | SpriteTexture,
+	SpriteTexturePatch = Content | SpriteTexture,
+	SpriteTextureRebuild = SpriteTexturePatch | Rebuild,
+	SpriteTextureModeRebuild = SpriteTextureRebuild | Mode,
+}
+
 /** @internal Fixed SingleQuad payload kind shared by Web and Native. */
 export const enum GraphicsSingleQuadKind {
 	TextureQuad = 1,
 	FillTexture = 2,
 	SolidQuad = 3,
+	/** Internal classifier value; encoded payload remains TextureQuad. */
+	SpriteTexture = 4,
 }
 
 /** @internal Composable flags stored in GraphicsSingleQuadPayloadField.Flags. */

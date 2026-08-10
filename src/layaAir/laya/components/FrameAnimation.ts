@@ -494,14 +494,15 @@ export class FrameAnimation extends Component {
         let cmd = this._drawCmds[this._frame];
         if (cmd)
             cmd.color = this._color.getABGR();
+        let graphics = this.owner.graphics;
         if (cmd != this._drawCmd) {
-            if (this._drawCmd && cmd && this.owner.graphics.patchFrameAnimationCmd(this._drawCmd, cmd))
+            if (this._drawCmd && cmd && graphics.patchFrameAnimationCmd(this._drawCmd, cmd))
                 this._drawCmd = cmd;
             else
-                this._drawCmd = this.owner.graphics.replaceCmd(this._drawCmd, cmd);
+                this._drawCmd = graphics.replaceCmd(this._drawCmd, cmd);
         }
         else if (this._drawCmd) {
-            this.owner.graphics.patchFrameAnimationCmd(this._drawCmd, this._drawCmd);
+            graphics.patchFrameAnimationCmd(this._drawCmd, this._drawCmd);
         }
     }
 
