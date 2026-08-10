@@ -6,9 +6,7 @@ import { IV2, Vector2 } from "../../maths/Vector2";
 import { Physics2DWorldManager } from "../Physics2DWorldManager";
 import { RigidBody } from "../RigidBody";
 import { Point } from "../../maths/Point";
-import { Utils } from "../../utils/Utils";
 import { SpriteGlobalTransform } from "../../display/SpriteGlobaTransform";
-import { TransformKind } from "../../display/SpriteConst";
 
 const _tempWorldPoint: Point = new Point();
 
@@ -322,18 +320,23 @@ export class ColliderBase extends Component {
     }
 
     /**@internal 通知rigidBody 更新shape 属性值 */
-    protected _needupdataShapeAttribute(flag?:number): void {
+    protected _needupdataShapeAttribute(): void {
         //兼容模式下使用，设置类似BoxCollider的偏移方式
         if (this._rigidbody && this._rigidbody.applyOwnerColliderComponent) {
             this.createShape(this._rigidbody);
         }
-        var sp: Sprite = this.owner;
+        const sp: Sprite = this.owner;
         //非dynamic类型下设置位置
-        if (this._type != "dynamic" && (flag & (TransformKind.Pos | TransformKind.Rotation | TransformKind.Scale))) {
-            if(flag & (TransformKind.Pos | TransformKind.Rotation | TransformKind.Scale)){
-                this._box2DBody && Physics2D.I._factory.set_RigibBody_Transform(this._box2DBody, Physics2D.toPhysicsX(sp.globalTrans.x), Physics2D.toPhysicsY(sp.globalTrans.y), Utils.toRadian(this.owner.globalTrans.rotation));
-                this._box2DBody && Physics2D.I._factory.set_rigidBody_Awake(this._box2DBody, true);
-            }
+        if (this._type != "dynamic" && this._box2DBody) {
+            const worldMatrix = sp.globalTrans.getMatrix();
+            worldMatrix.transformPoint(_tempWorldPoint.setTo(sp.pivotX, sp.pivotY));
+            Physics2D.I._factory.set_RigibBody_Transform(
+                this._box2DBody,
+                Physics2D.toPhysicsX(_tempWorldPoint.x),
+                Physics2D.toPhysicsY(_tempWorldPoint.y),
+                Math.atan2(Physics2D.toPhysicsY(worldMatrix.b), Physics2D.toPhysicsX(worldMatrix.a))
+            );
+            Physics2D.I._factory.set_rigidBody_Awake(this._box2DBody, true);
         }
         this.owner.event("shapeChange");
     }

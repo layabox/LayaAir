@@ -1,4 +1,5 @@
 import { Sprite } from "./Sprite";
+import { SpriteGlobalTransform } from "./SpriteGlobaTransform";
 import { Transform2DStore } from "./transform2d/Transform2DStore";
 import { Channel } from "./transform2d/Transform2DLayout";
 import { Node } from "./Node";
@@ -841,8 +842,11 @@ export class Stage extends Sprite {
             if ((changedMasks[i] & Channel.Matrix) === 0)
                 continue;
             const owner = t2dStore.getOwner(changedSlots[i]) as Sprite;
-            if (owner)
+            if (owner) {
                 owner._globalTrans._notifyRenderSpriteTransChange();
+                if (owner._globalTrans._hasChangedListener)
+                    owner.event(SpriteGlobalTransform.CHANGED, TransformKind.Matrix);
+            }
         }
 
         //subpass 分析  for

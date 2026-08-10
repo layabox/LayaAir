@@ -2331,6 +2331,9 @@ export class Sprite extends Node {
         else if (type === Event.TRANSFORM_CHANGED) {
             this._setDemandTransEvent();
         }
+        else if (type === SpriteGlobalTransform.CHANGED) {
+            this._globalTrans._hasChangedListener = true;
+        }
     }
 
     /**

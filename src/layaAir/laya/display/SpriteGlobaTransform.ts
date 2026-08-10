@@ -27,6 +27,9 @@ export class SpriteGlobalTransform {
 
     /** @internal */
     _modifiedFrame: number = 0;
+
+    /** @internal Whether a {@link SpriteGlobalTransform.CHANGED} listener has ever been registered. */
+    _hasChangedListener: boolean = false;
     /**
      * @en An event constant for when the global transformation information changes.
      * @zh 全局变换信息发生改变时的事件常量。
