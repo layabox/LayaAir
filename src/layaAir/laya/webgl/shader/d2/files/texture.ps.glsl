@@ -26,6 +26,29 @@ uniform sampler2D u_spriteTexture;
 uniform vec4 u_TexRange;
 #endif
 
+vec3 linearToGamma(in vec3 value)
+{
+    return vec3(mix(pow(value.rgb, vec3(0.41666)) * 1.055 - vec3(0.055), value.rgb * 12.92, vec3(lessThanEqual(value.rgb, vec3(0.0031308)))));
+    // return pow(value, vec3(1.0 / 2.2));
+    // return pow(value, vec3(0.455));
+}
+
+vec4 linearToGamma(in vec4 value)
+{
+    return vec4(linearToGamma(value.rgb), value.a);
+}
+
+
+vec3 gammaToLinear(in vec3 value)
+{
+    return pow((value + 0.055) / 1.055, vec3(2.4));
+}
+
+vec4 gammaToLinear(in vec4 value)
+{
+    return vec4(gammaToLinear(value.rgb), value.a);
+}
+
 void main()
 {
 
@@ -43,11 +66,11 @@ void main()
 
 	#ifndef GAMMATEXTURE
 		#ifdef GAMMASPACE
-			color.rgb = pow(color.rgb, vec3(1.0 / 2.2));
+			color.rgb = linearToGamma(color.xyz);
 		#endif
 	#else
 		#ifndef GAMMASPACE
-			color.rgb = pow(color.rgb, vec3(2.2));
+			color.rgb = gammaToLinear(color.xyz);
 		#endif
 	#endif
 
@@ -67,7 +90,7 @@ void main()
 	#ifdef GAMMASPACE
 		vec4 transColor = v_color;
 	#else
-		vec4 transColor = vec4(pow(v_color.rgb, vec3(2.2)), v_color.a);
+		vec4 transColor = vec4(gammaToLinear(v_color.rgb), v_color.a);
 	#endif
 	color.rgb *= transColor.rgb;
 	gl_FragColor = color;
