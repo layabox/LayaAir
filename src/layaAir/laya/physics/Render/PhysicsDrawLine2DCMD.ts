@@ -48,6 +48,8 @@ export class PhysicsDrawLine2DCMD extends Command2D {
     constructor() {
         super();
         this._material = new Material();
+        // The pooled command owns this material for its entire lifetime.
+        this._material._addReference();
         this._material.setShaderName("PhysicsLineShader");
         this._material.cull = CullMode.Off;
         this._material.setBoolByIndex(Shader3D.DEPTH_WRITE, false);
