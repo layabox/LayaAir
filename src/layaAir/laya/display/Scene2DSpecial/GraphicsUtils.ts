@@ -286,6 +286,9 @@ export class GraphicsRenderer {
       this.graphics = null;
       this._renderDataHandle.destroy();
       this._renderDataHandle = null;
+      if (this.owner) {
+            this.owner.off(SpriteGlobalTransform.CHANGED, this, this._onOwnerTransformChanged);
+      }
       this.owner = null;
    }
 
