@@ -53,7 +53,7 @@ export class GraphicsDefines{
 
 		GraphicsDefines._factory = LayaGL.render2DRenderPassFactory.createGraphicsOp2DFactory();
 
-        if (LayaEnv.isConch) {
+        if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() != 2) {
             GraphicsDefines._syncNativeGraphics2D();
         }
     }
