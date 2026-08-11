@@ -1058,6 +1058,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
                 matrix.tx,
                 matrix.ty
             );
+            if (!this._needUpdate) {
+                this._spineRender.render(this._spineRender.currentTime, this.physicsUpdate);
+                this.owner.repaint(RepaintFlag.UpdateRT);
+            }
         }
     }
     
