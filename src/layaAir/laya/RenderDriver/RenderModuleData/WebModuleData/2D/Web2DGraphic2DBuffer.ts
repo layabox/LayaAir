@@ -211,12 +211,16 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
             return;
 
         let uploadByteStart = uploadStart * indexByteSize;
+        let uploadByteEnd = uploadEnd * indexByteSize;
         let alignedByteStart = Math.floor(uploadByteStart / 4) * 4;
+        let alignedByteEnd = Math.ceil(uploadByteEnd / 4) * 4;
         let alignedStart = alignedByteStart / indexByteSize;
-        let dataLength = uploadEnd * indexByteSize - alignedByteStart;
-        let scratch = Web2DGraphicsIndexBuffer._getUploadScratch(uploadEnd);
+        let alignedEnd = alignedByteEnd / indexByteSize;
+        let dataLength = alignedByteEnd - alignedByteStart;
+        let scratch = Web2DGraphicsIndexBuffer._getUploadScratch(alignedEnd);
 
-        this._copyViewsToScratch(alignedStart, uploadEnd, scratch);
+        scratch.fill(0, alignedStart, alignedEnd);
+        this._copyViewsToScratch(alignedStart, alignedEnd, scratch);
         this.buffer.setData(scratch.buffer as ArrayBuffer, alignedByteStart, alignedByteStart, dataLength);
     }
 
@@ -258,7 +262,6 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
 export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
 
     private _batchData: Uint16Array | Uint32Array;
-    private _uploadData: Uint16Array | Uint32Array;
     private _writeLength: number = 0;
     /** @internal */
     // _uploadMask: Record<number, number> = {};
@@ -293,16 +296,6 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
         if (batchData && (batchData as any).constructor === arrayType)
             newData.set(batchData);
         this._batchData = newData;
-        this._uploadData = null;
-    }
-
-    private _getUploadData(length: number): Uint16Array | Uint32Array {
-        let uploadData = this._uploadData;
-        if (!uploadData || uploadData.buffer !== this._batchData.buffer || uploadData.length !== length) {
-            let arrayType = GraphicsDefines.GRAPHICS_INDEX_ARRAY_TYPE;
-            this._uploadData = uploadData = new arrayType(this._batchData.buffer, 0, length);
-        }
-        return uploadData;
     }
 
     _upload() {
@@ -322,14 +315,17 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
         uploadStart = Math.max(0, Math.min(uploadStart, uploadEnd));
 
         if (uploadEnd > uploadStart) {
-            if (uploadStart === 0) {
-                this.buffer._setIndexData(this._getUploadData(uploadEnd), 0);
-            } else {
-                let uploadByteStart = uploadStart * indexByteSize;
-                let alignedByteStart = Math.floor(uploadByteStart / 4) * 4;
-                let dataLength = uploadEnd * indexByteSize - alignedByteStart;
-                this.buffer.setData(this._batchData.buffer as ArrayBuffer, alignedByteStart, alignedByteStart, dataLength);
+            let uploadByteStart = uploadStart * indexByteSize;
+            let uploadByteEnd = uploadEnd * indexByteSize;
+            let alignedByteStart = Math.floor(uploadByteStart / 4) * 4;
+            let alignedByteEnd = Math.ceil(uploadByteEnd / 4) * 4;
+            let alignedEnd = alignedByteEnd / indexByteSize;
+
+            this._ensureBatchData(alignedEnd);
+            if (alignedEnd > this._writeLength) {
+                this._batchData.fill(0, this._writeLength, alignedEnd);
             }
+            this.buffer.setData(this._batchData.buffer as ArrayBuffer, alignedByteStart, alignedByteStart, alignedByteEnd - alignedByteStart);
         }
         this._needResetData = false;
         this._updateRange.setValue(100000000, -100000000);
@@ -358,7 +354,6 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
 
     destroy(): void {
         this._batchData = null;
-        this._uploadData = null;
         this._writeLength = 0;
         super.destroy();
     }
