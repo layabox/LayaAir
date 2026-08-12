@@ -118,7 +118,8 @@ export class IndexBuffer3D {
      */
     setData(data: any, bufferOffset: number = 0, dataStartIndex: number = 0, dataCount: number = 4294967295/*uint.MAX_VALUE*/): void {
         var byteCount: number = this._indexTypeByteCount;
-        if (dataStartIndex !== 0 || dataCount !== 4294967295/*uint.MAX_VALUE*/) {
+        const needSubData = dataStartIndex !== 0 || dataCount !== 4294967295/*uint.MAX_VALUE*/;
+        if (needSubData) {
             switch (this._indexType) {
                 case IndexFormat.UInt32:
                     data = new Uint32Array(data.buffer, dataStartIndex * byteCount, dataCount);
@@ -132,21 +133,35 @@ export class IndexBuffer3D {
             }
         }
 
-        this._deviceBuffer._setIndexData(data, bufferOffset * byteCount);
-
         if (this._canRead) {
-            if (bufferOffset !== 0 || dataStartIndex !== 0 || dataCount !== 4294967295/*uint.MAX_VALUE*/) {
+            let uploadCount: number;
+            if (bufferOffset !== 0 || needSubData || data.length !== this._buffer.length) {
                 var maxLength: number = this._buffer.length - bufferOffset;
-                if (dataCount > maxLength)
-                    dataCount = maxLength;
-                if (typeof data == typeof this._buffer && data.length == dataCount)
+                uploadCount = needSubData ? dataCount : data.length;
+                if (uploadCount > maxLength)
+                    uploadCount = maxLength;
+                if (typeof data == typeof this._buffer && data.length == uploadCount)
                     this._buffer.set(data, bufferOffset);
                 else
-                    for (var i: number = 0; i < dataCount; i++)
+                    for (var i: number = 0; i < uploadCount; i++)
                         this._buffer[bufferOffset + i] = data[i];
             } else {
                 this._buffer = data;
+                uploadCount = data.length;
             }
+
+            const uploadByteStart = bufferOffset * byteCount;
+            const uploadByteEnd = uploadByteStart + uploadCount * byteCount;
+            const alignedByteStart = Math.floor(uploadByteStart / 4) * 4;
+            const alignedByteEnd = Math.min(Math.ceil(uploadByteEnd / 4) * 4, this._byteLength);
+            this._deviceBuffer.setData(
+                this._buffer.buffer as ArrayBuffer,
+                alignedByteStart,
+                this._buffer.byteOffset + alignedByteStart,
+                alignedByteEnd - alignedByteStart
+            );
+        } else {
+            this._deviceBuffer._setIndexData(data, bufferOffset * byteCount);
         }
     }
 

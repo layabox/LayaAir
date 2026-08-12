@@ -189,13 +189,15 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
             geometry.setDrawElemenParams(length, start * 2);
         }
 
-        let len = this._last.start + this._last.length - uploadStart;
+        const uploadByteStart = uploadStart * Uint16Array.BYTES_PER_ELEMENT;
+        const uploadByteEnd = (this._last.start + this._last.length) * Uint16Array.BYTES_PER_ELEMENT;
+        const alignedByteStart = Math.floor(uploadByteStart / 4) * 4;
+        const alignedByteEnd = Math.min(Math.ceil(uploadByteEnd / 4) * 4, this.arrayBuffer.byteLength);
+        if (alignedByteEnd > uploadByteEnd) {
+            new Uint8Array(this.arrayBuffer).fill(0, uploadByteEnd, alignedByteEnd);
+        }
 
-        let offset = uploadStart * 2;
-
-        offset = Math.floor(offset / 4) * 4;
-
-        this.buffer.setData(this.arrayBuffer, offset, offset, len * 2 + (uploadStart * 2 - offset));
+        this.buffer.setData(this.arrayBuffer, alignedByteStart, alignedByteStart, alignedByteEnd - alignedByteStart);
         this._needResetData = false;
     }
 
@@ -237,20 +239,17 @@ export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
             view = view._next;
         }
 
-        let len = this._last.start + this._last.length - uploadStart;
-        if (len == 0) return;
+        const uploadByteStart = uploadStart * Uint16Array.BYTES_PER_ELEMENT;
+        const uploadByteEnd = (this._last.start + this._last.length) * Uint16Array.BYTES_PER_ELEMENT;
+        if (uploadByteEnd <= uploadByteStart) return;
 
-        let offset = uploadStart * 2;
-
-        offset = Math.floor(offset / 4) * 4;
-
-        let dataLength = len * 2 + (uploadStart * 2 - offset);
-
-        if (dataLength + offset > this.arrayBuffer.byteLength) { 
-            offset -= (dataLength + offset - this.arrayBuffer.byteLength);
+        const alignedByteStart = Math.floor(uploadByteStart / 4) * 4;
+        const alignedByteEnd = Math.min(Math.ceil(uploadByteEnd / 4) * 4, this.arrayBuffer.byteLength);
+        if (alignedByteEnd > uploadByteEnd) {
+            new Uint8Array(this.arrayBuffer).fill(0, uploadByteEnd, alignedByteEnd);
         }
 
-        this.buffer.setData(this.arrayBuffer, offset, offset, dataLength);
+        this.buffer.setData(this.arrayBuffer, alignedByteStart, alignedByteStart, alignedByteEnd - alignedByteStart);
 
         this._needResetData = false;
     }

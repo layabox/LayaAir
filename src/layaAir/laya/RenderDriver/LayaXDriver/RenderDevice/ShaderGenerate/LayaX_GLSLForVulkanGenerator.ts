@@ -17,6 +17,10 @@ const uniformBlockRegex = /(?:layout\s*\([^)]*\)\s*)?uniform\s+(\w+)\s*\{([\s\S]
 
 const glFragColorRegex = /gl_FragColor/g;
 
+function removeBindingSuffix(name: string, suffix: "_Texture" | "_Sampler"): string {
+    return name.endsWith(suffix) ? name.slice(0, -suffix.length) : name;
+}
+
 interface CollectUniform {
     samplerType?: string,
     arrayLength?: number,
@@ -224,7 +228,7 @@ ${fragmentCode}
 
             value.forEach(uniform => {
                 if (uniform.type == LayaXBindingInfoType.texture) {
-                    let name = uniform.name.replace("_Texture", "");
+                    let name = removeBindingSuffix(uniform.name, "_Texture");
 
                     textureNames.push(name);
 
@@ -235,7 +239,7 @@ ${fragmentCode}
                 }
 
                 if (uniform.type == LayaXBindingInfoType.sampler) {
-                    let name = uniform.name.replace("_Sampler", "");
+                    let name = removeBindingSuffix(uniform.name, "_Sampler");
                     let collect = collectionUniforms.get(name);
 
                     if (collect) {
@@ -431,7 +435,7 @@ ${fragmentCode}
                             break;
                         }
                         case LayaXBindingInfoType.texture: {
-                            const textureName = uniform.name.slice(0, -"_Texture".length);
+                            const textureName = removeBindingSuffix(uniform.name, "_Texture");
 
                             if (!usedTex || usedTex.has(textureName)) {
                                 const textureType = getSamplerTextureType(uniform.texture.sampleType, uniform.texture.viewDimension);
@@ -750,7 +754,7 @@ function uniformString2(uniformSetMap: Map<number, LayaXBindingInfo[]>, material
                         }
                     case LayaXBindingInfoType.texture:
                         {
-                            let textureName = uniform.name.replace("_Texture", "");
+                            let textureName = removeBindingSuffix(uniform.name, "_Texture");
                             let collectUniform = collectUniforms.get(textureName);
                             if (collectUniform) {
                                 uniform.texture.sampleType = uniform.texture.sampleType;
@@ -761,14 +765,14 @@ function uniformString2(uniformSetMap: Map<number, LayaXBindingInfo[]>, material
 
                             res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform ${textureType} ${uniform.name};\n`
 
-                            let samplerName = uniform.name.replace("_Texture", "");
+                            let samplerName = removeBindingSuffix(uniform.name, "_Texture");
                             samplerMap.set(samplerName, uniform);
                         }
                         break;
                     case LayaXBindingInfoType.sampler:
                         {
                             let sampler = "sampler";
-                            let samplerName = uniform.name.replace("_Sampler", "");
+                            let samplerName = removeBindingSuffix(uniform.name, "_Sampler");
 
                             let collectUniform = collectUniforms.get(samplerName);
                             if (collectUniform) {

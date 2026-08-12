@@ -399,7 +399,16 @@ export class Mesh2D extends Resource {
             indexBuffer.indexCount = indices.length;
             indexBuffer.indexType = format;
         }
-        indexBuffer._setIndexData(indices, 0);
+        const indexByteSize = indices.BYTES_PER_ELEMENT;
+        const alignedByteLength = Math.ceil(indices.byteLength / 4) * 4;
+        const bufferByteLength = indexBuffer.indexCount * indexByteSize;
+        if (alignedByteLength > indices.byteLength && alignedByteLength <= bufferByteLength) {
+            const uploadData = new Uint8Array(alignedByteLength);
+            uploadData.set(new Uint8Array(indices.buffer, indices.byteOffset, indices.byteLength));
+            indexBuffer.setData(uploadData.buffer, 0, 0, uploadData.byteLength);
+        } else {
+            indexBuffer._setIndexData(indices, 0);
+        }
 
         if (iscreateBuffer) {
             this._bufferState.applyState(this._bufferState._vertexBuffers, indexBuffer);
@@ -422,6 +431,5 @@ export class Mesh2D extends Resource {
         }
     }
 }
-
 
 
