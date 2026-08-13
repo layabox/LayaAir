@@ -77,6 +77,7 @@ export class LayaXShaderData extends ShaderData {
         this._textureData = {};
         this._bufferData = {};
         this._deviceBufferData = {};
+        this._defineDatas.clear();
         // native 侧 clearData 只清主线程值缓存(values/gamma_colors),保留
         // 渲染线程按 serial 回查的纹理/Buffer 版本链,避免 in-flight 白屏。
         this._nativeObj.clearData();
@@ -358,5 +359,7 @@ export class LayaXShaderData extends ShaderData {
         // 被销毁时 _textureData 里还持着 BaseTexture 的 ref 导致资源延迟释放。
         this.clearData();
         this._nativeObj.destroy();
+        // ShaderData 独占创建 DefineDatas，销毁时必须同步释放 native 注册槽位。
+        this._defineDatas.destroy();
     }
 }
