@@ -91,9 +91,9 @@ export class TextRender {
         }
 
         if (shadow) {
-            ctx.shadowOffsetX = shadowOffsetX;
-            ctx.shadowOffsetY = shadowOffsetY;
-            ctx.shadowBlur = shadowBlur;
+            ctx.shadowOffsetX = shadowOffsetX * fontScale;
+            ctx.shadowOffsetY = shadowOffsetY * fontScale;
+            ctx.shadowBlur = shadowBlur * fontScale;
             ctx.shadowColor = shadowColor;
         } else {
             ctx.shadowOffsetX = 0;
@@ -120,7 +120,7 @@ export class TextRender {
                 let ri = this.charMap.get(key);
                 if (!ri) {
                     let width = ctx.measureText(cc).width;
-                    ri = this.drawOffscreen(ctx, cc, width, fontSize, stroke, italic, true);
+                    ri = this.drawOffscreen(ctx, cc, width, fontSize, stroke, italic, true, shadowOffsetX, shadowOffsetY);
                     ri.key = key;
                     ri.isChar = true;
                     this.charMap.set(key, ri);
@@ -147,7 +147,7 @@ export class TextRender {
             if (!ri) {
                 if (preMeasuredWidth == null)
                     preMeasuredWidth = ctx.measureText(text).width;
-                ri = this.drawOffscreen(ctx, text, preMeasuredWidth, fontSize, stroke, italic, false);
+                ri = this.drawOffscreen(ctx, text, preMeasuredWidth, fontSize, stroke, italic, false, shadowOffsetX, shadowOffsetY);
                 ri.key = key;
                 ri.ref = 1;
                 this.textMap.set(key, ri);
@@ -166,16 +166,17 @@ export class TextRender {
         return renderInfo;
     }
 
-    private drawOffscreen(ctx: CanvasRenderingContext2D, text: string, width: number, height: number, lineWidth: number, italic: boolean, charMode: boolean): ITextRenderInfo {
+    private drawOffscreen(ctx: CanvasRenderingContext2D, text: string, width: number, height: number, lineWidth: number, italic: boolean, charMode: boolean,
+        shadowOffsetX: number, shadowOffsetY: number): ITextRenderInfo {
         let offsetLeft = 0, offsetTop = 0, offsetRight = 0, offsetBottom = 0;
-        if (ctx.shadowOffsetX > 0)
-            offsetRight = ctx.shadowOffsetX;
-        else if (ctx.shadowOffsetX < 0)
-            offsetLeft = -ctx.shadowOffsetX;
-        if (ctx.shadowOffsetY > 0)
-            offsetBottom = ctx.shadowOffsetY;
-        else if (ctx.shadowOffsetY < 0)
-            offsetTop = -ctx.shadowOffsetY;
+        if (shadowOffsetX > 0)
+            offsetRight = shadowOffsetX;
+        else if (shadowOffsetX < 0)
+            offsetLeft = -shadowOffsetX;
+        if (shadowOffsetY > 0)
+            offsetBottom = shadowOffsetY;
+        else if (shadowOffsetY < 0)
+            offsetTop = -shadowOffsetY;
         let margin = height / 3 | 0 + lineWidth + Math.max(offsetLeft, offsetTop);
         let rectX = ((margin - fontSizeOffX - lineWidth - offsetLeft) * fontScale | 0) - blockGap;
         let rectY = ((margin - fontSizeOffY - lineWidth - offsetTop) * fontScale | 0) - blockGap;
