@@ -13,6 +13,25 @@ import { Config } from "../../../Config";
  */
 export class GLSLCodeGenerator {
 
+    /**
+     * Remove legacy standalone declarations that are already emitted from the
+     * registered material uniform map. Custom shaders historically declared
+     * these uniforms themselves; keeping both declarations makes GLES reject
+     * the generated shader after the uniform is registered for native backends.
+     */
+    private static stripRegisteredUniformDeclarations(source: string, uniformsMap: Map<number, UniformProperty>): string {
+        if (uniformsMap.size == 0) {
+            return source;
+        }
+
+        const registeredNames = new Set<string>();
+        uniformsMap.forEach(uniform => registeredNames.add(uniform.propertyName));
+        const standaloneUniform = /(?:layout\s*\([^)]*\)\s*)?\buniform\s+(?:(?:lowp|mediump|highp)\s+)?(?:(?:readonly|writeonly|coherent|volatile|restrict)\s+)*(\w+)\s+(\w+)(?:\s*\[\s*\d+\s*\])?\s*;/gm;
+        return source.replace(standaloneUniform, (declaration, _type, name) => {
+            return registeredNames.has(name) ? "" : declaration;
+        });
+    }
+
     static glslAttributeString(attributeMap: { [name: string]: [number, ShaderDataType] }) {
 
         let res = "";
@@ -222,8 +241,10 @@ ${materialUniformGlsl}`;
             psVersion = ps[0] + '\n';
             ps.shift();
         };
-        let dstVS = vsVersion + vertexHead + defineStr + vs.join('\n');
-        let detFS = psVersion + fragmentHead + defineStr + ps.join('\n');
+        const vertexCode = GLSLCodeGenerator.stripRegisteredUniformDeclarations(vs.join('\n'), uniformMap);
+        const fragmentCode = GLSLCodeGenerator.stripRegisteredUniformDeclarations(ps.join('\n'), uniformMap);
+        let dstVS = vsVersion + vertexHead + defineStr + vertexCode;
+        let detFS = psVersion + fragmentHead + defineStr + fragmentCode;
         return { vs: dstVS, fs: detFS };
     }
     static getAttributeType(type: ShaderDataType) {

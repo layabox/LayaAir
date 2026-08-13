@@ -43,7 +43,6 @@ export class LensFlareShaderInit {
         let subshader = new SubShader(attribute, uniformMap, defaultValue)
         shader.addSubShader(subshader);
         let pass = subshader.addShaderPass(LensFlareVS, LensFlareFS);
-        pass.statefirst = true;
         pass.renderState.cull = RenderState.CULL_NONE;
     }
 }

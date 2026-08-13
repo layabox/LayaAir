@@ -361,13 +361,21 @@ export class RTBaseRenderDataHandle extends RTRender2DDataHandle implements I2DB
     public get owner(): RTRenderStruct2D {
         return this._owner;
     }
+
     public set owner(value: RTRenderStruct2D) {
-        if (value == this.owner) return;
+        if (value == this._owner) return;
+        this._setOwnerLocal(value);
+        this._nativeObj.setOwner(value ? value._nativeObj : null);
+    }
+
+    /** @internal Keep the base-render define in sync when RTRenderStruct2D attaches the handle natively. */
+    _setOwnerLocal(value: RTRenderStruct2D): void {
+        if (value == this._owner) return;
         if (this._owner) {
             this._owner.spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
         }
-        this._owner = value;
-        this._nativeObj.setOwner(this._owner._nativeObj);
+
+        super._setOwnerLocal(value);
 
         if (this._owner) {
             this._owner.spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
