@@ -139,9 +139,12 @@ export class SpineWholeBuffer implements I2DGraphicWholeBuffer {
             this.vertexBuffer.setDataLength(vertexFloats * 4); // bytes
         }
 
-        if (indexCount > this._indexCapacity) {
-            this._indexCapacity = indexCount;
-            this.indexBuffer._setIndexDataLength(indexCount * 2); // bytes
+        // WebGPU buffer uploads must be 4-byte aligned. A Uint16 index buffer
+        // therefore needs capacity for an even number of indices.
+        const alignedIndexCount = Math.ceil(indexCount / 2) * 2;
+        if (alignedIndexCount > this._indexCapacity) {
+            this._indexCapacity = alignedIndexCount;
+            this.indexBuffer._setIndexDataLength(alignedIndexCount * 2); // bytes
         }
 
         this._needResetData = true;
@@ -338,11 +341,17 @@ export class SpineWholeBuffer implements I2DGraphicWholeBuffer {
             totalVertexFloats * 4
         );
 
+        // Keep the draw count unchanged, but pad an odd Uint16 index count so
+        // the WebGPU write size remains a multiple of 4 bytes.
+        const alignedIndexCount = Math.ceil(totalIndices / 2) * 2;
+        if (alignedIndexCount !== totalIndices) {
+            SpineWholeBuffer._globalTempIndexData[totalIndices] = 0;
+        }
         this.indexBuffer.setData(
             SpineWholeBuffer._globalTempIndexData.buffer as ArrayBuffer,
             0,
             0,
-            totalIndices * 2
+            alignedIndexCount * 2
         );
 
         this._needResetData = false;
