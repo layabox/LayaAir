@@ -252,7 +252,8 @@ export class Texture2D extends BaseTexture {
     static _parseKTX(data: ArrayBuffer, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null) {
         let ktxInfo = KTXTextureInfo.getKTXTextureInfo(data);
 
-        let texture = new Texture2D(ktxInfo.width, ktxInfo.height, ktxInfo.format, ktxInfo.mipmapCount > 1, false, ktxInfo.sRGB);
+        let sRGB = constructParams ? !!constructParams[5] : ktxInfo.sRGB;
+        let texture = new Texture2D(ktxInfo.width, ktxInfo.height, ktxInfo.format, ktxInfo.mipmapCount > 1, false, sRGB);
 
         texture.setKTXData(ktxInfo);
         if (propertyParams){
@@ -436,4 +437,4 @@ export class Texture2D extends BaseTexture {
             if (propertyParams.anisoLevel != null) this.anisoLevel = propertyParams.anisoLevel;
         }
     }
-}
+}
