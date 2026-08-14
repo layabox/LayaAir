@@ -35,6 +35,7 @@ export class WebGLStencilMaskElement2D extends WebGLRenderElement2D {
         element.value2DShaderData = LayaGL.renderDeviceFactory.createShaderData(null) as WebGLShaderData;
         element.value2DShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
         element.value2DShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, Color.WHITE);
+        element.value2DShaderData.setInt(Shader3D.CULL, RenderState.CULL_NONE);
         element.value2DShaderData.setInt(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
         element.value2DShaderData.setBool(Shader3D.DEPTH_WRITE, false);
         element.value2DShaderData.setInt(Shader3D.STENCIL_TEST, RenderState.STENCILTEST_EQUAL);
