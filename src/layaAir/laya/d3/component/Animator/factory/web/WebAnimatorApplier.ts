@@ -152,10 +152,8 @@ export class WebAnimatorApplier {
             if (!pro) continue;
             switch (nodeOwner.type) {
                 case KeyFrameValueType.PathPoint:
-                    console.log("Animator:PathPoint not support2");
-                    break;
                 case KeyFrameValueType.Boolean:
-                    console.log("Animator:Boolean not support2");
+                    // No default restoration data is available for these keyframe types.
                     break;
                 case KeyFrameValueType.Float:
                     var proPat: string[] = nodeOwner.property!;
@@ -848,10 +846,8 @@ export class WebAnimatorApplier {
         if (pro) {
             switch (nodeOwner.type) {
                 case KeyFrameValueType.PathPoint:
-                    console.log("Animator:PathPoint not support3");
-                    break;
                 case KeyFrameValueType.Boolean:
-                    console.log("Animator:Boolean not support3");
+                    // These keyframe types do not support cross-fade interpolation.
                     break;
                 case KeyFrameValueType.Float:
                     var proPat: string[] = nodeOwner.property!;
