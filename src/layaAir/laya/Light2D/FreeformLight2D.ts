@@ -285,6 +285,7 @@ export class FreeformLight2D extends BaseLight2D {
             }
             this._getWorldRange(); //createMesh之前要保证calcWorldRange已经执行
             const mesh = this._createMesh(this._falloffRange * FreeformLight2D.FALLOF_WIDTH, 8, this._cmdMesh?.mesh, this._needToRecover);
+            mesh.lock = true;
             if (!this._cmdMesh)
                 this._cmdMesh = DrawMesh2DCMD.create(mesh, Matrix.EMPTY, Texture2D.whiteTexture, Color.WHITE, this._material);
             else this._cmdMesh.mesh = mesh;

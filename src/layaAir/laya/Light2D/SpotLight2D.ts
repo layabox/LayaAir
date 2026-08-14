@@ -276,6 +276,7 @@ export class SpotLight2D extends BaseLight2D {
             if (!this._cmdMesh)
                 this._cmdMesh = DrawMesh2DCMD.create(mesh, Matrix.EMPTY, Texture2D.whiteTexture, Color.WHITE, this._material);
             else this._cmdMesh.mesh = mesh;
+            mesh.lock = true;
             this._cmdBuffer.addCacheCommand(this._cmdRT);
             this._cmdBuffer.addCacheCommand(this._cmdMesh);
             this._cmdBuffer.apply(true);
