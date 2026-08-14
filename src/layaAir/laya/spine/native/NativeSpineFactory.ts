@@ -1,4 +1,5 @@
 import { IBaseRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { ISpineRenderDataHandle } from "../interface/ISpineRenderDataHandle";
 import { ISpineFactory } from "../interface/ISpineFactory";
 import { ISpineTempletParser } from "../interface/ISpineParse";
 import { ISpineRender } from "../interface/ISpineRender";
@@ -6,6 +7,7 @@ import { Spine2DRenderNode } from "../Spine2DRenderNode";
 import { NativeSpineTempletParser } from "./NativeSpineTempletParser";
 import { NativeSpineOptimizeRender2D } from "./NativeSpineOptimizeRender2D";
 import { NativeSpineOptimizeRender3D } from "./NativeSpineOptimizeRender3D";
+import { NativeSpineRenderDataHandle } from "../handle/NativeSpineRenderDataHandle";
 
 
 /**
@@ -27,6 +29,10 @@ export class NativeSpineFactory implements ISpineFactory {
      */
     createSpineTempletParser(): ISpineTempletParser {
         return new NativeSpineTempletParser();
+    }
+
+    createSpineRenderDataHandle(): ISpineRenderDataHandle {
+        return new NativeSpineRenderDataHandle();
     }
 
     /**

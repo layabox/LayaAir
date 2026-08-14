@@ -47,7 +47,7 @@ export class LayaXDirCascadeShadowRP {
             let lightWorld = Matrix4x4.TEMP;
             Matrix4x4.createFromQuaternion(dirLight.transform.rotation, lightWorld);
             let e = lightWorld.elements;
-            dirLight._nativeObj.setOrientation(
+            dirLight.setOrientation(
                 e[4], e[5], e[6],     // lightUp
                 e[0], e[1], e[2],     // lightSide
                 -e[8], -e[9], -e[10]  // lightForward

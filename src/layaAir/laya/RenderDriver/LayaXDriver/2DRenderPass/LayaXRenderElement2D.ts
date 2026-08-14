@@ -18,12 +18,17 @@ export class LayaXRenderElement2D implements IRenderElement2D, IRenderStateListe
 
     _nativeObj: any;
 
+    /** @internal Elem2DProps 共享块：JS 写、C++(RTGraphicsBatch/RTRender2DPass) 读。槽 0=type 1=typeKey 2=textureKey 3=noBatch (i32) */
+    protected _elem2dBuf = new ArrayBuffer(4 * 4);
+    protected _elem2dI32 = new Int32Array(this._elem2dBuf);
+
     protected init(): void {
         this._nativeObj = new (window as any).conchLayaXRenderElement2D();
     }
 
     constructor() {
         this.init();
+        this._nativeObj.bindElem2DBuffer(this._elem2dBuf);
     }
 
     /** @internal 由 shaderData listener / subShader / sd setter 统一触发。 */
@@ -68,9 +73,9 @@ export class LayaXRenderElement2D implements IRenderElement2D, IRenderStateListe
             p(rs?.blendEquationAlpha,  Shader3D.BLEND_EQUATION_ALPHA, D.blendEquationAlpha));
     }
 
-    // type
-    set type(v: number) { this._nativeObj.type = v; }
-    get type(): number { return this._nativeObj.type; }
+    // type — 直写共享 Elem2DProps 块（槽 0），零跨界
+    set type(v: number) { this._elem2dI32[0] = v; }
+    get type(): number { return this._elem2dI32[0]; }
 
     // geometry
     private _geometry: IRenderGeometryElement;
@@ -145,6 +150,11 @@ export class LayaXRenderElement2D implements IRenderElement2D, IRenderStateListe
         if (this._renderStateIsBySprite === v) return;
         this._renderStateIsBySprite = v;
         this._nativeObj.renderStateIsBySprite = v;
+    }
+
+    get noBatch(): boolean { return this._elem2dI32[3] !== 0; }
+    set noBatch(v: boolean) {
+        this._elem2dI32[3] = v ? 1 : 0;
     }
 
     destroy(): void {

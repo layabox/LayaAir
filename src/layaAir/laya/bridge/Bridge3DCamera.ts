@@ -1,15 +1,10 @@
 
 import { LayaEnv } from "../../LayaEnv";
-import { BaseCamera } from "../d3/core/BaseCamera";
 import { Camera, CameraClearFlags } from "../d3/core/Camera";
 import { RenderContext3D } from "../d3/core/render/RenderContext3D";
 import { Scene3D } from "../d3/core/scene/Scene3D";
-import { LayaGL } from "../layagl/LayaGL";
 import { Color } from "../maths/Color";
 import { Matrix4x4 } from "../maths/Matrix4x4";
-import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
-import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { IBridge3DRenderProcess } from "./render/IBridge3DRenderProcess";
 import { RTBridge3DRenderProcess } from "./render/RTBridge3DRenderProcess";
 import { WebBridge3DRenderProcess } from "./render/WebBridge3DRenderProcess";
@@ -25,22 +20,7 @@ import { LayaXBridge3DRenderProcess } from "./render/LayaXBridge3DRenderProcess"
  */
 export class Bridge3DCamera extends Camera {
 
-    /** @internal Bridge3D clip define */
-    static BRIDGE3D_CLIP: ShaderDefine;
-    /** @internal */
-    static BRIDGE3D_CLIPDIR: number;
-    /** @internal */
-    static BRIDGE3D_CLIPPOS: number;
-
     static __init__() {
-        // Bridge3D clip
-        Bridge3DCamera.BRIDGE3D_CLIP = Shader3D.getDefineByName("BRIDGE3D_CLIP");
-        Bridge3DCamera.BRIDGE3D_CLIPDIR = Shader3D.propertyNameToID("u_Bridge3DClipDir");
-        Bridge3DCamera.BRIDGE3D_CLIPPOS = Shader3D.propertyNameToID("u_Bridge3DClipPos");
-
-        let camerauniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(BaseCamera.cameraBlockName);
-        camerauniformMap.addShaderUniform(Bridge3DCamera.BRIDGE3D_CLIPDIR, "u_Bridge3DClipDir", ShaderDataType.Vector4);
-        camerauniformMap.addShaderUniform(Bridge3DCamera.BRIDGE3D_CLIPPOS, "u_Bridge3DClipPos", ShaderDataType.Vector4);
     }
 
     /**

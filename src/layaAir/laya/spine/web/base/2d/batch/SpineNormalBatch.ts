@@ -3,7 +3,6 @@ import { IRenderElement2D } from "../../../../../RenderDriver/DriverDesign/2DRen
 import { IBatch2DProvider } from "../../../../../RenderDriver/RenderModuleData/WebModuleData/2D/BatchManager";
 import { FastSinglelist } from "../../../../../utils/SingletonList";
 import { WebRenderStruct2D } from "../../../../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderStruct2D";
-import { WebSpineRenderDataHandle } from "../../../../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRenderDataHandle";
 import { SpineConst } from "../../../../SpineConst";
 import { BufferUsage } from "../../../../../RenderEngine/RenderEnum/BufferTargetType";
 import { SpineShaderInit } from "../../../../shader/SpineShaderInit";
@@ -15,6 +14,7 @@ import { IndexFormat } from "../../../../../RenderEngine/RenderEnum/IndexFormat"
 import { SpineBufferView } from "./SpineBufferDataView";
 import { SpineWholeBuffer } from "./SpineWholeBuffer";
 import { Spine2DNormalRenderUpdater } from "../Spine2DNormalRenderUpdater";
+import { WebSpineRenderDataHandle } from "../../../../handle/WebSpineRenderDataHandle";
 
 /**
  * @en Spine batch context to track batch state and avoid GC
@@ -25,6 +25,7 @@ class SpineBatchContext {
     materialShaderData: ShaderData = null;
     ownerStruct: WebRenderStruct2D = null;
     subShader: any = null;
+    stencilClipState: any = null;
 
     /**
      * @en Initialize context from first element
@@ -35,6 +36,7 @@ class SpineBatchContext {
         this.ownerStruct = element.owner as WebRenderStruct2D;
         this.materialShaderData = element.materialShaderData;
         this.subShader = element.subShader;
+        this.stencilClipState = element.stencilClipState;
         return true;
     }
 
@@ -51,6 +53,10 @@ class SpineBatchContext {
             return false;
         }
 
+        if ( element.stencilClipState !== this.stencilClipState ) {
+            return false;
+        }
+
         return true;
     }
 
@@ -63,7 +69,7 @@ class SpineBatchContext {
         this.ownerStruct = element.owner as WebRenderStruct2D;
         this.materialShaderData = element.materialShaderData;
 
-        let handle = this.ownerStruct.renderDataHandler as WebSpineRenderDataHandle;
+        let handle = element.owner.renderDataHandler as WebSpineRenderDataHandle;
         let normalUpdater = handle.normalUpdater as Spine2DNormalRenderUpdater;
 
         // Get the view associated with this element's geometry (1:1 relationship)
@@ -78,7 +84,6 @@ class SpineBatchContext {
 interface BatchBuffer {
     wholeBuffer: SpineWholeBuffer;
     bufferState: any;  // Use bufferState instead of Mesh2D (lower-level concept)
-    views: SpineBufferView[];
 }
 
 /**
@@ -112,7 +117,6 @@ export class SpineNormalBatch implements IBatch2DProvider {
             element.geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
             element.geometry.indexFormat = IndexFormat.UInt16;
             element.nodeCommonMap = ["Sprite2D"];
-            element.renderStateIsBySprite = false;
             return element;
         },
         null,
@@ -123,7 +127,6 @@ export class SpineNormalBatch implements IBatch2DProvider {
             element.value2DShaderData = null;
             element.subShader = null;
             element.owner = null;
-            element.renderStateIsBySprite = false;
         }
     );
 
@@ -134,10 +137,17 @@ export class SpineNormalBatch implements IBatch2DProvider {
     private _batchBufferPool: BatchBuffer[] = [];
 
     /**
+     * Batch buffers that still own views from an earlier frame.
+     * They cannot be reused until every view has moved to another buffer.
+     */
+    private _retiredBatchBuffers: BatchBuffer[] = [];
+
+    /**
      * @en Active batch buffers in current frame
      * @zh 当前帧中活跃的批次缓冲区
      */
     private _activeBatchBuffers: BatchBuffer[] = [];
+    private _activeBatchBufferCount: number = 0;
 
     /**
      * @en Batch context to avoid GC from temporary objects
@@ -150,6 +160,7 @@ export class SpineNormalBatch implements IBatch2DProvider {
      * @zh 当前帧中合并的元素（在 reset 时回收）
      */
     private _merged: IRenderElement2D[] = [];
+    private _mergedCount: number = 0;
 
     /**
      * @en Batch render elements according to IBatch2DProvider interface
@@ -268,7 +279,7 @@ export class SpineNormalBatch implements IBatch2DProvider {
 
         for (let i = batchStart; i <= batchEnd; i++) {
             let element = elementArray[i];
-            let handle = (element.owner as WebRenderStruct2D).renderDataHandler as WebSpineRenderDataHandle;
+            let handle = element.owner.renderDataHandler as WebSpineRenderDataHandle;
             let normalUpdater = handle.normalUpdater as Spine2DNormalRenderUpdater;
 
             let view = normalUpdater.getViewForGeometry(element.geometry);
@@ -282,20 +293,19 @@ export class SpineNormalBatch implements IBatch2DProvider {
 
         for (let i = batchStart; i <= batchEnd; i++) {
             let element = elementArray[i];
-            let handle = (element.owner as WebRenderStruct2D).renderDataHandler as WebSpineRenderDataHandle;
+            let handle = element.owner.renderDataHandler as WebSpineRenderDataHandle;
             let normalUpdater = handle.normalUpdater as Spine2DNormalRenderUpdater;
 
             let view = normalUpdater.getViewForGeometry(element.geometry);
             if (!view) continue;
 
             view.transferToBuffer(batchBuffer.wholeBuffer);
-            batchBuffer.views.push(view);
         }
 
         let firstElement = elementArray[batchStart];
 
         let batchElement = SpineNormalBatch._pool.take();
-        this._merged.push(batchElement);
+        this._merged[this._mergedCount++] = batchElement;
 
         let geometry = batchElement.geometry;
         geometry.bufferState = batchBuffer.bufferState;
@@ -329,15 +339,15 @@ export class SpineNormalBatch implements IBatch2DProvider {
 
             let bufferState = LayaGL.renderDeviceFactory.createBufferState();
             bufferState.applyState([vertexBuffer], indexBuffer);
+            wholeBuffer.bufferState = bufferState;
 
             batchBuffer = {
                 wholeBuffer,
-                bufferState,
-                views: []
+                bufferState
             };
         }
 
-        this._activeBatchBuffers.push(batchBuffer);
+        this._activeBatchBuffers[this._activeBatchBufferCount++] = batchBuffer;
         return batchBuffer;
     }
 
@@ -346,15 +356,30 @@ export class SpineNormalBatch implements IBatch2DProvider {
      * @zh 为新帧重置批次状态
      */
     reset(): void {
-        // Recycle batch buffers
-        for (let batchBuffer of this._activeBatchBuffers) {
-            batchBuffer.views.length = 0;
-            this._batchBufferPool.push(batchBuffer);
+        // Recycle retired buffers only after their views have naturally moved
+        // away. Static/singleton Spine elements can keep rendering from the
+        // previous batch buffer without a full restore to the global buffers.
+        let retainedCount = 0;
+        for (let i = 0; i < this._retiredBatchBuffers.length; i++) {
+            let batchBuffer = this._retiredBatchBuffers[i];
+            if (batchBuffer.wholeBuffer._first) {
+                this._retiredBatchBuffers[retainedCount++] = batchBuffer;
+            } else {
+                this._batchBufferPool.push(batchBuffer);
+            }
         }
-        this._activeBatchBuffers.length = 0;
+        this._retiredBatchBuffers.length = retainedCount;
+
+        for (let i = 0; i < this._activeBatchBufferCount; i++) {
+            this._retiredBatchBuffers.push(this._activeBatchBuffers[i]);
+        }
+        this._activeBatchBufferCount = 0;
 
         // Recycle merged elements to static pool (like WebGraphicsBatch)
-        SpineNormalBatch._pool.recover(this._merged);
+        for (let i = 0; i < this._mergedCount; i++) {
+            SpineNormalBatch._pool.recover(this._merged[i]);
+        }
+        this._mergedCount = 0;
     }
 
     /**
@@ -367,14 +392,25 @@ export class SpineNormalBatch implements IBatch2DProvider {
             batchBuffer.bufferState.destroy();
         }
 
-        for (let batchBuffer of this._activeBatchBuffers) {
+        for (let i = 0; i < this._activeBatchBufferCount; i++) {
+            let batchBuffer = this._activeBatchBuffers[i];
+            batchBuffer.wholeBuffer.destroy();
+            batchBuffer.bufferState.destroy();
+        }
+
+        for (let batchBuffer of this._retiredBatchBuffers) {
             batchBuffer.wholeBuffer.destroy();
             batchBuffer.bufferState.destroy();
         }
 
         this._batchBufferPool = [];
         this._activeBatchBuffers = [];
+        this._retiredBatchBuffers = [];
 
-        SpineNormalBatch._pool.recover(this._merged);
+        for (let i = 0; i < this._mergedCount; i++) {
+            SpineNormalBatch._pool.recover(this._merged[i]);
+        }
+        this._merged.length = 0;
+        this._mergedCount = 0;
     }
 }

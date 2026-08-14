@@ -106,6 +106,7 @@ export class NativeSpineTempletParser implements ISpineTempletParser {
                         texture.width,
                         texture.height
                     );
+                    texture._addReference();
                 }
             }
             this._premultipliedAlpha = currentPma;
@@ -174,8 +175,10 @@ export class NativeSpineTempletParser implements ISpineTempletParser {
      * @zh 销毁解析器。
      */
     destroy(): void {
-        this._nativeParser.destroy();
-        this._nativeParser = null;
+        if (this._nativeParser) {
+            this._nativeParser.destroy();
+            this._nativeParser = null;
+        }
     }
 }
 

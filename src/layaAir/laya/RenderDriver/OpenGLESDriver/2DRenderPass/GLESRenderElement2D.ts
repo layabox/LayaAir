@@ -12,12 +12,17 @@ export class GLESRenderElement2D implements IRenderElement2D {
     private _value2DShaderData: GLESShaderData;
     private _globalShaderData: GLESShaderData;
     private _subShader: SubShader;
+
+    /** @internal Elem2DProps 共享块：JS 写、C++(RTGraphicsBatch/GLES _render) 读。槽 0=type 1=typeKey 2=textureKey 3=noBatch (i32) */
+    protected _elem2dBuf = new ArrayBuffer(4 * 4);
+    protected _elem2dI32 = new Int32Array(this._elem2dBuf);
+
     set type(value: number) {
-        this._nativeObj.type = value;
+        this._elem2dI32[0] = value;
     }
 
     get type(): number {
-        return this._nativeObj.type;
+        return this._elem2dI32[0];
     }
     set geometry(data: GLESRenderGeometryElement) {
         this._geometry = data;
@@ -74,6 +79,7 @@ export class GLESRenderElement2D implements IRenderElement2D {
     }
     constructor() {
         this.init();
+        this._nativeObj.bindElem2DBuffer(this._elem2dBuf);
     }
     _owner: IRenderStruct2D;
     public get owner(): IRenderStruct2D {
@@ -100,6 +106,13 @@ export class GLESRenderElement2D implements IRenderElement2D {
     public set renderStateIsBySprite(value: boolean) {
         this._renderStateIsBySprite = value;
         this._nativeObj.renderStateIsBySprite = value;
+    }
+
+    public get noBatch(): boolean {
+        return this._elem2dI32[3] !== 0;
+    }
+    public set noBatch(value: boolean) {
+        this._elem2dI32[3] = value ? 1 : 0;
     }
 
     destroy(): void {

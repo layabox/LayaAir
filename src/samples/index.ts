@@ -14,7 +14,6 @@ import "laya/platform/PlatformAdapters";
 import "laya/platform/StorageAdapter";
 import "laya/platform/TextInputAdapter";
 import { TextureDemo } from "./3d/LayaAir3D_Texture/TextureDemo";
-import { IDESceneLoad } from "./3d/LayaAir3D_Scene3D/IDESceneLoad";
 import { IDE_entrySceneLoad } from "./3d/LayaAir3D_Scene3D/LoadIDEExport/IDE_entrySceneLoad";
 import { IDE_anySceneLoad } from "./3d/LayaAir3D_Scene3D/LoadIDEExport/IDE_anySceneLoad";
 

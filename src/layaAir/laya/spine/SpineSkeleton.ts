@@ -174,7 +174,7 @@ export class SpineSkeleton extends Sprite {
     }
 
     /**
-     * 停止动画
+     * 停止动画，停留在当前帧
      */
     stop(): void {
         this._spineComponent.stop();

@@ -7,8 +7,37 @@ const minAngle = 15 * Math.PI / 180; // 15度的弧度值
 const precision = 1e-13;
 const tempData: any[] = new Array(256);
 const vec2 = new Vector2();
+const line2GeometryVertices: number[] = [];
+const line2GeometryIndices: number[] = [];
+const line2VertexIndices: number[] = [];
+
+/** @internal */
+export type Line2Geometry = {
+    vertices: number[];
+    indices: number[];
+    vertexCount: number;
+    indexCount: number;
+};
+
+const line2Geometry: Line2Geometry = {
+    vertices: line2GeometryVertices,
+    indices: line2GeometryIndices,
+    vertexCount: 0,
+    indexCount: 0,
+};
 
 export class BasePoly {
+
+    /** @internal */
+    static createLine2Geometry(p: any[], lineWidth: number, loop: boolean): Line2Geometry | null {
+        line2GeometryVertices.length = 0;
+        line2GeometryIndices.length = 0;
+        if (!this.createLine2(p, line2GeometryIndices, lineWidth, 0, line2GeometryVertices, loop))
+            return null;
+        line2Geometry.vertexCount = line2GeometryVertices.length / 2;
+        line2Geometry.indexCount = line2GeometryIndices.length;
+        return line2Geometry.indexCount > 0 && line2Geometry.vertexCount > 0 ? line2Geometry : null;
+    }
 
     /**
      * 构造线的三角形数据。根据一个位置数组生成vb和ib
@@ -66,7 +95,8 @@ export class BasePoly {
 
         this.getNormal(x1, y1, x2, y2, w, vec2);
         result.push(x1 - vec2.x, y1 - vec2.y, x1 + vec2.x, y1 + vec2.y);
-        let verIndex: number[] = [];
+        let verIndex: number[] = line2VertexIndices;
+        verIndex.length = 0;
         let cVerIndex = 0;
         for (i = 1; i < length - 1; i++) {
             x1 = points[(i - 1) * 2];

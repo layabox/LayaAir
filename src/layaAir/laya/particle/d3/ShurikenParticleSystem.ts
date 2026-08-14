@@ -219,7 +219,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @en Drag type. 0 for constant speed, 2 for random between two constants.
      * @zh 阻力模式。0为恒定速度，2为两个恒定速度的随机插值。
      */
-    dragType: number = 0;
+    private _dragType: number = 0;
+    get dragType(): number { return this._dragType; }
+    set dragType(value: number) {
+        this._dragType = value;
+        this._ownerRender && this._ownerRender._onParticleConfigChanged();
+    }
     /**
      * @en Constant drag for mode 0.
      * @zh 恒定阻力，0模式。
@@ -229,12 +234,22 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @en Minimum drag speed for mode 1.
      * @zh 最小阻力速度，1模式。
      */
-    dragSpeedConstantMin: number = 0;
+    private _dragSpeedConstantMin: number = 0;
+    get dragSpeedConstantMin(): number { return this._dragSpeedConstantMin; }
+    set dragSpeedConstantMin(value: number) {
+        this._dragSpeedConstantMin = value;
+        this._ownerRender && this._ownerRender._onParticleConfigChanged();
+    }
     /**
      * @en Maximum drag speed for mode 1.
      * @zh 最大阻力速度，1模式。
      */
-    dragSpeedConstantMax: number = 0;
+    private _dragSpeedConstantMax: number = 0;
+    get dragSpeedConstantMax(): number { return this._dragSpeedConstantMax; }
+    set dragSpeedConstantMax(value: number) {
+        this._dragSpeedConstantMax = value;
+        this._ownerRender && this._ownerRender._onParticleConfigChanged();
+    }
 
     /**
      * @en Whether the start size is in 3D mode.
@@ -281,7 +296,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @en Whether to use 3D start rotation.
      * @zh 是否使用3D开始旋转。
      */
-    threeDStartRotation: boolean = false;
+    private _threeDStartRotation: boolean = false;
+    get threeDStartRotation(): boolean { return this._threeDStartRotation; }
+    set threeDStartRotation(value: boolean) {
+        this._threeDStartRotation = value;
+        this._ownerRender && this._ownerRender._onParticleConfigChanged();
+    }
     /**
      * @en Start rotation mode. 0 for constant rotation, 2 for random between two constants. Two modes and corresponding four 3D modes are missing.
      * @zh 开始旋转模式。0为恒定旋转，2为两个恒定旋转的随机插值。缺少2种模式和对应的四种3D模式。
@@ -355,12 +375,22 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @en Gravity modifier.
      * @zh 重力敏感度。
      */
-    gravityModifier: number = 0;
+    private _gravityModifier: number = 0;
+    get gravityModifier(): number { return this._gravityModifier; }
+    set gravityModifier(value: number) {
+        this._gravityModifier = value;
+        this._ownerRender && this._ownerRender._onParticleConfigChanged();
+    }
     /**
      * @en Simulation space. 0 for World, 1 for Local. Custom is currently not supported.
      * @zh 模拟器空间。0为World，1为Local。暂不支持Custom。
      */
-    simulationSpace: number = 0;
+    private _simulationSpace: number = 0;
+    get simulationSpace(): number { return this._simulationSpace; }
+    set simulationSpace(value: number) {
+        this._simulationSpace = value;
+        this._ownerRender && this._ownerRender._onParticleConfigChanged();
+    }
     /**
      * @en Playback speed of particles.
      * @zh 粒子的播放速度。
@@ -370,7 +400,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @en Scale mode. 0 for Hierarchy (world), 1 for Local, 2 for World.
      * @zh 缩放模式。0为Hierarchy (world)，1为Local，2为World。
      */
-    scaleMode: number = 1;
+    private _scaleMode: number = 1;
+    get scaleMode(): number { return this._scaleMode; }
+    set scaleMode(value: number) {
+        this._scaleMode = value;
+        this._ownerRender && this._ownerRender._onParticleConfigChanged();
+    }
     /**
      * @en Whether to play automatically when activated.
      * @zh 激活时是否自动播放。
@@ -477,6 +512,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
             else
                 this._ownerRender._baseRenderNode.shaderData.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE);
             this._shape = value;
+            this._ownerRender._onParticleConfigChanged();
         }
     }
 
@@ -1584,20 +1620,16 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     set customBounds(value: Bounds) {
         if (value) {
             this._useCustomBounds = true;
-            if (!this._customBounds) {
-                this._customBounds = new Bounds(new Vector3(), new Vector3());
-                this._ownerRender.geometryBounds = this._customBounds;
-            }
             this._customBounds = value;
-
+            // 直接指向 value（原实现指向临时空 Bounds，native 下沉拿到的是空盒）
+            this._ownerRender && (this._ownerRender.geometryBounds = value);
         }
         else {
             this._useCustomBounds = false;
             this._customBounds = null;
-            this._ownerRender.geometryBounds = null;
+            this._ownerRender && (this._ownerRender.geometryBounds = null);
         }
-
-
+        this._ownerRender && this._ownerRender._syncBoundsToNative();
     }
 
     /**
@@ -1836,10 +1868,14 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @internal
      */
     _initBufferDatas(): void {
-        if (this._vertexBuffer && this._vertexBuffer._buffer) {//修改了maxCount以及renderMode以及Mesh等需要清空
-            var memorySize: number = this._vertexBuffer._byteLength + this._indexBuffer.indexCount * 2;
+        if (this._vertexBuffer) {//修改了maxCount以及renderMode以及Mesh等需要清空
+            var memorySize: number = this._vertexBuffer._byteLength + (this._indexBuffer ? this._indexBuffer._byteLength : 0);
             this._vertexBuffer.destroy();
-            this._indexBuffer.destroy();
+            this._vertexBuffer = null;
+            if (this._indexBuffer) {
+                this._indexBuffer.destroy();
+                this._indexBuffer = null;
+            }
             Resource._addMemory(-memorySize, -memorySize);
             //TODO:some time use clone will cause this call twice(from 'maxParticleCount' and 'renderMode'),this should optimization rewrite with special clone fun.
         }
@@ -1979,7 +2015,10 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         this._emission.destroy();
         this._bounds = null;
         this._customBounds = null;
-        this._bufferState = null;
+        if (this._bufferState) {
+            this._bufferState.destroy();
+            this._bufferState = null;
+        }
         this._owner = null;
         this._vertices = null;
         this._indexBuffer = null;
@@ -2414,6 +2453,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         this._frameRateTime = this._currentTime + this._playStartDelay;//同步频率模式发射时间,更新函数中小于延迟时间不会更新此时间。
 
         this._startUpdateLoopCount = Stat.loopCount;
+        // 兜底重推 LayaX bounds：运行期直改发射参数字段后通常紧跟 play()
+        this._ownerRender && this._ownerRender._syncBoundsToNative();
     }
 
     /**

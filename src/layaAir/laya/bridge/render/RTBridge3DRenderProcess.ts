@@ -19,6 +19,15 @@ import { RTBridge3DRenderElement } from "./RTBridge3DRenderElement";
 import { IBridge3DRenderProcess } from "./IBridge3DRenderProcess";
 import type { Bridge3DScene3D } from "../Bridge3DScene3D";
 import { RTBridge3DContext } from "./RTBridge3DContext";
+import { NativeMemory } from "../../RenderDriver/RenderModuleData/RuntimeModuleData/NativeMemory";
+
+/** @internal conchGLESBridge3DRenderProcess 共享块槽位（与 C++ GLESBridge3DRenderProcess::Props 一致）。 */
+const enum Bridge3DRenderProcessSlot {
+    shadowCastPass = 0,
+    enableDirectLightShadow = 1,
+    enableSpotLightShadowPass = 2,
+    Count = 3,
+}
 
 /**
  * RTBridge3DRenderProcess - Native端Bridge3D统一渲染流程
@@ -53,8 +62,14 @@ export class RTBridge3DRenderProcess implements IBridge3DRenderProcess {
     /** 已注册的 Bridge3D 渲染元素列表 */
     private _bridgeElements: IBridgeRenderElement[] = [];
 
+    private _mem: NativeMemory;
+    private _i32: Int32Array;
+
     constructor() {
         this._nativeObj = new (window as any).conchGLESBridge3DRenderProcess();
+        this._mem = new NativeMemory(Bridge3DRenderProcessSlot.Count * 4, false);
+        this._i32 = this._mem.int32Array;
+        this._nativeObj.bindPropertyBuffer(this._mem._buffer);
         this._dirShadowRP = new RTDirCascadeShadowRP();
         this._spotShadowRP = new RTBaseSpotRP();
         // Wire shadow passes to C++ (one-time, like RTForwardAddRP)
@@ -128,7 +143,7 @@ export class RTBridge3DRenderProcess implements IBridge3DRenderProcess {
 
         // 检查阴影更新频率
         const enableShadow = (Scene3D._updateMark % scene._ShadowMapupdateFrequency === 0);
-        this._nativeObj.shadowCastPass = enableShadow;
+        this._i32[Bridge3DRenderProcessSlot.shadowCastPass] = enableShadow ? 1 : 0;
 
         if (!enableShadow) {
             (window as any).conchRT3DRenderProcess._removePreDrawUniformMap("Shadow", (context as any)._nativeObj);
@@ -139,7 +154,7 @@ export class RTBridge3DRenderProcess implements IBridge3DRenderProcess {
         // 方向光阴影
         const mainDirLight = scene._mainDirectionLight;
         const needDirectionShadow = mainDirLight && mainDirLight.shadowMode !== ShadowMode.None;
-        this._nativeObj.enableDirectLightShadow = needDirectionShadow;
+        this._i32[Bridge3DRenderProcessSlot.enableDirectLightShadow] = needDirectionShadow ? 1 : 0;
 
         if (needDirectionShadow) {
             this._dirShadowRP.setRPData(
@@ -153,7 +168,7 @@ export class RTBridge3DRenderProcess implements IBridge3DRenderProcess {
         // 聚光灯阴影
         const mainSpotLight = scene._mainSpotLight;
         const needSpotShadow = mainSpotLight && mainSpotLight.shadowMode !== ShadowMode.None;
-        this._nativeObj.enableSpotLightShadowPass = needSpotShadow;
+        this._i32[Bridge3DRenderProcessSlot.enableSpotLightShadowPass] = needSpotShadow ? 1 : 0;
 
         if (needSpotShadow) {
             this._spotShadowRP.setRPData(

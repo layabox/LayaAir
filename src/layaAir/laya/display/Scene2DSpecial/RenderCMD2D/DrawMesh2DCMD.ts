@@ -1,4 +1,3 @@
-import { Const } from "../../../Const";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Matrix } from "../../../maths/Matrix";
@@ -55,6 +54,8 @@ export class DrawMesh2DCMD extends Command2D {
 
     private _mesh: Mesh2D
 
+    private _meshDefines: ShaderDefine[] = [];
+
     private _material: Material;
 
     private _color: Color;
@@ -72,11 +73,6 @@ export class DrawMesh2DCMD extends Command2D {
         this._drawElementData = LayaGL.render2DRenderPassFactory.createDraw2DElementCMDData();
         this._shaderData = LayaGL.renderDeviceFactory.createShaderData();
         this._shaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
-        let temp = Vector4.TEMP.setValue(0, 0, 0, 0);
-        this._shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, temp);
-        temp.x = temp.w = Const.MAX_CLIP_SIZE;
-        this._shaderData.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, temp);
-
         this._needUpdateElement = true;
         this._matrix = new Matrix();
     }
@@ -100,11 +96,10 @@ export class DrawMesh2DCMD extends Command2D {
     set material(value: Material) {
         if (value == this.material)
             return;
-        if (!value)
-            value = Mesh2DRender.mesh2DDefaultMaterial;
-        // this._mesh2DRender.sharedMaterial = value;
 
+        this._material && this._material._removeReference();
         this._material = value;
+        this._material && this._material._addReference();
         this._needUpdateElement = true;
     }
     get material(): Material {
@@ -115,18 +110,17 @@ export class DrawMesh2DCMD extends Command2D {
         if (value == this.mesh)
             return;
 
-        if (this._mesh) {
-            let defines: ShaderDefine[] = [];
-            VertexMesh2D.getMeshDefine(this._mesh, defines);
-            for (var i: number = 0, n: number = defines.length; i < n; i++)
-                this._shaderData.removeDefine(defines[i]);
-        }
+        for (let i = 0, n = this._meshDefines.length; i < n; i++)
+            this._shaderData.removeDefine(this._meshDefines[i]);
+        this._meshDefines.length = 0;
+
+        this._mesh && this._mesh._removeReference();
 
         if (value) {
-            let defines: ShaderDefine[] = [];
-            VertexMesh2D.getMeshDefine(value, defines);
-            for (var i: number = 0, n: number = defines.length; i < n; i++)
-                this._shaderData.addDefine(defines[i]);
+            value._addReference();
+            VertexMesh2D.getMeshDefine(value, this._meshDefines);
+            for (let i = 0, n = this._meshDefines.length; i < n; i++)
+                this._shaderData.addDefine(this._meshDefines[i]);
         }
 
         this._mesh = value;
@@ -249,10 +243,7 @@ export class DrawMesh2DCMD extends Command2D {
         DrawMesh2DCMD._pool.recover(this);
         super.recover();
         this.material = null;
-        if (this._texture instanceof Texture) {
-            this._texture._removeReference();
-        }
-        this._texture = null;
+        this.texture = null;
         this.mesh = null;
     }
 
@@ -262,9 +253,10 @@ export class DrawMesh2DCMD extends Command2D {
      */
     destroy(): void {
         super.destroy();
+        this.mesh = null;
+        this.material = null;
+        this.texture = null;
         this._shaderData.destroy();
         this._shaderData = null;
-        this._mesh = null
-        this._material = null;
     }
 }

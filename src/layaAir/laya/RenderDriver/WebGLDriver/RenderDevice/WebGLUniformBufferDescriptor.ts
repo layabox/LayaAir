@@ -1,35 +1,13 @@
-import { TypedArrayType, TypedArrayConstructor } from "../../../../ILaya";
+import { TypedArrayConstructor } from "../../../../ILaya";
 import { IClone } from "../../../utils/IClone";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
+import { IUniformLayout, UniformLayoutItem } from "../../DriverDesign/RenderDevice/UniformBufferManager/IUniformLayout";
 
-export type WebGLUniform = {
-    index: number;
-    /**
-     * byte offset
-     */
-    offset: number;
-
-    dataView: TypedArrayConstructor;
-
-    view: TypedArrayType;
-
-    /**
-     * element size (eg: vec2: 2, vec4: 4, mat4: 16)
-     */
-    size: number;
-
-    alignStride: number;
-
-    viewByteLength: number;
-
-    /**
-     * 0: not array
-     */
-    arrayLength: number;
-};
+/** 与设备无关的布局项一致,别名复用 */
+export type WebGLUniform = UniformLayoutItem;
 
 
-export class WebGLUniformBufferDescriptor implements IClone {
+export class WebGLUniformBufferDescriptor implements IClone, IUniformLayout {
 
     name: string;
 

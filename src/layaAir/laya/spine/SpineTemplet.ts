@@ -249,6 +249,7 @@ export class SpineTemplet extends Resource {
         let tex2d = texture.bitmap as Texture2D;
         if (!tex2d) return;
 
+        tex2d._addReference();
         this.setTexture(texture.url, tex2d);
     }
 
@@ -353,10 +354,8 @@ export class SpineTemplet extends Resource {
      * @zh 释放纹理和材质
      */
     protected _disposeResource(): void {
-
-        this._parser.destroy();
-
         this.optimize.destroy();
+        this._parser.destroy();
 
         for (let k in this._textures) {
             let tex = this._textures[k];

@@ -45,6 +45,8 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
     internalFormat: number;
     format: number;
     type: number;
+    /** WebGL2 texStorage3D creates immutable storage and must only be called once. */
+    _texture3DStorageAllocated: boolean = false;
     /**bytelength */
     _gpuMemory: number = 0;
 

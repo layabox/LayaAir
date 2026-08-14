@@ -24,11 +24,15 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
     _generateMipmap: boolean;
 
     _textures: InternalTexture[];
+    _texturesOwnsResources: boolean = true;
     _depthTexture: InternalTexture;
 
     colorFormat: RenderTargetFormat;
     depthStencilFormat: RenderTargetFormat;
 
+    // 可选：若本 RT 指向某个 Texture2DArray 的单层，记录层号
+    _arrayLayerIndex: number = -1;
+    
     isSRGB: boolean;
 
     /**bytelength */
@@ -73,9 +77,12 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
 
 
     dispose(): void {
-        this._textures.forEach(tex => {
-            tex && tex.dispose();
-        });
+        if (this._textures) {
+            if (this._texturesOwnsResources) {
+                for (let i = this._textures.length - 1; i > -1; i--)
+                    this._textures[i].dispose();
+            }
+        }
         this._textures = null;
         this._depthTexture && this._depthTexture.dispose();
         this._depthTexture = null;

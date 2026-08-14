@@ -15,12 +15,15 @@ export class GLESIndexBuffer implements IIndexBuffer {
     _setIndexData(data: Uint32Array | Uint16Array | Uint8Array, bufferOffset: number): void {
         this._nativeObj._setIndexData(data, bufferOffset);
     }
+    private _indexType: IndexFormat = IndexFormat.UInt16;
+
     public get indexType(): IndexFormat {
-        return this._nativeObj._indexType;
+        return this._indexType;
     }
 
     public set indexType(value: IndexFormat) {
-        this._nativeObj._indexType = value;
+        this._indexType = value;
+        this._nativeObj.rt_setIndexFormat(value);
     }
     public get indexCount(): number {
         return this._nativeObj._indexCount;

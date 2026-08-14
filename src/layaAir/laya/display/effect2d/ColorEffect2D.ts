@@ -343,6 +343,11 @@ export class ColorEffect2D extends PostProcess2DEffect {
         }
     }
 
+    /** @internal */
+    releaseInputTextureBindings(): void {
+        this._mat && this._mat.setTexture("u_MainTex", null);
+    }
+
     clearRT(context: PostProcessRenderContext2D): void {
         if (this._destRT && this._destRT !== context.destination) {
             RenderTexture2D.recoverToPool(this._destRT);
@@ -364,7 +369,6 @@ export class ColorEffect2D extends PostProcess2DEffect {
     /** @ignore */
     destroy() {
         super.destroy();
-        
         if (this._destRT) {
             // 回收纹理到对象池
             RenderTexture2D.recoverToPool(this._destRT);

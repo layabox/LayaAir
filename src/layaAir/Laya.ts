@@ -1,4 +1,4 @@
-﻿import { ILaya, Mutable } from "./ILaya";
+import { ILaya, Mutable } from "./ILaya";
 import { Stage } from "./laya/display/Stage";
 import { InputManager } from "./laya/events/InputManager";
 import { Loader } from "./laya/net/Loader";
@@ -14,12 +14,10 @@ import { VertexElementFormat } from "./laya/renders/VertexElementFormat";
 import { IPhysics2DFactory } from "./laya/physics/factory/IPhysics2DFactory";
 import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
 import { Laya3D } from "./Laya3D";
-import { Camera2D } from "./laya/display/Scene2DSpecial/Camera2D";
 import { BaseRenderNode2D } from "./laya/NodeRender2D/BaseRenderNode2D";
 import { Texture2D } from "./laya/resource/Texture2D";
 import { Texture2DArray } from "./laya/resource/Texture2DArray";
 import { Texture3D } from "./laya/resource/Texture3D";
-import { SequenceFrame2DRender } from "./laya/display/Scene2DSpecial/SequenceFrame2D/SequenceFrame2DRender";
 import { TextureCube } from "./laya/resource/TextureCube";
 import { HalfFloatUtils } from "./laya/utils/HalfFloatUtils";
 import { BlendModeHandler } from "./laya/webgl/canvas/BlendMode";
@@ -28,14 +26,14 @@ import { ShaderDefines2D } from "./laya/webgl/shader/d2/ShaderDefines2D";
 import { HTMLCanvas } from "./laya/resource/HTMLCanvas";
 import { PAL } from "./laya/platform/PlatformAdapters";
 import { SoundManager } from "./laya/media/SoundManager";
-import { GraphicsMesh } from "./laya/webgl/utils/GraphicsMesh";
 import { Mesh2DRender } from "./laya/display/Scene2DSpecial/Mesh2DRender";
+import { SequenceFrame2DRender } from "./laya/display/Scene2DSpecial/SequenceFrame2D/SequenceFrame2DRender";
 import { PostProcess2D } from "./laya/display/PostProcess2D";
 import { Render2DProcessor } from "./laya/display/Render2DProcessor";
-import { GraphicsRunner } from "./laya/display/Scene2DSpecial/GraphicsRunner";
 import { Blit2DCMD } from "./laya/display/Scene2DSpecial/RenderCMD2D/Blit2DCMD";
 import { Scene } from "./laya/display/Scene";
 import { RenderTexture2D } from "./laya/resource/RenderTexture2D";
+import { GraphicsDefines } from "./laya/webgl/shader/d2/GraphicsDefines";
 
 /**
  * @en Laya is the reference entry for global objects.
@@ -201,7 +199,7 @@ export class Laya {
         VertexMesh.__init__();
         Shader3D.init();
 
-        GraphicsMesh.__init__();
+        GraphicsDefines.__init__();
         ShaderDefines2D.__init__();
 
         Render.__init__();

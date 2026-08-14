@@ -1,12 +1,15 @@
 import { Pool } from "../../utils/Pool"
-import { IGraphicsCmd } from "../IGraphics";
+import { type GraphicsCommandInfo, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+import { GraphicsCommandInfoHelper } from "../Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineHelpers";
 
 const className = "ClipRectCmd";
 
 /**
+ * @deprecated Use `Sprite.scrollRect` instead. Graphics command clipping is no longer supported.
  * @en Clip command
  * @zh 裁剪命令
+ * @zh 已弃用。请改用 `Sprite.scrollRect`，Graphics 命令裁剪已不再支持。
  * @blueprintIgnore
  */
 export class ClipRectCmd implements IGraphicsCmd {
@@ -78,7 +81,7 @@ export class ClipRectCmd implements IGraphicsCmd {
      * @param gy 全局 y 坐标。
      */
     run(runner: GraphicsRunner, gx: number, gy: number): void {
-        runner.clipRect(this.x + gx, this.y + gy, this.width, this.height);
+        console.warn("ClipRectCmd is deprecated and no longer supported. Use Sprite.scrollRect so clipping is handled by the render struct.");
     }
 
     /**
@@ -88,5 +91,9 @@ export class ClipRectCmd implements IGraphicsCmd {
     get cmdID(): string {
         return ClipRectCmd.ID;
     }
-}
 
+    /** @internal */
+    getGraphicsCommandInfo(out: GraphicsCommandInfo): GraphicsCommandInfo {
+        return GraphicsCommandInfoHelper.writeState(out);
+    }
+}

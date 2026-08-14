@@ -4,7 +4,7 @@ import { Texture } from "../../resource/Texture"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { ColorUtils } from '../../utils/ColorUtils';
 import { Pool } from "../../utils/Pool";
-import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsCommandDependency, type GraphicsCommandInfo, GraphicsCommandLayoutRefresh, IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
 const className = "DrawTextureCmd";
@@ -207,6 +207,17 @@ export class DrawTextureCmd implements IGraphicsCmd {
      */
     needsLayoutRepaint(): number {
         return this.percent ? 1 : 0;
+    }
+
+    /** @internal */
+    getGraphicsCommandInfo(out: GraphicsCommandInfo): GraphicsCommandInfo {
+        out.dependency = this.percent ? GraphicsCommandDependency.SizePayload : GraphicsCommandDependency.None;
+        out.layoutRefresh = this.percent
+            ? (this.matrix ? GraphicsCommandLayoutRefresh.RerunCommand : GraphicsCommandLayoutRefresh.MarkDirty)
+            : GraphicsCommandLayoutRefresh.None;
+        out.scaleTessellationKey = 0;
+        out.isStateCommand = false;
+        return out;
     }
 }
 

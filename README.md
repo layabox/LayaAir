@@ -86,7 +86,6 @@ Fork an official open source project from github to your own repository, clone i
 
 - Showcases https://LayaAir.com/#/enginedemo
 
-
 ## Project Showcase Policy
 
 By using the LayaAir Engine, you agree that Layabox may display, reference, and promote projects created with the engine for non-profit showcase purposes related to the LayaAir ecosystem.

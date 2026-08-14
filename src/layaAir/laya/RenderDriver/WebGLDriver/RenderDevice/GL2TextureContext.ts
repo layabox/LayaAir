@@ -341,6 +341,17 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
         return bytelength;
     }
 
+    private _ensureTexture3DStorage(texture: WebGLInternalTex, depth: number = texture.depth): void {
+        if (texture._texture3DStorageAllocated)
+            return;
+
+        let gl = this._gl;
+        this._engine._bindTexture(texture.target, texture.resource);
+        gl.texStorage3D(texture.target, texture.mipmapCount, texture.internalFormat, texture.width, texture.height, depth);
+        texture.gpuMemory = this.getGLtexMemory(texture, depth);
+        texture._texture3DStorageAllocated = true;
+    }
+
     // todo webgl2 srgb 判断
     supportSRGB(format: TextureFormat | RenderTargetFormat, mipmap: boolean): boolean {
         switch (format) {
@@ -492,12 +503,10 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
 
         this._engine._bindTexture(texture.target, texture.resource);
 
-        gl.texStorage3D(target, mipmapCount, internalFormat, width, height, depth);
-        texture.gpuMemory = this.getGLtexMemory(texture, depth);
+        this._ensureTexture3DStorage(texture, depth);
         for (let index = 0; index < depth; index++) {
             gl.texSubImage3D(target, 0, 0, 0, index, width, height, 1, format, type, sources[index]);
         }
-        texture.gpuMemory = this.getGLtexMemory(texture);
         if (texture.mipmap) {
             gl.generateMipmap(texture.target);
         }
@@ -524,8 +533,7 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
         this._engine._bindTexture(texture.target, texture.resource);
-        gl.texStorage3D(target, mipmapCount, internalFormat, width, height, depth);
-        texture.gpuMemory = this.getGLtexMemory(texture, depth);
+        this._ensureTexture3DStorage(texture, depth);
         if (source) {
             gl.texSubImage3D(target, 0, 0, 0, 0, width, height, depth, format, type, source);
             if (texture.mipmap) {
@@ -556,6 +564,7 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
 
         this._engine._bindTexture(texture.target, texture.resource);
 
+        this._ensureTexture3DStorage(texture);
         gl.texSubImage3D(target, mipmapLevel, xOffset, yOffset, zOffset, width, height, depth, format, type, source);
 
         if (texture.mipmap && generateMipmap) {
@@ -1143,25 +1152,64 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
 
     }
 
+    /** 创建用作 RT 的 Texture2DArray 内部纹理(仅描述，存储分配延迟到 _ensureTexture3DStorage) */
+    createRenderTextureArrayInternal(width: number, height: number, depth: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): WebGLInternalTex {
+        let useSRGBExt = false;
+        generateMipmap = generateMipmap && this.supportGenerateMipmap(format);
+        let target = this._gl.TEXTURE_2D_ARRAY;
+        let internalTex = new WebGLInternalTex(this._engine, target, width, height, depth, TextureDimension.Texture2DArray, generateMipmap, useSRGBExt, 1.0);
+        let glParam = this.glRenderTextureParam(format, useSRGBExt);
+        internalTex.internalFormat = glParam.internalFormat;
+        internalTex.format = glParam.format;
+        internalTex.type = glParam.type;
+        return internalTex;
+    }
 
-    bindRenderTarget(renderTarget: WebGLInternalRT, faceIndex: number = 0): void {
+    createRenderTargetArrayInternal(width: number, height: number, depth: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
+        if (multiSamples > 1) {
+            throw "createRenderTargetArrayInternal: MSAA for Texture2DArray RT is not implemented yet.";
+        }
+        let texture = this.createRenderTextureArrayInternal(width, height, depth, colorFormat, generateMipmap, sRGB);
+        // 一次性分配整张 array 不可变存储
+        this._ensureTexture3DStorage(texture, depth);
+        this._engine._bindTexture(texture.target, null);
+
+        let renderTarget = this._assembleLayeredRT(texture, width, height, colorFormat, depthStencilFormat, false);
+        renderTarget.isSRGB = sRGB;
+        // 内存语义:array 颜色按层计在纹理上(getGLRTTexMemory 无法表达层数);RT 只记 depth
+        texture.gpuMemory = this.getGLtexMemory(texture, depth);
+        renderTarget.gpuMemory = this.getGLRTTexMemory(width, height, RenderTargetFormat.None, depthStencilFormat, false, 1, false);
+        return renderTarget;
+    }
+
+
+    bindRenderTarget(renderTarget: WebGLInternalRT, slice: number = 0): void {
         this.currentActiveRT && this.unbindRenderTarget(this.currentActiveRT);
         let gl = this._gl;
 
-        if (renderTarget._isCube) {
-            let framebuffer = renderTarget._framebuffer;
-            gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-            let texture = <WebGLInternalTex>renderTarget._textures[0];
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, texture.resource, 0);
+        let head = <WebGLInternalTex>renderTarget._textures[0];
+        let needReattach = renderTarget._isCube || head.target === gl.TEXTURE_2D_ARRAY;
+        if (needReattach) {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, renderTarget._framebuffer);
+            let bufs: number[] = [];
+            for (let i = 0; i < renderTarget._textures.length; i++) {
+                let tex = <WebGLInternalTex>renderTarget._textures[i];
+                let attach = gl.COLOR_ATTACHMENT0 + i;
+                if (renderTarget._isCube)
+                    gl.framebufferTexture2D(gl.FRAMEBUFFER, attach, gl.TEXTURE_CUBE_MAP_POSITIVE_X + slice, tex.resource, 0);
+                else
+                    gl.framebufferTextureLayer(gl.FRAMEBUFFER, attach, tex.resource, 0, slice);
+                bufs.push(attach);
+            }
+            if (bufs.length > 1) gl.drawBuffers(bufs);
+            if (head.target === gl.TEXTURE_2D_ARRAY) renderTarget._arrayLayerIndex = slice;
         }
 
         if (renderTarget._samples > 1) {
             gl.bindFramebuffer(gl.FRAMEBUFFER, renderTarget._msaaFramebuffer);
         }
         else {
-            let framebuffer = renderTarget._framebuffer;
-
-            gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, renderTarget._framebuffer);
         }
         this.currentActiveRT = renderTarget;
     }

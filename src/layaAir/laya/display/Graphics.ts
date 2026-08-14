@@ -39,6 +39,17 @@ import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/Shader
 import { IGraphicsCmd } from "./IGraphics";
 import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
 import { Stat } from "../utils/Stat";
+import { GraphicsCommandPatchResult } from "./Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
+
+interface FrameAnimationGraphicsBinding {
+    kind: "FrameAnimation";
+    graphics: Graphics;
+    commandIndex: number;
+    state: Float64Array;
+    opStart: number;
+    opCount: number;
+    op: any;
+}
 /**
  * @en The Graphics class is used to create drawing display objects. Graphics can draw multiple bitmaps or vector graphics simultaneously, and can also combine instructions such as save, restore, transform, scale, rotate, translate, alpha, etc. to change the drawing effect.
  * Graphics is stored as a command stream and can be accessed through the cmds property. Graphics is a lighter object than Sprite, and proper use can improve application performance (for example, changing a large number of node drawings to a collection of Graphics commands of one node can reduce the consumption of creating a large number of nodes).
@@ -95,7 +106,10 @@ export class Graphics {
         if (this._useSpriteState == value)
             return;
         this._useSpriteState = value;
-        this.repaint();
+        if (this.owner) {
+            this.owner._graphicsRenderer?._materialChanged();
+            this.owner.repaint();
+        }
     }
 
     /** @internal 是否需要缓存 */
@@ -137,6 +151,7 @@ export class Graphics {
     clear(recoverCmds?: boolean, exclude?: IGraphicsCmd): void {
         if (this._cmds.length === 0)
             return;
+        let removedCount = this._cmds.length;
 
         if (recoverCmds || recoverCmds == null) {
             for (let cmd of this._cmds) {
@@ -159,7 +174,7 @@ export class Graphics {
             this._layoutRepaintCount = 0;
         }
 
-        this.repaint();
+        this._commandsChanged(0, removedCount, exclude ? 1 : 0);
     }
 
     /** @deprecated Use repaint */
@@ -175,9 +190,37 @@ export class Graphics {
         this._modified = Stat.loopCount;
         this._graphicBounds?.reset();
         if (this.owner) {
-            this.owner._graphicsRenderer._checkDisplay();
+            this.owner._ensureGraphicsRenderer().invalidateGraphicsState();
             this.owner.repaint(RepaintFlag.Graphics);
         }
+    }
+
+    /** @internal Owner size changed without changing the command stream. */
+    _ownerSizeChanged(): void {
+        this._graphicBounds?.reset();
+    }
+
+    private _pendingCommandChange: number = 0;
+
+    private _commandsChanged(index: number, removedCount: number, addedCount: number): void {
+        let change = removedCount === addedCount ? 1 : 2;
+        if (change <= this._pendingCommandChange)
+            return;
+        this._pendingCommandChange = change;
+        this._commitCommandsChanged(removedCount, addedCount);
+    }
+
+    /** @internal */
+    _commandsCommitted(): void { this._pendingCommandChange = 0; }
+
+    private _commitCommandsChanged(removedCount: number, addedCount: number): void {
+        this._modified = Stat.loopCount;
+        this._graphicBounds?.reset();
+        let owner = this.owner;
+        if (!owner)
+            return;
+        owner._ensureGraphicsRenderer()._commandsChanged(removedCount, addedCount);
+        owner.repaint();
     }
 
     /**
@@ -199,6 +242,7 @@ export class Graphics {
     }
 
     set cmds(value: IGraphicsCmd[]) {
+        let oldCount = this._cmds.length;
         if (this._cmds.length > 0) {
             this._cmds.filter(cmd => !value.includes(cmd)).forEach(cmd => {
                 if (!cmd.lock)
@@ -214,7 +258,7 @@ export class Graphics {
         }
         
         this._cmds = value;
-        this.repaint();
+        this._commandsChanged(0, oldCount, value.length);
     }
 
     /**
@@ -229,17 +273,20 @@ export class Graphics {
         if (cmd == null)
             throw new Error("null cmd");
 
-        if (index == null || index >= this._cmds.length)
+        let commandCount = this._cmds.length;
+        let insertIndex = index == null || index >= commandCount
+            ? commandCount
+            : index < 0 ? Math.max(0, commandCount + index) : index;
+        if (insertIndex >= this._cmds.length)
             this._cmds.push(cmd);
         else
-            this._cmds.splice(index, 0, cmd);
+            this._cmds.splice(insertIndex, 0, cmd);
         
         if (cmd.needsLayoutRepaint) {
             this._layoutRepaintCount += cmd.needsLayoutRepaint();
         }
         
-        // this.repaint();
-        this.repaint();
+        this._commandsChanged(insertIndex, 0, 1);
         return cmd;
     }
 
@@ -260,7 +307,7 @@ export class Graphics {
                 this._layoutRepaintCount -= cmd.needsLayoutRepaint();
             }
             
-            this.repaint();
+            this._commandsChanged(i, 1, 0);
         }
 
         if (recover) {
@@ -281,14 +328,18 @@ export class Graphics {
      */
     replaceCmd<T extends IGraphicsCmd>(oldCmd: IGraphicsCmd, newCmd: T, recover?: boolean): T {
         let index = this._cmds.indexOf(oldCmd);
+        let replaceExisting = index !== -1 && newCmd != null;
         
-        if (oldCmd && oldCmd.needsLayoutRepaint) {
+        if (index !== -1 && oldCmd && oldCmd.needsLayoutRepaint) {
             this._layoutRepaintCount -= oldCmd.needsLayoutRepaint();
         }
         
         if (newCmd != null) {
-            if (index !== -1)
+            if (index !== -1) {
+                if (oldCmd && oldCmd._cacheData && oldCmd._cacheData.kind === "FrameAnimation" && oldCmd.cmdID === newCmd.cmdID)
+                    newCmd._cacheData = oldCmd._cacheData;
                 this._cmds[index] = newCmd;
+            }
             else
                 this._cmds.push(newCmd);
             
@@ -296,11 +347,14 @@ export class Graphics {
                 this._layoutRepaintCount += newCmd.needsLayoutRepaint();
             }
             
-            this.repaint();
+            if (replaceExisting)
+                this._commandsChanged(index, 1, 1);
+            else
+                this._commandsChanged(this._cmds.length - 1, 0, 1);
         }
         else if (index != -1) {
             this._cmds.splice(index, 1);
-            this.repaint();
+            this._commandsChanged(index, 1, 0);
         }
 
         if (oldCmd && recover) {
@@ -309,6 +363,57 @@ export class Graphics {
         }
 
         return newCmd;
+    }
+
+    /** @internal */
+    patchFrameAnimationCmd(oldCmd: DrawTextureCmd, newCmd: DrawTextureCmd): boolean {
+        let binding = oldCmd && oldCmd._cacheData as FrameAnimationGraphicsBinding;
+        let index = binding ? binding.commandIndex : -1;
+        if (!binding || binding.kind !== "FrameAnimation" || binding.graphics !== this
+            || index < 0 || this._cmds[index] !== oldCmd || !newCmd || oldCmd.cmdID !== newCmd.cmdID || !this.owner)
+            return false;
+        let renderer = this.owner._graphicsRenderer;
+        newCmd._cacheData = binding;
+        let patchResult = renderer
+            ? renderer._patchTextureQuadCommand(binding, oldCmd, newCmd)
+            : GraphicsCommandPatchResult.Failed;
+        if (patchResult === GraphicsCommandPatchResult.Failed)
+            return false;
+
+        if (oldCmd.needsLayoutRepaint)
+            this._layoutRepaintCount -= oldCmd.needsLayoutRepaint();
+        this._cmds[index] = newCmd;
+        if (newCmd.needsLayoutRepaint)
+            this._layoutRepaintCount += newCmd.needsLayoutRepaint();
+
+        if (patchResult === GraphicsCommandPatchResult.Changed) {
+            this._graphicBounds?.reset();
+            this.owner.repaint();
+        }
+        return true;
+    }
+
+    /** @internal */
+    preRegisterFrameAnimationCmds(cmds: ReadonlyArray<DrawTextureCmd> | null): void {
+        if (!this.owner || !cmds || cmds.length === 0)
+            return;
+        let commandIndex = -1;
+        for (let i = 0; i < cmds.length && commandIndex < 0; i++)
+            commandIndex = this._cmds.indexOf(cmds[i]);
+        if (commandIndex < 0)
+            return;
+        let binding: FrameAnimationGraphicsBinding = {
+            kind: "FrameAnimation",
+            graphics: this,
+            commandIndex,
+            state: new Float64Array(8),
+            opStart: -1,
+            opCount: 0,
+            op: null,
+        };
+        for (let i = 0; i < cmds.length; i++)
+            cmds[i]._cacheData = binding;
+        this.owner._graphicsRenderer?._preRegisterTextureQuadCommands(cmds);
     }
 
 
@@ -352,9 +457,12 @@ export class Graphics {
             return;
         this._material && this._material._removeReference();
         this._material = value;
-        this.repaint();
         if (value != null)
             value._addReference();
+        if (this.owner) {
+            this.owner._graphicsRenderer?._materialChanged();
+            this.owner.repaint();
+        }
     }
 
     /**
@@ -448,7 +556,7 @@ export class Graphics {
      * @param color （可选）颜色变换。默认为null。
      * @param blendMode （可选）混合模式。默认为null。
      */
-    drawTriangles(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array, matrix: Matrix | null = null,
+    drawTriangles(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array | Uint32Array, matrix: Matrix | null = null,
         alpha: number = 1, color: string | number = null, blendMode: string | null = null): DrawTrianglesCmd {
         return this.addCmd(DrawTrianglesCmd.create(texture, x, y, vertices, uvs, indices, matrix, alpha, color, blendMode));
     }
@@ -483,19 +591,22 @@ export class Graphics {
     }
 
     /**
+     * @deprecated Use `Sprite.scrollRect` instead. Graphics command clipping is no longer supported.
      * @en Set the clipping area. Coordinates outside the clipping area will not be displayed.
      * @param x X-axis offset
      * @param y Y-axis offset
      * @param width Width of the clipping area
      * @param height Height of the clipping area
      * @zh 设置剪裁区域，超出剪裁区域的坐标不显示。
+     * @zh 已弃用。请改用 `Sprite.scrollRect`，Graphics 命令裁剪已不再支持。
      * @param x X轴偏移量
      * @param y Y轴偏移量
      * @param width 剪裁区域的宽度
      * @param height 剪裁区域的高度
      */
     clipRect(x: number, y: number, width: number, height: number): ClipRectCmd {
-        return this.addCmd(ClipRectCmd.create(x, y, width, height));
+        console.warn("Graphics.clipRect is deprecated and no longer supported. Use Sprite.scrollRect so clipping is handled by the render struct.");
+        return null;
     }
 
     /**
@@ -653,7 +764,6 @@ export class Graphics {
      * @param color 新的颜色
      */
     replaceTextColor(color: string): void {
-        this.repaint();
         let cmds = this._cmds;
         for (let i = cmds.length - 1; i > -1; i--) {
             let cmd = cmds[i];
@@ -667,6 +777,7 @@ export class Graphics {
                     break;
             }
         }
+        this.repaint();
     }
 
     /**

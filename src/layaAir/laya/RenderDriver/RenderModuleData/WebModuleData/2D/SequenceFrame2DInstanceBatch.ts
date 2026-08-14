@@ -16,6 +16,11 @@ type SequenceFrame2DElement = IRenderElement2D & {
     _sequenceFrame2DRender?: SequenceFrame2DRender;
 };
 
+type SequenceFrameOwner = {
+    globalRenderData: unknown;
+    getClipInfo?: () => unknown;
+};
+
 interface ISequenceFrame2DBatchInfo {
     element: IRenderElement2D;
     geometry: IRenderGeometryElement;
@@ -103,12 +108,13 @@ export class SequenceFrame2DInstanceBatch implements IBatch2DProvider {
         if (!leftRenderer._canBatchWith(rightRenderer)) {
             return false;
         }
-        if (left.materialShaderData !== right.materialShaderData || left.subShader !== right.subShader) {
+        if (left.materialShaderData !== right.materialShaderData ||
+            left.subShader !== right.subShader) {
             return false;
         }
 
-        const leftOwner = left.owner as any;
-        const rightOwner = right.owner as any;
+        const leftOwner = left.owner as unknown as SequenceFrameOwner;
+        const rightOwner = right.owner as unknown as SequenceFrameOwner;
         if (leftOwner.globalRenderData !== rightOwner.globalRenderData) {
             return false;
         }
@@ -201,6 +207,7 @@ export class SequenceFrame2DInstanceBatch implements IBatch2DProvider {
         batchElement.globalShaderData = first.globalShaderData;
         batchElement.subShader = first.subShader;
         batchElement.renderStateIsBySprite = first.renderStateIsBySprite;
+        batchElement.stencilClipState = first.stencilClipState;
         batchElement.nodeCommonMap = first.nodeCommonMap;
         batchElement.owner = first.owner;
 
@@ -357,6 +364,7 @@ export class SequenceFrame2DInstanceBatchTool {
     static recover(info: ISequenceFrame2DBatchInfo): void {
         const element = info.element;
         element.materialShaderData = null;
+        element.stencilClipState = null;
         element.value2DShaderData = null;
         element.globalShaderData = null;
         element.subShader = null;

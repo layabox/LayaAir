@@ -154,6 +154,7 @@ export class FrameAnimation extends Component {
         }
         this._drawCmds.length = 0;
         this._frames.length = 0;
+        this.owner._graphics?.preRegisterFrameAnimationCmds(null);
 
         if (value != null && value.length > 0) {
             this._frames.push(...value);
@@ -191,6 +192,7 @@ export class FrameAnimation extends Component {
             }
 
             this.drawFrame();
+            this.owner.graphics.preRegisterFrameAnimationCmds(this._drawCmds);
         }
         else {
             this._count = 0;
@@ -490,10 +492,18 @@ export class FrameAnimation extends Component {
 
     protected drawFrame(): void {
         let cmd = this._drawCmds[this._frame];
-        if (cmd != this._drawCmd)
-            this._drawCmd = this.owner.graphics.replaceCmd(this._drawCmd, cmd);
-        if (this._drawCmd)
-            this._drawCmd.color = this._color.getABGR();
+        if (cmd)
+            cmd.color = this._color.getABGR();
+        let graphics = this.owner.graphics;
+        if (cmd != this._drawCmd) {
+            if (this._drawCmd && cmd && graphics.patchFrameAnimationCmd(this._drawCmd, cmd))
+                this._drawCmd = cmd;
+            else
+                this._drawCmd = graphics.replaceCmd(this._drawCmd, cmd);
+        }
+        else if (this._drawCmd) {
+            graphics.patchFrameAnimationCmd(this._drawCmd, this._drawCmd);
+        }
     }
 
     /**

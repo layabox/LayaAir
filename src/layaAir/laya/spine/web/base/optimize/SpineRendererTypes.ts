@@ -283,6 +283,13 @@ export class StandardSpineRenderer extends SpineBaseRenderer {
             this.normalUpdater.needUpdate = false;
         }
     }
+
+    destroy(): void {
+        if (this.normalUpdater) {
+            this.normalUpdater.destroy();
+            this.normalUpdater = null;
+        }
+    }
 }
 
 /**

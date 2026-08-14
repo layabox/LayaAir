@@ -6,6 +6,24 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { IVolumetricGIData } from "../../Design/3D/I3DRenderModuleData";
+import { NativeMemory } from "../NativeMemory";
+
+/** @internal conchRTVolumetricGI 共享块槽位（与 C++ RTVolumetricGI::Props 一致）。 */
+const enum RTVolumetricGISlot {
+    intensity = 0,
+    updateMark = 1,
+    probeCountsX = 2,
+    probeCountsY = 3,
+    probeCountsZ = 4,
+    probeStepX = 5,
+    probeStepY = 6,
+    probeStepZ = 7,
+    paramsX = 8,
+    paramsY = 9,
+    paramsZ = 10,
+    paramsW = 11,
+    Count = 12,
+}
 
 export class RTVolumetricGI implements IVolumetricGIData {
 
@@ -38,21 +56,24 @@ export class RTVolumetricGI implements IVolumetricGIData {
         this._nativeObj.setBounds(value ? value._imp._nativeObj : null);
     }
     public get intensity(): number {
-        return this._nativeObj._intensity;
+        return this._f32[RTVolumetricGISlot.intensity];
     }
     public set intensity(value: number) {
-        this._nativeObj._intensity = value;
+        this._f32[RTVolumetricGISlot.intensity] = value;
     }
 
     public get updateMark(): number {
-        return this._nativeObj._updateMark;
+        return this._u32[RTVolumetricGISlot.updateMark];
     }
     public set updateMark(value: number) {
-        this._nativeObj._updateMark = value;
+        this._u32[RTVolumetricGISlot.updateMark] = value;
     }
 
     /**@internal */
     _nativeObj: any;
+    private _mem: NativeMemory;
+    private _f32: Float32Array;
+    private _u32: Uint32Array;
 
     /**@internal */
     _defaultBounds: Bounds;
@@ -61,7 +82,7 @@ export class RTVolumetricGI implements IVolumetricGIData {
 
     public set shaderData(value: ShaderData) {
         this._shaderData = value;
-        this._nativeObj.shaderData = (this._shaderData as any)._nativeObj;
+        this._nativeObj.setShaderData((this._shaderData as any)._nativeObj);
     }
 
     get shaderData(): ShaderData {
@@ -70,20 +91,31 @@ export class RTVolumetricGI implements IVolumetricGIData {
 
     constructor() {
         this._nativeObj = new (window as any).conchRTVolumetricGI();
+        this._mem = new NativeMemory(RTVolumetricGISlot.Count * 4, false);
+        this._f32 = this._mem.float32Array;
+        this._u32 = this._mem.Uint32Array;
+        this._nativeObj.bindPropertyBuffer(this._mem._buffer);
         this.shaderData = LayaGL.renderDeviceFactory.createShaderData();
         this._defaultBounds = new Bounds();
         this.bound = this._defaultBounds;
     }
 
     setParams(value: Vector4): void {
-        this._nativeObj.setParams(value);
+        this._f32[RTVolumetricGISlot.paramsX] = value.x;
+        this._f32[RTVolumetricGISlot.paramsY] = value.y;
+        this._f32[RTVolumetricGISlot.paramsZ] = value.z;
+        this._f32[RTVolumetricGISlot.paramsW] = value.w;
     }
     setProbeCounts(value: Vector3): void {
-        this._nativeObj.setProbeCounts(value);
+        this._f32[RTVolumetricGISlot.probeCountsX] = value.x;
+        this._f32[RTVolumetricGISlot.probeCountsY] = value.y;
+        this._f32[RTVolumetricGISlot.probeCountsZ] = value.z;
     }
 
     setProbeStep(value: Vector3): void {
-        this._nativeObj.setProbeStep(value);
+        this._f32[RTVolumetricGISlot.probeStepX] = value.x;
+        this._f32[RTVolumetricGISlot.probeStepY] = value.y;
+        this._f32[RTVolumetricGISlot.probeStepZ] = value.z;
     }
 
     destroy(): void {

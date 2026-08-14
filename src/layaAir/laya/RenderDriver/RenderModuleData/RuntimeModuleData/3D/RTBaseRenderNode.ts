@@ -11,7 +11,42 @@ import { RTReflectionProb } from "./RTReflectionProb";
 import { RTVolumetricGI } from "./RTVolumetricGI";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { Vector2 } from "../../../../maths/Vector2";
+import { NativeMemory } from "../NativeMemory";
 
+/** @internal conchRTBaseRenderNode 共享属性块槽位（与 C++ RTBaseRenderNode::Props 字段顺序严格一致）。 */
+const enum RTBaseRenderNodeSlot {
+    distanceForSort = 0,
+    sortingFudge = 1,
+    castShadow = 2,
+    receiveShadow = 3,
+    enable = 4,
+    renderbitFlag = 5,
+    visibalRangeBit = 6,
+    visibalMin = 7,
+    visibalMax = 8,
+    layer = 9,
+    renderNodeType = 10,
+    staticMask = 11,
+    lightmapIndex = 12,
+    reflectionMode = 13,
+    lightProbUpdateMark = 14,
+    irradianceMode = 15,
+    perCameraUpdate = 16,
+    boundsChange = 17,
+    ismovedX = 18,
+    ismovedY = 19,
+    worldParamsX = 20,
+    worldParamsY = 21,
+    worldParamsZ = 22,
+    worldParamsW = 23,
+    lightmapScaleOffsetX = 24,
+    lightmapScaleOffsetY = 25,
+    lightmapScaleOffsetZ = 26,
+    lightmapScaleOffsetW = 27,
+    customCull = 28,
+    customCullResoult = 29,
+    Count = 30,
+}
 
 export class RTBaseRenderNode implements IBaseRenderNode {
     renderelements: IRenderElement3D[];
@@ -27,41 +62,41 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
 
     public get distanceForSort(): number {
-        return this._nativeObj.distanceForSort;
+        return this._f32[RTBaseRenderNodeSlot.distanceForSort];
     }
 
     public set distanceForSort(value: number) {
-        this._nativeObj.distanceForSort = value;
+        this._f32[RTBaseRenderNodeSlot.distanceForSort] = value;
     }
     public get sortingFudge(): number {
-        return this._nativeObj.sortingFudge;
+        return this._f32[RTBaseRenderNodeSlot.sortingFudge];
     }
     public set sortingFudge(value: number) {
-        this._nativeObj.sortingFudge = value;
+        this._f32[RTBaseRenderNodeSlot.sortingFudge] = value;
     }
     public get castShadow(): boolean {
-        return this._nativeObj.castShadow;
+        return this._i32[RTBaseRenderNodeSlot.castShadow] !== 0;
     }
     public set castShadow(value: boolean) {
-        this._nativeObj.castShadow = value;
+        this._i32[RTBaseRenderNodeSlot.castShadow] = value ? 1 : 0;
     }
     public get enable(): boolean {
-        return this._nativeObj.enable;
+        return this._i32[RTBaseRenderNodeSlot.enable] !== 0;
     }
     public set enable(value: boolean) {
-        this._nativeObj.enable = value;
+        this._i32[RTBaseRenderNodeSlot.enable] = value ? 1 : 0;
     }
     public get renderbitFlag(): number {
-        return this._nativeObj.renderbitFlag;
+        return this._u32[RTBaseRenderNodeSlot.renderbitFlag];
     }
     public set renderbitFlag(value: number) {
-        this._nativeObj.renderbitFlag = value;
+        this._u32[RTBaseRenderNodeSlot.renderbitFlag] = value;
     }
     public get layer(): number {
-        return this._nativeObj.layer;
+        return this._u32[RTBaseRenderNodeSlot.layer];
     }
     public set layer(value: number) {
-        this._nativeObj.layer = value;
+        this._u32[RTBaseRenderNodeSlot.layer] = value;
     }
     private _bounds: Bounds;
     public get bounds(): Bounds {
@@ -84,28 +119,28 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this._nativeObj.setBaseGeometryBounds((value._imp as any)._nativeObj);
     }
     public get boundsChange(): boolean {
-        return this._nativeObj.boundsChange;
+        return this._i32[RTBaseRenderNodeSlot.boundsChange] !== 0;
     }
     public set boundsChange(value: boolean) {
-        this._nativeObj.boundsChange = value;
+        this._i32[RTBaseRenderNodeSlot.boundsChange] = value ? 1 : 0;
     }
     public get customCull(): boolean {
-        return this._nativeObj._customCull;
+        return this._i32[RTBaseRenderNodeSlot.customCull] !== 0;
     }
     public set customCull(value: boolean) {
-        this._nativeObj._customCull = value;
+        this._i32[RTBaseRenderNodeSlot.customCull] = value ? 1 : 0;
     }
     public get customCullResoult(): boolean {
-        return this._nativeObj._customCullResoult;
+        return this._i32[RTBaseRenderNodeSlot.customCullResoult] !== 0;
     }
     public set customCullResoult(value: boolean) {
-        this._nativeObj._customCullResoult = value;
+        this._i32[RTBaseRenderNodeSlot.customCullResoult] = value ? 1 : 0;
     }
     public get staticMask(): number {
-        return this._nativeObj.staticMask;
+        return this._u32[RTBaseRenderNodeSlot.staticMask];
     }
     public set staticMask(value: number) {
-        this._nativeObj.staticMask = value;
+        this._u32[RTBaseRenderNodeSlot.staticMask] = value;
     }
     private _shaderData: ShaderData;
     public get shaderData(): ShaderData {
@@ -116,10 +151,10 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this._nativeObj.setShaderData((value as any)._nativeObj);
     }
     public get lightmapIndex(): number {
-        return this._nativeObj.lightmapIndex;
+        return this._i32[RTBaseRenderNodeSlot.lightmapIndex];
     }
     public set lightmapIndex(value: number) {
-        this._nativeObj.lightmapIndex = value;
+        this._i32[RTBaseRenderNodeSlot.lightmapIndex] = value;
     }
     private _lightmap: RTLightmapData;
     public get lightmap(): RTLightmapData {
@@ -139,10 +174,10 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
 
     public get reflectionMode(): number {
-        return this._nativeObj.reflectionMode;
+        return this._u32[RTBaseRenderNodeSlot.reflectionMode];
     }
     public set reflectionMode(value: number) {
-        this._nativeObj.reflectionMode = value;
+        this._u32[RTBaseRenderNodeSlot.reflectionMode] = value;
     }
     private _volumetricGI: RTVolumetricGI;
     public get volumetricGI(): RTVolumetricGI {
@@ -153,10 +188,10 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this._nativeObj.setVolumetricGI(value._nativeObj)
     }
     public get lightProbUpdateMark(): number {
-        return this._nativeObj.lightProbUpdateMark;
+        return this._i32[RTBaseRenderNodeSlot.lightProbUpdateMark];
     }
     public set lightProbUpdateMark(value: number) {
-        this._nativeObj.lightProbUpdateMark = value;
+        this._i32[RTBaseRenderNodeSlot.lightProbUpdateMark] = value;
     }
     private _irradientMode: IrradianceMode;
     public get irradientMode(): IrradianceMode {
@@ -164,7 +199,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
     public set irradientMode(value: IrradianceMode) {
         this._irradientMode = value;
-        this._nativeObj.irradianceMode = value;
+        this._u32[RTBaseRenderNodeSlot.irradianceMode] = value;
     }
 
 
@@ -193,6 +228,11 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
 
     _nativeObj: any;
+    /**@internal 共享属性块（per-instance，与 C++ m_props 同一块内存） */
+    private _mem: NativeMemory;
+    private _f32: Float32Array;
+    private _i32: Int32Array;
+    private _u32: Uint32Array;
     /**@internal */
     _defaultBaseGeometryBounds: Bounds;
 
@@ -215,41 +255,54 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
 
     public get perCameraUpdate(): boolean {
-        return this._nativeObj.perCameraUpdate;
+        return this._i32[RTBaseRenderNodeSlot.perCameraUpdate] !== 0;
     }
     public set perCameraUpdate(value: boolean) {
-        this._nativeObj.perCameraUpdate = value;
+        this._i32[RTBaseRenderNodeSlot.perCameraUpdate] = value ? 1 : 0;
     }
 
     constructor() {
         this._getNativeObj();
+        this._initPropertyBuffer();
         this._defaultBaseGeometryBounds = new Bounds();
         this.baseGeometryBounds = this._defaultBaseGeometryBounds;
         this.renderelements = [];
     }
 
+    /** @internal 分配 TS-owned 共享属性块、绑定到 native、写入非零构造默认值（其余槽 ArrayBuffer 零初始化）。 */
+    private _initPropertyBuffer(): void {
+        this._mem = new NativeMemory(RTBaseRenderNodeSlot.Count * 4, false);
+        this._f32 = this._mem.float32Array;
+        this._i32 = this._mem.int32Array;
+        this._u32 = this._mem.Uint32Array;
+        this._nativeObj.bindPropertyBuffer(this._mem._buffer);
+        this._i32[RTBaseRenderNodeSlot.lightmapIndex] = -1;
+        this._i32[RTBaseRenderNodeSlot.lightProbUpdateMark] = -1;
+        this._f32[RTBaseRenderNodeSlot.lightmapScaleOffsetX] = 1;
+    }
+
     public get visibalRangeBit(): number {
-        return this._nativeObj.visibalRangeBit;
+        return this._u32[RTBaseRenderNodeSlot.visibalRangeBit];
     }
 
     public set visibalRangeBit(value: number) {
-        this._nativeObj.visibalRangeBit = value;
+        this._u32[RTBaseRenderNodeSlot.visibalRangeBit] = value;
     }
 
     public get visibalMin(): number {
-        return this._nativeObj.visibalMin;
+        return this._f32[RTBaseRenderNodeSlot.visibalMin];
     }
 
     public set visibalMin(value: number) {
-        this._nativeObj.visibalMin = value;
+        this._f32[RTBaseRenderNodeSlot.visibalMin] = value;
     }
 
     public get visibalMax(): number {
-        return this._nativeObj.visibalMax;
+        return this._f32[RTBaseRenderNodeSlot.visibalMax];
     }
 
     public set visibalMax(value: number) {
-        this._nativeObj.visibalMax = value;
+        this._f32[RTBaseRenderNodeSlot.visibalMax] = value;
     }
 
     public get ismoved(): Vector2 {
@@ -258,7 +311,10 @@ export class RTBaseRenderNode implements IBaseRenderNode {
 
     public set ismoved(value: Vector2) {
         this._ismoved.setValue(value.x, value.y);
-        this._nativeObj.ismoved = value;
+        // Unique channel that feeds ismoved into native; C++ _renderUpdate compares it against
+        // _cacheMoved to advance WORLDMATRIX. Must keep writing the slots (loopCount / framePassCount).
+        this._f32[RTBaseRenderNodeSlot.ismovedX] = value.x;
+        this._f32[RTBaseRenderNodeSlot.ismovedY] = value.y;
     }
 
     private _ismoved: Vector2 = new Vector2();
@@ -276,23 +332,28 @@ export class RTBaseRenderNode implements IBaseRenderNode {
                 this._worldParams.w = data;
                 break;
         }
-        this._nativeObj.worldParams = this._worldParams;
+        // Behavior preserved: writes the whole worldParams (x included). C++ _renderUpdate also
+        // writes x (frontFace) -- see the worldParams.x dirty-write note reported to the user.
+        this._f32[RTBaseRenderNodeSlot.worldParamsX] = this._worldParams.x;
+        this._f32[RTBaseRenderNodeSlot.worldParamsY] = this._worldParams.y;
+        this._f32[RTBaseRenderNodeSlot.worldParamsZ] = this._worldParams.z;
+        this._f32[RTBaseRenderNodeSlot.worldParamsW] = this._worldParams.w;
     }
 
     public get renderNodeType(): number {
-        return this._nativeObj.renderNodeType;
+        return this._u32[RTBaseRenderNodeSlot.renderNodeType];
     }
 
     public set renderNodeType(value: number) {
-        this._nativeObj.renderNodeType = value;
+        this._u32[RTBaseRenderNodeSlot.renderNodeType] = value;
     }
 
     public get receiveShadow(): boolean {
-        return this._nativeObj.receiveShadow;
+        return this._i32[RTBaseRenderNodeSlot.receiveShadow] !== 0;
     }
 
     public set receiveShadow(value: boolean) {
-        this._nativeObj.receiveShadow = value;
+        this._i32[RTBaseRenderNodeSlot.receiveShadow] = value ? 1 : 0;
     }
     _applyLightProb(): void {
         this._nativeObj._applyLightProb();
@@ -313,7 +374,10 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
 
     setLightmapScaleOffset(value: Vector4): void {
-        this._nativeObj.setLightmapScaleOffset(value);
+        this._f32[RTBaseRenderNodeSlot.lightmapScaleOffsetX] = value.x;
+        this._f32[RTBaseRenderNodeSlot.lightmapScaleOffsetY] = value.y;
+        this._f32[RTBaseRenderNodeSlot.lightmapScaleOffsetZ] = value.z;
+        this._f32[RTBaseRenderNodeSlot.lightmapScaleOffsetW] = value.w;
     }
 
     setCommonUniformMap(value: string[]): void {

@@ -6,7 +6,6 @@ import { Viewport } from "../../maths/Viewport";
 import { PipelineMode, IRenderContext3D } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { InternalRenderTarget } from "../../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
-import { IClipInfo } from "../../RenderDriver/RenderModuleData/Design/2D/IRenderStruct2D";
 import { ISceneNodeData, ICameraNodeData } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
 
@@ -116,16 +115,6 @@ export class Bridge3DContext {
     private _invertMat1_ty: number = 0;
 
     /**
-     * 2D clip信息
-     */
-    private _clipInfo: IClipInfo = null;
-
-    /**
-     * 是否有有效的clip（非默认clip）
-     */
-    private _hasClip: boolean = false;
-
-    /**
      * 2D invertY状态
      */
     private _invertY2D: boolean = false;
@@ -222,28 +211,6 @@ export class Bridge3DContext {
         this._invertMat1_b = b;
         this._invertMat1_d = d;
         this._invertMat1_ty = ty;
-    }
-
-    /**
-     * 设置2D clip信息
-     */
-    setClipInfo(clipInfo: IClipInfo, hasClip: boolean): void {
-        this._clipInfo = clipInfo;
-        this._hasClip = hasClip;
-    }
-
-    /**
-     * 获取clip信息
-     */
-    getClipInfo(): IClipInfo {
-        return this._clipInfo;
-    }
-
-    /**
-     * 是否有有效的clip
-     */
-    get hasClip(): boolean {
-        return this._hasClip;
     }
 
     /**

@@ -156,8 +156,9 @@ export class ReflectionProbeManager implements IVolumeManager {
             probe.destroy();
         }
         this._reflectionProbes.length = 0;
-        this._sceneReflectionProbe.destroy();
+        const sceneReflectionProbe = this._sceneReflectionProbe;
         this._sceneReflectionProbe = null;
+        sceneReflectionProbe?._destroyByManager();
     }
 }
 

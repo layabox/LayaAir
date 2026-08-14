@@ -104,31 +104,39 @@ export class LayaXComputeContext implements IComputeContext {
         if (this._destroyed || !shaderData) return;
         const sdNative = (shaderData as LayaXShaderData)._nativeObj;
         if (!sdNative) return;
+        // 标量/向量 setter 已拍平为传 handle（fast）；mat/texture/buffer 仍传 sdNative（raw）。
+        // 复用 ShaderData 构造期缓存的 _handleId，避免每帧多次 getHandle FFI。
+        const sdHandle = (shaderData as LayaXShaderData)._handleId;
 
         switch (shaderDataType) {
             case ShaderDataType.Int:
-                this._nativeObj.setShaderDataInt(sdNative, propertyID, (value as number) | 0);
+                this._nativeObj.setShaderDataInt(sdHandle, propertyID, (value as number) | 0);
                 break;
             case ShaderDataType.Float:
-                this._nativeObj.setShaderDataFloat(sdNative, propertyID, value as number);
+                this._nativeObj.setShaderDataFloat(sdHandle, propertyID, value as number);
                 break;
             case ShaderDataType.Bool:
-                this._nativeObj.setShaderDataBool(sdNative, propertyID, !!value);
+                this._nativeObj.setShaderDataBool(sdHandle, propertyID, !!value);
                 break;
-            case ShaderDataType.Vector2:
-                this._nativeObj.setShaderDataVec2(sdNative, propertyID, value as Vector2);
+            case ShaderDataType.Vector2: {
+                const v = value as Vector2;
+                this._nativeObj.setShaderDataVec2(sdHandle, propertyID, v.x, v.y);
                 break;
-            case ShaderDataType.Vector3:
-                this._nativeObj.setShaderDataVec3(sdNative, propertyID, value as Vector3);
+            }
+            case ShaderDataType.Vector3: {
+                const v = value as Vector3;
+                this._nativeObj.setShaderDataVec3(sdHandle, propertyID, v.x, v.y, v.z);
                 break;
-            case ShaderDataType.Vector4:
-                this._nativeObj.setShaderDataVec4(sdNative, propertyID, value as Vector4);
+            }
+            case ShaderDataType.Vector4: {
+                const v = value as Vector4;
+                this._nativeObj.setShaderDataVec4(sdHandle, propertyID, v.x, v.y, v.z, v.w);
                 break;
+            }
             case ShaderDataType.Color: {
                 // Rust ShaderDataValue 只有 Vector4 变体,Color pack 成 (r,g,b,a) Vec4 下传。
                 const c = value as Color;
-                const v4 = new Vector4(c.r, c.g, c.b, c.a);
-                this._nativeObj.setShaderDataVec4(sdNative, propertyID, v4);
+                this._nativeObj.setShaderDataVec4(sdHandle, propertyID, c.r, c.g, c.b, c.a);
                 break;
             }
             case ShaderDataType.Matrix3x3:

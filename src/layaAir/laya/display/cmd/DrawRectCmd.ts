@@ -1,7 +1,7 @@
 import { Rectangle } from "../../maths/Rectangle";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
-import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsCommandDependency, type GraphicsCommandInfo, GraphicsCommandLayoutRefresh, IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
 const className = "DrawRectCmd";
@@ -139,6 +139,17 @@ export class DrawRectCmd implements IGraphicsCmd {
      */
     needsLayoutRepaint(): number {
         return this.percent ? 1 : 0;
+    }
+
+    /** @internal */
+    getGraphicsCommandInfo(out: GraphicsCommandInfo): GraphicsCommandInfo {
+        out.dependency = this.percent ? GraphicsCommandDependency.SizePayload : GraphicsCommandDependency.None;
+        out.layoutRefresh = this.percent
+            ? (this.fillColor != null && this.lineColor == null ? GraphicsCommandLayoutRefresh.MarkDirty : GraphicsCommandLayoutRefresh.RerunCommand)
+            : GraphicsCommandLayoutRefresh.None;
+        out.scaleTessellationKey = 0;
+        out.isStateCommand = false;
+        return out;
     }
 
     /**

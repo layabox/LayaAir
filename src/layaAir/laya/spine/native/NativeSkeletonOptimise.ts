@@ -177,7 +177,7 @@ export class NativeSkeletonOptimise implements ISkeletonOptimise {
         // This method is kept for interface compatibility
     }
 
-    registerTexture(texture: Texture | Texture2D): void {
+    registerTexture(texture: Texture | Texture2D): string {
         let isTexture = false;
         let texture2d: Texture2D;
         if (texture instanceof Texture) {
@@ -186,7 +186,7 @@ export class NativeSkeletonOptimise implements ISkeletonOptimise {
         }else
             texture2d = texture;
         
-        if (!texture2d) return;
+        if (!texture2d) return null;
 
         let bitmapUrl = texture2d.url;
 
@@ -196,7 +196,7 @@ export class NativeSkeletonOptimise implements ISkeletonOptimise {
             this._registTextures.set(bitmapUrl, page);
         }
 
-        let textureName = texture.url;
+        let textureName = this._getTextureName(texture);
 
         if (!page.has(textureName)) {
             page.add(textureName);
@@ -226,6 +226,15 @@ export class NativeSkeletonOptimise implements ISkeletonOptimise {
 
             this._nativeOptimise.registerTexture( texture2d.id , bitmapUrl, textureName, width, height, originalWidth, originalHeight, offsetX, offsetY, u, v, u2, v2);
         }
+        return textureName;
+    }
+
+    private _getTextureName(texture: Texture | Texture2D): string {
+        let textureName = texture.name;
+        if (!textureName && texture.url) {
+            textureName = texture.url.split("/").pop().split("\\").pop();
+        }
+        return textureName || "texture";
     }
     /**
      * @en Initialize materials for textures and cache them for cleanup.

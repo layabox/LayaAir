@@ -1,22 +1,20 @@
-import { LayaGL } from "../../../../layagl/LayaGL";
 import { Color } from "../../../../maths/Color";
 import { Matrix } from "../../../../maths/Matrix";
-import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { BaseRenderNode2D } from "../../../../NodeRender2D/BaseRenderNode2D";
-import { DrawType } from "../../../../RenderEngine/RenderEnum/DrawType";
-import { IndexFormat } from "../../../../RenderEngine/RenderEnum/IndexFormat";
-import { MeshTopology } from "../../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Texture2D } from "../../../../resource/Texture2D";
-import { SpineShaderInit } from "../../../../spine/shader/SpineShaderInit";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
+import type { WebGraphicsOp2D } from "./WebGraphicsOp2D";
 import { IRenderContext2D } from "../../../DriverDesign/2DRenderPass/IRenderContext2D";
-import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
-import { I2DBaseRenderDataHandle, I2DPrimitiveDataHandle, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle, IGraphics2DBufferBlock, I2DGraphicIndexDataView, IGraphics2DVertexBlock, I2DGraphicVertexDataView } from "../../Design/2D/IRender2DDataHandle";
-import { Web2DGraphic2DIndexCloneDataView, Web2DGraphic2DIndexDataView, Web2DGraphic2DVertexDataView } from "./Web2DGraphic2DBufferDataView";
+import { I2DBaseRenderDataHandle, IGraphicsSingleQuadDataHandle, IGraphicsCommandStreamDataHandle, ISubStructRenderDataHandle, IGraphicsOp2D, IMesh2DRenderDataHandle, IRender2DDataHandle } from "../../Design/2D/IRender2DDataHandle";
+import { WebGraphicsBatchEntry } from "./WebGraphicsOp2DRuntimeBuffers";
+import { WebGraphicsOp2DRuntime, type WebGraphicsMaterialState } from "./WebGraphicsOp2DRuntime";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
+import type { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
+import type { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
+import { WebSingleQuadPrimitiveData } from "./WebSingleQuadPrimitiveData";
 
 export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     protected _owner: WebRenderStruct2D;
@@ -28,6 +26,7 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     }
     protected _nMatrix_0 = new Vector3();
     protected _nMatrix_1 = new Vector3();
+    protected _matUploadFrame: number = -1;
     constructor() {
     }
     private _needUseMatrix: boolean = true;
@@ -36,7 +35,8 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     }
     public set needUseMatrix(value: boolean) {
         this._needUseMatrix = value;
-        if (!value) {
+        this._matUploadFrame = -1;
+        if (!value && this._owner?.spriteShaderData) {
             this._nMatrix_0.set(1, 0, 0);
             this._nMatrix_1.set(0, 1, 0);
             this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
@@ -49,12 +49,14 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     }
 
     inheriteRenderData(context: IRenderContext2D): void {
-        //更新位置
-        //todo  如果没有更新世界位置 不需要更新Matrix到shaderData
         let data = this._owner.spriteShaderData;
         if (!data)
             return;
         if (this._needUseMatrix) {
+            let matrixVersion = this._owner.getRenderMatrixVersion();
+            if (matrixVersion >= 0 && this._matUploadFrame === matrixVersion)
+                return;
+            this._matUploadFrame = matrixVersion;
             let mat = this._owner.renderMatrix;
             this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
             this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
@@ -64,10 +66,7 @@ export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     }
 }
 
-/**
- * 空 Render Data Handle，仅用于跑通 _handleInterData 中的 clip/alpha 上传流程。
- * 适用于无 2D 渲染节点但需继承父级 scrollRect（clipRect）的节点，如 Bridge3DSprite。
- */
+
 export class WebEmptyRender2DDataHandle extends WebRender2DDataHandle {
     inheriteRenderData(_context: IRenderContext2D): void {
         // no-op：不写 2D 矩阵，仅依赖 _handleInterData 上传 clip/alpha
@@ -77,210 +76,301 @@ export class WebEmptyRender2DDataHandle extends WebRender2DDataHandle {
     }
 }
 
-export class WebGraphics2DBufferBlock implements IGraphics2DBufferBlock {
-    vertexs: IGraphics2DVertexBlock[];
-    indexView: I2DGraphicIndexDataView;
-    vertexBuffer: IVertexBuffer;
-    textureArrayIndex: number;
+
+export class WebSubStructRenderDataHandle extends WebRender2DDataHandle implements ISubStructRenderDataHandle {
+	logicMatrix: Matrix | null = null;
+	mask: WebRenderStruct2D | null = null;
+
+	inheriteRenderData(context: IRenderContext2D): void {
+		let data = this._owner.spriteShaderData;
+		if (!data || !this.needUseMatrix)
+			return;
+		let matrixVersion = this._owner.getRenderMatrixVersion();
+		if (matrixVersion >= 0 && this._matUploadFrame === matrixVersion)
+			return;
+		this._matUploadFrame = matrixVersion;
+		let mat = this._owner.renderMatrix;
+		if (this.logicMatrix) {
+			let temp = Matrix.TEMP;
+			Matrix.mul(this.logicMatrix, mat.copyTo(temp), temp);
+			this._nMatrix_0.setValue(temp.a, temp.c, temp.tx);
+			this._nMatrix_1.setValue(temp.b, temp.d, temp.ty);
+		}
+		else {
+			this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
+			this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
+		}
+		data.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
+		data.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
+	}
 }
 
-export class WebGraphics2DVertexBlock implements IGraphics2DVertexBlock {
-    positions: number[];
-    vertexViews: I2DGraphicVertexDataView[];
-}
-
-
-
-export class WebPrimitiveDataHandle extends WebRender2DDataHandle implements I2DPrimitiveDataHandle {
-    logicMatrix: Matrix | null = null;
-    mask: WebRenderStruct2D | null = null;
-
-    private _bufferBlocks: IGraphics2DBufferBlock[] = null;
+export class WebGraphicsSingleQuadDataHandle extends WebRender2DDataHandle implements IGraphicsSingleQuadDataHandle {
+    private _singleQuadData: WebSingleQuadPrimitiveData = null;
+    private _singleQuadActive: boolean = false;
+    private _graphicsHandleUpdateBuffer: ArrayBuffer = null;
+    private _singleQuadPayloadBuffer: ArrayBuffer = null;
     private _modifiedFrame: number = -1;
-    private _clonesViews: Web2DGraphic2DIndexCloneDataView[];
     private _globalAlpha: number = 1;
+    private _globalAlphaValid: boolean = false;
+    private _graphicsMaterialState: WebGraphicsMaterialState = { subShader: null, shaderData: null, useSpriteState: true };
 
-    applyVertexBufferBlock(blocks: IGraphics2DBufferBlock[]): void {
-        this._bufferBlocks = blocks;
-        this.updateCloneView();
-        this._globalAlpha = this._owner.globalAlpha;
-        if (this._owner.trans) {
-            this._modifiedFrame = this._owner.trans.modifiedFrame;
+    public set owner(value: WebRenderStruct2D) {
+        if (this._owner === value)
+            return;
+        // A GraphicsRenderer owns its handle for life. Detaching the struct only makes the
+        // handle dormant; retaining the owner keeps Runtime/RenderUnit identities reusable.
+        if (!value) {
+            if (this._singleQuadData)
+                this._singleQuadData.deactivate();
+            this._singleQuadActive = false;
+            return;
         }
+        if (this._singleQuadData)
+            this._singleQuadData.destroy();
+        this._singleQuadData = null;
+        super.owner = value;
+        this._globalAlphaValid = false;
+        this._modifiedFrame = -1;
     }
 
-    skipBufferUpdate() {
-        if (this._owner.trans) {
-            this._modifiedFrame = this._owner.trans.modifiedFrame;
-        }
+    public get owner(): WebRenderStruct2D {
+        return super.owner;
     }
 
-    /** @internal */
-    _getBlocks() {
-        return this._bufferBlocks;
+    setGraphicsHandleUpdateBuffer(buffer: ArrayBuffer): void {
+        if (this._graphicsHandleUpdateBuffer === buffer)
+            return;
+        this._graphicsHandleUpdateBuffer = buffer;
+        if (this._singleQuadData)
+            this._singleQuadData.setHandleControlBuffer(buffer);
+    }
+
+    setGraphicsMaterialState(subShader: SubShader | null, shaderData: ShaderData | null, useSpriteState: boolean): void {
+        subShader = subShader || null;
+        shaderData = shaderData || null;
+        this._graphicsMaterialState.subShader = subShader;
+        this._graphicsMaterialState.shaderData = shaderData;
+        this._graphicsMaterialState.useSpriteState = useSpriteState;
+        if (this._singleQuadData)
+            this._singleQuadData.setMaterialState(subShader, shaderData, useSpriteState);
+    }
+
+    setSingleQuadPayloadBuffer(buffer: ArrayBuffer): void {
+        if (this._singleQuadPayloadBuffer === buffer)
+            return;
+        if (this._singleQuadPayloadBuffer)
+            throw new Error("SingleQuad payload buffer can only be bound once");
+        this._singleQuadPayloadBuffer = buffer;
+    }
+
+    syncSingleQuad(texture: BaseTexture | null): boolean {
+        if (!this._ensureSingleQuadData())
+            return false;
+        if (!this._singleQuadData.sync(texture))
+            return false;
+        this._singleQuadActive = true;
+        this.needUseMatrix = false;
+        this._modifiedFrame = this._owner ? this._owner.getRenderMatrixVersion() : -1;
+        this._globalAlpha = this._owner ? this._owner.globalAlpha : 1;
+        this._globalAlphaValid = true;
+        return true;
+    }
+
+    private _ensureSingleQuadData(): boolean {
+        if (this._singleQuadData)
+            return true;
+        if (!this._singleQuadPayloadBuffer)
+            return false;
+        this._singleQuadData = new WebSingleQuadPrimitiveData(this._singleQuadPayloadBuffer);
+        this._singleQuadData.setOwner(this._owner);
+        this._singleQuadData.setHandleControlBuffer(this._graphicsHandleUpdateBuffer);
+        this._singleQuadData.setMaterialState(this._graphicsMaterialState.subShader, this._graphicsMaterialState.shaderData, this._graphicsMaterialState.useSpriteState);
+        return true;
+    }
+
+    deactivateSingleQuad(): void {
+        if (this._singleQuadData)
+            this._singleQuadData.deactivate();
+        this._singleQuadActive = false;
     }
 
     inheriteRenderData(context: IRenderContext2D): void {
         let data = this._owner.spriteShaderData;
-        if (!data)
-            return;
 
-        let trans = this._owner.trans;
-        let mat = trans.matrix;
-
-        if (
-            this._modifiedFrame < trans.modifiedFrame
-        ) {
-            if (!this._bufferBlocks || !this._bufferBlocks.length) {
-
-                //更新位置
-                if (this.logicMatrix) {
-                    let temp = Matrix.TEMP;
-                    Matrix.mul(this.logicMatrix, mat.copyTo(temp), temp);
-                    this._nMatrix_0.setValue(temp.a, temp.c, temp.tx);
-                    this._nMatrix_1.setValue(temp.b, temp.d, temp.ty);
+        if (data) {
+            let matrixVersion = this._owner.getRenderMatrixVersion();
+            let globalAlpha = this._owner.globalAlpha;
+            let alphaChanged = !this._globalAlphaValid || this._globalAlpha != globalAlpha;
+            if (this._modifiedFrame !== matrixVersion) {
+                if (this._singleQuadActive) {
+                    this._singleQuadData.updateTransform(this._owner.renderMatrix, globalAlpha, alphaChanged);
                 }
-                else {
-                    this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
-                    this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
-                }
-
-                this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
-                this._owner.spriteShaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
-            } else {
-                this._updateVertexData(mat, this._owner.globalAlpha, true, true, false);
-                this._globalAlpha = this._owner.globalAlpha;
+                this._globalAlpha = globalAlpha;
+                this._globalAlphaValid = true;
+                this._modifiedFrame = matrixVersion;
             }
-            this._modifiedFrame = trans.modifiedFrame;
-        }
-        else if (this._globalAlpha != this._owner.globalAlpha) {
-            this._globalAlpha = this._owner.globalAlpha;
-            // 乘到顶点里
-            if (this._bufferBlocks && this._bufferBlocks.length)
-                this._updateVertexData(mat, this._owner.globalAlpha, false, true, false);
-        }
-    }
-
-    private _updateVertexData(
-        mat: Matrix, globalAlpha: number,
-        updateMatrix: boolean, updateGlobalAlpha: boolean, updateTextureArrayLayerIndex: boolean
-    ) {
-        let pos = 0, dataViewIndex = 0, ci = 0;
-        let dataView: Web2DGraphic2DVertexDataView = null;
-        let m00 = 1, m01 = 0, m10 = 0, m11 = 1, tx = 0, ty = 0;
-        if (updateMatrix) {
-            m00 = mat.a, m01 = mat.b, m10 = mat.c, m11 = mat.d, tx = mat.tx, ty = mat.ty;
-        }
-        let vbdata = null;
-        let vertexCount = 0, positions: number[] = null, vertexViews: Web2DGraphic2DVertexDataView[] = null;
-        let stride = this._bufferBlocks[0].vertexBuffer.vertexDeclaration.vertexStride / 4;
-        let textureArrayLayerIndex = 0;
-        for (let i = 0, n = this._bufferBlocks.length; i < n; i++) {
-            let vertexs = this._bufferBlocks[i].vertexs;
-            textureArrayLayerIndex = this._bufferBlocks[i].textureArrayIndex;
-
-            for (let index = 0, len = vertexs.length; index < len; index++) {
-                positions = vertexs[index].positions;
-                vertexViews = vertexs[index].vertexViews as Web2DGraphic2DVertexDataView[];
-
-                vertexCount = positions.length / 2;
-                dataView = null;
-                pos = 0, ci = 0, dataViewIndex = 0;
-
-                for (let j = 0; j < vertexCount; j++) {
-
-                    if (!dataView || dataView.length <= pos) {
-                        dataView = vertexViews[dataViewIndex];
-                        dataView._modify();
-                        dataViewIndex++;
-                        pos = 0;
-                        vbdata = dataView._getData();
-                    }
-
-                    if (updateMatrix) {
-                        let x = positions[ci], y = positions[ci + 1];
-                        vbdata[pos] = x * m00 + y * m10 + tx;
-                        vbdata[pos + 1] = x * m01 + y * m11 + ty;
-                    }
-
-                    if (updateGlobalAlpha) {
-                        vbdata[pos + 10] = globalAlpha;
-                    }
-
-                    if (updateTextureArrayLayerIndex) {
-                        vbdata[pos + 11] = textureArrayLayerIndex;
-                    }
-
-                    pos += stride;
-                    ci += 2;
+            else if (alphaChanged) {
+                this._globalAlpha = globalAlpha;
+                this._globalAlphaValid = true;
+                if (this._singleQuadActive) {
+                    this._singleQuadData.updateGlobalAlpha(this._globalAlpha);
                 }
             }
-
         }
-    }
-
-    getCloneViews(): Web2DGraphic2DIndexCloneDataView[] {
-        if (!this._clonesViews) {
-            this._clonesViews = [];
-            for (let i = 0, n = this._bufferBlocks.length; i < n; i++) {
-                this._clonesViews[i] = this._cloneView(this._bufferBlocks[i].indexView as Web2DGraphic2DIndexDataView);
-            }
-        }
-        return this._clonesViews;
-    }
-
-    updateCloneView() {
-        let cloneViews = this.getCloneViews();
-        let blockLength = this._bufferBlocks.length;
-        let cloneLength = cloneViews.length;
-
-        if (cloneLength > blockLength) {//超出
-            for (let i = blockLength; i < cloneLength; i++) {
-                let view = cloneViews[i];
-                view._geometry.destroy();
-                if (view.owner)
-                    view.owner.removeDataView(view);
-            }
-        }
-
-        this._clonesViews.length = blockLength;
-
-        for (let i = 0; i < blockLength; i++) {
-            let view = cloneViews[i] as Web2DGraphic2DIndexCloneDataView;
-            let block = this._bufferBlocks[i];
-            if (block) {
-                cloneViews[i] = this._cloneView(block.indexView as Web2DGraphic2DIndexDataView, view);
-            }
-        }
-    }
-
-    private _cloneView(view: Web2DGraphic2DIndexDataView, oView: Web2DGraphic2DIndexCloneDataView = null) {
-        let clone: Web2DGraphic2DIndexCloneDataView;
-        if (oView && oView._geometry) {
-            clone = oView;
-            view._cloneView(clone);
-            //更新需要提交
-            // clone._lastStart = -1;
-        } else {
-            clone = view._clone(false, false);
-            clone._geometry = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
-            clone._geometry.indexFormat = IndexFormat.UInt16;
-        }
-        return clone;
     }
 
     destroy(): void {
+        if (this._singleQuadData)
+            this._singleQuadData.destroy();
+        this._singleQuadData = null;
+        this._singleQuadPayloadBuffer = null;
+        this._singleQuadActive = false;
+        this._graphicsMaterialState.subShader = null;
+        this._graphicsMaterialState.shaderData = null;
+        super.owner = null;
         super.destroy();
-
-        if (this._clonesViews) {
-            for (let i = 0, n = this._clonesViews.length; i < n; i++)
-                this._clonesViews[i]._geometry.destroy();
-            this._clonesViews = null;
-        }
-        this._bufferBlocks = null;
     }
 }
 
+export class WebGraphicsCommandStreamDataHandle extends WebRender2DDataHandle implements IGraphicsCommandStreamDataHandle {
+	readonly autoGraphicsDirtySync: boolean = false;
+	private static _emptyGraphicsOps: ReadonlyArray<WebGraphicsOp2D> = [];
+	private _opRuntime: WebGraphicsOp2DRuntime = null;
+	private _graphicsOpsActive: boolean = false;
+	private _graphicsHandleUpdateBuffer: ArrayBuffer = null;
+	private _modifiedFrame: number = -1;
+	private _globalAlpha: number = 1;
+	private _globalAlphaValid: boolean = false;
+	private _graphicsMaterialState: WebGraphicsMaterialState = { subShader: null, shaderData: null, useSpriteState: true };
+
+	public set owner(value: WebRenderStruct2D) {
+		if (this._owner === value)
+			return;
+		if (!value) {
+			this._setGraphicsOpsActive(false);
+			return;
+		}
+		this._destroyGraphicsOpRuntime();
+		super.owner = value;
+		this._graphicsOpsActive = false;
+		this._globalAlphaValid = false;
+		this._modifiedFrame = -1;
+	}
+
+	public get owner(): WebRenderStruct2D {
+		return super.owner;
+	}
+
+	private _destroyGraphicsOpRuntime(): void {
+		if (!this._opRuntime)
+			return;
+		this._opRuntime.destroy();
+		this._opRuntime = null;
+	}
+
+	private _createGraphicsOpRuntime(): void {
+		if (!this._owner || this._opRuntime)
+			return;
+		this._opRuntime = new WebGraphicsOp2DRuntime(this._owner, this._graphicsMaterialState);
+		this._opRuntime.setGraphicsHandleUpdateBuffer(this._graphicsHandleUpdateBuffer);
+	}
+
+	private _setGraphicsOpsActive(value: boolean): void {
+		if (value)
+			this._opRuntime && this._opRuntime.activate();
+		else
+			this._opRuntime && this._opRuntime.deactivate();
+		if (this._graphicsOpsActive === value)
+			return;
+		this._graphicsOpsActive = value;
+		this.needUseMatrix = !value;
+		this._modifiedFrame = -1;
+	}
+
+	setGraphicsHandleUpdateBuffer(buffer: ArrayBuffer): void {
+		if (this._graphicsHandleUpdateBuffer === buffer)
+			return;
+		this._graphicsHandleUpdateBuffer = buffer;
+		if (this._opRuntime)
+			this._opRuntime.setGraphicsHandleUpdateBuffer(buffer);
+	}
+
+	setGraphicsMaterialState(subShader: SubShader | null, shaderData: ShaderData | null, useSpriteState: boolean): void {
+		subShader = subShader || null;
+		shaderData = shaderData || null;
+		let subShaderChanged = this._graphicsMaterialState.subShader !== subShader;
+		let shaderDataChanged = this._graphicsMaterialState.shaderData !== shaderData;
+		let useSpriteStateChanged = this._graphicsMaterialState.useSpriteState !== useSpriteState;
+		this._graphicsMaterialState.subShader = subShader;
+		this._graphicsMaterialState.shaderData = shaderData;
+		this._graphicsMaterialState.useSpriteState = useSpriteState;
+		if (this._opRuntime) {
+			if (subShaderChanged)
+				this._opRuntime.syncGraphicsSubShader();
+			if (shaderDataChanged)
+				this._opRuntime.syncGraphicsShaderData();
+			if (useSpriteStateChanged)
+				this._opRuntime.syncGraphicsUseSpriteState();
+		}
+	}
+
+	syncGraphicsOps(ops: ReadonlyArray<IGraphicsOp2D>): void {
+		this._createGraphicsOpRuntime();
+		// Resolve pending transform dirtiness once so retained clean units are
+		// followed by the normal matrix-version update instead of keeping stale positions.
+		if (this._owner)
+			this._owner.renderMatrix;
+		if (!ops || ops.length === 0) {
+			this._opRuntime.syncGraphicsOps(ops ? ops as ReadonlyArray<WebGraphicsOp2D> : WebGraphicsCommandStreamDataHandle._emptyGraphicsOps);
+			this._setGraphicsOpsActive(false);
+			return;
+		}
+		this._opRuntime.syncGraphicsOps(ops as ReadonlyArray<WebGraphicsOp2D>);
+		this._globalAlphaValid = false;
+		this._setGraphicsOpsActive(true);
+	}
+
+	deactivateGraphicsOps(): void {
+		this._setGraphicsOpsActive(false);
+	}
+
+	/** @internal */
+	getGraphicsBatchEntry(index: number): WebGraphicsBatchEntry {
+		return this._opRuntime ? this._opRuntime.getGraphicsBatchEntry(index) : null;
+	}
+
+	inheriteRenderData(context: IRenderContext2D): void {
+		let data = this._owner.spriteShaderData;
+		if (!data)
+			return;
+		let matrixVersion = this._owner.getRenderMatrixVersion();
+		let globalAlpha = this._owner.globalAlpha;
+		let alphaChanged = !this._globalAlphaValid || this._globalAlpha != globalAlpha;
+		if (this._modifiedFrame !== matrixVersion) {
+			if (this._graphicsOpsActive)
+				this._opRuntime.updateTransform(this._owner.renderMatrix, globalAlpha, alphaChanged);
+			this._globalAlpha = globalAlpha;
+			this._globalAlphaValid = true;
+			this._modifiedFrame = matrixVersion;
+		}
+		else if (alphaChanged) {
+			this._globalAlpha = globalAlpha;
+			this._globalAlphaValid = true;
+			if (this._graphicsOpsActive)
+				this._opRuntime.updateGlobalAlpha(globalAlpha);
+		}
+	}
+
+	destroy(): void {
+		this._destroyGraphicsOpRuntime();
+		this._graphicsOpsActive = false;
+		this._graphicsMaterialState.subShader = null;
+		this._graphicsMaterialState.shaderData = null;
+		super.owner = null;
+		super.destroy();
+	}
+}
 
 export class Web2DBaseRenderDataHandle extends WebRender2DDataHandle implements I2DBaseRenderDataHandle {
     private _lightReceive: boolean = false;
@@ -413,80 +503,3 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
     }
 }
 
-export class WebSpineRenderDataHandle extends Web2DBaseRenderDataHandle implements ISpineRenderDataHandle {
-    private _renderAlpha = -1;
-    private _baseColor: Color = new Color(1, 1, 1, 1);
-
-    public get baseColor(): Color {
-        return this._baseColor;
-    }
-    public set baseColor(value: Color) {
-        if (value != this._baseColor && this._baseColor.equal(value))
-            return
-        value = value ? value : Color.BLACK;
-        value.cloneTo(this._baseColor);
-        this._renderAlpha = -1;
-        this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._baseColor);
-    }
-
-    skeleton: spine.Skeleton;
-
-    normalUpdater: any = null;
-
-    private _offset: Vector2;
-
-    public get owner(): WebRenderStruct2D {
-        return this._owner;
-    }
-    public set owner(value: WebRenderStruct2D) {
-        if (value == this.owner) return;
-        if (this._owner) {
-            let shaderData = this._owner.spriteShaderData;
-            shaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
-            shaderData.removeDefine(SpineShaderInit.SPINE_UV);
-            shaderData.removeDefine(SpineShaderInit.SPINE_COLOR);
-        }
-        this._owner = value;
-        if (this._owner) {
-            let shaderData = this._owner.spriteShaderData;
-            shaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
-            shaderData.addDefine(SpineShaderInit.SPINE_UV);
-            shaderData.addDefine(SpineShaderInit.SPINE_COLOR);
-        }
-
-    }
-
-    public get offset(): Vector2 {
-        return this._offset;
-    }
-    public set offset(value: Vector2) {
-        this._offset = value;
-    }
-
-    inheriteRenderData(context: IRenderContext2D): void {
-        if (!this._owner || !this._owner.spriteShaderData || !this.skeleton)
-            return
-        let shaderData = this.owner.spriteShaderData;
-        let trans = this.owner.renderMatrix;
-        let mat = trans;
-        if (this._offset) {
-            let ofx = this._offset.x;
-            let ofy = this._offset.y;
-            this._nMatrix_0.setValue(mat.a, mat.c, mat.tx + mat.a * ofx + mat.c * ofy);
-            this._nMatrix_1.setValue(mat.b, mat.d, mat.ty + mat.b * ofx + mat.d * ofy);
-        } else {
-            this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
-            this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
-        }
-
-        shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
-        shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
-
-        if (this._renderAlpha != this._owner.globalAlpha) {
-            let a = this._owner.globalAlpha * this._baseColor.a;
-            _setRenderColor.setValue(this._baseColor.r, this._baseColor.g, this._baseColor.b, a);
-            this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, _setRenderColor);
-            this._renderAlpha = this._owner.globalAlpha;
-        }
-    }
-}

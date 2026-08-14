@@ -94,11 +94,11 @@ export class LayaXInternalTex implements InternalTexture {
     }
 
     public get gammaCorrection(): number {
-        return this._nativeObj.gammaCorrection;
+        return this._nativeObj.getGammaCorrection();
     }
 
     public set gammaCorrection(value: number) {
-        this._nativeObj.gammaCorrection = value;
+        this._nativeObj.setGammaCorrection(value);
     }
 
     public get resource(): any {

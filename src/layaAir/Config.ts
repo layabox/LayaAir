@@ -64,6 +64,18 @@ export class Config {
     static webGL2D_MeshAllocMaxMem: boolean = true;
 
     /**
+     * @en Whether 2D Graphics uses UInt32 index buffers when the render backend supports them.
+     * @zh 2D Graphics 是否在渲染后端支持时使用 UInt32 索引缓冲。
+     */
+    static useGraphics2DIndexUInt32: boolean = true;
+
+    /**
+     * @en Whether Sprite render textures enable anti-aliasing when the render backend supports MSAA.
+     * @zh Sprite 渲染纹理在渲染后端支持 MSAA 时是否开启抗锯齿。
+     */
+    static isSpriteRenderTextureAntialias: boolean = false;
+
+    /**
      * @en Default text size, default is 12
      * @zh 默认文本大小，默认为12
      */
@@ -172,8 +184,8 @@ export class Config {
     /**
      * @en Whether to use TextureArray
      * @zh 是否使用TextureArray: 文字和自动图集使用TextureArray来优化
-     */ 
-    static useTextureArray=false;
+     */
+    static useTextureArray = false;
 }
 
 export const PlayerConfig: {

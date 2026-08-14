@@ -72,7 +72,7 @@ export class PBRMaterial extends Material {
 
     /** @internal */
     static ALBEDOTEXTURE: number;
-    /** @internal */
+
     static ALBEDOCOLOR: number;
     /** @internal */
     static TILINGOFFSET: number;

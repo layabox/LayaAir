@@ -5,11 +5,12 @@ import { ClassUtils } from "../../utils/ClassUtils";
 import { ColorUtils } from "../../utils/ColorUtils";
 import { Pool } from "../../utils/Pool"
 import { VertexStream } from "../../utils/VertexStream";
-import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { type GraphicsCommandInfo, GraphicsCommandLayoutRefresh, IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 import { Config } from "../../../Config";
 import { UVClippingUtils } from "../../webgl/utils/UVClippingUtils";
 import { drawTrianglesBatched } from "./DrawTrianglesBatchHelper";
+import { GraphicsCommandInfoHelper } from "../Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineHelpers";
 
 const className = "Draw9GridTextureCmd";
 
@@ -206,7 +207,12 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
      * @ignore @blueprintIgnore
      */
     needsLayoutRepaint(): number {
-        return this.percent ? 1 : 0;
+        return 1;
+    }
+
+    /** @internal */
+    getGraphicsCommandInfo(out: GraphicsCommandInfo): GraphicsCommandInfo {
+        return GraphicsCommandInfoHelper.writeSize(out, this.percent, GraphicsCommandLayoutRefresh.RerunCommand);
     }
 
     /**

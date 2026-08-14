@@ -5,7 +5,14 @@ import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode"
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
 
-
+/** JS-read mirror slot layout; shared contract with C++ GLESRenderGeometryElement. */
+const enum GeoSlot {
+  Mode = 0,
+  DrawType = 1,
+  InstanceCount = 2,
+  IndexFormat = 3,
+  Count = 4,
+}
 
 export class GLESRenderGeometryElement implements IRenderGeometryElement {
   private _bufferState: IBufferState;
@@ -15,9 +22,15 @@ export class GLESRenderGeometryElement implements IRenderGeometryElement {
 
   _nativeObj: any;
 
+  /** JS-read mirror of [mode, drawType, instanceCount, indexFormat]; shared with C++. */
+  private _props: Uint32Array;
+
   /**@internal */
   constructor(mode: MeshTopology, drawType: DrawType) {
     this._nativeObj = new (window as any).conchGLESRenderGeometryElement();
+    const buf = new ArrayBuffer(GeoSlot.Count * 4);
+    this._props = new Uint32Array(buf);
+    this._nativeObj.bindPropertyBuffer(buf);
     this.mode = mode;
     this.drawParams = new FastSinglelist();
     this.drawType = drawType;
@@ -57,35 +70,35 @@ export class GLESRenderGeometryElement implements IRenderGeometryElement {
   }
 
   set mode(value: MeshTopology) {
-    this._nativeObj.mode = value;
+    this._nativeObj.rt_setMode(value);
   }
 
   get mode(): MeshTopology {
-    return this._nativeObj.mode;
+    return this._props[GeoSlot.Mode];
   }
 
   set drawType(value: DrawType) {
-    this._nativeObj.drawType = value;
+    this._nativeObj.rt_setDrawType(value);
   }
 
   get drawType(): DrawType {
-    return this._nativeObj.drawType;
+    return this._props[GeoSlot.DrawType];
   }
 
   set instanceCount(value: number) {
-    this._nativeObj.instanceCount = value;
+    this._nativeObj.rt_setInstanceCount(value);
   }
 
   get instanceCount(): number {
-    return this._nativeObj.instanceCount;
+    return this._props[GeoSlot.InstanceCount];
   }
 
   set indexFormat(value: IndexFormat) {
-    this._nativeObj.indexFormat = value;
+    this._nativeObj.rt_setIndexFormat(value);
   }
 
   get indexFormat(): IndexFormat {
-    return this._nativeObj.indexFormat;
+    return this._props[GeoSlot.IndexFormat];
   }
   
 }

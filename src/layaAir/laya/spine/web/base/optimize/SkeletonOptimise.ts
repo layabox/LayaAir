@@ -241,9 +241,9 @@ export class SkeletonOptimise implements ISkeletonOptimise {
         }
     }
 
-    registerTexture(texture: Texture) {
+    registerTexture(texture: Texture): spine.TextureAtlasRegion {
         let tex2d = texture.bitmap as Texture2D;
-        if (!tex2d) return;
+        if (!tex2d) return null;
 
         let bitmapUrl = tex2d.url || "texture";
         let spineTexture = new SpineTexture(tex2d);
@@ -261,7 +261,7 @@ export class SkeletonOptimise implements ISkeletonOptimise {
             this._registTextures[bitmapUrl] = page;
         }
 
-        let textureName = texture.url;
+        let textureName = this._getTextureName(texture);
         let region: spine.TextureAtlasRegion = null;
         
         if (!region) {
@@ -291,6 +291,15 @@ export class SkeletonOptimise implements ISkeletonOptimise {
         }
         
         region.texture = spineTexture;
+        return region;
+    }
+
+    private _getTextureName(texture: Texture): string {
+        let textureName = texture.name;
+        if (!textureName && texture.url) {
+            textureName = texture.url.split("/").pop().split("\\").pop();
+        }
+        return textureName || "texture";
     }
 
     getTextureRegion(pageName: string, textureName: string): spine.TextureAtlasRegion {

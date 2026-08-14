@@ -3,10 +3,27 @@ import { ICameraNodeData } from "../../RenderModuleData/Design/3D/I3DRenderModul
 import { LayaXTransform3D } from "./LayaXTransform3D";
 
 /**
+ * TS-owned per-camera buffer layout. Contract shared with C++ `LayaXCameraNodeData_JS`
+ * and Rust `CameraData` / `layax_camera_bind_buffer` — changing it requires updating all three.
+ */
+const enum CamSlot {
+    ViewProj = 0,   // [0..16) column-major 4x4
+    Fov = 16,
+    Near = 17,
+    Far = 18,
+    Aspect = 19,
+    ForwardX = 20,
+    ForwardY = 21,
+    ForwardZ = 22,
+    Count = 23,
+}
+
+/**
  * LayaX CameraNodeData bridge.
  *
- * Wraps camera projection parameters for the Rust rendering pipeline via
- * `conchLayaXCameraNodeData`.
+ * Projection / view-proj / forward travel through a TS-owned ArrayBuffer that Rust reads
+ * directly (absorbed in `camera_cull_prepare_system`) — no per-field FFI. Only the
+ * transform-entity reference still goes through a native call.
  */
 export class LayaXCameraNodeData implements ICameraNodeData {
 
@@ -14,6 +31,15 @@ export class LayaXCameraNodeData implements ICameraNodeData {
     _nativeObj: any;
 
     private _transform: LayaXTransform3D;
+
+    // TS owns this buffer; Rust caches its raw pointer via bindBuffer and reads it each
+    // frame. Held as an instance field so it stays alive (GC) for the camera's lifetime.
+    private _buf: ArrayBuffer;
+    private _f32: Float32Array;
+
+    // Cached after construction; layax_create_camera makes the handle constant for the
+    // camera's lifetime, so the per-frame prepareActiveCameras path reads zero-crossing.
+    private _handleId: number = 0;
 
     public get transform(): LayaXTransform3D {
         return this._transform;
@@ -24,51 +50,67 @@ export class LayaXCameraNodeData implements ICameraNodeData {
     }
 
     public get farplane(): number {
-        return this._nativeObj._farplane;
+        return this._f32[CamSlot.Far];
     }
     public set farplane(value: number) {
-        this._nativeObj._farplane = value;
+        this._f32[CamSlot.Far] = value;
     }
 
     public get nearplane(): number {
-        return this._nativeObj._nearplane;
+        return this._f32[CamSlot.Near];
     }
     public set nearplane(value: number) {
-        this._nativeObj._nearplane = value;
+        this._f32[CamSlot.Near] = value;
     }
 
     public get fieldOfView(): number {
-        return this._nativeObj._fieldOfView;
+        return this._f32[CamSlot.Fov];
     }
     public set fieldOfView(value: number) {
-        this._nativeObj._fieldOfView = value;
+        this._f32[CamSlot.Fov] = value;
     }
 
     public get aspectRatio(): number {
-        return this._nativeObj._aspectRatio;
+        return this._f32[CamSlot.Aspect];
     }
     public set aspectRatio(value: number) {
-        this._nativeObj._aspectRatio = value;
+        this._f32[CamSlot.Aspect] = value;
     }
 
     public get handle(): number {
-        return this._nativeObj ? this._nativeObj.getHandle() : 0;
+        return this._nativeObj ? this._handleId : 0;
     }
 
     constructor() {
         // Rust 侧 layax_create_camera 负责分配 cull_bit + 4 个 cascade shadow entity
         this._nativeObj = new (window as any).conchLayaXCameraNodeData();
+        // Attribute-offset block. view_proj stays all-zero (= "VP not yet pushed" filter
+        // sentinel, matching Rust CameraData::default); projection params seed sane defaults
+        // so a frame before the engine sets them won't absorb fov=0 (degenerate).
+        this._buf = new ArrayBuffer(CamSlot.Count * 4);
+        this._f32 = new Float32Array(this._buf);
+        this._f32[CamSlot.Fov] = 60.0;
+        this._f32[CamSlot.Near] = 0.3;
+        this._f32[CamSlot.Far] = 1000.0;
+        this._f32[CamSlot.Aspect] = 1.0;
+        this._f32[CamSlot.ForwardZ] = -1.0;
+        this._nativeObj.bindBuffer(this._buf);
+        this._handleId = this._nativeObj.getHandle();
     }
 
     setProjectionViewMatrix(value: Matrix4x4): void {
-        value && this._nativeObj.setProjectionViewMatrix(value.elements);
+        value && this._f32.set(value.elements, CamSlot.ViewProj);
     }
 
     setForward(x: number, y: number, z: number): void {
-        this._nativeObj.setForward(x, y, z);
+        this._f32[CamSlot.ForwardX] = x;
+        this._f32[CamSlot.ForwardY] = y;
+        this._f32[CamSlot.ForwardZ] = z;
     }
 
     syncProjection(): void {
+        // Projection params already live in the bound buffer (Rust reads them on absorb);
+        // the native call now only re-tries the lazy transform-entity binding.
         this._nativeObj.syncProjection();
     }
 

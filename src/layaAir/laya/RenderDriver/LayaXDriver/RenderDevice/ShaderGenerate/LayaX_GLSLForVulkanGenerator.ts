@@ -292,8 +292,8 @@ ${fragmentCode}
             });
             if (wildUniforms.length > 0) {
                 console.error(
-                    `[LayaX] Shader "${shaderPassName}" declares uniforms in GLSL that are not registered in the material uniformMap. ` +
-                    `LayaX does not auto-append wild uniforms. Missing: ${wildUniforms.join(", ")}`
+                    `[LayaX] Shader "${shaderPassName}" declares uniforms in GLSL that are not registered before material creation. ` +
+                    `Missing: ${wildUniforms.join(", ")}`
                 );
             }
         }
@@ -411,6 +411,7 @@ ${fragmentCode}
 
         const getUniformDeclaration = (uniformMaps: Map<number, LayaXBindingInfo[]>, usedTex?: Map<string, { type: string, format?: string, access?: "readonly" | "writeonly" | "readwrite" }>) => {
             let res = "";
+            const emittedBlockUniforms = new Set<string>();
             uniformMaps.forEach((value, set) => {
                 for (let uniform of value) {
                     switch (uniform.type) {
@@ -430,7 +431,7 @@ ${fragmentCode}
                             let commandMap = (LayaGL.renderDeviceFactory.createGlobalUniformMap(uniform.name) as LayaXCommandUniformMap)
                             if (commandMap._hasUniformBuffer) {
                                 let uniformMap = commandMap._idata;
-                                res = `${res}${uniformMapString(uniformMap, uniform.name, uniform.set, uniform.binding, true, new Map()).code}\n`;
+                                res = `${res}${uniformMapString(uniformMap, uniform.name, uniform.set, uniform.binding, true, new Map(), emittedBlockUniforms).code}\n`;
                             }
                             break;
                         }
@@ -659,7 +660,7 @@ ${attributeDefines}
 `;
 }
 
-function uniformMapString(uniformMap: Map<number, UniformProperty>, name: string, set: number, bindOffset: number, skipTexture: boolean, collectUniforms: Map<string, CollectUniform>) {
+function uniformMapString(uniformMap: Map<number, UniformProperty>, name: string, set: number, bindOffset: number, skipTexture: boolean, collectUniforms: Map<string, CollectUniform>, emittedBlockUniforms: Set<string>) {
     let textureUniforms: UniformProperty[] = [];
     let blockUniforms: UniformProperty[] = [];
 
@@ -667,8 +668,9 @@ function uniformMapString(uniformMap: Map<number, UniformProperty>, name: string
         if (isSamplerType(uniform.uniformtype)) {
             textureUniforms.push(uniform);
         }
-        else {
+        else if (!emittedBlockUniforms.has(uniform.propertyName)) {
             blockUniforms.push(uniform);
+            emittedBlockUniforms.add(uniform.propertyName);
         }
     });
 
@@ -731,6 +733,7 @@ function uniformString2(uniformSetMap: Map<number, LayaXBindingInfo[]>, material
     let res = "";
 
     let samplerMap = new Map<string, LayaXBindingInfo>();
+    const emittedBlockUniforms = new Set<string>();
 
     uniformSetMap.forEach((value, key) => {
         if (value.length > 0) {
@@ -749,7 +752,7 @@ function uniformString2(uniformSetMap: Map<number, LayaXBindingInfo[]>, material
                                 uniformMap = materialMap;
                             }
 
-                            res = `${res}${uniformMapString(uniformMap, uniform.name, uniform.set, uniform.binding, true, collectUniforms).code}\n`;
+                            res = `${res}${uniformMapString(uniformMap, uniform.name, uniform.set, uniform.binding, true, collectUniforms, emittedBlockUniforms).code}\n`;
                             break;
                         }
                     case LayaXBindingInfoType.texture:

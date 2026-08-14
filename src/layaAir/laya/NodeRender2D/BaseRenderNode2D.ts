@@ -110,8 +110,7 @@ export class BaseRenderNode2D extends Component {
         commandUniform.addShaderUniform(BaseRenderNode2D.BASERENDERSIZE, "u_baseRenderSize2D", ShaderDataType.Vector2);
         commandUniform.addShaderUniform(BaseRenderNode2D.NORMAL2DTEXTURE, "u_normal2DTexture", ShaderDataType.Texture2D);
         commandUniform.addShaderUniform(BaseRenderNode2D.NORMAL2DSTRENGTH, "u_normal2DStrength", ShaderDataType.Float);
-        commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATDIR, "u_clipMatDir", ShaderDataType.Vector4);
-        commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATPOS, "u_clipMatPos", ShaderDataType.Vector4);
+        commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPOFFSET, "u_clipOffset", ShaderDataType.Vector2);
     }
 
     /**
@@ -294,6 +293,11 @@ export class BaseRenderNode2D extends Component {
      * @param context 
      */
     renderUpdate?(context: IRenderContext2D): void;
+
+    /** @internal 保留方法形式，供渲染节点查询其持续更新偏好。 */
+    getRenderUpdateMode(): boolean {
+        return this._lightReceive;
+    }
 
     protected _onAdded(): void {
         this.owner._initShaderData();

@@ -1,12 +1,13 @@
 import { Vector2 } from "../../../../maths/Vector2";
+import { GraphicsDefines } from "../../../../webgl/shader/d2/GraphicsDefines";
 import { IIndexBuffer } from "../../../DriverDesign/RenderDevice/IIndexBuffer";
+import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
-import { I2DGraphicWholeBuffer } from "../../Design/2D/IRender2DDataHandle";
-import { Web2DGraphicsBufferDataView, Web2DGraphic2DVertexDataView, Web2DGraphic2DIndexDataView, Web2DGraphic2DIndexCloneDataView } from "./Web2DGraphic2DBufferDataView";
+import { Web2DGraphicsBufferDataView, Web2DGraphic2DVertexDataView, Web2DGraphic2DIndexDataView } from "./Web2DGraphic2DBufferDataView";
 
-export abstract class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
+export abstract class Web2DGraphicWholeBuffer {
     buffer: IIndexBuffer | IVertexBuffer;
-    _dataView: Float32Array | Uint16Array;
+    _dataView: Float32Array | Uint16Array | Uint32Array;
     arrayBuffer: ArrayBuffer;
     _needResetData: boolean;
     _inPass: boolean;
@@ -79,6 +80,14 @@ export abstract class Web2DGraphicWholeBuffer implements I2DGraphicWholeBuffer {
     }
 
     destroy() {
+        let view = this._first;
+        while (view) {
+            let next = view._next;
+            view.owner = null;
+            view._prev = null;
+            view._next = null;
+            view = next;
+        }
         this._first = null;
         this._last = null;
         this._dataView = null;
@@ -127,78 +136,114 @@ export class Web2DGraphicsVertexBuffer extends Web2DGraphicWholeBuffer {
 }
 
 export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
-    declare buffer: IIndexBuffer;
+    private static _uploadScratch: Uint16Array | Uint32Array;
 
-    declare _dataView: Uint16Array;
+    declare buffer: IIndexBuffer;
     
     /** @internal */
     declare _first: Web2DGraphic2DIndexDataView;
     /** @internal */
     declare _last: Web2DGraphic2DIndexDataView;
 
-    resetData(byteLength: number) {
-        this.arrayBuffer = new ArrayBuffer(byteLength);
-
-        let newData = new Uint16Array(this.arrayBuffer);
-        if (this._dataView) {
-            newData.set(this._dataView);
-        }
-        this._dataView = newData;
+    resetData(_byteLength: number) {
+        this.arrayBuffer = null;
+        this._dataView = null;
         this._needResetData = true;
-
     }
 
-    _upload() {
-        if (!this._num) return;
+    protected static _getUploadScratch(length: number): Uint16Array | Uint32Array {
+        let arrayType = GraphicsDefines.GRAPHICS_INDEX_ARRAY_TYPE;
+        let scratch = Web2DGraphicsIndexBuffer._uploadScratch;
+        if (!scratch || scratch.length < length || (scratch as any).constructor !== arrayType) {
+            let capacity = scratch && (scratch as any).constructor === arrayType ? Math.max(length, scratch.length * 2) : length;
+            Web2DGraphicsIndexBuffer._uploadScratch = scratch = new arrayType(capacity);
+        }
+        return scratch;
+    }
+
+    protected _updateStartsAndDrawParams(indexByteSize: number): number {
         let view = this._first;
         let start = 0;
-        let length = 0;
-        let geometry = view._geometry;
-        let needUpdate = false;
-        let uploadStart = this._needResetData ? 0 : this._updateRange.x;
 
-        // let mark = 0 ;
+        let geometry = view ? view._geometry : null;
+        let geometryStart = 0;
+        let geometryLength = 0;
+
         while (view) {
-            // mark++;
-            if (geometry != view._geometry) {//切换geometry时，检查上一个是否需要提交
-                if (needUpdate) {// 设置上一个的绘制状态
+            if (geometry != view._geometry) {
+                if (geometry && geometryLength > 0) {
                     geometry.clearRenderParams();
-                    geometry.setDrawElemenParams(length, start * 2);
+                    geometry.setDrawElemenParams(geometryLength, geometryStart * indexByteSize);
                 }
-
                 geometry = view._geometry;
-                start = start + length;
-                length = 0;
+                geometryStart = start;
+                geometryLength = 0;
             }
 
-            start = start + length;
-            //在需要更新的段落内
-            needUpdate = this._needResetData || start >= uploadStart;
-
-            if (needUpdate) {
-                view.start = start;
-                view._updateView(this._dataView);
-            }
-
-            length += view.length;
+            view.start = start;
+            geometryLength += view.length;
+            start += view.length;
             view = view._next;
         }
 
-        if (needUpdate) {
+        if (geometry && geometryLength > 0) {
             geometry.clearRenderParams();
-            geometry.setDrawElemenParams(length, start * 2);
+            geometry.setDrawElemenParams(geometryLength, geometryStart * indexByteSize);
         }
 
-        const uploadByteStart = uploadStart * Uint16Array.BYTES_PER_ELEMENT;
-        const uploadByteEnd = (this._last.start + this._last.length) * Uint16Array.BYTES_PER_ELEMENT;
-        const alignedByteStart = Math.floor(uploadByteStart / 4) * 4;
-        const alignedByteEnd = Math.min(Math.ceil(uploadByteEnd / 4) * 4, this.arrayBuffer.byteLength);
-        if (alignedByteEnd > uploadByteEnd) {
-            new Uint8Array(this.arrayBuffer).fill(0, uploadByteEnd, alignedByteEnd);
+        return start;
+    }
+
+    protected _copyViewsToScratch(rangeStart: number, rangeEnd: number, scratch: Uint16Array | Uint32Array): void {
+        let view = this._first;
+        while (view && view.start + view.length <= rangeStart)
+            view = view._next;
+
+        // Keep scratch in whole-buffer coordinates so each owned view can be copied directly.
+        while (view && view.start < rangeEnd) {
+            scratch.set(view._getData(), view.start);
+            view = view._next;
+        }
+    }
+
+    protected _uploadScratchRange(uploadStart: number, uploadEnd: number, indexByteSize: number): void {
+        if (uploadEnd <= uploadStart)
+            return;
+
+        let uploadByteStart = uploadStart * indexByteSize;
+        let uploadByteEnd = uploadEnd * indexByteSize;
+        let alignedByteStart = Math.floor(uploadByteStart / 4) * 4;
+        let alignedByteEnd = Math.ceil(uploadByteEnd / 4) * 4;
+        let alignedStart = alignedByteStart / indexByteSize;
+        let alignedEnd = alignedByteEnd / indexByteSize;
+        let dataLength = alignedByteEnd - alignedByteStart;
+        let scratch = Web2DGraphicsIndexBuffer._getUploadScratch(alignedEnd);
+
+        scratch.fill(0, alignedStart, alignedEnd);
+        this._copyViewsToScratch(alignedStart, alignedEnd, scratch);
+        this.buffer.setData(scratch.buffer as ArrayBuffer, alignedByteStart, alignedByteStart, dataLength);
+    }
+
+    _upload() {
+        if (!this._num) {
+            this._needResetData = false;
+            this._updateRange.setValue(100000000, -100000000);
+            return;
         }
 
-        this.buffer.setData(this.arrayBuffer, alignedByteStart, alignedByteStart, alignedByteEnd - alignedByteStart);
+        if (!this._needResetData && this._updateRange.y <= this._updateRange.x)
+            return;
+
+        let indexByteSize = GraphicsDefines.GRAPHICS_INDEX_BYTE_SIZE;
+        let uploadStart = this._needResetData ? 0 : this._updateRange.x;
+        let totalLength = this._updateStartsAndDrawParams(indexByteSize);
+
+        uploadStart = Math.max(0, Math.min(uploadStart, totalLength));
+
+        this._uploadScratchRange(uploadStart, totalLength, indexByteSize);
         this._needResetData = false;
+        this._updateRange.setValue(100000000, -100000000);
+
     }
 
     _modifyOneView(view: Web2DGraphic2DIndexDataView): void {
@@ -216,71 +261,100 @@ export class Web2DGraphicsIndexBuffer extends Web2DGraphicWholeBuffer {
 
 export class Web2DGraphicsIndexBatchBuffer extends Web2DGraphicsIndexBuffer {
 
-    declare _first: Web2DGraphic2DIndexCloneDataView;
-    declare _last: Web2DGraphic2DIndexCloneDataView;
+    private _batchData: Uint16Array | Uint32Array;
+    private _writeLength: number = 0;
     /** @internal */
     // _uploadMask: Record<number, number> = {};
 
+    /** @internal */
+    appendIndexData(data: Uint16Array | Uint32Array, geometry: IRenderGeometryElement): number {
+        let start = this._writeLength;
+        let end = start + data.length;
+        this._ensureBatchData(end);
+        this._batchData.set(data, start);
+        this._writeLength = end;
+        this._updateRange.x = Math.min(start, this._updateRange.x);
+        this._updateRange.y = Math.max(end, this._updateRange.y);
+
+        if (geometry) {
+            geometry.clearRenderParams();
+            geometry.setDrawElemenParams(data.length, start * GraphicsDefines.GRAPHICS_INDEX_BYTE_SIZE);
+        }
+        return start;
+    }
+
+    private _ensureBatchData(requiredLength: number): void {
+        let arrayType = GraphicsDefines.GRAPHICS_INDEX_ARRAY_TYPE;
+        let batchData = this._batchData;
+        if (batchData && batchData.length >= requiredLength && (batchData as any).constructor === arrayType)
+            return;
+
+        let capacity = batchData && (batchData as any).constructor === arrayType
+            ? Math.max(requiredLength, batchData.length * 2)
+            : requiredLength;
+        let newData = new arrayType(capacity);
+        if (batchData && (batchData as any).constructor === arrayType)
+            newData.set(batchData);
+        this._batchData = newData;
+    }
+
     _upload() {
-        let view = this._first;
+        if (!this._writeLength) {
+            this._needResetData = false;
+            this._updateRange.setValue(100000000, -100000000);
+            return;
+        }
+
+        if (!this._needResetData && this._updateRange.y <= this._updateRange.x)
+            return;
+
+        let indexByteSize = GraphicsDefines.GRAPHICS_INDEX_BYTE_SIZE;
         let uploadStart = this._needResetData ? 0 : this._updateRange.x;
+        let uploadEnd = Math.min(this._writeLength, this._updateRange.y);
 
-        // let mark = 0 ;
-        while (view) {
-            
-            if (this._needResetData || view.start >= uploadStart) {
-                view._updateView(this._dataView );
-                // let result = view._updateCloneView(this._dataView , this._uploadMask );
-                // if (!result && view.start == uploadStart) {
-                //    uploadStart = view.start + view.length;
-                // }
+        uploadStart = Math.max(0, Math.min(uploadStart, uploadEnd));
+
+        if (uploadEnd > uploadStart) {
+            let uploadByteStart = uploadStart * indexByteSize;
+            let uploadByteEnd = uploadEnd * indexByteSize;
+            let alignedByteStart = Math.floor(uploadByteStart / 4) * 4;
+            let alignedByteEnd = Math.ceil(uploadByteEnd / 4) * 4;
+            let alignedEnd = alignedByteEnd / indexByteSize;
+
+            this._ensureBatchData(alignedEnd);
+            if (alignedEnd > this._writeLength) {
+                this._batchData.fill(0, this._writeLength, alignedEnd);
             }
-
-            view = view._next;
+            this.buffer.setData(this._batchData.buffer as ArrayBuffer, alignedByteStart, alignedByteStart, alignedByteEnd - alignedByteStart);
         }
-
-        const uploadByteStart = uploadStart * Uint16Array.BYTES_PER_ELEMENT;
-        const uploadByteEnd = (this._last.start + this._last.length) * Uint16Array.BYTES_PER_ELEMENT;
-        if (uploadByteEnd <= uploadByteStart) return;
-
-        const alignedByteStart = Math.floor(uploadByteStart / 4) * 4;
-        const alignedByteEnd = Math.min(Math.ceil(uploadByteEnd / 4) * 4, this.arrayBuffer.byteLength);
-        if (alignedByteEnd > uploadByteEnd) {
-            new Uint8Array(this.arrayBuffer).fill(0, uploadByteEnd, alignedByteEnd);
-        }
-
-        this.buffer.setData(this.arrayBuffer, alignedByteStart, alignedByteStart, alignedByteEnd - alignedByteStart);
-
         this._needResetData = false;
+        this._updateRange.setValue(100000000, -100000000);
+
     }
 
-    _modifyOneView(view: Web2DGraphic2DIndexCloneDataView): void {
-
-        this.addDataView(view);
-
-        // let startTimer = Date.now();
-        super._modifyOneView(view);
-        // let modifyOneViewTime = Date.now();
-        // TimeStatistics.instance.addToFrameTime("Web2DGraphic2DBuffer.super._modifyOneView", modifyOneViewTime - startTimer);
-        if (view._geometry) {
-            view._geometry.clearRenderParams();
-            // let clearRenderParamsTime = Date.now();
-            // TimeStatistics.instance.addToFrameTime("Web2DGraphic2DBuffer.clearRenderParams", clearRenderParamsTime - modifyOneViewTime);
-            view._geometry.setDrawElemenParams(view.length, view.start * 2);
-            // let setDrawElemenParamsTime = Date.now();
-            // TimeStatistics.instance.addToFrameTime("Web2DGraphic2DBuffer.setDrawElemenParams", setDrawElemenParamsTime - clearRenderParamsTime);
-            // TimeStatistics.instance.addToFrameTime("Web2DGraphic2DBuffer._modifyOneView", setDrawElemenParamsTime - startTimer);
-        }
-    }
-    
     clearBufferViews() {//不清理,添加时处理
+        let view = this._first;
+        while (view) {
+            let next = view._next;
+            view.owner = null;
+            view._prev = null;
+            view._next = null;
+            view = next;
+        }
         this._first = null;
         this._last = null;
         this._num = 0;
+        this._writeLength = 0;
         this._updateRange.setValue(100000000, -100000000);
     }
 
     _resetData(byteLength: number) {
         super.resetData(byteLength);
+    }
+
+    destroy(): void {
+        this._batchData = null;
+        this._writeLength = 0;
+        super.destroy();
     }
 }

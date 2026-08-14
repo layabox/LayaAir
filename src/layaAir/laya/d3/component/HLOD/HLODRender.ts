@@ -32,7 +32,9 @@ export class HLODRender extends BaseRender {
     constructor() {
         super();
         this._singleton = false;
-
+        // LayaX：bounds = 激活 batchMesh local bounds × worldMatrix，走 Auto（geometryBounds 在
+        // _changeMesh 时下沉），退订每帧 native 回调
+        this._baseRenderNode.disableNativeBoundsCallback?.();
     }
 
     /**
@@ -94,6 +96,8 @@ export class HLODRender extends BaseRender {
         for (let i = 0, n = lodMesh.batchSubMeshInfo.length; i < n; i++) {
             this._curSubBatchMeshBounds[i] = this._curSubBatchMeshBounds[i] ? this._curSubBatchMeshBounds[i] : new Bounds();
         }
+        // LayaX Auto 模式原料：激活 LOD 的 local bounds，世界 AABB 由 ECS 自算
+        this.geometryBounds = lodMesh.batchMesh.bounds;
 
     }
 

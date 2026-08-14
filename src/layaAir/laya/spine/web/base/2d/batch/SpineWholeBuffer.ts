@@ -1,6 +1,5 @@
 import { IIndexBuffer } from "../../../../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
 import { IVertexBuffer } from "../../../../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
-import { I2DGraphicWholeBuffer } from "../../../../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
 import { WebRender2DPass } from "../../../../../RenderDriver/RenderModuleData/WebModuleData/2D/WebRender2DPass";
 import { SpineBufferView } from "./SpineBufferDataView";
 import { IBufferState } from "../../../../../RenderDriver/DriverDesign/RenderDevice/IBufferState";
@@ -10,7 +9,7 @@ import { SpineConst } from "../../../../SpineConst";
  * @en Unified Spine whole buffer that manages both vertex and index buffers
  * @zh 统一的 Spine 完整缓冲区，管理顶点和索引缓冲区
  */
-export class SpineWholeBuffer implements I2DGraphicWholeBuffer {
+export class SpineWholeBuffer {
     /**
      * @en Maximum vertices allowed per buffer
      * @zh 每个缓冲区允许的最大顶点数
@@ -37,29 +36,24 @@ export class SpineWholeBuffer implements I2DGraphicWholeBuffer {
     private static _globalTempIndexData: Uint16Array = new Uint16Array(SpineWholeBuffer.ARRAY_GROWTH_STEP_INDEX);
 
      /**
-     * @en Grow global arrays dynamically during traversal if needed
+     * @en Grow global assembly arrays before upload if needed
      * @zh 在遍历过程中如果需要则动态增长全局数组
      */
-    private static _growGlobalArraysIfNeeded(requiredVertexFloats: number, requiredIndexCount: number): boolean {
-        let result = false;
+    private static _growGlobalArraysIfNeeded(requiredVertexFloats: number, requiredIndexCount: number): void {
         if (requiredVertexFloats > SpineWholeBuffer._globalTempVertexData.length) {
             const newSize = Math.ceil(requiredVertexFloats / SpineWholeBuffer.ARRAY_GROWTH_STEP_VERTEX) * SpineWholeBuffer.ARRAY_GROWTH_STEP_VERTEX;
             SpineWholeBuffer._globalTempVertexData = new Float32Array(newSize);
-            result = true;
         }
 
         if (requiredIndexCount > SpineWholeBuffer._globalTempIndexData.length) {
             const newSize = Math.ceil(requiredIndexCount / SpineWholeBuffer.ARRAY_GROWTH_STEP_INDEX) * SpineWholeBuffer.ARRAY_GROWTH_STEP_INDEX;
             SpineWholeBuffer._globalTempIndexData = new Uint16Array(newSize);
-            result = true;
         }
-
-        return result;
     }
 
     /**
-     * @en Vertex buffer on GPU (also serves as the main buffer for I2DGraphicWholeBuffer interface)
-     * @zh GPU 上的顶点缓冲区（同时作为 I2DGraphicWholeBuffer 接口的主缓冲区）
+     * @en Vertex buffer on GPU
+     * @zh GPU 上的顶点缓冲区
      */
     vertexBuffer: IVertexBuffer;
 
@@ -82,14 +76,6 @@ export class SpineWholeBuffer implements I2DGraphicWholeBuffer {
     currentVertexCount: number = 0;
 
     /**
-     * @en Compatibility property for I2DGraphicWholeBuffer interface
-     * @zh I2DGraphicWholeBuffer 接口的兼容属性
-     */
-    get buffer(): IVertexBuffer | IIndexBuffer {
-        return this.vertexBuffer;
-    }
-
-    /**
      * @en Current allocated vertex capacity in floats
      * @zh 当前分配的顶点容量（float 数量）
      */
@@ -100,6 +86,12 @@ export class SpineWholeBuffer implements I2DGraphicWholeBuffer {
      * @zh 当前分配的索引容量
      */
     private _indexCapacity: number = 0;
+
+    /** Current total vertex data length of all attached views, in floats. */
+    private _vertexFloatCount: number = 0;
+
+    /** Current total index data length of all attached views. */
+    private _indexCount: number = 0;
 
     /**
      * @en Flag indicating if buffer needs to be reuploaded
@@ -150,13 +142,19 @@ export class SpineWholeBuffer implements I2DGraphicWholeBuffer {
         this._needResetData = true;
     }
 
-    /**
-     * @en Compatibility method for I2DGraphicWholeBuffer interface
-     * @zh I2DGraphicWholeBuffer 接口的兼容方法
-     */
-    resetData(byteLength: number): void {
-        let floatLength = byteLength / 4;
-        this.resetCapacity(floatLength, this._indexCapacity);
+    /** Ensure temporary assembly arrays and GPU buffers before upload starts. */
+    private _ensureCapacityForViews(): void {
+        SpineWholeBuffer._growGlobalArraysIfNeeded(this._vertexFloatCount, this._indexCount);
+
+        if (this._vertexFloatCount > this._vertexCapacity || this._indexCount > this._indexCapacity) {
+            const vertexCapacity = this._vertexFloatCount > this._vertexCapacity
+                ? Math.max(this._vertexFloatCount, this._vertexCapacity * 2)
+                : this._vertexCapacity;
+            const indexCapacity = this._indexCount > this._indexCapacity
+                ? Math.max(this._indexCount, this._indexCapacity * 2)
+                : this._indexCapacity;
+            this.resetCapacity(vertexCapacity, indexCapacity);
+        }
     }
 
     /**
@@ -181,6 +179,8 @@ export class SpineWholeBuffer implements I2DGraphicWholeBuffer {
         this._num++;
 
         this.currentVertexCount += view.vertexCount;
+        this._vertexFloatCount += view.vertexBufferLength;
+        this._indexCount += view.indexBufferLength;
 
         this._needResetData = true;
         //@ts-ignore
@@ -212,7 +212,34 @@ export class SpineWholeBuffer implements I2DGraphicWholeBuffer {
         this._num--;
 
         this.currentVertexCount -= view.vertexCount;
+        this._vertexFloatCount -= view.vertexBufferLength;
+        this._indexCount -= view.indexBufferLength;
 
+        this._needResetData = true;
+        //@ts-ignore
+        WebRender2DPass.setBuffer(this);
+    }
+
+    /**
+     * @en Detach every data view while retaining the GPU buffer allocation for reuse.
+     * @zh 移除全部数据视图，同时保留 GPU 缓冲区分配以便复用。
+     */
+    clearDataViews(): void {
+        let view = this._first;
+        while (view) {
+            const next = view._next;
+            view.owner = null;
+            view._prev = null;
+            view._next = null;
+            view = next;
+        }
+
+        this._first = null;
+        this._last = null;
+        this._num = 0;
+        this.currentVertexCount = 0;
+        this._vertexFloatCount = 0;
+        this._indexCount = 0;
         this._needResetData = true;
         //@ts-ignore
         WebRender2DPass.setBuffer(this);
@@ -236,102 +263,55 @@ export class SpineWholeBuffer implements I2DGraphicWholeBuffer {
     }
 
     /**
-     * @en Upload data to GPU by reassembling all views with proper offsets
-     * @zh 通过重组所有视图并应用正确的偏移将数据上传到 GPU
-     * Optimized: single pass through linked list, using global shared arrays with dynamic growth
+     * @en Upload final world-space vertex data by reassembling all views.
+     * @zh 通过重组所有 view 上传最终世界坐标顶点数据。
+     * View totals and capacities are maintained before upload, so this method only assembles once.
      */
     _upload(): void {
         if (!this._needResetData) return;
         if (!this._first) return;
 
-        let totalVertexFloats = 0;
-        let totalIndices = 0;
-        let vertexOffset = 0;
-        let indexOffset = 0;
-        let currentVertexIndex = 0; 
-        let view = this._first;
-
-        let requiredVertexFloats = 0;
-        let requiredIndexCount = 0;
-        let vertexData = SpineWholeBuffer._globalTempVertexData;
-        let indexData = SpineWholeBuffer._globalTempIndexData;
-        const vertexStride = 12; // VERTEX_TWOCOLOR
-        while (view) {
-            if (view.vertexBufferLength > 0) {
-                requiredVertexFloats = vertexOffset + view.vertexBufferLength;
-                requiredIndexCount = indexOffset + view.indexBufferLength;
-
-                if (SpineWholeBuffer._growGlobalArraysIfNeeded(requiredVertexFloats, requiredIndexCount)) {
-                    vertexData = SpineWholeBuffer._globalTempVertexData;
-                    indexData = SpineWholeBuffer._globalTempIndexData;
-                }
-
-                if (view.cacheVertex) {
-                    let cacheVertex = view.cacheVertex;
-                    vertexData.set(
-                        cacheVertex.subarray(0, view.vertexBufferLength),
-                        vertexOffset
-                    );
-
-                    if (view.matrix) {
-                        let a = view.matrix.a;
-                        let b = view.matrix.b;
-                        let c = view.matrix.c;
-                        let d = view.matrix.d;
-                        let tx = view.matrix.tx;
-                        let ty = view.matrix.ty;
-                        let offsetX = view.offsetX;
-                        let offsetY = view.offsetY;
-
-                        for (let i = 0; i < view.vertexBufferLength; i += vertexStride) {
-                            let index = vertexOffset + i;
-                           
-                            let x = cacheVertex[i + 6] + offsetX;
-                            let y = cacheVertex[i + 7] + offsetY;
-                            vertexData[index + 6] = a * x + c * y + tx;
-                            vertexData[index + 7] = -b * x - d * y + ty;
-                        }
-                    }
-
-                    for (let i = 0; i < view.indexCount; i++) {
-                        indexData[indexOffset + i] = view.cacheIndex[i] + currentVertexIndex;
-                    }
-                } else {
-                    vertexData.set(
-                        view.vertexData.subarray(0, view.vertexBufferLength),
-                        vertexOffset
-                    );
-
-                    for (let i = 0; i < view.indexCount; i++) {
-                        indexData[indexOffset + i] = view.indexData[i] + currentVertexIndex;
-                    }
-                }
-
-                if (view.geometry) {
-                    view.geometry.clearRenderParams();
-                    view.geometry.setDrawElemenParams(view.indexCount, indexOffset * 2);
-                }
-
-                totalVertexFloats = requiredVertexFloats;
-                totalIndices = requiredIndexCount;
-                vertexOffset += view.vertexBufferLength;
-                indexOffset += view.indexBufferLength;
-                currentVertexIndex += view.vertexCount;
-            }
-
-            view = view._next;
-        }
+        const totalVertexFloats = this._vertexFloatCount;
+        const totalIndices = this._indexCount;
 
         if (totalVertexFloats === 0 || totalIndices === 0) {
             this._needResetData = false;
             return;
         }
 
-        if (totalVertexFloats > this._vertexCapacity || totalIndices > this._indexCapacity) {
-            this.resetCapacity(
-                Math.max(totalVertexFloats, this._vertexCapacity * 2),
-                Math.max(totalIndices, this._indexCapacity * 2)
-            );
+        // Views may be transferred to a batch buffer after addDataView().
+        // Grow only for the final set that is actually uploaded by this buffer.
+        this._ensureCapacityForViews();
+
+        const vertexData = SpineWholeBuffer._globalTempVertexData;
+        const indexData = SpineWholeBuffer._globalTempIndexData;
+        let vertexOffset = 0;
+        let indexOffset = 0;
+        let currentVertexIndex = 0;
+        let view = this._first;
+
+        while (view) {
+            if (view.vertexBufferLength > 0) {
+
+                let sourceIndex = view.cacheIndex || view.indexData;
+                vertexData.set(view.getUploadVertexData(), vertexOffset);
+
+                for (let i = 0; i < view.indexCount; i++) {
+                    indexData[indexOffset + i] = sourceIndex[i] + currentVertexIndex;
+                }
+
+                if (view.geometry) {
+                    view.geometry.clearRenderParams();
+                    view.geometry.bufferState = this.bufferState;
+                    view.geometry.setDrawElemenParams(view.indexCount, indexOffset * 2);
+                }
+
+                vertexOffset += view.vertexBufferLength;
+                indexOffset += view.indexBufferLength;
+                currentVertexIndex += view.vertexCount;
+            }
+
+            view = view._next;
         }
 
         this.vertexBuffer.setData(
@@ -364,6 +344,8 @@ export class SpineWholeBuffer implements I2DGraphicWholeBuffer {
     destroy(): void {
         this._first = null;
         this._last = null;
+        this.vertexBuffer?.destroy();
+        this.indexBuffer?.destroy();
         this.vertexBuffer = null;
         this.indexBuffer = null;
     }

@@ -2,10 +2,10 @@ import { Pool } from "../../utils/Pool";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Config } from "../../../Config";
 import { Rectangle } from "../../maths/Rectangle";
-import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { IGraphicsBoundsAssembler, IGraphicsCmd, type IGraphicsCommandExecutor } from "../IGraphics";
 import { Browser } from "../../utils/Browser";
-import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 import { Render2DProcessor } from "../Render2DProcessor";
+import type { TextRenderTextureSink } from "../../webgl/text/TextRender";
 
 const className = "FillTextCmd";
 const ITALIC_SKEW_RATIO = 0.231; // Math.tan(13 * Math.PI / 180)
@@ -247,7 +247,16 @@ export class FillTextCmd implements IGraphicsCmd {
      * @param gx 全局X偏移
      * @param gy 全局Y偏移
      */
-    run(runner: GraphicsRunner, gx: number, gy: number): void {
+    run(runner: IGraphicsCommandExecutor, gx: number, gy: number): void {
+        this._renderText(runner, gx, gy);
+    }
+
+    /** @internal */
+    emitTextureQuads(runner: IGraphicsCommandExecutor, gx: number, gy: number, drawTexture: TextRenderTextureSink): void {
+        this._renderText(runner, gx, gy, drawTexture);
+    }
+
+    private _renderText(runner: IGraphicsCommandExecutor, gx: number, gy: number, drawTexture?: TextRenderTextureSink): void {
         if (!this.text) {
             if (this._renderInfo)
                 runner._textRender.freeRenderInfo(this._renderInfo);
@@ -269,7 +278,7 @@ export class FillTextCmd implements IGraphicsCmd {
             this.fontSize, this.bold, this.italic,
             this.color, this.stroke, this.strokeColor,
             this.letterSpacing, this.shadowOffsetX, this.shadowOffsetY, this.shadowBlur, this.shadowColor,
-            this.singleCharRender, tw, this._renderInfo
+            this.singleCharRender, tw, this._renderInfo, drawTexture
         );
     }
 

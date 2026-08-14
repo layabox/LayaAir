@@ -96,6 +96,11 @@ export class Stat {
      * @zh 开启或关闭不透明物体渲染。
      */
     public static enableOpaque: boolean = true;
+    /**
+     * @en
+     * @zh 开启或关闭Spine渲染
+     */
+    public static enableSpine: boolean = true;
 
     static _statUIClass: typeof StatUI;
     static _statUI: StatUI;

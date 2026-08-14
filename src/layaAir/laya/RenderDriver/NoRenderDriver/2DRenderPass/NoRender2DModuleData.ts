@@ -16,19 +16,18 @@ import { ShaderDefines2D } from "../../../webgl/shader/d2/ShaderDefines2D";
 import { BaseRenderNode2D } from "../../../NodeRender2D/BaseRenderNode2D";
 import { IRenderContext2D } from "../../DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../../DriverDesign/2DRenderPass/IRenderElement2D";
-import { IIndexBuffer } from "../../DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
-import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
+import type { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { IClipInfo, IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
-import { I2DBaseRenderDataHandle, I2DGraphicBufferDataView, I2DGraphicIndexDataView, I2DGraphicVertexDataView, I2DGlobalRenderData, I2DGraphicWholeBuffer, I2DPrimitiveDataHandle, IGraphics2DBufferBlock, IGraphics2DVertexBlock, IMesh2DRenderDataHandle, IRender2DDataHandle, ISpineRenderDataHandle } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
+import { I2DBaseRenderDataHandle, I2DGlobalRenderData, IGraphicsSingleQuadDataHandle, IGraphicsCommandStreamDataHandle, ISubStructRenderDataHandle, IGraphicsOp2D, IMesh2DRenderDataHandle, IRender2DDataHandle } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { Stat } from "../../../utils/Stat";
-import { SpineShaderInit } from "../../../spine/shader/SpineShaderInit";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { RenderState2D } from "../../../webgl/utils/RenderState2D";
 import { PostProcess2D } from "../../../display/PostProcess2D";
 import { FastSinglelist } from "../../../utils/SingletonList";
+import { GraphicsHandleUpdateField } from "../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
 
 // ─── Global Render Data ───
 
@@ -37,240 +36,6 @@ export class NoRenderGlobalRenderData implements I2DGlobalRenderData {
     renderLayerMask: number;
     globalShaderData: ShaderData;
 }
-
-// ─── Buffer Block / Vertex Block (pure data, no GPU) ───
-
-export class NoRenderGraphics2DBufferBlock implements IGraphics2DBufferBlock {
-    vertexs: IGraphics2DVertexBlock[];
-    indexView: I2DGraphicIndexDataView;
-    vertexBuffer: IVertexBuffer;
-    textureArrayIndex: number;
-}
-
-export class NoRenderGraphics2DVertexBlock implements IGraphics2DVertexBlock {
-    positions: number[];
-    vertexViews: I2DGraphicVertexDataView[];
-}
-
-// ─── Buffer Data Views ───
-
-abstract class NoRenderBufferDataView implements I2DGraphicBufferDataView {
-    abstract setData(data: ArrayLike<number>): void;
-    start: number;
-    length: number;
-    owner: NoRenderWholeBuffer;
-    _next: NoRenderBufferDataView;
-    _prev: NoRenderBufferDataView;
-}
-
-export class NoRenderVertexDataView extends NoRenderBufferDataView implements I2DGraphicVertexDataView {
-    stride: number = 1;
-    private _view: Float32Array;
-
-    constructor(owner: NoRenderGraphicVertexBuffer, start: number, length: number, stride: number = 1) {
-        super();
-        this.owner = owner;
-        this.start = start;
-        this.length = length;
-        this.stride = stride;
-        this._updateView(owner._dataView);
-        owner.addDataView(this);
-    }
-
-    _getData(): Float32Array { return this._view; }
-
-    _updateView(wholeData: Float32Array) {
-        if (!this._view || this._view.buffer !== wholeData.buffer) {
-            this._view = new Float32Array(wholeData.buffer, this.start * 4, this.length);
-        }
-    }
-
-    _modify() {
-        this.owner._modifyOneView(this);
-    }
-
-    setData(data: ArrayLike<number>): void {
-        this._view.set(data);
-        this._modify();
-    }
-}
-
-export class NoRenderIndexDataView extends NoRenderBufferDataView implements I2DGraphicIndexDataView {
-    protected _view: Uint16Array;
-    _geometry: IRenderGeometryElement;
-
-    constructor(owner: NoRenderGraphicIndexBuffer, length: number, create: boolean = true) {
-        super();
-        this.owner = owner;
-        this.length = length;
-        if (create) {
-            this._view = new Uint16Array(length);
-        }
-    }
-
-    setGeometry(value: IRenderGeometryElement): void {
-        this._geometry = value;
-    }
-
-    setData(data: ArrayLike<number>): void {
-        this._view.set(data as Uint16Array);
-        this.owner._modifyOneView(this);
-    }
-
-    _updateView(wholeData: Uint16Array) {
-        wholeData.set(this._view, this.start);
-    }
-
-    destroy(): void {
-        this._view = null;
-        this._geometry = null;
-        this.owner = null;
-        this._next = null;
-        this._prev = null;
-    }
-}
-
-// ─── Whole Buffer (linked list of data views, no GPU upload) ───
-
-abstract class NoRenderWholeBuffer implements I2DGraphicWholeBuffer {
-    buffer: IIndexBuffer | IVertexBuffer;
-    _dataView: Float32Array | Uint16Array;
-    arrayBuffer: ArrayBuffer;
-    _needResetData: boolean;
-    _inPass: boolean;
-
-    protected _num: number = 0;
-    _first: NoRenderBufferDataView;
-    _last: NoRenderBufferDataView;
-
-    abstract resetData(byteLength: number): void;
-    abstract _upload(): void;
-
-    _modifyOneView(view: NoRenderBufferDataView) {
-        // no-op for NoRender
-    }
-
-    addDataView(view: NoRenderBufferDataView) {
-        view._next = null;
-        view._prev = null;
-        if (!this._first) {
-            this._first = view;
-        }
-        if (this._last) {
-            this._last._next = view;
-            view._prev = this._last;
-        }
-        view.owner = this;
-        this._last = view;
-        this._num++;
-    }
-
-    removeDataView(view: NoRenderBufferDataView): void {
-        view.owner = null;
-        if (view._prev) view._prev._next = view._next;
-        if (view._next) view._next._prev = view._prev;
-        if (view === this._first) this._first = view._next;
-        if (view === this._last) this._last = view._prev;
-        view._next = null;
-        view._prev = null;
-        this._num--;
-    }
-
-    destroy() {
-        this._first = null;
-        this._last = null;
-        this._dataView = null;
-        this.arrayBuffer = null;
-    }
-}
-
-export class NoRenderGraphicVertexBuffer extends NoRenderWholeBuffer {
-    declare buffer: IVertexBuffer;
-    declare _dataView: Float32Array;
-    declare _first: NoRenderVertexDataView;
-    declare _last: NoRenderVertexDataView;
-
-    resetData(byteLength: number) {
-        this.arrayBuffer = new ArrayBuffer(byteLength);
-        let newData = new Float32Array(this.arrayBuffer);
-        if (this._dataView) {
-            newData.set(this._dataView);
-        }
-        this._dataView = newData;
-        this._needResetData = true;
-    }
-
-    _upload() {
-        if (this._needResetData) {
-            let view = this._first as NoRenderVertexDataView;
-            while (view) {
-                view._updateView(this._dataView);
-                view = view._next as NoRenderVertexDataView;
-            }
-            this.buffer.setData(this.arrayBuffer, 0, 0, this.arrayBuffer.byteLength);
-            this._needResetData = false;
-        }
-    }
-}
-
-export class NoRenderGraphicIndexBuffer extends NoRenderWholeBuffer {
-    declare buffer: IIndexBuffer;
-    declare _dataView: Uint16Array;
-    declare _first: NoRenderIndexDataView;
-    declare _last: NoRenderIndexDataView;
-
-    resetData(byteLength: number) {
-        this.arrayBuffer = new ArrayBuffer(byteLength);
-        let newData = new Uint16Array(this.arrayBuffer);
-        if (this._dataView) {
-            newData.set(this._dataView);
-        }
-        this._dataView = newData;
-        this._needResetData = true;
-    }
-
-    _upload() {
-        if (!this._num) return;
-        let view = this._first as NoRenderIndexDataView;
-        let start = 0;
-        let length = 0;
-        let geometry = view._geometry;
-        let needUpdate = false;
-        let uploadStart = this._needResetData ? 0 : 0;
-
-        while (view) {
-            if (geometry !== view._geometry) {
-                if (needUpdate) {
-                    geometry.clearRenderParams();
-                    geometry.setDrawElemenParams(length, start * 2);
-                }
-                geometry = view._geometry;
-                start = start + length;
-                length = 0;
-            }
-
-            start = start + length;
-            needUpdate = this._needResetData || start >= uploadStart;
-
-            if (needUpdate) {
-                view.start = start;
-                view._updateView(this._dataView);
-            }
-
-            length += view.length;
-            view = view._next as NoRenderIndexDataView;
-        }
-
-        if (needUpdate) {
-            geometry.clearRenderParams();
-            geometry.setDrawElemenParams(length, start * 2);
-        }
-
-        this._needResetData = false;
-    }
-}
-
-// ─── Render Data Handles ───
 
 abstract class NoRenderDataHandleBase implements IRender2DDataHandle {
     protected _owner: NoRenderStruct2D;
@@ -302,28 +67,12 @@ export class NoRenderEmptyDataHandle extends NoRenderDataHandleBase {
     destroy(): void { }
 }
 
-export class NoRenderPrimitiveDataHandle extends NoRenderDataHandleBase implements I2DPrimitiveDataHandle {
+export class NoRenderSubStructDataHandle extends NoRenderDataHandleBase implements ISubStructRenderDataHandle {
     logicMatrix: Matrix | null = null;
     mask: NoRenderStruct2D | null = null;
 
-    private _bufferBlocks: IGraphics2DBufferBlock[] = null;
     private _modifiedFrame: number = -1;
     private _globalAlpha: number = 1;
-
-    applyVertexBufferBlock(blocks: IGraphics2DBufferBlock[]): void {
-        this._bufferBlocks = blocks;
-        this._globalAlpha = this._owner.globalAlpha;
-        if (this._owner.trans) {
-            this._modifiedFrame = this._owner.trans.modifiedFrame;
-        }
-    }
-
-    skipBufferUpdate() {
-        if (this._owner.trans) {
-            this._modifiedFrame = this._owner.trans.modifiedFrame;
-        }
-    }
-
     inheriteRenderData(context: IRenderContext2D): void {
         let data = this._owner.spriteShaderData;
         if (!data) return;
@@ -332,29 +81,93 @@ export class NoRenderPrimitiveDataHandle extends NoRenderDataHandleBase implemen
         let mat = trans.matrix;
 
         if (this._modifiedFrame < trans.modifiedFrame) {
-            if (!this._bufferBlocks || !this._bufferBlocks.length) {
-                if (this.logicMatrix) {
-                    let temp = Matrix.TEMP;
-                    Matrix.mul(this.logicMatrix, mat.copyTo(temp), temp);
-                    this._nMatrix_0.setValue(temp.a, temp.c, temp.tx);
-                    this._nMatrix_1.setValue(temp.b, temp.d, temp.ty);
-                } else {
-                    this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
-                    this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
-                }
-                data.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
-                data.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
+            if (this.logicMatrix) {
+                let temp = Matrix.TEMP;
+                Matrix.mul(this.logicMatrix, mat.copyTo(temp), temp);
+                this._nMatrix_0.setValue(temp.a, temp.c, temp.tx);
+                this._nMatrix_1.setValue(temp.b, temp.d, temp.ty);
+            } else {
+                this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
+                this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
             }
+            data.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
+            data.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
             this._modifiedFrame = trans.modifiedFrame;
         } else if (this._globalAlpha !== this._owner.globalAlpha) {
             this._globalAlpha = this._owner.globalAlpha;
         }
     }
 
-    destroy(): void {
-        super.destroy();
-        this._bufferBlocks = null;
-    }
+}
+
+export class NoRenderGraphicsSingleQuadDataHandle extends NoRenderDataHandleBase implements IGraphicsSingleQuadDataHandle {
+	private _graphicsSubShader: SubShader | null = null;
+	private _graphicsShaderData: ShaderData | null = null;
+	private _singleQuadPayloadBuffer: ArrayBuffer = null;
+
+	setGraphicsHandleUpdateBuffer(_buffer: ArrayBuffer): void {
+	}
+
+	setGraphicsMaterialState(subShader: SubShader | null, shaderData: ShaderData | null, _useSpriteState: boolean): void {
+		this._graphicsSubShader = subShader || null;
+		this._graphicsShaderData = shaderData || null;
+	}
+
+	setSingleQuadPayloadBuffer(buffer: ArrayBuffer): void {
+		if (this._singleQuadPayloadBuffer === buffer)
+			return;
+		if (this._singleQuadPayloadBuffer)
+			throw new Error("SingleQuad payload buffer can only be bound once");
+		this._singleQuadPayloadBuffer = buffer;
+	}
+
+	syncSingleQuad(_texture: BaseTexture | null): boolean {
+		return !!this._singleQuadPayloadBuffer;
+	}
+
+	deactivateSingleQuad(): void {
+	}
+
+	destroy(): void {
+		this._graphicsSubShader = null;
+		this._graphicsShaderData = null;
+		this._singleQuadPayloadBuffer = null;
+		super.destroy();
+	}
+}
+
+export class NoRenderGraphicsCommandStreamDataHandle extends NoRenderDataHandleBase implements IGraphicsCommandStreamDataHandle {
+	readonly autoGraphicsDirtySync: boolean = false;
+	private _graphicsSubShader: SubShader | null = null;
+	private _graphicsShaderData: ShaderData | null = null;
+	private _graphicsHandleUpdateInt32: Int32Array = null;
+
+	setGraphicsHandleUpdateBuffer(buffer: ArrayBuffer): void {
+		this._graphicsHandleUpdateInt32 = buffer ? new Int32Array(buffer) : null;
+	}
+
+	setGraphicsMaterialState(subShader: SubShader | null, shaderData: ShaderData | null, _useSpriteState: boolean): void {
+		this._graphicsSubShader = subShader || null;
+		this._graphicsShaderData = shaderData || null;
+	}
+
+	syncGraphicsOps(_ops: ReadonlyArray<IGraphicsOp2D>): void {
+		let update = this._graphicsHandleUpdateInt32;
+		if (!update)
+			return;
+		update[GraphicsHandleUpdateField.HandledTopologyVersion] = update[GraphicsHandleUpdateField.TopologyVersion];
+		update[GraphicsHandleUpdateField.HandledVersion] = update[GraphicsHandleUpdateField.UpdateVersion];
+	}
+
+	deactivateGraphicsOps(): void {
+	}
+
+	destroy(): void {
+		this._graphicsSubShader = null;
+		this._graphicsShaderData = null;
+		this._graphicsHandleUpdateInt32 = null;
+		super.destroy();
+	}
 }
 
 export class NoRenderBaseDataHandle extends NoRenderDataHandleBase implements I2DBaseRenderDataHandle {
@@ -448,73 +261,15 @@ export class NoRenderMeshDataHandle extends NoRenderBaseDataHandle implements IM
     }
 }
 
-export class NoRenderSpineDataHandle extends NoRenderBaseDataHandle implements ISpineRenderDataHandle {
-    private _renderAlpha = -1;
-    private _baseColor: Color = new Color(1, 1, 1, 1);
-    skeleton: spine.Skeleton;
-    private _offset: Vector2;
-
-    get baseColor(): Color { return this._baseColor; }
-    set baseColor(value: Color) {
-        if (value !== this._baseColor && this._baseColor.equal(value)) return;
-        value = value ? value : Color.BLACK;
-        value.cloneTo(this._baseColor);
-        this._renderAlpha = -1;
-        this._owner?.spriteShaderData?.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, this._baseColor);
-    }
-
-    get offset(): Vector2 { return this._offset; }
-    set offset(value: Vector2) { this._offset = value; }
-
-    get owner(): NoRenderStruct2D { return this._owner; }
-    set owner(value: NoRenderStruct2D) {
-        if (value === this._owner) return;
-        if (this._owner?.spriteShaderData) {
-            let sd = this._owner.spriteShaderData;
-            sd.removeDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
-            sd.removeDefine(SpineShaderInit.SPINE_UV);
-            sd.removeDefine(SpineShaderInit.SPINE_COLOR);
-        }
-        this._owner = value;
-        if (this._owner?.spriteShaderData) {
-            let sd = this._owner.spriteShaderData;
-            sd.addDefine(BaseRenderNode2D.SHADERDEFINE_BASERENDER2D);
-            sd.addDefine(SpineShaderInit.SPINE_UV);
-            sd.addDefine(SpineShaderInit.SPINE_COLOR);
-        }
-    }
-
-    inheriteRenderData(context: IRenderContext2D): void {
-        if (!this._owner?.spriteShaderData || !this.skeleton) return;
-        let shaderData = this._owner.spriteShaderData;
-        let mat = this._owner.renderMatrix;
-        if (this._offset) {
-            let ofx = this._offset.x, ofy = this._offset.y;
-            this._nMatrix_0.setValue(mat.a, mat.c, mat.tx + mat.a * ofx + mat.c * ofy);
-            this._nMatrix_1.setValue(mat.b, mat.d, mat.ty + mat.b * ofx + mat.d * ofy);
-        } else {
-            this._nMatrix_0.setValue(mat.a, mat.c, mat.tx);
-            this._nMatrix_1.setValue(mat.b, mat.d, mat.ty);
-        }
-        shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_0, this._nMatrix_0);
-        shaderData.setVector3(ShaderDefines2D.UNIFORM_NMATRIX_1, this._nMatrix_1);
-
-        if (this._renderAlpha !== this._owner.globalAlpha) {
-            let a = this._owner.globalAlpha * this._baseColor.a;
-            _setRenderColor.setValue(this._baseColor.r, this._baseColor.g, this._baseColor.b, a);
-            this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, _setRenderColor);
-            this._renderAlpha = this._owner.globalAlpha;
-        }
-    }
-}
-
-// ─── Render Struct 2D ───
+// ─── Global Render Data ───
 
 const _DefaultClipInfo: IClipInfo = {
     clipMatrix: new Matrix(),
     clipMatDir: new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE),
     clipMatPos: new Vector4(0, 0, 0, 0),
-    _updateFrame: 0
+    _updateFrame: 0,
+    clipDepth: 0,
+    clipParent: null
 };
 
 interface StructTransform {
@@ -548,6 +303,7 @@ enum ChildrenUpdateType {
 
 export class NoRenderStruct2D implements IRenderStruct2D {
     owner: Sprite;
+    transSlot: number = -1;
     manualRender: boolean = false;
     _parentData: ParentData = { ..._DefaultParentData };
     _currentData: ParentData = this._parentData;
@@ -582,14 +338,13 @@ export class NoRenderStruct2D implements IRenderStruct2D {
 
     trans: StructTransform;
 
+    getRenderMatrixVersion(): number { return 0; }
     get renderMatrix(): Matrix { return this.trans.matrix; }
     set renderMatrix(value: Matrix) {
-        if (this.trans) {
-            this.trans.matrix = value;
-            this.trans.modifiedFrame = Stat.loopCount;
-        } else {
-            this.trans = { matrix: value, modifiedFrame: Stat.loopCount };
-        }
+        if (!this.trans)
+            this.trans = { matrix: new Matrix(), modifiedFrame: 0 };
+        value.copyTo(this.trans.matrix);
+        this.trans.modifiedFrame = Stat.loopCount;
     }
 
     get globalAlpha(): number { return this._currentData.globalAlpha; }
@@ -612,6 +367,7 @@ export class NoRenderStruct2D implements IRenderStruct2D {
     }
 
     needUploadClip = -1;
+    private _clipOffset: Vector2 = new Vector2();
     needUploadAlpha = true;
     enabled: boolean = true;
     isRenderStruct: boolean = false;
@@ -715,7 +471,9 @@ export class NoRenderStruct2D implements IRenderStruct2D {
     _clipRect: Rectangle = null;
     _clipInfo: IClipInfo = null;
 
-    setRenderUpdateCallback(func: Function): void { this._rnUpdateFun = func; }
+    setRenderUpdateCallback(func: Function): void {
+        this._rnUpdateFun = func;
+    }
 
     _handleInterData(): void {
         let rect = this._clipRect;
@@ -733,17 +491,24 @@ export class NoRenderStruct2D implements IRenderStruct2D {
                     width = Math.max(width, 0.0001);
                     height = Math.max(height, 0.0001);
                     let tx = mat.tx, ty = mat.ty;
-                    cm.tx = x * mat.a + y * mat.c + tx;
-                    cm.ty = x * mat.b + y * mat.d + ty;
-                    cm.a = width * mat.a;
-                    cm.b = width * mat.b;
-                    cm.c = height * mat.c;
-                    cm.d = height * mat.d;
+                    let maskA = width * mat.a, maskB = width * mat.b;
+                    let maskC = height * mat.c, maskD = height * mat.d;
+                    let parentOffsetX = 0, parentOffsetY = 0;
+                    let rawClipX = x * mat.a + y * mat.c + tx;
+                    let rawClipY = x * mat.b + y * mat.d + ty;
+                    cm.tx = tx;
+                    cm.ty = ty;
+                    cm.a = maskA;
+                    cm.b = maskB;
+                    cm.c = maskC;
+                    cm.d = maskD;
 
                     if (parentClipUpdateFrame !== -1) {
                         let parentClipPos = clipInfo.clipMatPos;
                         let offsetx = parentClipPos.z - parentClipPos.x;
                         let offsety = parentClipPos.w - parentClipPos.y;
+                        parentOffsetX = offsetx;
+                        parentOffsetY = offsety;
                         if (cm.a > 0 && cm.d > 0) {
                             let parentMat = clipInfo.clipMatrix;
                             let parentMinX = parentMat.tx;
@@ -767,9 +532,13 @@ export class NoRenderStruct2D implements IRenderStruct2D {
                         }
                         tx += offsetx;
                         ty += offsety;
+                        cm.tx = tx;
+                        cm.ty = ty;
                     }
                     info.clipMatDir.setValue(cm.a, cm.b, cm.c, cm.d);
-                    info.clipMatPos.setValue(cm.tx, cm.ty, tx, ty);
+                    info.clipMatPos.setValue(rawClipX, rawClipY, tx, ty);
+                    info.clipDepth = (parentClipUpdateFrame !== -1 ? clipInfo.clipDepth : 0) + 1;
+                    info.clipParent = parentClipUpdateFrame !== -1 ? clipInfo : null;
                     info._updateFrame = Math.max(trans.modifiedFrame, parentClipUpdateFrame);
                 }
             }
@@ -780,8 +549,8 @@ export class NoRenderStruct2D implements IRenderStruct2D {
             let info = this.getClipInfo();
             if (info !== _DefaultClipInfo) {
                 if (this.needUploadClip < info._updateFrame) {
-                    data.setVector(ShaderDefines2D.UNIFORM_CLIPMATDIR, info.clipMatDir);
-                    data.setVector(ShaderDefines2D.UNIFORM_CLIPMATPOS, info.clipMatPos);
+                    this._clipOffset.setValue(info.clipMatPos.z - info.clipMatPos.x, info.clipMatPos.w - info.clipMatPos.y);
+                    data.setVector2(ShaderDefines2D.UNIFORM_CLIPOFFSET, this._clipOffset);
                     this.needUploadClip = info._updateFrame;
                 }
                 if (!this._uniformClip) {
@@ -816,9 +585,18 @@ export class NoRenderStruct2D implements IRenderStruct2D {
 
     private _initClipInfo(): void {
         if (!this._clipInfo) {
-            this._clipInfo = { clipMatDir: new Vector4, clipMatPos: new Vector4, clipMatrix: new Matrix, _updateFrame: -1 };
+            this._clipInfo = {
+                clipMatDir: new Vector4,
+                clipMatPos: new Vector4,
+                clipMatrix: new Matrix,
+                _updateFrame: -1,
+                clipDepth: 1,
+                clipParent: null
+            };
         } else {
             this._clipInfo._updateFrame = -1;
+            this._clipInfo.clipDepth = 1;
+            this._clipInfo.clipParent = null;
         }
     }
 
@@ -930,7 +708,7 @@ export class NoRenderStruct2D implements IRenderStruct2D {
     }
 }
 
-// ─── Render2D Pass (simplified, no GPU render) ───
+// ─── Global Render Data ───
 
 export class NoRender2DPass implements IRender2DPass {
     _priority: number = 0;
@@ -986,7 +764,6 @@ export class NoRender2DPass implements IRender2DPass {
         if (this.repaint && this.root) {
             this._walkAndRenderUpdate(context, this.root);
         }
-
         this.repaint = false;
     }
 

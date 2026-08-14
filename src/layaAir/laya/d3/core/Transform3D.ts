@@ -91,8 +91,8 @@ export class Transform3D extends EventDispatcher {
 
     /** @internal */
     _parent: Transform3D | null = null;
-    /**@internal */
-    private _transformFlag: number = 0;
+    /**@internal protected 以便 LayaXTransform3D 热路径直读(手动内联,conch 老 V8 不内联多层 getter 链) */
+    protected _transformFlag: number = 0;
 
     /**
      * @internal

@@ -7,12 +7,14 @@ import MathGLSL from "../d2/files/Math.glsl";
 import Sprite2DFrag from './NewShader/Sprite2DFrag.glsl';
 import ClipFrag from './NewShader/ClipFrag.glsl';
 import ClipVertex from './NewShader/ClipVertex.glsl';
+import StendcilMask from "./NewShader/StencilMask2D.fs";
 // import Sprite2DShaderInfo from './NewShader/Sprite2DShaderInfo.glsl';
 import Sprite2DVertex from './NewShader/Sprite2DVertex.glsl';
 import OutputTransformGLSL from "./files/OutputTransform.glsl";
 import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { ShaderDefines2D } from "./ShaderDefines2D";
 
 export class Shader2D {
     /**@internal */
@@ -21,7 +23,10 @@ export class Shader2D {
     // static primitiveShader: Shader3D;
     /**@internal */
     static render2DNodeShader: Shader3D;
-
+    /**@internal */
+    private static _stencilMaskShaderMap: Map<string, Shader3D> = new Map();
+    /** @internal */
+    static stencilShader:Shader3D;
     /**
      * @internal
      */
@@ -85,6 +90,11 @@ export class Shader2D {
         subShader = new SubShader(Shader2D.Render2DNodeAttribute, {}, {});
         Shader2D.render2DNodeShader.addSubShader(subShader);
         subShader.addShaderPass(baseRender2D_vs, baseRender2D_ps);
+
+        Shader2D.stencilShader = Shader3D.add("StencilMask2D", false, false);
+        subShader = new SubShader(Shader2D.Render2DNodeAttribute, {}, {});
+        Shader2D.stencilShader .addSubShader(subShader);
+        subShader.addShaderPass(baseRender2D_vs, StendcilMask);
     }
 }
 

@@ -180,15 +180,7 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
 
         // 从 renderBatches 提取生成提交数组（subMeshes 和 materials）
         this._currentBatchIndex = blockCount - 1;
-        this.subMeshes.length = blockCount;
-        this.materials.length = blockCount;
-        for (let i = 0; i < blockCount; i++) {
-            const batch = this.batches[i];
-            if (batch) {
-                this.subMeshes[i] = batch.geometry;
-                this.materials[i] = batch.material;
-            }
-        }
+        this._syncRenderBatches(blockCount);
         this._materialIndex = blockCount;
 
         // 标记需要更新
@@ -252,6 +244,24 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
     }
 
     /**
+     * @en Publishes only drawable batches. Render geometry and materials must remain a dense, parallel pair.
+     * @zh 仅提交可绘制批次。渲染几何体和材质必须保持稠密且一一对应。
+     */
+    private _syncRenderBatches(batchCount: number): void {
+        this.subMeshes.length = 0;
+        this.materials.length = 0;
+
+        for (let i = 0; i < batchCount; i++) {
+            const batch = this.batches[i];
+            if (!batch || !batch.material || batch.buffer.vertexLength === 0 || batch.buffer.indexLength === 0)
+                continue;
+
+            this.subMeshes.push(batch.geometry);
+            this.materials.push(batch.material);
+        }
+    }
+
+    /**
      * @en Get current submesh buffer (for compatibility).
      * @zh 获取当前 submesh 缓冲区（用于兼容性）。
      */
@@ -306,8 +316,6 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
         this._materialIndex = 0;
         this._currentBatchIndex = -1;
 
-        let currentBufferState: IBufferState;
-
         const startNewBatch = () => {
             // 如果当前批次有数据，先上传并完成当前批次
             if (this._currentBatchIndex >= 0) {
@@ -321,7 +329,6 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
 
             this._currentBatchIndex++;
             const batch = this.getCurrentBatch();
-            currentBufferState = batch.buffer.bufferState;
 
             batch.buffer.vertexLength = 0;
             batch.buffer.indexLength = 0;
@@ -331,13 +338,10 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
             batch.buffer.offsetX = offsetX;
             batch.buffer.offsetY = offsetY;
 
-            if ( this._currentBatchIndex > 0) {
-                batch.material = this.batches[this._currentBatchIndex - 1].material;
-                batch.materialIndex = this.batches[this._currentBatchIndex - 1].materialIndex;
-            }
+            const materialIndex = this._materialIndex - 1;
+            batch.material = materialIndex >= 0 ? this._internalMaterials[materialIndex] : null;
+            batch.materialIndex = materialIndex;
         };
-
-        startNewBatch();
 
         for (let i = 0, n = drawOrder.length; i < n; i++) {
             let clippedVertexStride = clipper.isClipping() ? 2 : vertexStride;
@@ -427,18 +431,16 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
                 }
 
                 if (needNewMat) {
+                    const needsNewBatch = this._currentBatchIndex < 0 || this.batches[this._currentBatchIndex].buffer.vertexLength > 0;
                     // 如果有当前批次且有数据，先完成当前批次
-                    if (this._currentBatchIndex >= 0) {
-                        const currentBatch = this.batches[this._currentBatchIndex];
-                        if (currentBatch && currentBatch.buffer.vertexLength > 0) {
-                            startNewBatch();
-                        }
-                    }
-
                     this.addMaterial(updater.owner._getMaterial(texture.realTexture, blendMode));
-                    const currentBatch = this.getCurrentBatch();
-                    currentBatch.material = this._internalMaterials[this._materialIndex - 1];
-                    currentBatch.materialIndex = this._materialIndex - 1;
+                    if (needsNewBatch) {
+                        startNewBatch();
+                    } else {
+                        const currentBatch = this.batches[this._currentBatchIndex];
+                        currentBatch.material = this._internalMaterials[this._materialIndex - 1];
+                        currentBatch.materialIndex = this._materialIndex - 1;
+                    }
                 }
 
                 if (clipper.isClipping()) {
@@ -465,9 +467,11 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
 
         if (this._currentBatchIndex >= 0) {
             const currentBatch = this.batches[this._currentBatchIndex];
-            currentBatch.geometry.clearRenderParams();
-            currentBatch.geometry.setDrawElemenParams(currentBatch.buffer.indexLength, 0);
-            this.uploadBuffer(currentBatch.buffer);
+            if (currentBatch.buffer.vertexLength > 0) {
+                currentBatch.geometry.clearRenderParams();
+                currentBatch.geometry.setDrawElemenParams(currentBatch.buffer.indexLength, 0);
+                this.uploadBuffer(currentBatch.buffer);
+            }
         }
 
         const totalBatchCount = this._currentBatchIndex + 1;
@@ -479,15 +483,7 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
         }
         this.batches.length = totalBatchCount;
         
-        this.subMeshes.length = totalBatchCount;
-        this.materials.length = totalBatchCount;
-        for (let i = 0; i < totalBatchCount; i++) {
-            const batch = this.batches[i];
-            if (batch) {
-                this.subMeshes[i] = batch.geometry;
-                this.materials[i] = batch.material;
-            }
-        }
+        this._syncRenderBatches(totalBatchCount);
 
         this.needUpdate = true;
 
@@ -498,7 +494,7 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
                 let renderBlocks = [];
                 for (let i = 0; i < totalBatchCount; i++) {
                     const batch = this.batches[i];
-                    if (batch) {
+                    if (batch && batch.material && batch.buffer.vertexLength > 0 && batch.buffer.indexLength > 0) {
                         renderBlocks.push({
                             vertexData: batch.buffer.vertexData.slice(0, batch.buffer.vertexLength),
                             vertexLength: batch.buffer.vertexLength,

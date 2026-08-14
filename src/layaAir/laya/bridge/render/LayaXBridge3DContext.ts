@@ -19,8 +19,14 @@ import { RenderState2D } from "../../webgl/utils/RenderState2D";
 export class LayaXBridge3DContext {
 	_nativeObj: any;
 
+	/** @internal clear 参数共享 Buffer：JS 写、C++ initBridge3DRenderPass 读。槽 0=depthBefore(i32) 1=depth(f32) 2=stencil(i32) */
+	private _clearBuf = new ArrayBuffer(3 * 4);
+	private _clearI32 = new Int32Array(this._clearBuf);
+	private _clearF32 = new Float32Array(this._clearBuf);
+
 	constructor() {
 		this._nativeObj = new (window as any).conchLayaXBridge3DContext();
+		this._nativeObj.bindPropertyBuffer(this._clearBuf);
 	}
 
 	setSceneModuleData(data: ISceneNodeData): void {
@@ -56,17 +62,17 @@ export class LayaXBridge3DContext {
 	}
 
 	setViewPort(vp: Viewport): void {
-		this._nativeObj.setViewport(vp);
+		// viewport 在 LayaX 路径无消费者（死数据），native 已删；保留空方法兼容接口。
 	}
 
 	setScissor(sc: Vector4): void {
-		this._nativeObj.setScissor(sc);
+		// scissor 同上，死数据，no-op。
 	}
 
 	setClearData(flag: number, color: Color, depthValue: number, stencilValue: number): void {
-		this._nativeObj.clearDepthBeforeRender = (flag & RenderClearFlag.Depth) !== 0;
-		this._nativeObj.clearDepth = depthValue;
-		this._nativeObj.clearStencil = stencilValue;
+		this._clearI32[0] = (flag & RenderClearFlag.Depth) !== 0 ? 1 : 0;
+		this._clearF32[1] = depthValue;
+		this._clearI32[2] = stencilValue;
 	}
 
 	setInvertMatrix(a: number, b: number, c: number, d: number, tx: number, ty: number): void {
@@ -78,27 +84,27 @@ export class LayaXBridge3DContext {
 	}
 
 	get clearDepthBeforeRender(): boolean {
-		return this._nativeObj.clearDepthBeforeRender;
+		return this._clearI32[0] !== 0;
 	}
 
 	set clearDepthBeforeRender(value: boolean) {
-		this._nativeObj.clearDepthBeforeRender = value;
+		this._clearI32[0] = value ? 1 : 0;
 	}
 
 	get clearDepth(): number {
-		return this._nativeObj.clearDepth;
+		return this._clearF32[1];
 	}
 
 	set clearDepth(value: number) {
-		this._nativeObj.clearDepth = value;
+		this._clearF32[1] = value;
 	}
 
 	get clearStencil(): number {
-		return this._nativeObj.clearStencil;
+		return this._clearI32[2];
 	}
 
 	set clearStencil(value: number) {
-		this._nativeObj.clearStencil = value;
+		this._clearI32[2] = value;
 	}
 
 	get pipelineMode(): PipelineMode {
@@ -158,12 +164,7 @@ export class LayaXBridge3DContext {
 	 * Update viewport/scissor from camera
 	 */
 	updateFromCamera(camera: Camera): void {
-		if (!camera) return;
-		const viewport = camera.viewport;
-		const vp = new Viewport(viewport.x, viewport.y, viewport.width, viewport.height);
-		this._nativeObj.setViewport(vp);
-		const sc = new Vector4(viewport.x, viewport.y, viewport.width, viewport.height);
-		this._nativeObj.setScissor(sc);
+		// viewport/scissor 在 LayaX 路径无消费者（死数据），已删 native；no-op 保留接口。
 	}
 
 	/**
@@ -172,11 +173,6 @@ export class LayaXBridge3DContext {
 	 * 同时设置 stageRenderSize
 	 */
 	prepareForRender(camera: Camera, context3d: IRenderContext3D): void {
-		this._nativeObj.prepareForRender(
-			(context3d as any)._nativeObj,
-			camera.viewport.x, camera.viewport.y,
-			camera.viewport.width, camera.viewport.height,
-			RenderState2D.width, RenderState2D.height
-		);
+		this._nativeObj.prepareForRender(RenderState2D.width, RenderState2D.height);
 	}
 }

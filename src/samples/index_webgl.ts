@@ -26,6 +26,7 @@ import { Web3DRenderModuleFactory } from "laya/RenderDriver/RenderModuleData/Web
 import { WebUnitRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/WebUnitRenderModuleDataFactory";
 import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";
 import { LayaGL } from "laya/layagl/LayaGL";
+import { TextureDemo } from "./3d/LayaAir3D_Texture/TextureDemo";
 
 LayaGL.unitRenderModuleDataFactory = new WebUnitRenderModuleDataFactory();
 Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();

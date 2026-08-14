@@ -48,6 +48,14 @@ export abstract class PostProcess2DEffect {
    abstract render(context: PostProcessRenderContext2D): void;
 
    /**
+    * @internal
+    * @en Releases texture bindings used as inputs by this effect.
+    * @zh 释放该效果使用的输入纹理绑定。
+    */
+   releaseInputTextureBindings(): void {
+   }
+
+   /**
     * @en Clears the render texture.
     * @param context The post-processing rendering context.
     * @zh 清理渲染纹理。

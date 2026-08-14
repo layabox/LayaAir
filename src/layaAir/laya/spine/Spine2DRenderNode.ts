@@ -8,12 +8,11 @@ import { Handler } from "../utils/Handler";
 import { ExternalSkin } from "./ExternalSkin";
 import { SpineTemplet } from "./SpineTemplet";
 import { Event } from "../events/Event";
-import { LayaGL } from "../layagl/LayaGL";
 import { SpineShaderInit } from "./shader/SpineShaderInit";
 import { Material } from "../resource/Material";
 import { ClassUtils } from "../utils/ClassUtils";
 import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
-import { ISpineRenderDataHandle } from "../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { ISpineRenderDataHandle } from "./interface/ISpineRenderDataHandle";
 import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
 import { ShaderFeatureType } from "../RenderEngine/RenderShader/Shader3D";
@@ -63,6 +62,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     private _pause: boolean = true;
     private _needUpdate: boolean = false;
+    /** @internal 是否已在 onDisable 释放渲染资源(避免重复释放,init 重建时复位) */
+    private _leakReleased: boolean = false;
+    /** @internal onDisable 释放时保留的 templet 普通引用(不加引用计数,允许其被自动销毁),供 onEnable 就地重建 */
+    private _releasedTemplet: SpineTemplet = null;
     /** 动画播放的起始时间位置*/
     private _playStart: number;
     /** 动画播放的结束时间位置*/
@@ -79,11 +82,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     private _skinName: string = "default";
     private _animationName: string;
     private _loop: boolean = true;
+    private _playState: ESpineRenderState = ESpineRenderState.Stopped;
 
     private _externalSkins: ExternalSkin[];
     private _skin: string;
     private _renderOffset: Vector2 = new Vector2();
     private _offset: Vector2 = new Vector2();
+    /** @internal Transform events only mark dirty; skeleton world position is synchronized once in update. */
+    private _transformDirty: boolean = true;
     private _setPreAlphaFlag = false;
     private _premultipliedAlpha = true;
 
@@ -115,8 +121,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     protected _createRenderHandle(): ISpineRenderDataHandle {
-        let handle = LayaGL.render2DRenderPassFactory.createSpineRenderDataHandle();
-        return handle;
+        return SpineConst.factory.createSpineRenderDataHandle();
     }
 
     /**
@@ -410,10 +415,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @en Get the current play time.
      */
     get playState(): ESpineRenderState {
-        if (this._pause)
-            if (this.currentTime) return ESpineRenderState.Paused;
-            else return ESpineRenderState.Stopped;
-        return ESpineRenderState.Playing;
+        return this._playState;
     }
 
 
@@ -454,7 +456,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         }
         this.boundsChange = true;
 
-        if (this.playState !== Spine2DRenderNode.PLAYING) {
+        if (this.playState !== ESpineRenderState.Playing) {
             this.owner.repaint(RepaintFlag.UpdateRT);
         }
     }
@@ -524,7 +526,15 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     /** @ignore @blueprintIgnore */
     onEnable(): void {
+        this._transformDirty = true;
         this.owner.on(Event.TRANSFORM_CHANGED, this, this.onTransformChanged);
+
+        // 标准"禁用释放、启用重建":若上次 onDisable 释放过渲染资源,且保留的 templet 仍存活
+        // (未被 destroyUnusedResources 自动销毁),重新加入场景时就地重建 _spineRender,使 play
+        // 可直接用。若 templet 已被自动销毁,则跳过——由业务层重设 templet 触发 init 重建。
+        if (this._leakReleased && this._releasedTemplet && !this._releasedTemplet.destroyed && !this._spineRender && !this.destroyed) {
+            this.init(this._releasedTemplet);
+        }
 
         if (this._spineRender && LayaEnv.isPlaying && this._animationName !== undefined)
             this.play(this._animationName, this._loop, true);
@@ -533,6 +543,22 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     /** @ignore @blueprintIgnore */
     onDisable(): void {
         this.owner.off(Event.TRANSFORM_CHANGED, this, this.onTransformChanged);
+        // 节点移出场景(如被业务对象池回收)时释放骨架(每实例 Bone/Slot)与渲染资源,避免长期
+        // 占用内存/显存。仅保留一个普通引用(不加引用计数),让 templet 引用计数正常下降——
+        // 回收后若无人使用即可被 destroyUnusedResources 自动销毁;若仍存活,onEnable 可就地重建。
+        if (!this.destroyed && this._templet && this._spineRender && !this._leakReleased) {
+            this._leakReleased = true;
+            this._releasedTemplet = this._templet;
+            if (this._renderHandle) (this._renderHandle as any).skeleton = null;
+            this.clear(); // reset(): _spineRender.reset + _templet._removeReference + _templet=null
+            this._spineRender.destroy();
+            this._spineRender = null;
+            if (this._rootBone) {
+                this._rootBone.destroy();
+                this._rootBone = null;
+                this._bones = null;
+            }
+        }
     }
 
     /**
@@ -543,6 +569,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      */
     protected init(templet: SpineTemplet): void {
         if (this.destroyed) return;
+        this._leakReleased = false; // 重建后允许再次在 onDisable 释放
+        // 清掉 onDisable 保留的普通引用(无论走 onEnable 重建还是业务层重设 templet);
+        // 未加引用计数,故无需 _removeReference。
+        this._releasedTemplet = null;
         if (this._templet) {
             this.clear();
         }
@@ -701,34 +731,43 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
                 this._pause = false;
                 this._needUpdate = true;
             }
+            this._playState = ESpineRenderState.Playing;
             this._update();
             this.owner.event(Event.PLAYED);
         }
     }
 
     private _update(): void {
-        let timerDelta = Laya.timer.delta / 1000;
-        
-        if (timerDelta > this._maxDeltaTime)
-            timerDelta = this._maxDeltaTime;
-
-        let delta = timerDelta * this._playbackRate;
-
-        let currentPlayTime = this._spineRender.currentTime;
-
-        // 使用当前动画和事件设置骨架
-        this._spineRender.update(delta);
-
-        // spine在state.apply中发送事件，开发者可能会在事件中进行destroy等操作，导致无法继续执行
-        if (this.destroyed) {
-            return;
-        }
-
-        
-        this._spineRender.render(currentPlayTime, this.physicsUpdate);
-        this._updateBones();
-        
         this.owner.repaint(RepaintFlag.UpdateRT);
+    }
+
+    onPreRender(): void {
+        if (this._needUpdate) {
+            // JIT 需要 update render 在一起
+            if (this._transformDirty) {
+                let matrix = this.owner.globalTrans.getMatrix();
+                this._spineRender.setSkeletonPosition(matrix.tx, matrix.ty);
+                this._transformDirty = false;
+            }
+
+            let timerDelta = Laya.timer.delta / 1000;
+        
+            if (timerDelta > this._maxDeltaTime)
+                timerDelta = this._maxDeltaTime;
+
+            let delta = timerDelta * this._playbackRate;
+
+            // 使用当前动画和事件设置骨架
+            this._spineRender.update(delta);
+
+            // spine在state.apply中发送事件，开发者可能会在事件中进行destroy等操作，导致无法继续执行
+            if (this.destroyed) {
+                return;
+            }
+
+            this._spineRender.render(this._spineRender.currentTime, this.physicsUpdate);
+            this._updateBones();
+        }
     }
 
     private _updateBones() {
@@ -832,21 +871,20 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * @zh 停止动画
-     * @en Stop the animation.
+     * @zh 停止动画，停留在当前帧。
+     * @en Stop the animation, holding the current frame.
      */
     stop(): void {
-        if (!this._pause) {
-            this._pause = true;
-            this._needUpdate = false;
-            // 回退到开始位置
-            this._spineRender.update(-this._spineRender.currentTime);
-            this._spineRender.currentTime = 0;
-            this.owner.event(Event.STOPPED);
+        if (this._playState === ESpineRenderState.Stopped)
+            return;
 
-            if (this._soundChannelArr.length > 0) { // 有正在播放的声音
-                this._onAniSoundStoped(true);
-            }
+        this._pause = true;
+        this._needUpdate = false;
+        this._playState = ESpineRenderState.Stopped;
+        this.owner.event(Event.STOPPED);
+
+        if (this._soundChannelArr.length > 0) { // 有正在播放的声音
+            this._onAniSoundStoped(true);
         }
     }
 
@@ -863,6 +901,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (!this._pause) {
             this._pause = true;
             this._needUpdate = false;
+            this._playState = ESpineRenderState.Paused;
             this.owner.event(Event.PAUSED);
             if (this._soundChannelArr.length > 0) { // 有正在播放的声音
                 for (let len = this._soundChannelArr.length, i = 0; i < len; i++) {
@@ -876,13 +915,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
-     * @zh 恢复动画的播放
-     * @en Resume the animation playback.
+     * @zh 恢复动画的播放。只有被paused暂停的动画才能恢复，已停止的动画需要调用play重新播放。
+     * @en Resume the animation playback. Only a paused animation can be resumed, a stopped one must be replayed with play.
      */
     resume(): void {
-        if (this._pause) {
+        if (this._playState === ESpineRenderState.Paused) {
             this._pause = false;
             this._needUpdate = true;
+            this._playState = ESpineRenderState.Playing;
             if (this._soundChannelArr.length > 0) { // 有正在播放的声音
                 for (let len = this._soundChannelArr.length, i = 0; i < len; i++) {
                     let channel = this._soundChannelArr[i];
@@ -925,6 +965,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this._templet = null;
         this._pause = true;
         this._needUpdate = false;
+        this._playState = ESpineRenderState.Stopped;
         if (this._soundChannelArr.length > 0)
             this._onAniSoundStoped(true);
         this.owner.repaint();
@@ -1032,7 +1073,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @en Get skeleton information (deprecated, only accurate object in Web)
      */
     getSkeleton():any {
-        return this._spineRender.getSkeleton();
+        // null 安全:onDisable 释放后 _spineRender 为 null,业务层回收时若再访问返回 null 而非崩溃
+        return this._spineRender ? this._spineRender.getSkeleton() : null;
     }
 
     /**
@@ -1052,13 +1094,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @en Transform changed, update the skeleton position.
      */
     private onTransformChanged() {
-        if (this._spineRender) {
-            let matrix = this.owner.globalTrans.getMatrix();
-            this._spineRender.setSkeletonPosition(
-                matrix.tx,
-                matrix.ty
-            );
-        }
+        this._transformDirty = true;
     }
     
     /**
@@ -1091,6 +1127,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @en Destroy the current object.
      */
     onDestroy(): void {
+        this._releasedTemplet = null; // 普通引用,直接清掉即可
         if (this._templet) {
             this.clear();
         }

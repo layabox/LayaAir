@@ -4,7 +4,7 @@ import { IDeviceBuffer } from "../../DriverDesign/RenderDevice/IDeviceBuffer";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
 
 export class LayaXVertexBuffer implements IVertexBuffer {
-    _instanceBuffer: boolean;
+    _instanceBuffer: boolean = false;
     _nativeObj: any;
 
     constructor(bufferUsageType: BufferUsage) {
@@ -33,10 +33,11 @@ export class LayaXVertexBuffer implements IVertexBuffer {
     }
 
     public get instanceBuffer(): boolean {
-        return this._nativeObj._instanceBuffer;
+        return this._instanceBuffer;
     }
 
     public set instanceBuffer(value: boolean) {
+        this._instanceBuffer = value;
         this._nativeObj.setInstanceBuffer(value);
     }
 

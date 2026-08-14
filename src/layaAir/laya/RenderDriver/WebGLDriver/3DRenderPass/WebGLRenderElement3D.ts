@@ -13,7 +13,7 @@ import { WebGLEngine } from "../RenderDevice/WebGLEngine";
 import { compareCahceFlag, OneDrawPassCacheInfo } from "../RenderDevice/WebGLRenderDeviceFactory";
 import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryElement";
 import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
-import { WebGLUniformBufferBase } from "../RenderDevice/WebGLUniformBufferBase";
+import { IWebGLUniformBuffer } from "../RenderDevice/IWebGLUniformBuffer";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 
 export class WebGLRenderElement3D implements IRenderElement3D {
@@ -105,7 +105,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
     protected _renderNodeChangeFlag: Vector2 = new Vector2();
 
-    protected materialUBO: WebGLUniformBufferBase;
+    protected materialUBO: IWebGLUniformBuffer;
 
     constructor() {
     }
@@ -143,13 +143,12 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
         if (this.materialShaderData) {
             if (Config.matUseUBO) {
-                // update ubo
-                this.materialShaderData.uploadCache();
+                //UBO 数据的 apply 与标脏已由 bufferMgr.upload() 在渲染前统一负责,此处不再逐 element 拉取
                 if (this.materialUBO) {
-                    if (this.materialUBO.destroyed) {
+                    // 块被释放后 _onFreed 会清空 descriptor,以此判定已销毁需重建
+                    if (!this.materialUBO.descriptor) {
                         this._handleMaterialChange();
                     }
-                    this.materialUBO.upload();
                 }
             }
 

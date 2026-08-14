@@ -1,7 +1,9 @@
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
-import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { type GraphicsCommandInfo, IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import type { Sprite } from "../Sprite";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+import { GraphicsCommandInfoHelper, GraphicsGeometryHelper } from "../Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineHelpers";
 
 const className = "DrawPieCmd";
 
@@ -125,6 +127,12 @@ export class DrawPieCmd implements IGraphicsCmd {
      */
     needsLayoutRepaint(): number {
         return 1;
+    }
+
+    /** @internal */
+    getGraphicsCommandInfo(out: GraphicsCommandInfo, owner?: Sprite): GraphicsCommandInfo {
+        let lineOffset = this.lineColor ? this.lineWidth : 0;
+        return GraphicsCommandInfoHelper.writeScaleTessellation(out, false, GraphicsGeometryHelper.calcArcSegments(this.radius - lineOffset, owner, 20, 5));
     }
 
     /**

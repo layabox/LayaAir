@@ -18,6 +18,7 @@ import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/S
 import { Vector2 } from "../../../../maths/Vector2";
 import { BakedSpineRenderer, StandardSpineRenderer } from "./SpineRendererTypes";
 import { Texture } from "../../../../resource/Texture";
+import { Stat } from "../../../../utils/Stat";
 
 enum ERenderProxyType {
     RenderNormal,
@@ -79,12 +80,14 @@ export abstract class BaseOptimizeRender implements ISpineRender {
      * @en Bake data for the Spine animation.
      * @zh Spine 动画的烘焙数据。
      */
-    bakeData: TSpineBakeData;
+    bakeData: TSpineBakeData | null;
  
     private _transform: Vector2 = new Vector2();
 
     /** @internal */
     _enableCache: boolean = false;
+
+    _destroyed = false;
 
     /** 
      * @en Current render mode.
@@ -223,9 +226,12 @@ export abstract class BaseOptimizeRender implements ISpineRender {
     }
     
     update(delta: number): void {
+        if (!Stat.enableSpine || this._destroyed) return
+        
         this._state.update(delta);
         this.currentTime = this.trackEntry.getAnimationTime();
         let cacheFrameIndex = Math.floor(this.currentTime / SpineConst.SPINE_STEP);
+        this.updater.cacheFrameIndex = cacheFrameIndex
         
         if (
             (
@@ -262,8 +268,6 @@ export abstract class BaseOptimizeRender implements ISpineRender {
                 this._updateCacheEvent(delta);
             }
         }
-
-        this.updater.cacheFrameIndex = cacheFrameIndex;
     }
 
     _updateCacheEvent(delta: number) {
@@ -310,6 +314,8 @@ export abstract class BaseOptimizeRender implements ISpineRender {
      * @param time 要渲染动画的时间。
      */
     render(time: number, physicsUpdate: number): void {
+        if (!Stat.enableSpine || !this.renderProxy || this._destroyed) return
+
         this._skeleton.update && this._skeleton.update(time);
 
         if ((!this._enableCache
@@ -379,6 +385,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
 
         this.updater.destroy();
         this.updater = null;
+        this._destroyed = true;
     }
 
     /**
@@ -387,7 +394,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
      * @zh 初始化 Spine 动画的烘焙数据。
      * @param obj 烘焙数据对象。
      */
-    initBake(obj: TSpineBakeData): void {
+    initBake(obj: TSpineBakeData | null): void {
         this.bakeData = obj;
         if (obj) {
             let render = this.renderProxyMap.get(ERenderProxyType.RenderBake) as BakedSpineRenderer;
@@ -407,7 +414,11 @@ export abstract class BaseOptimizeRender implements ISpineRender {
 
         if (this._curAnimationName) {
             this._clearRenderElements();
-            this.play(this._curAnimationName);
+            if (this.trackEntry) {
+                this.play(this._curAnimationName , this.trackEntry.loop , this.trackEntry.trackIndex , this.trackEntry.animationStart , this.trackEntry.animationEnd );
+            }else{
+                this.play(this._curAnimationName)
+            }
         }
     }
 
@@ -716,22 +727,21 @@ export abstract class BaseOptimizeRender implements ISpineRender {
             return;
         }
         
+        if (!this._skeleton || !texture) return;
+
         let slot = this._skeleton.findSlot(slotName);
         if (!slot) return;
         let attachment = slot.getAttachment();
         if (!attachment) return;
 
         this._templet.registerTexture(texture);
-        this._optimize.registerTexture(texture);
+        let newRegion = this._optimize.registerTexture(texture);
+        if (!newRegion) return;
         
         if (createAttachment) {
             attachment = attachment.copy();
             slot.setAttachment(attachment);
         }
-
-        let pageName = texture.url;
-        let textureName = slotName;
-        let newRegion = this._optimize.getTextureRegion(pageName, textureName);
         
         if (attachment instanceof spine.RegionAttachment) {
             attachment.region = newRegion;

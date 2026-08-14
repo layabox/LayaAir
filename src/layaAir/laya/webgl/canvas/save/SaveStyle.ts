@@ -20,7 +20,7 @@ export class SaveStyle implements ISaveData {
    restore(runner: GraphicsRunner): void {
       //@ts-ignore
       runner["_" + this._key] = this._fillStyle;
-      runner._submitKey.other = this._other;
+      runner._setSubmitKeyOther(this._other);
       SaveStyle.POOL[SaveStyle.POOL._length++] = this;
    }
 
@@ -31,7 +31,7 @@ export class SaveStyle implements ISaveData {
       let no: any = SaveStyle.POOL;
       let o: SaveStyle = no._length > 0 ? no[--no._length] : (new SaveStyle());
       o._fillStyle = runner[key];
-      o._other = runner._submitKey.other;
+      o._other = runner._getSubmitKeyOther();
       o._key = key;
    }
 }

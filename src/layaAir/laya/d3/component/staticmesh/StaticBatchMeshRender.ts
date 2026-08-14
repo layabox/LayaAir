@@ -93,6 +93,8 @@ export class StaticBatchMeshRender extends BaseRender {
     private constructor() {
         super();
         this._singleton = false;
+        // LayaX：geometryBounds 已在 mergeInfo 时下沉（Auto），退订每帧 native 回调
+        this._baseRenderNode.disableNativeBoundsCallback?.();
     }
 
     _calculateBoundingBox() {

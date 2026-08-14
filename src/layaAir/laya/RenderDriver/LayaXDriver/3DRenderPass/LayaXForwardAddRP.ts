@@ -4,34 +4,51 @@ import { LayaXDirCascadeShadowRP } from "./LayaXDirCascadeShadowRP";
 import { LayaXForwardAddClusterRP } from "./LayaXForwardAddClusterRP";
 import { LayaXBaseSpotRP } from "./LayaXBaseSpotRP";
 
+/**
+ * TS-owned enable-flag block. Contract shared with C++ `LayaXForwardAddRP_JS`
+ * (RT3DRenderPass reads it each camera/frame) — changing it requires updating both sides.
+ */
+const enum FARPSlot {
+    ShadowCastPass = 0,            // i32 (0/1)
+    EnableDirectLightShadow = 1,   // i32 (0/1)
+    EnableSpotLightShadowPass = 2, // i32 (0/1)
+    EnablePostProcess = 3,         // i32 (0/1)
+    Count = 4,
+}
+
 export class LayaXForwardAddRP {
 
+    // TS owns this buffer; C++ caches its pointer via bindBuffer. Held as an instance
+    // field so it stays alive (GC) for the pass's lifetime.
+    private _buf: ArrayBuffer;
+    private _i32: Int32Array;
+
     public get shadowCastPass(): boolean {
-        return this._nativeObj.shadowCastPass;
+        return this._i32[FARPSlot.ShadowCastPass] !== 0;
     }
     public set shadowCastPass(value: boolean) {
-        this._nativeObj.shadowCastPass = value;
+        this._i32[FARPSlot.ShadowCastPass] = value ? 1 : 0;
     }
 
     public get enableDirectLightShadow(): boolean {
-        return this._nativeObj.enableDirectLightShadow;
+        return this._i32[FARPSlot.EnableDirectLightShadow] !== 0;
     }
     public set enableDirectLightShadow(value: boolean) {
-        this._nativeObj.enableDirectLightShadow = value;
+        this._i32[FARPSlot.EnableDirectLightShadow] = value ? 1 : 0;
     }
 
     public get enableSpotLightShadowPass(): boolean {
-        return this._nativeObj.enableSpotLightShadowPass;
+        return this._i32[FARPSlot.EnableSpotLightShadowPass] !== 0;
     }
     public set enableSpotLightShadowPass(value: boolean) {
-        this._nativeObj.enableSpotLightShadowPass = value;
+        this._i32[FARPSlot.EnableSpotLightShadowPass] = value ? 1 : 0;
     }
 
     public get enablePostProcess(): boolean {
-        return this._nativeObj.enablePostProcess;
+        return this._i32[FARPSlot.EnablePostProcess] !== 0;
     }
     public set enablePostProcess(value: boolean) {
-        this._nativeObj.enablePostProcess = value;
+        this._i32[FARPSlot.EnablePostProcess] = value ? 1 : 0;
     }
 
     /**@internal */
@@ -87,6 +104,9 @@ export class LayaXForwardAddRP {
 
     constructor() {
         this._nativeObj = new (window as any).conchLayaXForwardAddRP();
+        this._buf = new ArrayBuffer(FARPSlot.Count * 4);
+        this._i32 = new Int32Array(this._buf);
+        this._nativeObj.bindBuffer(this._buf);
         this.shadowCastPass = false;
         this.enableDirectLightShadow = false;
         this.enableSpotLightShadowPass = false;

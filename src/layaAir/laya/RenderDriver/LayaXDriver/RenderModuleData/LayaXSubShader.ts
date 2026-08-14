@@ -85,11 +85,6 @@ export class LayaXSubShader implements ISubshaderData {
         this._nativeObj.addShaderPass(layaxPass._nativeObj);
     }
 
-    /** Get the native handle (SubShaderHandle, also serves as shader_template_id) */
-    get handle(): number {
-        return this._nativeObj.handle;
-    }
-
     destroy(): void {
         this._nativeObj.destroy();
     }

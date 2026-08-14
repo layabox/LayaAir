@@ -29,10 +29,10 @@ export class RTDefineDatas implements IDefineDatas {
     }
 
     add(define: RTShaderDefine): void {
-        this._nativeObj.add(define);
+        this._nativeObj.add(define._index, define._value);
     }
     remove(define: RTShaderDefine): void {
-        this._nativeObj.remove(define);
+        this._nativeObj.remove(define._index, define._value);
     }
     addDefineDatas(define: RTDefineDatas): void {
         this._nativeObj.addDefineDatas(define._nativeObj);
@@ -41,7 +41,7 @@ export class RTDefineDatas implements IDefineDatas {
         this._nativeObj.removeDefineDatas(define._nativeObj);
     }
     has(define: RTShaderDefine): boolean {
-        return this._nativeObj.has(define);
+        return this._nativeObj.has(define._index, define._value);
     }
     clear(): void {
         this._nativeObj.clear();

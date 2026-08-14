@@ -1,7 +1,7 @@
 import { Bezier } from "../../maths/Bezier";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
-import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { GraphicsCommandDependency, type GraphicsCommandInfo, GraphicsCommandLayoutRefresh, IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
 
 const className = "DrawCurvesCmd";
@@ -107,6 +107,15 @@ export class DrawCurvesCmd implements IGraphicsCmd {
      */
     needsLayoutRepaint(): number {
         return 1;
+    }
+
+    /** @internal */
+    getGraphicsCommandInfo(out: GraphicsCommandInfo): GraphicsCommandInfo {
+        out.dependency = GraphicsCommandDependency.None;
+        out.layoutRefresh = GraphicsCommandLayoutRefresh.None;
+        out.scaleTessellationKey = 0;
+        out.isStateCommand = false;
+        return out;
     }
 
     /**

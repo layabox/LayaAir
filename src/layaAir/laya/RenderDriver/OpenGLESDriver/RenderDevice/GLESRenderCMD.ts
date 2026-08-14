@@ -9,6 +9,17 @@ import { ShaderDataType, ShaderDataItem } from "../../DriverDesign/RenderDevice/
 import { RTShaderDefine } from "../../RenderModuleData/RuntimeModuleData/RTShaderDefine";
 import { GLESInternalTex } from "./GLESInternalTex";
 import { GLESShaderData } from "./GLESShaderData";
+import { NativeMemory } from "../../RenderModuleData/RuntimeModuleData/NativeMemory";
+
+/** @internal conchGLESSetRenderData 共享块槽位（与 C++ GLESSetRenderData::Props 一致）。 */
+const enum GLESSetRenderDataSlot {
+    propertyID = 0,
+    dataType = 1,
+    floatPayload = 2, // [2..17] Float/Vector2/3/4/Color/Matrix4x4
+    intValue = 18,
+    boolValue = 19,
+    Count = 20,
+}
 
 export class GLESSetRenderData extends SetRenderDataCMD {
     type: RenderCMDType;
@@ -33,7 +44,7 @@ export class GLESSetRenderData extends SetRenderDataCMD {
 
     set dataType(value: ShaderDataType) {
         this._dataType = value;
-        this._nativeObj.setDataType(value);
+        this._u32[GLESSetRenderDataSlot.dataType] = value;
     }
 
     get propertyID(): number {
@@ -42,7 +53,7 @@ export class GLESSetRenderData extends SetRenderDataCMD {
 
     set propertyID(value: number) {
         this._propertyID = value;
-        this._nativeObj.setPropertyID(value);
+        this._u32[GLESSetRenderDataSlot.propertyID] = value;
     }
 
     get dest(): GLESShaderData {
@@ -58,33 +69,37 @@ export class GLESSetRenderData extends SetRenderDataCMD {
         return this._value;
     }
     set value(value: ShaderDataItem) {
+        const F = GLESSetRenderDataSlot.floatPayload;
         switch (this.dataType) {
             case ShaderDataType.Int:
                 this.data_number = value as number;
                 this._value = this.data_number;
-                this._nativeObj.setInt(this.value)
+                this._i32[GLESSetRenderDataSlot.intValue] = this.data_number | 0;
                 break;
             case ShaderDataType.Float:
                 this.data_number = value as number;
                 this._value = this.data_number;
-                this._nativeObj.setFloat(this.value)
+                this._f32[F] = this.data_number;
                 break;
             case ShaderDataType.Bool:
                 this.data_number = value as number;
                 this._value = this.data_number;
-                this._nativeObj.setBool(this.value)
+                this._i32[GLESSetRenderDataSlot.boolValue] = this.data_number ? 1 : 0;
                 break;
             case ShaderDataType.Matrix4x4:
                 !this.data_mat && (this.data_mat = new Matrix4x4());
                 (value as Matrix4x4).cloneTo(this.data_mat);
                 this._value = this.data_mat;
-                this._nativeObj.setMatrix4x4(this.value)
+                this._f32.set(this.data_mat.elements, F);
                 break;
             case ShaderDataType.Color:
                 !this.data_Color && (this.data_Color = new Color());
                 (value as Color).cloneTo(this.data_Color);
                 this._value = this.data_Color;
-                this._nativeObj.setColor(this.value)
+                this._f32[F] = this.data_Color.r;
+                this._f32[F + 1] = this.data_Color.g;
+                this._f32[F + 2] = this.data_Color.b;
+                this._f32[F + 3] = this.data_Color.a;
                 break;
             case ShaderDataType.Texture2D:
                 this._value = this.data_texture = value as BaseTexture;
@@ -94,19 +109,25 @@ export class GLESSetRenderData extends SetRenderDataCMD {
                 !this.data_v4 && (this.data_v4 = new Vector4());
                 (value as Vector4).cloneTo(this.data_v4);
                 this._value = this.data_v4;
-                this._nativeObj.setVector(this.value)
+                this._f32[F] = this.data_v4.x;
+                this._f32[F + 1] = this.data_v4.y;
+                this._f32[F + 2] = this.data_v4.z;
+                this._f32[F + 3] = this.data_v4.w;
                 break;
             case ShaderDataType.Vector2:
                 !this.data_v2 && (this.data_v2 = new Vector2());
                 (value as Vector2).cloneTo(this.data_v2);
                 this._value = this.data_v2;
-                this._nativeObj.setVector2(this.value)
+                this._f32[F] = this.data_v2.x;
+                this._f32[F + 1] = this.data_v2.y;
                 break;
             case ShaderDataType.Vector3:
                 !this.data_v3 && (this.data_v3 = new Vector3());
                 (value as Vector3).cloneTo(this.data_v3);
                 this._value = this.data_v3;
-                this._nativeObj.setVector3(this.value);
+                this._f32[F] = this.data_v3.x;
+                this._f32[F + 1] = this.data_v3.y;
+                this._f32[F + 2] = this.data_v3.z;
                 break;
             case ShaderDataType.Buffer:
                 this._value = this.data_Buffer = value as Float32Array;
@@ -118,10 +139,20 @@ export class GLESSetRenderData extends SetRenderDataCMD {
         }
     }
 
+    private _mem: NativeMemory;
+    private _f32: Float32Array;
+    private _i32: Int32Array;
+    private _u32: Uint32Array;
+
     constructor() {
         super();
         this.type = RenderCMDType.ChangeData;
         this._nativeObj = new (window as any).conchGLESSetRenderData();
+        this._mem = new NativeMemory(GLESSetRenderDataSlot.Count * 4, false);
+        this._f32 = this._mem.float32Array;
+        this._i32 = this._mem.int32Array;
+        this._u32 = this._mem.Uint32Array;
+        this._nativeObj.bindPropertyBuffer(this._mem._buffer);
     }
 }
 

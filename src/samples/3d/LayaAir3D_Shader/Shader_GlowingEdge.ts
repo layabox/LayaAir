@@ -25,6 +25,7 @@ import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 import { SkinnedMeshRenderer } from "laya/d3/core/SkinnedMeshRenderer";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
+import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 
 
@@ -124,7 +125,10 @@ export class Shader_GlowingEdge {
 		//创建自定义shader
 		var glowingEdgeShader: Shader3D = Shader3D.add("GlowingEdgeMaterial", true, true);
 		//为当前自定义的shader添加SubShader
-		var subShader: SubShader = new SubShader();
+		var subShader: SubShader = new SubShader(SubShader.DefaultAttributeMap, {
+			"u_texture": ShaderDataType.Texture2D,
+			"u_marginalColor": ShaderDataType.Vector3
+		});
 		glowingEdgeShader.addSubShader(subShader);
 		//SubShader添加ShaderPass
 		(<ShaderPass>subShader.addShaderPass(GlowingEdgeShaderVS, GlowingEdgeShaderFS));

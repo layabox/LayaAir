@@ -165,6 +165,7 @@ export const allBundles = [{
         'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXSpotLight.ts',
         'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXTransform3D.ts',
         'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXVolumetricGI.ts',
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXChunkPages.ts',
 		//引擎核心
         'laya/RenderDriver/RenderModuleData/RuntimeModuleData/3D/*.*',
         'laya/RenderDriver/RenderModuleData/RuntimeModuleData/3D/3DRenderProcess/*.*',
@@ -309,6 +310,7 @@ export const allBundles = [{
         'laya/spine/interface/*.*',
         'laya/spine/shader/SpineShaderInit.ts',
         'laya/spine/web/**/*.*',
+        'laya/spine/handle/*.*',
         'laya/spine/ExternalSkin.ts',
         'laya/spine/ExternalSkinItem.ts',
         'laya/spine/ModuleDef.ts',
@@ -335,6 +337,7 @@ export const allBundles = [{
         'laya/spine/interface/*.*',
         'laya/spine/shader/**/*.*',
         'laya/spine/native/**/*.*',
+        'laya/spine/handle/NativeSpineRenderDataHandle.ts',
         'laya/spine/ExternalSkin.ts',
         'laya/spine/ExternalSkinItem.ts',
         'laya/spine/ModuleDef.ts',
@@ -526,6 +529,13 @@ export const allBundles = [{
     ],
 },
 {
+    name: 'adapter-bilibili',
+    input: [
+        'platforms/minigame/**/*.*',
+        'platforms/bilibili/**/*.*'
+    ],
+},
+{
     name: 'ik',
     input: [
         'laya/ik/**/*.ts'
@@ -543,4 +553,5 @@ export const allBundles = [{
         'laya/vfx/**/*.*'
     ]
 },
+
 ];

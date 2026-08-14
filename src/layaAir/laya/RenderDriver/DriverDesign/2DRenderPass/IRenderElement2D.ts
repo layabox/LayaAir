@@ -3,6 +3,19 @@ import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2
 import { IRenderGeometryElement } from "../RenderDevice/IRenderGeometryElement";
 import { ShaderData } from "../RenderDevice/ShaderData";
 
+/** @internal Runtime-only stencil state used by WebGL 2D scrollRect clipping. */
+export interface WebGL2DStencilState {
+    enabled: boolean;
+    test: number;
+    write: boolean;
+    ref: number;
+    readMask: number;
+    writeMask: number;
+    opFail: number;
+    opZFail: number;
+    opZPass: number;
+}
+
 /**
  * @blueprintIgnore @blueprintIgnoreSubclasses
  */
@@ -14,6 +27,10 @@ export interface IRenderElement2D {
     globalShaderData: ShaderData;
     subShader: SubShader;
     renderStateIsBySprite: boolean;//渲染节点的renderState根据哪个ShaderData来
+    /** @internal Runtime stencil state used by WebGL 2D scrollRect clipping. */
+    stencilClipState?: WebGL2DStencilState;
+    /** @internal Prevent this element from being merged into 2D render batches. */
+    noBatch?: boolean;
     nodeCommonMap: Array<string>;
     owner: IRenderStruct2D;
     destroy(): void;
@@ -32,10 +49,16 @@ export interface IPrimitiveRenderElement2D extends IRenderElement2D {
      */
     typeKey: number;
     /**
-     * @en Texture key encoding per-element shader define bits and texture ID.
+     * @en Texture key used to detect per-element texture changes.
      * @zh 纹理键编码逐元素着色器宏定义位和纹理ID。
      */
     textureKey: number;
     primitiveShaderData: ShaderData;
+    /**
+     * @internal
+     * @en Internal cache slot for render-module-specific primitive batch data.
+     * @zh 渲染模块内部使用的图元合批数据缓存槽。
+     */
+    _graphicsBatchEntry?: unknown;
 }
 

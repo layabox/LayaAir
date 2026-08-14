@@ -1,7 +1,8 @@
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
-import { IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
+import { type GraphicsCommandInfo, GraphicsCommandLayoutRefresh, IGraphicsBoundsAssembler, IGraphicsCmd } from "../IGraphics";
 import { GraphicsRunner } from "../Scene2DSpecial/GraphicsRunner";
+import { GraphicsCommandInfoHelper } from "../Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineHelpers";
 
 const className = "DrawLineCmd";
 
@@ -126,6 +127,11 @@ export class DrawLineCmd implements IGraphicsCmd {
      */
     needsLayoutRepaint(): number {
         return this.percent ? 1 : 0;
+    }
+
+    /** @internal */
+    getGraphicsCommandInfo(out: GraphicsCommandInfo): GraphicsCommandInfo {
+        return GraphicsCommandInfoHelper.writeSize(out, this.percent, GraphicsCommandLayoutRefresh.RerunCommand);
     }
 
     /**

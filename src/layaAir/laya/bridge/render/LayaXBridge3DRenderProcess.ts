@@ -33,6 +33,10 @@ export class LayaXBridge3DRenderProcess implements IBridge3DRenderProcess {
 
 	_nativeObj: any;
 
+	/** @internal shadow 开关共享 Buffer：JS 写、C++ renderShadows 读。槽 0=cast 1=dir 2=spot */
+	private _shadowBuf = new ArrayBuffer(3 * 4);
+	private _shadowI32 = new Int32Array(this._shadowBuf);
+
 	// ===== 阴影渲染 (LayaX shadow passes) =====
 
 	/** LayaX directional shadow render pass */
@@ -48,6 +52,7 @@ export class LayaXBridge3DRenderProcess implements IBridge3DRenderProcess {
 	private _render3DManager: ISceneRenderManager;
 	get render3DManager(): ISceneRenderManager { return this._render3DManager; }
 	set render3DManager(value: ISceneRenderManager) {
+		if (this._render3DManager === value) return; // 每帧赋同值去重，避免无谓跨界
 		this._render3DManager = value;
 		this._nativeObj.renderManager = (value as any)._nativeObj;
 	}
@@ -57,6 +62,7 @@ export class LayaXBridge3DRenderProcess implements IBridge3DRenderProcess {
 
 	constructor() {
 		this._nativeObj = new (window as any).conchLayaXBridge3DProcess();
+		this._nativeObj.bindPropertyBuffer(this._shadowBuf);
 		this._dirShadowRP = new LayaXDirCascadeShadowRP();
 		this._spotShadowRP = new LayaXBaseSpotRP();
 		// Wire shadow passes to C++ (one-time, like LayaXForwardAddRP)
@@ -113,9 +119,9 @@ export class LayaXBridge3DRenderProcess implements IBridge3DRenderProcess {
 		bridge3DContext.prepareForRender(camera, context3d);
 
 		// 3. 将 context3d 传递给每个元素的 C++ 端，供 _render 时使用
-		const nativeCtx3d = (context3d as any)._nativeObj;
+		// wrapper 内部对常驻单例 ctx 做去重，值不变则不下发
 		for (const element of this._bridgeElements) {
-			(element as LayaXBridge3DRenderElement)._nativeObj.setContext3D(nativeCtx3d);
+			(element as LayaXBridge3DRenderElement).setContext3D(context3d);
 		}
 
 		// 4. 阴影渲染（条件：有注册元素 + 有灯光）
@@ -152,7 +158,7 @@ export class LayaXBridge3DRenderProcess implements IBridge3DRenderProcess {
 
 		// 检查阴影更新频率
 		const enableShadow = (Scene3D._updateMark % scene._ShadowMapupdateFrequency === 0);
-		this._nativeObj.shadowCastPass = enableShadow;
+		this._shadowI32[0] = enableShadow ? 1 : 0;
 
 		if (!enableShadow) {
 			// Remove shadow uniform map (matches LayaXRender3DProcess pattern)
@@ -164,7 +170,7 @@ export class LayaXBridge3DRenderProcess implements IBridge3DRenderProcess {
 		// 方向光阴影
 		const mainDirLight = scene._mainDirectionLight;
 		const needDirectionShadow = mainDirLight && mainDirLight.shadowMode !== ShadowMode.None;
-		this._nativeObj.enableDirectLightShadow = needDirectionShadow;
+		this._shadowI32[1] = needDirectionShadow ? 1 : 0;
 
 		if (needDirectionShadow) {
 			const dirLight = <LayaXDirectLight>mainDirLight._dataModule;
@@ -177,7 +183,7 @@ export class LayaXBridge3DRenderProcess implements IBridge3DRenderProcess {
 		// 聚光灯阴影
 		const mainSpotLight = scene._mainSpotLight;
 		const needSpotShadow = mainSpotLight && mainSpotLight.shadowMode !== ShadowMode.None;
-		this._nativeObj.enableSpotLightShadowPass = needSpotShadow;
+		this._shadowI32[2] = needSpotShadow ? 1 : 0;
 
 		if (needSpotShadow) {
 			this._spotShadowRP.setRPData(
@@ -198,7 +204,7 @@ export class LayaXBridge3DRenderProcess implements IBridge3DRenderProcess {
 		context.preDrawUniformMaps = context.preDrawUniformMaps;
 
 		// Single C++ execution call: handles shadow pass execution and render target reset
-		this._nativeObj.renderShadows((context as any)._nativeObj);
+		this._nativeObj.renderShadows();
 	}
 
 	// ==================== 前向渲染阶段 (委托C++) ====================

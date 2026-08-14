@@ -7,11 +7,21 @@ import { RTShaderPass } from "../../RenderModuleData/RuntimeModuleData/RTShaderP
 import { RTSubShader } from "../../RenderModuleData/RuntimeModuleData/RTSubShader";
 import { GLESRenderGeometryElement } from "../RenderDevice/GLESRenderGeometryElement";
 import { GLESShaderData } from "../RenderDevice/GLESShaderData";
+import { NativeMemory } from "../../RenderModuleData/RuntimeModuleData/NativeMemory";
 
 export enum RenderElementType {
     Base = 0,
     Skin = 1,
     Instance = 2,
+}
+
+/** @internal conchGLESRenderElement3D 共享块槽位（与 C++ GLESRenderElement3D::Props 一致）。 */
+const enum GLESRenderElement3DSlot {
+    isRender = 0,
+    canDynamicBatch = 1,
+    materialRenderQueue = 2,
+    materialId = 3,
+    Count = 4,
 }
 export class GLESRenderElement3D implements IRenderElement3D {
 
@@ -60,17 +70,17 @@ export class GLESRenderElement3D implements IRenderElement3D {
     }
 
     get isRender(): boolean {
-        return this._nativeObj.isRender;
+        return this._i32[GLESRenderElement3DSlot.isRender] !== 0;
     }
 
     set isRender(data: boolean) {
-        this._nativeObj.isRender = data;
+        this._i32[GLESRenderElement3DSlot.isRender] = data ? 1 : 0;
     }
     public get materialRenderQueue(): number {
-        return this._nativeObj.materialRenderQueue;
+        return this._u32[GLESRenderElement3DSlot.materialRenderQueue];
     }
     public set materialRenderQueue(value: number) {
-        this._nativeObj.materialRenderQueue = value;
+        this._u32[GLESRenderElement3DSlot.materialRenderQueue] = value;
     }
 
     private _owner: RTBaseRenderNode;
@@ -92,24 +102,32 @@ export class GLESRenderElement3D implements IRenderElement3D {
     }
 
     get canDynamicBatch(): boolean {
-        return this._nativeObj.canDynamicBatch;
+        return this._i32[GLESRenderElement3DSlot.canDynamicBatch] !== 0;
     }
     set canDynamicBatch(value: boolean) {
-        this._nativeObj.canDynamicBatch = value;
+        this._i32[GLESRenderElement3DSlot.canDynamicBatch] = value ? 1 : 0;
     }
 
     // todo
     public get materialId(): number {
-        return this._nativeObj.materialId;
+        return this._u32[GLESRenderElement3DSlot.materialId];
     }
     public set materialId(value: number) {
-        this._nativeObj.materialId = value;
+        this._u32[GLESRenderElement3DSlot.materialId] = value;
     }
 
     _nativeObj: any;
+    private _mem: NativeMemory;
+    private _i32: Int32Array;
+    private _u32: Uint32Array;
 
     constructor() {
         this.init();
+        // init() (overridden by GLESSkinRenderElement3D) created _nativeObj; bind the 4-slot block.
+        this._mem = new NativeMemory(GLESRenderElement3DSlot.Count * 4, false);
+        this._i32 = this._mem.int32Array;
+        this._u32 = this._mem.Uint32Array;
+        this._nativeObj.bindPropertyBuffer(this._mem._buffer);
         (window as any).conchGLESRenderElement3D.setCompileDefine((RTShaderPass.getGlobalCompileDefine() as any)._nativeObj);
     }
 

@@ -1,5 +1,5 @@
 import { Spine2DRenderNode } from "../Spine2DRenderNode";
-import { ISpineRenderDataHandle } from "../../RenderDriver/RenderModuleData/Design/2D/IRender2DDataHandle";
+import { ISpineRenderDataHandle } from "../interface/ISpineRenderDataHandle";
 import { NativeSpineOptimizeRenderBase } from "./NativeSpineOptimizeRenderBase";
 import { TSpineBakeData } from "../SpineConst";
 import { SpineShaderInit } from "../shader/SpineShaderInit";
@@ -27,8 +27,13 @@ export class NativeSpineOptimizeRender2D extends NativeSpineOptimizeRenderBase {
         // }
     }
 
-    initBake(obj: TSpineBakeData): void {
+    initBake(obj: TSpineBakeData | null): void {
         if (!this._nativeRender) {
+            return;
+        }
+
+        if (!obj) {
+            super.initBake(obj);
             return;
         }
 

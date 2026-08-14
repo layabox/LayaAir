@@ -9,26 +9,20 @@ import { SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/RenderD
 import { IRender2DPass, IRender2DPassManager } from "../../RenderModuleData/Design/2D/IRender2DPass";
 import { IRenderStruct2D } from "../../RenderModuleData/Design/2D/IRenderStruct2D";
 import {
-    I2DBaseRenderDataHandle, I2DPrimitiveDataHandle,
+    I2DBaseRenderDataHandle, IGraphicsSingleQuadDataHandle, IGraphicsCommandStreamDataHandle, ISubStructRenderDataHandle,
     IMesh2DRenderDataHandle, I2DGlobalRenderData,
-    ISpineRenderDataHandle, I2DGraphicWholeBuffer,
-    I2DGraphicVertexDataView, I2DGraphicIndexDataView,
-    IGraphics2DBufferBlock, IGraphics2DVertexBlock,
-    IRender2DDataHandle
+    IRender2DDataHandle, IGraphicsOp2DFactory
 } from "../../RenderModuleData/Design/2D/IRender2DDataHandle";
 
 // ===== RT* moduleData (复用) =====
 import { RTRender2DPass, RTRender2DPassManager } from "../../RenderModuleData/RuntimeModuleData/2D/RTRender2DPass";
 import {
-    RTBaseRenderDataHandle, RTEmptyRender2DDataHandle, RTGraphics2DBufferBlock, RTGraphics2DVertexBlock,
-    RTMesh2DRenderDataHandle, RTPrimitiveDataHandle,
-    RTSpineRenderDataHandle
+    RTBaseRenderDataHandle, RTEmptyRender2DDataHandle,
+    RTGraphicsSingleQuadDataHandle, RTGraphicsCommandStreamDataHandle, RTMesh2DRenderDataHandle,
+    RTSubStructRenderDataHandle
 } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderDataHandle";
 import { RTGlobalRenderData, RTRenderStruct2D } from "../../RenderModuleData/RuntimeModuleData/2D/RTRenderStruct2D";
-import {
-    RT2DGraphic2DIndexDataView, RT2DGraphic2DVertexDataView,
-    RT2DGraphicIndexBuffer, RT2DGraphicVertexBuffer
-} from "../../RenderModuleData/RuntimeModuleData/2D/RT2DGraphic2DBufferDataView";
+import { ITransform2DMemoryFactory } from "../../../display/transform2d/ITransform2DMemory";
 
 // ===== LayaX RenderDriver 层 =====
 import { LayaXRenderElement2D } from "./LayaXRenderElement2D";
@@ -36,6 +30,8 @@ import { LayaXPrimitiveRenderElement2D } from "./LayaXPrimitiveRenderElement2D";
 import { LayaXRenderContext2D } from "./LayaXRenderContext2D";
 import { LayaXSetRendertarget2DCMD, LayaXDraw2DElementCMD, LayaXBlit2DQuadCMD } from "./LayaX2DRenderCMD";
 import { LayaXSetRenderData, LayaXSetShaderDefine } from "../RenderDevice/LayaXRenderCMD";
+import { RTTransform2DMemoryFactory } from "../../RenderModuleData/RuntimeModuleData/2D/RTTransform2DStore";
+import { LayaXGraphicsOp2DFactory } from "./LayaXGraphicsOp2DFactory";
 
 /**
  * RTRender2DPass 的 LayaX 子类。
@@ -48,6 +44,7 @@ class LayaXRTRender2DPass extends RTRender2DPass {
         this._nativeObj = new (window as any).conchLayaXRender2DPass(
             (this as any)._shaderData._nativeObj
         );
+        this._nativeObj.bindPass2DBuffer((this as any)._propsBuf);
         // 重新推送初始状态到 LayaX native（父类构造跳过了这些）
         this.enable = true;
         this.enableBatch = true;
@@ -64,6 +61,11 @@ export class LayaXRender2DProcess implements I2DRenderPassFactory {
     // ============================
     // RenderDriver 层: LayaX 实现
     // ============================
+
+    createTransform2DMemoryFactory(): ITransform2DMemoryFactory {
+        // 数据创建下沉 native:JS 用 NativeMemory 分配共享块、传下去让 native 绑定。GLES/LayaX 不回退 WebMemory。
+        return new RTTransform2DMemoryFactory();
+    }
 
     createRenderElement2D(): IRenderElement2D {
         return new LayaXRenderElement2D();
@@ -117,8 +119,19 @@ export class LayaXRender2DProcess implements I2DRenderPassFactory {
         return new RTGlobalRenderData();
     }
 
-    create2D2DPrimitiveDataHandle(): I2DPrimitiveDataHandle {
-        return new RTPrimitiveDataHandle();
+    createSubStructRenderDataHandle(): ISubStructRenderDataHandle {
+        return new RTSubStructRenderDataHandle();
+    }
+
+    createGraphicsSingleQuadDataHandle(): IGraphicsSingleQuadDataHandle {
+        return new RTGraphicsSingleQuadDataHandle();
+    }
+    createGraphicsCommandStreamDataHandle(): IGraphicsCommandStreamDataHandle {
+        return new RTGraphicsCommandStreamDataHandle();
+    }
+
+    createGraphicsOp2DFactory(): IGraphicsOp2DFactory {
+        return new LayaXGraphicsOp2DFactory();
     }
 
     create2DBaseRenderDataHandle(): I2DBaseRenderDataHandle {
@@ -127,48 +140,6 @@ export class LayaXRender2DProcess implements I2DRenderPassFactory {
 
     createMesh2DRenderDataHandle(): IMesh2DRenderDataHandle {
         return new RTMesh2DRenderDataHandle();
-    }
-
-    createSpineRenderDataHandle(): ISpineRenderDataHandle {
-        return new RTSpineRenderDataHandle();
-    }
-
-    create2DGraphicVertexDataView(
-        wholeBuffer: I2DGraphicWholeBuffer,
-        elementOffset: number,
-        elementSize: number,
-        stride: number
-    ): I2DGraphicVertexDataView {
-        return new RT2DGraphic2DVertexDataView(
-            wholeBuffer as RT2DGraphicVertexBuffer,
-            elementOffset, elementSize, stride
-        );
-    }
-
-    create2DGraphicIndexDataView(
-        wholeBuffer: I2DGraphicWholeBuffer,
-        elementSize: number
-    ): I2DGraphicIndexDataView {
-        return new RT2DGraphic2DIndexDataView(
-            wholeBuffer as RT2DGraphicIndexBuffer,
-            elementSize
-        );
-    }
-
-    create2DGraphicVertexBuffer(): I2DGraphicWholeBuffer {
-        return new RT2DGraphicVertexBuffer();
-    }
-
-    create2DGraphicIndexBuffer(): I2DGraphicWholeBuffer {
-        return new RT2DGraphicIndexBuffer();
-    }
-
-    createGraphic2DBufferBlock(): IGraphics2DBufferBlock {
-        return new RTGraphics2DBufferBlock();
-    }
-
-    createGraphic2DVertexBlock(): IGraphics2DVertexBlock {
-        return new RTGraphics2DVertexBlock();
     }
 
     createEmptyRenderDataHandle(): IRender2DDataHandle {

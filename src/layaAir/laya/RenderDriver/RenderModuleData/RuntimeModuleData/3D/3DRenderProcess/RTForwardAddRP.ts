@@ -4,35 +4,44 @@ import { IRenderCMD } from "../../../../DriverDesign/RenderDevice/IRenderCMD";
 import { RTDirCascadeShadowRP } from "./RTDirCascadeShadowRP";
 import { RTForwardAddClusterRP } from "./RTForwardAddClusterRP";
 import { RTBaseSpotRP } from "./RTBaseSpotRP";
+import { NativeMemory } from "../../NativeMemory";
 
+/** @internal conchIForwardAddRP 共享块槽位（与 C++ IForwardAddRP::Props 一致）。 */
+const enum RTForwardAddRPSlot {
+    shadowCastPass = 0,
+    enableDirectLightShadow = 1,
+    enableSpotLightShadowPass = 2,
+    enablePostProcess = 3,
+    Count = 4,
+}
 
 export class RTForwardAddRP {
     public get shadowCastPass(): boolean {
-        return this._nativeObj.shadowCastPass;
+        return this._i32[RTForwardAddRPSlot.shadowCastPass] !== 0;
     }
     public set shadowCastPass(value: boolean) {
-        this._nativeObj.shadowCastPass = value;
+        this._i32[RTForwardAddRPSlot.shadowCastPass] = value ? 1 : 0;
     }
 
     public get enableDirectLightShadow(): boolean {
-        return this._nativeObj.enableDirectLightShadow;
+        return this._i32[RTForwardAddRPSlot.enableDirectLightShadow] !== 0;
     }
     public set enableDirectLightShadow(value: boolean) {
-        this._nativeObj.enableDirectLightShadow = value;
+        this._i32[RTForwardAddRPSlot.enableDirectLightShadow] = value ? 1 : 0;
     }
 
     public get enableSpotLightShadowPass(): boolean {
-        return this._nativeObj.enableSpotLightShadowPass;
+        return this._i32[RTForwardAddRPSlot.enableSpotLightShadowPass] !== 0;
     }
     public set enableSpotLightShadowPass(value: boolean) {
-        this._nativeObj.enableSpotLightShadowPass = value;
+        this._i32[RTForwardAddRPSlot.enableSpotLightShadowPass] = value ? 1 : 0;
     }
 
     public get enablePostProcess(): boolean {
-        return this._nativeObj.enablePostProcess;
+        return this._i32[RTForwardAddRPSlot.enablePostProcess] !== 0;
     }
     public set enablePostProcess(value: boolean) {
-        this._nativeObj.enablePostProcess = value;
+        this._i32[RTForwardAddRPSlot.enablePostProcess] = value ? 1 : 0;
     }
 
     /**@internal */
@@ -86,9 +95,14 @@ export class RTForwardAddRP {
     }
 
     _nativeObj: any;
+    private _mem: NativeMemory;
+    private _i32: Int32Array;
 
     constructor() {
         this._nativeObj = new (window as any).conchRTForwardAddRP();
+        this._mem = new NativeMemory(RTForwardAddRPSlot.Count * 4, false);
+        this._i32 = this._mem.int32Array;
+        this._nativeObj.bindPropertyBuffer(this._mem._buffer);
         this.shadowCastPass = false;
         this.enableDirectLightShadow = false;
         this.enableSpotLightShadowPass = false;

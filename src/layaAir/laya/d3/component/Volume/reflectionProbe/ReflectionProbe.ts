@@ -142,6 +142,8 @@ export class ReflectionProbe extends Volume {
      * @zh 是否是场景探针 
      */
     _isScene: boolean = false;
+    /** @internal */
+    private _destroyedByManager: boolean = false;
     /**@internal */
     _reflectionProbeID: number;
     /**@internal */
@@ -373,6 +375,28 @@ export class ReflectionProbe extends Volume {
     protected _onEnable(): void {
         super._onEnable();
         this._dataModule.updateMark = ILaya.Scene3D._updateMark;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    override destroy(): void {
+        if (this._isScene) {
+            console.warn("Scene reflection probe can not be destroyed directly.");
+            return;
+        }
+        super.destroy();
+    }
+
+    /**
+     * Destroy the scene-owned reflection probe through its manager.
+     * @internal
+     */
+    _destroyByManager(): void {
+        if (this._destroyedByManager)
+            return;
+        this._destroyedByManager = true;
+        super.destroy();
     }
 
     /**
