@@ -1003,7 +1003,8 @@ export class GraphicsRunner {
         blendMode?: BlendMode | string,
         colorNum?: number,
         colors?: Float32Array,
-        uvRange?: ArrayLike<number>): void {
+        uvRange?: ArrayLike<number>,
+        customs?: ArrayLike<number>): void {
 
         if (tex) {
             if (!this._getImageSource(tex)) { //source内调用tex.active();
