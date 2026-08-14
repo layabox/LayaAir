@@ -4,6 +4,9 @@
 uniform mat3 u_view2D;
 #endif
 
+#ifdef SPRITE2DGLOBAL
+#endif // SPRITE2DGLOBAL
+
 #ifdef RENDERTEXTURE
 uniform vec3 u_InvertMat_0;
 uniform vec3 u_InvertMat_1;
