@@ -14,6 +14,7 @@ import { AvatarMask } from "./AvatarMask";
  */
 export class AnimatorController extends Resource {
     /**
+     * @internal
      * @en The parsed data of the animator controller.
      * @zh 解析后的动画控制器数据。
      */

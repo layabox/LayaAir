@@ -1,7 +1,4 @@
-import { AvatarMask } from "../d3/component/Animator/AvatarMask";
-
 export interface TypeAnimatorControllerData {
-    layerW: number,
     controllerLayers: TypeAnimatorLayer[];
     cullingMode?: number,
     enable?: boolean,
@@ -21,10 +18,6 @@ export interface TypeAnimatorLayer {
     playOnWake: boolean,
     defaultWeight: number,
     avatarMask?: any,
-
-    stageX?: number,
-    stageY?: number,
-    stageScale?: number,
 }
 
 export enum AniParmType {
@@ -58,12 +51,8 @@ export interface TypeAnimatorState {
     clip?: { _$uuid: string, },
     scripts?: string[],
 
-
     states?: TypeAnimatorState[],
     defaultStateName?: string,
-    stageX?: number,
-    stageY?: number,
-    stageScale?: number,
 }
 export interface TypeAnimatorTransition {
     id: string,
