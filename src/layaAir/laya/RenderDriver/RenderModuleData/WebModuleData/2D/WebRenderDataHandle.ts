@@ -82,7 +82,18 @@ export class WebEmptyRender2DDataHandle extends WebRender2DDataHandle {
 
 
 export class WebSubStructRenderDataHandle extends WebRender2DDataHandle implements ISubStructRenderDataHandle {
-	logicMatrix: Matrix | null = null;
+	private _logicMatrix: Matrix | null = null;
+
+	get logicMatrix(): Matrix | null {
+		return this._logicMatrix;
+	}
+
+	set logicMatrix(value: Matrix | null) {
+		this._logicMatrix = value;
+		// logicMatrix is mutated in place by SubStructRender, so assigning the
+		// same Matrix still means the composite transform may have changed.
+		this._matUploadFrame = -1;
+	}
 	mask: WebRenderStruct2D | null = null;
 
 	inheriteRenderData(context: IRenderContext2D): void {
@@ -94,9 +105,9 @@ export class WebSubStructRenderDataHandle extends WebRender2DDataHandle implemen
 			return;
 		this._matUploadFrame = matrixVersion;
 		let mat = this._owner.renderMatrix;
-		if (this.logicMatrix) {
+		if (this._logicMatrix) {
 			let temp = Matrix.TEMP;
-			Matrix.mul(this.logicMatrix, mat.copyTo(temp), temp);
+			Matrix.mul(this._logicMatrix, mat.copyTo(temp), temp);
 			this._nMatrix_0.setValue(temp.a, temp.c, temp.tx);
 			this._nMatrix_1.setValue(temp.b, temp.d, temp.ty);
 		}
