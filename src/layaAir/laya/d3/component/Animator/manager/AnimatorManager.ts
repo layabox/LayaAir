@@ -4,7 +4,6 @@ import { NodeFlags } from "../../../../Const";
 import { Stat } from "../../../../utils/Stat";
 import { AnimationEvent } from "../../../animation/AnimationEvent";
 import { Scene3D } from "../../../core/scene/Scene3D";
-import { Transform3D } from "../../../core/Transform3D";
 import { Animator } from "../Animator";
 import { AnimatorControllerLayer } from "../AnimatorControllerLayer";
 import { AnimatorPlayState } from "../AnimatorPlayState";
@@ -71,11 +70,8 @@ export class AnimatorManager implements IElementComponentManager {
         // ── 阶段2：曲线解析（采样）──
         this._factory.flushEvaluate();
 
-        // ── 阶段3：数据回写 ──（开 batch mode：同一 transform 同帧多次 set 时跳过重复 walk children）
-        Transform3D._currentAnimatorFrame++;
-        Transform3D._inAnimatorBatch = true;
+        // ── 阶段3：数据回写（各后端自行管理 Transform 批次与事件时序）──
         this._factory.flushApply();
-        Transform3D._inAnimatorBatch = false;
 
         // 收尾（crossFade 切换 / LateUpdate 事件）归入状态机阶段
         this._drainPendingSwitches();

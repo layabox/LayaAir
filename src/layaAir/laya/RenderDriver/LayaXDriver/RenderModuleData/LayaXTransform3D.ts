@@ -121,9 +121,6 @@ export class LayaXTransform3D extends Transform3D {
     /** @internal */
     _nativeObj: any;
 
-    /**@internal RTAnimatorFactory._notifyJsTransformChanged 的帧去重标记，整数比对替代 Set 去重 */
-    _notifyFrame: number = 0;
-
     // ---- 本 slot 零拷贝视图（createEntity 后由 _bindViews 填充）----
     /** @internal 是否已绑定 chunk 零拷贝视图（路径①/②任一成功） */
     private _viewsBound: boolean = false;
@@ -372,14 +369,6 @@ export class LayaXTransform3D extends Transform3D {
         return this._nativeObj.isEntityValid();
     }
 
-    /**
-     * @internal
-     * RTAnimatorFactory 派发 TRANSFORM_CHANGED 时读取的脏标志（flag 在共享 flag 内存里）。
-     */
-    get _RTtransformFlag(): number {
-        return this._getTransformChangeFlag();
-    }
-
     // ChangeFlag 私有化(方案 Phase 2b,性能模型驱动提前):flag 回归基类 JS 私有字段。
     // 跨语言判据已不依赖共享 ChangeFlag —— C++ tier-1 改为 slotClean+祖先链 slot 校验
     // (任何 JS 写含 setWorldMatrix 都置 slot 脏);动画方向由 SyncFlag+syncEpoch 覆盖。
@@ -559,8 +548,7 @@ export class LayaXTransform3D extends Transform3D {
     private _markChainDirtyAll(): void {
         if ((this._getTransformChangeFlag() & ALL_WORLD_FLAGS) !== ALL_WORLD_FLAGS) {
             this._setTransformFlag(ALL_WORLD_FLAGS, true);
-            if (this._hasTransformChangedListener)
-                this.event(Event.TRANSFORM_CHANGED, this._getTransformChangeFlag());
+            this._notifyTransformChanged();
         }
     }
 
@@ -832,8 +820,7 @@ export class LayaXTransform3D extends Transform3D {
         if (!this._viewsBound) { super._onWorldPositionTransform(); return; }
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION, true);
-            if (this._hasTransformChangedListener)
-                this.event(Event.TRANSFORM_CHANGED, this._getTransformChangeFlag());
+            this._notifyTransformChanged();
         }
         this._notifySubscribedChildren(0);
     }
@@ -842,8 +829,7 @@ export class LayaXTransform3D extends Transform3D {
         if (!this._viewsBound) { super._onWorldRotationTransform(); return; }
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER, true);
-            if (this._hasTransformChangedListener)
-                this.event(Event.TRANSFORM_CHANGED, this._getTransformChangeFlag());
+            this._notifyTransformChanged();
         }
         this._notifySubscribedChildren(1);
     }
@@ -852,8 +838,7 @@ export class LayaXTransform3D extends Transform3D {
         if (!this._viewsBound) { super._onWorldScaleTransform(); return; }
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDSCALE, true);
-            if (this._hasTransformChangedListener)
-                this.event(Event.TRANSFORM_CHANGED, this._getTransformChangeFlag());
+            this._notifyTransformChanged();
         }
         this._notifySubscribedChildren(2);
     }
@@ -862,8 +847,7 @@ export class LayaXTransform3D extends Transform3D {
         if (!this._viewsBound) { super._onWorldPositionRotationTransform(); return; }
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDEULER, true);
-            if (this._hasTransformChangedListener)
-                this.event(Event.TRANSFORM_CHANGED, this._getTransformChangeFlag());
+            this._notifyTransformChanged();
         }
         this._notifySubscribedChildren(1);
     }
@@ -872,8 +856,7 @@ export class LayaXTransform3D extends Transform3D {
         if (!this._viewsBound) { super._onWorldPositionScaleTransform(); return; }
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
             this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX | Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDSCALE, true);
-            if (this._hasTransformChangedListener)
-                this.event(Event.TRANSFORM_CHANGED, this._getTransformChangeFlag());
+            this._notifyTransformChanged();
         }
         this._notifySubscribedChildren(2);
     }
@@ -882,8 +865,7 @@ export class LayaXTransform3D extends Transform3D {
         if (!this._viewsBound) { super._onWorldTransform(); return; }
         if (!this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDPOSITION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDQUATERNION) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDEULER) || !this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
             this._setTransformFlag(ALL_WORLD_FLAGS, true);
-            if (this._hasTransformChangedListener)
-                this.event(Event.TRANSFORM_CHANGED, this._getTransformChangeFlag());
+            this._notifyTransformChanged();
         }
         this._notifySubscribedChildren(3);
     }
