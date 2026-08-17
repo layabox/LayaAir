@@ -547,7 +547,9 @@ export class NativeCanvasTextInputAdapter extends TextInputAdapter {
             wordWrap: target.wordWrap,
             inputType: target.type,
             action: this.getInputAction(target.confirmType),
-            maxLength: target.maxChars <= 0 ? 10000 : target.maxChars
+            // NativeTextInputAdapter uses 1E5 for an unset maxChars value.
+            // Keep the Windows canvas editor on the same practical limit.
+            maxLength: target.maxChars <= 0 ? 1E5 : target.maxChars
         };
     }
 

@@ -23,6 +23,7 @@ export class NativeTextEditor {
     private _compositionBaseEnd: number = -1;
     private _compositionSelectionStart: number = 0;
     private _compositionSelectionEnd: number = 0;
+    private _maxLength: number = 0;
     private _undoHistory: NativeTextHistoryEntry[] = [];
     private _redoHistory: NativeTextHistoryEntry[] = [];
 
@@ -61,12 +62,23 @@ export class NativeTextEditor {
             + this._text.substring(this._compositionBaseEnd);
     }
 
-    begin(sessionId: number, text: string, selectionStart: number, selectionEnd: number): NativeTextInputSnapshot {
+    begin(
+        sessionId: number,
+        text: string,
+        selectionStart: number,
+        selectionEnd: number,
+        maxLength: number = 0): NativeTextInputSnapshot {
         if (sessionId <= 0)
             throw new Error("Native text input sessionId must be greater than zero.");
 
         this._sessionId = sessionId;
         this._text = text == null ? "" : String(text);
+        // WinEditBox/HTML input maxLength limits the raw replacement before
+        // the adapter applies Input.restrict. Zero keeps programmatic and
+        // legacy unlimited-input semantics.
+        this._maxLength = Number.isFinite(maxLength)
+            ? Math.max(0, Math.trunc(maxLength))
+            : 0;
         const selection = this.normalizeRange(selectionStart, selectionEnd, this._text.length);
         this._selectionStart = selection.start;
         this._selectionEnd = selection.end;
@@ -90,6 +102,7 @@ export class NativeTextEditor {
 
         this._state = NativeTextInputState.Inactive;
         this._sessionId = 0;
+        this._maxLength = 0;
         this.clearHistory();
         this.touch();
         return this.snapshot();
@@ -350,6 +363,7 @@ export class NativeTextEditor {
 
     private replaceRangeInternal(start: number, end: number, value: string): void {
         const range = this.normalizeRange(start, end, this._text.length);
+        value = this.limitReplacement(value, range);
         this._text = this._text.substring(0, range.start) + value + this._text.substring(range.end);
         this._selectionStart = this._selectionEnd = range.start + value.length;
         this.clearComposition();
@@ -358,6 +372,7 @@ export class NativeTextEditor {
 
     private rangeReplacementChanges(start: number, end: number, value: string): boolean {
         const range = this.normalizeRange(start, end, this._text.length);
+        value = this.limitReplacement(value, range);
         const nextText = this._text.substring(0, range.start)
             + value
             + this._text.substring(range.end);
@@ -365,6 +380,20 @@ export class NativeTextEditor {
         return nextText !== this._text
             || this._selectionStart !== nextSelection
             || this._selectionEnd !== nextSelection;
+    }
+
+    private limitReplacement(value: string, range: NativeTextRange): string {
+        if (this._maxLength <= 0)
+            return value;
+
+        // Replacing a selection frees that selection's UTF-16 units. Limit
+        // only the inserted segment so text after the selection is retained,
+        // matching native/HTML maxLength replacement behavior.
+        const retainedLength = this._text.length - (range.end - range.start);
+        const availableLength = Math.max(0, this._maxLength - retainedLength);
+        return value.length > availableLength
+            ? value.substring(0, availableLength)
+            : value;
     }
 
     private commitCompositionInternal(value: string): void {

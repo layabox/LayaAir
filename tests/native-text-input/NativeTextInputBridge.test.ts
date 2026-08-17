@@ -88,6 +88,16 @@ test("bridge drops commands from a previous native session", () => {
     assert.equal(context.client.querySnapshot(second.sessionId)!.text, "second");
 });
 
+test("bridge applies the session maxLength to platform commits", () => {
+    const context = new MockNativeTextInputContext();
+    const bridge = new NativeTextInputBridge(context);
+    const limitedConfig = { ...config, maxLength: 5 };
+    const begun = bridge.begin(limitedConfig, "", 0, 0);
+
+    context.client.commitText(begun.sessionId, "abc123456");
+    assert.equal(bridge.editor.committedText, "abc12");
+});
+
 test("suspend preserves logical session and resume republishes state", () => {
     const context = new MockNativeTextInputContext();
     const bridge = new NativeTextInputBridge(context);

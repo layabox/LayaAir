@@ -51,7 +51,12 @@ export class NativeTextInputBridge implements INativeTextInputClient {
             this.end(NativeTextInputEndPolicy.CommitComposition);
 
         const sessionId = ++this._nextSessionId;
-        const snapshot = this.editor.begin(sessionId, text, selectionStart, selectionEnd);
+        const snapshot = this.editor.begin(
+            sessionId,
+            text,
+            selectionStart,
+            selectionEnd,
+            config.maxLength);
         this._context.beginSession(sessionId, config, snapshot);
         this.notify(snapshot);
         return snapshot;

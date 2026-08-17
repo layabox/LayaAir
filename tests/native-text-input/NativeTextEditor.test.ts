@@ -188,3 +188,32 @@ test("programmatic text replacement starts a new history", () => {
     assert.equal(editor.undo(15), null);
     assert.equal(editor.snapshot().text, "external");
 });
+
+test("maxLength limits raw inserted text before adapter restriction", () => {
+    const editor = new NativeTextEditor();
+    editor.begin(17, "", 0, 0, 5);
+
+    const snapshot = editor.commitText(17, "abc123456")!;
+    assert.equal(snapshot.text, "abc12");
+    assert.deepEqual([snapshot.selectionStart, snapshot.selectionEnd], [5, 5]);
+});
+
+test("maxLength truncates only replacement text and retains the suffix", () => {
+    const editor = new NativeTextEditor();
+    editor.begin(18, "12345", 1, 4, 5);
+
+    const snapshot = editor.commitText(18, "abcdef")!;
+    assert.equal(snapshot.text, "1abc5");
+    assert.deepEqual([snapshot.selectionStart, snapshot.selectionEnd], [4, 4]);
+});
+
+test("maxLength limits an IME commit as one replacement", () => {
+    const editor = new NativeTextEditor();
+    editor.begin(19, "12", 2, 2, 5);
+    editor.setComposition(19, "abcdef", 6, 6);
+
+    const snapshot = editor.commitText(19, "abcdef")!;
+    assert.equal(snapshot.text, "12abc");
+    assert.deepEqual([snapshot.selectionStart, snapshot.selectionEnd], [5, 5]);
+    assert.deepEqual([snapshot.compositionStart, snapshot.compositionEnd], [-1, -1]);
+});
