@@ -536,10 +536,8 @@ export class WebAnimatorApplier {
 
         const destRealtimeDatas = destState._realtimeDatas;
         const destDataIndices: number[] = controllerLayer._destCrossClipNodeIndices;
-        const destNodeOwners: KeyframeNodeOwner[] = destState._nodeOwners;
         const srcRealtimeDatas = srcState._realtimeDatas;
         const srcDataIndices: number[] = controllerLayer._srcCrossClipNodeIndices;
-        const srcNodeOwners: KeyframeNodeOwner[] = srcState._nodeOwners;
 
         const indices = this._getCrossScopedIndices(controllerLayer, scope);
         const loopCount = indices !== null ? indices.length : ownerCount;
@@ -550,13 +548,13 @@ export class WebAnimatorApplier {
             const srcIndex: number = srcDataIndices[i];
             const destIndex: number = destDataIndices[i];
             if (-1 == srcIndex && -1 == destIndex) continue;
-            let srcValue: any = srcIndex !== -1 ? srcRealtimeDatas[srcIndex] : destNodeOwners[destIndex].defaultValue;
-            if (null == srcValue) continue;
-            let desValue: any = destIndex !== -1 ? destRealtimeDatas[destIndex] : srcNodeOwners[srcIndex].defaultValue;
-            if (!desValue) {
-                desValue = srcNodeOwners[srcIndex].defaultValue;
-            }
-            if (null == desValue) continue;
+            const srcValue: any = srcIndex !== -1
+                ? (srcRealtimeDatas[srcIndex] ?? nodeOwner.defaultValue)
+                : nodeOwner.defaultValue;
+            const desValue: any = destIndex !== -1
+                ? (destRealtimeDatas[destIndex] ?? nodeOwner.defaultValue)
+                : nodeOwner.defaultValue;
+            if (null == srcValue || null == desValue) continue;
             if (!controllerLayer.avatarMask || controllerLayer.avatarMask.getTransformActive(nodeOwner.nodePath)) {
                 this._applyCrossData(nodeOwner, additive, weight, isFirstLayer, srcValue, desValue, crossWeight);
             }
@@ -587,12 +585,10 @@ export class WebAnimatorApplier {
             if (!nodeOwner) continue;
             const destIndex: number = destDataIndices[i];
             const srcValue: any = nodeOwner.crossFixedValue;
-            let desValue;
-            if (destIndex == -1 || !destRealtimeDatas[destIndex]) {
-                desValue = nodeOwner.defaultValue;
-            } else {
-                desValue = destRealtimeDatas[destIndex];
-            }
+            const desValue = destIndex !== -1
+                ? (destRealtimeDatas[destIndex] ?? nodeOwner.defaultValue)
+                : nodeOwner.defaultValue;
+            if (null == srcValue || null == desValue) continue;
             this._applyCrossData(nodeOwner, additive, weight, isFirstLayer, srcValue, desValue, crossWeight);
         }
     }
