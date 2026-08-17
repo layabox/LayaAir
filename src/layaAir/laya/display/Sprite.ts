@@ -1527,6 +1527,9 @@ export class Sprite extends Node {
 
         this._maskParent?.repaint(RepaintFlag.ChildChange);
 
+        if ((kind & TransformKind.Size) !== 0)
+            this._graphicsRenderer?._ownerSizeChanged();
+
         if (
             (kind & TransformKind.TRS) !== 0
             || (kind & TransformKind.Anchor) !== 0

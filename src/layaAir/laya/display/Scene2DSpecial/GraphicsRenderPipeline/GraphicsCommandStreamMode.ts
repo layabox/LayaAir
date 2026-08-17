@@ -38,7 +38,7 @@ export class GraphicsCommandStreamMode {
    private _reuseOps: boolean = false;
    private _oldOpCount: number = 0;
    private _topologyChanged: boolean = false;
-   private _textures: Map<number, TextureCommandEntry> = null;
+   private _textures: Map<number, TextureCommandEntry> = new Map();
    private _spriteTexture: Texture = null;
    private _spriteOp: IGraphicsTextureQuadOp2D = null;
    private _spriteOpIndex: number = -1;
@@ -181,13 +181,10 @@ export class GraphicsCommandStreamMode {
       return false;
    }
    private _addTextureIndex(texture: Texture, commandIndex: number): void {
-      if (!texture || commandIndex < 0)
-         return;
-      let map = this._textures || (this._textures = new Map());
-      let entry = map.get(texture.id);
+      let entry = this._textures.get(texture.id);
       if (!entry) {
          entry = { texture, indices: commandIndex };
-         map.set(texture.id, entry);
+         this._textures.set(texture.id, entry);
          if (texture !== this._spriteTexture)
             texture.on(Event.CHANGE, this, this._onTextureChange, [texture]);
          return;
@@ -204,7 +201,7 @@ export class GraphicsCommandStreamMode {
          indices.push(commandIndex);
    }
    private _removeTextureIndex(texture: Texture, commandIndex: number): void {
-      let entry = texture && this._textures && this._textures.get(texture.id);
+      let entry = this._textures.get(texture.id);
       if (!entry || entry.texture !== texture)
          return;
       let indices = entry.indices;
@@ -229,11 +226,8 @@ export class GraphicsCommandStreamMode {
          entry.texture.off(Event.CHANGE, this, this._onTextureChange);
    }
    private _clearCommandTextures(): void {
-      if (!this._textures)
-         return;
       this._textures.forEach(this._detachCommandTexture, this);
       this._textures.clear();
-      this._textures = null;
    }
    private _detachCommandTexture(entry: TextureCommandEntry): void {
       if (entry.texture !== this._spriteTexture)
@@ -241,7 +235,7 @@ export class GraphicsCommandStreamMode {
    }
    private _prepareTextureIndex(reuse: boolean): void {
       if (reuse)
-         this._textures?.forEach(this._markTextureUnused);
+         this._textures.forEach(this._markTextureUnused);
       else
          this._clearCommandTextures();
    }
@@ -249,10 +243,9 @@ export class GraphicsCommandStreamMode {
       entry.indices = -1;
    }
    private _pruneTextureIndex(): void {
-      let map = this._textures;
-      if (!map || map.size <= 64) return;
-      map.forEach(this._pruneTextureEntry, this);
-      if (map.size === 0) this._textures = null;
+      if (this._textures.size <= 64)
+         return;
+      this._textures.forEach(this._pruneTextureEntry, this);
    }
    private _pruneTextureEntry(entry: TextureCommandEntry): void {
       if (entry.indices === -1)
@@ -263,9 +256,9 @@ export class GraphicsCommandStreamMode {
          return;
       let old = this._spriteTexture;
       this._spriteTexture = texture;
-      if (!(this._textures && this._textures.has(texture.id)))
+      if (!this._textures.has(texture.id))
          texture.on(Event.CHANGE, this, this._onTextureChange, [texture]);
-      if (old && !(this._textures && this._textures.has(old.id)))
+      if (old && !this._textures.has(old.id))
          old.off(Event.CHANGE, this, this._onTextureChange);
    }
    clearSpriteTextureDependency(): void {
@@ -273,13 +266,11 @@ export class GraphicsCommandStreamMode {
       this._spriteTexture = null;
       this._spriteOp = null;
       this._spriteOpIndex = -1;
-      if (texture && !(this._textures && this._textures.has(texture.id)))
+      if (texture && !this._textures.has(texture.id))
          texture.off(Event.CHANGE, this, this._onTextureChange);
    }
    private _onTextureChange(texture: Texture): void {
-      if (!this._renderer || !texture)
-         return;
-      let commandEntry = this._textures && this._textures.get(texture.id);
+      let commandEntry = this._textures.get(texture.id);
       if (texture !== this._spriteTexture && (!commandEntry || commandEntry.texture !== texture || commandEntry.indices === -1))
          return;
       if (!texture.valid)
@@ -310,8 +301,6 @@ export class GraphicsCommandStreamMode {
             OLD_STRUCTURE_DIRTY[i] = (op.dirtyFlags & GraphicsOp2DDirtyFlag.Structure) !== 0 ? 1 : 0;
          }
       } else {
-         for (let i = 0; i < oldCount; i++)
-            this.ops[i].destroy();
          OLD_OPS.length = 0;
       }
       this.ops.length = 0;
@@ -332,10 +321,9 @@ export class GraphicsCommandStreamMode {
             this._topologyChanged = true;
          } else {
             let op = this.ops[i];
-            if (OLD_STRUCTURE_DIRTY[i] || !op || !op.matchesStructureSignature(OLD_SIGNATURES, i * 4)) {
+            if (OLD_STRUCTURE_DIRTY[i] || !op.matchesStructureSignature(OLD_SIGNATURES, i * 4)) {
                this._topologyChanged = true;
-               if (op)
-                  op.markDirty(GraphicsOp2DDirtyFlag.Structure);
+               op.markDirty(GraphicsOp2DDirtyFlag.Structure);
             } else
                op.clearStructureDirty();
          }
@@ -355,9 +343,11 @@ export class GraphicsCommandStreamMode {
       host._syncGraphicsOwnerSize();
       let context = Render2DProcessor.compileContext;
       context.begin(this, owner, owner._struct.blendMode, runner._textRender);
-      let cmds = graphics ? graphics.cmds : null;
-      for (let i = 0, n = cmds ? cmds.length : 0; i < n; i++)
-         context.compileCommand(i, cmds[i]);
+      if (graphics) {
+         let cmds = graphics.cmds;
+         for (let i = 0, n = cmds.length; i < n; i++)
+            context.compileCommand(i, cmds[i]);
+      }
       this._ownerDependencyMask = context.getOwnerDependencyMask();
       if (owner._texture)
          this._appendSpriteTexture(context);
@@ -385,13 +375,13 @@ export class GraphicsCommandStreamMode {
    }
    patchSpriteTexture(): boolean {
       let owner = this._renderer.owner;
-      let texture = owner && owner._texture;
+      let texture = owner._texture;
       let op = this._spriteOp;
       if (!texture || !op || this.ops[this._spriteOpIndex] !== op)
          return false;
       let context = Render2DProcessor.compileContext;
       let runner = Render2DProcessor.runner;
-      context.begin(this, owner, owner._struct.blendMode, runner ? runner._textRender : null);
+      context.begin(this, owner, owner._struct.blendMode, runner._textRender);
       this.beginCommand(-1, SPRITE_TEXTURE_ID, op);
       let success = this._prepareTexture(texture, true) && context._writeSpriteTextureOp(op, owner, texture);
       this.endCommand();
@@ -404,14 +394,14 @@ export class GraphicsCommandStreamMode {
       return true;
    }
    patchFrameAnimation(binding: any, oldCmd: DrawTextureCmd, newCmd: DrawTextureCmd): GraphicsCommandPatchResult {
-      let op = binding && binding.op as IGraphicsTextureQuadOp2D;
-      let opIndex = binding ? binding.opStart : -1;
+      let op = binding.op as IGraphicsTextureQuadOp2D;
+      let opIndex = binding.opStart;
       if (!op || newCmd.matrix || binding.opCount !== 1 || this.ops[opIndex] !== op || op.kind !== GraphicsOp2DKind.TextureQuad)
          return GraphicsCommandPatchResult.Failed;
       let owner = this._renderer.owner;
       let runner = Render2DProcessor.runner;
       let context = Render2DProcessor.compileContext;
-      context.begin(this, owner, owner._struct.blendMode, runner ? runner._textRender : null);
+      context.begin(this, owner, owner._struct.blendMode, runner._textRender);
       context.compileCommand(binding.commandIndex, newCmd, op);
       context.end();
       if (!this._lastTargetWrote)
@@ -443,7 +433,7 @@ export class GraphicsCommandStreamMode {
          this.ops[i].destroy();
       this.ops.length = 0;
       this._ownerDependencyMask = GraphicsOwnerTransformDependency.None;
-      if (releaseHandle && this._dataHandle)
+      if (releaseHandle)
          this._dataHandle.syncGraphicsOps(EMPTY_OPS);
    }
    clearTextureDependencies(): void {
@@ -455,8 +445,7 @@ export class GraphicsCommandStreamMode {
    }
    destroy(): void {
       this.clear();
-      if (this._dataHandle)
-         this._dataHandle.destroy();
+      this._dataHandle.destroy();
       this._dataHandle = null;
       this._renderer = null;
    }

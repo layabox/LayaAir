@@ -10,7 +10,6 @@ import { Matrix } from "../../../../maths/Matrix";
 import { Vector4 } from "../../../../maths/Vector4";
 import type { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import type { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
-import { GraphicsHandleUpdateField } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
 
 type RTGraphicsNativeOpCarrier = {
     _nativeObj?: any;
@@ -152,7 +151,6 @@ export class RTGraphicsSingleQuadDataHandle extends RTRender2DDataHandle impleme
 	private _graphicsShaderData: ShaderData | null = null;
 	private _graphicsUseSpriteState: boolean = true;
 	private _graphicsHandleUpdateBuffer: ArrayBuffer = null;
-	private _graphicsHandleUpdateInt32: Int32Array = null;
 	private _singleQuadPayloadBuffer: ArrayBuffer = null;
 	private _singleQuadActive: boolean = false;
 	private _singleQuadNativeTexture: any = null;
@@ -180,7 +178,6 @@ export class RTGraphicsSingleQuadDataHandle extends RTRender2DDataHandle impleme
 		if (this._graphicsHandleUpdateBuffer === buffer)
 			return;
 		this._graphicsHandleUpdateBuffer = buffer;
-		this._graphicsHandleUpdateInt32 = buffer ? new Int32Array(buffer) : null;
 		this._nativeObj.setGraphicsHandleUpdateBuffer(buffer);
 	}
 
@@ -212,9 +209,6 @@ export class RTGraphicsSingleQuadDataHandle extends RTRender2DDataHandle impleme
 	syncSingleQuad(texture: BaseTexture | null): boolean {
 		if (!this._singleQuadPayloadBuffer)
 			return false;
-		let update = this._graphicsHandleUpdateInt32;
-		if (update)
-			update[GraphicsHandleUpdateField.SingleQuadVersion]++;
 		let internalTexture: any = texture ? texture._texture : null;
 		let nativeTexture = internalTexture ? internalTexture._nativeObj || null : null;
 		let textureId = texture ? texture.id : 0;
@@ -242,7 +236,6 @@ export class RTGraphicsSingleQuadDataHandle extends RTRender2DDataHandle impleme
 		this._graphicsShaderData = null;
 		super.destroy();
 		this._graphicsHandleUpdateBuffer = null;
-		this._graphicsHandleUpdateInt32 = null;
 		this._singleQuadPayloadBuffer = null;
 		this._singleQuadNativeTexture = null;
 		this._singleQuadTextureId = 0;

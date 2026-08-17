@@ -111,6 +111,13 @@ export class WebSingleQuadPrimitiveData {
 		return true;
 	}
 
+	/** Refresh geometry after renderer-control inputs such as owner size change. */
+	refreshInputGeometry(): void {
+		if (!this._active || !this._unit)
+			return;
+		this._publishGeometry(this._writeVertices(this._owner.renderMatrix, this._owner.globalAlpha));
+	}
+
 	deactivate(): void {
 		this._active = false;
 		this._geometryVisible = false;

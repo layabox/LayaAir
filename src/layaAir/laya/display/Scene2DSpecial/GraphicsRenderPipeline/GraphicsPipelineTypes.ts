@@ -174,7 +174,9 @@ export const GRAPHICS_INFO_VERTEX_FLAG_DISABLED = 0;
 
 /** @internal */
 export const enum GraphicsHandleUpdateField {
+	/** CommandStream dirty-range publication version. */
 	UpdateVersion = 0,
+	/** Last CommandStream dirty-range version consumed by the backend. */
 	HandledVersion = 1,
 
 	DirtyFlags = 2,
@@ -183,7 +185,7 @@ export const enum GraphicsHandleUpdateField {
 
 	OwnerWidth = 5,
 	OwnerHeight = 6,
-	/** Shared-buffer publish version for the fixed SingleQuad payload. */
+	/** Shared-buffer publication version for all fixed SingleQuad inputs. */
 	SingleQuadVersion = 7,
 	/** Command-stream Op identity/order/structure version. */
 	TopologyVersion = 8,
@@ -196,6 +198,7 @@ export const enum GraphicsHandleUpdateField {
 /** @internal */
 export const enum GraphicsHandleDirtyFlag {
 	None = 0,
+	/** SingleQuad owner-size input changed; geometry only. */
 	OwnerSize = 1 << 0,
 	OpPayload = 1 << 1,
 	OpResource = 1 << 2,

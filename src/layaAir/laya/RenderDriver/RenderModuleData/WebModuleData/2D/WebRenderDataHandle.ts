@@ -15,6 +15,10 @@ import { WebRenderStruct2D } from "./WebRenderStruct2D";
 import type { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import type { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { WebSingleQuadPrimitiveData } from "./WebSingleQuadPrimitiveData";
+import { GraphicsHandleDirtyFlag, GraphicsHandleUpdateField } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
+
+const SINGLE_QUAD_DIRTY_MASK = GraphicsHandleDirtyFlag.OwnerSize | GraphicsHandleDirtyFlag.OpPayload
+    | GraphicsHandleDirtyFlag.OpResource | GraphicsHandleDirtyFlag.OpState;
 
 export abstract class WebRender2DDataHandle implements IRender2DDataHandle {
     protected _owner: WebRenderStruct2D;
@@ -109,7 +113,9 @@ export class WebGraphicsSingleQuadDataHandle extends WebRender2DDataHandle imple
     private _singleQuadData: WebSingleQuadPrimitiveData = null;
     private _singleQuadActive: boolean = false;
     private _graphicsHandleUpdateBuffer: ArrayBuffer = null;
+    private _graphicsHandleUpdateInt32: Int32Array = null;
     private _singleQuadPayloadBuffer: ArrayBuffer = null;
+    private _handledSingleQuadVersion: number = -1;
     private _modifiedFrame: number = -1;
     private _globalAlpha: number = 1;
     private _globalAlphaValid: boolean = false;
@@ -121,17 +127,16 @@ export class WebGraphicsSingleQuadDataHandle extends WebRender2DDataHandle imple
         // A GraphicsRenderer owns its handle for life. Detaching the struct only makes the
         // handle dormant; retaining the owner keeps Runtime/RenderUnit identities reusable.
         if (!value) {
-            if (this._singleQuadData)
-                this._singleQuadData.deactivate();
+            this._singleQuadData.deactivate();
             this._singleQuadActive = false;
+            this._handledSingleQuadVersion = -1;
             return;
         }
-        if (this._singleQuadData)
-            this._singleQuadData.destroy();
-        this._singleQuadData = null;
         super.owner = value;
+        this._singleQuadData.setOwner(value);
         this._globalAlphaValid = false;
         this._modifiedFrame = -1;
+        this._handledSingleQuadVersion = -1;
     }
 
     public get owner(): WebRenderStruct2D {
@@ -142,8 +147,8 @@ export class WebGraphicsSingleQuadDataHandle extends WebRender2DDataHandle imple
         if (this._graphicsHandleUpdateBuffer === buffer)
             return;
         this._graphicsHandleUpdateBuffer = buffer;
-        if (this._singleQuadData)
-            this._singleQuadData.setHandleControlBuffer(buffer);
+        this._graphicsHandleUpdateInt32 = new Int32Array(buffer);
+        this._handledSingleQuadVersion = -1;
     }
 
     setGraphicsMaterialState(subShader: SubShader | null, shaderData: ShaderData | null, useSpriteState: boolean): void {
@@ -152,8 +157,7 @@ export class WebGraphicsSingleQuadDataHandle extends WebRender2DDataHandle imple
         this._graphicsMaterialState.subShader = subShader;
         this._graphicsMaterialState.shaderData = shaderData;
         this._graphicsMaterialState.useSpriteState = useSpriteState;
-        if (this._singleQuadData)
-            this._singleQuadData.setMaterialState(subShader, shaderData, useSpriteState);
+        this._singleQuadData.setMaterialState(subShader, shaderData, useSpriteState);
     }
 
     setSingleQuadPayloadBuffer(buffer: ArrayBuffer): void {
@@ -162,70 +166,69 @@ export class WebGraphicsSingleQuadDataHandle extends WebRender2DDataHandle imple
         if (this._singleQuadPayloadBuffer)
             throw new Error("SingleQuad payload buffer can only be bound once");
         this._singleQuadPayloadBuffer = buffer;
+        this._singleQuadData = new WebSingleQuadPrimitiveData(buffer);
+        this._singleQuadData.setHandleControlBuffer(this._graphicsHandleUpdateBuffer);
+        this._singleQuadData.setMaterialState(this._graphicsMaterialState.subShader,
+            this._graphicsMaterialState.shaderData, this._graphicsMaterialState.useSpriteState);
     }
 
     syncSingleQuad(texture: BaseTexture | null): boolean {
-        if (!this._ensureSingleQuadData())
-            return false;
         if (!this._singleQuadData.sync(texture))
             return false;
         this._singleQuadActive = true;
         this.needUseMatrix = false;
-        this._modifiedFrame = this._owner ? this._owner.getRenderMatrixVersion() : -1;
-        this._globalAlpha = this._owner ? this._owner.globalAlpha : 1;
+        this._modifiedFrame = this._owner.getRenderMatrixVersion();
+        this._globalAlpha = this._owner.globalAlpha;
         this._globalAlphaValid = true;
-        return true;
-    }
-
-    private _ensureSingleQuadData(): boolean {
-        if (this._singleQuadData)
-            return true;
-        if (!this._singleQuadPayloadBuffer)
-            return false;
-        this._singleQuadData = new WebSingleQuadPrimitiveData(this._singleQuadPayloadBuffer);
-        this._singleQuadData.setOwner(this._owner);
-        this._singleQuadData.setHandleControlBuffer(this._graphicsHandleUpdateBuffer);
-        this._singleQuadData.setMaterialState(this._graphicsMaterialState.subShader, this._graphicsMaterialState.shaderData, this._graphicsMaterialState.useSpriteState);
+        this._handledSingleQuadVersion = this._graphicsHandleUpdateInt32[GraphicsHandleUpdateField.SingleQuadVersion];
+        this._graphicsHandleUpdateInt32[GraphicsHandleUpdateField.DirtyFlags] &= ~SINGLE_QUAD_DIRTY_MASK;
         return true;
     }
 
     deactivateSingleQuad(): void {
-        if (this._singleQuadData)
-            this._singleQuadData.deactivate();
+        this._singleQuadData.deactivate();
         this._singleQuadActive = false;
     }
 
     inheriteRenderData(context: IRenderContext2D): void {
-        let data = this._owner.spriteShaderData;
-
-        if (data) {
-            let matrixVersion = this._owner.getRenderMatrixVersion();
-            let globalAlpha = this._owner.globalAlpha;
-            let alphaChanged = !this._globalAlphaValid || this._globalAlpha != globalAlpha;
-            if (this._modifiedFrame !== matrixVersion) {
-                if (this._singleQuadActive) {
-                    this._singleQuadData.updateTransform(this._owner.renderMatrix, globalAlpha, alphaChanged);
-                }
-                this._globalAlpha = globalAlpha;
-                this._globalAlphaValid = true;
-                this._modifiedFrame = matrixVersion;
-            }
-            else if (alphaChanged) {
-                this._globalAlpha = globalAlpha;
-                this._globalAlphaValid = true;
-                if (this._singleQuadActive) {
-                    this._singleQuadData.updateGlobalAlpha(this._globalAlpha);
-                }
-            }
+        let matrixVersion = this._owner.getRenderMatrixVersion();
+        let globalAlpha = this._owner.globalAlpha;
+        let singleQuadVersion = this._graphicsHandleUpdateInt32[GraphicsHandleUpdateField.SingleQuadVersion];
+        if (this._singleQuadActive && this._handledSingleQuadVersion !== singleQuadVersion) {
+            let inputFlags = this._graphicsHandleUpdateInt32[GraphicsHandleUpdateField.DirtyFlags];
+            if (inputFlags === GraphicsHandleDirtyFlag.None
+                || (inputFlags & (GraphicsHandleDirtyFlag.OwnerSize | GraphicsHandleDirtyFlag.OpPayload)) !== 0)
+                this._singleQuadData.refreshInputGeometry();
+            this._handledSingleQuadVersion = singleQuadVersion;
+            this._graphicsHandleUpdateInt32[GraphicsHandleUpdateField.DirtyFlags] &= ~SINGLE_QUAD_DIRTY_MASK;
+            this._modifiedFrame = matrixVersion;
+            this._globalAlpha = globalAlpha;
+            this._globalAlphaValid = true;
+        }
+        let alphaChanged = !this._globalAlphaValid || this._globalAlpha != globalAlpha;
+        if (this._modifiedFrame !== matrixVersion) {
+            if (this._singleQuadActive)
+                this._singleQuadData.updateTransform(this._owner.renderMatrix, globalAlpha, alphaChanged);
+            this._globalAlpha = globalAlpha;
+            this._globalAlphaValid = true;
+            this._modifiedFrame = matrixVersion;
+        }
+        else if (alphaChanged) {
+            this._globalAlpha = globalAlpha;
+            this._globalAlphaValid = true;
+            if (this._singleQuadActive)
+                this._singleQuadData.updateGlobalAlpha(this._globalAlpha);
         }
     }
 
     destroy(): void {
-        if (this._singleQuadData)
-            this._singleQuadData.destroy();
+        this._singleQuadData.destroy();
         this._singleQuadData = null;
         this._singleQuadPayloadBuffer = null;
         this._singleQuadActive = false;
+        this._graphicsHandleUpdateBuffer = null;
+        this._graphicsHandleUpdateInt32 = null;
+        this._handledSingleQuadVersion = -1;
         this._graphicsMaterialState.subShader = null;
         this._graphicsMaterialState.shaderData = null;
         super.owner = null;
@@ -251,8 +254,9 @@ export class WebGraphicsCommandStreamDataHandle extends WebRender2DDataHandle im
 			this._setGraphicsOpsActive(false);
 			return;
 		}
-		this._destroyGraphicsOpRuntime();
 		super.owner = value;
+		this._opRuntime = new WebGraphicsOp2DRuntime(value, this._graphicsMaterialState);
+		this._opRuntime.setGraphicsHandleUpdateBuffer(this._graphicsHandleUpdateBuffer);
 		this._graphicsOpsActive = false;
 		this._globalAlphaValid = false;
 		this._modifiedFrame = -1;
@@ -262,25 +266,11 @@ export class WebGraphicsCommandStreamDataHandle extends WebRender2DDataHandle im
 		return super.owner;
 	}
 
-	private _destroyGraphicsOpRuntime(): void {
-		if (!this._opRuntime)
-			return;
-		this._opRuntime.destroy();
-		this._opRuntime = null;
-	}
-
-	private _createGraphicsOpRuntime(): void {
-		if (!this._owner || this._opRuntime)
-			return;
-		this._opRuntime = new WebGraphicsOp2DRuntime(this._owner, this._graphicsMaterialState);
-		this._opRuntime.setGraphicsHandleUpdateBuffer(this._graphicsHandleUpdateBuffer);
-	}
-
 	private _setGraphicsOpsActive(value: boolean): void {
 		if (value)
-			this._opRuntime && this._opRuntime.activate();
+			this._opRuntime.activate();
 		else
-			this._opRuntime && this._opRuntime.deactivate();
+			this._opRuntime.deactivate();
 		if (this._graphicsOpsActive === value)
 			return;
 		this._graphicsOpsActive = value;
@@ -292,8 +282,6 @@ export class WebGraphicsCommandStreamDataHandle extends WebRender2DDataHandle im
 		if (this._graphicsHandleUpdateBuffer === buffer)
 			return;
 		this._graphicsHandleUpdateBuffer = buffer;
-		if (this._opRuntime)
-			this._opRuntime.setGraphicsHandleUpdateBuffer(buffer);
 	}
 
 	setGraphicsMaterialState(subShader: SubShader | null, shaderData: ShaderData | null, useSpriteState: boolean): void {
@@ -305,24 +293,20 @@ export class WebGraphicsCommandStreamDataHandle extends WebRender2DDataHandle im
 		this._graphicsMaterialState.subShader = subShader;
 		this._graphicsMaterialState.shaderData = shaderData;
 		this._graphicsMaterialState.useSpriteState = useSpriteState;
-		if (this._opRuntime) {
-			if (subShaderChanged)
-				this._opRuntime.syncGraphicsSubShader();
-			if (shaderDataChanged)
-				this._opRuntime.syncGraphicsShaderData();
-			if (useSpriteStateChanged)
-				this._opRuntime.syncGraphicsUseSpriteState();
-		}
+		if (subShaderChanged)
+			this._opRuntime.syncGraphicsSubShader();
+		if (shaderDataChanged)
+			this._opRuntime.syncGraphicsShaderData();
+		if (useSpriteStateChanged)
+			this._opRuntime.syncGraphicsUseSpriteState();
 	}
 
 	syncGraphicsOps(ops: ReadonlyArray<IGraphicsOp2D>): void {
-		this._createGraphicsOpRuntime();
 		// Resolve pending transform dirtiness once so retained clean units are
 		// followed by the normal matrix-version update instead of keeping stale positions.
-		if (this._owner)
-			this._owner.renderMatrix;
-		if (!ops || ops.length === 0) {
-			this._opRuntime.syncGraphicsOps(ops ? ops as ReadonlyArray<WebGraphicsOp2D> : WebGraphicsCommandStreamDataHandle._emptyGraphicsOps);
+		this._owner.renderMatrix;
+		if (ops.length === 0) {
+			this._opRuntime.syncGraphicsOps(WebGraphicsCommandStreamDataHandle._emptyGraphicsOps);
 			this._setGraphicsOpsActive(false);
 			return;
 		}
@@ -337,13 +321,10 @@ export class WebGraphicsCommandStreamDataHandle extends WebRender2DDataHandle im
 
 	/** @internal */
 	getGraphicsBatchEntry(index: number): WebGraphicsBatchEntry {
-		return this._opRuntime ? this._opRuntime.getGraphicsBatchEntry(index) : null;
+		return this._opRuntime.getGraphicsBatchEntry(index);
 	}
 
 	inheriteRenderData(context: IRenderContext2D): void {
-		let data = this._owner.spriteShaderData;
-		if (!data)
-			return;
 		let matrixVersion = this._owner.getRenderMatrixVersion();
 		let globalAlpha = this._owner.globalAlpha;
 		let alphaChanged = !this._globalAlphaValid || this._globalAlpha != globalAlpha;
@@ -363,7 +344,7 @@ export class WebGraphicsCommandStreamDataHandle extends WebRender2DDataHandle im
 	}
 
 	destroy(): void {
-		this._destroyGraphicsOpRuntime();
+		this._opRuntime.destroy();
 		this._graphicsOpsActive = false;
 		this._graphicsMaterialState.subShader = null;
 		this._graphicsMaterialState.shaderData = null;

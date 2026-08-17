@@ -15,6 +15,7 @@ import {
 	GraphicsSingleQuadKind,
 	GraphicsSingleQuadPayloadField,
 	GraphicsCommandPatchResult,
+	GraphicsHandleDirtyFlag,
 } from "./GraphicsPipelineTypes";
 import { GraphicsOpRenderStateHelper } from "./GraphicsPipelineHelpers";
 import type { GraphicsRenderer } from "./GraphicsRenderer";
@@ -45,7 +46,7 @@ export class GraphicsSingleQuadMode {
 		if (count !== 1)
 			return 0;
 		let cmd = cmds[0];
-		switch (cmd && cmd.cmdID) {
+		switch (cmd.cmdID) {
 			case DrawTextureCmd.ID:
 			case DrawImageCmd.ID:
 				return GraphicsSingleQuadKind.TextureQuad;
@@ -85,7 +86,7 @@ export class GraphicsSingleQuadMode {
 		if (kind === GraphicsSingleQuadKind.SpriteTexture)
 			return this._renderSpriteTexture();
 		let cmd = graphics.cmds[0];
-		let binding = cmd && cmd._cacheData;
+		let binding = cmd._cacheData;
 		if (binding && binding.kind === "FrameAnimation") {
 			binding.commandIndex = 0;
 			binding.opStart = -1;
@@ -122,8 +123,7 @@ export class GraphicsSingleQuadMode {
 
 	destroy(): void {
 		this.clear();
-		if (this._dataHandle)
-			this._dataHandle.destroy();
+		this._dataHandle.destroy();
 		this._dataHandle = null;
 		this._payloadBuffer = null;
 		this._payloadInt32 = null;
@@ -140,18 +140,18 @@ export class GraphicsSingleQuadMode {
 			0xffffffff, owner._struct.blendMode, 1, textureLayer);
 		let f32 = this._payloadFloat32;
 
-		let sourceWidth = texture ? (texture.sourceWidth || texture.width || 1) : 1;
-		let sourceHeight = texture ? (texture.sourceHeight || texture.height || 1) : 1;
+		let sourceWidth = texture.sourceWidth || texture.width || 1;
+		let sourceHeight = texture.sourceHeight || texture.height || 1;
 		let width = owner._isWidthSet ? owner._width : sourceWidth;
 		let height = owner._isHeightSet ? owner._height : sourceHeight;
 		let widthRate = width / sourceWidth;
 		let heightRate = height / sourceHeight;
-		f32[GraphicsSingleQuadPayloadField.X] = texture ? texture.offsetX * widthRate : 0;
-		f32[GraphicsSingleQuadPayloadField.Y] = texture ? texture.offsetY * heightRate : 0;
-		f32[GraphicsSingleQuadPayloadField.Width] = texture ? texture.width * widthRate : 0;
-		f32[GraphicsSingleQuadPayloadField.Height] = texture ? texture.height * heightRate : 0;
+		f32[GraphicsSingleQuadPayloadField.X] = texture.offsetX * widthRate;
+		f32[GraphicsSingleQuadPayloadField.Y] = texture.offsetY * heightRate;
+		f32[GraphicsSingleQuadPayloadField.Width] = texture.width * widthRate;
+		f32[GraphicsSingleQuadPayloadField.Height] = texture.height * heightRate;
 
-		let uv = texture ? (texture._uv || texture.uv || Texture.DEF_UV) : Texture.DEF_UV;
+		let uv = texture._uv || texture.uv || Texture.DEF_UV;
 		this._writeUV(uv);
 		f32[GraphicsSingleQuadPayloadField.Aux2] = 1;
 		f32[GraphicsSingleQuadPayloadField.Aux3] = 1;
@@ -259,11 +259,23 @@ export class GraphicsSingleQuadMode {
 		this._dependsOnSize = dependsOnSize;
 		this._renderer._syncGraphicsOwnerSize();
 		let resourceInternal = this._resource ? this._resource._texture : null;
-		let changed = !this._submitted || this._submittedResource !== this._resource || this._submittedResourceInternal !== resourceInternal;
-		for (let i = 0; !changed && i < GraphicsSingleQuadPayloadField.WordCount; i++)
-			changed = this._submittedPayload[i] !== this._payloadInt32[i];
-		if (!changed)
+		let firstSubmit = !this._submitted;
+		let resourceChanged = firstSubmit || this._submittedResource !== this._resource
+			|| this._submittedResourceInternal !== resourceInternal;
+		let stateChanged = firstSubmit
+			|| this._submittedPayload[GraphicsSingleQuadPayloadField.Kind] !== this._payloadInt32[GraphicsSingleQuadPayloadField.Kind]
+			|| this._submittedPayload[GraphicsSingleQuadPayloadField.BlendMode] !== this._payloadInt32[GraphicsSingleQuadPayloadField.BlendMode];
+		let payloadChanged = firstSubmit;
+		for (let i = 0; !payloadChanged && i < GraphicsSingleQuadPayloadField.WordCount; i++)
+			payloadChanged = this._submittedPayload[i] !== this._payloadInt32[i];
+		if (!payloadChanged && !resourceChanged)
 			return false;
+		let flags = payloadChanged ? GraphicsHandleDirtyFlag.OpPayload : GraphicsHandleDirtyFlag.None;
+		if (resourceChanged)
+			flags |= GraphicsHandleDirtyFlag.OpResource;
+		if (stateChanged)
+			flags |= GraphicsHandleDirtyFlag.OpState;
+		this._renderer._publishSingleQuadInputs(flags);
 		this._submittedPayload.set(this._payloadInt32);
 		this._submittedResource = this._resource;
 		this._submittedResourceInternal = resourceInternal;
@@ -319,7 +331,6 @@ export class GraphicsSingleQuadMode {
 	}
 
 	private _onTextureChange(): void {
-		if (this._renderer)
-			this._renderer._scheduleGraphicsPayloadUpdate();
+		this._renderer._scheduleGraphicsPayloadUpdate();
 	}
 }
