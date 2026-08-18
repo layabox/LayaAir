@@ -602,12 +602,11 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
 
         let source = ktxInfo.source;
         let compressed = ktxInfo.compress;
-        let fourSize = width % 4 == 0 && height % 4 == 0;
 
         let gl = this._gl;
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-        fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+        !compressed && gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
 
         this._engine._bindTexture(texture.target, texture.resource);
 
@@ -641,15 +640,14 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
             dataOffset += imageSize;
             dataOffset += 3 - ((imageSize + 3) % 4);
 
-            mipmapWidth = Math.max(1, mipmapWidth * 0.5);
-            mipmapHeight = Math.max(1, mipmapHeight * 0.5);
+            mipmapWidth = Math.max(1, Math.floor(mipmapWidth * 0.5));
+            mipmapHeight = Math.max(1, Math.floor(mipmapHeight * 0.5));
 
         }
         this._engine._bindTexture(texture.target, null);
         texture.gpuMemory = memory;
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-        fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
     }
 
     setCubeImageData(texture: WebGLInternalTex, sources: (HTMLImageElement | HTMLCanvasElement | ImageBitmap)[], premultiplyAlpha: boolean, invertY: boolean): void {

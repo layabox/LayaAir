@@ -852,12 +852,10 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
         texture.maxMipmapLevel = mipmapCount - 1;
 
-        let fourSize = width % 4 == 0 && height % 4 == 0;
-
         let gl = texture._gl;
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-        fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+        !compressed && gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
 
         this._engine._bindTexture(texture.target, texture.resource);
 
@@ -885,8 +883,8 @@ export class GLTextureContext extends GLObject implements ITextureContext {
             dataOffset += imageSize;
             dataOffset += 3 - ((imageSize + 3) % 4);
 
-            mipmapWidth = Math.max(1, mipmapWidth * 0.5);
-            mipmapHeight = Math.max(1, mipmapHeight * 0.5);
+            mipmapWidth = Math.max(1, Math.floor(mipmapWidth * 0.5));
+            mipmapHeight = Math.max(1, Math.floor(mipmapHeight * 0.5));
         }
 
         for (let index = ktxInfo.mipmapCount; index < texture.mipmapCount; index++) {
@@ -897,8 +895,8 @@ export class GLTextureContext extends GLObject implements ITextureContext {
                 gl.texImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, format, type, null);
             }
 
-            mipmapWidth = Math.max(1, mipmapWidth * 0.5);
-            mipmapHeight = Math.max(1, mipmapHeight * 0.5);
+            mipmapWidth = Math.max(1, Math.floor(mipmapWidth * 0.5));
+            mipmapHeight = Math.max(1, Math.floor(mipmapHeight * 0.5));
         }
 
         texture.gpuMemory = memory;//TODO 不太准
@@ -906,7 +904,6 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-        fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
     }
 
     setTextureHDRData(texture: WebGLInternalTex, hdrInfo: HDRTextureInfo): void {
