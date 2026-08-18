@@ -419,44 +419,49 @@ export class Byte {
      * @return 读取的字符串。
      */
     private _rUTF(len: number): string {
-        let v: string = "", max: number = this._pos_ + len, c: number, c2: number, c3: number, f: Function = String.fromCharCode;
-        let u = this._u8d_, i: number = 0;
-        let strs: string[] = [];
-        let n: number = 0;
-        strs.length = 1000;
+        const max: number = this._pos_ + len;
+        const u = this._u8d_;
+        const charCodes: number[] = [];
+        const chunks: string[] = [];
+        const chunkSize: number = 4096;
+        let c: number, c2: number, c3: number;
         while (this._pos_ < max) {
             c = u[this._pos_++];
             if (c < 0x80) {
                 if (c != 0)
-                    //v += f(c);\
-                    strs[n++] = f(c);
+                    charCodes.push(c);
             } else if (c < 0xE0) {
-                //v += f(((c & 0x3F) << 6) | (u[_pos_++] & 0x7F));
-                strs[n++] = f(((c & 0x3F) << 6) | (u[this._pos_++] & 0x7F));
+                charCodes.push(((c & 0x3F) << 6) | (u[this._pos_++] & 0x7F));
             } else if (c < 0xF0) {
                 c2 = u[this._pos_++];
-                //v += f(((c & 0x1F) << 12) | ((c2 & 0x7F) << 6) | (u[_pos_++] & 0x7F));
-                strs[n++] = f(((c & 0x1F) << 12) | ((c2 & 0x7F) << 6) | (u[this._pos_++] & 0x7F));
+                charCodes.push(((c & 0x1F) << 12) | ((c2 & 0x7F) << 6) | (u[this._pos_++] & 0x7F));
             } else {
                 c2 = u[this._pos_++];
                 c3 = u[this._pos_++];
-                //v += f(((c & 0x0F) << 18) | ((c2 & 0x7F) << 12) | ((c3 << 6) & 0x7F) | (u[_pos_++] & 0x7F));
                 const _code = ((c & 0x0F) << 18) | ((c2 & 0x7F) << 12) | ((c3 & 0x7F) << 6) | (u[this._pos_++] & 0x7F);
                 if (_code >= 0x10000) {
                     const _offset = _code - 0x10000;
                     const _lead = 0xd800 | (_offset >> 10);
                     const _trail = 0xdc00 | (_offset & 0x3ff);
-                    strs[n++] = f(_lead);
-                    strs[n++] = f(_trail);
+                    charCodes.push(_lead, _trail);
                 }
                 else {
-                    strs[n++] = f(_code);
+                    charCodes.push(_code);
                 }
             }
-            i++;
+
+            if (charCodes.length >= chunkSize) {
+                chunks.push(String.fromCharCode.apply(null, charCodes));
+                charCodes.length = 0;
+            }
         }
-        strs.length = n;
-        return strs.join('');
+
+        if (chunks.length === 0)
+            return String.fromCharCode.apply(null, charCodes);
+
+        if (charCodes.length > 0)
+            chunks.push(String.fromCharCode.apply(null, charCodes));
+        return chunks.join('');
     }
 
 
