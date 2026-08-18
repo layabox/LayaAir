@@ -59,7 +59,10 @@ export class CubemapLoader implements IResourceLoader {
                     return null;
                 }
 
-                let tex = new TextureCube(ktxInfo.width, ktxInfo.format, ktxInfo.mipmapCount > 1, ktxInfo.sRGB);
+                let constructParams = task.options.constructParams;
+                let mipmapRequested = constructParams?.[3] ?? true;
+                let mipmap = mipmapRequested && ktxInfo.mipmapCount > 1;
+                let tex = new TextureCube(ktxInfo.width, ktxInfo.format, mipmap, ktxInfo.sRGB);
                 tex.setKTXData(ktxInfo);
 
                 let obsoluteInst = task.obsoluteInst;

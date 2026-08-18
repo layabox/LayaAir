@@ -845,7 +845,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let internalFormat = texture.internalFormat;
         let format = texture.format;
         let type = texture.type;
-        let mipmapCount = texture.mipmapCount;
+        let mipmapCount = Math.min(ktxInfo.mipmapCount, texture.mipmapCount);
         // todo texture size 与 ddsInfo size
         let width = texture.width;
         let height = texture.height;
@@ -863,7 +863,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let mipmapHeight = height;
         let dataOffset = ktxInfo.headerOffset + ktxInfo.bytesOfKeyValueData;
         let memory = 0;
-        for (let index = 0; index < ktxInfo.mipmapCount; index++) {
+        for (let index = 0; index < mipmapCount; index++) {
             let imageSize = new Int32Array(source, dataOffset, 1)[0];
 
             dataOffset += 4;
@@ -1146,7 +1146,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let internalFormat = texture.internalFormat;
         let format = texture.format;
         let type = texture.type;
-        let mipmapCount = ktxInfo.mipmapCount;
+        let mipmapCount = Math.min(ktxInfo.mipmapCount, texture.mipmapCount);
         // todo texture size 与 ddsInfo size
         let width = texture.width;
         let height = texture.height;
@@ -1177,7 +1177,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let mipmapHeight = height;
         let dataOffset = ktxInfo.headerOffset + ktxInfo.bytesOfKeyValueData;
         let memory = 0;
-        for (let index = 0; index < ktxInfo.mipmapCount; index++) {
+        for (let index = 0; index < mipmapCount; index++) {
             let imageSize = new Int32Array(source, dataOffset, 1)[0];
 
             dataOffset += 4;

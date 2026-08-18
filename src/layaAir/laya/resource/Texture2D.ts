@@ -251,8 +251,10 @@ export class Texture2D extends BaseTexture {
      */
     static _parseKTX(data: ArrayBuffer, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null) {
         let ktxInfo = KTXTextureInfo.getKTXTextureInfo(data);
+        let mipmapRequested = constructParams?.[3] ?? true;
+        let mipmap = mipmapRequested && ktxInfo.mipmapCount > 1;
 
-        let texture = new Texture2D(ktxInfo.width, ktxInfo.height, ktxInfo.format, ktxInfo.mipmapCount > 1, false, ktxInfo.sRGB);
+        let texture = new Texture2D(ktxInfo.width, ktxInfo.height, ktxInfo.format, mipmap, false, ktxInfo.sRGB);
 
         texture.setKTXData(ktxInfo);
         if (propertyParams){

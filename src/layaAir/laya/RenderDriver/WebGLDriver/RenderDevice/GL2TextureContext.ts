@@ -593,7 +593,7 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
         let internalFormat = texture.internalFormat;
         let format = texture.format;
         let type = texture.type;
-        let mipmapCount = texture.mipmapCount;
+        let mipmapCount = Math.min(ktxInfo.mipmapCount, texture.mipmapCount);
         // todo texture size 
         let width = texture.width;
         let height = texture.height;
@@ -611,14 +611,14 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
         this._engine._bindTexture(texture.target, texture.resource);
 
         if (!compressed) {
-            gl.texStorage2D(target, ktxInfo.mipmapCount, internalFormat, width, height);
+            gl.texStorage2D(target, mipmapCount, internalFormat, width, height);
         }
 
         let mipmapWidth = width;
         let mipmapHeight = height;
         let dataOffset = ktxInfo.headerOffset + ktxInfo.bytesOfKeyValueData;
         let memory = 0;
-        for (let index = 0; index < ktxInfo.mipmapCount; index++) {
+        for (let index = 0; index < mipmapCount; index++) {
 
             let imageSize = new Int32Array(source, dataOffset, 1)[0];
 
@@ -761,12 +761,12 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
         let internalFormat = texture.internalFormat;
         let format = texture.format;
         let type = texture.type;
-        let mipmapCount = texture.mipmapCount;
+        let mipmapCount = Math.min(ktxInfo.mipmapCount, texture.mipmapCount);
         // todo texture size 与 ddsInfo size
         let width = texture.width;
         let height = texture.height;
 
-        texture.maxMipmapLevel = ktxInfo.mipmapCount - 1;
+        texture.maxMipmapLevel = mipmapCount - 1;
 
         let source = ktxInfo.source;
         let compressed = ktxInfo.compress;
@@ -784,10 +784,10 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
         this._engine._bindTexture(texture.target, texture.resource);
 
         if (!compressed) {
-            gl.texStorage2D(target, ktxInfo.mipmapCount, internalFormat, width, height);
+            gl.texStorage2D(target, mipmapCount, internalFormat, width, height);
         }
         let memory = 0;
-        for (let index = 0; index < ktxInfo.mipmapCount; index++) {
+        for (let index = 0; index < mipmapCount; index++) {
 
             let imageSize = new Int32Array(source, dataOffset, 1)[0];
 
