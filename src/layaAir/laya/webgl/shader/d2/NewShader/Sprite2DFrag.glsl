@@ -63,7 +63,12 @@ vec4 transspaceColor(vec4 color)
     vec4 getSpriteTextureColor(){
         vec2 uv;
         #ifdef FILLTEXTURE
-            uv = fract(v_texcoordAlpha.xy) * u_TexRange.zw + u_TexRange.xy;
+            vec2 tileUV = fract(v_texcoordAlpha.xy);
+            vec4 trimRect = v_customs;
+            if (tileUV.x < trimRect.x || tileUV.x > trimRect.x + trimRect.z || tileUV.y < trimRect.y || tileUV.y > trimRect.y + trimRect.w)
+                discard;
+            vec2 contentUV = (tileUV - trimRect.xy) / trimRect.zw;
+            uv = contentUV * u_TexRange.zw + u_TexRange.xy;
         #else
             uv = v_texcoordAlpha.xy;
         #endif
@@ -83,7 +88,7 @@ vec4 transspaceColor(vec4 color)
         float useTex = step(1.0, v_useTex);
         color = color * useTex + (1.0 - useTex);
 
-        #ifdef UV_CLIP_GPU
+        #if defined(UV_CLIP_GPU) && !defined(FILLTEXTURE)
             if (v_useClip >= 1.0) {
                 vec2 uv = v_texcoordAlpha.xy;
                 vec4 c = v_customs;

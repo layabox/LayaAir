@@ -555,6 +555,16 @@ function writeTextureUVRange(texture: Texture, out: number[]): number[] {
 	return out;
 }
 
+function writeTextureTrimRange(texture: Texture, out: number[]): number[] {
+	let sourceWidth = texture.sourceWidth || texture.width || 1;
+	let sourceHeight = texture.sourceHeight || texture.height || 1;
+	out[0] = texture.offsetX / sourceWidth;
+	out[1] = texture.offsetY / sourceHeight;
+	out[2] = texture.width / sourceWidth;
+	out[3] = texture.height / sourceHeight;
+	return out;
+}
+
 /** @internal */
 export const GraphicsCommandInfoHelper = {
 	writeState,
@@ -590,6 +600,7 @@ export const GraphicsGeometryHelper = {
 /** @internal */
 export const GraphicsTextureDataHelper = {
 	getUVClipRange: getTextureUVClipRange,
+	writeTrimRange: writeTextureTrimRange,
 	writeUVRange: writeTextureUVRange,
 };
 

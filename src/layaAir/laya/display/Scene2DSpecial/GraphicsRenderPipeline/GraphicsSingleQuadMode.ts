@@ -213,8 +213,14 @@ export class GraphicsSingleQuadMode {
 		f32[GraphicsSingleQuadPayloadField.Height] = cmd.height;
 		f32[GraphicsSingleQuadPayloadField.Aux0] = cmd.offset ? cmd.offset.x : 0;
 		f32[GraphicsSingleQuadPayloadField.Aux1] = cmd.offset ? cmd.offset.y : 0;
-		f32[GraphicsSingleQuadPayloadField.Aux2] = texture ? (texture.width || 1) : 1;
-		f32[GraphicsSingleQuadPayloadField.Aux3] = texture ? (texture.height || 1) : 1;
+		let sourceWidth = texture ? (texture.sourceWidth || texture.width || 1) : 1;
+		let sourceHeight = texture ? (texture.sourceHeight || texture.height || 1) : 1;
+		f32[GraphicsSingleQuadPayloadField.Aux2] = sourceWidth;
+		f32[GraphicsSingleQuadPayloadField.Aux3] = sourceHeight;
+		f32[GraphicsSingleQuadPayloadField.FillTrimX] = texture ? texture.offsetX / sourceWidth : 0;
+		f32[GraphicsSingleQuadPayloadField.FillTrimY] = texture ? texture.offsetY / sourceHeight : 0;
+		f32[GraphicsSingleQuadPayloadField.FillTrimWidth] = texture ? texture.width / sourceWidth : 1;
+		f32[GraphicsSingleQuadPayloadField.FillTrimHeight] = texture ? texture.height / sourceHeight : 1;
 		let uvRange = texture && texture.uvrect;
 		f32[GraphicsSingleQuadPayloadField.Aux4] = uvRange ? uvRange[0] : 0;
 		f32[GraphicsSingleQuadPayloadField.Aux5] = uvRange ? uvRange[1] : 0;

@@ -424,6 +424,13 @@ export class WebSingleQuadPrimitiveData {
 		data[offset + 6] = b;
 		data[offset + 7] = a;
 		data[offset + 8] = this._texture ? GRAPHICS_INFO_VERTEX_FLAG_ENABLED : GRAPHICS_INFO_VERTEX_FLAG_DISABLED;
+		if (this._int32[GraphicsSingleQuadPayloadField.Kind] === GraphicsSingleQuadKind.FillTexture) {
+			data[offset + 9] = GRAPHICS_INFO_VERTEX_FLAG_ENABLED;
+			data[offset + 12] = f32[GraphicsSingleQuadPayloadField.FillTrimX];
+			data[offset + 13] = f32[GraphicsSingleQuadPayloadField.FillTrimY];
+			data[offset + 14] = f32[GraphicsSingleQuadPayloadField.FillTrimWidth];
+			data[offset + 15] = f32[GraphicsSingleQuadPayloadField.FillTrimHeight];
+		}
 		data[offset + 10] = alpha;
 		data[offset + 11] = this._int32[GraphicsSingleQuadPayloadField.TextureLayer];
 	}

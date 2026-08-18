@@ -40,6 +40,7 @@ import { GraphicsGeometryHelper, GraphicsOpRenderStateHelper, GraphicsTextureDat
 import { GraphicsCommandDependency, GraphicsCommandLayoutRefresh, GraphicsOp2DKind, GraphicsOwnerTransformDependency, type GraphicsBlendModeInput, type GraphicsColorInput, type GraphicsCommandInfo, type GraphicsOp2DTextureHost } from "./GraphicsPipelineTypes";
 const GRAPHICS_COMPILE_SAVE_STRIDE = 8;
 const COMPILE_FILL_RANGE: number[] = [0, 0, 1, 1];
+const COMPILE_FILL_TRIM: number[] = [0, 0, 1, 1];
 const COMPILE_FILL_GEOMETRY: number[] = new Array(12);
 const COMPILE_TEXTURE_VERTICES: number[] = new Array(8);
 const COMPILE_TEXTURE_UVS: number[] = new Array(8);
@@ -252,16 +253,19 @@ export class GraphicsCompileContext {
       let mode = this._mode;
       if (!mode._prepareTexture(texture))
          return;
+      let sourceWidth = texture.sourceWidth || texture.width || 1;
+      let sourceHeight = texture.sourceHeight || texture.height || 1;
       let geometry = COMPILE_FILL_GEOMETRY;
       if (!GraphicsGeometryHelper.writeFillTextureGeometry(geometry, x, y, width, height,
-         texture.width || 1, texture.height || 1, type, offset ? offset.x : 0, offset ? offset.y : 0))
+         sourceWidth, sourceHeight, type, offset ? offset.x : 0, offset ? offset.y : 0))
          return;
       let resource = this._resolveTextureResource(texture);
       let range = GraphicsTextureDataHelper.writeUVRange(texture, COMPILE_FILL_RANGE);
+      let trim = GraphicsTextureDataHelper.writeTrimRange(texture, COMPILE_FILL_TRIM);
       this._writeFillTexture(geometry[0], geometry[1], geometry[2], geometry[3],
          geometry[4], geometry[5], geometry[6], geometry[7], geometry[8], geometry[9], geometry[10], geometry[11],
          range[0], range[1], range[2], range[3], color, this._opAlpha(1), this._opBlend(),
-         this._resolvedTextureLayer, this._matrixState(), resource, GraphicsTextureDataHelper.getUVClipRange(texture));
+         this._resolvedTextureLayer, this._matrixState(), resource, trim);
    }
    _drawLine(x: number, y: number, fromX: number, fromY: number, toX: number, toY: number,
       lineColor: any, lineWidth: number, vid: number): void {

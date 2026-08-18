@@ -12,6 +12,9 @@ varying float v_useTex;
 
 #ifdef UV_CLIP_GPU
 varying float v_useClip;
+#endif
+
+#if defined(UV_CLIP_GPU) || defined(FILLTEXTURE)
 varying vec4 v_customs;
 #endif
 
@@ -53,7 +56,12 @@ void main()
 {
 
 	#ifdef FILLTEXTURE
-		vec2 uv = fract(v_texcoordAlpha.xy) * u_TexRange.zw + u_TexRange.xy;
+		vec2 tileUV = fract(v_texcoordAlpha.xy);
+		vec4 trimRect = v_customs;
+		if (tileUV.x < trimRect.x || tileUV.x > trimRect.x + trimRect.z || tileUV.y < trimRect.y || tileUV.y > trimRect.y + trimRect.w)
+			discard;
+		vec2 contentUV = (tileUV - trimRect.xy) / trimRect.zw;
+		vec2 uv = contentUV * u_TexRange.zw + u_TexRange.xy;
 	#else
 		vec2 uv = v_texcoordAlpha.xy;
 	#endif
@@ -77,7 +85,7 @@ void main()
 	float useTex = step(1.0, v_useTex);
 	color = color * useTex + (1.0 - useTex);
 
-	#ifdef UV_CLIP_GPU
+	#if defined(UV_CLIP_GPU) && !defined(FILLTEXTURE)
 		if (v_useClip >= 1.0) {
 			vec2 srcUV = v_texcoordAlpha.xy;
 			vec4 clipRect = v_customs;

@@ -33,6 +33,9 @@ varying float v_useTex;
 
 #ifdef UV_CLIP_GPU
 varying float v_useClip;
+#endif
+
+#if defined(UV_CLIP_GPU) || defined(FILLTEXTURE)
 varying vec4 v_customs;
 #endif
 
@@ -55,6 +58,9 @@ void main() {
 
 	#ifdef UV_CLIP_GPU
 		v_useClip = a_attribFlags.g;
+	#endif
+
+	#if defined(UV_CLIP_GPU) || defined(FILLTEXTURE)
 		v_customs = a_customs;
 	#endif
 
