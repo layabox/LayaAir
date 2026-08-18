@@ -80,6 +80,38 @@ test("SDL editing and input events update the authoritative TS editor", () => {
     assert.deepEqual(api.starts, [sessionId]);
 });
 
+test("idle empty SDL editing events do not create a composition feedback loop", () => {
+    const api = new FakeConchTextInputAPI();
+    const bridge = new NativeTextInputBridge(new DesktopNativeTextInputContext(api));
+    const sessionId = bridge.begin(config, "abcdef", 1, 4).sessionId;
+    const initial = bridge.editor.snapshot();
+
+    // Windows IMEs may emit this event repeatedly before producing preedit
+    // text. It must preserve both the selected text and editor revision.
+    for (let index = 0; index < 20; index++)
+        api.callback(sessionId, 1, "", 0, 0);
+
+    const idle = bridge.editor.snapshot();
+    assert.equal(idle.revision, initial.revision);
+    assert.equal(idle.state, NativeTextInputState.Active);
+    assert.equal(idle.text, "abcdef");
+    assert.equal(idle.selectionStart, 1);
+    assert.equal(idle.selectionEnd, 4);
+
+    // A non-empty event starts composition over the selection. A subsequent
+    // empty event still retains its valid SDL meaning: cancel that composition.
+    api.callback(sessionId, 1, "nihao", 5, 0);
+    assert.equal(bridge.editor.state, NativeTextInputState.Composing);
+    assert.equal(bridge.editor.displayText, "anihaoef");
+    api.callback(sessionId, 1, "", 0, 0);
+
+    const cancelled = bridge.editor.snapshot();
+    assert.equal(cancelled.state, NativeTextInputState.Active);
+    assert.equal(cancelled.text, "abcdef");
+    assert.equal(cancelled.selectionStart, 1);
+    assert.equal(cancelled.selectionEnd, 4);
+});
+
 test("desktop context rejects stale and suspended SDL events", () => {
     const api = new FakeConchTextInputAPI();
     const bridge = new NativeTextInputBridge(new DesktopNativeTextInputContext(api));

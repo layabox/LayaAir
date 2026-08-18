@@ -171,8 +171,15 @@ export class DesktopNativeTextInputContext implements INativeTextInputContext {
         const value = text == null ? "" : String(text);
         if (eventType === DesktopTextInputEventType.Editing) {
             const snapshot = this._client.querySnapshot(sessionId);
-            if (!value && snapshot && snapshot.compositionStart >= 0) {
-                this._client.cancelComposition(sessionId);
+            if (!value) {
+                // Some Windows IMEs (notably Sogou) repeatedly emit an empty
+                // SDL_TEXTEDITING event while the IME is idle. Starting an
+                // empty composition here makes the next event cancel it, and
+                // the candidate-rect update can feed that cycle indefinitely.
+                // An empty event only has meaning when it ends an existing
+                // composition; otherwise it must be ignored.
+                if (snapshot && snapshot.compositionStart >= 0)
+                    this._client.cancelComposition(sessionId);
                 return;
             }
 

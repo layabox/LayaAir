@@ -92,7 +92,13 @@ export class NativeTextLayout {
                 ? targetInternal._fontSizeScale
                 : 1;
             const height = Math.max(1, Math.floor(target.fontSize * fontScale) + 1);
-            return out.setTo(padding[3] - scrollX, padding[0] - scrollY, 0, height);
+            const contentWidth = Math.max(0, target.width - padding[3] - padding[1]);
+            let x = padding[3];
+            if (target.align === "center")
+                x += Math.floor(contentWidth * 0.5);
+            else if (target.align === "right")
+                x += contentWidth;
+            return out.setTo(x - scrollX, padding[0] - scrollY, 0, height);
         }
 
         let fallback = this._lines[0];
