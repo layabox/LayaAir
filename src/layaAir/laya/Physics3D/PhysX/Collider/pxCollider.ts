@@ -311,7 +311,10 @@ export class pxCollider implements ICollider {
         this._initCollider();
         pxCollider._ActorPool.set(this._id, this);
         this._pxActor.setUUID(this._id);
-        this.setActorFlag(pxActorFlag.eSEND_SLEEP_NOTIFIES, true);
+        // Static actors never sleep or wake. Requesting sleep notifications for
+        // them can enter an invalid PhysX callback path during fetchResults().
+        if (this._type === pxColliderType.RigidbodyCollider)
+            this.setActorFlag(pxActorFlag.eSEND_SLEEP_NOTIFIES, true);
     }
 
     protected _initCollider() {
@@ -324,7 +327,9 @@ export class pxCollider implements ICollider {
      * @param flag 变换更改标志。
      */
     transformChanged(flag: number): void {
-        this._transformFlag = flag;
+        // Transform updates are deferred until the next physics step. Keep every
+        // change received while this collider is already waiting in the queue.
+        this._transformFlag |= flag;
         if (this.inPhysicUpdateListIndex == -1 && !this._enableProcessCollisions) {
             this._physicsManager._physicsUpdateList.add(this);
         }
