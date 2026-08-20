@@ -432,10 +432,9 @@ export class WebGLShaderData extends ShaderData {
     setBool(index: number, value: boolean): void {
         this._data[index] = value;
 
-        //let ubo = this._uniformBuffersPropertyMap.get(index);
         if (this._needCacheData) {
-            // todo
-            // ubo set bool
+            this._updateCacheArray[index] = UniformBufferWriter.prototype.setBool;
+            this._markPendingApply();
         }
 
         this._checkRenderState(index);
@@ -865,4 +864,3 @@ export class WebGLShaderData extends ShaderData {
         (this as any).destroyed = true;
     }
 }
-

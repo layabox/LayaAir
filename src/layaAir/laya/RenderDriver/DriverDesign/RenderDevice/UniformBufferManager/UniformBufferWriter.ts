@@ -31,6 +31,10 @@ export abstract class UniformBufferWriter {
         uniform.view[0] = value; this._dirty();
     }
 
+    setBool(index: number, value: boolean) {
+        this.setInt(index, value ? 1 : 0);
+    }
+
     setFloat(index: number, value: number) {
         let uniform = this.descriptor.uniforms.get(index);
         if (uniform) this._writeFloat(uniform, value);
@@ -129,7 +133,7 @@ export abstract class UniformBufferWriter {
         switch (type) {
             case ShaderDataType.Bool:
                 if (uniform.arrayLength > 0) console.warn("ShaderDataType.Bool array not support");
-                else this.setInt(index, data ? 1 : 0);
+                else this.setBool(index, data as boolean);
                 break;
             case ShaderDataType.Int:
                 if (uniform.arrayLength > 0) this.setArrayBuffer(index, data);
