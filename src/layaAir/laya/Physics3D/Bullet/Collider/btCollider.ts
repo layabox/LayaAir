@@ -536,7 +536,9 @@ export class btCollider implements ICollider {
      * @param flag 变换标志。
      */
     transformChanged(flag: number): void {
-        this._transformFlag = flag;
+        // Transform updates are deferred until the next physics step. Keep every
+        // change received while this collider is already waiting in the queue.
+        this._transformFlag |= flag;
         if (this.inPhysicUpdateListIndex == -1 && !this._enableProcessCollisions) {
             this._physicsManager._physicsUpdateList.add(this);
         }
