@@ -60,4 +60,4 @@ export class ScriptableObjectLoader implements IResourceLoader {
     }
 }
 
-Loader.registerLoader(["lso"], ScriptableObjectLoader);
+Loader.registerLoader(["sco"], ScriptableObjectLoader);

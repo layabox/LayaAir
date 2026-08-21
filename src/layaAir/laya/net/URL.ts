@@ -60,7 +60,7 @@ export class URL {
         "tres": "tres.json",
         "lensflare": "lensflare.json",
         "tex2darray": "tex2darray.json",
-        "lso": "lso.json",
+        "sco": "sco.json",
     };
 
     /**
