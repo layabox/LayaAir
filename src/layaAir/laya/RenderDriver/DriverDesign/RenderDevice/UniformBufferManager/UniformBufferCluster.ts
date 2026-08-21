@@ -90,6 +90,7 @@ export class UniformBufferCluster {
         this.manager.retireBuffer(oldBuffer);
         //通知所有使用者
         this._blocks.forEach(block => block && block.onRelocated('expand'));
+        this.manager._notifyBufferResourceChange();
         return true;
     }
 

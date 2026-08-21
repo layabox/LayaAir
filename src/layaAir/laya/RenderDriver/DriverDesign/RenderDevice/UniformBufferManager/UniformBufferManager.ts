@@ -60,6 +60,13 @@ export class UniformBufferManager {
     private _retiredCur: any[] = [];
     private _retiredPrev: any[] = [];
 
+    /**
+     * Buffer resource identity change epoch. BindGroup users can compare this
+     * value before scanning their per-buffer versions, keeping the common path
+     * O(1) when no pooled buffer has moved or been released.
+     */
+    bufferResourceChangeEpoch: number = 0;
+
     _useBigBuffer: boolean = true; //是否使用大内存模式
 
     //字节对齐
@@ -250,6 +257,11 @@ export class UniformBufferManager {
             this._needUpdateClusters.push(cluster);
             cluster._inManagerUpdateArray = true;
         }
+    }
+
+    /** @internal Notify cached resource users that a buffer binding became stale. */
+    _notifyBufferResourceChange() {
+        this.bufferResourceChangeEpoch++;
     }
 
 
