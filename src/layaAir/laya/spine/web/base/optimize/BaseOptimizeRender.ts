@@ -270,6 +270,18 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         }
     }
 
+    /**
+     * @zh 更新骨骼的世界变换。
+     * @param physicsUpdate Spine 物理更新模式。
+     * @en Update the world transforms of the skeleton bones.
+     * @param physicsUpdate The Spine physics update mode.
+     */
+    updateWorldTransform(physicsUpdate: number): void {
+        if (this._skeleton) {
+            this._skeleton.updateWorldTransform(physicsUpdate);
+        }
+    }
+
     _updateCacheEvent(delta: number) {
         let animator = this._currentAnimator
         let f = delta / SpineConst.SPINE_STEP;
@@ -322,7 +334,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
             || !this.updater.currentData.renderCache[this.updater.cacheFrameIndex])
             && this.renderProxy.type !== ESpineRenderMode.Bake
         ) {
-            this._skeleton.updateWorldTransform(physicsUpdate);
+            this.updateWorldTransform(physicsUpdate);
         }
 
         let offsetX = - this._skeleton.x ;

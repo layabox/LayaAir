@@ -104,7 +104,8 @@ export class NativeSpineTempletParser implements ISpineTempletParser {
                     this._nativeParser.addTextureSizeInfo(
                         textureUrls[i],
                         texture.width,
-                        texture.height
+                        texture.height,
+                        texture.id
                     );
                     texture._addReference();
                 }

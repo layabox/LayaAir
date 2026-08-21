@@ -132,14 +132,14 @@ export type TSpineBakeData = {
 }
 
 Laya.addAfterInitCallback(() => {
-    let versionString = SpineConst.VERSION.split('.');
-    let versionNumber = Math.floor(Number(versionString[0]));
-    let versionNumber2 = Math.floor(Number(versionString[1]));
+    const versionMatch = /^(\d+)\.(\d+)/.exec(SpineConst.VERSION);
+    const versionNumber = Number(versionMatch[1]);
+    const versionNumber2 = Number(versionMatch[2]);
 
     SpineConst.VersionFirst = versionNumber;
     SpineConst.VersionSecond = versionNumber2;
 
-    if (versionNumber >= 4 && versionNumber2 >= 1) {
+    if (versionNumber > 4 || (versionNumber === 4 && versionNumber2 >= 1)) {
         SpineConst.NEED_SLOT = true;
     }
 

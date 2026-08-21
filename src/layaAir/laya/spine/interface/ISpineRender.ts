@@ -101,6 +101,14 @@ export interface ISpineRender {
      * @param delta 时间增量（秒）
      */
     update(delta: number): void;
+
+    /**
+     * @zh 更新骨骼的世界变换。
+     * @param physicsUpdate Spine 物理更新模式。
+     * @en Update the world transforms of the skeleton bones.
+     * @param physicsUpdate The Spine physics update mode.
+     */
+    updateWorldTransform(physicsUpdate: number): void;
     
     /**
      * @en Render the animation.

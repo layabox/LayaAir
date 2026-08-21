@@ -248,6 +248,16 @@ export class SpineSkeleton extends Sprite {
     }
 
     /**
+     * @zh 更新骨骼的世界变换。
+     * @param physicsUpdate Spine 物理更新模式，默认使用组件当前的 `physicsUpdate`。
+     * @en Update the world transforms of the skeleton bones.
+     * @param physicsUpdate The Spine physics update mode. By default, the component's current `physicsUpdate` is used.
+     */
+    updateWorldTransform(physicsUpdate: number = this._spineComponent.physicsUpdate): void {
+        this._spineComponent.updateWorldTransform(physicsUpdate);
+    }
+
+    /**
      * 替换插槽皮肤
      * @param slotName 
      * @param attachmentName 

@@ -64,18 +64,17 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
             return;
         }
 
-        let optimize = this._templet.optimize as NativeSkeletonOptimise;
+        let sourceOptimize = templet.optimize as NativeSkeletonOptimise;
         if (templet._textures) {
             for (let textureName in templet._textures) {
                 let texture2d = templet._textures[textureName];
                 if (texture2d && !this._templet._textures[textureName]) {
                     this._templet.setTexture(textureName, texture2d);
-                    // optimize.registerTexture(texture2d);
                 }
             }
         }
 
-        this._nativeRender.setTempletAttachment(optimize._getNativeOptimise(), targetSlotName, skinName, attachmentName);
+        this._nativeRender.setTempletAttachment(sourceOptimize._getNativeOptimise(), targetSlotName, skinName, attachmentName);
     }
 
     getSkeleton(): spine.Skeleton {
@@ -181,6 +180,20 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
 
         this._nativeRender.update(delta);
         this._updateTrackEntry();
+    }
+
+    /**
+     * @zh 更新骨骼的世界变换。Native 层会在更新后同步骨骼数据。
+     * @param physicsUpdate Spine 物理更新模式。
+     * @en Update the world transforms of the skeleton bones. The Native layer synchronizes the bone data after the update.
+     * @param physicsUpdate The Spine physics update mode.
+     */
+    updateWorldTransform(physicsUpdate: number): void {
+        if (!this._nativeRender) {
+            return;
+        }
+
+        this._nativeRender.updateWorldTransform(physicsUpdate);
     }
 
     private _updateTrackEntry(): void {

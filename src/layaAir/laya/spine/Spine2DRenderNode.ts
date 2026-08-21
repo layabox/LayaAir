@@ -1078,6 +1078,18 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     /**
+     * @zh 更新骨骼的世界变换。
+     * @param physicsUpdate Spine 物理更新模式，默认使用当前组件的 `physicsUpdate`。
+     * @en Update the world transforms of the skeleton bones.
+     * @param physicsUpdate The Spine physics update mode. By default, the component's current `physicsUpdate` is used.
+     */
+    updateWorldTransform(physicsUpdate: number = this.physicsUpdate): void {
+        if (this._spineRender) {
+            this._spineRender.updateWorldTransform(physicsUpdate);
+        }
+    }
+
+    /**
      * @zh 根据给定的坐标移动物体,支持Spine物理时有效（不能低于Spine4.2版本）
      * @param x X轴坐标
      * @param y Y轴坐标
