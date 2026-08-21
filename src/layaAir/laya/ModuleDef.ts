@@ -22,6 +22,7 @@ import { Animation2DParm } from "./components/Animation2DParm";
 import { Animation2DCondition } from "./components/Animation2DCondition";
 import { FrameAnimation } from "./components/FrameAnimation";
 import { Prefab } from "./resource/HierarchyResource";
+import { ScriptableObject } from "./resource/ScriptableObject";
 import { Widget } from "./components/Widget";
 import { AnimatorController2D } from "./components/AnimatorController2D";
 import { Vector2 } from "./maths/Vector2";
@@ -44,6 +45,7 @@ import "./loaders/NullLoader";
 import "./loaders/BitmapFontLoader";
 import "./loaders/TTFFontLoader";
 import "./loaders/MaterialLoader";
+import "./loaders/ScriptableObjectLoader";
 import "./loaders/ShaderLoader";
 import "./loaders/GLSLLoader";
 import "./loaders/ComputeShaderLoader"
@@ -92,6 +94,7 @@ c("Texture", Texture);
 c("Texture2D", Texture2D);
 
 c("Prefab", Prefab);
+c("ScriptableObject", ScriptableObject);
 
 c("Animator2D", Animator2D);
 c("AnimatorClip2D", AnimatorClip2D);

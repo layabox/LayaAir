@@ -51,6 +51,7 @@ export class URL {
         "mc": "mc.bin",
         "mcc": "mcc.json",
         "shader": "shader.txt",
+        "computeshader": "computeshader.txt",
         "fui": "fui.json",
         "glsl": "glsl.txt",
         "skel": "skel.bin",
@@ -59,6 +60,7 @@ export class URL {
         "tres": "tres.json",
         "lensflare": "lensflare.json",
         "tex2darray": "tex2darray.json",
+        "lso": "lso.json",
     };
 
     /**
