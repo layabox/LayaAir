@@ -9,6 +9,7 @@ import { Component } from "./Component";
 export class ComponentDriver {
     private _onUpdates: Set<Component> = new Set();
     private _onLateUpdates: Set<Component> = new Set();
+    private _onAfterAnimatorUpdates: Set<Component> = new Set();
     private _onPreRenders: Set<Component> = new Set();
     private _onPostRenders: Set<Component> = new Set();
 
@@ -73,6 +74,24 @@ export class ComponentDriver {
             }
         }
         LayaGL.statAgent.recordTimeData(StatElement.T_ScriptLateUpdateTime, performance.now() - t);
+    }
+
+    /**
+     * @internal
+     * @en Calling component onAfterAnimatorUpdate
+     * @zh 调用组件 onAfterAnimatorUpdate
+     */
+    callAfterAnimatorUpdate() {
+        for (let ele of this._onAfterAnimatorUpdates) {
+            if (ele._status == 3) {
+                try {
+                    ele.onAfterAnimatorUpdate();
+                }
+                catch (err: any) {
+                    this.onError(err);
+                }
+            }
+        }
     }
 
     /**
@@ -149,6 +168,8 @@ export class ComponentDriver {
             this._onUpdates.add(comp);
         if (comp.onLateUpdate)
             this._onLateUpdates.add(comp);
+        if (comp.onAfterAnimatorUpdate)
+            this._onAfterAnimatorUpdates.add(comp);
 
         if (comp.onPreRender)
             this._onPreRenders.add(comp);
@@ -171,6 +192,8 @@ export class ComponentDriver {
             this._onUpdates.delete(comp);
         if (comp.onLateUpdate)
             this._onLateUpdates.delete(comp);
+        if (comp.onAfterAnimatorUpdate)
+            this._onAfterAnimatorUpdates.delete(comp);
 
         if (comp.onPreRender)
             this._onPreRenders.delete(comp);

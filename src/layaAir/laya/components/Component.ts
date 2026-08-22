@@ -382,6 +382,13 @@ export class Component {
     onLateUpdate?(): void;
 
     /**
+     * @en Executed after 3D animator/component element updates and before 3D render update.
+     * @zh 在 3D 动画/组件元素更新之后、3D 渲染更新之前执行。
+     * @blueprintEvent
+     */
+    onAfterAnimatorUpdate?(): void;
+
+    /**
      * @en Executed before rendering.
      * @zh 渲染之前执行。
      * @blueprintEvent
