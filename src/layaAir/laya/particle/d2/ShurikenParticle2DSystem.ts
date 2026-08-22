@@ -21,6 +21,7 @@ import { Velocity2DOverLifetimeModule } from "./module/Velocity2DOverLifetimeMod
 import { Particle2DVertexMesh } from "./Particle2DVertexMesh";
 
 const _globalPoint: Point = new Point();
+const _simulateStep: number = 1.0 / 60.0;
 
 /** @internal */
 export enum Particle2DSystemDirtyFlagBits {
@@ -416,14 +417,11 @@ export class ShurikenParticle2DSystem extends ParticleControler implements IClon
     }
 
     _update(deltaTime: number) {
+        this._updateParticles(deltaTime * this.main.simulationSpeed);
+    }
 
+    private _updateParticles(deltaTime: number) {
         if (this.isPlaying) {
-            // simulation speed
-            {
-                let simulationSpeed = this.main.simulationSpeed;
-                deltaTime *= simulationSpeed;
-            }
-
             if (deltaTime <= 0) {
                 return;
             }
@@ -455,15 +453,27 @@ export class ShurikenParticle2DSystem extends ParticleControler implements IClon
         }
     }
 
-    // todo
+    /**
+     * @en Advance the particle simulation by a specified time and pause playback.
+     * @param time The time to advance the simulation. If restart is true, the particle playback time will be reset to zero before updating progress.
+     * @param restart Whether to reset the playback state. Default is true.
+     * @zh 通过指定时间增加粒子播放进度，并暂停播放。
+     * @param time 进度时间。如果 restart 为 true，粒子播放时间会归零后再更新进度。
+     * @param restart 是否重置播放状态。默认为 true。
+     */
     simulate(time: number, restart: boolean = true) {
-        if (this.isPlaying) {
+        if (this.isPlaying && Number.isFinite(time)) {
             if (restart) {
                 this.stop();
                 this.play();
             }
 
-            this._update(time);
+            let remainingTime = Math.max(0, time);
+            while (remainingTime > _simulateStep) {
+                this._updateParticles(_simulateStep);
+                remainingTime -= _simulateStep;
+            }
+            this._updateParticles(remainingTime);
 
             this.pause();
         }
@@ -516,5 +526,3 @@ function gradientNeedRandom(mode: ParticleMinMaxGradientMode) {
             return false;
     }
 }
-
-
