@@ -270,26 +270,32 @@ export class pxCollider implements ICollider {
      */
     setEventFilter(events: []): void {
         if (!this._shape) return;
-        let flag = partFlag.eCONTACT_DEFAULT | partFlag.eTRIGGER_DEFAULT;
+        // Collision/trigger notifications must be opt-in. Including
+        // eTRIGGER_DEFAULT for every shape requests TOUCH_FOUND/TOUCH_LOST
+        // callbacks even when the node has no physics event listeners. Apart
+        // from the unnecessary callback traffic, the current PhysX embind
+        // build cannot convert the lost-touch callback generated when a
+        // supporting actor is removed.
+        let flag = partFlag.eCONTACT_DEFAULT;
         for (let i = 0, j = events.length; i < j; i++) {
             let value = events[i];
             if (value == Event.TRIGGER_ENTER) {
-                flag = flag | partFlag.eTRIGGER_DEFAULT | partFlag.eNOTIFY_TOUCH_FOUND;
+                flag = flag | partFlag.eTRIGGER_DEFAULT;
             }
             if (value == Event.TRIGGER_STAY) {
-                // flag = partFlag.eNOTIFY_TOUCH_PERSISTS;
+                flag = flag | partFlag.eTRIGGER_DEFAULT;
             }
             if (value == Event.TRIGGER_EXIT) {
-                flag = flag | partFlag.eTRIGGER_DEFAULT | partFlag.eNOTIFY_TOUCH_LOST;
+                flag = flag | partFlag.eTRIGGER_DEFAULT;
             }
             if (value == Event.COLLISION_ENTER) {
-                flag = flag | partFlag.eNOTIFY_TOUCH_PERSISTS | partFlag.eNOTIFY_CONTACT_POINTS;
+                flag = flag | partFlag.eNOTIFY_TOUCH_FOUND | partFlag.eNOTIFY_CONTACT_POINTS;
             }
             if (value == Event.COLLISION_STAY) {
-                flag = flag | partFlag.eNOTIFY_TOUCH_PERSISTS;
+                flag = flag | partFlag.eNOTIFY_TOUCH_PERSISTS | partFlag.eNOTIFY_CONTACT_POINTS;
             }
             if (value == Event.COLLISION_EXIT) {
-                flag = flag | partFlag.eNOTIFY_TOUCH_PERSISTS | partFlag.eNOTIFY_TOUCH_LOST;
+                flag = flag | partFlag.eNOTIFY_TOUCH_LOST;
             }
         }
 
@@ -311,10 +317,11 @@ export class pxCollider implements ICollider {
         this._initCollider();
         pxCollider._ActorPool.set(this._id, this);
         this._pxActor.setUUID(this._id);
-        // Static actors never sleep or wake. Requesting sleep notifications for
-        // them can enter an invalid PhysX callback path during fetchResults().
-        if (this._type === pxColliderType.RigidbodyCollider)
-            this.setActorFlag(pxActorFlag.eSEND_SLEEP_NOTIFIES, true);
+        // Do not enable eSEND_SLEEP_NOTIFIES here. The current PhysX embind
+        // build cannot convert the actor array passed to onWake/onSleep and
+        // fails in fetchResults() with "Oa is not a function". Dynamic actors
+        // are already added to _dynamicUpdateList by pxPhysicsManager, so the
+        // notifications are not required for transform synchronization.
     }
 
     protected _initCollider() {
