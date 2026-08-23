@@ -10,7 +10,7 @@ import { ColorOverLifetimeModule } from "../common/module/ColorOverLifetimeModul
 import { EmissionBurst, EmissionModule } from "../common/module/EmissionModule";
 import { TextureSheetAnimationModule } from "../common/module/TextureSheetAnimationModule";
 import { ParticleControler } from "../common/ParticleController";
-import { ParticleMinMaxCurveMode } from "../common/ParticleMinMaxCurve";
+import { ParticleMinMaxCurve, ParticleMinMaxCurveMode } from "../common/ParticleMinMaxCurve";
 import { ParticleMinMaxGradientMode } from "../common/ParticleMinMaxGradient";
 import { ParticleInfo } from "../common/ParticlePool";
 import { Main2DModule } from "./module/Main2DModule";
@@ -461,6 +461,37 @@ export class ShurikenParticle2DSystem extends ParticleControler implements IClon
      * @param time 进度时间。如果 restart 为 true，粒子播放时间会归零后再更新进度。
      * @param restart 是否重置播放状态。默认为 true。
      */
+    private _getMaxCurveValue(curve: ParticleMinMaxCurve): number {
+        let maxValue = Math.max(0, curve.constant, curve.constantMin, curve.constantMax);
+        let gradients = [curve.curveMin, curve.curveMax];
+        for (let gradient of gradients) {
+            for (let i = 0; i < gradient.gradientCount; i++) {
+                maxValue = Math.max(maxValue, gradient.getValueByIndex(i));
+            }
+        }
+        return Number.isFinite(maxValue) ? maxValue : 0;
+    }
+
+    private _skipCompletedLoops(time: number): number {
+        let duration = this.main.duration;
+        if (!this.main.looping || duration <= 0) {
+            return time;
+        }
+
+        let maxLifetime = this._getMaxCurveValue(this.main.startLifetime);
+        let maxStartDelay = this._getMaxCurveValue(this.main.startDelay);
+        let simulationWindow = Math.max(duration * 2, duration + maxLifetime + maxStartDelay);
+        let skippedLoopCount = Math.floor((time - simulationWindow) / duration);
+        if (skippedLoopCount <= 0) {
+            return time;
+        }
+
+        // Keep the simulated clock near zero. Particle timestamps are uploaded
+        // as float values, so carrying a very large absolute time to the GPU
+        // would lose precision when calculating particle age.
+        return time - skippedLoopCount * duration;
+    }
+
     simulate(time: number, restart: boolean = true) {
         if (this.isPlaying && Number.isFinite(time)) {
             if (restart) {
@@ -469,11 +500,16 @@ export class ShurikenParticle2DSystem extends ParticleControler implements IClon
             }
 
             let remainingTime = Math.max(0, time);
-            while (remainingTime > _simulateStep) {
+            if (restart) {
+                remainingTime = this._skipCompletedLoops(remainingTime);
+            }
+            while (remainingTime > _simulateStep && this.isPlaying) {
                 this._updateParticles(_simulateStep);
                 remainingTime -= _simulateStep;
             }
-            this._updateParticles(remainingTime);
+            if (this.isPlaying) {
+                this._updateParticles(remainingTime);
+            }
 
             this.pause();
         }
