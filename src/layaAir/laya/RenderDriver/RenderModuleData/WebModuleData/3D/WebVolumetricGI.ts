@@ -55,6 +55,7 @@ export class WebVolumetricGI implements IVolumetricGIData {
 
     applyRenderData(): void {
         let data = this.shaderData;
+        if (!data) return;
         data.addDefine(VolumetricGI.SHADERDEFINE_VOLUMETRICGI);
         data.setVector3(VolumetricGI.VOLUMETRICGI_PROBECOUNTS, this._probeCounts);
         data.setVector3(VolumetricGI.VOLUMETRICGI_PROBESTEPS, this._probeStep);
