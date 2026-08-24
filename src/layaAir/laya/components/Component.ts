@@ -382,6 +382,13 @@ export class Component {
     onLateUpdate?(): void;
 
     /**
+     * @en Executed after Scene3D element manager updates and before 3D render update.
+     * @zh 在 Scene3D 元素管理器更新之后、3D 渲染更新之前执行。
+     * @blueprintEvent
+     */
+    onAfterSceneUpdate?(): void;
+
+    /**
      * @en Executed before rendering.
      * @zh 渲染之前执行。
      * @blueprintEvent
