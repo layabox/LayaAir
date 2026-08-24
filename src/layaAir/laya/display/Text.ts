@@ -718,6 +718,7 @@ export class Text extends Sprite {
             }
             else
                 this.scrollRect = null;
+            this.markChanged();
         }
     }
 
