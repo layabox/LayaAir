@@ -839,6 +839,7 @@ export class Scene3D extends Sprite {
         this.componentElementMap.forEach((value) => {
             value.update(delta);
         });
+        this._componentDriver.callAfterSceneUpdate();
         //this._sceneRenderManager.updateMotionObjects();
         this._sceneRenderManager.renderUpdate();
         this.skyRenderer.renderUpdate(RenderContext3D._instance);
@@ -1432,6 +1433,7 @@ if (Profiler.enabled) {
             this.componentElementMap.forEach((value: IElementComponentManager) => {
                 value.update(delta);
             });
+            this._componentDriver.callAfterSceneUpdate();
         } finally {
             Profiler.end(profileZone);
         }
