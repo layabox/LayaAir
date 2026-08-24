@@ -106,6 +106,7 @@ export class WebReflectionProbe implements IReflectionProbeData {
         this._updateMaskFlag = this.updateMark;
 
         let data = this.shaderData;
+        if (!data) return;
         //boxProjection
         if (!this.boxProjection) {
             data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
