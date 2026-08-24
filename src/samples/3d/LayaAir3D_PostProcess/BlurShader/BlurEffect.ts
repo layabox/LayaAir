@@ -186,7 +186,8 @@ export class BlurEffect extends PostProcessEffect {
         var downSampleTexture: RenderTexture = RenderTexture.createFromPool(tw, th, RenderTargetFormat.R8G8B8, RenderTargetFormat.None, false, 1);
         downSampleTexture.filterMode = FilterMode.Bilinear;
         this._tempRenderTexture[0] = downSampleTexture;
-        var lastDownTexture: RenderTexture = context.source;
+        var source: RenderTexture = context.indirectTarget;
+        var lastDownTexture: RenderTexture = source;
         cmd.blitScreenTriangle(lastDownTexture, downSampleTexture, null, this._shader, this._shaderData, 0);
         lastDownTexture = downSampleTexture;
         //迭代次数
@@ -204,14 +205,13 @@ export class BlurEffect extends PostProcessEffect {
             lastDownTexture = blurTexture;
             this._tempRenderTexture[i * 2 + 2] = blurTexture;
         }
-        context.source = lastDownTexture;
-        cmd.blitScreenTriangle(context.source, context.destination);
+        cmd.blitScreenTriangle(lastDownTexture, context.destination);
         var maxTexture = this._blurIterations * 2 + 1;
         //释放渲染纹理
         for (i = 0; i < maxTexture; i++) {
-            RenderTexture.recoverToPool(this._tempRenderTexture[i]);
+            context.deferredReleaseTextures.push(this._tempRenderTexture[i]);
+            this._tempRenderTexture[i] = null;
         }
-        context.deferredReleaseTextures.push(lastDownTexture);
     }
 }
 
@@ -243,4 +243,3 @@ export class BlurMaterial extends Material {
         this.setTextureByIndex(BlurMaterial.ShADERVALUE_SOURCETEXTURE1, sourceTexture1);
     }
 }
-

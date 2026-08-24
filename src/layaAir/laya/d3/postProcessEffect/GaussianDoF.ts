@@ -247,7 +247,7 @@ export class GaussianDoF extends PostProcessEffect {
         let cmd: CommandBuffer = context.command;
         this._setupShaderValue(context);
 
-        let source: RenderTexture = context.source;
+        let source: RenderTexture = context.indirectTarget;
 
         let shader: Shader3D = this._shader;
         let shaderData: ShaderData = this._shaderData;
