@@ -18,7 +18,7 @@ import { IRenderDeviceFactory } from "../../DriverDesign/RenderDevice/IRenderDev
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
-import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
+import { ShaderData, ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { LayaXBufferState } from "./LayaXBufferState";
 import { LayaXCommandUniformMap } from "./LayaXCommandUniformMap";
 import { LayaXDeviceBuffer } from "./LayaXDeviceBuffer";
@@ -47,9 +47,23 @@ export class LayaXRenderDeviceFactory implements IRenderDeviceFactory {
 
     createGlobalUniformMap(blockName: string): LayaXCommandUniformMap {
         let comMap = this.globalBlockMap[blockName];
-        if (!comMap)
+        if (!comMap) {
             comMap = this.globalBlockMap[blockName] = new LayaXCommandUniformMap(blockName);
+            if (blockName === "Scene3D")
+                this.addGpuSceneUniforms(comMap);
+        }
         return comMap;
+    }
+
+    /** Keep backend-owned scene resources out of the shared Scene3D contract. */
+    private addGpuSceneUniforms(map: LayaXCommandUniformMap): void {
+        const names = [
+            "GpuSceneNodeDrawBuffer",
+            "GpuSceneVisibleInstanceBuffer",
+            "GpuSceneNodeAuxBuffer"
+        ];
+        for (const name of names)
+            map.addShaderUniform(Shader3D.propertyNameToID(name), name, ShaderDataType.ReadOnlyDeviceBuffer);
     }
 
     createComputeShader(info: ComputeShaderProcessInfo): IComputeShader {

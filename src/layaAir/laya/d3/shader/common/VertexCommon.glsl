@@ -88,12 +88,14 @@ vec4 getVertexTangent()
 #endif // GPU_INSTANCE
 
 vec4 getLightmapScaleOffset(){
-    
-    #ifdef GPU_INSTANCE
+
+    #ifdef GPU_SCENE
+        return getGpuSceneNodeAux();
+    #elif defined(GPU_INSTANCE)
         return a_LightmapScaleOffset;
     #else
         return u_LightmapScaleOffset;
-    #endif // GPU_INSTANCE
+    #endif // GPU_SCENE / GPU_INSTANCE
 }
     #endif // LIGHTMAP
 

@@ -139,6 +139,7 @@ export const allBundles = [{
         'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXRenderState.ts',
         'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXShaderPass.ts',
         'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXSubShader.ts',
+        'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXGpuScenePropertyRecord.ts',
         'laya/RenderDriver/LayaXDriver/RenderModuleData/LayaXUnitRenderModuleDataFactory.ts',
         //引擎核心
         'laya/RenderDriver/RenderModuleData/RuntimeModuleData/*.*',

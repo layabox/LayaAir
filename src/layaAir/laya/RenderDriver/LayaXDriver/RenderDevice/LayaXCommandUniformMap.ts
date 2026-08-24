@@ -15,6 +15,9 @@ export class LayaXCommandUniformMap extends CommandUniformMap {
     /** @internal */
     _hasUniformBuffer: boolean = false;
 
+    /** @internal Monotonic layout revision used by bind-layout caches. */
+    _layoutRevision: number = 0;
+
     /** @internal 纹理 propertyID → 在本 map 中的纹理位索引 */
     _textureBits: Map<number, number> = new Map<number, number>();
 
@@ -52,6 +55,7 @@ export class LayaXCommandUniformMap extends CommandUniformMap {
             this._textureBits.set(propertyID, this._textureCount);
             this._textureCount++;
         }
+        this._layoutRevision++;
     }
 
     /**
@@ -66,6 +70,7 @@ export class LayaXCommandUniformMap extends CommandUniformMap {
             && uniformtype != ShaderDataType.ReadOnlyDeviceBuffer) {
             this._hasUniformBuffer = true;
         }
+        this._layoutRevision++;
     }
 
     setDefaultTextureData(key: number, defaultTex: BaseTexture) {

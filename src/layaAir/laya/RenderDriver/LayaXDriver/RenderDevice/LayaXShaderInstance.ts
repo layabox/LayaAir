@@ -8,7 +8,10 @@ import { LayaXBindGroupHelper, LayaXBindingInfo, LayaXBindingInfoType } from "./
 import { LayaXRenderEngine } from "./LayaXRenderEngine";
 import { LayaXCommandUniformMap } from "./LayaXCommandUniformMap";
 import { LayaXShaderPass } from "../RenderModuleData/LayaXShaderPass";
+import { LayaXSubShader } from "../RenderModuleData/LayaXSubShader";
 import { LayaX_GLSLForVulkanGenerator } from "./ShaderGenerate/LayaX_GLSLForVulkanGenerator";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 
 /**
  * @internal
@@ -74,7 +77,6 @@ export class LayaXShaderInstance implements IShaderInstance {
                 this._resourcesCacheKey.set(setIndex, mapNames);
             }
         }
-
         // 3. Filter attributeMap by attributeLocations
         let attriLocArray = shaderPass.moduleData.attributeLocations;
         let filteredAttributeMap: Record<string, [number, any]> = {};
@@ -105,11 +107,98 @@ export class LayaXShaderInstance implements IShaderInstance {
             }
         }
 
+        const subShaderData = shaderPass._owner.moduleData as LayaXSubShader;
+        const propertyRecordSchema = subShaderData.gpuScenePropertyRecordSchema;
+        const gpuScenePropertyRecord = !!propertyRecordSchema
+            && shaderProcessInfo.defineString.includes("GPU_SCENE")
+            && materialSetIndex >= 0;
+        let shaderDefines = shaderProcessInfo.defineString;
+        if (gpuScenePropertyRecord) {
+            const schema = propertyRecordSchema!;
+            const recordSet = schema.recordSet;
+            const hasResourcePage = schema.textureFields.length > 0;
+            if (recordSet < 0 || recordSet > 3
+                || (hasResourcePage
+                    && (schema.resourcePageSet < 0 || schema.resourcePageSet > 3
+                        || schema.resourcePageSet === recordSet))) {
+                console.error("GPUScene property-record schema requires distinct in-range record and ResourcePage sets");
+                return;
+            }
+            // The classic draw-property set is not part of a property-record variant.
+            // Preserve an existing non-property set (for example Node/ReflectionProbe)
+            // and extend it with the record resources instead.
+            const recordBindings = recordSet === materialSetIndex
+                ? []
+                : (this.bindingInfoMap.get(recordSet) || []);
+            let nextRecordBinding = recordBindings.reduce(
+                (next, binding) => Math.max(next, binding.binding + 1), 0);
+            const sourceMapId = Shader3D.propertyNameToID(shaderPass.name);
+            recordBindings.push({
+                id: 0,
+                name: "GpuSceneDataBuffer",
+                set: recordSet,
+                binding: nextRecordBinding++,
+                propertyId: schema.dataBufferPropertyId,
+                sourceMapId,
+                type: LayaXBindingInfoType.storageBuffer,
+                bindingType: "storageBufferReadOnly",
+                dataType: ShaderDataType.ReadOnlyDeviceBuffer,
+                buffer: { type: "read-only-storage" },
+                keepAlive: true,
+            });
+            if (hasResourcePage) {
+                recordBindings.push({
+                    id: 0,
+                    name: "GpuSceneFixedSampler_Sampler",
+                    set: recordSet,
+                    binding: nextRecordBinding,
+                    propertyId: schema.fixedSamplerSourcePropertyId,
+                    sourceMapId,
+                    type: LayaXBindingInfoType.sampler,
+                    bindingType: "sampler",
+                    dataType: ShaderDataType.Texture2D,
+                    sampler: { type: "filtering" },
+                    texture: { sampleType: "float", viewDimension: "2d", multisampled: false },
+                    keepAlive: true,
+                });
+            }
+            this.bindingInfoMap.set(recordSet, recordBindings);
+            if (recordSet !== materialSetIndex && !hasResourcePage) {
+                this.bindingInfoMap.set(materialSetIndex, []);
+            }
+
+            if (hasResourcePage) {
+                const resourcePageSet = schema.resourcePageSet;
+                this.bindingInfoMap.set(resourcePageSet, [{
+                    id: 0,
+                    name: "GpuSceneResourcePage",
+                    set: resourcePageSet,
+                    binding: 0,
+                    propertyId: schema.resourcePagePropertyId,
+                    sourceMapId,
+                    type: LayaXBindingInfoType.resourcePage,
+                    bindingType: "resourcePage",
+                    dataType: ShaderDataType.Texture2D,
+                    resourceClass: resourcePageClassName(schema.resourcePageClass),
+                    slotCapacity: schema.resourcePageSlotCapacity,
+                    keepAlive: true,
+                }]);
+            }
+            shaderDefines = [
+                ...shaderProcessInfo.defineString,
+                "GPU_SCENE_PROPERTY_RECORD",
+                `GPU_SCENE_PROPERTY_RECORD_SCHEMA_${schema.schemaId}`,
+                ...(schema.textureFields.length > 0
+                    ? ["GPU_SCENE_PROPERTY_RECORD_HAS_RESOURCE_PAGE"]
+                    : []),
+            ];
+        }
+
         // 6. Process GLSL → Vulkan GLSL
         let useMaterial = Config.matUseUBO;
         Config.matUseUBO = (!shaderProcessInfo.is2D) && Config.matUseUBO;
         const glslObj = LayaX_GLSLForVulkanGenerator.layax_process(
-            shaderProcessInfo.defineString,
+            shaderDefines,
             [filteredAttributeMap, noUseAttributeMap],
             this.bindingInfoMap as any,
             shaderPass.name,
@@ -118,9 +207,18 @@ export class LayaXShaderInstance implements IShaderInstance {
             shaderProcessInfo.ps,
             useTexSet,
             cullTextureSetLayer,
-            materialSetIndex
+            materialSetIndex,
+            gpuScenePropertyRecord ? propertyRecordSchema : null
         );
         Config.matUseUBO = useMaterial;
+
+        if ((glslObj as any).error) {
+            console.warn(
+                `[LayaX] GPUScene shader lowering rejected "${shaderPass.name}": ` +
+                `${(glslObj as any).error}. The complete View will retain Classic rendering.`
+            );
+            return;
+        }
 
         // 6. Cull already done inside layax_process (after replaceTextureSampler, before uniformString2)
         // bindingInfoMap is now culled with continuous binding indices
@@ -225,6 +323,8 @@ export class LayaXShaderInstance implements IShaderInstance {
                 sourceMapId: b.sourceMapId,
                 hasDynamicOffset: b.buffer?.hasDynamicOffset ?? false,
                 sampler: b.sampler,
+                resourceClass: b.resourceClass,
+                slotCapacity: b.slotCapacity,
             }));
         }
         return JSON.stringify(obj);
@@ -253,5 +353,17 @@ export class LayaXShaderInstance implements IShaderInstance {
         this.bindingInfoMap.clear();
         this._resourcesCacheKey.clear();
         this.textureExitsMap.clear();
+    }
+}
+
+function resourcePageClassName(resourceClass: number): string {
+    switch (resourceClass) {
+        case 1: return "sampledTexture2DFloat";
+        case 2: return "sampledTexture2DArrayFloat";
+        case 3: return "sampledTextureCubeFloat";
+        case 4: return "sampledTexture2DDepth";
+        case 5: return "sampledTexture2DArrayDepth";
+        case 6: return "sampledTextureCubeDepth";
+        default: return "";
     }
 }

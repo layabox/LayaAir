@@ -9,6 +9,7 @@ import { LayaXBindingInfo, LayaXBindingInfoType, LayaXBindGroupHelper } from "..
 import { LayaXCommandUniformMap } from "../LayaXCommandUniformMap";
 import { LayaXRenderEngine } from "../LayaXRenderEngine";
 import { getTypeString, getTypeDefaultString, isSamplerType } from "./LayaX_GLSLGeneratorHelper";
+import { GpuScenePropertyRecordSchema } from "../../RenderModuleData/LayaXGpuScenePropertyRecord";
 
 
 const uniformRegex = /(?:layout\s*\([^)]*\)\s*)?\buniform\s+(?:(lowp|mediump|highp)\s+)?(?:(?:readonly|writeonly|coherent|volatile|restrict)\s+)*(\w+)\s+(\w+)(\s*\[\s*(\d+)\s*\])?\s*;/gm;
@@ -61,7 +62,7 @@ export class LayaX_GLSLForVulkanGenerator {
      * @param appendSet 
      * @returns 
      */
-    static layax_process(defines: string[], attributeMap: AttributeMapType[], uniformMap: Map<number, LayaXBindingInfo[]>, shaderPassName: string, materialMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode, useTexArray: Set<string>, checkSetNumber: number, appendSet: number) {
+    static layax_process(defines: string[], attributeMap: AttributeMapType[], uniformMap: Map<number, LayaXBindingInfo[]>, shaderPassName: string, materialMap: Map<number, UniformProperty>, VS: ShaderNode, FS: ShaderNode, useTexArray: Set<string>, checkSetNumber: number, appendSet: number, propertyRecordSchema?: GpuScenePropertyRecordSchema | null) {
 
         const engine = LayaXRenderEngine._instance;
 
@@ -93,6 +94,7 @@ export class LayaX_GLSLForVulkanGenerator {
 
         let vertexCode = vs.join('\n');
         let fragmentCode = fs.join('\n');
+        let gpuSceneAutoLowering: GpuSceneAutoLoweringPlan | null = null;
 
         const defineStrs = defineString(defMap);
 
@@ -150,6 +152,26 @@ ${fragmentCode}
                 console.error("fragment shader preprocess error", resFS.info_log);
             }
             fragmentCode = resFS.preprocessed_code;
+        }
+
+        if (propertyRecordSchema?.generatedByLayaX) {
+            const prepared = prepareGpuSceneAutoLowering(
+                vertexCode,
+                fragmentCode,
+                materialMap,
+                propertyRecordSchema
+            );
+            if ("error" in prepared) {
+                return {
+                    vertex: "",
+                    fragment: "",
+                    hasSampler: false,
+                    error: prepared.error,
+                };
+            }
+            vertexCode = prepared.vertex;
+            fragmentCode = prepared.fragment;
+            gpuSceneAutoLowering = prepared.plan;
         }
 
         const attributeStrs = attributeString(attributeMap[0], attributeMap[1]);
@@ -309,11 +331,36 @@ ${fragmentCode}
         // fragment out 
         fragmentCode = fragmentCode.replace(vertexVaryingRegex, "");
 
+        if (gpuSceneAutoLowering) {
+            const loweredVertex = lowerGpuScenePropertyAccess(
+                vertexCode,
+                gpuSceneAutoLowering,
+                "getGpuSceneDataRecordIndex()"
+            );
+            const loweredFragment = lowerGpuScenePropertyAccess(
+                fragmentCode,
+                gpuSceneAutoLowering,
+                GPU_SCENE_RECORD_INDEX_VARYING
+            );
+            if (!loweredVertex.success || !loweredFragment.success) {
+                return {
+                    vertex: "",
+                    fragment: "",
+                    hasSampler: false,
+                    error: loweredVertex.error || loweredFragment.error,
+                };
+            }
+            vertexCode = loweredVertex.source;
+            fragmentCode = loweredFragment.source;
+        }
+
         vertexCode = replaceTextureSampler(vertexCode, useTexArray);
         fragmentCode = replaceTextureSampler(fragmentCode, useTexArray);
 
-        // Cull unused textures from uniformMap and renumber binding indices
-        // (before uniformString2, so GLSL has continuous bindings matching propertySetMap)
+        // Cull resources that disappeared during preprocessing and renumber binding indices.
+        // Storage buffers must be checked for every set: unlike classic scene UBOs, an
+        // optional scene-global SSBO has no valid placeholder binding when its feature
+        // define is absent.
         {
             let texturePropertyIds: number[] = [];
             for (const texName of useTexArray) {
@@ -323,12 +370,24 @@ ${fragmentCode}
                     );
                 }
             }
+            const preprocessedShaderCode = `${vertexCode}\n${fragmentCode}`;
             uniformMap.forEach((value, key) => {
-                if (key < checkSetNumber) return;
                 let filtered: LayaXBindingInfo[] = [];
                 for (const info of value) {
-                    if (info.type === LayaXBindingInfoType.texture || info.type === LayaXBindingInfoType.sampler) {
-                        if (texturePropertyIds.includes(info.propertyId)) {
+                    if (info.type === LayaXBindingInfoType.storageBuffer
+                        && !containsIdentifier(preprocessedShaderCode, info.name)) {
+                        continue;
+                    }
+                    if (info.type === LayaXBindingInfoType.resourcePage
+                        && !containsIdentifier(preprocessedShaderCode, info.name)) {
+                        continue;
+                    }
+                    if (info.type === LayaXBindingInfoType.sampler && info.keepAlive
+                        && !containsIdentifier(preprocessedShaderCode, info.name)) {
+                        continue;
+                    }
+                    if ((info.type === LayaXBindingInfoType.texture || info.type === LayaXBindingInfoType.sampler) && !info.keepAlive) {
+                        if (key < checkSetNumber || texturePropertyIds.includes(info.propertyId)) {
                             filtered.push(info);
                         }
                     } else {
@@ -347,11 +406,33 @@ ${fragmentCode}
         vertexCode = vertexCode.replace(/gl_VertexID/g, "gl_VertexIndex");
         fragmentCode = fragmentCode.replace(/gl_VertexID/g, "gl_VertexIndex");
 
+        // Graphics SSBO declarations live in the shader source while their
+        // authoritative set/binding assignments live in the global uniform maps.
+        // Inject those assignments after preprocessing so Vulkan never relies on
+        // implicit binding zero (and so readonly reflection matches the layout).
+        const graphicsSsboBindingMap = new Map<string, { set: number, binding: number }>();
+        uniformMap.forEach((uniforms) => {
+            for (const uniform of uniforms) {
+                if (uniform.type === LayaXBindingInfoType.storageBuffer) {
+                    graphicsSsboBindingMap.set(uniform.name, {
+                        set: uniform.set,
+                        binding: uniform.binding,
+                    });
+                }
+            }
+        });
+        vertexCode = ssboStrings(graphicsSsboBindingMap, vertexCode);
+        fragmentCode = ssboStrings(graphicsSsboBindingMap, fragmentCode);
+
         const uniformStrs = uniformString2(uniformMap, materialMap, useTexArray, collectionUniforms, checkSetNumber, appendSet);
 
         const glslVersion = "#version 450\n";
+        // ResourcePage arrays are converted to WGSL binding arrays by the Native
+        // shader bridge. Do not emit GL_EXT_nonuniform_qualifier here: the bundled
+        // SPIR-V frontend rejects ShaderNonUniform before it can produce WGSL.
+        const resourcePageExtension = "";
 
-        let vertex = `${glslVersion}
+        let vertex = `${glslVersion}${resourcePageExtension}
 ${precision}
 
 ${defineStrs}
@@ -367,7 +448,7 @@ ${vsOnlyGlobalStrs}
 ${vertexCode}
 `;
 
-        let fragment = `${glslVersion}
+        let fragment = `${glslVersion}${resourcePageExtension}
 ${precision}
 
 ${fragmentOutStrs}
@@ -587,6 +668,261 @@ ${fragmentCode}
 
 }
 
+const GPU_SCENE_RECORD_INDEX_VARYING = "v_LayaXGpuSceneRecordIndex";
+const GPU_SCENE_PROPERTY_TABLE_INSTANCE = "LayaXGpuScenePropertyTable";
+
+interface GpuSceneAutoValueField {
+    name: string;
+    type: ShaderDataType;
+    wordOffset: number;
+}
+
+interface GpuSceneAutoTextureField {
+    name: string;
+    wordOffset: number;
+}
+
+interface GpuSceneAutoLoweringPlan {
+    strideInWords: number;
+    valueFields: GpuSceneAutoValueField[];
+    textureFields: GpuSceneAutoTextureField[];
+}
+
+type GpuSceneAutoPrepareResult = {
+    success: true;
+    vertex: string;
+    fragment: string;
+    plan: GpuSceneAutoLoweringPlan;
+} | {
+    success: false;
+    error: string;
+};
+
+function prepareGpuSceneAutoLowering(
+    vertex: string,
+    fragment: string,
+    uniformMap: Map<number, UniformProperty>,
+    schema: GpuScenePropertyRecordSchema
+): GpuSceneAutoPrepareResult {
+    const properties = new Map<number, UniformProperty>();
+    uniformMap.forEach(property => properties.set(property.id, property));
+
+    const valueFields: GpuSceneAutoValueField[] = [];
+    for (const field of schema.valueFields) {
+        const property = properties.get(field.propertyId);
+        if (!property || property.uniformtype !== field.uniformType) {
+            return { success: false, error: `property-record value ${field.propertyId} is not registered` };
+        }
+        valueFields.push({
+            name: property.propertyName,
+            type: property.uniformtype,
+            wordOffset: field.byteOffset >>> 2,
+        });
+    }
+
+    const textureFields: GpuSceneAutoTextureField[] = [];
+    for (const field of schema.textureFields) {
+        const property = properties.get(field.propertyId);
+        if (!property || property.uniformtype !== ShaderDataType.Texture2D) {
+            return { success: false, error: `property-record texture ${field.propertyId} is not a Texture2D` };
+        }
+        textureFields.push({
+            name: property.propertyName,
+            wordOffset: field.tokenByteOffset >>> 2,
+        });
+    }
+
+    const plan: GpuSceneAutoLoweringPlan = {
+        strideInWords: schema.recordStrideInBytes >>> 2,
+        valueFields,
+        textureFields,
+    };
+    const propertyNames = [
+        ...valueFields.map(field => field.name),
+        ...textureFields.map(field => field.name),
+    ];
+    const vertexBody = stripGpuSceneUniformDeclarations(vertex);
+    const fragmentBody = stripGpuSceneUniformDeclarations(fragment);
+    const vertexUsesRecord = propertyNames.some(name => containsIdentifier(vertexBody, name));
+    const fragmentUsesRecord = propertyNames.some(name => containsIdentifier(fragmentBody, name));
+
+    if ((vertexUsesRecord || fragmentUsesRecord)
+        && !containsIdentifier(vertex, "getGpuSceneDataRecordIndex")) {
+        return { success: false, error: "the GPUScene node-record index protocol is unavailable" };
+    }
+
+    if (fragmentUsesRecord) {
+        const mainRegex = /\bvoid\s+main_vs\s*\(\s*\)\s*\{/;
+        if (!mainRegex.test(vertex)) {
+            return { success: false, error: "the vertex entry point cannot publish the record index" };
+        }
+        vertex = `flat out uint ${GPU_SCENE_RECORD_INDEX_VARYING};\n${vertex.replace(
+            mainRegex,
+            match => `${match}\n    ${GPU_SCENE_RECORD_INDEX_VARYING} = getGpuSceneDataRecordIndex();`
+        )}`;
+        fragment = `flat in uint ${GPU_SCENE_RECORD_INDEX_VARYING};\n${fragment}`;
+    }
+
+    return { success: true, vertex, fragment, plan };
+}
+
+function stripGpuSceneUniformDeclarations(source: string): string {
+    return source
+        .replace(uniformRegex, "")
+        .replace(uniformBlockRegex, "");
+}
+
+function lowerGpuScenePropertyAccess(
+    source: string,
+    plan: GpuSceneAutoLoweringPlan,
+    recordIndex: string
+): { success: boolean; source: string; error?: string } {
+    const activeValues = plan.valueFields.filter(field => containsIdentifier(source, field.name));
+    const activeTextures = plan.textureFields.filter(field => containsIdentifier(source, field.name));
+    if (activeValues.length === 0 && activeTextures.length === 0) {
+        return { success: true, source };
+    }
+
+    const textureResult = replaceGpuSceneTextureArguments(
+        source,
+        activeTextures,
+        plan.strideInWords,
+        recordIndex
+    );
+    if (!textureResult.success) {
+        return textureResult;
+    }
+    source = textureResult.source;
+
+    for (const field of activeValues) {
+        const escaped = field.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const expression = gpuSceneValueExpression(
+            field.type,
+            plan.strideInWords,
+            field.wordOffset,
+            recordIndex
+        );
+        if (!expression) {
+            return { success: false, source, error: `unsupported value type for ${field.name}` };
+        }
+        source = source.replace(new RegExp(`\\b${escaped}\\b`, "g"), `(${expression})`);
+    }
+
+    source = `readonly buffer GpuSceneDataBuffer
+{
+    uint gpuScenePropertyWords[];
+}
+${GPU_SCENE_PROPERTY_TABLE_INSTANCE};
+${source}`;
+    return { success: true, source };
+}
+
+function replaceGpuSceneTextureArguments(
+    source: string,
+    fields: GpuSceneAutoTextureField[],
+    strideInWords: number,
+    recordIndex: string
+): { success: boolean; source: string; error?: string } {
+    if (fields.length === 0) {
+        return { success: true, source };
+    }
+    const fieldsByName = new Map(fields.map(field => [field.name, field]));
+    const replacements: { begin: number; end: number; text: string }[] = [];
+    const callRegex = /\b(?:texture|textureLod|textureGrad|textureProj|textureProjLod|textureProjGrad)\s*\(/g;
+    let match: RegExpExecArray | null;
+    while ((match = callRegex.exec(source)) !== null) {
+        const openParen = callRegex.lastIndex - 1;
+        let depth = 1;
+        let firstComma = -1;
+        for (let index = openParen + 1; index < source.length && depth > 0; ++index) {
+            const character = source[index];
+            if (character === "(") {
+                ++depth;
+            } else if (character === ")") {
+                --depth;
+            } else if (character === "," && depth === 1) {
+                firstComma = index;
+                break;
+            }
+        }
+        if (firstComma < 0) {
+            continue;
+        }
+        const argument = source.slice(openParen + 1, firstComma).trim();
+        const field = fieldsByName.get(argument);
+        if (!field) {
+            continue;
+        }
+        const token = gpuSceneWordExpression(
+            strideInWords,
+            field.wordOffset,
+            recordIndex
+        );
+        replacements.push({
+            begin: openParen + 1,
+            end: firstComma,
+            text: `sampler2D(GpuSceneResourcePage[${token}], GpuSceneFixedSampler_Sampler)`,
+        });
+    }
+
+    for (let index = replacements.length - 1; index >= 0; --index) {
+        const replacement = replacements[index];
+        source = source.slice(0, replacement.begin)
+            + replacement.text
+            + source.slice(replacement.end);
+    }
+    for (const field of fields) {
+        if (containsIdentifier(source, field.name)) {
+            return {
+                success: false,
+                source,
+                error: `texture ${field.name} is not used as a supported direct sampling argument`,
+            };
+        }
+    }
+    return { success: true, source };
+}
+
+function gpuSceneValueExpression(
+    type: ShaderDataType,
+    strideInWords: number,
+    wordOffset: number,
+    recordIndex: string
+): string | null {
+    const floatWord = (component: number) =>
+        `uintBitsToFloat(${gpuSceneWordExpression(strideInWords, wordOffset + component, recordIndex)})`;
+    switch (type) {
+        case ShaderDataType.Int:
+            return `int(${gpuSceneWordExpression(strideInWords, wordOffset, recordIndex)})`;
+        case ShaderDataType.Bool:
+            return `${gpuSceneWordExpression(strideInWords, wordOffset, recordIndex)} != 0u`;
+        case ShaderDataType.Float:
+            return floatWord(0);
+        case ShaderDataType.Vector2:
+            return `vec2(${floatWord(0)}, ${floatWord(1)})`;
+        case ShaderDataType.Vector3:
+            return `vec3(${floatWord(0)}, ${floatWord(1)}, ${floatWord(2)})`;
+        case ShaderDataType.Vector4:
+        case ShaderDataType.Color:
+            return `vec4(${floatWord(0)}, ${floatWord(1)}, ${floatWord(2)}, ${floatWord(3)})`;
+        case ShaderDataType.Matrix3x3:
+            return `mat3(${Array.from({ length: 9 }, (_, index) => floatWord(index)).join(", ")})`;
+        case ShaderDataType.Matrix4x4:
+            return `mat4(${Array.from({ length: 16 }, (_, index) => floatWord(index)).join(", ")})`;
+        default:
+            return null;
+    }
+}
+
+function gpuSceneWordExpression(
+    strideInWords: number,
+    wordOffset: number,
+    recordIndex: string
+): string {
+    return `${GPU_SCENE_PROPERTY_TABLE_INSTANCE}.gpuScenePropertyWords[` +
+        `uint(${recordIndex}) * ${strideInWords}u + ${wordOffset}u]`;
+}
+
 function defineString(defines: { [key: string]: boolean }) {
     let res = "";
 
@@ -786,6 +1122,18 @@ function uniformString2(uniformSetMap: Map<number, LayaXBindingInfo[]>, material
                             }
 
                             res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform ${sampler} ${uniform.name};\n`;
+                        }
+                        break;
+                    case LayaXBindingInfoType.resourcePage:
+                        {
+                            const capacity = Math.max(1, uniform.slotCapacity || 1);
+                            let textureType = "texture2D";
+                            if (uniform.resourceClass === "sampledTexture2DArrayFloat" || uniform.resourceClass === "sampledTexture2DArrayDepth") {
+                                textureType = "texture2DArray";
+                            } else if (uniform.resourceClass === "sampledTextureCubeFloat" || uniform.resourceClass === "sampledTextureCubeDepth") {
+                                textureType = "textureCube";
+                            }
+                            res = `${res}layout(set=${uniform.set}, binding=${uniform.binding}) uniform ${textureType} ${uniform.name}[${capacity}];\n`;
                         }
                         break;
                     default:
@@ -1110,6 +1458,11 @@ const mainFuncRegex = /\bvoid\s+main\s*\(\s*\)/;
 function renameMainFunction(source: string, newName: string) {
     const newCode = source.replace(mainFuncRegex, `void ${newName}()`);
     return newCode;
+}
+
+function containsIdentifier(source: string, identifier: string): boolean {
+    const escaped = identifier.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(`\\b${escaped}\\b`).test(source);
 }
 
 

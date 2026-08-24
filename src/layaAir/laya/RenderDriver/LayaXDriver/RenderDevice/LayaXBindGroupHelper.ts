@@ -14,6 +14,7 @@ export enum LayaXBindingInfoType {
     sampler = 2,
     storageBuffer = 3,
     storageTexture = 4,
+    resourcePage = 5,
 }
 
 /**
@@ -41,14 +42,34 @@ export interface LayaXBindingInfo {
     buffer?: { type: string; hasDynamicOffset?: boolean };
     storageTexture?: { access: string; format: string; viewDimension: string };
     format?: string;
+    /** Keep an engine protocol binding even when classic texture-use culling cannot see it. */
+    keepAlive?: boolean;
+    resourceClass?: string;
+    slotCapacity?: number;
 }
 
 export class LayaXBindGroupHelper {
 
     private static _cache: Map<string, LayaXBindingInfo[]> = new Map();
 
+    /** One live revision per logical layout prevents stale entries accumulating. */
+    private static _latestCacheKey: Map<string, string> = new Map();
+
     private static _getCacheKey(groupID: number, mapNames: string[]): string {
         return `${groupID}_` + mapNames.join("_");
+    }
+
+    private static _getRevisionedCommandMapCacheKey(groupID: number, mapNames: string[]): string {
+        const logicalKey = this._getCacheKey(groupID, mapNames);
+        const revisions = mapNames.map(name => {
+            const map = LayaGL.renderDeviceFactory.createGlobalUniformMap(name) as LayaXCommandUniformMap;
+            return map._layoutRevision;
+        }).join(",");
+        const cacheKey = `${logicalKey}@${revisions}`;
+        const previous = this._latestCacheKey.get(logicalKey);
+        if (previous && previous !== cacheKey) this._cache.delete(previous);
+        this._latestCacheKey.set(logicalKey, cacheKey);
+        return cacheKey;
     }
 
     private static _cloneBindingInfoArray(bindings: LayaXBindingInfo[]): LayaXBindingInfo[] {
@@ -77,7 +98,7 @@ export class LayaXBindGroupHelper {
      * but uses LayaXCommandUniformMap as data source.
      */
     static createBindingInfoArray(groupID: number, mapNames: string[]): LayaXBindingInfo[] {
-        const cacheKey = this._getCacheKey(groupID, mapNames);
+        const cacheKey = this._getRevisionedCommandMapCacheKey(groupID, mapNames);
         const cached = this._cache.get(cacheKey);
         if (cached) return this._cloneBindingInfoArray(cached);
 
