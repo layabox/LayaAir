@@ -249,8 +249,23 @@ export class SpineTemplet extends Resource {
         let tex2d = texture.bitmap as Texture2D;
         if (!tex2d) return;
 
-        tex2d._addReference();
-        this.setTexture(texture.url, tex2d);
+        this._registerTextureByName(texture.url, tex2d);
+        this._registerTextureByName(tex2d.url, tex2d);
+    }
+
+    private _registerTextureByName(name: string, texture: Texture2D): void {
+        if (!name)
+            return;
+
+        let previous = this._textures && this._textures[name];
+        if (previous === texture)
+            return;
+
+        if (previous)
+            previous._removeReference();
+
+        texture._addReference();
+        this.setTexture(name, texture);
     }
 
     private _refreshSpineMaterialTextureKeys(): void {

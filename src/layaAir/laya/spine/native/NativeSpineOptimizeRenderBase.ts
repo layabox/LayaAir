@@ -51,12 +51,17 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
         this._templet.registerTexture(texture);
         let optimize = this._templet.optimize as NativeSkeletonOptimise;
 
-        let textureName = optimize.registerTexture(texture);
-        if (!textureName) {
+        let newRegion = optimize.registerTexture(texture);
+        if (!newRegion) {
             return;
         }
-        let tex2d = texture.bitmap as any;
-        this._nativeRender.setSlotTexture(slotName, tex2d._id, textureName, createAttachment);
+        this._nativeRender.setSlotTexture(
+            slotName,
+            newRegion.textureId,
+            newRegion.pageName,
+            newRegion.textureName,
+            createAttachment
+        );
     }
 
     setTempletAttachment(templet: SpineTemplet, targetSlotName: string, skinName: string, attachmentName: string): void {

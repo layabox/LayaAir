@@ -134,10 +134,18 @@ export class NativeSpineTempletParser implements ISpineTempletParser {
                 parseResultBuffer
             );
         } else {
+            const jsonData: any = typeof desc === "string" ? JSON.parse(desc) : desc;
+            const skeletonData = jsonData && jsonData.skeleton;
+            const hasSkeletonBounds = !!skeletonData
+                && skeletonData.x !== undefined
+                && skeletonData.y !== undefined
+                && skeletonData.width !== undefined
+                && skeletonData.height !== undefined;
             parseSuccess = this._nativeParser.parse(
                 rtSkeletonOptimize,
                 JSON.stringify(desc),
                 this._atlasTextContent,
+                hasSkeletonBounds,
                 parseResultBuffer
             );
         }

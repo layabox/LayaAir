@@ -6,6 +6,12 @@ import { ISkeletonOptimise } from "../interface/ISpineParse";
 import { SpineShaderInit } from "../shader/SpineShaderInit";
 import { SpineTemplet } from "../SpineTemplet";
 
+type NativeTextureRegion = {
+    textureId: number;
+    pageName: string;
+    textureName: string;
+};
+
 /**
  * @en Native SkeletonOptimise wrapper class for accessing lightweight properties.
  * @zh Native SkeletonOptimise 封装类，用于访问轻量级属性。
@@ -13,7 +19,7 @@ import { SpineTemplet } from "../SpineTemplet";
 export class NativeSkeletonOptimise implements ISkeletonOptimise {
     private _nativeOptimise: any;
 
-    private _registTextures: Map<string, Set<string>> = new Map();
+    private _registTextures: Map<string, number> = new Map();
 
     static __init__() {
         let dec = SpineShaderInit.getAllVertexDeclarations();
@@ -177,7 +183,35 @@ export class NativeSkeletonOptimise implements ISkeletonOptimise {
         // This method is kept for interface compatibility
     }
 
-    registerTexture(texture: Texture | Texture2D): string {
+    /**
+     * @en Register or refresh a Native Spine atlas page.
+     * @param textureId Native texture ID.
+     * @param pageName Atlas page name.
+     * @param pageWidth Atlas page width.
+     * @param pageHeight Atlas page height.
+     * @zh 注册或刷新 Native Spine 图集页面。
+     * @param textureId Native 纹理 ID。
+     * @param pageName 图集页面名称。
+     * @param pageWidth 图集页面宽度。
+     * @param pageHeight 图集页面高度。
+     */
+    registerTexturePage(textureId: number, pageName: string, pageWidth: number, pageHeight: number): void {
+        this._nativeOptimise.registerTexturePage(textureId, pageName, pageWidth, pageHeight);
+    }
+
+    /**
+     * @en Register or refresh a Native Spine atlas region on an existing page.
+     * @zh 在已有页面上注册或刷新 Native Spine 图集区域。
+     */
+    registerTextureRegion(pageName: string, textureName: string,
+        width: number, height: number, originalWidth: number, originalHeight: number,
+        offsetX: number, offsetY: number, u: number, v: number, u2: number, v2: number): void {
+        this._nativeOptimise.registerTextureRegion(pageName, textureName,
+            width, height, originalWidth, originalHeight,
+            offsetX, offsetY, u, v, u2, v2);
+    }
+
+    registerTexture(texture: Texture | Texture2D): NativeTextureRegion {
         let isTexture = false;
         let texture2d: Texture2D;
         if (texture instanceof Texture) {
@@ -188,45 +222,47 @@ export class NativeSkeletonOptimise implements ISkeletonOptimise {
         
         if (!texture2d) return null;
 
-        let bitmapUrl = texture2d.url;
-
-        let page = this._registTextures.get(bitmapUrl);
-        if (!page) {
-            page = new Set<string>();
-            this._registTextures.set(bitmapUrl, page);
-        }
+        let bitmapUrl = texture2d.url || "texture";
 
         let textureName = this._getTextureName(texture);
 
-        if (!page.has(textureName)) {
-            page.add(textureName);
-
-            let width = texture.width;
-            let height = texture.height;
-            let originalWidth = texture.width;
-            let originalHeight = texture.height;
-            let offsetX = 0;
-            let offsetY = 0;
-            let u = 0;
-            let v = 0;
-            let u2 = 1.0;
-            let v2 = 1.0;
-            if (isTexture) {
-                originalWidth = (texture as Texture).sourceWidth ;
-                originalHeight = (texture as Texture).sourceHeight ;
-                offsetX = (texture as Texture).offsetX;
-                offsetY = (texture as Texture).offsetY;
-                if ((texture as Texture).uv && (texture as Texture).uv.length >= 8) {
-                    u = (texture as Texture).uv[0];
-                    v = (texture as Texture).uv[1];
-                    u2 = (texture as Texture).uv[4];
-                    v2 = (texture as Texture).uv[5];
-                }
-            }
-
-            this._nativeOptimise.registerTexture( texture2d.id , bitmapUrl, textureName, width, height, originalWidth, originalHeight, offsetX, offsetY, u, v, u2, v2);
+        if (this._registTextures.get(bitmapUrl) !== texture2d.id) {
+            this._registTextures.set(bitmapUrl, texture2d.id);
+            this.registerTexturePage(texture2d.id, bitmapUrl,
+                texture2d.width, texture2d.height);
         }
-        return textureName;
+
+        let width = texture.width;
+        let height = texture.height;
+        let originalWidth = texture.width;
+        let originalHeight = texture.height;
+        let offsetX = 0;
+        let offsetY = 0;
+        let u = 0;
+        let v = 0;
+        let u2 = 1.0;
+        let v2 = 1.0;
+        if (isTexture) {
+            originalWidth = (texture as Texture).sourceWidth ;
+            originalHeight = (texture as Texture).sourceHeight ;
+            offsetX = (texture as Texture).offsetX;
+            offsetY = (texture as Texture).offsetY;
+            if ((texture as Texture).uv && (texture as Texture).uv.length >= 8) {
+                u = (texture as Texture).uv[0];
+                v = (texture as Texture).uv[1];
+                u2 = (texture as Texture).uv[4];
+                v2 = (texture as Texture).uv[5];
+            }
+        }
+
+        this.registerTextureRegion(bitmapUrl, textureName,
+            width, height, originalWidth, originalHeight,
+            offsetX, offsetY, u, v, u2, v2);
+        return {
+            textureId: texture2d.id,
+            pageName: bitmapUrl,
+            textureName
+        };
     }
 
     private _getTextureName(texture: Texture | Texture2D): string {
