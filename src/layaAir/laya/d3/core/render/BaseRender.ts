@@ -800,6 +800,13 @@ export class BaseRender extends Component {
         this._scene = scene;
         this._onWorldMatNeedChange(1);
         this._isSupportRenderFeature();
+        // Materials may enable reflection probes before this renderer belongs to a
+        // scene. In that order the support flag changes while no volume manager is
+        // available, so the renderer misses the initial probe update. Seed the scene
+        // probe now; the volume manager may replace it with a more specific one later.
+        if (this._surportReflectionProbe && !this._probReflection && scene.sceneReflectionProb) {
+            this.probReflection = scene.sceneReflectionProb;
+        }
         //this._batchRender && this._batchRender._batchOneRender(this);
         this.setLightmapIndex(this.lightmapIndex);
         this._statAdd();
