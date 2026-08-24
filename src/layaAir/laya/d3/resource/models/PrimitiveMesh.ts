@@ -8,7 +8,6 @@ import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
-import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 
 /**
  * @en The `PrimitiveMesh` class is used to create simple meshes.
@@ -16,704 +15,701 @@ import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
  */
 export class PrimitiveMesh {
 
-	static __init__(): void {
-
-	}
-
-	/**
-	 * @internal
-	 */
-	static _createMesh(vertexDeclaration: VertexDeclaration, vertices: Float32Array, indices: Uint16Array): Mesh {
-		var mesh: Mesh = new Mesh();
-		var subMesh: SubMesh = new SubMesh(mesh);
-		var vertexBuffer: VertexBuffer3D = Laya3DRender.renderOBJCreate.createVertexBuffer3D(vertices.length * 4, BufferUsage.Static, true);
-		vertexBuffer.vertexDeclaration = vertexDeclaration;
-		vertexBuffer.setData(vertices.buffer);
-		mesh._vertexBuffer = vertexBuffer;
-		mesh._vertexCount = vertexBuffer._byteLength / vertexDeclaration.vertexStride;
-		var indexBuffer: IndexBuffer3D = Laya3DRender.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, indices.length, BufferUsage.Static, true);
-		indexBuffer.setData(indices);
-		mesh._indexBuffer = indexBuffer;
-
-		mesh._setBuffer(vertexBuffer, indexBuffer);
-		//mesh._setInstanceBuffer(mesh._instanceBufferStateType);
-		subMesh._vertexBuffer = vertexBuffer;
-		subMesh._indexBuffer = indexBuffer;
-		subMesh._setIndexRange(0, indexBuffer.indexCount);
-
-		var subIndexBufferStart: number[] = subMesh._subIndexBufferStart;
-		var subIndexBufferCount: number[] = subMesh._subIndexBufferCount;
-		var boneIndicesList: Uint16Array[] = subMesh._boneIndicesList;
-		subIndexBufferStart.length = 1;
-		subIndexBufferCount.length = 1;
-		boneIndicesList.length = 1;
-		subIndexBufferStart[0] = 0;
-		subIndexBufferCount[0] = indexBuffer.indexCount;
-
-		var subMeshes: SubMesh[] = [];
-		subMeshes.push(subMesh);
-		mesh._setSubMeshes(subMeshes);
-		mesh.calculateBounds();
-		var memorySize: number = vertexBuffer._byteLength + indexBuffer._byteLength;
-		mesh._setCPUMemory(memorySize);
-		mesh._setGPUMemory(memorySize);
-		return mesh;
-	}
-
-	/**
-	 * @en Creates a box mesh.
-	 * @param long The length of the box. Default is 1.
-	 * @param height The height of the box. Default is 1.
-	 * @param width The width of the box. Default is 1.
-	 * @return The created Mesh instance.
-	 * @zh 创建一个立方体网格。
-	 * @param long 立方体的长度，默认值为1。
-	 * @param height 立方体的高度，默认值为1。
-	 * @param width 立方体的宽度，默认值为1。
-	 * @return 创建的网格实例。
-	 */
-	static createBox(long: number = 1, height: number = 1, width: number = 1): Mesh {
-		var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
-
-		var halfLong: number = long / 2;
-		var halfHeight: number = height / 2;
-		var halfWidth: number = width / 2;
-
-		var vertices: Float32Array = new Float32Array([
-			//上
-			-halfLong, halfHeight, -halfWidth, 0, 1, 0, 0, 0, halfLong, halfHeight, -halfWidth, 0, 1, 0, 1, 0, halfLong, halfHeight, halfWidth, 0, 1, 0, 1, 1, -halfLong, halfHeight, halfWidth, 0, 1, 0, 0, 1,
-			//下
-			-halfLong, -halfHeight, -halfWidth, 0, -1, 0, 0, 1, halfLong, -halfHeight, -halfWidth, 0, -1, 0, 1, 1, halfLong, -halfHeight, halfWidth, 0, -1, 0, 1, 0, -halfLong, -halfHeight, halfWidth, 0, -1, 0, 0, 0,
-			//左
-			-halfLong, halfHeight, -halfWidth, -1, 0, 0, 0, 0, -halfLong, halfHeight, halfWidth, -1, 0, 0, 1, 0, -halfLong, -halfHeight, halfWidth, -1, 0, 0, 1, 1, -halfLong, -halfHeight, -halfWidth, -1, 0, 0, 0, 1,
-			//右
-			halfLong, halfHeight, -halfWidth, 1, 0, 0, 1, 0, halfLong, halfHeight, halfWidth, 1, 0, 0, 0, 0, halfLong, -halfHeight, halfWidth, 1, 0, 0, 0, 1, halfLong, -halfHeight, -halfWidth, 1, 0, 0, 1, 1,
-			//前
-			-halfLong, halfHeight, halfWidth, 0, 0, 1, 0, 0, halfLong, halfHeight, halfWidth, 0, 0, 1, 1, 0, halfLong, -halfHeight, halfWidth, 0, 0, 1, 1, 1, -halfLong, -halfHeight, halfWidth, 0, 0, 1, 0, 1,
-			//后
-			-halfLong, halfHeight, -halfWidth, 0, 0, -1, 1, 0, halfLong, halfHeight, -halfWidth, 0, 0, -1, 0, 0, halfLong, -halfHeight, -halfWidth, 0, 0, -1, 0, 1, -halfLong, -halfHeight, -halfWidth, 0, 0, -1, 1, 1]);
-
-		var indices: Uint16Array = new Uint16Array([
-			//上
-			0, 1, 2, 2, 3, 0,
-			//下
-			4, 7, 6, 6, 5, 4,
-			//左
-			8, 9, 10, 10, 11, 8,
-			//右
-			12, 15, 14, 14, 13, 12,
-			//前
-			16, 17, 18, 18, 19, 16,
-			//后
-			20, 23, 22, 22, 21, 20]);
-		return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);
-	}
-
-	/**
-	 * @en Creates a capsule mesh.
-	 * @param radius The radius of the capsule. Default is 0.5.
-	 * @param height The height of the capsule. Default is 2.
-	 * @param stacks The number of stacks, typically half the number of vertical slices. Default is 16.
-	 * @param slices The number of vertical slices. Default is 32.
-	 * @zh 创建一个胶囊体网格。
-	 * @param radius 胶囊的半径，默认值为0.5。
-	 * @param height 胶囊的高度，默认值为2。
-	 * @param stacks 水平层数，默认为16，一般设为垂直层数的一半。
-	 * @param slices 垂直层数，默认为32。
-	 */
-	static createCapsule(radius: number = 0.5, height: number = 2, stacks: number = 16, slices: number = 32): Mesh {
-		var vertexCount: number = (stacks + 1) * (slices + 1) * 2 + (slices + 1) * 2;
-		var indexCount: number = (3 * stacks * (slices + 1)) * 2 * 2 + 2 * slices * 3;
-
-		//定义顶点数据结构
-		var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
-		//单个顶点数据个数,总共字节数/单个字节数
-		var vertexFloatStride: number = vertexDeclaration.vertexStride / 4;
-		//顶点
-		var vertices: Float32Array = new Float32Array(vertexCount * vertexFloatStride);
-		//顶点索引
-		var indices: Uint16Array = new Uint16Array(indexCount);
-
-		var stackAngle: number = (Math.PI / 2.0) / stacks;
-		var sliceAngle: number = (Math.PI * 2.0) / slices;
-
-		//圆柱体高度的一半
-		var hcHeight: number = height / 2 - radius;
-
-		var posX: number = 0;
-		var posY: number = 0;
-		var posZ: number = 0;
-
-		var vc: number = 0;
-		var ic: number = 0;
-
-		var verticeCount: number = 0;
-
-		var stack: number, slice: number;
-
-		//顶部半球
-		for (stack = 0; stack <= stacks; stack++) {
-
-			for (slice = 0; slice <= slices; slice++) {
-
-				posX = radius * Math.cos(stack * stackAngle) * Math.cos(slice * sliceAngle + Math.PI);
-				posY = radius * Math.sin(stack * stackAngle);
-				posZ = radius * Math.cos(stack * stackAngle) * Math.sin(slice * sliceAngle + Math.PI);
-
-				//pos
-				vertices[vc++] = posX;
-				vertices[vc++] = posY + hcHeight;
-				vertices[vc++] = posZ;
-
-				//normal
-				vertices[vc++] = posX;
-				vertices[vc++] = posY;
-				vertices[vc++] = posZ;
-
-				//uv
-				vertices[vc++] = 1 - slice / slices;
-				vertices[vc++] = (1 - stack / stacks) * ((Math.PI * radius / 2) / (height + Math.PI * radius));
-
-				if (stack < stacks) {
-
-					// First
-					indices[ic++] = (stack * (slices + 1)) + slice + (slices + 1);
-					indices[ic++] = (stack * (slices + 1)) + slice;
-					indices[ic++] = (stack * (slices + 1)) + slice + 1;
-					// Second
-					indices[ic++] = (stack * (slices + 1)) + slice + (slices);
-					indices[ic++] = (stack * (slices + 1)) + slice;
-					indices[ic++] = (stack * (slices + 1)) + slice + (slices + 1);
-
-				}
-
-			}
-		}
-
-		verticeCount += (stacks + 1) * (slices + 1);
-
-		//底部半球
-		for (stack = 0; stack <= stacks; stack++) {
-
-			for (slice = 0; slice <= slices; slice++) {
-
-				posX = radius * Math.cos(stack * stackAngle) * Math.cos(slice * sliceAngle + Math.PI);
-				posY = radius * Math.sin(-stack * stackAngle);
-				posZ = radius * Math.cos(stack * stackAngle) * Math.sin(slice * sliceAngle + Math.PI);
-
-				//pos
-				vertices[vc++] = posX;
-				vertices[vc++] = posY - hcHeight;
-				vertices[vc++] = posZ;
-
-				//normal
-				vertices[vc++] = posX;
-				vertices[vc++] = posY;
-				vertices[vc++] = posZ;
-
-				//uv
-				vertices[vc++] = 1 - slice / slices;
-				vertices[vc++] = ((stack / stacks) * (Math.PI * radius / 2) + (height + Math.PI * radius / 2)) / (height + Math.PI * radius);
-
-				if (stack < stacks) {
-
-					// First
-					indices[ic++] = verticeCount + (stack * (slices + 1)) + slice;
-					indices[ic++] = verticeCount + (stack * (slices + 1)) + slice + (slices + 1);
-					indices[ic++] = verticeCount + (stack * (slices + 1)) + slice + 1;
-					// Second
-					indices[ic++] = verticeCount + (stack * (slices + 1)) + slice;
-					indices[ic++] = verticeCount + (stack * (slices + 1)) + slice + (slices);
-					indices[ic++] = verticeCount + (stack * (slices + 1)) + slice + (slices + 1);
-
-				}
-			}
-		}
-
-		verticeCount += (stacks + 1) * (slices + 1);
-
-		//侧壁
-		for (slice = 0; slice <= slices; slice++) {
-			posX = radius * Math.cos(slice * sliceAngle + Math.PI);
-			posY = hcHeight;
-			posZ = radius * Math.sin(slice * sliceAngle + Math.PI);
-
-			//pos
-			vertices[vc++] = posX;
-			vertices[vc + (slices + 1) * 8 - 1] = posX;
-			vertices[vc++] = posY;
-			vertices[vc + (slices + 1) * 8 - 1] = -posY;
-			vertices[vc++] = posZ;
-			vertices[vc + (slices + 1) * 8 - 1] = posZ;
-			//normal
-			vertices[vc++] = posX;
-			vertices[vc + (slices + 1) * 8 - 1] = posX;
-			vertices[vc++] = 0;
-			vertices[vc + (slices + 1) * 8 - 1] = 0;
-			vertices[vc++] = posZ;
-			vertices[vc + (slices + 1) * 8 - 1] = posZ;
-			//uv    
-			vertices[vc++] = 1 - slice * 1 / slices;
-			vertices[vc + (slices + 1) * 8 - 1] = 1 - slice * 1 / slices;
-			vertices[vc++] = (Math.PI * radius / 2) / (height + Math.PI * radius);
-			vertices[vc + (slices + 1) * 8 - 1] = (Math.PI * radius / 2 + height) / (height + Math.PI * radius);
-		}
-
-		for (slice = 0; slice < slices; slice++) {
-
-			indices[ic++] = slice + verticeCount + (slices + 1);
-			indices[ic++] = slice + verticeCount + 1;
-			indices[ic++] = slice + verticeCount;
-
-			indices[ic++] = slice + verticeCount + (slices + 1);
-			indices[ic++] = slice + verticeCount + (slices + 1) + 1;
-			indices[ic++] = slice + verticeCount + 1;
-		}
-
-		verticeCount += 2 * (slices + 1);
-		return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);
-	}
-
-	/**
-	 * @en Creates a cone mesh.
-	 * @param radius The radius of the base of the cone. Default is 0.5.
-	 * @param height The height of the cone. Default is 1.
-	 * @param slices The number of segments around the base of the cone. Default is 32.
-	 * @return The created Mesh instance.
-	 * @zh 创建一个圆锥体网格。
-	 * @param radius 圆锥底面的半径，默认值为0.5。
-	 * @param height 圆锥的高度，默认值为1。
-	 * @param slices 圆锥底面圆周的分段数，默认为32。
-	 * @return 创建的网格实例。
-	 */
-	static createCone(radius: number = 0.5, height: number = 1, slices: number = 32): Mesh {
-		//(this._released) || (dispose());//如果已存在，则释放资源
-		var vertexCount: number = (slices + 1 + 1) + (slices + 1) * 2;
-		var indexCount: number = 6 * slices + 3 * slices;
-
-		//定义顶点数据结构
-		var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
-		//单个顶点数据个数,总共字节数/单个字节数
-		var vertexFloatStride: number = vertexDeclaration.vertexStride / 4;
-		//顶点
-		var vertices: Float32Array = new Float32Array(vertexCount * vertexFloatStride);
-		//顶点索引
-		var indices: Uint16Array = new Uint16Array(indexCount);
-
-		var sliceAngle: number = (Math.PI * 2.0) / slices;
-
-		var halfHeight: number = height / 2;
-		var curAngle: number = 0;
-		var verticeCount: number = 0;
-
-		var posX: number = 0;
-		var posY: number = 0;
-		var posZ: number = 0;
-
-		var normal: Vector3 = new Vector3();
-		var downV3: Vector3 = new Vector3(0, -1, 0);
-		var upPoint: Vector3 = new Vector3(0, halfHeight, 0);
-		var downPoint: Vector3 = new Vector3();
-		var v3: Vector3 = new Vector3();
-		var q4: Quaternion = new Quaternion();
-		var rotateAxis: Vector3 = new Vector3();
-		var rotateRadius: number;
-
-		var vc: number = 0;
-		var ic: number = 0;
-
-		//壁
-		for (var rv: number = 0; rv <= slices; rv++) {
-			curAngle = rv * sliceAngle;
-			posX = Math.cos(curAngle + Math.PI) * radius;
-			posY = halfHeight;
-			posZ = Math.sin(curAngle + Math.PI) * radius;
-
-			//pos
-			vertices[vc++] = 0;
-			vertices[vc + (slices + 1) * 8 - 1] = posX;
-			vertices[vc++] = posY;
-			vertices[vc + (slices + 1) * 8 - 1] = -posY;
-			vertices[vc++] = 0;
-			vertices[vc + (slices + 1) * 8 - 1] = posZ;
-
-			normal.x = posX;
-			normal.y = 0;
-			normal.z = posZ;
-			downPoint.x = posX;
-			downPoint.y = -posY;
-			downPoint.z = posZ;
-			Vector3.subtract(downPoint, upPoint, v3);
-			Vector3.normalize(v3, v3);
-			rotateRadius = Math.acos(Vector3.dot(downV3, v3));
-			Vector3.cross(downV3, v3, rotateAxis);
-			Vector3.normalize(rotateAxis, rotateAxis);
-			Quaternion.createFromAxisAngle(rotateAxis, rotateRadius, q4);
-			Vector3.normalize(normal, normal);
-			Vector3.transformQuat(normal, q4, normal);
-			Vector3.normalize(normal, normal);
-			//normal
-			vertices[vc++] = normal.x;
-			vertices[vc + (slices + 1) * 8 - 1] = normal.x;
-			vertices[vc++] = normal.y;
-			vertices[vc + (slices + 1) * 8 - 1] = normal.y;
-			vertices[vc++] = normal.z;
-			vertices[vc + (slices + 1) * 8 - 1] = normal.z;
-			//uv    
-			vertices[vc++] = 1 - rv * 1 / slices;
-			vertices[vc + (slices + 1) * 8 - 1] = 1 - rv * 1 / slices;
-			vertices[vc++] = 0;
-			vertices[vc + (slices + 1) * 8 - 1] = 1;
-
-		}
-
-		vc += (slices + 1) * 8;
-
-		for (var ri: number = 0; ri < slices; ri++) {
-			indices[ic++] = ri + verticeCount + (slices + 1);
-			indices[ic++] = ri + verticeCount + 1;
-			indices[ic++] = ri + verticeCount;
-
-			indices[ic++] = ri + verticeCount + (slices + 1);
-			indices[ic++] = ri + verticeCount + (slices + 1) + 1;
-			indices[ic++] = ri + verticeCount + 1;
-
-		}
-
-		verticeCount += 2 * (slices + 1);
-
-		//底
-		for (var bv: number = 0; bv <= slices; bv++) {
-			if (bv === 0) {
-				//pos
-				vertices[vc++] = 0;
-				vertices[vc++] = -halfHeight;
-				vertices[vc++] = 0;
-				//normal
-				vertices[vc++] = 0;
-				vertices[vc++] = -1;
-				vertices[vc++] = 0;
-				//uv
-				vertices[vc++] = 0.5;
-				vertices[vc++] = 0.5;
-			}
-
-			curAngle = bv * sliceAngle;
-			posX = Math.cos(curAngle + Math.PI) * radius;
-			posY = -halfHeight;
-			posZ = Math.sin(curAngle + Math.PI) * radius;
-
-			//pos
-			vertices[vc++] = posX;
-			vertices[vc++] = posY;
-			vertices[vc++] = posZ;
-			//normal
-			vertices[vc++] = 0;
-			vertices[vc++] = -1;
-			vertices[vc++] = 0;
-			//uv
-			vertices[vc++] = 0.5 + Math.cos(curAngle) * 0.5;
-			vertices[vc++] = 0.5 + Math.sin(curAngle) * 0.5;
-
-		}
-
-		for (var bi: number = 0; bi < slices; bi++) {
-			indices[ic++] = 0 + verticeCount;
-			indices[ic++] = bi + 2 + verticeCount;
-			indices[ic++] = bi + 1 + verticeCount;
-		}
-
-		verticeCount += slices + 1 + 1;
-		return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);
-	}
-
-	/**
-	 * @en Creates a cylinder mesh.
-	 * @param radius The radius of the cylinder. Default is 0.5.
-	 * @param height The height of the cylinder. Default is 2.
-	 * @param slices The number of vertical segments of the cylinder. Default is 32.
-	 * @return The created Mesh instance.
-	 * @zh 创建一个圆柱体网格。
-	 * @param radius 圆柱的半径，默认值为0.5。
-	 * @param height 圆柱的高度，默认值为2。
-	 * @param slices 圆柱的垂直层数，默认为32。
-	 * @return 创建的网格实例。
-	 */
-	static createCylinder(radius: number = 0.5, height: number = 2, slices: number = 32): Mesh {
-		//(this._released) || (dispose());//如果已存在，则释放资源
-		var vertexCount: number = (slices + 1 + 1) + (slices + 1) * 2 + (slices + 1 + 1);
-		var indexCount: number = 3 * slices + 6 * slices + 3 * slices;
-
-		//定义顶点数据结构
-		var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
-		//单个顶点数据个数,总共字节数/单个字节数
-		var vertexFloatStride: number = vertexDeclaration.vertexStride / 4;
-		//顶点
-		var vertices: Float32Array = new Float32Array(vertexCount * vertexFloatStride);
-		//顶点索引
-		var indices: Uint16Array = new Uint16Array(indexCount);
-
-		var sliceAngle: number = (Math.PI * 2.0) / slices;
-
-		var halfHeight: number = height / 2;
-		var curAngle: number = 0;
-		var verticeCount: number = 0;
-		var posX: number = 0;
-		var posY: number = 0;
-		var posZ: number = 0;
-
-		var vc: number = 0;
-		var ic: number = 0;
-
-		//顶
-		for (var tv: number = 0; tv <= slices; tv++) {
-
-			if (tv === 0) {
-				//pos
-				vertices[vc++] = 0;
-				vertices[vc++] = halfHeight;
-				vertices[vc++] = 0;
-				//normal
-				vertices[vc++] = 0;
-				vertices[vc++] = 1;
-				vertices[vc++] = 0;
-				//uv
-				vertices[vc++] = 0.5;
-				vertices[vc++] = 0.5;
-
-			}
-
-			curAngle = tv * sliceAngle;
-			posX = Math.cos(curAngle) * radius;
-			posY = halfHeight;
-			posZ = Math.sin(curAngle) * radius;
-
-			//pos
-			vertices[vc++] = posX;
-			vertices[vc++] = posY;
-			vertices[vc++] = posZ;
-			//normal
-			vertices[vc++] = 0;
-			vertices[vc++] = 1;
-			vertices[vc++] = 0;
-
-			//uv
-			vertices[vc++] = 0.5 + Math.cos(curAngle) * 0.5;
-			vertices[vc++] = 0.5 + Math.sin(curAngle) * 0.5;
-		}
-
-		for (var ti: number = 0; ti < slices; ti++) {
-			indices[ic++] = 0;
-			indices[ic++] = ti + 1;
-			indices[ic++] = ti + 2;
-		}
-		verticeCount += slices + 1 + 1;
-
-		//壁
-		for (var rv: number = 0; rv <= slices; rv++) {
-			curAngle = rv * sliceAngle;
-			posX = Math.cos(curAngle + Math.PI) * radius;
-			posY = halfHeight;
-			posZ = Math.sin(curAngle + Math.PI) * radius;
-
-			//pos
-			vertices[vc++] = posX;
-			vertices[vc + (slices + 1) * 8 - 1] = posX;
-			vertices[vc++] = posY;
-			vertices[vc + (slices + 1) * 8 - 1] = -posY;
-			vertices[vc++] = posZ;
-			vertices[vc + (slices + 1) * 8 - 1] = posZ;
-			//normal
-			vertices[vc++] = posX;
-			vertices[vc + (slices + 1) * 8 - 1] = posX;
-			vertices[vc++] = 0;
-			vertices[vc + (slices + 1) * 8 - 1] = 0;
-			vertices[vc++] = posZ;
-			vertices[vc + (slices + 1) * 8 - 1] = posZ;
-			//uv    
-			vertices[vc++] = 1 - rv * 1 / slices;
-			vertices[vc + (slices + 1) * 8 - 1] = 1 - rv * 1 / slices;
-			vertices[vc++] = 0;
-			vertices[vc + (slices + 1) * 8 - 1] = 1;
-
-		}
-
-		vc += (slices + 1) * 8;
-
-		for (var ri: number = 0; ri < slices; ri++) {
-			indices[ic++] = ri + verticeCount + (slices + 1);
-			indices[ic++] = ri + verticeCount + 1;
-			indices[ic++] = ri + verticeCount;
-
-			indices[ic++] = ri + verticeCount + (slices + 1);
-			indices[ic++] = ri + verticeCount + (slices + 1) + 1;
-			indices[ic++] = ri + verticeCount + 1;
-
-		}
-
-		verticeCount += 2 * (slices + 1);
-
-		//底
-		for (var bv: number = 0; bv <= slices; bv++) {
-			if (bv === 0) {
-				//pos
-				vertices[vc++] = 0;
-				vertices[vc++] = -halfHeight;
-				vertices[vc++] = 0;
-				//normal
-				vertices[vc++] = 0;
-				vertices[vc++] = -1;
-				vertices[vc++] = 0;
-				//uv
-				vertices[vc++] = 0.5;
-				vertices[vc++] = 0.5;
-
-			}
-
-			curAngle = bv * sliceAngle;
-			posX = Math.cos(curAngle + Math.PI) * radius;
-			posY = -halfHeight;
-			posZ = Math.sin(curAngle + Math.PI) * radius;
-
-			//pos
-			vertices[vc++] = posX;
-			vertices[vc++] = posY;
-			vertices[vc++] = posZ;
-			//normal
-			vertices[vc++] = 0;
-			vertices[vc++] = -1;
-			vertices[vc++] = 0;
-			//uv
-			vertices[vc++] = 0.5 + Math.cos(curAngle) * 0.5;
-			vertices[vc++] = 0.5 + Math.sin(curAngle) * 0.5;
-
-		}
-
-		for (var bi: number = 0; bi < slices; bi++) {
-			indices[ic++] = 0 + verticeCount;
-			indices[ic++] = bi + 2 + verticeCount;
-			indices[ic++] = bi + 1 + verticeCount;
-		}
-
-		verticeCount += slices + 1 + 1;
-		return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);
-	}
-
-	/**
-	 * @en Creates a plane mesh.
-	 * @param long The length of the plane. Default is 10.
-	 * @param width The width of the plane. Default is 10.
-	 * @param stacks The number of longitudinal subdivisions. Default is 10.
-	 * @param slices The number of latitudinal subdivisions. Default is 10.
-	 * @return The created Mesh instance.
-	 * @zh 创建一个平面网格。
-	 * @param long 平面的长。默认值为10。
-	 * @param width 平面的宽。默认值为10。
-	 * @param stacks 纵向细分的数量。默认为10。
-	 * @param slices 横向细分的数量。默认为10。
-	 * @return 创建的网格实例。
-	 */
-	static createPlane(long: number = 10, width: number = 10, stacks: number = 10, slices: number = 10): Mesh {
-		var vertexCount: number = (stacks + 1) * (slices + 1);
-		var indexCount: number = stacks * slices * 2 * 3;
-		var indices: Uint16Array = new Uint16Array(indexCount);
-		//定义顶点数据结构
-		var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
-		//单个顶点数据个数,总共字节数/单个字节数
-		var vertexFloatStride: number = vertexDeclaration.vertexStride / 4;
-		//顶点数组长度
-		var vertices: Float32Array = new Float32Array(vertexCount * vertexFloatStride);
-
-		var halfLong: number = long / 2;
-		var halfWidth: number = width / 2;
-		var stacksLong: number = long / stacks;
-		var slicesWidth: number = width / slices;
-
-		var verticeCount: number = 0;
-
-		for (var i: number = 0; i <= slices; i++) {
-
-			for (var j: number = 0; j <= stacks; j++) {
-
-				vertices[verticeCount++] = j * stacksLong - halfLong;
-				vertices[verticeCount++] = 0;
-				vertices[verticeCount++] = i * slicesWidth - halfWidth;
-				vertices[verticeCount++] = 0;
-				vertices[verticeCount++] = 1;
-				vertices[verticeCount++] = 0;
-				vertices[verticeCount++] = j * 1 / stacks;
-				vertices[verticeCount++] = i * 1 / slices;
-			}
-		}
-
-		var indiceIndex: number = 0;
-
-		for (i = 0; i < slices; i++) {
-
-			for (j = 0; j < stacks; j++) {
-
-				indices[indiceIndex++] = (i + 1) * (stacks + 1) + j;
-				indices[indiceIndex++] = i * (stacks + 1) + j;
-				indices[indiceIndex++] = (i + 1) * (stacks + 1) + j + 1;
-
-				indices[indiceIndex++] = i * (stacks + 1) + j;
-				indices[indiceIndex++] = i * (stacks + 1) + j + 1;
-				indices[indiceIndex++] = (i + 1) * (stacks + 1) + j + 1;
-			}
-		}
-
-		return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);
-	}
-
-	/**
-	 * @en Creates a quad mesh.
-	 * @param long The length of the quad. Default is 1.
-	 * @param width The width of the quad. Default is 1.
-	 * @return The created Mesh instance.
-	 * @zh 创建一个四边形网格。
-	 * @param long 四边形的长度。默认是1。
-	 * @param width 四边形的宽度。默认是1。
-	 * @return 创建的网格实例。
-	 */
-	static createQuad(long: number = 1, width: number = 1): Mesh {
-		// POSITION,NORMAL,UV,TANGENT — 加 TANGENT 让 ShaderGraph shader (e.g. UNI-Masked) 走 mask distortion 路径
-		// 之前只 POSITION,NORMAL,UV; VFX outputShaderGraphQuad 用 builtin:Quad 时 shader 拿不到 a_Tangent0 让 mask 算空
-		var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV,TANGENT");
-		var halfLong: number = long / 2;
-		var halfWidth: number = width / 2;
-
-		// per vertex: pos(3) + normal(3) + uv(2) + tangent(4) = 12 floats
-		// tangent = (1, 0, 0, 1) — UV.x dir, w=1 right-handed bitangent (跟 fbx 标准 quad 一致)
-		var vertices: Float32Array = new Float32Array([
-			-halfLong,  halfWidth, 0,   0, 0, 1,   0, 0,   1, 0, 0, 1,
-			 halfLong,  halfWidth, 0,   0, 0, 1,   1, 0,   1, 0, 0, 1,
-			-halfLong, -halfWidth, 0,   0, 0, 1,   0, 1,   1, 0, 0, 1,
-			 halfLong, -halfWidth, 0,   0, 0, 1,   1, 1,   1, 0, 0, 1,
-		]);
-		var indices: Uint16Array = new Uint16Array([0, 1, 2, 3, 2, 1]);
-
-		return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);
-	}
-
-	static createTriangle(long: number = 1, width: number = 1): Mesh {
-		// Unity VFX Graph VFXPlanarPrimitive Triangle: 顶点 circumscribe unit square (顶点在 quad 外, 让 inside triangle 完全覆盖 [0,1]² UV)
-		// 这样 mask 纹理 sample 完整 wisp shape, mask alpha cut 让 triangle 边透明 → 可见 wisp turbulence 细节
-		// UV 跟 vertex pos affine 一致: pos (x, y) in mesh space ↔ UV (x/long + 0.5, -y/width + 0.5)
-		// 即 quad corner pos (-halfLong, halfWidth) → UV (0, 0) (top-left)
-		// 验证: 单位 quad 4 corner UV 精准 (0,0)/(1,0)/(0,1)/(1,1)，triangle 顶点 UV 在 [-0.5, 1.5]
-		// inscribed Triangle (vertex 跟 quad 同 size) 让 mask 只 sample partial wisp UV, wisp 看着细窄 — circumscribe 更接近 Unity wisp 形态
-		var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV,TANGENT");
-		var halfLong: number = long / 2;
-		var halfWidth: number = width / 2;
-		var vertices: Float32Array = new Float32Array([
-			0,             halfWidth * 3, 0,   0, 0, 1,    0.5, -1,   1, 0, 0, 1,
-			-halfLong * 2, -halfWidth,    0,   0, 0, 1,   -0.5,  1,   1, 0, 0, 1,
-			 halfLong * 2, -halfWidth,    0,   0, 0, 1,    1.5,  1,   1, 0, 0, 1,
-		]);
-		var indices: Uint16Array = new Uint16Array([0, 1, 2]);
-
-		return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);
-	}
+    static __init__(): void {
+
+    }
+
+    static _createMesh(vertexDeclaration: VertexDeclaration, vertices: Float32Array, indices: Uint16Array): Mesh {
+        var mesh: Mesh = new Mesh();
+        var subMesh: SubMesh = new SubMesh(mesh);
+        var vertexBuffer: VertexBuffer3D = new VertexBuffer3D(vertices.length * 4, BufferUsage.Static, true);
+        vertexBuffer.vertexDeclaration = vertexDeclaration;
+        vertexBuffer.setData(vertices.buffer as ArrayBuffer);
+        mesh._vertexBuffer = vertexBuffer;
+        mesh._vertexCount = vertexBuffer._byteLength / vertexDeclaration.vertexStride;
+        var indexBuffer: IndexBuffer3D = new IndexBuffer3D(IndexFormat.UInt16, indices.length, BufferUsage.Static, true);
+        indexBuffer.setData(indices);
+        mesh._indexBuffer = indexBuffer;
+
+        mesh._setBuffer(vertexBuffer, indexBuffer);
+        //mesh._setInstanceBuffer(mesh._instanceBufferStateType);
+        subMesh._vertexBuffer = vertexBuffer;
+        subMesh._indexBuffer = indexBuffer;
+        subMesh._setIndexRange(0, indexBuffer.indexCount);
+
+        var subIndexBufferStart: number[] = subMesh._subIndexBufferStart;
+        var subIndexBufferCount: number[] = subMesh._subIndexBufferCount;
+        var boneIndicesList: Uint16Array[] = subMesh._boneIndicesList;
+        subIndexBufferStart.length = 1;
+        subIndexBufferCount.length = 1;
+        boneIndicesList.length = 1;
+        subIndexBufferStart[0] = 0;
+        subIndexBufferCount[0] = indexBuffer.indexCount;
+
+        var subMeshes: SubMesh[] = [];
+        subMeshes.push(subMesh);
+        mesh._setSubMeshes(subMeshes);
+        mesh.calculateBounds();
+        var memorySize: number = vertexBuffer._byteLength + indexBuffer._byteLength;
+        mesh._setCPUMemory(memorySize);
+        mesh._setGPUMemory(memorySize);
+        return mesh;
+    }
+
+    /**
+     * @en Creates a box mesh.
+     * @param long The length of the box. Default is 1.
+     * @param height The height of the box. Default is 1.
+     * @param width The width of the box. Default is 1.
+     * @return The created Mesh instance.
+     * @zh 创建一个立方体网格。
+     * @param long 立方体的长度，默认值为1。
+     * @param height 立方体的高度，默认值为1。
+     * @param width 立方体的宽度，默认值为1。
+     * @return 创建的网格实例。
+     */
+    static createBox(long: number = 1, height: number = 1, width: number = 1): Mesh {
+        var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
+
+        var halfLong: number = long / 2;
+        var halfHeight: number = height / 2;
+        var halfWidth: number = width / 2;
+
+        var vertices: Float32Array = new Float32Array([
+            //上
+            -halfLong, halfHeight, -halfWidth, 0, 1, 0, 0, 0, halfLong, halfHeight, -halfWidth, 0, 1, 0, 1, 0, halfLong, halfHeight, halfWidth, 0, 1, 0, 1, 1, -halfLong, halfHeight, halfWidth, 0, 1, 0, 0, 1,
+            //下
+            -halfLong, -halfHeight, -halfWidth, 0, -1, 0, 0, 1, halfLong, -halfHeight, -halfWidth, 0, -1, 0, 1, 1, halfLong, -halfHeight, halfWidth, 0, -1, 0, 1, 0, -halfLong, -halfHeight, halfWidth, 0, -1, 0, 0, 0,
+            //左
+            -halfLong, halfHeight, -halfWidth, -1, 0, 0, 0, 0, -halfLong, halfHeight, halfWidth, -1, 0, 0, 1, 0, -halfLong, -halfHeight, halfWidth, -1, 0, 0, 1, 1, -halfLong, -halfHeight, -halfWidth, -1, 0, 0, 0, 1,
+            //右
+            halfLong, halfHeight, -halfWidth, 1, 0, 0, 1, 0, halfLong, halfHeight, halfWidth, 1, 0, 0, 0, 0, halfLong, -halfHeight, halfWidth, 1, 0, 0, 0, 1, halfLong, -halfHeight, -halfWidth, 1, 0, 0, 1, 1,
+            //前
+            -halfLong, halfHeight, halfWidth, 0, 0, 1, 0, 0, halfLong, halfHeight, halfWidth, 0, 0, 1, 1, 0, halfLong, -halfHeight, halfWidth, 0, 0, 1, 1, 1, -halfLong, -halfHeight, halfWidth, 0, 0, 1, 0, 1,
+            //后
+            -halfLong, halfHeight, -halfWidth, 0, 0, -1, 1, 0, halfLong, halfHeight, -halfWidth, 0, 0, -1, 0, 0, halfLong, -halfHeight, -halfWidth, 0, 0, -1, 0, 1, -halfLong, -halfHeight, -halfWidth, 0, 0, -1, 1, 1]);
+
+        var indices: Uint16Array = new Uint16Array([
+            //上
+            0, 1, 2, 2, 3, 0,
+            //下
+            4, 7, 6, 6, 5, 4,
+            //左
+            8, 9, 10, 10, 11, 8,
+            //右
+            12, 15, 14, 14, 13, 12,
+            //前
+            16, 17, 18, 18, 19, 16,
+            //后
+            20, 23, 22, 22, 21, 20]);
+        return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);
+    }
+
+    /**
+     * @en Creates a capsule mesh.
+     * @param radius The radius of the capsule. Default is 0.5.
+     * @param height The height of the capsule. Default is 2.
+     * @param stacks The number of stacks, typically half the number of vertical slices. Default is 16.
+     * @param slices The number of vertical slices. Default is 32.
+     * @zh 创建一个胶囊体网格。
+     * @param radius 胶囊的半径，默认值为0.5。
+     * @param height 胶囊的高度，默认值为2。
+     * @param stacks 水平层数，默认为16，一般设为垂直层数的一半。
+     * @param slices 垂直层数，默认为32。
+     */
+    static createCapsule(radius: number = 0.5, height: number = 2, stacks: number = 16, slices: number = 32): Mesh {
+        var vertexCount: number = (stacks + 1) * (slices + 1) * 2 + (slices + 1) * 2;
+        var indexCount: number = (3 * stacks * (slices + 1)) * 2 * 2 + 2 * slices * 3;
+
+        //定义顶点数据结构
+        var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
+        //单个顶点数据个数,总共字节数/单个字节数
+        var vertexFloatStride: number = vertexDeclaration.vertexStride / 4;
+        //顶点
+        var vertices: Float32Array = new Float32Array(vertexCount * vertexFloatStride);
+        //顶点索引
+        var indices: Uint16Array = new Uint16Array(indexCount);
+
+        var stackAngle: number = (Math.PI / 2.0) / stacks;
+        var sliceAngle: number = (Math.PI * 2.0) / slices;
+
+        //圆柱体高度的一半
+        var hcHeight: number = height / 2 - radius;
+
+        var posX: number = 0;
+        var posY: number = 0;
+        var posZ: number = 0;
+
+        var vc: number = 0;
+        var ic: number = 0;
+
+        var verticeCount: number = 0;
+
+        var stack: number, slice: number;
+
+        //顶部半球
+        for (stack = 0; stack <= stacks; stack++) {
+
+            for (slice = 0; slice <= slices; slice++) {
+
+                posX = radius * Math.cos(stack * stackAngle) * Math.cos(slice * sliceAngle + Math.PI);
+                posY = radius * Math.sin(stack * stackAngle);
+                posZ = radius * Math.cos(stack * stackAngle) * Math.sin(slice * sliceAngle + Math.PI);
+
+                //pos
+                vertices[vc++] = posX;
+                vertices[vc++] = posY + hcHeight;
+                vertices[vc++] = posZ;
+
+                //normal
+                vertices[vc++] = posX;
+                vertices[vc++] = posY;
+                vertices[vc++] = posZ;
+
+                //uv
+                vertices[vc++] = 1 - slice / slices;
+                vertices[vc++] = (1 - stack / stacks) * ((Math.PI * radius / 2) / (height + Math.PI * radius));
+
+                if (stack < stacks) {
+
+                    // First
+                    indices[ic++] = (stack * (slices + 1)) + slice + (slices + 1);
+                    indices[ic++] = (stack * (slices + 1)) + slice;
+                    indices[ic++] = (stack * (slices + 1)) + slice + 1;
+                    // Second
+                    indices[ic++] = (stack * (slices + 1)) + slice + (slices);
+                    indices[ic++] = (stack * (slices + 1)) + slice;
+                    indices[ic++] = (stack * (slices + 1)) + slice + (slices + 1);
+
+                }
+
+            }
+        }
+
+        verticeCount += (stacks + 1) * (slices + 1);
+
+        //底部半球
+        for (stack = 0; stack <= stacks; stack++) {
+
+            for (slice = 0; slice <= slices; slice++) {
+
+                posX = radius * Math.cos(stack * stackAngle) * Math.cos(slice * sliceAngle + Math.PI);
+                posY = radius * Math.sin(-stack * stackAngle);
+                posZ = radius * Math.cos(stack * stackAngle) * Math.sin(slice * sliceAngle + Math.PI);
+
+                //pos
+                vertices[vc++] = posX;
+                vertices[vc++] = posY - hcHeight;
+                vertices[vc++] = posZ;
+
+                //normal
+                vertices[vc++] = posX;
+                vertices[vc++] = posY;
+                vertices[vc++] = posZ;
+
+                //uv
+                vertices[vc++] = 1 - slice / slices;
+                vertices[vc++] = ((stack / stacks) * (Math.PI * radius / 2) + (height + Math.PI * radius / 2)) / (height + Math.PI * radius);
+
+                if (stack < stacks) {
+
+                    // First
+                    indices[ic++] = verticeCount + (stack * (slices + 1)) + slice;
+                    indices[ic++] = verticeCount + (stack * (slices + 1)) + slice + (slices + 1);
+                    indices[ic++] = verticeCount + (stack * (slices + 1)) + slice + 1;
+                    // Second
+                    indices[ic++] = verticeCount + (stack * (slices + 1)) + slice;
+                    indices[ic++] = verticeCount + (stack * (slices + 1)) + slice + (slices);
+                    indices[ic++] = verticeCount + (stack * (slices + 1)) + slice + (slices + 1);
+
+                }
+            }
+        }
+
+        verticeCount += (stacks + 1) * (slices + 1);
+
+        //侧壁
+        for (slice = 0; slice <= slices; slice++) {
+            posX = radius * Math.cos(slice * sliceAngle + Math.PI);
+            posY = hcHeight;
+            posZ = radius * Math.sin(slice * sliceAngle + Math.PI);
+
+            //pos
+            vertices[vc++] = posX;
+            vertices[vc + (slices + 1) * 8 - 1] = posX;
+            vertices[vc++] = posY;
+            vertices[vc + (slices + 1) * 8 - 1] = -posY;
+            vertices[vc++] = posZ;
+            vertices[vc + (slices + 1) * 8 - 1] = posZ;
+            //normal
+            vertices[vc++] = posX;
+            vertices[vc + (slices + 1) * 8 - 1] = posX;
+            vertices[vc++] = 0;
+            vertices[vc + (slices + 1) * 8 - 1] = 0;
+            vertices[vc++] = posZ;
+            vertices[vc + (slices + 1) * 8 - 1] = posZ;
+            //uv    
+            vertices[vc++] = 1 - slice * 1 / slices;
+            vertices[vc + (slices + 1) * 8 - 1] = 1 - slice * 1 / slices;
+            vertices[vc++] = (Math.PI * radius / 2) / (height + Math.PI * radius);
+            vertices[vc + (slices + 1) * 8 - 1] = (Math.PI * radius / 2 + height) / (height + Math.PI * radius);
+        }
+
+        for (slice = 0; slice < slices; slice++) {
+
+            indices[ic++] = slice + verticeCount + (slices + 1);
+            indices[ic++] = slice + verticeCount + 1;
+            indices[ic++] = slice + verticeCount;
+
+            indices[ic++] = slice + verticeCount + (slices + 1);
+            indices[ic++] = slice + verticeCount + (slices + 1) + 1;
+            indices[ic++] = slice + verticeCount + 1;
+        }
+
+        verticeCount += 2 * (slices + 1);
+        return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);
+    }
+
+    /**
+     * @en Creates a cone mesh.
+     * @param radius The radius of the base of the cone. Default is 0.5.
+     * @param height The height of the cone. Default is 1.
+     * @param slices The number of segments around the base of the cone. Default is 32.
+     * @return The created Mesh instance.
+     * @zh 创建一个圆锥体网格。
+     * @param radius 圆锥底面的半径，默认值为0.5。
+     * @param height 圆锥的高度，默认值为1。
+     * @param slices 圆锥底面圆周的分段数，默认为32。
+     * @return 创建的网格实例。
+     */
+    static createCone(radius: number = 0.5, height: number = 1, slices: number = 32): Mesh {
+        //(this._released) || (dispose());//如果已存在，则释放资源
+        var vertexCount: number = (slices + 1 + 1) + (slices + 1) * 2;
+        var indexCount: number = 6 * slices + 3 * slices;
+
+        //定义顶点数据结构
+        var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
+        //单个顶点数据个数,总共字节数/单个字节数
+        var vertexFloatStride: number = vertexDeclaration.vertexStride / 4;
+        //顶点
+        var vertices: Float32Array = new Float32Array(vertexCount * vertexFloatStride);
+        //顶点索引
+        var indices: Uint16Array = new Uint16Array(indexCount);
+
+        var sliceAngle: number = (Math.PI * 2.0) / slices;
+
+        var halfHeight: number = height / 2;
+        var curAngle: number = 0;
+        var verticeCount: number = 0;
+
+        var posX: number = 0;
+        var posY: number = 0;
+        var posZ: number = 0;
+
+        var normal: Vector3 = new Vector3();
+        var downV3: Vector3 = new Vector3(0, -1, 0);
+        var upPoint: Vector3 = new Vector3(0, halfHeight, 0);
+        var downPoint: Vector3 = new Vector3();
+        var v3: Vector3 = new Vector3();
+        var q4: Quaternion = new Quaternion();
+        var rotateAxis: Vector3 = new Vector3();
+        var rotateRadius: number;
+
+        var vc: number = 0;
+        var ic: number = 0;
+
+        //壁
+        for (var rv: number = 0; rv <= slices; rv++) {
+            curAngle = rv * sliceAngle;
+            posX = Math.cos(curAngle + Math.PI) * radius;
+            posY = halfHeight;
+            posZ = Math.sin(curAngle + Math.PI) * radius;
+
+            //pos
+            vertices[vc++] = 0;
+            vertices[vc + (slices + 1) * 8 - 1] = posX;
+            vertices[vc++] = posY;
+            vertices[vc + (slices + 1) * 8 - 1] = -posY;
+            vertices[vc++] = 0;
+            vertices[vc + (slices + 1) * 8 - 1] = posZ;
+
+            normal.x = posX;
+            normal.y = 0;
+            normal.z = posZ;
+            downPoint.x = posX;
+            downPoint.y = -posY;
+            downPoint.z = posZ;
+            Vector3.subtract(downPoint, upPoint, v3);
+            Vector3.normalize(v3, v3);
+            rotateRadius = Math.acos(Vector3.dot(downV3, v3));
+            Vector3.cross(downV3, v3, rotateAxis);
+            Vector3.normalize(rotateAxis, rotateAxis);
+            Quaternion.createFromAxisAngle(rotateAxis, rotateRadius, q4);
+            Vector3.normalize(normal, normal);
+            Vector3.transformQuat(normal, q4, normal);
+            Vector3.normalize(normal, normal);
+            //normal
+            vertices[vc++] = normal.x;
+            vertices[vc + (slices + 1) * 8 - 1] = normal.x;
+            vertices[vc++] = normal.y;
+            vertices[vc + (slices + 1) * 8 - 1] = normal.y;
+            vertices[vc++] = normal.z;
+            vertices[vc + (slices + 1) * 8 - 1] = normal.z;
+            //uv    
+            vertices[vc++] = 1 - rv * 1 / slices;
+            vertices[vc + (slices + 1) * 8 - 1] = 1 - rv * 1 / slices;
+            vertices[vc++] = 0;
+            vertices[vc + (slices + 1) * 8 - 1] = 1;
+
+        }
+
+        vc += (slices + 1) * 8;
+
+        for (var ri: number = 0; ri < slices; ri++) {
+            indices[ic++] = ri + verticeCount + (slices + 1);
+            indices[ic++] = ri + verticeCount + 1;
+            indices[ic++] = ri + verticeCount;
+
+            indices[ic++] = ri + verticeCount + (slices + 1);
+            indices[ic++] = ri + verticeCount + (slices + 1) + 1;
+            indices[ic++] = ri + verticeCount + 1;
+
+        }
+
+        verticeCount += 2 * (slices + 1);
+
+        //底
+        for (var bv: number = 0; bv <= slices; bv++) {
+            if (bv === 0) {
+                //pos
+                vertices[vc++] = 0;
+                vertices[vc++] = -halfHeight;
+                vertices[vc++] = 0;
+                //normal
+                vertices[vc++] = 0;
+                vertices[vc++] = -1;
+                vertices[vc++] = 0;
+                //uv
+                vertices[vc++] = 0.5;
+                vertices[vc++] = 0.5;
+            }
+
+            curAngle = bv * sliceAngle;
+            posX = Math.cos(curAngle + Math.PI) * radius;
+            posY = -halfHeight;
+            posZ = Math.sin(curAngle + Math.PI) * radius;
+
+            //pos
+            vertices[vc++] = posX;
+            vertices[vc++] = posY;
+            vertices[vc++] = posZ;
+            //normal
+            vertices[vc++] = 0;
+            vertices[vc++] = -1;
+            vertices[vc++] = 0;
+            //uv
+            vertices[vc++] = 0.5 + Math.cos(curAngle) * 0.5;
+            vertices[vc++] = 0.5 + Math.sin(curAngle) * 0.5;
+
+        }
+
+        for (var bi: number = 0; bi < slices; bi++) {
+            indices[ic++] = 0 + verticeCount;
+            indices[ic++] = bi + 2 + verticeCount;
+            indices[ic++] = bi + 1 + verticeCount;
+        }
+
+        verticeCount += slices + 1 + 1;
+        return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);
+    }
+
+    /**
+     * @en Creates a cylinder mesh.
+     * @param radius The radius of the cylinder. Default is 0.5.
+     * @param height The height of the cylinder. Default is 2.
+     * @param slices The number of vertical segments of the cylinder. Default is 32.
+     * @return The created Mesh instance.
+     * @zh 创建一个圆柱体网格。
+     * @param radius 圆柱的半径，默认值为0.5。
+     * @param height 圆柱的高度，默认值为2。
+     * @param slices 圆柱的垂直层数，默认为32。
+     * @return 创建的网格实例。
+     */
+    static createCylinder(radius: number = 0.5, height: number = 2, slices: number = 32): Mesh {
+        //(this._released) || (dispose());//如果已存在，则释放资源
+        var vertexCount: number = (slices + 1 + 1) + (slices + 1) * 2 + (slices + 1 + 1);
+        var indexCount: number = 3 * slices + 6 * slices + 3 * slices;
+
+        //定义顶点数据结构
+        var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
+        //单个顶点数据个数,总共字节数/单个字节数
+        var vertexFloatStride: number = vertexDeclaration.vertexStride / 4;
+        //顶点
+        var vertices: Float32Array = new Float32Array(vertexCount * vertexFloatStride);
+        //顶点索引
+        var indices: Uint16Array = new Uint16Array(indexCount);
+
+        var sliceAngle: number = (Math.PI * 2.0) / slices;
+
+        var halfHeight: number = height / 2;
+        var curAngle: number = 0;
+        var verticeCount: number = 0;
+        var posX: number = 0;
+        var posY: number = 0;
+        var posZ: number = 0;
+
+        var vc: number = 0;
+        var ic: number = 0;
+
+        //顶
+        for (var tv: number = 0; tv <= slices; tv++) {
+
+            if (tv === 0) {
+                //pos
+                vertices[vc++] = 0;
+                vertices[vc++] = halfHeight;
+                vertices[vc++] = 0;
+                //normal
+                vertices[vc++] = 0;
+                vertices[vc++] = 1;
+                vertices[vc++] = 0;
+                //uv
+                vertices[vc++] = 0.5;
+                vertices[vc++] = 0.5;
+
+            }
+
+            curAngle = tv * sliceAngle;
+            posX = Math.cos(curAngle) * radius;
+            posY = halfHeight;
+            posZ = Math.sin(curAngle) * radius;
+
+            //pos
+            vertices[vc++] = posX;
+            vertices[vc++] = posY;
+            vertices[vc++] = posZ;
+            //normal
+            vertices[vc++] = 0;
+            vertices[vc++] = 1;
+            vertices[vc++] = 0;
+
+            //uv
+            vertices[vc++] = 0.5 + Math.cos(curAngle) * 0.5;
+            vertices[vc++] = 0.5 + Math.sin(curAngle) * 0.5;
+        }
+
+        for (var ti: number = 0; ti < slices; ti++) {
+            indices[ic++] = 0;
+            indices[ic++] = ti + 1;
+            indices[ic++] = ti + 2;
+        }
+        verticeCount += slices + 1 + 1;
+
+        //壁
+        for (var rv: number = 0; rv <= slices; rv++) {
+            curAngle = rv * sliceAngle;
+            posX = Math.cos(curAngle + Math.PI) * radius;
+            posY = halfHeight;
+            posZ = Math.sin(curAngle + Math.PI) * radius;
+
+            //pos
+            vertices[vc++] = posX;
+            vertices[vc + (slices + 1) * 8 - 1] = posX;
+            vertices[vc++] = posY;
+            vertices[vc + (slices + 1) * 8 - 1] = -posY;
+            vertices[vc++] = posZ;
+            vertices[vc + (slices + 1) * 8 - 1] = posZ;
+            //normal
+            vertices[vc++] = posX;
+            vertices[vc + (slices + 1) * 8 - 1] = posX;
+            vertices[vc++] = 0;
+            vertices[vc + (slices + 1) * 8 - 1] = 0;
+            vertices[vc++] = posZ;
+            vertices[vc + (slices + 1) * 8 - 1] = posZ;
+            //uv    
+            vertices[vc++] = 1 - rv * 1 / slices;
+            vertices[vc + (slices + 1) * 8 - 1] = 1 - rv * 1 / slices;
+            vertices[vc++] = 0;
+            vertices[vc + (slices + 1) * 8 - 1] = 1;
+
+        }
+
+        vc += (slices + 1) * 8;
+
+        for (var ri: number = 0; ri < slices; ri++) {
+            indices[ic++] = ri + verticeCount + (slices + 1);
+            indices[ic++] = ri + verticeCount + 1;
+            indices[ic++] = ri + verticeCount;
+
+            indices[ic++] = ri + verticeCount + (slices + 1);
+            indices[ic++] = ri + verticeCount + (slices + 1) + 1;
+            indices[ic++] = ri + verticeCount + 1;
+
+        }
+
+        verticeCount += 2 * (slices + 1);
+
+        //底
+        for (var bv: number = 0; bv <= slices; bv++) {
+            if (bv === 0) {
+                //pos
+                vertices[vc++] = 0;
+                vertices[vc++] = -halfHeight;
+                vertices[vc++] = 0;
+                //normal
+                vertices[vc++] = 0;
+                vertices[vc++] = -1;
+                vertices[vc++] = 0;
+                //uv
+                vertices[vc++] = 0.5;
+                vertices[vc++] = 0.5;
+
+            }
+
+            curAngle = bv * sliceAngle;
+            posX = Math.cos(curAngle + Math.PI) * radius;
+            posY = -halfHeight;
+            posZ = Math.sin(curAngle + Math.PI) * radius;
+
+            //pos
+            vertices[vc++] = posX;
+            vertices[vc++] = posY;
+            vertices[vc++] = posZ;
+            //normal
+            vertices[vc++] = 0;
+            vertices[vc++] = -1;
+            vertices[vc++] = 0;
+            //uv
+            vertices[vc++] = 0.5 + Math.cos(curAngle) * 0.5;
+            vertices[vc++] = 0.5 + Math.sin(curAngle) * 0.5;
+
+        }
+
+        for (var bi: number = 0; bi < slices; bi++) {
+            indices[ic++] = 0 + verticeCount;
+            indices[ic++] = bi + 2 + verticeCount;
+            indices[ic++] = bi + 1 + verticeCount;
+        }
+
+        verticeCount += slices + 1 + 1;
+        return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);
+    }
+
+    /**
+     * @en Creates a plane mesh.
+     * @param long The length of the plane. Default is 10.
+     * @param width The width of the plane. Default is 10.
+     * @param stacks The number of longitudinal subdivisions. Default is 10.
+     * @param slices The number of latitudinal subdivisions. Default is 10.
+     * @return The created Mesh instance.
+     * @zh 创建一个平面网格。
+     * @param long 平面的长。默认值为10。
+     * @param width 平面的宽。默认值为10。
+     * @param stacks 纵向细分的数量。默认为10。
+     * @param slices 横向细分的数量。默认为10。
+     * @return 创建的网格实例。
+     */
+    static createPlane(long: number = 10, width: number = 10, stacks: number = 10, slices: number = 10): Mesh {
+        var vertexCount: number = (stacks + 1) * (slices + 1);
+        var indexCount: number = stacks * slices * 2 * 3;
+        var indices: Uint16Array = new Uint16Array(indexCount);
+        //定义顶点数据结构
+        var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
+        //单个顶点数据个数,总共字节数/单个字节数
+        var vertexFloatStride: number = vertexDeclaration.vertexStride / 4;
+        //顶点数组长度
+        var vertices: Float32Array = new Float32Array(vertexCount * vertexFloatStride);
+
+        var halfLong: number = long / 2;
+        var halfWidth: number = width / 2;
+        var stacksLong: number = long / stacks;
+        var slicesWidth: number = width / slices;
+
+        var verticeCount: number = 0;
+
+        for (var i: number = 0; i <= slices; i++) {
+
+            for (var j: number = 0; j <= stacks; j++) {
+
+                vertices[verticeCount++] = j * stacksLong - halfLong;
+                vertices[verticeCount++] = 0;
+                vertices[verticeCount++] = i * slicesWidth - halfWidth;
+                vertices[verticeCount++] = 0;
+                vertices[verticeCount++] = 1;
+                vertices[verticeCount++] = 0;
+                vertices[verticeCount++] = j * 1 / stacks;
+                vertices[verticeCount++] = i * 1 / slices;
+            }
+        }
+
+        var indiceIndex: number = 0;
+
+        for (i = 0; i < slices; i++) {
+
+            for (j = 0; j < stacks; j++) {
+
+                indices[indiceIndex++] = (i + 1) * (stacks + 1) + j;
+                indices[indiceIndex++] = i * (stacks + 1) + j;
+                indices[indiceIndex++] = (i + 1) * (stacks + 1) + j + 1;
+
+                indices[indiceIndex++] = i * (stacks + 1) + j;
+                indices[indiceIndex++] = i * (stacks + 1) + j + 1;
+                indices[indiceIndex++] = (i + 1) * (stacks + 1) + j + 1;
+            }
+        }
+
+        return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);
+    }
+
+    /**
+     * @en Creates a quad mesh.
+     * @param long The length of the quad. Default is 1.
+     * @param width The width of the quad. Default is 1.
+     * @return The created Mesh instance.
+     * @zh 创建一个四边形网格。
+     * @param long 四边形的长度。默认是1。
+     * @param width 四边形的宽度。默认是1。
+     * @return 创建的网格实例。
+     */
+    static createQuad(long: number = 1, width: number = 1): Mesh {
+        // POSITION,NORMAL,UV,TANGENT — 加 TANGENT 让 ShaderGraph shader (e.g. UNI-Masked) 走 mask distortion 路径
+        // 之前只 POSITION,NORMAL,UV; VFX outputShaderGraphQuad 用 builtin:Quad 时 shader 拿不到 a_Tangent0 让 mask 算空
+        var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV,TANGENT");
+        var halfLong: number = long / 2;
+        var halfWidth: number = width / 2;
+
+        // per vertex: pos(3) + normal(3) + uv(2) + tangent(4) = 12 floats
+        // tangent = (1, 0, 0, 1) — UV.x dir, w=1 right-handed bitangent (跟 fbx 标准 quad 一致)
+        var vertices: Float32Array = new Float32Array([
+            -halfLong, halfWidth, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1,
+            halfLong, halfWidth, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1,
+            -halfLong, -halfWidth, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1,
+            halfLong, -halfWidth, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1,
+        ]);
+        var indices: Uint16Array = new Uint16Array([0, 1, 2, 3, 2, 1]);
+
+        return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);
+    }
+
+    static createTriangle(long: number = 1, width: number = 1): Mesh {
+        // Unity VFX Graph VFXPlanarPrimitive Triangle: 顶点 circumscribe unit square (顶点在 quad 外, 让 inside triangle 完全覆盖 [0,1]² UV)
+        // 这样 mask 纹理 sample 完整 wisp shape, mask alpha cut 让 triangle 边透明 → 可见 wisp turbulence 细节
+        // UV 跟 vertex pos affine 一致: pos (x, y) in mesh space ↔ UV (x/long + 0.5, -y/width + 0.5)
+        // 即 quad corner pos (-halfLong, halfWidth) → UV (0, 0) (top-left)
+        // 验证: 单位 quad 4 corner UV 精准 (0,0)/(1,0)/(0,1)/(1,1)，triangle 顶点 UV 在 [-0.5, 1.5]
+        // inscribed Triangle (vertex 跟 quad 同 size) 让 mask 只 sample partial wisp UV, wisp 看着细窄 — circumscribe 更接近 Unity wisp 形态
+        var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV,TANGENT");
+        var halfLong: number = long / 2;
+        var halfWidth: number = width / 2;
+        var vertices: Float32Array = new Float32Array([
+            0, halfWidth * 3, 0, 0, 0, 1, 0.5, -1, 1, 0, 0, 1,
+            -halfLong * 2, -halfWidth, 0, 0, 0, 1, -0.5, 1, 1, 0, 0, 1,
+            halfLong * 2, -halfWidth, 0, 0, 0, 1, 1.5, 1, 1, 0, 0, 1,
+        ]);
+        var indices: Uint16Array = new Uint16Array([0, 1, 2]);
+
+        return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);
+    }
 
     /**
      * @en Creates a sphere mesh.
@@ -727,56 +723,56 @@ export class PrimitiveMesh {
      * @param slices 垂直层数，通常用作水平圆周切分。默认是32。
      * @return 创建的网格实例。
      */
-	static createSphere(radius: number = 0.5, stacks: number = 32, slices: number = 32): Mesh {
-		var vertexCount: number = (stacks + 1) * (slices + 1);
-		var indexCount: number = (3 * stacks * (slices + 1)) * 2;
+    static createSphere(radius: number = 0.5, stacks: number = 32, slices: number = 32): Mesh {
+        var vertexCount: number = (stacks + 1) * (slices + 1);
+        var indexCount: number = (3 * stacks * (slices + 1)) * 2;
 
-		var indices: Uint16Array = new Uint16Array(indexCount);
-		var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
-		var vertexFloatStride: number = vertexDeclaration.vertexStride / 4;
-		var vertices: Float32Array = new Float32Array(vertexCount * vertexFloatStride);
+        var indices: Uint16Array = new Uint16Array(indexCount);
+        var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
+        var vertexFloatStride: number = vertexDeclaration.vertexStride / 4;
+        var vertices: Float32Array = new Float32Array(vertexCount * vertexFloatStride);
 
-		var stackAngle: number = Math.PI / stacks;
-		var sliceAngle: number = (Math.PI * 2.0) / slices;
+        var stackAngle: number = Math.PI / stacks;
+        var sliceAngle: number = (Math.PI * 2.0) / slices;
 
-		// Generate the group of Stacks for the sphere  
-		var vertexIndex: number = 0;
-		vertexCount = 0;
-		indexCount = 0;
+        // Generate the group of Stacks for the sphere  
+        var vertexIndex: number = 0;
+        vertexCount = 0;
+        indexCount = 0;
 
-		for (var stack: number = 0; stack < (stacks + 1); stack++) {
-			var r: number = Math.sin(stack * stackAngle);
-			var y: number = Math.cos(stack * stackAngle);
+        for (var stack: number = 0; stack < (stacks + 1); stack++) {
+            var r: number = Math.sin(stack * stackAngle);
+            var y: number = Math.cos(stack * stackAngle);
 
-			// Generate the group of segments for the current Stack  
-			for (var slice: number = 0; slice < (slices + 1); slice++) {
-				var x: number = r * Math.sin(slice * sliceAngle + Math.PI * 1 / 2);
-				var z: number = r * Math.cos(slice * sliceAngle + Math.PI * 1 / 2);
-				vertices[vertexCount + 0] = x * radius;
-				vertices[vertexCount + 1] = y * radius;
-				vertices[vertexCount + 2] = z * radius;
+            // Generate the group of segments for the current Stack  
+            for (var slice: number = 0; slice < (slices + 1); slice++) {
+                var x: number = r * Math.sin(slice * sliceAngle + Math.PI * 1 / 2);
+                var z: number = r * Math.cos(slice * sliceAngle + Math.PI * 1 / 2);
+                vertices[vertexCount + 0] = x * radius;
+                vertices[vertexCount + 1] = y * radius;
+                vertices[vertexCount + 2] = z * radius;
 
-				vertices[vertexCount + 3] = x;
-				vertices[vertexCount + 4] = y;
-				vertices[vertexCount + 5] = z;
+                vertices[vertexCount + 3] = x;
+                vertices[vertexCount + 4] = y;
+                vertices[vertexCount + 5] = z;
 
-				vertices[vertexCount + 6] = slice / slices;
-				vertices[vertexCount + 7] = stack / stacks;
-				vertexCount += vertexFloatStride;
-				if (stack != (stacks - 1)) {
-					// First Face
-					indices[indexCount++] = vertexIndex + (slices + 1);
-					indices[indexCount++] = vertexIndex;
-					indices[indexCount++] = vertexIndex + 1;
-					// Second 
-					indices[indexCount++] = vertexIndex + (slices);
-					indices[indexCount++] = vertexIndex;
-					indices[indexCount++] = vertexIndex + (slices + 1);
-					vertexIndex++;
-				}
-			}
-		}
-		return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);
-	}
+                vertices[vertexCount + 6] = slice / slices;
+                vertices[vertexCount + 7] = stack / stacks;
+                vertexCount += vertexFloatStride;
+                if (stack != (stacks - 1)) {
+                    // First Face
+                    indices[indexCount++] = vertexIndex + (slices + 1);
+                    indices[indexCount++] = vertexIndex;
+                    indices[indexCount++] = vertexIndex + 1;
+                    // Second 
+                    indices[indexCount++] = vertexIndex + (slices);
+                    indices[indexCount++] = vertexIndex;
+                    indices[indexCount++] = vertexIndex + (slices + 1);
+                    vertexIndex++;
+                }
+            }
+        }
+        return PrimitiveMesh._createMesh(vertexDeclaration, vertices, indices);
+    }
 }
 
