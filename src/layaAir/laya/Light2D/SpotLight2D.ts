@@ -271,6 +271,7 @@ export class SpotLight2D extends BaseLight2D {
                     console.log('update spot light texture', width, height);
             }
             const mesh = this._createMesh(this._cmdMesh?.mesh, this._needToRecover);
+            mesh.lock = true;
             if (!this._cmdMesh)
                 this._cmdMesh = DrawMesh2DCMD.create(mesh, Matrix.EMPTY, Texture2D.whiteTexture, Color.WHITE, this._material);
             else this._cmdMesh.mesh = mesh;

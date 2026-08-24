@@ -183,9 +183,10 @@ export class Shader3D {
      * 添加函数库引用。
      * @param fileName 文件名字。
      * @param txt 文件内容
+     * @param allowReplace 是否允许替换已有的函数库引用，默认false。
      */
-    static addInclude(fileName: string, txt: string): void {
-        ShaderCompile.addInclude(fileName, txt);
+    static addInclude(fileName: string, txt: string, allowReplace?: boolean): void {
+        ShaderCompile.addInclude(fileName, txt, allowReplace);
     }
 
     /**

@@ -1,4 +1,5 @@
 import { ILaya } from "../../../ILaya";
+import { LayaEnv } from "../../../LayaEnv";
 import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
 import { BlendEquationSeparate } from "../../RenderEngine/RenderEnum/BlendEquationSeparate";
 import { BlendFactor } from "../../RenderEngine/RenderEnum/BlendFactor";
@@ -102,7 +103,7 @@ export class ShaderCompile {
             return null;
         }
 
-        if (!allowReplace && ShaderCompile.includes[fileName]) {
+        if (!allowReplace && ShaderCompile.includes[fileName] && LayaEnv.isPlaying) {
             console.warn("shader include file already exists:" + fileName);
             return ShaderCompile.includes[fileName];
         }

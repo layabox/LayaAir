@@ -246,7 +246,7 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
         this._GLTextureContext = this.isWebGL2 ? new GL2TextureContext(this) : new GLTextureContext(this);
         this._GLRenderDrawContext = new GLRenderDrawContext(this);
 
-        canvas.addEventListener("webglcontextlost", this.webglContextLost)
+        canvas.addEventListener("webglcontextlost", this.webglContextLost.bind(this))
         Config._uniformBlock = Config.enableUniformBufferObject && this.getCapable(RenderCapable.UnifromBufferObject);
         Config.matUseUBO = Config.matUseUBO && this.getCapable(RenderCapable.UnifromBufferObject);
         this._initBufferBlock();

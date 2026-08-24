@@ -1119,7 +1119,8 @@ export class btPhysicsManager implements IPhysicsManager {
         btStatics.bt.btCollisionWorld_removeCollisionObject(this._btCollisionWorld, character._btCollider);
         btStatics.bt.btDynamicsWorld_removeAction(this._btCollisionWorld, character._btKinematicCharacter);
         var characters: btCharacterCollider[] = this._characters;
-        characters.splice(characters.indexOf(character), 1);
+        const idx = characters.indexOf(character);
+        if (idx !== -1) characters.splice(idx, 1);
     }
 
     // /**

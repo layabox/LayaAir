@@ -24,6 +24,7 @@ const gridTexX = [0, 0, 0, 0];
 const gridTexY = [0, 0, 0, 0];
 const gridX = [0, 0, 0, 0];
 const gridY = [0, 0, 0, 0];
+const atlasUVEdgeEpsilon = 1e-7;
 
 export function genSliceMesh(vb: VertexStream, contentRect: Readonly<Rectangle>, uvRect: Readonly<Rectangle>, gridRect: Readonly<Rectangle>, tileGridIndice: number) {
     const sourceW = vb.mainTex.sourceWidth;
@@ -48,6 +49,7 @@ export function genSliceMesh(vb: VertexStream, contentRect: Readonly<Rectangle>,
         uvRect.y + yMax * sy,
         uvRect.bottom
     );
+    insetZeroGridAtlasEdgeUVs(vb, sourceW, sourceH, gridRect, gridTexX, gridTexY);
 
     gridX[0] = contentRect.x;
     if (contentRect.width >= (sourceW - gridRect.width)) {
@@ -148,4 +150,59 @@ export function genTileMesh(vb: VertexStream,
 
     tmpRect.recover();
     tmpUV.recover();
+}
+
+function insetZeroGridAtlasEdgeUVs(vb: VertexStream, sourceW: number, sourceH: number, gridRect: Readonly<Rectangle>, texX: number[], texY: number[]): void {
+    const texture = vb.mainTex;
+    if (!texture)
+        return;
+
+    const uvrect = texture.uvrect;
+    if (!uvrect || (uvrect[0] === 0 && uvrect[1] === 0 && uvrect[2] === 1 && uvrect[3] === 1))
+        return;
+
+    const bitmap = texture.bitmap;
+    if (!bitmap || bitmap.width <= 0 || bitmap.height <= 0)
+        return;
+
+    const minU = uvrect[0];
+    const minV = uvrect[1];
+    const maxU = minU + uvrect[2];
+    const maxV = minV + uvrect[3];
+    const halfU = Math.min(0.5 / bitmap.width, uvrect[2] * 0.5);
+    const halfV = Math.min(0.5 / bitmap.height, uvrect[3] * 0.5);
+
+    if (isZeroGridSize(gridRect.x)) {
+        texX[0] = insetAtlasEdgeUV(texX[0], minU, maxU, halfU);
+        texX[1] = insetAtlasEdgeUV(texX[1], minU, maxU, halfU);
+    }
+    if (isZeroGridSize(sourceW - gridRect.right)) {
+        texX[2] = insetAtlasEdgeUV(texX[2], minU, maxU, halfU);
+        texX[3] = insetAtlasEdgeUV(texX[3], minU, maxU, halfU);
+    }
+
+    if (isZeroGridSize(gridRect.y)) {
+        texY[0] = insetAtlasEdgeUV(texY[0], minV, maxV, halfV);
+        texY[1] = insetAtlasEdgeUV(texY[1], minV, maxV, halfV);
+    }
+    if (isZeroGridSize(sourceH - gridRect.bottom)) {
+        texY[2] = insetAtlasEdgeUV(texY[2], minV, maxV, halfV);
+        texY[3] = insetAtlasEdgeUV(texY[3], minV, maxV, halfV);
+    }
+}
+
+function isZeroGridSize(value: number): boolean {
+    return Math.abs(value) <= atlasUVEdgeEpsilon;
+}
+
+function insetAtlasEdgeUV(value: number, min: number, max: number, halfTexel: number): number {
+    if (isNearUVEdge(value, min))
+        return min + halfTexel;
+    if (isNearUVEdge(value, max))
+        return max - halfTexel;
+    return value;
+}
+
+function isNearUVEdge(value: number, edge: number): boolean {
+    return Math.abs(value - edge) <= atlasUVEdgeEpsilon;
 }

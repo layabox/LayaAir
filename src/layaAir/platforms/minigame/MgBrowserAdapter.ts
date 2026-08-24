@@ -17,6 +17,8 @@ import { MgWebSocket } from "./MgWebSocket";
 export class MgBrowserAdapter extends BrowserAdapter {
     static beforeInit: () => void;
     static afterInit: () => void;
+    /** 可被平台覆盖的下载器类（默认 MgDownloader）；平台可在 beforeInit 里替换为子类。 */
+    static downloaderClass: typeof MgDownloader = MgDownloader;
 
     protected _visible: boolean = true;
     protected _orientation: OrientationType = "portrait-primary";
@@ -43,12 +45,14 @@ export class MgBrowserAdapter extends BrowserAdapter {
             this.webSocketClass = null;
 
         let platform: string = "";
+        let systemName: string = "";
         let systemInfo = PAL.hasAPI("getSystemInfoSync") ? PAL.g.getSystemInfoSync() : null;
 
         if (systemInfo) {
             this._pixelRatio = systemInfo.pixelRatio;
             this._orientation = systemInfo.deviceOrientation === "landscape" ? "landscape-primary" : "portrait-primary";
             platform = systemInfo.platform || "";
+            systemName = systemInfo.system || "";
         }
         else if (PAL.hasAPI("getWindowInfo")) {
             let windowInfo = PAL.g.getWindowInfo();
@@ -56,6 +60,7 @@ export class MgBrowserAdapter extends BrowserAdapter {
             if (PAL.g.getDeviceInfo) {
                 let deviceInfo = PAL.g.getDeviceInfo();
                 platform = deviceInfo.platform || "";
+                systemName = deviceInfo.system || "";
             }
         }
 
@@ -63,14 +68,14 @@ export class MgBrowserAdapter extends BrowserAdapter {
             this._pixelRatio = window.devicePixelRatio;
         }
 
-        this.setPlatform("", platform);
+        this.setPlatform("", this.normalizePlatform(platform, systemName));
 
         systemInfo = systemInfo || <any>{};
 
-        const { SDKVersion } = PAL.hasAPI("getAppBaseInfo") ? PAL.g.getAppBaseInfo() : systemInfo;
+        const { SDKVersion } = (PAL.hasAPI("getAppBaseInfo") ? PAL.g.getAppBaseInfo() : null) || systemInfo;
         Browser.SDKVersion = SDKVersion || "";
 
-        const { system } = PAL.hasAPI("getDeviceInfo") ? PAL.g.getDeviceInfo() : systemInfo;
+        const { system } = (PAL.hasAPI("getDeviceInfo") ? PAL.g.getDeviceInfo() : null) || systemInfo;
         const systemVersionArr = system ? system.split(' ') : [];
         Browser.systemVersion = systemVersionArr.length ? systemVersionArr[systemVersionArr.length - 1] : '';
 
@@ -83,25 +88,36 @@ export class MgBrowserAdapter extends BrowserAdapter {
                 this._pixelRatio = 2;
         }
 
-        PAL.g.onShow(() => {
+        PAL.g.onShow && PAL.g.onShow(() => {
             this._visible = true;
             this.event(Event.VISIBILITY_CHANGE, true);
             this.event(Event.FOCUS);
         });
-        PAL.g.onHide(() => {
+        PAL.g.onHide && PAL.g.onHide(() => {
             this._visible = false;
             this.event(Event.VISIBILITY_CHANGE, false);
             this.event(Event.BLUR);
         });
         if (PAL.hasAPI("onWindowResize")) {
             PAL.g.onWindowResize(result => {
+                //旋转、分屏、PC拖窗、折叠屏等场景下窗口变化但屏幕不变，用屏幕尺寸会导致画布与实际显示区不匹配而被拉伸/剪裁。
+                let info = PAL.hasAPI("getWindowInfo") ? PAL.g.getWindowInfo()
+                    : (PAL.hasAPI("getSystemInfoSync") ? PAL.g.getSystemInfoSync() : null);
+                //回调参数优先，其次查询接口
+                let w = result ? result.windowWidth : 0;
+                let h = result ? result.windowHeight : 0;
+                if ((!w || !h) && info) { w = info.windowWidth; h = info.windowHeight; }
+                if (w && h) {
+                    window.innerWidth = w;
+                    window.innerHeight = h;
+                }
                 this.event(Event.RESIZE);
             });
         }
     }
 
     start(): Promise<void> {
-        let downloader = Loader.downloader = new MgDownloader(
+        let downloader = Loader.downloader = new MgBrowserAdapter.downloaderClass(
             PAL.hasAPI("getFileSystemManager") && PAL.hasAPI(PAL.g.getFileSystemManager(), "writeFile") && PAL.hasAPI(PAL.g.getFileSystemManager(), "readdir")
         );
         this.setupWasmSupport();
@@ -115,8 +131,8 @@ export class MgBrowserAdapter extends BrowserAdapter {
     }
 
     onInitRender(): void {
-        if (Browser.onTBMiniGame) {
-            // srgb问题
+        if (Browser.onTBMiniGame && !Browser.isIOSHighPerformanceMode) {
+            // srgb问题（高性能模式不关闭 srgb）
             (LayaGL.renderEngine as WebGLEngine)._supportCapatable.turnOffSRGB();
         }
 
@@ -214,10 +230,16 @@ export class MgBrowserAdapter extends BrowserAdapter {
 
     createElement<K extends keyof HTMLElementTagNameMap>(tagName: K): HTMLElementTagNameMap[K] {
         let ele: any;
-        if (tagName === "canvas" && typeof (PAL.g.createCanvas) === "function")
-            ele = PAL.g.createCanvas();
-        else
+        if (tagName === "canvas" && typeof (PAL.g.createCanvas) === "function") {
+            if (Browser.onTBMiniGame && (window as any).__NOT_TBMINIGAME__) {
+                ele = (window as any).canvas.getRealCanvas();   // taobao app/plugin canvas get.
+            } else {
+                ele = PAL.g.createCanvas();
+            }
+        }
+        else {
             ele = super.createElement(tagName);
+        }
         if (!ele.style)
             ele.style = {};
         else if (ele.style === (window as any).canvas?.style) //douyin共享了style对象
@@ -269,6 +291,8 @@ export class MgBrowserAdapter extends BrowserAdapter {
     }
 
     createBufferURL(data: ArrayBuffer): string {
+        if (!this.supportArrayBufferURL)
+            return null;
         return PAL.g.createBufferURL(data);
     }
 
@@ -298,6 +322,30 @@ export class MgBrowserAdapter extends BrowserAdapter {
             if (PAL.g.offUnhandledRejection)
                 PAL.g.offUnhandledRejection(func);
         }
+    }
+
+    // Some mini-game platforms, such as Xiaomi, may return host version strings in platform.
+    protected normalizePlatform(platform: string, system: string): string {
+        let p = (platform || "").toLowerCase();
+
+        if (p.indexOf("openharmony") !== -1)
+            return "ohos";
+        if (p.indexOf("iphone") !== -1 || p.indexOf("ipad") !== -1)
+            return "ios";
+
+        if (p.indexOf("ios") !== -1 || p.indexOf("android") !== -1 || p.indexOf("ohos") !== -1
+            || p.indexOf("mac") !== -1 || p.indexOf("win") !== -1 || p === "devtools")
+            return platform;
+
+        let s = (system || "").toLowerCase();
+        if (s.indexOf("android") !== -1 || s.indexOf("adr") !== -1)
+            return "android";
+        if (s.indexOf("ios") !== -1 || s.indexOf("iphone") !== -1 || s.indexOf("ipad") !== -1)
+            return "ios";
+        if (s.indexOf("ohos") !== -1 || s.indexOf("openharmony") !== -1)
+            return "ohos";
+
+        return platform;
     }
 
     alert(msg: string): void {
