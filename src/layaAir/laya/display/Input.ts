@@ -190,6 +190,7 @@ export class Input extends Text {
         style.border = 'none';
         style.outline = 'none';
         style.zIndex = '1';
+        style.touchAction = 'none';
 
         input.addEventListener('input', Input._processInputting);
 
@@ -227,7 +228,7 @@ export class Input extends Text {
     }
 
     private static _stopEvent(e: any): void {
-        if (e.type == 'touchmove')
+        if (e.type == 'touchmove' && !ILaya.Browser.onIOS)
             e.preventDefault();
         e.stopPropagation && e.stopPropagation();
     }
