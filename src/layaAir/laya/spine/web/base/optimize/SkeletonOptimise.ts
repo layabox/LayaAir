@@ -275,7 +275,8 @@ export class SkeletonOptimise implements ISkeletonOptimise {
         region.originalWidth = texture.sourceWidth ;
         region.originalHeight = texture.sourceHeight ;
         region.offsetX = texture.offsetX;
-        region.offsetY = texture.offsetY;
+        // Laya measures the trim offset from the top; Spine measures it from the bottom.
+        region.offsetY = region.originalHeight - texture.offsetY - region.height;
         
         if (texture.uv && texture.uv.length >= 8) {
             region.u = texture.uv[0];

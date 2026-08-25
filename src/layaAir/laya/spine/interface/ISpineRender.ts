@@ -244,6 +244,16 @@ export interface ISpineRender {
     setSlotTexture(slotName: string, texture: Texture, createAttachment: boolean, updateAttachmentSize?: boolean): void;
 
     /**
+     * @zh 恢复当前皮肤中插槽的设置姿势附件。
+     * @param slotName 插槽名称。
+     * @returns 是否成功恢复附件。
+     * @en Restore the slot's setup-pose attachment from the current skin.
+     * @param slotName Slot name.
+     * @returns Whether the attachment was restored successfully.
+     */
+    restoreSlotTexture(slotName: string): boolean;
+
+    /**
      * @zh 设置插槽附件
      * @param templet Spine模板
      * @param targetSlotName 目标插槽名称

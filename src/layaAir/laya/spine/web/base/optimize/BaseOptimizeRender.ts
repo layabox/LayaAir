@@ -749,7 +749,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         this._templet.registerTexture(texture);
         let newRegion = this._optimize.registerTexture(texture);
         if (!newRegion) return;
-        
+
         if (createAttachment) {
             attachment = attachment.copy();
             slot.setAttachment(attachment);
@@ -787,6 +787,31 @@ export abstract class BaseOptimizeRender implements ISpineRender {
                 attachment.updateUVs();
             }
         }
+    }
+
+    restoreSlotTexture(slotName: string): boolean {
+        if (this._mode !== ESpineRenderMode.Normal || !this._skeleton) {
+            return false;
+        }
+
+        let slot = this._skeleton.findSlot(slotName);
+        if (!slot) {
+            return false;
+        }
+
+        let setupAttachmentName = slot.data.attachmentName;
+        if (!setupAttachmentName) {
+            slot.setAttachment(null);
+            return true;
+        }
+
+        let setupAttachment = this._skeleton.getAttachment(slot.data.index, setupAttachmentName);
+        if (!setupAttachment) {
+            return false;
+        }
+
+        slot.setAttachment(setupAttachment);
+        return true;
     }
 
     setTempletAttachment(templet: SpineTemplet, targetSlotName: string, skinName: string,  attachmentName: string): void { 

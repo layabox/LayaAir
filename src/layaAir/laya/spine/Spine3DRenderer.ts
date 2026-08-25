@@ -420,7 +420,7 @@ export class Spine3DRenderer extends BaseRender {
      */
     protected init(templet: SpineTemplet): void {
         if (this.destroyed) return;
-        if (this._templet) {
+        if (this._templet || this._spineRender) {
             this.clear();
         }
 
@@ -430,10 +430,6 @@ export class Spine3DRenderer extends BaseRender {
 
         this._templet._addReference();
         this._templet.on(SpineTemplet.EVENT_SPINE_MATERIAL_CHANGE, this, this.onSpineMaterialChange);
-
-        if (this._spineRender) {
-            this._spineRender.destroy();
-        }
 
         this._spineRender = SpineConst.factory.createSpineRender3D(this._baseRenderNode);
         this._spineRender.init(templet);
@@ -587,24 +583,28 @@ export class Spine3DRenderer extends BaseRender {
     }
 
     private _update(): void {
+        const spineRender = this._spineRender;
+        if (this.destroyed || !spineRender)
+            return;
+
         let timerDelta = this._enableCache ? SpineConst.SPINE_STEP : Laya.timer.delta / 1000;
-        
+
         if (timerDelta > this._maxDeltaTime)
             timerDelta = this._maxDeltaTime;
 
         let delta = timerDelta * this._playbackRate;
 
-        let currentPlayTime = this._spineRender.currentTime;
+        let currentPlayTime = spineRender.currentTime;
 
         this._syncSkeletonPosition();
 
-        this._spineRender.update(delta);
+        spineRender.update(delta);
 
-        if (this.destroyed) {
+        if (this.destroyed || spineRender !== this._spineRender) {
             return;
         }
 
-        this._spineRender.render(currentPlayTime, this.physicsUpdate);
+        spineRender.render(currentPlayTime, this.physicsUpdate);
     }
 
     /**
@@ -801,6 +801,11 @@ export class Spine3DRenderer extends BaseRender {
      * @en Clear method, used to release and reset related resources.
      */
     clear(): void {
+        this._needUpdate = false;
+        this._pause = true;
+        const spineRender = this._spineRender;
+        this._spineRender = null;
+        spineRender?.destroy();
         this.reset();
     }
 
@@ -811,10 +816,12 @@ export class Spine3DRenderer extends BaseRender {
 
     /** @internal */
     reset() {
-        this._spineRender.reset();
-        this._templet.off(SpineTemplet.EVENT_SPINE_MATERIAL_CHANGE, this, this.onSpineMaterialChange);
-        this._templet._removeReference(1);
-        this._templet = null;
+        this._spineRender?.reset();
+        if (this._templet) {
+            this._templet.off(SpineTemplet.EVENT_SPINE_MATERIAL_CHANGE, this, this.onSpineMaterialChange);
+            this._templet._removeReference(1);
+            this._templet = null;
+        }
         this._resetSkeletonPosition();
         this._pause = true;
         this._needUpdate = false;
@@ -827,11 +834,9 @@ export class Spine3DRenderer extends BaseRender {
      * @en Destroy the current object.
      */
     protected _onDestroy(): void {
-        if (this._templet) {
+        if (this._templet || this._spineRender) {
             this.clear();
         }
-        this._spineRender.destroy();
-        this._spineRender = null;
         super._onDestroy();
     }
 

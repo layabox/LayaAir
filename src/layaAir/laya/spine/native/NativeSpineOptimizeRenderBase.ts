@@ -65,6 +65,14 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
         );
     }
 
+    restoreSlotTexture(slotName: string): boolean {
+        if (!this._nativeRender || !slotName) {
+            return false;
+        }
+
+        return !!this._nativeRender.restoreSlotTexture(slotName);
+    }
+
     setTempletAttachment(templet: SpineTemplet, targetSlotName: string, skinName: string, attachmentName: string): void {
         if (!this._templet || !templet || !targetSlotName || !skinName || !attachmentName) {
             return;
@@ -180,11 +188,15 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
     }
 
     update(delta: number): void {
-        if (!this._nativeRender) {
+        const nativeRender = this._nativeRender;
+        if (!nativeRender) {
             return;
         }
 
-        this._nativeRender.update(delta);
+        nativeRender.update(delta);
+        if (nativeRender !== this._nativeRender) {
+            return;
+        }
         this._updateTrackEntry();
     }
 
@@ -506,14 +518,15 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
     }
  
     destroy(): void {
-        if (this._nativeRender) {
+        const nativeRender = this._nativeRender;
+        this._nativeRender = null;
+        if (nativeRender) {
             // Remove event listeners if needed
-            if (this._listeners && this._nativeRender.removeEventListener) {
-                this._nativeRender.removeEventListener();
+            if (this._listeners && nativeRender.removeEventListener) {
+                nativeRender.removeEventListener();
             }
 
-            this._nativeRender.destroy();
-            this._nativeRender = null;
+            nativeRender.destroy();
         }
 
         this._listeners = null;

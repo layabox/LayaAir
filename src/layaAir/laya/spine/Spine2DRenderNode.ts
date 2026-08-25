@@ -550,9 +550,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             this._leakReleased = true;
             this._releasedTemplet = this._templet;
             if (this._renderHandle) (this._renderHandle as any).skeleton = null;
-            this.clear(); // reset(): _spineRender.reset + _templet._removeReference + _templet=null
-            this._spineRender.destroy();
-            this._spineRender = null;
+            this.clear();
             if (this._rootBone) {
                 this._rootBone.destroy();
                 this._rootBone = null;
@@ -573,7 +571,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         // 清掉 onDisable 保留的普通引用(无论走 onEnable 重建还是业务层重设 templet);
         // 未加引用计数,故无需 _removeReference。
         this._releasedTemplet = null;
-        if (this._templet) {
+        if (this._templet || this._spineRender) {
             this.clear();
         }
 
@@ -583,10 +581,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
         this._templet._addReference();
         this._templet.on(SpineTemplet.EVENT_SPINE_MATERIAL_CHANGE, this, this.onSpineMaterialChange);
-
-        if (this._spineRender) {
-            this._spineRender.destroy();
-        }
 
         this._struct.renderElements = [];
         this._struct.setRepaint();
@@ -761,7 +755,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             this._spineRender.update(delta);
 
             // spine在state.apply中发送事件，开发者可能会在事件中进行destroy等操作，导致无法继续执行
-            if (this.destroyed) {
+            if (this.destroyed  || !this._spineRender) {
                 return;
             }
 
@@ -959,10 +953,12 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     /** @internal */
     reset() {
-        this._spineRender.reset();
-        this._templet.off(SpineTemplet.EVENT_SPINE_MATERIAL_CHANGE, this, this.onSpineMaterialChange);
-        this._templet._removeReference(1);
-        this._templet = null;
+        this._spineRender?.reset();
+        if (this._templet) {
+            this._templet.off(SpineTemplet.EVENT_SPINE_MATERIAL_CHANGE, this, this.onSpineMaterialChange);
+            this._templet._removeReference(1);
+            this._templet = null;
+        }
         this._pause = true;
         this._needUpdate = false;
         this._playState = ESpineRenderState.Stopped;
@@ -1011,6 +1007,23 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         }
 
         this._spineRender.setSlotTexture(slotName, texture, createAttachment, updateAttachmentSize);
+    }
+
+    /**
+     * @zh 恢复当前皮肤中插槽的设置姿势附件。恢复成功后，业务层可安全释放替换纹理。
+     * @param slotName 插槽名称。
+     * @returns 是否成功恢复附件。
+     * @en Restore the slot's setup-pose attachment from the current skin. After a successful restore, the replacement texture can be safely released by the application.
+     * @param slotName Slot name.
+     * @returns Whether the attachment was restored successfully.
+     */
+    restoreSlotTexture(slotName: string): boolean {
+        if (this._useFastRender) {
+            console.log("restoreSlotTexture: useFastRender is true, return");
+            return false;
+        }
+
+        return this._spineRender?.restoreSlotTexture(slotName) ?? false;
     }
 
     /**
@@ -1129,6 +1142,11 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @en Clear method, used to release and reset related resources.
      */
     clear(): void {
+        this._needUpdate = false;
+        this._pause = true;
+        const spineRender = this._spineRender;
+        this._spineRender = null;
+        spineRender?.destroy();
         this.reset();
         this.owner?.repaint();
         //native 同步数据
@@ -1142,12 +1160,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      */
     onDestroy(): void {
         this._releasedTemplet = null; // 普通引用,直接清掉即可
-        if (this._templet) {
+        if (this._templet || this._spineRender) {
             this.clear();
-        }
-        if (this._spineRender) {
-            this._spineRender.destroy();
-            this._spineRender = null;
         }
         // 清理骨骼可视化
         if (this._rootBone) {
