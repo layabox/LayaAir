@@ -166,7 +166,9 @@ export class WebRender2DPass implements IRender2DPass {
 
    cullAndSort(context2D: IRenderContext2D, struct: WebRenderStruct2D): void {
       if (
-         !struct.enabled
+         !struct
+         || struct.destroyed        // 已销毁 struct 若仍残留在树里, 跳过其及子树(原始 globalAlpha/globalRenderData 崩溃点兜底)
+         || !struct.enabled
          || struct.globalAlpha < 0.01
          || this._mask === struct
       )
@@ -242,6 +244,9 @@ export class WebRender2DPass implements IRender2DPass {
       let success = this._initRenderProcess(context, renderTime);
       if (!success) return;
 
+      // 本帧有内容暂不可用(如 mask subStruct 未就绪)时置 true, 末尾据此保持 repaint 以便下帧重试
+      let deferRepaint = false;
+
       if (this.repaint) {
          // if (true) {
          this._structs.reset();
@@ -262,9 +267,15 @@ export class WebRender2DPass implements IRender2DPass {
 
          if (this._mask) {
             let renderMask = this._mask.subStruct;
-            renderMask._handleInterData();
-            renderMask.renderUpdate(context);
-            context.drawRenderElementOne(renderMask.renderElements[0]);
+            // mask 的 subStruct 可能尚未就绪(undefined)或已销毁：本帧跳过合成, 避免崩溃
+            if (renderMask && !renderMask.destroyed) {
+               renderMask._handleInterData();
+               renderMask.renderUpdate(context);
+               context.drawRenderElementOne(renderMask.renderElements[0]);
+            } else {
+               // mask 未就绪/已失效: 本帧跳过, 保持 repaint 下帧重试(否则会进入非重绘快路径, mask 永不再合成)
+               deferRepaint = true;
+            }
          }
 
          // 处理后期处理
@@ -272,20 +283,32 @@ export class WebRender2DPass implements IRender2DPass {
             this.postProcess.apply();
          }
       } else {
+         let stale = false;
          this._structs.indice.forEach(index => {
             let list = this._structs.lists.get(index);
             for (let i = 0, cnt = list.length; i < cnt; i++) {
                let struct = list.elements[i];
+               // 缓存里残留已销毁/失效的 struct(孤儿): 说明 _renderElements 也脏了
+               if (!struct || struct.destroyed) {
+                  stale = true;
+                  continue;
+               }
                struct._handleInterData();
                struct.renderUpdate(context);
             }
          });
 
+         if (stale) {
+            // 本帧不画脏的 _renderElements(避免画到已销毁元素在 shader 编译时崩), 强制下帧重建
+            this.repaint = true;
+            return;
+         }
+
          WebRender2DPass.uploadBuffer();
          context.drawRenderElementList(this._renderElements);
       }
 
-      this.repaint = false;
+      this.repaint = deferRepaint;
    }
 
    private fillRenderElements(): void {

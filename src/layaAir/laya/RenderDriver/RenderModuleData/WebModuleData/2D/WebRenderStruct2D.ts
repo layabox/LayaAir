@@ -242,6 +242,9 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    /** 是否启动 */
    enabled: boolean = true;
 
+   /** @internal 已销毁标记：destroy 后仍可能残留在某个 pass 的 _structs 缓存里, 渲染遍历据此跳过 */
+   destroyed: boolean = false;
+
    //渲染数据
    isRenderStruct: boolean = false;
 
@@ -744,6 +747,12 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    removeChild(child: WebRenderStruct2D): void {
       const index = this.children.indexOf(child);
       if (index !== -1) {
+         // 摘除前拿到子节点当前所在 pass(带 cacheAs 的父其子渲染在父的 subpass, 不是 this.pass), 标记其重绘:
+         // 让该 pass 的 _structs/_renderElements 缓存重建, 不再残留对这个(随后可能被销毁的)子 struct 的引用,
+         // 避免 else 快路径复用到已销毁 struct 的元素而在 _handleInterData / shader 编译时崩溃
+         let childPass = child.pass;
+         if (childPass) childPass.repaint = true;
+
          child.parent = null;
          this.children.splice(index, 1);
 
@@ -775,6 +784,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
    destroy(): void {
+      this.destroyed = true;
       this._clipInfo = null;
       this._currentData = null;
       this._parentData = null;
