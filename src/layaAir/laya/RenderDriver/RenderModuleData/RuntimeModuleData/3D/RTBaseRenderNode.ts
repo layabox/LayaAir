@@ -170,7 +170,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
     public set probeReflection(value: RTReflectionProb) {
         this._probeReflection = value;
-        this._nativeObj.setProbeReflection(value._nativeObj);
+        this._nativeObj.setProbeReflection(value ? value._nativeObj : null);
     }
 
     public get reflectionMode(): number {
@@ -185,7 +185,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
     public set volumetricGI(value: RTVolumetricGI) {
         this._volumetricGI = value;
-        this._nativeObj.setVolumetricGI(value._nativeObj)
+        this._nativeObj.setVolumetricGI(value ? value._nativeObj : null);
     }
     public get lightProbUpdateMark(): number {
         return this._i32[RTBaseRenderNodeSlot.lightProbUpdateMark];
