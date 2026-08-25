@@ -35,7 +35,7 @@ export class MgDownloader extends Downloader {
             return old.call(this, url);
         };
 
-        if (Browser.onVVMiniGame || Browser.onQGMiniGame) //vivo&oppo
+        if (Browser.onVVMiniGame || Browser.onQGMiniGame || Browser.onTBMiniGame) //vivo&oppo
             this.supportSubPackageMultiLevelFolders = false;
 
         if (Browser.onWXMiniGame || Browser.onHWMiniGame || Browser.onTTMiniGame) //微信小游戏、华为小游戏、抖音小游戏不需要这个
