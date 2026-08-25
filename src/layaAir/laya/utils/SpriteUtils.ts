@@ -205,7 +205,7 @@ export class SpriteUtils {
         let x = pt.x;
         let y = pt.y;
         sp.localToGlobal(pt.setTo(rect.right, rect.bottom));
-        return out.setTo(x, y, x + pt.x, y + pt.y);
+        return out.setTo(x, y, pt.x - x, pt.y - y);
     }
 
     /**
@@ -226,7 +226,7 @@ export class SpriteUtils {
         let x = pt.x;
         let y = pt.y;
         sp.globalToLocal(pt.setTo(rect.right, rect.bottom));
-        return out.setTo(x, y, x + pt.x, y + pt.y);
+        return out.setTo(x, y, pt.x - x, pt.y - y);
     }
 
     /**
