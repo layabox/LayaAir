@@ -260,9 +260,9 @@ export class SpineSkeleton extends Sprite {
     /**
      * 替换插槽皮肤
      * @param slotName 
-     * @param attachmentName 
+     * @param attachmentName Attachment name, or null to clear the slot attachment.
      */
-    setSlotAttachment(slotName: string, attachmentName: string) {
+    setSlotAttachment(slotName: string, attachmentName: string | null) {
         this._spineComponent.setSlotAttachment(slotName, attachmentName);
     }
 }

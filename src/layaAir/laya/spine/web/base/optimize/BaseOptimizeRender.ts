@@ -219,7 +219,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         this._skeleton.setSlotsToSetupPose();
     }
     
-    setAttachment(slotName: string, attachmentName: string): void {
+    setAttachment(slotName: string, attachmentName: string | null): void {
         if (this._skeleton) {
             this._skeleton.setAttachment(slotName, attachmentName);
         }
@@ -733,7 +733,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         this.updater._clearCacheMaterials();
     }
     
-    setSlotTexture(slotName: string, texture: Texture, createAttachment: boolean): void {
+    setSlotTexture(slotName: string, texture: Texture, createAttachment: boolean, updateAttachmentSize: boolean = true): void {
         if (this._mode !== ESpineRenderMode.Normal) {
             console.log("setSlotTexture: mode is not Normal, return");
             return;
@@ -757,8 +757,10 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         
         if (attachment instanceof spine.RegionAttachment) {
             attachment.region = newRegion;
-            attachment.width = newRegion.width;
-            attachment.height = newRegion.height;
+            if (updateAttachmentSize) {
+                attachment.width = newRegion.width;
+                attachment.height = newRegion.height;
+            }
 
             if (attachment.updateRegion) {
                 attachment.updateRegion();
@@ -771,8 +773,10 @@ export abstract class BaseOptimizeRender implements ISpineRender {
 
         } else if (attachment instanceof spine.MeshAttachment) {
             attachment.region = newRegion;
-            attachment.width = newRegion.width;
-            attachment.height = newRegion.height;
+            if (updateAttachmentSize) {
+                attachment.width = newRegion.width;
+                attachment.height = newRegion.height;
+            }
 
             if (attachment.updateRegion) {
                 attachment.updateRegion();

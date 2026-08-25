@@ -43,7 +43,7 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
         this._nativeRender = nativeRender;
     }
 
-    setSlotTexture(slotName: string, texture: Texture, createAttachment: boolean): void {
+    setSlotTexture(slotName: string, texture: Texture, createAttachment: boolean, updateAttachmentSize: boolean = true): void {
         if (!this._templet || !texture) {
             return;
         }
@@ -60,7 +60,8 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
             newRegion.textureId,
             newRegion.pageName,
             newRegion.textureName,
-            createAttachment
+            createAttachment,
+            updateAttachmentSize
         );
     }
 
@@ -226,7 +227,7 @@ export abstract class NativeSpineOptimizeRenderBase implements ISpineRender {
         this._nativeRender.showSkinByIndex(skinIndex);
     }
 
-    setAttachment(slotName: string, attachmentName: string): void {
+    setAttachment(slotName: string, attachmentName: string | null): void {
         if (!this._nativeRender) {
             return;
         }

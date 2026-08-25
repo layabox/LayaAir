@@ -786,12 +786,12 @@ export class Spine3DRenderer extends BaseRender {
     /**
      * @zh 替换插槽皮肤
      * @param slotName 插槽名称
-     * @param attachmentName 附件名称
+     * @param attachmentName 附件名称，null 表示清空插槽附件
      * @en Replace the slot skin.
      * @param slotName Slot name.
-     * @param attachmentName Attachment name.
+     * @param attachmentName Attachment name, or null to clear the slot attachment.
      */
-    setSlotAttachment(slotName: string, attachmentName: string) {
+    setSlotAttachment(slotName: string, attachmentName: string | null) {
         this.useFastRender = false;
         this._spineRender.setAttachment(slotName, attachmentName);
     }

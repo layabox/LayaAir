@@ -127,9 +127,9 @@ export interface ISpineRender {
     /**
      * @zh 设置插槽附件
      * @param slotName 插槽名称
-     * @param attachmentName 附件名称
+     * @param attachmentName 附件名称，null 表示清空插槽附件
      */
-    setAttachment(slotName: string, attachmentName: string): void;
+    setAttachment(slotName: string, attachmentName: string | null): void;
     
     /**
      * @zh 通过名称查找骨骼
@@ -230,12 +230,18 @@ export interface ISpineRender {
     clearCacheMaterials(): void;
 
     /**
-     * 设置插槽纹理
-     * @param slotName 
-     * @param texture 
-     * @param createAttachment 
+     * @zh 设置插槽纹理
+     * @param slotName 插槽名称
+     * @param texture 纹理对象
+     * @param createAttachment 是否创建新的附件副本
+     * @param updateAttachmentSize 是否将附件宽高更新为新纹理区域的宽高
+     * @en Set slot texture.
+     * @param slotName Slot name.
+     * @param texture Texture object.
+     * @param createAttachment Whether to create a new attachment copy.
+     * @param updateAttachmentSize Whether to update the attachment width and height to match the new texture region.
      */
-    setSlotTexture(slotName: string, texture: Texture, createAttachment: boolean): void;
+    setSlotTexture(slotName: string, texture: Texture, createAttachment: boolean, updateAttachmentSize?: boolean): void;
 
     /**
      * @zh 设置插槽附件

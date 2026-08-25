@@ -997,18 +997,20 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @param slotName 插槽名称
      * @param texture 纹理对象
      * @param createAttachment 是否创建新的附件副本
+     * @param updateAttachmentSize 是否将附件宽高更新为新纹理区域的宽高
      * @en Set slot texture
      * @param slotName Slot name
      * @param texture Texture object
      * @param createAttachment Whether to create a new attachment copy
+     * @param updateAttachmentSize Whether to update the attachment width and height to match the new texture region
      */
-    setSlotTexture(slotName: string, texture: Texture, createAttachment: boolean = true) {
+    setSlotTexture(slotName: string, texture: Texture, createAttachment: boolean = true, updateAttachmentSize: boolean = true) {
         if (this._useFastRender) {
             console.log("setSlotTexture: useFastRender is true, return");
             return
         }
 
-        this._spineRender.setSlotTexture(slotName, texture, createAttachment);
+        this._spineRender.setSlotTexture(slotName, texture, createAttachment, updateAttachmentSize);
     }
 
     /**
@@ -1016,7 +1018,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @param templet Spine模板
      * @param targetSlotName 目标插槽名称
      * @param skinName 皮肤名称
-     * @param attachmentName 附件名称
+     * @param attachmentName 附件名称，null 表示清空插槽附件
      * @en Set the template attachment.
      * @param templet Spine template.
      * @param targetSlotName Target slot name.
@@ -1115,9 +1117,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      * @param attachmentName 附件名称
      * @en Replace the slot skin.
      * @param slotName Slot name.
-     * @param attachmentName Attachment name.
+     * @param attachmentName Attachment name, or null to clear the slot attachment.
      */
-    setSlotAttachment(slotName: string, attachmentName: string) {
+    setSlotAttachment(slotName: string, attachmentName: string | null) {
         this.useFastRender = false;
         this._spineRender.setAttachment(slotName, attachmentName);
     }
