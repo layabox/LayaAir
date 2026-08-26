@@ -27,10 +27,21 @@ export class SoundChannel extends EventDispatcher {
      */
     startTime: number;
     /**
-     * @en Sound playback rate. default value is 1.
-     * @zh 声音播放速率。默认值为1。
+     * @en Sound playback rate. The default value is 1. Changes take effect immediately while the sound is playing.
+     * @zh 声音播放速率。默认值为1。声音播放期间修改会立即生效。
      */
-    playbackRate: number = 1;
+    get playbackRate(): number {
+        return this._playbackRate;
+    }
+
+    set playbackRate(value: number) {
+        if (value === this._playbackRate)
+            return;
+
+        this._playbackRate = value;
+        if (this._loaded)
+            this.onPlaybackRateChanged();
+    }
     /**
      * @en The handler for playback completion.
      * @zh 播放完成处理器。
@@ -44,6 +55,7 @@ export class SoundChannel extends EventDispatcher {
     protected _repeated: number = 0;
     protected _volumeSet: number = 1;
     protected _volume: number = 1;
+    protected _playbackRate: number = 1;
     protected _muted: boolean = false;
     protected _startTime: number = 0;
     protected _pauseTime: number = 0;
@@ -225,6 +237,9 @@ export class SoundChannel extends EventDispatcher {
     }
 
     protected onMuted(): void {
+    }
+
+    protected onPlaybackRateChanged(): void {
     }
 
     protected onPlayEnd() {

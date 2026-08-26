@@ -84,6 +84,11 @@ export class HTMLAudioChannel extends SoundChannel {
     protected onMuted(): void {
         this._ele.muted = this._muted;
     }
+
+    protected onPlaybackRateChanged(): void {
+        if (this._ele)
+            this._ele.playbackRate = this.playbackRate;
+    }
 }
 
 //pool support

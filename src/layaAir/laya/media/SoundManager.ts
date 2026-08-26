@@ -20,8 +20,8 @@ import { MathUtil } from "../maths/MathUtil";
  */
 export class SoundManager {
     /**
-     * @en Sound playback rate. default value is 1.
-     * @zh 声音播放速率。默认值为1。
+     * @en The default playback rate for newly created sound channels. The default value is 1. Changing this value does not affect existing sound channels. To update existing channels, get them through `getAllChannels()` and set their `playbackRate` individually.
+     * @zh 新建声道的默认播放速率，默认值为1。修改此值不会影响已有声道。如需更新已有声道，可通过 `getAllChannels()` 获取它们并分别设置 `playbackRate`。
      */
     static playbackRate: number = 1;
     /**
@@ -297,6 +297,16 @@ export class SoundManager {
             }
         }
         return null;
+    }
+
+    /**
+     * @en Get all active sound channels. The returned array is a snapshot and modifying it does not affect the channels managed by SoundManager.
+     * @returns All active sound channels.
+     * @zh 获取所有活动的声道。返回的数组是当前声道列表的快照，修改数组不会影响 SoundManager 管理的声道。
+     * @returns 所有活动的声道。
+     */
+    static getAllChannels(): SoundChannel[] {
+        return Array.from(mgr._channels);
     }
 
     private static updateMutedStatus(): void {
