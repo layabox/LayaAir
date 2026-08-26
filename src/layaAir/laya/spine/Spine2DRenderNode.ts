@@ -633,9 +633,13 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             },
             complete: (entry: any) => {
                 // console.log("complete:", entry);
+                const spineRender = this._spineRender;
                 this.owner.event(Event.END);
+                if (spineRender !== this._spineRender) {
+                    return;
+                }
                 if (entry.loop) { // 如果多次播放,发送complete事件
-                    this._spineRender.complete();
+                    spineRender.complete();
                     this.owner.event(Event.COMPLETE);
                 } else { // 如果只播放一次，就发送stop事件
                     this.stop();
@@ -654,9 +658,13 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
                     volume: event.volume
                 };
                 // console.log("event:", entry, event);
+                const spineRender = this._spineRender;
                 this.owner.event(Event.LABEL, eventData);
+                if (spineRender !== this._spineRender) {
+                    return;
+                }
                 if (this._playAudio && eventData.audioValue) {
-                    let channel = SoundManager.playSound(eventData.audioValue, 1, Handler.create(this, this._onAniSoundStoped), null, (this._spineRender.currentTime * 1000 - eventData.time) / 1000);
+                    let channel = SoundManager.playSound(eventData.audioValue, 1, Handler.create(this, this._onAniSoundStoped), null, (spineRender.currentTime * 1000 - eventData.time) / 1000);
                     SoundManager.playbackRate = this._playbackRate;
                     channel && this._soundChannelArr.push(channel);
                 }
@@ -737,10 +745,15 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     onPreRender(): void {
         if (this._needUpdate) {
+            const spineRender = this._spineRender;
+            if (!spineRender) {
+                return;
+            }
+
             // JIT 需要 update render 在一起
             if (this._transformDirty) {
                 let matrix = this.owner.globalTrans.getMatrix();
-                this._spineRender.setSkeletonPosition(matrix.tx, matrix.ty);
+                spineRender.setSkeletonPosition(matrix.tx, matrix.ty);
                 this._transformDirty = false;
             }
 
@@ -752,14 +765,14 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             let delta = timerDelta * this._playbackRate;
 
             // 使用当前动画和事件设置骨架
-            this._spineRender.update(delta);
+            spineRender.update(delta);
 
             // spine在state.apply中发送事件，开发者可能会在事件中进行destroy等操作，导致无法继续执行
-            if (this.destroyed  || !this._spineRender) {
+            if (this.destroyed || spineRender !== this._spineRender) {
                 return;
             }
 
-            this._spineRender.render(this._spineRender.currentTime, this.physicsUpdate);
+            spineRender.render(spineRender.currentTime, this.physicsUpdate);
             this._updateBones();
         }
     }
@@ -1146,11 +1159,11 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this._pause = true;
         const spineRender = this._spineRender;
         this._spineRender = null;
+
+        this._struct.renderElements = this._renderElements;
+        this.owner?.repaint();
         spineRender?.destroy();
         this.reset();
-        this.owner?.repaint();
-        //native 同步数据
-        this._struct.renderElements = this._renderElements;
     }
 
     /**
