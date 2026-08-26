@@ -452,6 +452,20 @@ export class Browser {
         Browser._clientHeight = value;
     }
 
+    /**
+     * @en Changes the native host window size in logical pixels. This operation is only supported by resizable desktop native windows.
+     * @param width The requested client-area width in logical pixels.
+     * @param height The requested client-area height in logical pixels.
+     * @returns Whether the resize request was accepted by the current platform.
+     * @zh 修改 Native 宿主窗口的客户区尺寸（逻辑像素）。仅可调整大小的桌面 Native 窗口支持此操作。
+     * @param width 目标客户区宽度（逻辑像素）。
+     * @param height 目标客户区高度（逻辑像素）。
+     * @returns 当前平台是否接受了修改请求。
+     */
+    static setWindowSize(width: number, height: number): boolean {
+        return PAL.browser.setWindowSize(width, height);
+    }
+
 
     /**
      * @zh 浏览器窗口的物理宽度，考虑了设备像素比。

@@ -247,6 +247,22 @@ export class BrowserAdapter extends EventDispatcher {
         return Browser.window.innerHeight || Browser.document.body.clientHeight || Browser.document.documentElement.clientHeight;
     }
 
+    /**
+     * Changes the native host window size in logical pixels.
+     * Returns false when the current platform does not support resizing its host window.
+     */
+    setWindowSize(width: number, height: number): boolean {
+        return false;
+    }
+
+    /**
+     * Changes the host window resolution and fullscreen state.
+     * Returns false when the current platform does not support this operation.
+     */
+    setResolution(width: number, height: number, fullscreen: boolean): boolean {
+        return false;
+    }
+
     getVisibility(): boolean {
         return (Browser.document as any)[this._visibilityStateKey] !== "hidden";
     }

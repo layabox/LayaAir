@@ -979,6 +979,24 @@ export class Stage extends Sprite {
     }
 
     /**
+     * @en Requests a change to the Native host window resolution and fullscreen state. Unlike `setScreenSize`, this changes the operating-system window; the resulting resize event then updates the canvas and Stage adaptation.
+     * Unsupported platforms return `false` without changing the Stage.
+     * @param width Target client-area width in logical pixels.
+     * @param height Target client-area height in logical pixels.
+     * @param fullscreen Whether to enter fullscreen mode.
+     * @returns Whether the current platform accepted the request.
+     * @zh 请求修改 Native 宿主窗口分辨率及全屏状态。此方法与仅执行 Canvas/舞台适配的 `setScreenSize` 不同：它会修改操作系统窗口，随后由窗口 resize 事件更新 Canvas 和舞台适配。
+     * 不支持的平台会返回 `false`，且不会修改舞台。
+     * @param width 目标客户区宽度（逻辑像素）。
+     * @param height 目标客户区高度（逻辑像素）。
+     * @param fullscreen 是否进入全屏模式。
+     * @returns 当前平台是否接受了修改请求。
+     */
+    setResolution(width: number, height: number, fullscreen: boolean = false): boolean {
+        return PAL.browser.setResolution(width, height, fullscreen);
+    }
+
+    /**
      * @zh Exit full screen mode
      * @en 退出全屏模式
      */

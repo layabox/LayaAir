@@ -66,6 +66,25 @@ export class NativeBrowserAdapter extends BrowserAdapter {
         return this._visible;
     }
 
+    setWindowSize(width: number, height: number): boolean {
+        if (!PAL.hasAPI("setWindowSize")) {
+            PAL.warnIncompatibility("setWindowSize");
+            return false;
+        }
+        return (PAL.g as any).setWindowSize(width, height);
+    }
+
+    setResolution(width: number, height: number, fullscreen: boolean): boolean {
+        if (PAL.hasAPI("setResolution"))
+            return (PAL.g as any).setResolution(width, height, fullscreen);
+
+        if (!fullscreen && PAL.hasAPI("setWindowSize"))
+            return (PAL.g as any).setWindowSize(width, height);
+
+        PAL.warnIncompatibility("setResolution");
+        return false;
+    }
+
     createMainCanvas() {
         this._canvas = PAL.g.createCanvas() as any;
         this._canvas.id = "layaCanvas";
