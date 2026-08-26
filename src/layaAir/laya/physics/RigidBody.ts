@@ -378,6 +378,25 @@ export class RigidBody extends ColliderBase {
         this._updatePhysicsTransformToRender();
     }
 
+    /** @internal Rebuild fixtures when the effective owner scale changes. */
+    protected _onPhysicsScaleChanged(): void {
+        if (this.applyOwnerColliderComponent) {
+            for (let i = 0, n = this._colliders.length; i < n; i++) {
+                this._colliders[i].createShape(this);
+            }
+        } else if (this._shapes) {
+            for (let i = 0, n = this._shapes.length; i < n; i++) {
+                this._shapes[i].setCollider(this);
+            }
+
+            if (this._useAutoMass) {
+                this._box2DBody && Physics2D.I._factory.retSet_rigidBody_MassData(this._box2DBody);
+            } else {
+                this._box2DBody && Physics2D.I._factory.set_rigidBody_Mass(this._box2DBody, this._mass, this._centerOfMass, this._inertia, this._massData);
+            }
+        }
+    }
+
     protected _onAwake(): void {
         this.owner.globalTrans.cache = true;
     }
@@ -391,8 +410,9 @@ export class RigidBody extends ColliderBase {
         if (this._type == "static") {
             // 静态刚体这样设置
             let owner: Sprite = this.owner;
-            this._bodyDef.position.setValue(Physics2D.toPhysicsX(owner.globalTrans.x), Physics2D.toPhysicsY(owner.globalTrans.y));
-            this._bodyDef.angle = Utils.toRadian(owner.globalTrans.rotation);
+            Physics2D.getDesignPosition(owner, _tempP0);
+            this._bodyDef.position.setValue(_tempP0.x, _tempP0.y);
+            this._bodyDef.angle = Utils.toRadian(Physics2D.getDesignRotation(owner));
             this._bodyDef.allowSleep = false;
             this._bodyDef.angularVelocity = 0;
             this._bodyDef.angularDamping = 0;
@@ -406,8 +426,9 @@ export class RigidBody extends ColliderBase {
         }
 
         let owner: Sprite = this.owner;
-        this._bodyDef.position.setValue(Physics2D.toPhysicsX(owner.globalTrans.x), Physics2D.toPhysicsY(owner.globalTrans.y));
-        this._bodyDef.angle = Utils.toRadian(owner.globalTrans.rotation);
+        Physics2D.getDesignPosition(owner, _tempP0);
+        this._bodyDef.position.setValue(_tempP0.x, _tempP0.y);
+        this._bodyDef.angle = Utils.toRadian(Physics2D.getDesignRotation(owner));
         this._bodyDef.fixedRotation = !this._allowRotation;
         this._bodyDef.allowSleep = this._allowSleep;
         this._bodyDef.angularVelocity = this._angularVelocity;
@@ -469,9 +490,8 @@ export class RigidBody extends ColliderBase {
         if (Physics2D.I._factory.get_rigidBody_IsAwake(this._box2DBody)) {
             var pos = Vector2.TEMP;
             factory.get_RigidBody_Position(this._box2DBody, pos);
-            pos.setValue(Physics2D.toRenderX(pos.x), Physics2D.toRenderY(pos.y));
-            this.owner.globalTrans.setPos(pos.x, pos.y);
-            this.owner.globalTrans.rotation = Utils.toAngle(factory.get_RigidBody_Angle(this._box2DBody));
+            Physics2D.setDesignPosition(this.owner, pos.x, pos.y, _tempP0);
+            Physics2D.setDesignRotation(this.owner, Utils.toAngle(factory.get_RigidBody_Angle(this._box2DBody)));
         }
     }
 
@@ -631,7 +651,8 @@ export class RigidBody extends ColliderBase {
     setAngle(value: number): void {
         if (!this._box2DBody) return;
         var factory = Physics2D.I._factory;
-        factory.set_RigibBody_Transform(this._box2DBody, Physics2D.toPhysicsX(this.owner.globalTrans.x), Physics2D.toPhysicsY(this.owner.globalTrans.y), Utils.toRadian(value));
+        Physics2D.getDesignPosition(this.owner, _tempP0);
+        factory.set_RigibBody_Transform(this._box2DBody, _tempP0.x, _tempP0.y, Utils.toRadian(value));
         factory.set_rigidBody_Awake(this._box2DBody, true);
     }
 
@@ -684,8 +705,7 @@ export class RigidBody extends ColliderBase {
      * @param y 像素坐标的 y 值。
      */
     getWorldPoint(x: number, y: number): Readonly<Point> {
-        let p = this.owner.globalTrans.localToGlobal(x, y);
-        return _tempP0.setTo(Physics2D.toPhysicsX(p.x), Physics2D.toPhysicsY(p.y));
+        return Physics2D.localToDesignPoint(this.owner, x, y, _tempP0);
     }
 
     /**
@@ -697,6 +717,6 @@ export class RigidBody extends ColliderBase {
      * @param y 像素坐标的 y 值。
      */
     getLocalPoint(x: number, y: number): Readonly<Point> {
-        return this.owner.globalTrans.globalToLocal(Physics2D.toRenderX(x), Physics2D.toRenderY(y));
+        return Physics2D.designToLocalPoint(this.owner, x, y, _tempP0);
     }
 }
