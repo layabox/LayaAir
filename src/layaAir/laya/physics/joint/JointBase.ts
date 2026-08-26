@@ -70,16 +70,11 @@ export class JointBase extends Component {
 
     /**@internal */
     protected getBodyAnchor(body: ColliderBase, anchorx: number, anchory: number): Point {
-        Point.TEMP.setTo(anchorx, anchory)
-        let node = body.owner;
-        if (node) {
-            if (node.transform) {
-                node.transform.transformPointN(Point.TEMP)
-            } else {
-                Point.TEMP.x *= node.scaleX;
-                Point.TEMP.y *= node.scaleY;
-            }
-        }
+        const node = body.owner;
+        Point.TEMP.setTo(
+            anchorx * Physics2D.getDesignScaleX(node),
+            anchory * Physics2D.getDesignScaleY(node)
+        );
         return Point.TEMP;
     }
 

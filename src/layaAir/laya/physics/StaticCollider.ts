@@ -5,6 +5,7 @@ import { RigidBody2DType } from "./factory/IPhysics2DFactory";
 import { Physics2D } from "./Physics2D";
 import { RigidBody } from "./RigidBody";
 import { Physics2DShapeBase } from "./Shape/Physics2DShapeBase";
+import { Point } from "../maths/Point";
 
 /**
  * @en 2Dphysics Static Collider
@@ -57,8 +58,9 @@ export class StaticCollider extends ColliderBase {
     private _setBodyDefValue(): void {
         // 静态刚体这样设置
         let owner: Sprite = this.owner;
-        this._bodyDef.position.setValue(Physics2D.toPhysicsX(owner.globalTrans.x), Physics2D.toPhysicsY(owner.globalTrans.y));
-        this._bodyDef.angle = Utils.toRadian(owner.globalTrans.rotation);
+        Physics2D.getDesignPosition(owner, _tempPosition);
+        this._bodyDef.position.setValue(_tempPosition.x, _tempPosition.y);
+        this._bodyDef.angle = Utils.toRadian(Physics2D.getDesignRotation(owner));
         this._bodyDef.allowSleep = false;
         this._bodyDef.angularVelocity = 0;
         this._bodyDef.angularDamping = 0;
@@ -89,6 +91,19 @@ export class StaticCollider extends ColliderBase {
         if (this.isConnectedJoint) {
             this.owner.event("bodyCreated");
             this.isConnectedJoint = false;
+        }
+    }
+
+    /** @internal Rebuild Shapes fixtures only when their effective physics scale changes. */
+    protected _onPhysicsScaleChanged(): void {
+        if (this._rigidbody) {
+            super._onPhysicsScaleChanged();
+            return;
+        }
+
+        if (!this._shapes) return;
+        for (let i = 0, n = this._shapes.length; i < n; i++) {
+            this._shapes[i].setCollider(this);
         }
     }
 
@@ -198,3 +213,5 @@ export class StaticCollider extends ColliderBase {
     // ----------------------- deprecated 废弃方法与参数 兼容使用 ---------------------
 
 }
+
+const _tempPosition = new Point();

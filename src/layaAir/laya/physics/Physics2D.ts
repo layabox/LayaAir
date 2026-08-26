@@ -8,6 +8,8 @@ import { RigidBody } from "./RigidBody";
 import { Laya } from "../../Laya";
 import { PlayerConfig } from "../../Config";
 import { PhysicsLineShader } from "./Render/shader/PhysicsLineShader";
+import { Sprite } from "../display/Sprite";
+import { Point } from "../maths/Point";
 
 /**
  * @en 2D Physics Engine
@@ -141,6 +143,88 @@ export class Physics2D extends EventDispatcher {
      */
     static toRenderX(v: number): number { return v * ILaya.stage.clientScaleX; }
     static toRenderY(v: number): number { return v * ILaya.stage.clientScaleY; }
+
+    /**
+     * @internal
+     * Return the effective sprite scale in Stage design space. Stage adaptation
+     * is deliberately excluded instead of being included and divided out later.
+     */
+    static getDesignScaleX(sprite: Sprite): number {
+        let scale = 1;
+        let node: Sprite = sprite;
+        while (node && node !== ILaya.stage) {
+            scale *= node.scaleX;
+            node = node.parent instanceof Sprite ? node.parent : null;
+        }
+        return scale;
+    }
+
+    /** @internal @see {@link getDesignScaleX} */
+    static getDesignScaleY(sprite: Sprite): number {
+        let scale = 1;
+        let node: Sprite = sprite;
+        while (node && node !== ILaya.stage) {
+            scale *= node.scaleY;
+            node = node.parent instanceof Sprite ? node.parent : null;
+        }
+        return scale;
+    }
+
+    /** @internal Return the accumulated rotation below Stage. */
+    static getDesignRotation(sprite: Sprite): number {
+        let rotation = 0;
+        let node: Sprite = sprite;
+        while (node && node !== ILaya.stage) {
+            rotation += node.rotation;
+            node = node.parent instanceof Sprite ? node.parent : null;
+        }
+        return rotation;
+    }
+
+    /** @internal Set accumulated rotation below Stage without involving Stage adaptation. */
+    static setDesignRotation(sprite: Sprite, rotation: number): void {
+        let parentRotation = 0;
+        let node = sprite.parent instanceof Sprite ? sprite.parent : null;
+        while (node && node !== ILaya.stage) {
+            parentRotation += node.rotation;
+            node = node.parent instanceof Sprite ? node.parent : null;
+        }
+        sprite.rotation = rotation - parentRotation;
+    }
+
+    /**
+     * @internal
+     * Return the sprite origin (its x/y registration position) in Stage design
+     * coordinates. Sprite.localToGlobal stops before applying Stage adaptation.
+     */
+    static getDesignPosition(sprite: Sprite, out: Point): Point {
+        out.setTo(sprite.pivotX, sprite.pivotY);
+        return sprite.localToGlobal(out);
+    }
+
+    /** @internal Set the sprite origin from a Stage design-space position. */
+    static setDesignPosition(sprite: Sprite, x: number, y: number, out: Point): void {
+        out.setTo(x, y);
+        const parent = sprite.parent;
+        if (parent instanceof Sprite)
+            parent.globalToLocal(out);
+        sprite.pos(out.x, out.y);
+    }
+
+    /** @internal Convert an origin-relative sprite point to Stage design space. */
+    static localToDesignPoint(sprite: Sprite, x: number, y: number, out: Point): Point {
+        out.setTo(sprite.pivotX + x, sprite.pivotY + y);
+        return sprite.localToGlobal(out);
+    }
+
+    /** @internal Convert a Stage design-space point to an origin-relative sprite point. */
+    static designToLocalPoint(sprite: Sprite, x: number, y: number, out: Point): Point {
+        out.setTo(x, y);
+        sprite.globalToLocal(out);
+        out.x -= sprite.pivotX;
+        out.y -= sprite.pivotY;
+        return out;
+    }
 
     // 下面考虑也放到ISceneComponentManager里面去处理，在update里面设置重设根节点之后再更新这个方法
     /**

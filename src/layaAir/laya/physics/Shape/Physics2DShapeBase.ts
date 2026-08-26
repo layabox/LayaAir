@@ -148,7 +148,7 @@ export class Physics2DShapeBase implements IClone {
      * 获得节点的全局缩放X
      */
     protected get scaleX(): number {
-        return Physics2D.toPhysicsX((<Sprite>this._body.owner).globalScaleX);
+        return Physics2D.getDesignScaleX(<Sprite>this._body.owner);
     }
 
     /**
@@ -156,7 +156,7 @@ export class Physics2DShapeBase implements IClone {
      * 获得节点的全局缩放Y（剥离 stage scale，在设计分辨率空间下）
      */
     protected get scaleY(): number {
-        return Physics2D.toPhysicsY((<Sprite>this._body.owner).globalScaleY);
+        return Physics2D.getDesignScaleY(<Sprite>this._body.owner);
     }
 
     /**@internal 创建获得相对于描点x的偏移 */
