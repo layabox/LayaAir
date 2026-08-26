@@ -112,7 +112,7 @@ export class DragDropManager {
                 let rt = new RenderTexture2D(this.iconWidth, this.iconHeight, RenderTargetFormat.R8G8B8A8);
                 this._rt = new Texture(rt);
             }
-            icon.drawToRenderTexture2D(this._rt.width, this._rt.height, 0, 0, this._rt.bitmap as RenderTexture2D);
+            icon.drawToRenderTexture2D(this._rt.width, this._rt.height, 0, 0, this._rt.bitmap as RenderTexture2D, true, true);
             this.agent.texture = this._rt;
         }
         this.agent.size(iconWidth || this.iconWidth, iconHeight || this.iconHeight);
