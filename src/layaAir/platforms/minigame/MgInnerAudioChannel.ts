@@ -80,6 +80,11 @@ export class MgInnerAudioChannel extends SoundChannel {
             this._ctx.play();
     }
 
+    protected onPlaybackRateChanged(): void {
+        if (this._ctx)
+            this._ctx.playbackRate = this.playbackRate;
+    }
+
     protected createContext() {
         return PAL.g.createInnerAudioContext();
     }
