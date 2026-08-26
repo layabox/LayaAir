@@ -8,6 +8,8 @@ import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Texture2D } from "../../../../resource/Texture2D";
+import { Texture2DArray } from "../../../../resource/Texture2DArray";
+import { Texture3D } from "../../../../resource/Texture3D";
 import { TextureCube } from "../../../../resource/TextureCube";
 import { ShaderDataType } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { WebGLEngine } from "../WebGLEngine";
@@ -36,6 +38,8 @@ export class GLShaderInstance extends GLObject {
     private _attributeMap: { [name: string]: [number, ShaderDataType] };
     /**@internal */
     private _uniformMap: ShaderVariable[];
+    /** Warn only once for each texture uniform that falls back to a default texture. */
+    private _defaultTextureWarnings: Set<number> = new Set();
     /**@internal */
     // todo 没用到
     private _uniformObjectMap: { [key: string]: ShaderVariable };
@@ -475,21 +479,21 @@ export class GLShaderInstance extends GLObject {
      * @internal
      */
     _uniform_sampler2D(one: any, texture: BaseTexture): number {//TODO:TEXTURTE ARRAY
-        var value: any = texture ? texture._getSource() : Texture2D.errorTexture._getSource();
+        var value: any = this._getTextureSource(one, texture, Texture2D.errorTexture, "2D");
         var gl: WebGLRenderingContext = this._gl;
         this._bindTexture(one.textureID, gl.TEXTURE_2D, value);
         return 0;
     }
 
     _uniform_sampler2DArray(one: any, texture: BaseTexture): number {
-        var value: any = texture ? texture._getSource() : Texture2D.errorTexture._getSource();
+        var value: any = this._getTextureSource(one, texture, Texture2DArray.defaultTexture, "2D array");
         var gl: WebGL2RenderingContext = this._gl as WebGL2RenderingContext;
         this._bindTexture(one.textureID, gl.TEXTURE_2D_ARRAY, value);
         return 0;
     }
 
     _uniform_sampler3D(one: any, texture: BaseTexture): number {//TODO:TEXTURTE ARRAY
-        var value: any = texture ? texture._getSource() : Texture2D.errorTexture._getSource();
+        var value: any = this._getTextureSource(one, texture, Texture3D.defaultTexture, "3D");
         var gl: WebGL2RenderingContext = this._gl as WebGL2RenderingContext;
         this._bindTexture(one.textureID, gl.TEXTURE_3D, value);
         return 0;
@@ -499,10 +503,24 @@ export class GLShaderInstance extends GLObject {
      * @internal
      */
     _uniform_samplerCube(one: any, texture: BaseTexture): number {//TODO:TEXTURTECUBE ARRAY
-        var value: any = texture ? texture._getSource() : TextureCube.errorTexture._getSource();
+        var value: any = this._getTextureSource(one, texture, TextureCube.errorTexture, "cube");
         var gl: WebGLRenderingContext = this._gl;
         this._bindTexture(one.textureID, gl.TEXTURE_CUBE_MAP, value);
         return 0;
+    }
+
+    private _getTextureSource(one: ShaderVariable, texture: BaseTexture, defaultTexture: BaseTexture, textureType: string): WebGLTexture {
+        const source = texture && texture._getSource();
+        if (source)
+            return source;
+
+        if (!this._defaultTextureWarnings.has(one.onID)) {
+            const reason = texture ? "has no valid GPU resource" : "is not set";
+            console.warn(`[LayaAir] Texture uniform \"${one.name}\" ${reason}; binding the default ${textureType} texture.`);
+            this._defaultTextureWarnings.add(one.onID);
+        }
+
+        return defaultTexture && defaultTexture._getSource();
     }
 
     _uniform_UniformBuffer(one: ShaderVariable, value: IWebGLUniformBuffer) {
@@ -532,6 +550,7 @@ export class GLShaderInstance extends GLObject {
 
     destroy() {
         super.destroy();
+        this._defaultTextureWarnings.clear();
         const gl = this._gl;
         gl.deleteShader(this._vshader);
         gl.deleteShader(this._pshader);

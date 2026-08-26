@@ -478,7 +478,9 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
             var one: any/*ShaderVariable*/ = shaderUniform[i];
             if (uploadUnTexture || one.textureID !== -1) {//如uniform为纹理切换Shader时需要重新上传
                 var value: any = data[one.dataOffset];
-                if (value != null)
+                // Texture uniforms must always be uploaded. Otherwise a missing texture keeps
+                // the previous binding of the texture unit and makes rendering order-dependent.
+                if (value != null || one.textureID !== -1)
                     shaderCall += one.fun.call(one.caller, one, value);
             }
         }
@@ -600,5 +602,3 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
 
 const renderStateHashF32 = new Float32Array(3);
 const renderStateHashU32 = new Uint32Array(renderStateHashF32.buffer);
-
-
