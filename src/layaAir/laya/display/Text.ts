@@ -788,7 +788,7 @@ export class Text extends Sprite {
     set overflow(value: string) {
         if (this._overflow != value) {
             this._overflow = value;
-            if (value !== Text.VISIBLE) {
+            if (value == Text.HIDDEN || value == Text.SCROLL) {
                 this._updateScrollRect();
             }
             else
