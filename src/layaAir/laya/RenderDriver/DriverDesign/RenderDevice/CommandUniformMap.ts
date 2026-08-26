@@ -25,6 +25,13 @@ export class CommandUniformMap {
     }
 
     /**
+     * Whether this map contains the specified uniform property.
+     */
+    hasPtrID(propertyID: number): boolean {
+        return false;
+    }
+
+    /**
      * 增加一个Uniform参数
      * @param propertyID 
      * @param propertyKey 

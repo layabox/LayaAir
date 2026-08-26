@@ -9,11 +9,13 @@ import { Vector4 } from "../maths/Vector4";
 import { Texture2D } from "../resource/Texture2D";
 import { TextureCube } from "../resource/TextureCube";
 import { ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
+import { LayaGL } from "../layagl/LayaGL";
 
 
 const CGBlock: string[] = ["GLSL Start", "GLSL End"];
 const split: string[] = ["#defineGLSL", "#endGLSL"];
 const shaderBlock: string[] = ["Shader3D Start", "Shader3D End"];
+const globalUniformMapNames: string[] = ["Sprite2DGlobal", "Global"];
 const shaderDataOBJ: Record<string, ShaderDataType> = {
     "Color": ShaderDataType.Color,
     "Int": ShaderDataType.Int,
@@ -273,6 +275,11 @@ export class ShaderParser {
                     const [, glslType, name, arrayLength] = match;
                     if (registered.has(name))
                         continue;
+                    const propertyID = Shader3D.propertyNameToID(name);
+                    if (ShaderParser.isGlobalUniform(propertyID)) {
+                        registered.add(name);
+                        continue;
+                    }
                     const shaderType = glslUniformTypeOBJ[glslType];
                     if (!shaderType)
                         continue;
@@ -282,6 +289,19 @@ export class ShaderParser {
                 }
             }
         }
+    }
+
+    private static isGlobalUniform(propertyID: number): boolean {
+        const factory = LayaGL.renderDeviceFactory;
+        if (!factory)
+            return false;
+
+        for (const mapName of globalUniformMapNames) {
+            const uniformMap = factory.createGlobalUniformMap(mapName);
+            if (uniformMap.hasPtrID(propertyID))
+                return true;
+        }
+        return false;
     }
 
     /**

@@ -14,6 +14,11 @@ export class GLESCommandUniformMap extends CommandUniformMap {
         this._stateName = stateName;
         this._nativeObj = new (window as any).conchGLESCommandUniformMap.create(stateName);
     }
+
+    hasPtrID(propertyID: number): boolean {
+        return this._idata.has(propertyID);
+    }
+
     /**
      * 增加一个Uniform参数，如果Uniform属性是Array，请使用addShaderUniformArray
      * @internal
