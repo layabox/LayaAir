@@ -218,7 +218,6 @@ export class ShaderDefines2D {
         passUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_TIME, "u_Time", ShaderDataType.Float);
         passUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_INVERTMAT_0, "u_InvertMat_0", ShaderDataType.Vector3);
         passUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_INVERTMAT_1, "u_InvertMat_1", ShaderDataType.Vector3);
-        passUniformMap.addShaderUniform(ShaderDefines2D.UNIFORM_TIME, "u_Time", ShaderDataType.Float);
 
         // graphics
         ShaderDefines2D.UNIFORM_VERTEX_SIZE = Shader3D.propertyNameToID("u_vertexSize");
