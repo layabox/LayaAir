@@ -328,7 +328,7 @@ export class MgBrowserAdapter extends BrowserAdapter {
     protected normalizePlatform(platform: string, system: string): string {
         let p = (platform || "").toLowerCase();
 
-        if (p.indexOf("openharmony") !== -1)
+        if (p.indexOf("openharmony") !== -1 || p.indexOf("harmonyos") !== -1)
             return "ohos";
         if (p.indexOf("iphone") !== -1 || p.indexOf("ipad") !== -1)
             return "ios";
@@ -342,7 +342,7 @@ export class MgBrowserAdapter extends BrowserAdapter {
             return "android";
         if (s.indexOf("ios") !== -1 || s.indexOf("iphone") !== -1 || s.indexOf("ipad") !== -1)
             return "ios";
-        if (s.indexOf("ohos") !== -1 || s.indexOf("openharmony") !== -1)
+        if (s.indexOf("ohos") !== -1 || s.indexOf("openharmony") !== -1 || s.indexOf("harmonyos") !== -1)
             return "ohos";
 
         return platform;

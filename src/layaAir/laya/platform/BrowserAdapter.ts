@@ -120,7 +120,12 @@ export class BrowserAdapter extends EventDispatcher {
     }
 
     protected setPlatform(u: string, platform: string): void {
-        platform = platform.toLowerCase();
+        platform = (platform || "").toLowerCase();
+
+        // Platform APIs may report HarmonyOS as "HarmonyOS", "OpenHarmony"
+        // or "OHOS". Normalize the aliases to the engine's canonical name.
+        if (platform.indexOf("openharmony") !== -1 || platform.indexOf("harmonyos") !== -1)
+            platform = "ohos";
 
         Browser.userAgent = u;
 
