@@ -86,11 +86,13 @@ export class TrailFilter extends TrailBaseFilter {
 			} else {
 				var delVector3: Vector3 = TrailGeometry._tempVector36;
 				var pointAtoBVector3: Vector3 = TrailGeometry._tempVector35;
+				let canAddTrail = false;
 				switch (this.alignment) {
 					case TrailAlignment.View:
-						if (!state.camera)
-							return;
-						var cameraMatrix = state.camera.viewMatrix;
+						const camera = scene.cullInfoCamera;
+						if (!camera || camera.destroyed)
+							break;
+						const cameraMatrix = camera.viewMatrix;
 						Vector3.transformCoordinate(curPos, cameraMatrix, TrailGeometry._tempVector33);
 						Vector3.transformCoordinate(this._trialGeometry._lastFixedVertexPosition, cameraMatrix, TrailGeometry._tempVector34);
 						Vector3.subtract(TrailGeometry._tempVector33, TrailGeometry._tempVector34, delVector3);
@@ -98,20 +100,24 @@ export class TrailFilter extends TrailBaseFilter {
 						pointAtoBVector3.x = -delVector3.y;
 						pointAtoBVector3.y = delVector3.x;
 						pointAtoBVector3.z = 0;
+						canAddTrail = true;
 						break;
 					case TrailAlignment.TransformZ:
 						Vector3.subtract(curPos, this._trialGeometry._lastFixedVertexPosition, delVector3);
 						var forward: Vector3 = TrailGeometry._tempVector33;
 						this._ownerRender.owner.transform.getForward(forward);
+						canAddTrail = true;
 						Vector3.cross(delVector3, forward, pointAtoBVector3);//实时更新模式需要和view一样根据当前forward重新计算
 						break;
 				}
 
-				Vector3.normalize(pointAtoBVector3, pointAtoBVector3);
-				Vector3.scale(pointAtoBVector3, this._widthMultiplier / 2, pointAtoBVector3);
+				if (canAddTrail) {
+					Vector3.normalize(pointAtoBVector3, pointAtoBVector3);
+					Vector3.scale(pointAtoBVector3, this._widthMultiplier / 2, pointAtoBVector3);
 
-				var delLength: number = Vector3.scalarLength(delVector3);
-				this._trialGeometry._addTrailByNextPosition(curPos, this._curtime, this._minVertexDistance, pointAtoBVector3, delLength)
+					var delLength: number = Vector3.scalarLength(delVector3);
+					this._trialGeometry._addTrailByNextPosition(curPos, this._curtime, this._minVertexDistance, pointAtoBVector3, delLength)
+				}
 			}
 		}
 		this._trialGeometry._updateVertexBufferUV(this._colorGradient, this._textureMode);

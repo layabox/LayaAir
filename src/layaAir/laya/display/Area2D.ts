@@ -12,6 +12,7 @@ import { Matrix } from "../maths/Matrix";
 import { Scene2DSpecialManager } from "./Scene2DSpecial/Scene2DSpecialManager";
 import { LayaEnv } from "../../LayaEnv";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
+import { ILaya } from "../../ILaya";
 
 export class Area2D extends Sprite {
     private _mainCamera: Camera2D;
@@ -155,8 +156,8 @@ export class Area2D extends Sprite {
 
         let halfWidth = RenderState2D.width * 0.5;
         let halfHeight = RenderState2D.height * 0.5;
-        let c_x = x - halfWidth;
-        let c_y = y - halfHeight;
+        let c_x = x * ILaya.stage.clientScaleX - halfWidth;
+        let c_y = y * ILaya.stage.clientScaleY - halfHeight;
         // 获取相机的变换矩阵
         this._mainCamera._getCameraTransform();
         let cameraMatrix = this._mainCamera.cameraMatrix;
@@ -169,6 +170,36 @@ export class Area2D extends Sprite {
         this._globalTrans.getMatrixInv(matrix);
         out.x = matrix.a * newX + matrix.c * newY + matrix.tx;
         out.y = matrix.b * newX + matrix.d * newY + matrix.ty;
+
+        return out;
+    }
+
+    /**
+     * @en Converts Area2D internal coordinates to Stage logical coordinates. This is the inverse operation of `transformPoint`.
+     * @param x The x coordinate in the Area2D internal coordinate system.
+     * @param y The y coordinate in the Area2D internal coordinate system.
+     * @param out The output point. If not passed, a new point will be created.
+     * @returns The output point.
+     * @zh 将 Area2D 内部坐标转换为 Stage 逻辑坐标，是 `transformPoint` 的逆运算。
+     * @param x Area2D 内部坐标系中的 x 坐标。
+     * @param y Area2D 内部坐标系中的 y 坐标。
+     * @param out 输出点，如果不传入，则会创建一个新的点。
+     * @returns 输出点。
+     */
+    inverseTransformPoint(x: number, y: number, out?: Point): Point {
+        out = out || new Point();
+        out.setTo(x, y);
+
+        if (!this._mainCamera)
+            return out;
+
+        let areaMatrix = this._globalTrans.getMatrix();
+        let globalX = areaMatrix.a * x + areaMatrix.c * y + areaMatrix.tx;
+        let globalY = areaMatrix.b * x + areaMatrix.d * y + areaMatrix.ty;
+
+        let viewElements = this._mainCamera._getCameraTransform().elements;
+        out.x = (viewElements[0] * globalX + viewElements[3] * globalY + viewElements[6] + RenderState2D.width * 0.5) / ILaya.stage.clientScaleX;
+        out.y = (viewElements[1] * globalX + viewElements[4] * globalY + viewElements[7] + RenderState2D.height * 0.5) / ILaya.stage.clientScaleY;
 
         return out;
     }
