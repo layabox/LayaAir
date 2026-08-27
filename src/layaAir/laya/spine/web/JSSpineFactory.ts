@@ -18,7 +18,7 @@ export class JSSpineFactory implements ISpineFactory {
         return new WebSpineTempletParser();
     }
     createSpineRenderDataHandle(): ISpineRenderDataHandle {
-        if (LayaEnv.isConch) {
+        if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() !== 2) {
             return new NativeSpineRenderDataHandle();
         }else
             return new WebSpineRenderDataHandle();
