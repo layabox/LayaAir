@@ -36,7 +36,7 @@ export interface RTParticleBurstConfig {
 }
 
 /**
- * P1 frame protocol shared with Native ParticleManager.
+ * Bootstrap/resynchronisation frame protocol shared with Native ParticleManager.
  *
  * Header (5 x uint32):
  *   magic, ABI version, loopCount, recordCount, used word count

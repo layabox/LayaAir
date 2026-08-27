@@ -209,10 +209,9 @@ const enum ShadowFlags {
 const CONFIG_VALUE_COUNT = 12;
 
 /**
- * Per-Scene P1 scalar shadow runtime. TypeScript remains the simulation owner;
- * Native independently evaluates the supported emission/lifetime subset and
- * compares compact TS oracle counters. An explicit experimental flag can move
- * 152-byte instance-buffer uploads to Native without changing simulation ownership.
+ * Per-Scene Native particle bridge. It supports legacy shadow/parity modes and
+ * the current NativeWorld mode, where C++ owns supported particle simulation,
+ * 152-byte record generation, upload and render-phase state commits.
  */
 export class RTParticleSceneRuntime {
     private _native: NativeParticleManager;
@@ -1169,9 +1168,9 @@ export class RTParticleSceneRuntime {
 
 export class RTParticleRuntime {
     /**
-     * P1 shadow is opt-in because it deliberately runs both implementations.
-     * Set `globalThis.__LayaNativeParticleDownshiftP1Shadow = true` before Laya
-     * initialisation. The old P0 flag remains accepted for compatibility.
+     * Native particle execution remains opt-in. P3 selects the current
+     * NativeWorld path; P2/P1/P0 flags remain accepted for compatibility and
+     * parity diagnostics.
      */
     static createSceneRuntime(nativeSceneManager?: any): RTParticleSceneRuntime | null {
         const globals = globalThis as any;
@@ -1183,7 +1182,7 @@ export class RTParticleRuntime {
 
         const ctor = globals.conchRTParticleManager as NativeParticleManagerConstructor;
         if (typeof ctor !== "function") {
-            console.warn("[RTParticleRuntime] Native particle shadow requested but conchRTParticleManager is unavailable.");
+            console.warn("[RTParticleRuntime] Native particle runtime requested but conchRTParticleManager is unavailable.");
             return null;
         }
         const runtime = new RTParticleSceneRuntime(ctor);

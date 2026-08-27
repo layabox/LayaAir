@@ -19,9 +19,9 @@ export class SceneRenderManager {
     _sceneManagerOBJ: ISceneRenderManager;
     /** @internal */
     _list: SingletonList<BaseRender> = new SingletonList();
-    /** P0 native particle observer; null keeps the original Web/TS hot path unchanged. */
+    /** Per-Scene Native particle runtime; null keeps the original Web/TS hot path unchanged. */
     private _nativeParticleRuntime: RTParticleSceneRuntime | null;
-    /** P3 performs one lifecycle bootstrap; steady frames never collect emitters in TS. */
+    /** NativeWorld performs one lifecycle bootstrap; steady frames never collect emitters in TS. */
     private _nativeParticleWorldBootstrapped: boolean = false;
     /**
      * @ignore

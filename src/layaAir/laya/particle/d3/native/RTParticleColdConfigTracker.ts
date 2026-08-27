@@ -334,7 +334,7 @@ export class RTParticleColdConfigTracker {
     }
 
     /**
-     * P3 converts the remaining legacy public fields into dirty notifications
+     * NativeWorld converts the remaining legacy public fields into dirty notifications
      * once at registration. This removes the steady per-emitter poll while
      * preserving direct assignment semantics (including vector replacement).
      */
