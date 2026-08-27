@@ -89,9 +89,9 @@ export class WebSingleQuadPrimitiveData {
 			return false;
 		this._texture = texture || null;
 		if (!this._texture && kind !== GraphicsSingleQuadKind.SolidQuad) {
-			this._releaseUnit();
 			this._active = true;
 			this._geometryVisible = false;
+			this._hasBoundTextureState = false;
 			this._elements.length = 0;
 			this._owner.renderElements = this._elements;
 			return true;

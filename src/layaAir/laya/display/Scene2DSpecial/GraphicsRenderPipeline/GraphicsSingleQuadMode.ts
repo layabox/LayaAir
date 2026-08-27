@@ -268,6 +268,7 @@ export class GraphicsSingleQuadMode {
 		let firstSubmit = !this._submitted;
 		let resourceChanged = firstSubmit || this._submittedResource !== this._resource
 			|| this._submittedResourceInternal !== resourceInternal;
+		let resourceBecameAvailable = !this._submittedResource && !!this._resource;
 		let stateChanged = firstSubmit
 			|| this._submittedPayload[GraphicsSingleQuadPayloadField.Kind] !== this._payloadInt32[GraphicsSingleQuadPayloadField.Kind]
 			|| this._submittedPayload[GraphicsSingleQuadPayloadField.BlendMode] !== this._payloadInt32[GraphicsSingleQuadPayloadField.BlendMode];
@@ -279,6 +280,10 @@ export class GraphicsSingleQuadMode {
 		let flags = payloadChanged ? GraphicsHandleDirtyFlag.OpPayload : GraphicsHandleDirtyFlag.None;
 		if (resourceChanged)
 			flags |= GraphicsHandleDirtyFlag.OpResource;
+		// Web and Native retain the hidden quad while its texture is unavailable.
+		// Refresh its four vertices once when the resource returns before publishing it again.
+		if (resourceBecameAvailable)
+			flags |= GraphicsHandleDirtyFlag.OpPayload;
 		if (stateChanged)
 			flags |= GraphicsHandleDirtyFlag.OpState;
 		this._renderer._publishSingleQuadInputs(flags);
