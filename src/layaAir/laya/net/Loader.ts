@@ -1349,10 +1349,15 @@ export class Loader extends EventDispatcher {
 
             this._parseFileConfig(fileConfig);
 
-            if (loadScript && fileConfig.entry)
-                return Browser.loadLib(path + fileConfig.entry).then(() => true);
-            else
+            if (!loadScript)
                 return true;
+
+            let promise = Promise.resolve();
+            for (let lib of fileConfig.libs || [])
+                promise = promise.then(() => Browser.loadLib(path + lib, false));
+            if (fileConfig.entry)
+                promise = promise.then(() => Browser.loadLib(path + fileConfig.entry, false));
+            return promise.then(() => true);
         });
     }
 
