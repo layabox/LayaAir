@@ -240,7 +240,7 @@ export class NativeCanvasTextInputAdapter extends TextInputAdapter {
     private onCanvasKeyDown(event: Event): void {
         const target = this._activeTarget;
         const snapshot = this._snapshot;
-        if (!target || !target.editable || !snapshot
+        if (!target || !snapshot
             || snapshot.state === NativeTextInputState.Suspended
             || snapshot.state === NativeTextInputState.Inactive)
             return;
@@ -250,6 +250,14 @@ export class NativeCanvasTextInputAdapter extends TextInputAdapter {
         if (clipboardCommand
             && (keyCode === 65 || keyCode === 67 || keyCode === 86
                 || keyCode === 88 || keyCode === 89 || keyCode === 90)) {
+            // Readonly inputs still own a logical selection even though they
+            // do not start an SDL text-input session. Keep non-mutating
+            // shortcuts available and consume all mutating edit shortcuts.
+            if (!target.editable && keyCode !== 65 && keyCode !== 67) {
+                event.preventDefault();
+                return;
+            }
+
             this._bridge.finishPendingComposition();
             const current = this._bridge.editor.snapshot();
             if (keyCode === 65) {
@@ -283,6 +291,9 @@ export class NativeCanvasTextInputAdapter extends TextInputAdapter {
             this.resetCaretBlink();
             return;
         }
+
+        if (!target.editable)
+            return;
 
         if (this._bridge.editor.composing) {
             // SDL/IME owns navigation and deletion while composition is active.
