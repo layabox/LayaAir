@@ -93,7 +93,8 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
      * @returns 当初始化完成时解析的Promise。
      */
     initialize(): Promise<void> {
-        return (window as any).PHYSX(Math.max(16, Config3D.defaultPhysicsMemory) * 16, null).then((PHYSX: any) => {
+        const initialMemory = Math.max(16, Config3D.defaultPhysicsMemory) * 1024 * 1024;
+        return (window as any).PHYSX({ INITIAL_MEMORY: initialMemory }).then((PHYSX: any) => {
             this._init(PHYSX);
             console.log("PhysX loaded.");
             this.initPhysicsCapable();
