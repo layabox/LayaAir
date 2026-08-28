@@ -11,6 +11,7 @@ export class WxVideoTexture extends VideoTexture {
     private _ended: boolean = false;
     private _waitFirstFrame: boolean = false;
     private _startOption: any;
+    private _restartPromise: Promise<any>;
 
     constructor() {
         super();
@@ -56,17 +57,47 @@ export class WxVideoTexture extends VideoTexture {
 
     set currentTime(value: number) {
         this._ended = false;
+        if (value === 0 && this._loaded) {
+            this.restartDecoder();
+            return;
+        }
         this.decoder.seek(value * 1000).then(() => {
-            if (this._playing) {
+            if (this._playing)
                 (<any>this.decoder).wait(false);
-            }
         }).catch(err => {
             console.warn("MgVideoTexture seek: " + err.message);
         });
     }
 
+    private restartDecoder(): void {
+        if (this._restartPromise)
+            return;
+        this._waitFirstFrame = true;
+        const promise = this._restartPromise = this.decoder.stop().then(() => {
+            if (this._restartPromise !== promise)
+                return null;
+            return this.decoder.start(this._startOption);
+        });
+        promise.then(() => {
+            if (this._restartPromise !== promise)
+                return;
+            this._restartPromise = null;
+            if (this._playing)
+                (<any>this.decoder).wait(false);
+        }).catch(err => {
+            if (this._restartPromise === promise) {
+                this._restartPromise = null;
+                this._waitFirstFrame = false;
+                if (this._playing)
+                    this.pause();
+            }
+            console.warn("MgVideoTexture restart: " + err.message);
+        });
+    }
+
     protected onLoad(url: string): void {
         let src = this._source;
+        this._restartPromise = null;
         this._ended = false;
         this._waitFirstFrame = false;
         if (this._loaded)
@@ -91,8 +122,8 @@ export class WxVideoTexture extends VideoTexture {
     }
 
     protected onPlay(): void {
-        //@ts-ignore
-        this.decoder.wait(false);
+        if (!this._restartPromise)
+            (<any>this.decoder).wait(false);
     }
 
     protected onPause(): void {
@@ -118,6 +149,7 @@ export class WxVideoTexture extends VideoTexture {
     }
 
     protected onDestroy(): void {
+        this._restartPromise = null;
         this.decoder.remove();
     }
 }
