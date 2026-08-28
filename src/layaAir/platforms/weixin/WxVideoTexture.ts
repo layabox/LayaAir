@@ -35,6 +35,7 @@ export class WxVideoTexture extends VideoTexture {
             if (this._loop)
                 this.decoder.stop().then(() => this.decoder.start(this._startOption));
             else {
+                this.pause();
                 this._ended = true;
                 this.event("ended");
             }
@@ -54,7 +55,14 @@ export class WxVideoTexture extends VideoTexture {
     }
 
     set currentTime(value: number) {
-        this.decoder.seek(value * 1000);
+        this._ended = false;
+        this.decoder.seek(value * 1000).then(() => {
+            if (this._playing) {
+                (<any>this.decoder).wait(false);
+            }
+        }).catch(err => {
+            console.warn("MgVideoTexture seek: " + err.message);
+        });
     }
 
     protected onLoad(url: string): void {
