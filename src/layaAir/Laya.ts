@@ -144,8 +144,11 @@ export class Laya {
         if (LayaEnv.beforeInit)
             steps.push(() => LayaEnv.beforeInit(stageConfig));
 
-        //beforeInitCallbacks 是按顺序执行
-        Laya._beforeInitCallbacks.forEach(func => steps.push(() => func(stageConfig)));
+        //beforeInitCallbacks 是按顺序执行，执行期间新增的回调也需要执行
+        steps.push(async () => {
+            for (let i = 0; i < Laya._beforeInitCallbacks.length; i++)
+                await Laya._beforeInitCallbacks[i](stageConfig);
+        });
 
         steps.push(() => LayaGL.renderDeviceFactory.createEngine(null, Browser.offscreenMainCanvas || Browser.mainCanvas));
 
