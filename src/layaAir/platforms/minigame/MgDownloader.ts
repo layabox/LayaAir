@@ -129,7 +129,10 @@ export class MgDownloader extends Downloader {
         let packageName = path;
         if (!this.supportSubPackageMultiLevelFolders) {
             packageName = path.replace(/\//g, ".");
-            if (packageName !== path) {
+            // vivo only flattens the package name passed to the platform API and keeps
+            // resources mounted at the original root. Other platforms retain the
+            // legacy flattened resource path behavior.
+            if (!Browser.onVVMiniGame && packageName !== path) {
                 if (!this.subPackages)
                     this.subPackages = {};
                 this.subPackages[path] = packageName;
