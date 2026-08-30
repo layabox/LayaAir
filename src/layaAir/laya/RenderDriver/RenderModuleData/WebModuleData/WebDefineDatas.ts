@@ -162,9 +162,10 @@ export class WebDefineDatas implements IDefineDatas {
 
     private _notifyChangeFlag() {
         if (this._changeFlags.size > 0) {
-            this._changeFlags.forEach(value => {
-                value.setValue(Stat.loopCount, LayaGL.renderEngine._framePassCount)
-            });
+            const framePassCount = LayaGL.renderEngine._framePassCount;
+            for (const value of this._changeFlags) {
+                value.setValue(Stat.loopCount, framePassCount);
+            }
         }
     }
 
