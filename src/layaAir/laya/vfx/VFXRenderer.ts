@@ -1205,6 +1205,15 @@ function applyBlendMode(mat: Material, mode: string): void {
     }
 }
 
+function setVector2IfChanged(mat: Material, name: string, x: number, y: number): void {
+    const cur = mat.getVector2(name);
+    if (cur && cur.x === x && cur.y === y) {
+        return;
+    }
+
+    mat.setVector2(name, new Vector2(x, y));
+}
+
 /**
  * 按 softFade 值开启/关闭材质的 Soft Particle 效果
  *   softFade > 0：开启 SOFT_PARTICLE define，并设 u_SoftParticleFactor.x = softFade
@@ -1216,7 +1225,7 @@ function applySoftParticle(mat: Material, softFade: number): void {
     const sd = (mat as any)._shaderValues as ShaderData;
     if (softFade > 0) {
         if (sd && def) sd.addDefine(def);
-        mat.setVector2("u_SoftParticleFactor", new Vector2(softFade, 0));
+        setVector2IfChanged(mat, "u_SoftParticleFactor", softFade, 0);
     } else {
         if (sd && def) sd.removeDefine(def);
     }
@@ -1244,7 +1253,7 @@ function applyFlipbook(mat: Material, uvMode: string, flipbookSize: Vector2): vo
     }
     const cols = (flipbookSize && flipbookSize.x) || 4;
     const rows = (flipbookSize && flipbookSize.y) || 4;
-    mat.setVector2("u_FlipbookSize", new Vector2(cols, rows));
+    setVector2IfChanged(mat, "u_FlipbookSize", cols, rows);
 }
 
 function applySubpixelAA(mat: Material, enabled: boolean): void {
