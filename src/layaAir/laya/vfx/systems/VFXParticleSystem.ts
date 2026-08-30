@@ -560,6 +560,11 @@ export class VFXParticleSystem extends VFXSystem {
      * 设置各阶段共享的 uniform（每帧调用一次，赋值给所有 shaderData）
      */
     private _allShaderDatas: ShaderData[];
+    private _constantsWrittenCount: number = 0;
+    private _lastCapacity: number = -1;
+    private _lastParticlePerStrip: number = -1;
+    private _lastStripCapacity: number = -1;
+    private _lastSystemSeed: number = -1;
 
     getAllShaderDatas(): ShaderData[] {
         // Multi-Output: extras 是 VisualEffect.onAwake 之后 push 进 this.extraOutputs 的，
@@ -579,14 +584,30 @@ export class VFXParticleSystem extends VFXSystem {
 
     setCommonUniforms(state: VFXState, camera: Camera): void {
         const allDatas = this.getAllShaderDatas();
-        for (const sd of allDatas) {
+
+        const constantsChanged = this._lastCapacity !== this.capacity
+            || this._lastParticlePerStrip !== this.particlePerStripCount
+            || this._lastStripCapacity !== this.stripCapacity
+            || this._lastSystemSeed !== state.systemSeed;
+
+        for (let i = constantsChanged ? 0 : this._constantsWrittenCount, n = allDatas.length; i < n; i++) {
+            const sd = allDatas[i];
             sd.setInt(ID.u_Capacity, this.capacity);
-            sd.setNumber(ID.u_DeltaTime, state.deltaTime);
-            sd.setNumber(ID.u_TotalTime, state.totalTime);
             sd.setInt(ID.u_SystemSeed, state.systemSeed);
             sd.setInt(ID.u_MaxSpawnCount, this.capacity);
             sd.setInt(ID.u_ParticlePerStrip, this.particlePerStripCount);
             sd.setInt(ID.u_StripCapacity, this.stripCapacity);
+        }
+
+        this._lastCapacity = this.capacity;
+        this._lastParticlePerStrip = this.particlePerStripCount;
+        this._lastStripCapacity = this.stripCapacity;
+        this._lastSystemSeed = state.systemSeed;
+        this._constantsWrittenCount = allDatas.length;
+
+        for (const sd of allDatas) {
+            sd.setNumber(ID.u_DeltaTime, state.deltaTime);
+            sd.setNumber(ID.u_TotalTime, state.totalTime);
         }
 
         // 设置 emitter 矩阵到所有阶段（空间变换需要）
