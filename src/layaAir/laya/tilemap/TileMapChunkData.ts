@@ -24,6 +24,8 @@ interface ITileMapRenderElement {
     maxCell: number;
     cacheData: Array<Float32Array>;
     updateFlag: Array<boolean>;
+    updateMin: Array<number>;
+    updateMax: Array<number>;
 }
 
 export interface IMergeCellInfo {
@@ -373,6 +375,21 @@ export class TileMapChunkData {
         }
     }
 
+    private _markBufferDirty(element: ITileMapRenderElement, bufferIndex: number, floatOffset: number) {
+        let end = floatOffset + 4;
+        if (!element.updateFlag[bufferIndex]) {
+            element.updateFlag[bufferIndex] = true;
+            element.updateMin[bufferIndex] = floatOffset;
+            element.updateMax[bufferIndex] = end;
+            return;
+        }
+
+        if (floatOffset < element.updateMin[bufferIndex])
+            element.updateMin[bufferIndex] = floatOffset;
+        if (end > element.updateMax[bufferIndex])
+            element.updateMax[bufferIndex] = end;
+    }
+
     private _updateRenderData() {
 
         if (this._reCreateRenderData) {
@@ -447,10 +464,10 @@ export class TileMapChunkData {
                             let tilemapRenderElementInfo = this._renderElementArray[chuckCellinfo._renderElementIndex];
                             if (value & TileMapDirtyFlag.CELL_CHANGE || (value & TileMapDirtyFlag.CELL_QUAD)) {
                                 let data = tilemapRenderElementInfo.cacheData[TileMapChunkData.instanceposScalBufferIndex];
-                                tilemapRenderElementInfo.updateFlag[TileMapChunkData.instanceposScalBufferIndex] = true;
                                 this._getCellPos(chuckCellinfo, pos);
                                 let posOffset = cellData.texture_origin;
                                 let dataoffset = chuckCellinfo._cellPosInRenderData * 4;
+                                this._markBufferDirty(tilemapRenderElementInfo, TileMapChunkData.instanceposScalBufferIndex, dataoffset);
                                 data[dataoffset] = pos.x + posOffset.x;
                                 data[dataoffset + 1] = pos.y + posOffset.y;
                                 let uvSize = nativesData._getRegionSize();
@@ -461,8 +478,8 @@ export class TileMapChunkData {
                             if ((value & TileMapDirtyFlag.CELL_CHANGE) || (value & TileMapDirtyFlag.CELL_QUADUV)) {
                                 //cell uv /Animation
                                 let data = tilemapRenderElementInfo.cacheData[TileMapChunkData.instanceuvOriScalBufferIndex];
-                                tilemapRenderElementInfo.updateFlag[TileMapChunkData.instanceuvOriScalBufferIndex] = true;
                                 let dataoffset = chuckCellinfo._cellPosInRenderData * 4;
+                                this._markBufferDirty(tilemapRenderElementInfo, TileMapChunkData.instanceuvOriScalBufferIndex, dataoffset);
                                 let uvOri = nativesData._getTextureUVOri();
                                 let uvextend = nativesData._getTextureUVExtends();
                                 data[dataoffset] = uvOri.x;
@@ -474,8 +491,8 @@ export class TileMapChunkData {
                             if ((value & TileMapDirtyFlag.CELL_CHANGE) || (value & TileMapDirtyFlag.CELL_COLOR)) {
                                 //cellColor
                                 let data = tilemapRenderElementInfo.cacheData[TileMapChunkData.instanceColorBufferIndex];
-                                tilemapRenderElementInfo.updateFlag[TileMapChunkData.instanceColorBufferIndex] = true;
                                 let dataoffset = chuckCellinfo._cellPosInRenderData * 4;
+                                this._markBufferDirty(tilemapRenderElementInfo, TileMapChunkData.instanceColorBufferIndex, dataoffset);
                                 let color = cellData.colorModulate;
                                 data[dataoffset] = color.r;
                                 data[dataoffset + 1] = color.g;
@@ -486,8 +503,8 @@ export class TileMapChunkData {
                             if (chuckCellinfo.updateTransFlag || (value & TileMapDirtyFlag.CELL_UVTRAN) || (value & TileMapDirtyFlag.CELL_CHANGE)) {
                                 chuckCellinfo.updateTransFlag = false;
                                 let data = tilemapRenderElementInfo.cacheData[TileMapChunkData.instanceuvTransBufferIndex];
-                                tilemapRenderElementInfo.updateFlag[TileMapChunkData.instanceuvTransBufferIndex] = true;
                                 let dataoffset = chuckCellinfo._cellPosInRenderData * 4;
+                                this._markBufferDirty(tilemapRenderElementInfo, TileMapChunkData.instanceuvTransBufferIndex, dataoffset);
                                 let transData = TileMapUtils.parseTransFlag(this._gridShape, chuckCellinfo._transFlag, cellData);
                                 data[dataoffset] = transData.x;
                                 data[dataoffset + 1] = transData.y;
@@ -504,7 +521,9 @@ export class TileMapChunkData {
                         if (element.updateFlag[updateindex]) {
                             let data = element.cacheData[updateindex];
                             let verBuffer = element.renderElement.geometry.bufferState._vertexBuffers[updateindex + 1];//第一个Buffer是BaseBuffer
-                            verBuffer.setData(data.buffer as ArrayBuffer, 0, 0, data.byteLength);
+                            let byteOffset = element.updateMin[updateindex] * 4;
+                            let byteLength = element.updateMax[updateindex] * 4 - byteOffset;
+                            verBuffer.setData(data.buffer as ArrayBuffer, byteOffset, byteOffset, byteLength);
                             element.updateFlag[updateindex] = false;
                         }
                     }
@@ -1218,6 +1237,8 @@ class TileChunkPool {
                 renderElement,
                 cacheData: null,
                 updateFlag: [false, false, false, false],
+                updateMin: [0, 0, 0, 0],
+                updateMax: [0, 0, 0, 0],
                 maxCell: 0
             }
         }
