@@ -605,13 +605,10 @@ export class VFXParticleSystem extends VFXSystem {
         this._lastSystemSeed = state.systemSeed;
         this._constantsWrittenCount = allDatas.length;
 
+        // 设置 emitter 矩阵到所有阶段（空间变换需要）
         for (const sd of allDatas) {
             sd.setNumber(ID.u_DeltaTime, state.deltaTime);
             sd.setNumber(ID.u_TotalTime, state.totalTime);
-        }
-
-        // 设置 emitter 矩阵到所有阶段（空间变换需要）
-        for (const sd of allDatas) {
             sd.setMatrix4x4(ID.u_EmitterWorldMatrix, state.emitterWorldMatrix);
             sd.setMatrix4x4(ID.u_InvEmitterWorldMatrix, state.invEmitterWorldMatrix);
         }
