@@ -1205,13 +1205,16 @@ function applyBlendMode(mat: Material, mode: string): void {
     }
 }
 
-function setVector2IfChanged(mat: Material, name: string, x: number, y: number): void {
-    const cur = mat.getVector2(name);
+let _idSoftParticleFactor: number = -1;
+let _idFlipbookSize: number = -1;
+
+function setVector2IfChanged(mat: Material, uniformIndex: number, x: number, y: number): void {
+    const cur = mat.getVector2ByIndex(uniformIndex);
     if (cur && cur.x === x && cur.y === y) {
         return;
     }
 
-    mat.setVector2(name, new Vector2(x, y));
+    mat.setVector2ByIndex(uniformIndex, new Vector2(x, y));
 }
 
 /**
@@ -1225,7 +1228,10 @@ function applySoftParticle(mat: Material, softFade: number): void {
     const sd = (mat as any)._shaderValues as ShaderData;
     if (softFade > 0) {
         if (sd && def) sd.addDefine(def);
-        setVector2IfChanged(mat, "u_SoftParticleFactor", softFade, 0);
+        if (_idSoftParticleFactor < 0) {
+            _idSoftParticleFactor = Shader3D.propertyNameToID("u_SoftParticleFactor");
+        }
+        setVector2IfChanged(mat, _idSoftParticleFactor, softFade, 0);
     } else {
         if (sd && def) sd.removeDefine(def);
     }
@@ -1253,7 +1259,10 @@ function applyFlipbook(mat: Material, uvMode: string, flipbookSize: Vector2): vo
     }
     const cols = (flipbookSize && flipbookSize.x) || 4;
     const rows = (flipbookSize && flipbookSize.y) || 4;
-    setVector2IfChanged(mat, "u_FlipbookSize", cols, rows);
+    if (_idFlipbookSize < 0) {
+        _idFlipbookSize = Shader3D.propertyNameToID("u_FlipbookSize");
+    }
+    setVector2IfChanged(mat, _idFlipbookSize, cols, rows);
 }
 
 function applySubpixelAA(mat: Material, enabled: boolean): void {
