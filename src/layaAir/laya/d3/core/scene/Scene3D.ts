@@ -1433,9 +1433,9 @@ if (Profiler.enabled) {
 
         profileZone = Profiler.start("scene/component_elements_update");
         try {
-            this.componentElementMap.forEach((value: IElementComponentManager) => {
-                value.update(delta);
-            });
+            for (let i = 0, n = this._componentElementList.length; i < n; i++) {
+                this._componentElementList[i].update(delta);
+            }
             this._componentDriver.callAfterSceneUpdate();
         } finally {
             Profiler.end(profileZone);
