@@ -391,6 +391,7 @@ export class Scene3D extends Sprite {
     _sceneModuleData: ISceneNodeData;
     /** @internal */
     componentElementMap: Map<string, IElementComponentManager> = new Map();
+    private _componentElementList: IElementComponentManager[] = [];
 
     /** @internal */
     private _componentElementDatasMap: any = {};
@@ -764,7 +765,9 @@ export class Scene3D extends Sprite {
         this.ambientColor = new Color(0.212, 0.227, 0.259);
 
         Scene3D.componentManagerMap.forEach((val, key) => {
-            this.componentElementMap.set(key, new val());
+            let manager = new val();
+            this.componentElementMap.set(key, manager);
+            this._componentElementList.push(manager);
         });
     }
 
@@ -836,9 +839,9 @@ export class Scene3D extends Sprite {
         else
             this._volumeManager.handleMotionlist();
 
-        this.componentElementMap.forEach((value) => {
-            value.update(delta);
-        });
+        for (let i = 0, n = this._componentElementList.length; i < n; i++) {
+            this._componentElementList[i].update(delta);
+        }
         this._componentDriver.callAfterSceneUpdate();
         //this._sceneRenderManager.updateMotionObjects();
         this._sceneRenderManager.renderUpdate();
