@@ -1058,6 +1058,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
                 matrix.tx,
                 matrix.ty
             );
+            if (this._pause) {
+                this.owner.repaint(RepaintFlag.UpdateRT);
+            }
         }
     }
     
