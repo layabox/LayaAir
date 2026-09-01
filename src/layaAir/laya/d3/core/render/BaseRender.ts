@@ -697,6 +697,8 @@ export class BaseRender extends Component {
         this.owner.scene._removeRenderObject(this);
         this._setUnBelongScene();
         this.volume = null;
+        this.probReflection = null;
+        this.lightProbe = null;
 
     }
     protected _onDestroy() {
