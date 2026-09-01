@@ -483,8 +483,12 @@ export class Spine3DRenderer extends BaseRender {
                 if (entry.loop) {
                     this._spineRender.complete();
                     this.owner.event(Event.COMPLETE);
-                } else {
-                    this.stop();
+                } else { // 非循环动画播放完成，定格在最后一帧
+                    if (!this._pause) {
+                        this._pause = true;
+                        this._needUpdate = false;
+                        this.owner.event(Event.STOPPED);
+                    }
                 }
             },
             event: (entry: any, event: any) => {
