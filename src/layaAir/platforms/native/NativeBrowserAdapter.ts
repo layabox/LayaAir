@@ -85,6 +85,14 @@ export class NativeBrowserAdapter extends BrowserAdapter {
         return false;
     }
 
+    setWindowedFullscreen(enabled: boolean): boolean {
+        if (!PAL.hasAPI("setWindowedFullscreen")) {
+            PAL.warnIncompatibility("setWindowedFullscreen");
+            return false;
+        }
+        return (PAL.g as any).setWindowedFullscreen(enabled);
+    }
+
     createMainCanvas() {
         this._canvas = PAL.g.createCanvas() as any;
         this._canvas.id = "layaCanvas";

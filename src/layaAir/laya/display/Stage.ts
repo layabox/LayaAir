@@ -997,6 +997,16 @@ export class Stage extends Sprite {
     }
 
     /**
+     * Enters or leaves non-exclusive borderless desktop fullscreen mode without changing the display resolution.
+     * Unsupported platforms return `false` without changing the Stage.
+     * @param enabled Whether to enable borderless desktop fullscreen mode.
+     * @returns Whether the current platform accepted the request.
+     */
+    setWindowedFullscreen(enabled: boolean): boolean {
+        return PAL.browser.setWindowedFullscreen(enabled);
+    }
+
+    /**
      * @zh Exit full screen mode
      * @en 退出全屏模式
      */

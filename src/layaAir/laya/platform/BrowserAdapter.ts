@@ -268,6 +268,14 @@ export class BrowserAdapter extends EventDispatcher {
         return false;
     }
 
+    /**
+     * Enters or leaves non-exclusive borderless desktop fullscreen mode.
+     * Returns false when the current platform does not support this operation.
+     */
+    setWindowedFullscreen(enabled: boolean): boolean {
+        return false;
+    }
+
     getVisibility(): boolean {
         return (Browser.document as any)[this._visibilityStateKey] !== "hidden";
     }
