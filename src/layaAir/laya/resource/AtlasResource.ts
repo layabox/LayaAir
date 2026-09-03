@@ -63,6 +63,12 @@ export class AtlasResource extends Resource {
     animation: IAtlasAnimationInfo;
 
     /**
+     * @en User-defined data associated with the atlas resource.
+     * @zh 与大图合集资源相关联的用户自定义数据。
+     */
+    userData: any;
+
+    /**
      * @en Creates a new instance of the AtlasResource class.
      * @param dir Directory of the atlas.
      * @param textures Array of textures in the atlas.

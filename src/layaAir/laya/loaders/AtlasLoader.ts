@@ -68,12 +68,14 @@ class AtlasLoader implements IResourceLoader {
                     res.update(pics, subTextures);
                     res.dir = directory;
                     res.animation = data.animation;
+                    res.userData = data.meta?.userData;
                     res.event("reload");
                     return res;
                 }
                 else {
                     res = new AtlasResource(directory, pics, subTextures);
                     res.animation = data.animation;
+                    res.userData = data.meta?.userData;
                     return res;
                 }
             });

@@ -699,11 +699,10 @@ export class FrameAnimation extends Component {
 
             let ani = atlas.animation;
             if (ani) {
+                this._segmentCount = this.normalizeSegmentCount(ani.segmentCount ?? 1);
                 this.interval = ani.interval;
                 this.repeatDelay = ani.repeatDelay ?? 0;
                 this.wrapMode = ani.wrapMode ?? 0;
-                if (ani.segmentCount != null)
-                    this._segmentCount = this.normalizeSegmentCount(ani.segmentCount);
                 this._delays.length = 0;
                 if (ani.frameDelays)
                     this._delays.push(...ani.frameDelays);
