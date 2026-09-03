@@ -78,6 +78,12 @@ export class UniformBufferManager {
     //config
     removeHoleThreshold: number = 10; //移除内存空洞的阈值
 
+    /**
+     * 是否将一个 Cluster 内从首个脏块到最后一个脏块合并为一次上传。
+     * 开启后减少 writeBuffer 调用次数，但会上传脏块之间未变化的数据。
+     */
+    reduceWriteBufferCalls: boolean = false;
+
     constructor(useBigBuffer: boolean) {
         this._useBigBuffer = useBigBuffer;
         this._clustersAll = new Map();

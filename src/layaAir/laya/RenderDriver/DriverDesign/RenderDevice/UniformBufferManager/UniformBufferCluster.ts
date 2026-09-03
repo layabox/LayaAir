@@ -29,6 +29,8 @@ export class UniformBufferCluster {
     protected _totalSize: number; //总体尺寸
     protected _blocks: UniformBufferBlock[] = []; //小内存块，如果成员为null，表示空洞
     protected _needUpload: Array<boolean>; //相应序号的小内存块需要上传数据
+    private _dirtyStartIndex: number = -1; //首个需要上传的小块序号
+    private _dirtyEndIndex: number = -1; //最后一个需要上传的小块序号
     protected _holeNum: number = 0; //空洞数量
 
     /**
@@ -131,6 +133,7 @@ export class UniformBufferCluster {
     freeBlock(bb: UniformBufferBlock) {
         const index = this._blocks.indexOf(bb);
         if (index !== -1) {
+            const wasDirty = this._needUpload[index];
             if (index === this._blocks.length - 1) //删除最后一个
                 this._blocks.length--;
             else {
@@ -138,6 +141,8 @@ export class UniformBufferCluster {
                 this._holeNum++;
             }
             this._needUpload[index] = false;
+            if (wasDirty)
+                this._rebuildDirtyRange();
             bb._onFreed();
            
             return true;
@@ -149,6 +154,11 @@ export class UniformBufferCluster {
      * 将数据上传到GPU内存，合并相邻块，尽可能减少上传次数
      */
     upload() {
+        if (this.manager.reduceWriteBufferCalls) {
+            this._uploadDirtyRange();
+            return;
+        }
+
         let count = 0;
         let bytes = 0;
         let next = false;
@@ -189,6 +199,47 @@ export class UniformBufferCluster {
             count++;
             bytes += size;
         }
+
+        this._dirtyStartIndex = -1;
+        this._dirtyEndIndex = -1;
+    }
+
+    /**
+     * 将首个脏块到最后一个脏块之间的数据一次性上传，以额外带宽换取更少的 writeBuffer 调用。
+     */
+    private _uploadDirtyRange() {
+        const startIndex = this._dirtyStartIndex;
+        const endIndex = this._dirtyEndIndex;
+        if (startIndex === -1)
+            return;
+
+        for (let i = startIndex; i <= endIndex; i++) {
+            if (!this._needUpload[i])
+                continue;
+
+            this._needUpload[i] = false;
+            this._blocks[i]?.updateOver();
+        }
+
+        this._dirtyStartIndex = -1;
+        this._dirtyEndIndex = -1;
+
+        const offset = startIndex * this._blockSize;
+        const size = (endIndex - startIndex + 1) * this._blockSize;
+        this.manager.writeBuffer(this.buffer, this.data, offset, size);
+    }
+
+    /** 脏块被释放时重新计算边界，避免仅剩失效边界时产生无意义上传。 */
+    private _rebuildDirtyRange() {
+        this._dirtyStartIndex = -1;
+        this._dirtyEndIndex = -1;
+        for (let i = 0, len = this._blocks.length; i < len; i++) {
+            if (!this._needUpload[i])
+                continue;
+            if (this._dirtyStartIndex === -1)
+                this._dirtyStartIndex = i;
+            this._dirtyEndIndex = i;
+        }
     }
 
     /**
@@ -197,6 +248,10 @@ export class UniformBufferCluster {
      */
     _addUploadBlock(index: number) {
         this._needUpload[index] = true;
+        if (this._dirtyStartIndex === -1 || index < this._dirtyStartIndex)
+            this._dirtyStartIndex = index;
+        if (index > this._dirtyEndIndex)
+            this._dirtyEndIndex = index;
         if (!this._inManagerUpdateArray)
             this.manager._addUpdateArray(this);
     }
@@ -225,6 +280,8 @@ export class UniformBufferCluster {
         }
         this._needUpload.length = this._blockNum;
         this._needUpload.fill(false);
+        this._dirtyStartIndex = -1;
+        this._dirtyEndIndex = -1;
     }
 
     /**
