@@ -89,6 +89,8 @@ export class FrameAnimation extends Component {
 
     private _atlas: AtlasResource;
     private _playing: boolean = false;
+    private _segmentCount: number = 1;
+    private _segmentIndex: number = 0;
     private _count: number = 0;
     private _index: number = 0;
     private _elapsed: number = 0;
@@ -121,18 +123,71 @@ export class FrameAnimation extends Component {
     }
 
     /**
-     * @en The index of the current frame in the animation.
-     * @zh 动画当前帧的索引。
+     * @en The index of the current frame within the selected segment.
+     * @zh 当前选中分段内的帧索引。
      */
     get frame(): number {
         return LayaEnv.isPlaying ? this._frame : this._index;
     }
 
     set frame(value: number) {
+        value = Math.floor(value);
+        if (!Number.isFinite(value))
+            value = 0;
+        if (this._count > 0)
+            value = Math.max(0, Math.min(value, this._count - 1));
         this._index = this._frame = value;
         this.drawFrame();
         if (this._labels?.[value])
             this.owner.event(Event.LABEL, this._labels[value]);
+    }
+
+    /**
+     * @en The number of equal, contiguous segments in the frame list. Default is 1.
+     * @zh 帧列表中连续等长分段的数量。默认为 1。
+     */
+    get segmentCount(): number {
+        return this._segmentCount;
+    }
+
+    set segmentCount(value: number) {
+        value = this.normalizeSegmentCount(value);
+        if (this._segmentCount === value)
+            return;
+
+        this._segmentCount = value;
+        this.updateSegmentInfo(true);
+    }
+
+    /**
+     * @en The index of the segment currently being displayed and played. The index starts at 0.
+     * @zh 当前显示和播放的分段索引，从 0 开始。
+     */
+    get segmentIndex(): number {
+        return this._segmentIndex;
+    }
+
+    set segmentIndex(value: number) {
+        value = Math.floor(value);
+        if (!Number.isFinite(value))
+            value = 0;
+        value = Math.max(0, value);
+        if (this._frames.length > 0)
+            value = Math.min(value, this._segmentCount - 1);
+        if (this._segmentIndex === value)
+            return;
+
+        this._segmentIndex = value;
+        this.updateSizeToFit();
+        this.drawFrame();
+    }
+
+    /**
+     * @en The number of frames in the current segment.
+     * @zh 当前分段的帧数。
+     */
+    get count(): number {
+        return this._count;
     }
 
     /**
@@ -173,7 +228,7 @@ export class FrameAnimation extends Component {
                 this._drawCmds.push(cmd);
             }
 
-            this._count = this._frames.length;
+            this.updateSegmentInfo(false);
             this._elapsed = 0;
             if (this._wrapMode === AnimationWrapMode.Reverse)
                 this._frame = this._count - 1;
@@ -182,14 +237,7 @@ export class FrameAnimation extends Component {
                 this._frame = (this._index > 0 && this._index < this._count) ? this._index : 0;
             }
 
-            if (this._stretchMode === AnimationStretchMode.ResizeToFit) {
-                let w = this.width, h = this.height;
-                if (w > 0 && h > 0 || LayaEnv.isPlaying) {
-                    this._changingSize = true;
-                    this.owner.size(w, h);
-                    this._changingSize = false;
-                }
-            }
+            this.updateSizeToFit();
 
             this.drawFrame();
             this.owner.graphics.preRegisterFrameAnimationCmds(this._drawCmds);
@@ -200,8 +248,8 @@ export class FrameAnimation extends Component {
     }
 
     /**
-     * @en The delay time of each frame, in milliseconds.
-     * @zh 每帧的延迟时间，单位为毫秒。
+     * @en The delay time of each local frame, in milliseconds. The values are reused by every segment.
+     * @zh 各段内帧的延迟时间，单位为毫秒；所有分段复用这组配置。
      */
     get frameDelays(): Array<number> {
         return this._delays;
@@ -328,11 +376,48 @@ export class FrameAnimation extends Component {
     }
 
     get width() {
-        return this._count > 0 ? this._frames[0].sourceWidth : 0;
+        return this._count > 0 ? this._frames[this._segmentIndex * this._count].sourceWidth : 0;
     }
 
     get height() {
-        return this._count > 0 ? this._frames[0].sourceHeight : 0;
+        return this._count > 0 ? this._frames[this._segmentIndex * this._count].sourceHeight : 0;
+    }
+
+    private normalizeSegmentCount(value: number): number {
+        value = Math.floor(value);
+        return Number.isFinite(value) && value > 0 ? value : 1;
+    }
+
+    private updateSegmentInfo(redraw: boolean): void {
+        let totalCount = this._frames.length;
+        if (totalCount > 0 && totalCount % this._segmentCount !== 0) {
+            console.warn(`FrameAnimation: frame count ${totalCount} cannot be evenly divided into ${this._segmentCount} segments. Falling back to a single segment.`);
+            this._segmentCount = 1;
+        }
+
+        this._segmentIndex = Math.max(0, Math.min(this._segmentIndex, this._segmentCount - 1));
+        this._count = totalCount > 0 ? totalCount / this._segmentCount : 0;
+        if (this._count > 0) {
+            this._frame = Math.max(0, Math.min(this._frame, this._count - 1));
+            this._index = Math.max(0, Math.min(this._index, this._count - 1));
+        }
+
+        if (redraw) {
+            this.updateSizeToFit();
+            this.drawFrame();
+        }
+    }
+
+    private updateSizeToFit(): void {
+        if (this._stretchMode !== AnimationStretchMode.ResizeToFit)
+            return;
+
+        let w = this.width, h = this.height;
+        if (w > 0 && h > 0 || LayaEnv.isPlaying) {
+            this._changingSize = true;
+            this.owner.size(w, h);
+            this._changingSize = false;
+        }
     }
 
     private applyStretchMode() {
@@ -439,6 +524,18 @@ export class FrameAnimation extends Component {
 
         let emit = false;
 
+        if (this._count === 1) {
+            if (!this._loop)
+                this._playing = false;
+            else {
+                this.drawFrame();
+                if (this._labels?.[0])
+                    this.owner.event(Event.LABEL, this._labels[0]);
+            }
+            this.owner.event(Event.COMPLETE);
+            return;
+        }
+
         if (this._reversed) {
             frame--;
             if (frame < 0) {
@@ -491,7 +588,7 @@ export class FrameAnimation extends Component {
     }
 
     protected drawFrame(): void {
-        let cmd = this._drawCmds[this._frame];
+        let cmd = this._drawCmds[this._segmentIndex * this._count + this._frame];
         if (cmd)
             cmd.color = this._color.getABGR();
         let graphics = this.owner.graphics;
@@ -605,6 +702,8 @@ export class FrameAnimation extends Component {
                 this.interval = ani.interval;
                 this.repeatDelay = ani.repeatDelay ?? 0;
                 this.wrapMode = ani.wrapMode ?? 0;
+                if (ani.segmentCount != null)
+                    this._segmentCount = this.normalizeSegmentCount(ani.segmentCount);
                 this._delays.length = 0;
                 if (ani.frameDelays)
                     this._delays.push(...ani.frameDelays);

@@ -68,8 +68,32 @@ export class Animation extends Sprite {
     }
 
     /**
-     * @en The index of the current frame in the animation.
-     * @zh 动画当前帧的索引。
+     * @en The number of equal, contiguous segments in the frame list. Default is 1.
+     * @zh 帧列表中连续等长分段的数量。默认为 1。
+     */
+    get segmentCount(): number {
+        return this._comp.segmentCount;
+    }
+
+    set segmentCount(value: number) {
+        this._comp.segmentCount = value;
+    }
+
+    /**
+     * @en The index of the segment currently being displayed and played. The index starts at 0.
+     * @zh 当前显示和播放的分段索引，从 0 开始。
+     */
+    get segmentIndex(): number {
+        return this._comp.segmentIndex;
+    }
+
+    set segmentIndex(value: number) {
+        this._comp.segmentIndex = value;
+    }
+
+    /**
+     * @en The index of the current frame within the selected segment.
+     * @zh 当前选中分段内的帧索引。
      */
     get index(): number {
         return this._comp.frame;
@@ -80,11 +104,11 @@ export class Animation extends Sprite {
     }
 
     /**
-     * @en The total number of frames in the current animation.
-     * @zh 当前动画中帧的总数。
+     * @en The number of frames in the current animation segment.
+     * @zh 当前动画分段中的帧数。
      */
     get count(): number {
-        return this._comp.frames.length;
+        return this._comp.count;
     }
 
     /**
@@ -136,12 +160,12 @@ export class Animation extends Sprite {
     * When the corresponding resources are loaded, the animation frame filling method (set frames) is called, or the instance is displayed on the stage,
     * it will check if it's currently playing, and if so, it will start playing.
     * Combined with the wrapMode property, you can set the animation playback order type.
-    * @param start (Optional) Specifies the starting index (int) or frame label (String) for animation playback. Frame labels can be added and removed using addLabel(...) and removeLabel(...).
+    * @param start (Optional) Specifies the starting local frame index (int) or frame label (String) for animation playback. Frame labels can be added and removed using addLabel(...) and removeLabel(...).
     * @param loop (Optional) Whether to loop playback.
     * @param name (Optional) Animation name.
     * @zh 开始播放动画。play(...)方法被设计为在创建实例后的任何时候都可以被调用，当相应的资源加载完毕、调用动画帧填充方法(set frames)或者将实例显示在舞台上时，会判断是否正在播放中，如果是，则进行播放。
     * 配合wrapMode属性，可设置动画播放顺序类型。
-    * @param start （可选）指定动画播放开始的索引(int)或帧标签(String)。帧标签可以通过addLabel(...)和removeLabel(...)进行添加和删除。
+    * @param start （可选）指定动画播放开始的段内帧索引(int)或帧标签(String)。帧标签可以通过addLabel(...)和removeLabel(...)进行添加和删除。
     * @param loop （可选）是否循环播放。
     * @param name （可选）动画名称。
     */
@@ -178,9 +202,9 @@ export class Animation extends Sprite {
 
     /**
      * @en Switch the animation to the specified frame and stop there.
-     * @param position Frame index or frame label.
+     * @param position Local frame index or frame label.
      * @zh 将动画切换到指定帧并停在那里。
-     * @param position 帧索引或帧标签。
+     * @param position 段内帧索引或帧标签。
      */
     gotoAndStop(position: number | string): void {
         this.index = (typeof (position) == 'string') ? this.getFrameByLabel(position) : position;
@@ -190,10 +214,10 @@ export class Animation extends Sprite {
     /**
      * @en Add a frame label to the specified frame index. When the animation plays to this frame, it will dispatch an Event.LABEL event after updating the current frame.
      * @param label The name of the frame label.
-     * @param index The frame index.
+     * @param index The local frame index shared by all segments.
      * @zh 增加一个帧标签到指定索引的帧上。当动画播放到此索引的帧时会派发Event.LABEL事件，派发事件是在完成当前帧画面更新之后。
      * @param label 帧标签名称。
-     * @param index 帧索引。
+     * @param index 所有分段共用的段内帧索引。
      */
     addLabel(label: string, index: number): void {
         if (!this._labels) {

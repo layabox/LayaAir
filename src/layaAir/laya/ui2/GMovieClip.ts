@@ -74,8 +74,8 @@ export class GMovieClip extends GWidget {
     }
 
     /**
-     * @en The index of the current frame in the animation.
-     * @zh 动画当前帧的索引。
+     * @en The index of the current frame within the selected segment.
+     * @zh 当前选中分段内的帧索引。
      */
     get frame(): number {
         return this.comp.frame;
@@ -83,6 +83,30 @@ export class GMovieClip extends GWidget {
 
     set frame(value: number) {
         this.comp.frame = value;
+    }
+
+    /**
+     * @en The number of equal, contiguous segments in the frame list. Default is 1.
+     * @zh 帧列表中连续等长分段的数量。默认为 1。
+     */
+    get segmentCount(): number {
+        return this.comp.segmentCount;
+    }
+
+    set segmentCount(value: number) {
+        this.comp.segmentCount = value;
+    }
+
+    /**
+     * @en The index of the segment currently being displayed and played. The index starts at 0.
+     * @zh 当前显示和播放的分段索引，从 0 开始。
+     */
+    get segmentIndex(): number {
+        return this.comp.segmentIndex;
+    }
+
+    set segmentIndex(value: number) {
+        this.comp.segmentIndex = value;
     }
 
     /**
