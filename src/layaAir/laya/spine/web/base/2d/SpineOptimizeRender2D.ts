@@ -131,6 +131,14 @@ export class SpineOptimizeRender2D extends BaseOptimizeRender {
         this._handle.skeleton = skeleton;
     }
 
+    reset(): void {
+        const handle = this._handle as WebSpineRenderDataHandle;
+        handle.skeleton = null;
+        handle.bindNormalRender(null);
+        handle.needUseMatrix = true;
+        super.reset();
+    }
+
     /**
      * @en Update render elements from subMeshes and materials.
      * This method is called from renderProxy.afterRender().
