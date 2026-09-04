@@ -949,19 +949,13 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     private onTransformChanged() {
         if (this._skeleton) {
             let matrix = this.owner.globalTrans.getMatrix();
-            // this._skeleton.x = matrix.tx;
-            // this._skeleton.y = matrix.ty;
             this._skeleton.x = matrix.tx;
             this._skeleton.y = matrix.ty;
-            // this._offset.setValue(this.owner.pivotX, this.owner.pivotY);
-            // this._skeleton.x = matrix.tx
-            // this._skeleton.y = matrix.ty
-            // if (this.owner.pivotX != 0 || this.owner.pivotY != 0) {
-            //     this._offset.setValue(this.owner.pivotX, this.owner.pivotY);
-            //     this._renderHandle.offset = this._offset;
-            // } else {
-            //     this._renderHandle.offset = null;
-            // }
+            if (!this._needUpdate) {
+                this._skeleton.updateWorldTransform(this.physicsUpdate);
+                this.spineItem.render(this.spineItem.currentTime);
+                this.owner.repaint(RepaintFlag.UpdateRT);
+            }
         }
     }
     /**
