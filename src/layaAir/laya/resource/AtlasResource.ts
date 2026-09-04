@@ -5,12 +5,6 @@ import { Texture } from "./Texture";
 
 export interface IAtlasAnimationInfo {
     /**
-     * @en The number of equal, contiguous animation segments in the frame list.
-     * @zh 帧列表中连续等长动画分段的数量。
-     */
-    segmentCount?: number;
-
-    /**
      * @en The interval between frame changes, in milliseconds.
      * @zh 帧改变之间的间隔时间，单位为毫秒。
      */
@@ -29,10 +23,16 @@ export interface IAtlasAnimationInfo {
     wrapMode: AnimationWrapMode;
 
     /**
-     * @en The delay time of each local frame, in milliseconds. The values are reused by every segment.
-     * @zh 各段内帧的延迟时间，单位为毫秒；所有分段复用这组配置。
+     * @en Extra transition delays, in milliseconds, indexed in the full frame list. Forward playback uses the current absolute index; reverse playback uses the preceding index.
+     * @zh 按完整帧列表索引配置的额外切换延迟，单位为毫秒。正序使用当前绝对索引，倒序使用前一绝对索引。
      */
     frameDelays: Array<number>;
+
+    /**
+     * @en Whether to repeat frameDelays using its array length as the period. Default is false. Absolute delay indices are used regardless of the playback range.
+     * @zh 是否以 frameDelays 数组长度为周期循环匹配延迟，默认为 false。使用绝对延迟索引，不随播放范围改变匹配起点。
+     */
+    frameDelaysLoop?: boolean;
 }
 
 

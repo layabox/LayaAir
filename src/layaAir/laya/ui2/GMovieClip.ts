@@ -74,8 +74,8 @@ export class GMovieClip extends GWidget {
     }
 
     /**
-     * @en The index of the current frame within the selected segment.
-     * @zh 当前选中分段内的帧索引。
+     * @en The index of the current frame within the active playback range.
+     * @zh 当前有效播放区间内的帧索引。
      */
     get frame(): number {
         return this.comp.frame;
@@ -86,27 +86,27 @@ export class GMovieClip extends GWidget {
     }
 
     /**
-     * @en The number of equal, contiguous segments in the frame list. Default is 1.
-     * @zh 帧列表中连续等长分段的数量。默认为 1。
+     * @en The inclusive start index in the full frame list. Default is 0.
+     * @zh 完整帧列表中的开始帧索引，包含此帧，默认为 0。
      */
-    get segmentCount(): number {
-        return this.comp.segmentCount;
+    get rangeStart(): number {
+        return this.comp.rangeStart;
     }
 
-    set segmentCount(value: number) {
-        this.comp.segmentCount = value;
+    set rangeStart(value: number) {
+        this.comp.rangeStart = value;
     }
 
     /**
-     * @en The index of the segment currently being displayed and played. The index starts at 0.
-     * @zh 当前显示和播放的分段索引，从 0 开始。
+     * @en The inclusive end index in the full frame list. Default is -1, meaning the last frame.
+     * @zh 完整帧列表中的结束帧索引，包含此帧。默认为 -1，表示最后一帧。
      */
-    get segmentIndex(): number {
-        return this.comp.segmentIndex;
+    get rangeEnd(): number {
+        return this.comp.rangeEnd;
     }
 
-    set segmentIndex(value: number) {
-        this.comp.segmentIndex = value;
+    set rangeEnd(value: number) {
+        this.comp.rangeEnd = value;
     }
 
     /**

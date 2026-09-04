@@ -68,32 +68,32 @@ export class Animation extends Sprite {
     }
 
     /**
-     * @en The number of equal, contiguous segments in the frame list. Default is 1.
-     * @zh 帧列表中连续等长分段的数量。默认为 1。
+     * @en The inclusive start index in the full frame list. Default is 0.
+     * @zh 完整帧列表中的开始帧索引，包含此帧，默认为 0。
      */
-    get segmentCount(): number {
-        return this._comp.segmentCount;
+    get rangeStart(): number {
+        return this._comp.rangeStart;
     }
 
-    set segmentCount(value: number) {
-        this._comp.segmentCount = value;
+    set rangeStart(value: number) {
+        this._comp.rangeStart = value;
     }
 
     /**
-     * @en The index of the segment currently being displayed and played. The index starts at 0.
-     * @zh 当前显示和播放的分段索引，从 0 开始。
+     * @en The inclusive end index in the full frame list. Default is -1, meaning the last frame.
+     * @zh 完整帧列表中的结束帧索引，包含此帧。默认为 -1，表示最后一帧。
      */
-    get segmentIndex(): number {
-        return this._comp.segmentIndex;
+    get rangeEnd(): number {
+        return this._comp.rangeEnd;
     }
 
-    set segmentIndex(value: number) {
-        this._comp.segmentIndex = value;
+    set rangeEnd(value: number) {
+        this._comp.rangeEnd = value;
     }
 
     /**
-     * @en The index of the current frame within the selected segment.
-     * @zh 当前选中分段内的帧索引。
+     * @en The index of the current frame within the active playback range.
+     * @zh 当前有效播放区间内的帧索引。
      */
     get index(): number {
         return this._comp.frame;
@@ -104,8 +104,8 @@ export class Animation extends Sprite {
     }
 
     /**
-     * @en The number of frames in the current animation segment.
-     * @zh 当前动画分段中的帧数。
+     * @en The number of frames in the active playback range.
+     * @zh 当前有效播放区间中的帧数。
      */
     get count(): number {
         return this._comp.count;
@@ -165,7 +165,7 @@ export class Animation extends Sprite {
     * @param name (Optional) Animation name.
     * @zh 开始播放动画。play(...)方法被设计为在创建实例后的任何时候都可以被调用，当相应的资源加载完毕、调用动画帧填充方法(set frames)或者将实例显示在舞台上时，会判断是否正在播放中，如果是，则进行播放。
     * 配合wrapMode属性，可设置动画播放顺序类型。
-    * @param start （可选）指定动画播放开始的段内帧索引(int)或帧标签(String)。帧标签可以通过addLabel(...)和removeLabel(...)进行添加和删除。
+    * @param start （可选）指定动画播放开始的区间内帧索引(int)或帧标签(String)。帧标签可以通过addLabel(...)和removeLabel(...)进行添加和删除。
     * @param loop （可选）是否循环播放。
     * @param name （可选）动画名称。
     */
@@ -204,7 +204,7 @@ export class Animation extends Sprite {
      * @en Switch the animation to the specified frame and stop there.
      * @param position Local frame index or frame label.
      * @zh 将动画切换到指定帧并停在那里。
-     * @param position 段内帧索引或帧标签。
+     * @param position 区间内帧索引或帧标签。
      */
     gotoAndStop(position: number | string): void {
         this.index = (typeof (position) == 'string') ? this.getFrameByLabel(position) : position;
@@ -214,10 +214,10 @@ export class Animation extends Sprite {
     /**
      * @en Add a frame label to the specified frame index. When the animation plays to this frame, it will dispatch an Event.LABEL event after updating the current frame.
      * @param label The name of the frame label.
-     * @param index The local frame index shared by all segments.
+     * @param index The frame index relative to the playback range.
      * @zh 增加一个帧标签到指定索引的帧上。当动画播放到此索引的帧时会派发Event.LABEL事件，派发事件是在完成当前帧画面更新之后。
      * @param label 帧标签名称。
-     * @param index 所有分段共用的段内帧索引。
+     * @param index 相对于播放区间的帧索引。
      */
     addLabel(label: string, index: number): void {
         if (!this._labels) {
