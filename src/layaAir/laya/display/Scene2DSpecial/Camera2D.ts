@@ -42,6 +42,7 @@ export class Camera2D extends Sprite {
     private _drag_Bottom: number;
     private _positionSmooth: boolean;
     private _positionSpeed: number;//
+    private _currPos: Point;
 
     /**@internal TODO*/
     _renderTarget: RenderTexture;
@@ -323,6 +324,7 @@ export class Camera2D extends Sprite {
         this._positionSmooth = false;
         this._rect = new Vector4();
         this._zoom = new Vector2(1, 1);
+        this._currPos = new Point(0, 0);
     }
     /**
      * 获得viewPort大小
@@ -354,8 +356,9 @@ export class Camera2D extends Sprite {
     _getCameraTransform(): Matrix3x3 {
         //用来计算camera的矩阵
         let viewport = this._getScreenSize();
-        let curPosPoint = Point.TEMP;
+        let curPosPoint = this._currPos;
         this.globalTrans.getPos(curPosPoint);
+        // this.localToGlobal(curPosPoint.setTo(0, 0));
         let extendHorizental = viewport.x * 0.5 * this._zoom.x;
         let extendVertical = viewport.y * 0.5 * this._zoom.y;
 
@@ -375,9 +378,9 @@ export class Camera2D extends Sprite {
             }
 
             let sceneRect_left = this._cameraPos.x - extendHorizental;
-            let sceneRect_right = sceneRect_left + viewport.x;
+            let sceneRect_right = sceneRect_left + extendHorizental * 2;
             let sceneRect_top = this._cameraPos.y - extendVertical;
-            let sceneRect_bottom = sceneRect_top + viewport.y;
+            let sceneRect_bottom = sceneRect_top + extendVertical * 2;
 
             //limit
             if (sceneRect_left < this._limit_Left) {

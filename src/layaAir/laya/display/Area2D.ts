@@ -107,6 +107,8 @@ export class Area2D extends Sprite {
             // 如果没有主相机，Stage 逻辑坐标就是相对于 Area2D 的内部坐标。
             return out;
         }
+        x *= ILaya.stage.scaleX;
+        y *= ILaya.stage.scaleY;
 
         let halfWidth = RenderState2D.width * 0.5;
         let halfHeight = RenderState2D.height * 0.5;
