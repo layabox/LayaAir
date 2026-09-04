@@ -2,6 +2,7 @@ import type { Timer } from "./laya/utils/Timer";
 import type { Loader } from "./laya/net/Loader";
 import type { Stage } from "./laya/display/Stage";
 import type { InputManager } from "./laya/events/InputManager";
+import type { GamepadManager } from "./laya/events/GamepadManager";
 import type { Laya } from "./Laya";
 import type { Scene3D } from "./laya/d3/core/scene/Scene3D";
 import type { Laya3D } from "./Laya3D";
@@ -14,6 +15,7 @@ export class ILaya {
     static Laya: typeof Laya = null;
     static Loader: typeof Loader = null;
     static InputManager: typeof InputManager = null;
+    static GamepadManager: typeof GamepadManager = null;
 
     static Scene3D: typeof Scene3D = null;
     static Laya3D: typeof Laya3D = null;

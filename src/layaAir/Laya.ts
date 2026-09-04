@@ -1,6 +1,7 @@
 import { ILaya, Mutable } from "./ILaya";
 import { Stage } from "./laya/display/Stage";
 import { InputManager } from "./laya/events/InputManager";
+import { GamepadManager } from "./laya/events/GamepadManager";
 import { Loader } from "./laya/net/Loader";
 import { Render } from "./laya/renders/Render";
 import { Browser } from "./laya/utils/Browser";
@@ -72,6 +73,12 @@ export class Laya {
      * @zh 加载管理器的引用。
      */
     static readonly loader: Loader = null;
+
+    /**
+     * @en Cross-platform gamepad input manager.
+     * @zh 跨平台手柄输入管理器。
+     */
+    static readonly gamepad: GamepadManager = null;
 
     /**
      * @ignore
@@ -226,6 +233,8 @@ export class Laya {
         SequenceFrame2DRender.__init__();
 
         InputManager.__init__();
+        (<Mutable<typeof Laya>>Laya).gamepad = GamepadManager.instance;
+        GamepadManager.__init__();
         SoundManager.__init__();
     }
 
@@ -323,6 +332,7 @@ var _erralert: number = 0;
 ILaya.Laya = Laya;
 ILaya.Loader = Loader;
 ILaya.InputManager = InputManager;
+ILaya.GamepadManager = GamepadManager;
 
 /**@internal */
 export var init = Laya.init;
