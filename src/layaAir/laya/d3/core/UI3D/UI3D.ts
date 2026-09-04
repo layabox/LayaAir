@@ -30,6 +30,7 @@ import { Utils } from "../../../utils/Utils";
 import { Rectangle } from "../../../maths/Rectangle";
 import { RepaintFlag } from "../../../display/SpriteConst";
 import { ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
+import { SpriteUtils } from "../../../utils/SpriteUtils";
 
 class UI3DShellSprite extends Sprite {
 
@@ -204,16 +205,14 @@ export class UI3D extends BaseRender {
      * 计算子节点内容的位置偏移
      */
     private _updateContentOffset(sp: Sprite): void {
-        let offsetX = sp.x;
-        let offsetY = sp.y;
-        // 根节点在原点且仅有一个子节点时，检查下一层（处理嵌套容器）
-        if (offsetX === 0 && offsetY === 0 && sp.numChildren === 1) {
-            let child = sp.getChildAt(0) as Sprite;
-            offsetX = child.x;
-            offsetY = child.y;
+        // 用真实包围盒作为内容起点，避免子节点带旋转/缩放时直接拿 child.x/y 会裁掉旋转后伸出原点之外的部分
+        let rect = Rectangle.TEMP;
+        SpriteUtils.getRect(sp, false, rect);
+        if (sp.transform) {
+            rect.transform(sp.transform, rect);
         }
-        this._shellSprite._contentOffsetX = offsetX;
-        this._shellSprite._contentOffsetY = offsetY;
+        this._shellSprite._contentOffsetX = rect.x + sp.x;
+        this._shellSprite._contentOffsetY = rect.y + sp.y;
     }
 
     /**
