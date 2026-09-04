@@ -57,28 +57,34 @@ export class NativeVideoTexture extends VideoTexture {
     }
 
     protected onLoad(url: string): void {
-        let src = this._source;
         this._ended = false;
         this._waitFirstFrame = false;
-        if (this._loaded)
-            this.decoder.stop();
+        let needStop = this._loaded;
         this._loaded = false;
-
-        if (this._source !== src)
-            return;
 
         this._startOption = {};
         this._startOption.source = URL.postFormatURL(URL.formatURL(url));
         if (Browser.isIOSHighPerformanceModePlus)
             this._startOption.videoDataType = 2;
 
-        this.decoder.start(this._startOption).then((res: any) => {
-            this.setLoaded(res.width, res.height, true);
-            if (!this._playing)
-                this._waitFirstFrame = true;
-        }).catch((err: any) => {
-            console.warn("MgVideoTexture: " + err.message);
-        });
+        let doStart = () => {
+            if (this._source !== url)
+                return;
+            this.decoder.start(this._startOption).then((res: any) => {
+                if (this._source !== url)
+                    return;
+                this.setLoaded(res.width, res.height, true);
+                if (!this._playing)
+                    this._waitFirstFrame = true;
+            }).catch((err: any) => {
+                console.warn("MgVideoTexture: " + err.message);
+            });
+        };
+
+        if (needStop)
+            this.decoder.stop().then(doStart);
+        else
+            doStart();
     }
 
     protected onPlay(): void {
