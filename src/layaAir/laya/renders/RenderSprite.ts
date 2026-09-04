@@ -328,8 +328,12 @@ export class RenderSprite {
             //计算cache画布的大小
             Stat.canvasBitmap++;
 
-            let w = tRec.width * scaleInfo.x + marginLeft + marginRight;  //,
-            let h = tRec.height * scaleInfo.y + marginTop + marginBottom;
+            //overscan: _calculateCacheRect 会对小数 bounds 做 floor，内容右/下沿最多可被裁 ~2px，
+            //且抗锯齿/描边外延会紧贴 RT 边界。四周各补 2px 透明边避免内容被裁切，
+            //同时 tRec 同步平移，保证 blit 回贴仍为 1:1 像素映射（仅 cacheAs=bitmap 路径使用，不影响 mask）。
+            const cachePad = 2;
+            let w = tRec.width * scaleInfo.x + marginLeft + marginRight + cachePad * 2;  //,
+            let h = tRec.height * scaleInfo.y + marginTop + marginBottom + cachePad * 2;
             let rt = new RenderTexture2D(w, h, RenderTargetFormat.R8G8B8A8);
             let ctx = new Context();
             ctx.copyState(context);
@@ -346,8 +350,8 @@ export class RenderSprite {
                 所以为了rt能正确的包含节点的渲染效果，应该偏移一下节点再渲染，具体就是取节点在rt坐标系下的值
                 当使用这个rt的时候，要反向偏移，即偏移rt在节点坐标系下的值
             */
-            tRec.x -= marginLeft;   //margin要算到偏移中
-            tRec.y -= marginTop;
+            tRec.x -= marginLeft + cachePad;   //margin要算到偏移中
+            tRec.y -= marginTop + cachePad;
             this._next._fun(sprite, ctx, -tRec.x, -tRec.y);
             ctx.endRender();
             Render2DSimple.rendercontext2D.invertY = tempY;
@@ -380,7 +384,14 @@ export class RenderSprite {
             var tRec = _cacheStyle.cacheRect;
             context._material = sprite.graphics.material;
             let rt = _cacheStyle.renderTexture;
-            rt && context._drawRenderTexture(rt, x + tRec.x, y + tRec.y, rt.width, rt.height, null, 1, [0, 1, 1, 1, 1, 0, 0, 0]);
+            if (rt) {
+                // 回贴按设备像素对齐（与文本直绘的 drawTexAlign 一致），
+                // 避免节点/父链位于小数坐标时整张 RT 被双线性重采样导致模糊。
+                let preAlign = context.drawTexAlign;
+                context.drawTexAlign = true;
+                context._drawRenderTexture(rt, x + tRec.x, y + tRec.y, rt.width, rt.height, null, 1, [0, 1, 1, 1, 1, 0, 0, 0]);
+                context.drawTexAlign = preAlign;
+            }
             context._material = null;
         } else {
             if (!RenderSprite.cacheNormalEnable) {
