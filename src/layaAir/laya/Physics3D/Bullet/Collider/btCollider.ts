@@ -332,8 +332,17 @@ export class btCollider implements ICollider {
      */
     setColliderShape(shape: btColliderShape) {
         shape._btCollider = this;
-        if (shape == this._btColliderShape || shape._btShape == null)
+        if (shape._btShape == null)
             return;
+        if (shape == this._btColliderShape) {
+            // Same wrapper shape may recreate a new native btShape (e.g. mesh collider refresh).
+            // Rebind and resync transform so scale is applied to the new native shape.
+            if (this._btCollider) {
+                btStatics.bt.btCollisionObject_setCollisionShape(this._btCollider, shape._btShape);
+                this.componentEnable && this._derivePhysicsTransformation(true);
+            }
+            return;
+        }
         var lastColliderShape: btColliderShape = this._btColliderShape;
         this._btColliderShape = shape;
         let bt = btStatics.bt;
