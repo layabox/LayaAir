@@ -7,8 +7,9 @@ import { type TextInputAdapter } from "./TextInputAdapter";
 import { type WebDeviceAdapter } from "../device/WebDeviceAdapter";
 import { type FontAdapter } from "./FontAdapter";
 import { type FileSystemAdapter } from "./FileSystemAdapter";
+import { type IGamepadAdapter } from "./IGamepadAdapter";
 
-const PlatformAdapterNames = ["browser", "fs", "storage", "font", "textInput", "media", "device"] as const;
+const PlatformAdapterNames = ["browser", "fs", "storage", "font", "textInput", "media", "device", "gamepad"] as const;
 export interface IPlatformGlobalType { [key: string]: any };
 
 /**
@@ -45,6 +46,12 @@ export class PAL {
      * @zh 设备适配器。
      */
     static readonly device: WebDeviceAdapter;
+
+    /**
+     * @en The Gamepad Adapter.
+     * @zh 手柄输入适配器。
+     */
+    static readonly gamepad: IGamepadAdapter;
 
     /**
      * @en The Font Adapter.

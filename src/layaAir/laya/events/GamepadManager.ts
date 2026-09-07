@@ -1,5 +1,6 @@
 import { ILaya } from "../../ILaya";
-import { Browser } from "../utils/Browser";
+import { type GamepadSnapshot } from "../platform/IGamepadAdapter";
+import { PAL } from "../platform/PlatformAdapters";
 import { EventDispatcher } from "./EventDispatcher";
 
 /**
@@ -167,40 +168,12 @@ export interface GamepadAxisEvent {
     value: number;
 }
 
-interface GamepadButtonSnapshot {
-    value: number;
-    pressed?: boolean;
-    touched?: boolean;
-}
-
-interface GamepadSnapshot {
-    index: number;
-    id: string;
-    mapping: string;
-    timestamp: number;
-    buttons: GamepadButtonSnapshot[];
-    axes: number[];
-}
-
-interface NativeGamepadSnapshot {
-    index: number;
-    id: string;
-    mapping: string;
-    connected: boolean;
-    timestamp: number;
-    buttons: number[];
-    axes: number[];
-}
-
 const EMPTY_BUTTON = new GamepadButtonInfo(0, false, false);
 let _instance: GamepadManager;
 
 /**
- * @en Cross-platform gamepad input manager. Web builds use the Web Gamepad API;
- * LayaNative builds use the Windows/Linux SDL, Android InputDevice, or iOS
- * GameController backend.
- * @zh 跨平台手柄输入管理器。Web 端使用 Web Gamepad API；LayaNative 端分别使用
- * Windows/Linux SDL、Android InputDevice 或 iOS GameController 后端。
+ * @en Cross-platform gamepad input manager. Reads unified snapshots from PAL.gamepad.
+ * @zh 跨平台手柄输入管理器，通过 PAL.gamepad 读取统一的平台状态快照。
  */
 export class GamepadManager extends EventDispatcher {
     static readonly CONNECTED = "gamepadconnected";
@@ -218,8 +191,6 @@ export class GamepadManager extends EventDispatcher {
     private _gamepads = new Map<number, GamepadInfo>();
     private _orderedGamepads: GamepadInfo[] = [];
     private _started = false;
-    private _nativeConch: { getGamepadState(): string };
-    private _reportedNativeError = false;
 
     static get instance(): GamepadManager {
         return _instance ??= new GamepadManager();
@@ -234,7 +205,7 @@ export class GamepadManager extends EventDispatcher {
     }
 
     get supported(): boolean {
-        return this._nativeConch != null || typeof Browser.window.navigator?.getGamepads === "function";
+        return PAL.gamepad?.supported ?? false;
     }
 
     getGamepad(index: number): GamepadInfo | null {
@@ -254,9 +225,6 @@ export class GamepadManager extends EventDispatcher {
         if (this._started)
             return;
         this._started = true;
-        const conch = (Browser.window as any).conch;
-        if (conch && typeof conch.getGamepadState === "function")
-            this._nativeConch = conch;
         ILaya.systemTimer.frameLoop(1, this, this._update);
         this._update();
     }
@@ -280,64 +248,12 @@ export class GamepadManager extends EventDispatcher {
     }
 
     private _update(): void {
-        const snapshots = this._nativeConch
-            ? this._readNativeSnapshots()
-            : this._readWebSnapshots();
+        const snapshots = PAL.gamepad?.getSnapshots();
         if (snapshots)
             this._applySnapshots(snapshots);
     }
 
-    private _readNativeSnapshots(): GamepadSnapshot[] {
-        try {
-            const nativeSnapshots = JSON.parse(this._nativeConch.getGamepadState()) as NativeGamepadSnapshot[];
-            if (!Array.isArray(nativeSnapshots))
-                return [];
-            this._reportedNativeError = false;
-            return nativeSnapshots
-                .filter(gamepad => gamepad && gamepad.connected !== false)
-                .map(gamepad => ({
-                    index: gamepad.index,
-                    id: gamepad.id || "Gamepad",
-                    mapping: gamepad.mapping || "standard",
-                    timestamp: gamepad.timestamp || 0,
-                    buttons: (gamepad.buttons || []).map(value => ({ value: Number(value) || 0 })),
-                    axes: (gamepad.axes || []).map(value => Number(value) || 0)
-                }));
-        }
-        catch (error) {
-            if (!this._reportedNativeError) {
-                this._reportedNativeError = true;
-                console.warn("Failed to read LayaNative gamepad state", error);
-            }
-            return null;
-        }
-    }
-
-    private _readWebSnapshots(): GamepadSnapshot[] {
-        const navigator = Browser.window.navigator;
-        if (typeof navigator?.getGamepads !== "function")
-            return [];
-        const result: GamepadSnapshot[] = [];
-        for (const gamepad of navigator.getGamepads()) {
-            if (!gamepad || !gamepad.connected)
-                continue;
-            result.push({
-                index: gamepad.index,
-                id: gamepad.id,
-                mapping: gamepad.mapping,
-                timestamp: gamepad.timestamp,
-                buttons: Array.from(gamepad.buttons, button => ({
-                    value: button.value,
-                    pressed: button.pressed,
-                    touched: button.touched
-                })),
-                axes: Array.from(gamepad.axes)
-            });
-        }
-        return result;
-    }
-
-    private _applySnapshots(snapshots: GamepadSnapshot[]): void {
+    private _applySnapshots(snapshots: ReadonlyArray<GamepadSnapshot>): void {
         const seen = new Set<number>();
         const connected: GamepadInfo[] = [];
         const disconnected: GamepadInfo[] = [];
