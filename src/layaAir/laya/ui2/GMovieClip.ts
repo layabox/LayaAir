@@ -74,8 +74,8 @@ export class GMovieClip extends GWidget {
     }
 
     /**
-     * @en The index of the current frame in the animation.
-     * @zh 动画当前帧的索引。
+     * @en The index of the current frame within the active playback range.
+     * @zh 当前有效播放区间内的帧索引。
      */
     get frame(): number {
         return this.comp.frame;
@@ -83,6 +83,30 @@ export class GMovieClip extends GWidget {
 
     set frame(value: number) {
         this.comp.frame = value;
+    }
+
+    /**
+     * @en The inclusive start index in the full frame list. Default is 0.
+     * @zh 完整帧列表中的开始帧索引，包含此帧，默认为 0。
+     */
+    get rangeStart(): number {
+        return this.comp.rangeStart;
+    }
+
+    set rangeStart(value: number) {
+        this.comp.rangeStart = value;
+    }
+
+    /**
+     * @en The inclusive end index in the full frame list. Default is -1, meaning the last frame.
+     * @zh 完整帧列表中的结束帧索引，包含此帧。默认为 -1，表示最后一帧。
+     */
+    get rangeEnd(): number {
+        return this.comp.rangeEnd;
+    }
+
+    set rangeEnd(value: number) {
+        this.comp.rangeEnd = value;
     }
 
     /**

@@ -23,10 +23,16 @@ export interface IAtlasAnimationInfo {
     wrapMode: AnimationWrapMode;
 
     /**
-     * @en The delay time of each frame, in milliseconds.
-     * @zh 每帧的延迟时间，单位为毫秒。
+     * @en Extra transition delays, in milliseconds, indexed in the full frame list. Forward playback uses the current absolute index; reverse playback uses the preceding index.
+     * @zh 按完整帧列表索引配置的额外切换延迟，单位为毫秒。正序使用当前绝对索引，倒序使用前一绝对索引。
      */
     frameDelays: Array<number>;
+
+    /**
+     * @en Whether to repeat frameDelays using its array length as the period. Default is false. Absolute delay indices are used regardless of the playback range.
+     * @zh 是否以 frameDelays 数组长度为周期循环匹配延迟，默认为 false。使用绝对延迟索引，不随播放范围改变匹配起点。
+     */
+    frameDelaysLoop?: boolean;
 }
 
 
@@ -55,6 +61,12 @@ export class AtlasResource extends Resource {
      * @zh 大图合集的动画信息。
      */
     animation: IAtlasAnimationInfo;
+
+    /**
+     * @en User-defined data associated with the atlas resource.
+     * @zh 与大图合集资源相关联的用户自定义数据。
+     */
+    userData: any;
 
     /**
      * @en Creates a new instance of the AtlasResource class.

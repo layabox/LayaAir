@@ -70,6 +70,12 @@ export class FrameAnimation extends Component {
     repeatDelay: number = 0;
 
     /**
+     * @en Whether to repeat frameDelays using its array length as the period. Default is false. Matching uses absolute delay indices and does not restart at rangeStart.
+     * @zh 是否以 frameDelays 数组长度为周期循环匹配延迟，默认为 false。按绝对延迟索引匹配，不会在 rangeStart 处重新对齐。
+     */
+    frameDelaysLoop: boolean = false;
+
+    /**
      * @en Playback speed.
      * @zh 播放速率。
      */
@@ -89,7 +95,10 @@ export class FrameAnimation extends Component {
 
     private _atlas: AtlasResource;
     private _playing: boolean = false;
+    private _activeStart: number = 0;
     private _count: number = 0;
+    private _rangeStart: number = 0;
+    private _rangeEnd: number = -1;
     private _index: number = 0;
     private _elapsed: number = 0;
     private _reversed: boolean;
@@ -121,18 +130,65 @@ export class FrameAnimation extends Component {
     }
 
     /**
-     * @en The index of the current frame in the animation.
-     * @zh 动画当前帧的索引。
+     * @en The index of the current frame within the active playback range.
+     * @zh 当前有效播放区间内的帧索引。
      */
     get frame(): number {
         return LayaEnv.isPlaying ? this._frame : this._index;
     }
 
     set frame(value: number) {
+        value = Math.floor(value);
+        if (!Number.isFinite(value))
+            value = 0;
+        if (this._count > 0)
+            value = Math.max(0, Math.min(value, this._count - 1));
         this._index = this._frame = value;
         this.drawFrame();
         if (this._labels?.[value])
             this.owner.event(Event.LABEL, this._labels[value]);
+    }
+
+    /**
+     * @en The inclusive start index in the full frame list. Default is 0. Changing the range resets the frame and elapsed time without changing the playing state.
+     * @zh 完整帧列表中的开始帧索引，包含此帧，默认为 0。修改范围会重置当前帧和累计时间，但不改变播放状态。
+     */
+    get rangeStart(): number {
+        return this._rangeStart;
+    }
+
+    set rangeStart(value: number) {
+        value = Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
+        if (this._rangeStart === value)
+            return;
+
+        this._rangeStart = value;
+        this.updateActiveRange(true);
+    }
+
+    /**
+     * @en The inclusive end index in the full frame list. Default is -1, meaning the last frame. Bounds are clamped when frames are available; an end before the start resolves to a single frame at the start. The configured values are retained for later resource loads.
+     * @zh 完整帧列表中的结束帧索引，包含此帧。默认为 -1，表示最后一帧。资源就绪后会限制实际播放边界；结束帧小于开始帧时只播放开始帧。配置值会保留，供后续加载资源时使用。
+     */
+    get rangeEnd(): number {
+        return this._rangeEnd;
+    }
+
+    set rangeEnd(value: number) {
+        value = Number.isFinite(value) ? Math.max(-1, Math.floor(value)) : -1;
+        if (this._rangeEnd === value)
+            return;
+
+        this._rangeEnd = value;
+        this.updateActiveRange(true);
+    }
+
+    /**
+     * @en The number of frames in the active playback range.
+     * @zh 当前有效播放区间的帧数。
+     */
+    get count(): number {
+        return this._count;
     }
 
     /**
@@ -173,7 +229,7 @@ export class FrameAnimation extends Component {
                 this._drawCmds.push(cmd);
             }
 
-            this._count = this._frames.length;
+            this.updateActiveRange(false);
             this._elapsed = 0;
             if (this._wrapMode === AnimationWrapMode.Reverse)
                 this._frame = this._count - 1;
@@ -182,26 +238,20 @@ export class FrameAnimation extends Component {
                 this._frame = (this._index > 0 && this._index < this._count) ? this._index : 0;
             }
 
-            if (this._stretchMode === AnimationStretchMode.ResizeToFit) {
-                let w = this.width, h = this.height;
-                if (w > 0 && h > 0 || LayaEnv.isPlaying) {
-                    this._changingSize = true;
-                    this.owner.size(w, h);
-                    this._changingSize = false;
-                }
-            }
+            this.updateSizeToFit();
 
             this.drawFrame();
             this.owner.graphics.preRegisterFrameAnimationCmds(this._drawCmds);
         }
         else {
+            this._activeStart = 0;
             this._count = 0;
         }
     }
 
     /**
-     * @en The delay time of each frame, in milliseconds.
-     * @zh 每帧的延迟时间，单位为毫秒。
+     * @en Extra transition delays, in milliseconds, indexed in the full frame list. Forward playback uses the current absolute index; reverse playback uses the preceding index. frameDelaysLoop optionally repeats this array.
+     * @zh 按完整帧列表索引配置的额外切换延迟，单位为毫秒。正序使用当前绝对索引，倒序使用前一绝对索引。可通过 frameDelaysLoop 循环复用此数组。
      */
     get frameDelays(): Array<number> {
         return this._delays;
@@ -328,11 +378,50 @@ export class FrameAnimation extends Component {
     }
 
     get width() {
-        return this._count > 0 ? this._frames[0].sourceWidth : 0;
+        return this._count > 0 ? this._frames[this._activeStart].sourceWidth : 0;
     }
 
     get height() {
-        return this._count > 0 ? this._frames[0].sourceHeight : 0;
+        return this._count > 0 ? this._frames[this._activeStart].sourceHeight : 0;
+    }
+
+    private updateActiveRange(reset: boolean): void {
+        let totalCount = this._frames.length;
+        if (totalCount === 0) {
+            this._activeStart = 0;
+            this._count = 0;
+        }
+        else {
+            let start = Math.min(this._rangeStart, totalCount - 1);
+            let end = this._rangeEnd === -1 ? totalCount - 1 : Math.min(Math.max(this._rangeEnd, start), totalCount - 1);
+            this._activeStart = start;
+            this._count = end - start + 1;
+        }
+        if (reset) {
+            this._reversed = this._wrapMode === AnimationWrapMode.Reverse;
+            this._index = this._frame = this._reversed && this._count > 0 ? this._count - 1 : 0;
+            this._elapsed = 0;
+            if (this.owner) {
+                this.updateSizeToFit();
+                this.drawFrame();
+            }
+        }
+        else if (this._count > 0) {
+            this._frame = Math.max(0, Math.min(this._frame, this._count - 1));
+            this._index = Math.max(0, Math.min(this._index, this._count - 1));
+        }
+    }
+
+    private updateSizeToFit(): void {
+        if (this._stretchMode !== AnimationStretchMode.ResizeToFit)
+            return;
+
+        let w = this.width, h = this.height;
+        if (w > 0 && h > 0 || LayaEnv.isPlaying) {
+            this._changingSize = true;
+            this.owner.size(w, h);
+            this._changingSize = false;
+        }
     }
 
     private applyStretchMode() {
@@ -416,16 +505,17 @@ export class FrameAnimation extends Component {
             dt *= this.timeScale;
 
         let frame = this._frame;
+        let delayIndex = this._activeStart + frame;
         this._elapsed += dt;
         let tt: number = this.interval;
         if (this._reversed) {
             if (frame > 0)
-                tt += this._delays[frame - 1] || 0;
+                tt += this.getFrameDelay(delayIndex - 1);
             else
                 tt += this.repeatDelay;
         }
         else {
-            tt += this._delays[frame] || 0;
+            tt += this.getFrameDelay(delayIndex);
             if (frame === this._count - 1)
                 tt += this.repeatDelay;
         }
@@ -438,6 +528,18 @@ export class FrameAnimation extends Component {
             this._elapsed = this.interval;
 
         let emit = false;
+
+        if (this._count === 1) {
+            if (!this._loop)
+                this._playing = false;
+            else {
+                this.drawFrame();
+                if (this._labels?.[0])
+                    this.owner.event(Event.LABEL, this._labels[0]);
+            }
+            this.owner.event(Event.COMPLETE);
+            return;
+        }
 
         if (this._reversed) {
             frame--;
@@ -490,8 +592,16 @@ export class FrameAnimation extends Component {
             this.owner.event(Event.COMPLETE);
     }
 
+    private getFrameDelay(index: number): number {
+        if (this._delays.length === 0)
+            return 0;
+        if (this.frameDelaysLoop)
+            index %= this._delays.length;
+        return this._delays[index] || 0;
+    }
+
     protected drawFrame(): void {
-        let cmd = this._drawCmds[this._frame];
+        let cmd = this._drawCmds[this._activeStart + this._frame];
         if (cmd)
             cmd.color = this._color.getABGR();
         let graphics = this.owner.graphics;
@@ -604,6 +714,7 @@ export class FrameAnimation extends Component {
             if (ani) {
                 this.interval = ani.interval;
                 this.repeatDelay = ani.repeatDelay ?? 0;
+                this.frameDelaysLoop = ani.frameDelaysLoop ?? false;
                 this.wrapMode = ani.wrapMode ?? 0;
                 this._delays.length = 0;
                 if (ani.frameDelays)
