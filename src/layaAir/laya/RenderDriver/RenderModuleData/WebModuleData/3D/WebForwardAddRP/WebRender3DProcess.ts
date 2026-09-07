@@ -152,6 +152,11 @@ export class WebRender3DProcess implements IRender3DProcess {
             context.preDrawUniformMaps.delete("Shadow");
         }
 
+        renderPass.blitOpaqueBuffer.clear();
+        if (camera.opaquePass && camera._opaqueTexture) {
+            renderPass.blitOpaqueBuffer.blitScreenQuad(renderRT, camera._opaqueTexture);
+        }
+
 
         if (Stat.enablePostprocess && camera.postProcess && camera.postProcess.enable && camera.postProcess.effects.length > 0) {
             this._renderPass.enablePostProcess = camera.postProcess.enable;

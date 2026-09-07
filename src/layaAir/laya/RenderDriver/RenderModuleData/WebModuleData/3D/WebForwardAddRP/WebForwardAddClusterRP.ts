@@ -269,7 +269,7 @@ export class WebForwardAddClusterRP implements IMain3DRP {
             if (skyRenderElement.subShader)
                 context.drawRenderElementOne(skyRenderElement);
         }
-        if (this.enableOpaque)
+        if (this.camera.opaquePass)
             this._opaqueTexturePass(context);
 
         RenderPassUtil.renderCmd(this._beforeTransparentCmds, context);
