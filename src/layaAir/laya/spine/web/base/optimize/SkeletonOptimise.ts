@@ -633,9 +633,9 @@ export class SkinAttach {
                 this.mainVB = new VBBoneCreator(flag, vertexCount , true, boneRegistry);
                 break;
             case ESpineRenderType.rigidBody:
-                flag = "UV,COLOR,POSITION";
+                flag = "UV,COLOR,POSITION,RIGIDBODY";
                 if (twoColorTint) flag += ",COLOR2";
-                this.mainVB = new VBRigBodyCreator(flag, vertexCount , true , boneRegistry);
+                this.mainVB = new VBRigBodyCreator(flag, vertexCount, true, boneRegistry);
                 break;
         }
 

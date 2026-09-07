@@ -95,6 +95,9 @@ export abstract class BaseOptimizeRender implements ISpineRender {
      */
     protected _mode: ESpineRenderMode = ESpineRenderMode.None;
 
+    /** @internal Vertex animations already warned about when selected in Bake mode. */
+    private _bakeVertexAnimationWarnings: Set<string> = new Set();
+
     public get mode(): ESpineRenderMode {
         return this._mode;
     }
@@ -233,13 +236,15 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         let cacheFrameIndex = Math.floor(this.currentTime / SpineConst.SPINE_STEP);
         this.updater.cacheFrameIndex = cacheFrameIndex
         
-        if (
+        let bakeNeedsSlotState = this.renderProxy.type === ESpineRenderMode.Bake
+            && this._currentAnimator.hasVertexAnimation;
+        if (bakeNeedsSlotState || (
             (
                 !this._enableCache
                 || !this.updater.currentData.renderCache[cacheFrameIndex]
             )
             && this.renderProxy.type !== ESpineRenderMode.Bake
-        ) {
+        )) {
             this._state.apply(this._skeleton);
         } else {
             let entry = this.trackEntry;
@@ -328,7 +333,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
     render(time: number, physicsUpdate: number): void {
         if (!Stat.enableSpine || !this.renderProxy || this._destroyed) return
 
-        this._skeleton.update && this._skeleton.update(time);
+        this._skeleton.update(time);
 
         if ((!this._enableCache
             || !this.updater.currentData.renderCache[this.updater.cacheFrameIndex])
@@ -521,6 +526,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         this.renderProxy = null;
         this._skeleton = null;
         this._optimize = null;
+        this._bakeVertexAnimationWarnings.clear();
         if (this._state) {
             this._state.clearListeners();
         }
@@ -598,6 +604,14 @@ export abstract class BaseOptimizeRender implements ISpineRender {
 
         if (oldProxy) {
             oldProxy.leave();
+        }
+
+        if (this.renderProxy?.type === ESpineRenderMode.Bake
+            && currentAnimator.hasVertexAnimation
+            && !this._bakeVertexAnimationWarnings.has(animationName)
+        ) {
+            this._bakeVertexAnimationWarnings.add(animationName);
+            console.warn(`Spine Bake mode: animation "${animationName}" contains vertex animation. Vertex data will be updated on the CPU while bone matrices continue to use baked data.`);
         }
 
         if (this.renderProxy && currentAnimator) {

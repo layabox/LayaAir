@@ -90,7 +90,7 @@ export class SpineConst {
      * @en The number of vertices for a rigid body in the optimized Spine rendering.
      * @zh 优化后的 Spine 渲染中，一个刚体的顶点数。
      */
-    static VERTEX_RIGIDBODY: number = 9;
+    static VERTEX_RIGIDBODY: number = 10;
 
     /**
      * @en The step of the spine animation.

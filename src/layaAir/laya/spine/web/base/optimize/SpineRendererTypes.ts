@@ -5,6 +5,7 @@ import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/S
 import { Texture2D } from "../../../../resource/Texture2D";
 import { SpineShaderInit } from "../../../shader/SpineShaderInit";
 import { ESpineRenderMode, SpineConst } from "../../../SpineConst";
+import { ESpineRenderType } from "../../../SpineSkeleton";
 import { ERenderProxyType, IRender, ISpineNormalUpdater } from "../../IWebSpine";
 import { BaseOptimizeRender } from "./BaseOptimizeRender";
 import { SpineRenderUpdater } from "./SpineRenderUpdater";
@@ -360,6 +361,7 @@ export class BakedSpineRenderer extends SpineBaseRenderer {
     leave() {
         this._shaderData.removeDefine(SpineShaderInit.SPINE_SIMPLE);
         this._shaderData.removeDefine(SpineShaderInit.SPINE_GPU_INSTANCE);
+        this._shaderData.removeDefine(SpineShaderInit.SPINE_RB);
     }
 
     /**
@@ -368,6 +370,11 @@ export class BakedSpineRenderer extends SpineBaseRenderer {
      */
     change() {
         this._shaderData.addDefine(SpineShaderInit.SPINE_SIMPLE);
+        if (this.updater.skinAttach.type === ESpineRenderType.rigidBody) {
+            this._shaderData.addDefine(SpineShaderInit.SPINE_RB);
+        } else {
+            this._shaderData.removeDefine(SpineShaderInit.SPINE_RB);
+        }
         this._simpleAnimatorOffset.x = this.aniOffsetMap[this.updater.animationName];
         this.updater.needUpdate = true;
         // if (this.updater.currentSKin && this.updater.currentSKin.canInstance) {
