@@ -12,6 +12,36 @@ import { IClone } from "../../../utils/IClone";
  * simple setter/getter calls on the native object.
  */
 export class LayaXBounds implements IClone {
+    private static readonly _batchTargets: any[] = [];
+    private static _batchBusy = false;
+
+    /** @internal Backend implementation of the common Bounds batch contract. */
+    static setMinMaxBatch(targets: readonly Bounds[], values: Float64Array, count: number): boolean {
+        if (this._batchBusy || count === 0) return false;
+        const first = targets[0]._imp;
+        if (!(first instanceof LayaXBounds) || typeof first._nativeObj?.setMinMaxBatch !== "function") return false;
+        this._batchBusy = true;
+        try {
+            for (let i = 0; i < count; i++) {
+                const target = targets[i];
+                if (!(target._imp instanceof LayaXBounds)
+                    || target.setMin !== Bounds.prototype.setMin || target.setMax !== Bounds.prototype.setMax) return false;
+                this._batchTargets.push(target._imp._nativeObj);
+            }
+            if (!first._nativeObj.setMinMaxBatch(this._batchTargets, values.buffer, values.byteOffset, count))
+                throw new Error("LayaX Bounds batch rejected");
+            // Preserve the existing setters' observable cached Vector3 values.
+            for (let i = 0; i < count; i++) {
+                const target = targets[i]._imp as LayaXBounds, offset = i * 6;
+                target._boundBox.min.setValue(values[offset], values[offset + 1], values[offset + 2]);
+                target._boundBox.max.setValue(values[offset + 3], values[offset + 4], values[offset + 5]);
+            }
+            return true;
+        } finally {
+            this._batchTargets.length = 0;
+            this._batchBusy = false;
+        }
+    }
 
     /** @internal */
     _nativeObj: any;

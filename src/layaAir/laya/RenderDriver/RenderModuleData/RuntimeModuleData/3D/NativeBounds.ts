@@ -9,6 +9,30 @@ import { NativeMemory } from "../NativeMemory";
 
 
 export class NativeBounds implements IClone {
+    private static readonly _batchTargets: any[] = [];
+    private static _batchBusy = false;
+
+    /** @internal Driver-owned bridge; plugins use Bounds.setMinMaxBatch. */
+    static setMinMaxBatch(targets: readonly Bounds[], values: Float64Array, count: number): boolean {
+        if (this._batchBusy || count === 0) return false;
+        const first = targets[0]._imp;
+        if (!(first instanceof NativeBounds) || typeof first._nativeObj?.setMinMaxBatch !== "function") return false;
+        this._batchBusy = true;
+        try {
+            for (let i = 0; i < count; i++) {
+                const target = targets[i];
+                if (!(target._imp instanceof NativeBounds)
+                    || target.setMin !== Bounds.prototype.setMin || target.setMax !== Bounds.prototype.setMax) return false;
+                this._batchTargets.push(target._imp._nativeObj);
+            }
+            if (!first._nativeObj.setMinMaxBatch(this._batchTargets, values.buffer, values.byteOffset, count))
+                throw new Error("Native Bounds batch rejected");
+            return true;
+        } finally {
+            this._batchTargets.length = 0;
+            this._batchBusy = false;
+        }
+    }
 
     /**@internal */
     static BOUNDS_MIN_DATAOFFSET: number = 0;
