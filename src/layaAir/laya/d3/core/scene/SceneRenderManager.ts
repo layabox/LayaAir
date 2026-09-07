@@ -6,6 +6,8 @@ import { Profiler } from "../../../utils/Profiler";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
+import { Stat } from "../../../utils/Stat";
+import { RTParticleRuntime, RTParticleSceneRuntime } from "../../../particle/d3/native/RTParticleRuntime";
 
 /**
  * @en The class is used to implement scene rendering node management.
@@ -17,6 +19,10 @@ export class SceneRenderManager {
     _sceneManagerOBJ: ISceneRenderManager;
     /** @internal */
     _list: SingletonList<BaseRender> = new SingletonList();
+    /** Per-Scene Native particle runtime; null keeps the original Web/TS hot path unchanged. */
+    private _nativeParticleRuntime: RTParticleSceneRuntime | null;
+    /** NativeWorld performs one lifecycle bootstrap; steady frames never collect emitters in TS. */
+    private _nativeParticleWorldBootstrapped: boolean = false;
     /**
      * @ignore
      * @en Creates an instance of SceneRenderManager.
@@ -24,6 +30,8 @@ export class SceneRenderManager {
      */
     constructor() {
         this._sceneManagerOBJ = Laya3DRender.Render3DPassFactory.createSceneRenderManager();
+        this._nativeParticleRuntime = RTParticleRuntime.createSceneRuntime(
+            (this._sceneManagerOBJ as any)._nativeObj);
         if (Laya3DRender.Render3DPassFactory.createMeshRenderBatchModule) {
             this._sceneManagerOBJ.registerBatchModuleAgent(BaseRenderType.MeshRender, Laya3DRender.Render3DPassFactory.createMeshRenderBatchModule());
         }
@@ -56,6 +64,9 @@ export class SceneRenderManager {
     addRenderObject(object: BaseRender): void {
         this._list.add(object);
         this._sceneManagerOBJ.addRenderObject(object);
+        if (this._nativeParticleRuntime?.usesNativeWorld &&
+            object._baseRenderNode.renderNodeType === BaseRenderType.ParticleRender)
+            this._nativeParticleWorldBootstrapped = false;
     }
 
     /**
@@ -65,6 +76,7 @@ export class SceneRenderManager {
      * @param object 要移除的渲染对象。
      */
     removeRenderObject(object: BaseRender): void {
+        this._nativeParticleRuntime?.remove(object);
         this._list.remove(object);
         this._sceneManagerOBJ.removeRenderObject(object);
     }
@@ -94,6 +106,39 @@ export class SceneRenderManager {
     renderUpdate(): void {
         var context: RenderContext3D = RenderContext3D._instance;
         let elemnts = this._list.elements;
+        const particleRuntime = this._nativeParticleRuntime;
+        if (particleRuntime) {
+            particleRuntime.updateFrameClock(Stat.loopCount, context.scene?.timer.delta ?? 0);
+            if (particleRuntime.usesNativeWorld) {
+                if (!this._nativeParticleWorldBootstrapped) {
+                    particleRuntime.beginFrame(Stat.loopCount);
+                    for (let i = 0, n = this._list.length; i < n; i++)
+                        particleRuntime.collect(elemnts[i], true);
+                    particleRuntime.flush();
+                    particleRuntime.finishBootstrap();
+                    this._nativeParticleWorldBootstrapped = true;
+                }
+                for (let i = 0, n = this._list.length; i < n; i++)
+                    elemnts[i].renderUpdate(context);
+                return;
+            }
+            particleRuntime.beginFrame(Stat.loopCount);
+            if (particleRuntime.usesSingleOwner) {
+                for (let i = 0, n = this._list.length; i < n; i++)
+                    particleRuntime.collect(elemnts[i], true);
+                particleRuntime.flush();
+                for (let i = 0, n = this._list.length; i < n; i++)
+                    elemnts[i].renderUpdate(context);
+                return;
+            }
+            for (let i = 0, n = this._list.length; i < n; i++) {
+                const render = elemnts[i];
+                render.renderUpdate(context);
+                particleRuntime.collect(render);
+            }
+            particleRuntime.flush();
+            return;
+        }
         for (let i = 0, n = this._list.length; i < n; i++) {
             elemnts[i].renderUpdate(context);
         }
@@ -114,6 +159,8 @@ export class SceneRenderManager {
      * @zh 销毁并清理管理器资源。
      */
     destroy(): void {
+        this._nativeParticleRuntime?.destroy();
+        this._nativeParticleRuntime = null;
         this._list.clear();
         this._sceneManagerOBJ.destroy();
     }

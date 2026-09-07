@@ -50,6 +50,7 @@ import { VelocityOverLifetime } from "./module/VelocityOverLifetime";
 import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderDeclaration";
 import { ShurikenParticleData } from "./ShurikenParticleData";
 import { ShurikenParticleRenderer } from "./ShurikenParticleRenderer";
+import { RTParticleCommand, RTParticleCommandType } from "./native/RTParticleBatchBuffer";
 import { VertexShuriKenParticle } from "./VertexShuriKenParticle";
 import { VertexShurikenParticleBillboard } from "./VertexShurikenParticleBillboard";
 import { VertexShurikenParticleMesh } from "./VertexShurikenParticleMesh";
@@ -157,6 +158,54 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     _rand: Rand = null;
     /**@internal */
     _randomSeeds: Uint32Array = null;
+    /** @internal Native shadow/owner Burst RNG. Web keeps using Math.random. */
+    _nativeBurstRandomEnabled: boolean = false;
+    /** @internal Current seed for the Native-compatible Burst RNG stream. */
+    _nativeBurstRandomSeed: number = 0;
+    /** @internal Native-only deterministic streams for spawn parity and ownership. */
+    _nativeSpawnRandomEnabled: boolean = false;
+    /** @internal Base seed used to initialise the Native spawn streams. */
+    _nativeSpawnRandomSeed: number = 0;
+    /** @internal Elapsed time consumed by the latest particle update. */
+    _nativeParticleFrameElapsedTime: number = 0;
+    /** @internal Emitter position captured before the latest particle update. */
+    _nativeParticleFrameLastPosition: Float32Array = new Float32Array(3);
+    /** @internal True while Native owns uploads for the instance particle buffer. */
+    _nativeParticleUploadOwned: boolean = false;
+    /** @internal True while Native is the only particle simulation owner. */
+    _nativeParticleSimulationOwned: boolean = false;
+    /** @internal Single compact active-count mirror produced by the Native owner. */
+    _nativeParticleActiveCount: number = 0;
+    /** @internal Owner result has already committed the Renderer draw parameters. */
+    _nativeParticleDrawParamsOwned: boolean = false;
+    /** @internal Native render phase writes time/buffer/draw state directly. */
+    _nativeParticleRenderPhaseOwned: boolean = false;
+    /** @internal Rare public controls waiting for the per-Scene Native command batch. */
+    _nativeParticleCommands: RTParticleCommand[] = [];
+    /** @internal P3 event-driven command sink; avoids a steady emitter scan. */
+    _nativeParticleCommandSink: ((command: RTParticleCommand) => void) = null;
+    /** @internal On-demand reader over the Native state mirror (no per-frame result batch). */
+    _nativeParticleStateReader: (() => void) = null;
+
+    /** @internal Native render-phase state mirror; active count is word 3. */
+    _nativeParticleStateWords: Uint32Array = null;
+    /** @internal True after P3 releases the redundant TS instance-record ring. */
+    _nativeParticleFallbackRingReleased: boolean = false;
+
+    /** @internal Keeps Web/P2 queue semantics and lets P3 submit only real commands. */
+    _nativeQueueParticleCommand(command: RTParticleCommand): void {
+        if (this._nativeParticleCommandSink)
+            this._nativeParticleCommandSink(command);
+        else
+            this._nativeParticleCommands.push(command);
+    }
+
+    /** @internal Updates TS-visible control flags when a public getter reads the mirror. */
+    _nativeRefreshParticleControlFlags(runtimeFlags: number): void {
+        this._isEmitting = (runtimeFlags & (1 << 3)) !== 0;
+        this._isPaused = (runtimeFlags & (1 << 4)) !== 0;
+        this._isPlaying = (runtimeFlags & (1 << 6)) !== 0;
+    }
 
     /**
      * @en Total duration of particle system runtime, in seconds.
@@ -483,6 +532,10 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @zh 粒子存活个数。
      */
     get aliveParticleCount(): number {
+        if (this._nativeParticleSimulationOwned) {
+            this._nativeParticleStateReader?.();
+            return this._nativeParticleActiveCount;
+        }
         if (this._firstNewElement >= this._firstRetiredElement)
             return this._firstNewElement - this._firstRetiredElement;
         else
@@ -521,10 +574,20 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @zh 粒子系统是否仍然存活。
      */
     get isAlive(): boolean {
+        if (this._nativeParticleSimulationOwned) {
+            this._nativeParticleStateReader?.();
+            return this._isPlaying || this._nativeParticleActiveCount > 0;
+        }
         if (this._isPlaying || this.aliveParticleCount > 0)//TODO:暂时忽略retired
             return true;
 
         return false;
+    }
+
+    /** @internal Hot render eligibility check without synchronizing public state. */
+    _nativeHasRenderableParticles(): boolean {
+        const words = this._nativeParticleStateWords;
+        return words ? words[3] > 0 : this._nativeParticleActiveCount > 0;
     }
 
     /**
@@ -532,6 +595,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @zh 粒子系统是否正在发射粒子。
      */
     get isEmitting(): boolean {
+        if (this._nativeParticleSimulationOwned)
+            this._nativeParticleStateReader?.();
         return this._isEmitting;
     }
 
@@ -540,6 +605,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @zh 粒子系统是否正在播放。
      */
     get isPlaying(): boolean {
+        if (this._nativeParticleSimulationOwned)
+            this._nativeParticleStateReader?.();
         return this._isPlaying;
     }
 
@@ -548,6 +615,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @zh 粒子系统是否已暂停。
      */
     get isPaused(): boolean {
+        if (this._nativeParticleSimulationOwned)
+            this._nativeParticleStateReader?.();
         return this._isPaused;
     }
 
@@ -1629,7 +1698,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
             this._customBounds = null;
             this._ownerRender && (this._ownerRender.geometryBounds = null);
         }
-        this._ownerRender && this._ownerRender._syncBoundsToNative();
+        this._ownerRender && this._ownerRender._onParticleConfigChanged();
     }
 
     /**
@@ -1662,10 +1731,93 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         }
     }
 
+    /** @internal Prepares the exact frame delta without advancing particle state. */
+    _nativePrepareParticleOwnerFrame(): void {
+        // Distance emission only consumes the previous emitter position in
+        // world simulation space. Avoid six object/typed-array accesses per
+        // local-space emitter on the steady owner path.
+        if (this._simulationSpace === 0) {
+            this._nativeParticleFrameLastPosition[0] = this._emissionLastPosition.x;
+            this._nativeParticleFrameLastPosition[1] = this._emissionLastPosition.y;
+            this._nativeParticleFrameLastPosition[2] = this._emissionLastPosition.z;
+        }
+        let elapsedTime = 0;
+        if (this.isAlive) {
+            if (this._simulateUpdate) {
+                this._simulateUpdate = false;
+            } else {
+                const scene = <Scene3D>this._owner._scene;
+                if (this._startUpdateLoopCount !== Stat.loopCount && !this._isPaused && scene)
+                    elapsedTime = scene.timer.delta / 1000.0;
+                elapsedTime = Math.min(ShurikenParticleSystem._maxElapsedTime,
+                    elapsedTime * this.simulationSpeed);
+            }
+        }
+        this._nativeParticleFrameElapsedTime = elapsedTime;
+    }
+
+    /** @internal Applies the compact scalar state produced by the Native owner. */
+    _nativeApplyParticleOwnerState(runtimeFlags: number, activeCount: number,
+        currentTime: number, emissionTime: number, burstsIndex: number): void {
+        this._currentTime = currentTime;
+        this._emissionTime = emissionTime;
+        this._burstsIndex = burstsIndex;
+        this._isEmitting = (runtimeFlags & (1 << 3)) !== 0;
+        this._isPaused = (runtimeFlags & (1 << 4)) !== 0;
+        this._isPlaying = (runtimeFlags & (1 << 6)) !== 0;
+
+        if (!this._nativeParticleDrawParamsOwned || this._nativeParticleActiveCount !== activeCount) {
+            this._nativeParticleActiveCount = activeCount;
+            this._nativeCommitParticleOwnerDrawParams(activeCount);
+        }
+        if ((runtimeFlags & (1 << 2)) !== 0 && this._isEmitting && !this._isPaused)
+            this._owner.transform.position.cloneTo(this._emissionLastPosition);
+    }
+
+    /** @internal Switches the compact owner mirror without changing the Web ring path. */
+    _nativeSetParticleSimulationOwned(value: boolean): void {
+        if (this._nativeParticleSimulationOwned === value)
+            return;
+        if (value) {
+            this._nativeParticleActiveCount = this.aliveParticleCount;
+        } else {
+            // Native packs active records from slot zero. Reconstruct a valid
+            // compact ring only when ownership is released.
+            this._firstActiveElement = 0;
+            this._firstRetiredElement = 0;
+            this._firstNewElement = this._nativeParticleActiveCount;
+            this._firstFreeElement = this._nativeParticleActiveCount;
+            this._nativeParticleDrawParamsOwned = false;
+        }
+        this._nativeParticleSimulationOwned = value;
+    }
+
+    /** @internal Instance particles override this to release their redundant TS records. */
+    _nativeReleaseParticleFallbackRing(): number {
+        return 0;
+    }
+
+    /** @internal Instance particles override this to recreate a compact TS fallback ring. */
+    _nativeRestoreParticleFallbackRing(): ArrayBuffer | null {
+        return null;
+    }
+
+    /** @internal Commits active-count and Renderer draw state in one owner-result pass. */
+    protected _nativeCommitParticleOwnerDrawParams(activeCount: number): void {
+        this.clearRenderParams();
+        if (activeCount > 0)
+            this.setDrawElemenParams(activeCount * this._indexStride, 0);
+        this._nativeParticleDrawParamsOwned = true;
+    }
+
     /**
      * 传入粒子间隔时间，更新粒子状态
      */
     protected _updateParticles(elapsedTime: number): void {
+        this._nativeParticleFrameElapsedTime = elapsedTime;
+        this._nativeParticleFrameLastPosition[0] = this._emissionLastPosition.x;
+        this._nativeParticleFrameLastPosition[1] = this._emissionLastPosition.y;
+        this._nativeParticleFrameLastPosition[2] = this._emissionLastPosition.z;
         if (this._ownerRender.renderMode === 4 && !this._ownerRender.mesh)//renderMode=4且mesh为空时不更新
             return;
 
@@ -1702,6 +1854,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         this._firstNewElement = 0;
         this._firstFreeElement = 0;
         this._firstRetiredElement = 0;
+        this._nativeParticleActiveCount = 0;
+        this._nativeParticleDrawParamsOwned = false;
 
         this._burstsIndex = 0;
         this._frameRateTime = time;//TOD0:零还是time待 验证
@@ -1774,7 +1928,13 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
             if (fromTime <= burstTime && burstTime < toTime) {
                 var emitCount: number;
                 if (this.autoRandomSeed) {
-                    emitCount = MathUtil.lerp(burst.minCount, burst.maxCount, Math.random());
+                    if (this._nativeBurstRandomEnabled) {
+                        this._rand.seed = this._nativeBurstRandomSeed;
+                        emitCount = MathUtil.lerp(burst.minCount, burst.maxCount, this._rand.getFloat());
+                        this._nativeBurstRandomSeed = this._rand.seed;
+                    } else {
+                        emitCount = MathUtil.lerp(burst.minCount, burst.maxCount, Math.random());
+                    }
                 } else {
                     this._rand.seed = this._randomSeeds[0];
                     emitCount = MathUtil.lerp(burst.minCount, burst.maxCount, this._rand.getFloat());
@@ -2051,10 +2211,22 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @zh 发射一个粒子。
      */
     emit(time: number, elapsedTime: number): boolean {
+        if (this._nativeParticleSimulationOwned) {
+            const nextFreeParticle = this._nativeReserveParticleSlot();
+            if (nextFreeParticle < 0)
+                return false;
+            this._nativeQueueParticleCommand({
+                type: RTParticleCommandType.Emit,
+                values: [time, elapsedTime]
+            });
+            this._nativeParticleActiveCount++;
+            this._nativeCommitParticleOwnerDrawParams(this._nativeParticleActiveCount);
+            return true;
+        }
         var position: Vector3 = _tempPosition;
         var direction: Vector3 = _tempDirection;
         if (this._shape && this._shape.enable) {
-            if (this.autoRandomSeed)
+            if (this.autoRandomSeed && !this._nativeSpawnRandomEnabled)
                 this._shape.generatePositionAndDirection(position, direction);
             else
                 this._shape.generatePositionAndDirection(position, direction, this._rand, this._randomSeeds);
@@ -2080,7 +2252,10 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @returns 粒子是否成功添加。
      */
     addParticle(position: Vector3, direction: Vector3, time: number, elapsedTime: number): boolean {//TODO:还需优化
+        if (this._nativeParticleSimulationOwned)
+            return this._nativeQueueAddParticle(position, direction, time, elapsedTime);
         Vector3.normalize(direction, direction);
+        const autoRandomSeed = this.autoRandomSeed && !this._nativeSpawnRandomEnabled;
         //下一个粒子
         var nextFreeParticle: number = this._firstFreeElement + 1;
         if (nextFreeParticle >= this._bufferMaxParticles)
@@ -2113,7 +2288,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                 startSpeed = this.startSpeedConstant;
                 break;
             case 2:
-                if (this.autoRandomSeed) {
+                if (autoRandomSeed) {
                     startSpeed = MathUtil.lerp(this.startSpeedConstantMin, this.startSpeedConstantMax, Math.random());
                 } else {
                     this._rand.seed = this._randomSeeds[8];
@@ -2129,7 +2304,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         if (needRandomVelocity) {
             var velocityType: number = this._velocityOverLifetime.velocity.type;
             if (velocityType === 2 || velocityType === 3) {
-                if (this.autoRandomSeed) {
+                if (autoRandomSeed) {
                     randomVelocityX = Math.random();
                     randomVelocityY = Math.random();
                     randomVelocityZ = Math.random();
@@ -2150,7 +2325,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         if (needRandomColor) {
             var colorType: number = this._colorOverLifetime.color.type;
             if (colorType === 3) {
-                if (this.autoRandomSeed) {
+                if (autoRandomSeed) {
                     randomColor = Math.random();
                 } else {
                     this._rand.seed = this._randomSeeds[10];
@@ -2167,7 +2342,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         if (needRandomSize) {
             var sizeType: number = this._sizeOverLifetime.size.type;
             if (sizeType === 3) {
-                if (this.autoRandomSeed) {
+                if (autoRandomSeed) {
                     randomSize = Math.random();
                 } else {
                     this._rand.seed = this._randomSeeds[11];
@@ -2184,7 +2359,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         if (needRandomRotation) {
             var rotationType: number = this._rotationOverLifetime.angularVelocity.type;
             if (rotationType === 2 || rotationType === 3) {
-                if (this.autoRandomSeed) {
+                if (autoRandomSeed) {
                     randomRotation = Math.random();
                 } else {
                     this._rand.seed = this._randomSeeds[12];
@@ -2201,7 +2376,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         if (needRandomTextureAnimation) {
             var textureAnimationType: number = this._textureSheetAnimation.frame.type;
             if (textureAnimationType === 3) {
-                if (this.autoRandomSeed) {
+                if (autoRandomSeed) {
                     randomTextureAnimation = Math.random();
                 } else {
                     this._rand.seed = this._randomSeeds[15];
@@ -2338,6 +2513,32 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         return true;
     }
 
+    /** @internal Reserves the public ring mirror until Native consumes a manual emit command. */
+    protected _nativeQueueAddParticle(position: Vector3, direction: Vector3,
+        time: number, elapsedTime: number): boolean {
+        const nextFreeParticle = this._nativeReserveParticleSlot();
+        if (nextFreeParticle < 0)
+            return false;
+        this._nativeQueueParticleCommand({
+            type: RTParticleCommandType.AddParticle,
+            values: [position.x, position.y, position.z, direction.x, direction.y, direction.z,
+                time, elapsedTime]
+        });
+        this._nativeParticleActiveCount++;
+        this._nativeCommitParticleOwnerDrawParams(this._nativeParticleActiveCount);
+        return true;
+    }
+
+    protected _nativeReserveParticleSlot(): number {
+        if (this._nativeParticleSimulationOwned)
+            return this._nativeParticleActiveCount >= this.maxParticles ? -1 :
+                this._nativeParticleActiveCount + 1;
+        let nextFreeParticle = this._firstFreeElement + 1;
+        if (nextFreeParticle >= this._bufferMaxParticles)
+            nextFreeParticle = 0;
+        return nextFreeParticle === this._firstRetiredElement ? -1 : nextFreeParticle;
+    }
+
     /**
      * @en Add new particles to the vertex buffer.
      * @zh 将新粒子添加到顶点缓冲区。
@@ -2372,14 +2573,23 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         let t = performance.now();
         if (this._updateMask != Stat.loopCount) {
             this._updateMask = Stat.loopCount;
-            this._updateEmission();
-            //设备丢失时, setData  here
-            if (this._firstNewElement != this._firstFreeElement)
-                this.addNewParticlesToVertexBuffer();
+            if (!this._nativeParticleSimulationOwned) {
+                this._updateEmission();
+                //设备丢失时, setData  here
+                if (this._firstNewElement != this._firstFreeElement)
+                    this.addNewParticlesToVertexBuffer();
+            }
             this._drawCounter++;
         }
         LayaGL.statAgent.recordTimeData(StatElement.T_ShurikenUpdate, performance.now() - t);
 
+        if (this._nativeParticleSimulationOwned) {
+            // The native phase runs before culling and has already published
+            // this frame's active count.  A zero geometry draw count is not a
+            // zero-cost render element: letting it through still pays sorting,
+            // material and submission overhead.
+            return this._nativeHasRenderableParticles();
+        }
         if (this._firstActiveElement != this._firstFreeElement)
             return true;
         else
@@ -2390,6 +2600,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @internal
      */
     _updateRenderParams(state: RenderContext3D): void {
+        if (this._nativeParticleSimulationOwned && this._nativeParticleDrawParamsOwned)
+            return;
         //this._bufferState.bind();
         var indexCount: number;
         this.clearRenderParams();
@@ -2420,6 +2632,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      * @zh 开始发射粒子。
      */
     play(): void {
+        const nativeOwned = this._nativeParticleSimulationOwned;
         this._burstsIndex = 0;
         this._isEmitting = true;
         this._isPlaying = true;
@@ -2428,6 +2641,15 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         this._emissionDistance = 0;
         this._owner.transform.position.cloneTo(this._emissionLastPosition);
         this._totalDelayTime = 0;
+
+        if (this._nativeBurstRandomEnabled)
+            this._nativeBurstRandomSeed = Math.floor(Math.random() * 4294967296) >>> 0;
+
+        if (this._nativeSpawnRandomEnabled) {
+            this._nativeSpawnRandomSeed = Math.floor(Math.random() * 4294967296) >>> 0;
+            for (var i: number = 0, n: number = this._randomSeeds.length; i < n; i++)
+                this._randomSeeds[i] = this._nativeSpawnRandomSeed + ShurikenParticleSystem._RANDOMOFFSET[i];
+        }
 
         if (!this.autoRandomSeed) {
             for (var i: number = 0, n: number = this._randomSeeds.length; i < n; i++)
@@ -2454,7 +2676,15 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
         this._startUpdateLoopCount = Stat.loopCount;
         // 兜底重推 LayaX bounds：运行期直改发射参数字段后通常紧跟 play()
-        this._ownerRender && this._ownerRender._syncBoundsToNative();
+        this._ownerRender && this._ownerRender._onParticleConfigChanged();
+        if (nativeOwned) {
+            this._nativeQueueParticleCommand({
+                type: RTParticleCommandType.Play,
+                values: [this._playStartDelay],
+                burstSeed: this._nativeBurstRandomSeed,
+                randomSeeds: this._randomSeeds.slice()
+            });
+        }
     }
 
     /**
@@ -2463,6 +2693,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      */
     pause(): void {
         this._isPaused = true;
+        if (this._nativeParticleSimulationOwned)
+            this._nativeQueueParticleCommand({ type: RTParticleCommandType.Pause });
     }
 
     /**
@@ -2475,6 +2707,30 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
      */
     simulate(time: number, restart: boolean = true): void {
         this._simulateUpdate = true;
+
+        if (this._nativeParticleSimulationOwned) {
+            this._nativeQueueParticleCommand({
+                type: RTParticleCommandType.Simulate,
+                values: [time, restart ? 1 : 0]
+            });
+            if (restart) {
+                this._firstActiveElement = 0;
+                this._firstNewElement = 0;
+                this._firstFreeElement = 0;
+                this._firstRetiredElement = 0;
+                this._nativeParticleActiveCount = 0;
+                this._nativeCommitParticleOwnerDrawParams(0);
+                this._burstsIndex = 0;
+                this._frameRateTime = time;
+                this._emissionTime = 0;
+                this._totalDelayTime = Math.min(time, this._playStartDelay);
+                this._currentTime = time;
+            } else {
+                this._currentTime += time;
+            }
+            this._isPaused = true;
+            return;
+        }
 
         if (restart) {
             this._updateParticlesSimulationRestart(time);
@@ -2495,6 +2751,8 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         this._burstsIndex = 0;
         this._isEmitting = false;
         this._emissionTime = 0;
+        if (this._nativeParticleSimulationOwned)
+            this._nativeQueueParticleCommand({ type: RTParticleCommandType.Stop });
     }
 
     /**

@@ -88,7 +88,7 @@ export class ShurikenParticleData {
 	 * @internal
 	 */
 	static create(particleSystem: ShurikenParticleSystem, particleRender: ShurikenParticleRenderer): void {
-		var autoRandomSeed: boolean = particleSystem.autoRandomSeed;
+		var autoRandomSeed: boolean = particleSystem.autoRandomSeed && !particleSystem._nativeSpawnRandomEnabled;
 		var rand: Rand = particleSystem._rand;
 		var randomSeeds: Uint32Array = particleSystem._randomSeeds;
 
