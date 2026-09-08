@@ -23,9 +23,11 @@ export interface RenderTextureMRTOptions {
 /**
  * @en A render texture with multiple color attachments. Binding uses the complete MRT;
  * sampling this object and inherited texture properties address color attachment 0 only.
- * Callers must check device format support and provide a matching multi-output shader.
+ * Callers must check device format support. WebGL2/WebGPU 3D draws preserve legacy
+ * fragment color at attachment 0 and write zero to missing color outputs.
  * @zh 多颜色附件渲染纹理。绑定目标时使用完整 MRT；采样本对象及继承的纹理属性仅对应附件 0。
- * 调用方须确认设备格式支持并提供匹配的多输出 Shader。首版不支持池化、原地重建或可采样深度。
+ * 调用方须确认设备格式支持。WebGL2/WebGPU 3D 绘制兼容旧主颜色输出，缺失颜色输出补零；
+ * 业务辅助数据仍由 Shader 显式提供。首版不支持池化、原地重建或可采样深度。
  */
 export class RenderTextureMRT extends RenderTexture {
     private _colorFormats: readonly RenderTargetFormat[];

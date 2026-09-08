@@ -135,7 +135,7 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
             let comDef = this._getShaderInstanceDefines(context);
             comDef.add(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
 
-            let shaderIns = <WebGLShaderInstance>pass.withCompile(comDef);
+            let shaderIns = <WebGLShaderInstance>pass.withCompile(comDef, false, context._mrtColorAttachmentCount);
             this._curDrawCacheInfo.shaderInss[renderCount] = shaderIns;
             renderCount++
         }

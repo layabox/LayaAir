@@ -42,6 +42,8 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     private _cameraData: WebGLShaderData;
     /**@internal */
     private _renderTarget: InternalRenderTarget;
+    /** Internal MRT shader variant; ordinary RTs keep their existing shader path. */
+    get _mrtColorAttachmentCount(): number { return this._renderTarget?.colorFormats?.length || 0; }
     /**@internal */
     private _viewPort: Viewport;
     /**@internal */
@@ -142,7 +144,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     }
 
     private _getSceneCameraCacheKey() {
-        let key: string = `${this.sceneData ? this.sceneData._id : -1} + ${this.cameraData ? this.cameraData._id : -1}+${this._pipelineMode}`;
+        let key: string = `${this.sceneData ? this.sceneData._id : -1} + ${this.cameraData ? this.cameraData._id : -1}+${this._pipelineMode}+${this._mrtColorAttachmentCount}`;
         this._curRenderGlobalKey = this.globalComkeyToID(key);
 
         if (!this._globalRendercacheInfoMap.has(this._curRenderGlobalKey)) {

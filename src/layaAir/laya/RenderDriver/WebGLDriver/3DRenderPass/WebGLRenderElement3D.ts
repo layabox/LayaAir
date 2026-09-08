@@ -323,7 +323,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
             }
             // 每次重新获取comDef，确保每个pass都有完整的宏定义
             let comDef = this._getShaderInstanceDefines(context);
-            var shaderIns = pass.withCompile(comDef) as WebGLShaderInstance;
+            var shaderIns = pass.withCompile(comDef, false, context._mrtColorAttachmentCount) as WebGLShaderInstance;
             this._curDrawCacheInfo.shaderInss[renderCount] = shaderIns;
             renderCount++
 
