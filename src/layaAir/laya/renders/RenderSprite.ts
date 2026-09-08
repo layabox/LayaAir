@@ -636,8 +636,11 @@ export class RenderSprite {
 
         let tex = cache.renderTexture;
         let rect = cache.cacheRect;
+        let preAlign = ctx.drawTexAlign;
+        ctx.drawTexAlign = true;
         ctx._drawRenderTexture(tex,
             x + rect.x, y + rect.y, tex.width, tex.height, null, 1, [0, 1, 1, 1, 1, 0, 0, 0])
+        ctx.drawTexAlign = preAlign;
     }
 }
 
