@@ -89,6 +89,9 @@ export class WebRender3DProcess implements IRender3DProcess {
         renderPass.destTarget = renderRT._renderTarget;
         renderPass.clearFlag = clearConst;
         renderPass.clearColor = clearValue;
+        renderPass.opaqueMRTTarget = camera._opaqueMRT?.prepare(renderRT) || null;
+        renderPass.opaqueMRTClearColors = camera._opaqueMRT?.getClearColors(
+            (clearConst & RenderClearFlag.Color) ? clearValue : null) || null;
 
         let needInternalRT = camera._needInternalRenderTexture();
 
@@ -261,8 +264,14 @@ export class WebRender3DProcess implements IRender3DProcess {
     fowardRender(context: IRenderContext3D, camera: Camera): void {
         Camera.depthPass.cleanUp(camera);
         this._renderDepth(camera);
-        this._initRenderPass(camera, context);
-        this._renderForwardAddCameraPass(context, this._renderPass);
+        try {
+            this._initRenderPass(camera, context);
+            this._renderForwardAddCameraPass(context, this._renderPass);
+        } finally {
+            // The borrowed main RT may only return to the pool after all commands finish.
+            camera._opaqueMRT?.releaseTarget();
+            this._renderPass.mainRenderpass.opaqueMRTTarget = null;
+        }
     }
 
 

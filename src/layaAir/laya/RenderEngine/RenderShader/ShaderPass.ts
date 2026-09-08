@@ -111,7 +111,14 @@ export class ShaderPass extends ShaderCompileDefineBase {
      * @override
      * @internal
      */
-    withCompile(compileDefine: IDefineDatas, is2D: boolean = false, mrtTargetCount: number = 0): IShaderInstance {
+    withCompile(compileDefine: IDefineDatas, is2D: boolean = false, mrtTargetCount?: number): IShaderInstance {
+        // Runtime callers pass the actual target, after merging all ShaderData defines.
+        // An omitted target is an offline compile and preserves the requested variant.
+        if (mrtTargetCount !== undefined) {
+            const mrtDefine = Shader3D.getDefineByName(ShaderMRT.defineName);
+            if (mrtTargetCount > 0) compileDefine.add(mrtDefine);
+            else compileDefine.remove(mrtDefine);
+        }
         if (this._mrtTargetDefines) {
             for (const define of this._mrtTargetDefines.values()) compileDefine.remove(define);
         }

@@ -1,7 +1,7 @@
 /** @internal Shader-side MRT contract; attachment semantics remain the caller's responsibility. */
 export class ShaderMRT {
     static readonly defineName = "LAYA_MRT";
-    /** Internal variant key. This does not enable the user's LAYA_MRT branch. */
+    /** Internal attachment-count variant key, paired with the target-controlled LAYA_MRT define. */
     static readonly targetDefinePrefix = "LAYA_MRT_TARGET_";
 
     static getTargetCount(defines: readonly string[]): number {

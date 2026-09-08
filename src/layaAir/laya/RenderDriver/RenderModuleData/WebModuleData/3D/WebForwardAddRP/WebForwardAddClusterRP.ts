@@ -50,6 +50,8 @@ export class WebForwardAddClusterRP implements IMain3DRP {
 
     depthTarget: InternalRenderTarget;
     destTarget: InternalRenderTarget;
+    opaqueMRTTarget: InternalRenderTarget;
+    opaqueMRTClearColors: readonly (Color | null)[];
     depthNormalTarget: InternalRenderTarget;
 
     enableCMD: boolean;
@@ -255,14 +257,22 @@ export class WebForwardAddClusterRP implements IMain3DRP {
     protected _mainPass(context: IRenderContext3D) {
         context.pipelineMode = this.pipelineMode;
         RenderPassUtil.renderCmd(this._beforeForwardCmds, context);
-        this._recoverRenderContext3D(context, this.destTarget);
-        context.setClearData(this.clearFlag, this.clearColor, 1, 0);
+        this._recoverRenderContext3D(context, this.opaqueMRTTarget || this.destTarget);
+        context.setClearData(this.opaqueMRTTarget ? this.clearFlag | RenderClearFlag.Color : this.clearFlag,
+            this.clearColor, 1, 0, this.opaqueMRTClearColors);
 
         var time = performance.now();//T_Render_OpaqueRender Stat
-        this._opaqueList.renderQueueOnly(context);
+        try {
+            this._opaqueList.renderQueueOnly(context);
+        } finally {
+            // Also restore on shader/command errors before the borrowed MRT view is released.
+            if (this.opaqueMRTTarget) this._recoverRenderContext3D(context, this.destTarget);
+        }
         LayaGL.statAgent.recordTimeData(StatElement.T_3DMainPass_Opaque, performance.now() - time);//Stat
 
         RenderPassUtil.renderCmd(this._beforeSkyboxCmds, context);
+
+        if (this.opaqueMRTTarget) this._recoverRenderContext3D(context, this.destTarget);
 
         if (this.skyRenderNode) {
             const skyRenderElement = this.skyRenderNode.renderelements[0];

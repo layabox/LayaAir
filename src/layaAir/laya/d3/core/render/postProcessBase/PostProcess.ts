@@ -240,7 +240,8 @@ export class PostProcess {
         }
 
         //释放临时纹理
-        if (internalRT) RenderTexture.recoverToPool(cameraTarget);
+        // Camera MRT borrows this color/depth until rendering (not just command recording) finishes.
+        if (internalRT && !camera.opaqueMRT) RenderTexture.recoverToPool(cameraTarget);
         RenderTexture.recoverToPool(screenTexture);
         RenderTexture.recoverToPool(Indirect[0]);
         RenderTexture.recoverToPool(Indirect[1]);

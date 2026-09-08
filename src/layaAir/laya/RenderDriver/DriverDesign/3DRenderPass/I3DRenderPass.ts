@@ -33,6 +33,8 @@ export interface IMain3DRP {
     blitOpaqueBuffer: CommandBuffer;
     depthTarget: InternalRenderTarget;
     destTarget: InternalRenderTarget;
+    opaqueMRTTarget?: InternalRenderTarget;
+    opaqueMRTClearColors?: readonly (Color | null)[];
     depthNormalTarget: InternalRenderTarget;
     enableCMD: boolean;
     enableOpaque: boolean;
@@ -113,8 +115,8 @@ export interface IRenderContext3D {
     setRenderTarget(value: InternalRenderTarget, clearFlag: RenderClearFlag): void;
     setViewPort(value: Viewport): void;
     setScissor(value: Vector4): void;
-    /** colorValues, when present, overrides color in attachment order. Only used with the Color flag. */
-    setClearData(clearFlag: number, color: Color, depth: number, stencil: number, colorValues?: readonly Color[]): number;
+    /** Overrides color in attachment order with the Color flag. A null entry preserves that attachment. */
+    setClearData(clearFlag: number, color: Color, depth: number, stencil: number, colorValues?: readonly (Color | null)[]): number;
     drawRenderElementList(list: FastSinglelist<IRenderElement3D>): number;
     drawRenderElementOne(node: IRenderElement3D): number;
     runOneCMD(cmd: IRenderCMD): void

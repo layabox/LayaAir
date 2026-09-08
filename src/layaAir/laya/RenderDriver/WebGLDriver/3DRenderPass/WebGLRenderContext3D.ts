@@ -60,7 +60,10 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     private _clearFlag: number;
     /**@internal */
     private _clearColor: Color;
-    private _clearColorValues: Color[] = null;
+    private _clearColorValues: (Color | null)[] = null;
+    private _clearColorValuesCache: (Color | null)[];
+    // Retain per-slot Color objects across null entries and smaller target layouts.
+    private _clearColorValuePool: Color[];
     /**@internal */
     private _clearDepth: number;
     /**@internal */
@@ -282,11 +285,23 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         });
     }
 
-    setClearData(clearFlag: number, color: Color, depth: number, stencil: number, colorValues?: readonly Color[]): number {
+    setClearData(clearFlag: number, color: Color, depth: number, stencil: number, colorValues?: readonly (Color | null)[]): number {
         this._clearFlag = clearFlag;
         color.cloneTo(this._clearColor);
-        this._clearColorValues = (clearFlag & RenderClearFlag.Color) && colorValues
-            ? colorValues.map(value => value.clone()) : null;
+        if ((clearFlag & RenderClearFlag.Color) && colorValues) {
+            const values = this._clearColorValuesCache ||= [];
+            const colors = this._clearColorValuePool ||= [];
+            values.length = colorValues.length;
+            for (let i = 0; i < colorValues.length; i++) {
+                const value = colorValues[i];
+                if (value) {
+                    const snapshot = colors[i] ||= new Color();
+                    value.cloneTo(snapshot);
+                    values[i] = snapshot;
+                } else values[i] = null;
+            }
+            this._clearColorValues = values;
+        } else this._clearColorValues = null;
         this._clearDepth = depth;
         this._clearStencil = stencil;
         return 0;

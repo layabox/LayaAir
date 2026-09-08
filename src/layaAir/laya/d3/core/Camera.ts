@@ -32,6 +32,8 @@ import { Transform3D } from "./Transform3D";
 import { Cluster } from "../graphics/renderPath/Cluster";
 import { Viewport } from "../../maths/Viewport";
 import { PostProcess } from "./render/postProcessBase/PostProcess";
+import { CameraOpaqueMRT, CameraOpaqueMRTOptions } from "./render/CameraOpaqueMRT";
+export type { CameraOpaqueMRTOptions } from "./render/CameraOpaqueMRT";
 
 /**
  * @en Camera clear flags.
@@ -628,12 +630,48 @@ export class Camera extends BaseCamera {
      * @zh 多重采样抗锯齿。
      */
     set msaa(value: boolean) {
+        if (value && this._opaqueMRT)
+            throw new Error("Camera opaque MRT does not support MSAA.");
         LayaGL.renderEngine.getCapable(RenderCapable.MSAA) ? this._msaa = value : this._msaa = false;
     }
 
 
     get msaa(): boolean {
         return this._msaa && Stat.enablemsaa;
+    }
+
+    /** @internal */
+    _opaqueMRT: CameraOpaqueMRT = null;
+
+    /**
+     * @en Opaque-only MRT configuration; null disables it. Main color/depth stay camera-controlled.
+     * Requires MRT support and MSAA disabled. Auxiliary textures follow the viewport size.
+     * @zh 仅不透明队列的 MRT 配置；null 关闭。主颜色和深度由相机管理，辅助纹理随视口缩放。
+     * 要求后端支持 MRT 且关闭 MSAA。配置会复制保存，不支持在渲染命令执行中修改。
+     */
+    get opaqueMRT(): CameraOpaqueMRTOptions | null {
+        return this._opaqueMRT?.options || null;
+    }
+
+    set opaqueMRT(value: CameraOpaqueMRTOptions | null) {
+        if (this._opaqueMRT?.target)
+            throw new Error("Cannot change camera opaque MRT while rendering.");
+        if (value && this._msaa)
+            throw new Error("Camera opaque MRT does not support MSAA.");
+        const replacement = value ? new CameraOpaqueMRT(value) : null;
+        this._opaqueMRT?.destroy();
+        this._opaqueMRT = replacement;
+    }
+
+    /**
+     * @en Borrow an auxiliary texture (index i = shader location i + 1), or null before allocation.
+     * The camera owns it; do not destroy it. Re-query after resizing or changing configuration.
+     * Available when postprocess commands are recorded; contents are produced by the opaque pass.
+     * @zh 获取辅助纹理（索引 i 对应 Shader location i + 1），未分配时为 null。
+     * 纹理由相机持有，请勿销毁；尺寸或配置改变后需重新获取。后处理录制阶段即可获取。
+     */
+    getOpaqueAuxiliaryTexture(index: number): BaseTexture | null {
+        return this._opaqueMRT?.textures[index] || null;
     }
 
     /**
@@ -1005,6 +1043,7 @@ export class Camera extends BaseCamera {
         camera.orthographic = this.orthographic;
         camera.orthographicVerticalSize = this.orthographicVerticalSize;
         camera.opaquePass = this.opaquePass;
+        camera.opaqueMRT = this.opaqueMRT;
         camera._cameraEventCommandBuffer = this._cameraEventCommandBuffer;
         camera.opaquePass = this.opaquePass;
         //Object.assign(camera._cameraEventCommandBuffer, this._cameraEventCommandBuffer);
@@ -1061,7 +1100,7 @@ export class Camera extends BaseCamera {
      * @internal
      */
     _needInternalRenderTexture(): boolean {
-        let needInternalRT = this.enableBuiltInRenderTexture;
+        let needInternalRT = this.enableBuiltInRenderTexture || !!this._opaqueMRT;
         if (this.renderTarget) {
             if (this.msaa) {
                 needInternalRT = needInternalRT || !(this.renderTarget.samples > 1);
@@ -1353,6 +1392,8 @@ export class Camera extends BaseCamera {
      * @param scene 要渲染的场景。
      */
     render(scene: Scene3D): void {
+        if (this._opaqueMRT && this.msaa)
+            throw new Error("Camera opaque MRT does not support MSAA.");
         // set context
         let context = RenderContext3D._instance;
         context.scene = scene;
@@ -1511,6 +1552,8 @@ export class Camera extends BaseCamera {
      * @param destroyChild 是否删除子节点
      */
     destroy(destroyChild: boolean = true): void {
+        this._opaqueMRT?.destroy();
+        this._opaqueMRT = null;
         this._shaderValues.destroy();
         this._internalRenderTexture && (!this._internalRenderTexture._inPool) && RenderTexture.recoverToPool(this._internalRenderTexture);
         this._offScreenRenderTexture = null;

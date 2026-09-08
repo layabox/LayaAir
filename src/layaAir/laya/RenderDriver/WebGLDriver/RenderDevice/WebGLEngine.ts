@@ -345,7 +345,7 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
 
 
     clearRenderTexture(clearFlag: RenderClearFlag, clearcolor: Color = null, clearDepth: number = 1, clearStencilValue = 0,
-        clearColorValues?: readonly Color[]) {
+        clearColorValues?: readonly (Color | null)[]) {
         var flag: number;
         //this.gl.enable(this._gl.SCISSOR_TEST)
         if (clearFlag & RenderClearFlag.Color) {
@@ -357,6 +357,7 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
                 // MRT formats currently expose normalized/floating-point, not integer, attachments.
                 for (let i = 0; i < clearColorValues.length; i++) {
                     const color = clearColorValues[i];
+                    if (!color) continue;
                     values[0] = color.r;
                     values[1] = color.g;
                     values[2] = color.b;
