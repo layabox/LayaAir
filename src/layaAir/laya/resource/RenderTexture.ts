@@ -104,6 +104,9 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     static recoverToPool(rt: RenderTexture): void {
         if (rt._inPool || rt.destroyed)
             return;
+        // The ordinary RT pool key does not describe a complete MRT attachment set.
+        if (rt._renderTarget.colorFormats)
+            throw new Error("MRT resources cannot enter the RenderTexture pool.");
         RenderTexture._pool.push(rt);
         RenderTexture._poolMemory += (rt._renderTarget.gpuMemory / 1024 / 1024);
         rt._inPool = true;
