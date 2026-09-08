@@ -291,6 +291,13 @@ class LayaXSetRenderTargetCMD extends SetRenderTargetCMD {
         }
     }
 
+    get clearColorValues(): readonly Color[] { return null; }
+
+    set clearColorValues(value: readonly Color[]) {
+        if (value)
+            throw new Error("Per-attachment clear colors are not supported by the LayaX command bridge.");
+    }
+
     get clearDepthValue(): number {
         return this._clearDepthValue;
     }

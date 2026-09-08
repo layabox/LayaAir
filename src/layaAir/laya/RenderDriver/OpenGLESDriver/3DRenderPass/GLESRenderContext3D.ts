@@ -112,7 +112,9 @@ export class GLESRenderContext3D implements IRenderContext3D {
     setScissor(value: Vector4): void {
         this._nativeObj.setScissor(value);
     }
-    setClearData(clearFlag: number, color: Color, depth: number, stencil: number): number {
+    setClearData(clearFlag: number, color: Color, depth: number, stencil: number, colorValues?: readonly Color[]): number {
+        if ((clearFlag & RenderClearFlag.Color) && colorValues)
+            throw new Error("Per-attachment clear colors are not supported by the GLES context bridge.");
         return this._nativeObj.setClearData(clearFlag, color, depth, stencil);
     }
 

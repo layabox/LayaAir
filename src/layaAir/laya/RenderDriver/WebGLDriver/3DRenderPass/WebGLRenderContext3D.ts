@@ -58,6 +58,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     private _clearFlag: number;
     /**@internal */
     private _clearColor: Color;
+    private _clearColorValues: Color[] = null;
     /**@internal */
     private _clearDepth: number;
     /**@internal */
@@ -205,6 +206,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         this._clearFlag = clearFlag;
         if (value == this._renderTarget)
             return;
+        this._clearColorValues = null;
         this._renderTarget = value;
         this._needStart = true;
     }
@@ -278,9 +280,11 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         });
     }
 
-    setClearData(clearFlag: number, color: Color, depth: number, stencil: number): number {
+    setClearData(clearFlag: number, color: Color, depth: number, stencil: number, colorValues?: readonly Color[]): number {
         this._clearFlag = clearFlag;
         color.cloneTo(this._clearColor);
+        this._clearColorValues = (clearFlag & RenderClearFlag.Color) && colorValues
+            ? colorValues.map(value => value.clone()) : null;
         this._clearDepth = depth;
         this._clearStencil = stencil;
         return 0;
@@ -357,13 +361,16 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         WebGLEngine.instance.viewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height);
         WebGLEngine.instance.scissor(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height);
         if (this._clearFlag != RenderClearFlag.Nothing)
-            WebGLEngine.instance.clearRenderTexture(this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil);
+            WebGLEngine.instance.clearRenderTexture(this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil, this._clearColorValues);
+        this._clearFlag = RenderClearFlag.Nothing;
+        this._clearColorValues = null;
         WebGLEngine.instance.scissor(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
     }
 
     clearRenderTarget(): void {
         this._bindRenderTarget();
         this._start();
+        this._needStart = false;
     }
 
 }

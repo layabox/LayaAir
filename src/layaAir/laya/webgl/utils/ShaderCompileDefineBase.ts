@@ -6,6 +6,7 @@ import { SubShader } from "../../RenderEngine/RenderShader/SubShader";
 import { LayaGL } from "../../layagl/LayaGL";
 import { IShaderCompiledObj } from "./ShaderCompile";
 import { ShaderNode } from "./ShaderNode";
+import { ShaderMRT } from "../../RenderEngine/RenderShader/ShaderMRT";
 import { UniformProperty } from "../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 
 export interface ShaderProcessInfo {
@@ -42,6 +43,8 @@ export class ShaderCompileDefineBase {
 
         this._validDefine.add(Shader3D.getDefineByName("VBONEW"));
         this._validDefine.add(Shader3D.getDefineByName("VBONEI"));
+        // This define changes the generated fragment interface even if user source has no #ifdef.
+        this._validDefine.add(Shader3D.getDefineByName(ShaderMRT.defineName));
     }
 
     withCompile(compileDefine: IDefineDatas): IShaderInstance {

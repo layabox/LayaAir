@@ -7,6 +7,7 @@ import { RenderParams } from "../RenderEnum/RenderParams";
 import { RenderCapable } from "../RenderEnum/RenderCapable";
 import { UniformProperty } from "../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { Config } from "../../../Config";
+import { ShaderMRT } from "./ShaderMRT";
 
 /**
  * @internal
@@ -106,6 +107,9 @@ export class GLSLCodeGenerator {
 
         var clusterSlices = Config3D.lightClusterCount;
         var defMap: any = {};
+        const mrt = defineString.indexOf(ShaderMRT.defineName) !== -1;
+        if (mrt && LayaGL.renderEngine.getParams(RenderParams.SHADER_CAPAILITY_LEVEL) <= 30)
+            throw new Error("LAYA_MRT requires WebGL2 or a supported MRT shader backend.");
 
         var vertexHead: string;
         var fragmentHead: string;
@@ -158,8 +162,7 @@ ${materialUniformGlsl}
 #endif
 layout(std140, column_major) uniform;
 #define varying in
-out highp vec4 pc_fragColor;
-#define gl_FragColor pc_fragColor
+${mrt ? "" : "out highp vec4 pc_fragColor;\n#define gl_FragColor pc_fragColor"}
 #define gl_FragDepthEXT gl_FragDepth
 #define texture2D texture
 #define textureCube texture

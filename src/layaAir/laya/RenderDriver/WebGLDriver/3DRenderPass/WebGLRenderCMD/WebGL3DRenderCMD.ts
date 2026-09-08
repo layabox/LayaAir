@@ -281,6 +281,7 @@ export class WebGLSetRenderTargetCMD extends SetRenderTargetCMD {
 
     set clearColorValue(value: Color) {
         value.cloneTo(this._clearColorValue);
+        this._clearColorValues = null;
     }
 
     get clearDepthValue(): number {
@@ -307,7 +308,7 @@ export class WebGLSetRenderTargetCMD extends SetRenderTargetCMD {
 
     apply(context: WebGLRenderContext3D): void {
         context.setRenderTarget(this.rt, RenderClearFlag.Nothing);
-        context.setClearData(this.clearFlag, this.clearColorValue, this.clearDepthValue, this.clearStencilValue);
+        context.setClearData(this.clearFlag, this.clearColorValue, this.clearDepthValue, this.clearStencilValue, this.clearColorValues);
         if (this.rt) {
             // todo
             viewport.set(0, 0, this.rt._textures[0].width, this.rt._textures[0].height);
@@ -315,6 +316,8 @@ export class WebGLSetRenderTargetCMD extends SetRenderTargetCMD {
             context.setViewPort(viewport);
             context.setScissor(scissor);
         }
-
+        // A recorded clear is observable even when no draw follows this command.
+        if (this.clearFlag !== RenderClearFlag.Nothing)
+            context.clearRenderTarget();
     }
 }

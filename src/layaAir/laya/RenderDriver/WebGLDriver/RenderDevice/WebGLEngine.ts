@@ -115,6 +115,7 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
     //bind clearColor
     private _lastClearColor: Color = new Color;
     private _lastClearDepth: number = -1;
+    private _attachmentClearColor = new Float32Array(4);
 
     private _globalWidth: number;
     private _globalHeight: number;
@@ -343,15 +344,32 @@ export class WebGLEngine extends EventDispatcher implements IRenderEngine {
 
 
 
-    clearRenderTexture(clearFlag: RenderClearFlag, clearcolor: Color = null, clearDepth: number = 1, clearStencilValue = 0) {
+    clearRenderTexture(clearFlag: RenderClearFlag, clearcolor: Color = null, clearDepth: number = 1, clearStencilValue = 0,
+        clearColorValues?: readonly Color[]) {
         var flag: number;
         //this.gl.enable(this._gl.SCISSOR_TEST)
         if (clearFlag & RenderClearFlag.Color) {
-            if (clearcolor && !this._lastClearColor.equal(clearcolor)) {
-                this._context.clearColor(clearcolor.r, clearcolor.g, clearcolor.b, clearcolor.a);
-                clearcolor.cloneTo(this._lastClearColor);
+            if (clearColorValues) {
+                if (!this._isWebGL2)
+                    throw new Error("Per-attachment clear colors require WebGL2.");
+                const gl = this._context as WebGL2RenderingContext;
+                const values = this._attachmentClearColor;
+                // MRT formats currently expose normalized/floating-point, not integer, attachments.
+                for (let i = 0; i < clearColorValues.length; i++) {
+                    const color = clearColorValues[i];
+                    values[0] = color.r;
+                    values[1] = color.g;
+                    values[2] = color.b;
+                    values[3] = color.a;
+                    gl.clearBufferfv(gl.COLOR, i, values);
+                }
+            } else {
+                if (clearcolor && !this._lastClearColor.equal(clearcolor)) {
+                    this._context.clearColor(clearcolor.r, clearcolor.g, clearcolor.b, clearcolor.a);
+                    clearcolor.cloneTo(this._lastClearColor);
+                }
+                flag |= this.gl.COLOR_BUFFER_BIT;
             }
-            flag |= this.gl.COLOR_BUFFER_BIT;
         }
         if (clearFlag & RenderClearFlag.Depth) {
             if (this._lastClearDepth != clearDepth) {

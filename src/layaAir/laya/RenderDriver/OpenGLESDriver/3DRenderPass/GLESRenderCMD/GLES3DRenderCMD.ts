@@ -273,7 +273,7 @@ export class GLESSetRenderTargetCMD extends SetRenderTargetCMD {
 
     set rt(value: GLESInternalRT) {
         this._rt = value;
-        this._nativeObj.setRT(value._nativeObj);
+        this._nativeObj.setRT(value ? value._nativeObj : null);
     }
 
     get clearFlag(): number {
@@ -292,6 +292,13 @@ export class GLESSetRenderTargetCMD extends SetRenderTargetCMD {
     set clearColorValue(value: Color) {
         value.cloneTo(this._clearColorValue);
         this._nativeObj.clearColorValue(value);
+    }
+
+    get clearColorValues(): readonly Color[] { return null; }
+
+    set clearColorValues(value: readonly Color[]) {
+        if (value)
+            throw new Error("Per-attachment clear colors are not supported by the GLES command bridge.");
     }
 
     get clearDepthValue(): number {

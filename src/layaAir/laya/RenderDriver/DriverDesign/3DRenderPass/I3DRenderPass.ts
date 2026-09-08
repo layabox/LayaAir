@@ -113,7 +113,8 @@ export interface IRenderContext3D {
     setRenderTarget(value: InternalRenderTarget, clearFlag: RenderClearFlag): void;
     setViewPort(value: Viewport): void;
     setScissor(value: Vector4): void;
-    setClearData(clearFlag: number, clolor: Color, depth: number, stencil: number): number;
+    /** colorValues, when present, overrides color in attachment order. Only used with the Color flag. */
+    setClearData(clearFlag: number, color: Color, depth: number, stencil: number, colorValues?: readonly Color[]): number;
     drawRenderElementList(list: FastSinglelist<IRenderElement3D>): number;
     drawRenderElementOne(node: IRenderElement3D): number;
     runOneCMD(cmd: IRenderCMD): void

@@ -208,6 +208,8 @@ export class SetRenderTargetCMD implements IRender3DCMD {
 
     protected _clearColorValue: Color;
 
+    protected _clearColorValues: Color[] = null;
+
     get rt(): InternalRenderTarget {
         return this._rt;
     }
@@ -246,6 +248,17 @@ export class SetRenderTargetCMD implements IRender3DCMD {
 
     set clearColorValue(value: Color) {
         this._clearColorValue = value;
+        this._clearColorValues = null;
+    }
+
+    /** Optional per-attachment clear colors. Null uses clearColorValue for all attachments. */
+    get clearColorValues(): readonly Color[] {
+        return this._clearColorValues;
+    }
+
+    set clearColorValues(value: readonly Color[]) {
+        // Commands own snapshots; callers may mutate their input after recording.
+        this._clearColorValues = value ? value.map(color => color.clone()) : null;
     }
 
     apply(context: IRenderContext3D): void {

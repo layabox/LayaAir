@@ -136,7 +136,7 @@ export class NoRenderRenderContext3D implements IRenderContext3D {
     setScissor(value: Vector4): void {
 
     }
-    setClearData(clearFlag: number, clolor: Color, depth: number, stencil: number): number {
+    setClearData(clearFlag: number, color: Color, depth: number, stencil: number, colorValues?: readonly Color[]): number {
         return 0;
     }
     drawRenderElementList(list: FastSinglelist<IRenderElement3D>): number {
@@ -377,6 +377,7 @@ export class NoRenderSetRenderTargetCMD extends SetRenderTargetCMD {
 
     set clearColorValue(value: Color) {
         value.cloneTo(this._clearColorValue);
+        this._clearColorValues = null;
     }
 
     get clearDepthValue(): number {
