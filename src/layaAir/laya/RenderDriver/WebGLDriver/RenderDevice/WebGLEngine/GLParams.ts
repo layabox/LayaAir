@@ -38,6 +38,14 @@ export class GLParams{
         this._glParamsData.set(RenderParams.UNSIGNED_BYTE,gl.UNSIGNED_BYTE);
         this._glParamsData.set(RenderParams.UNSIGNED_SHORT,gl.UNSIGNED_SHORT);
         this._glParamsData.set(RenderParams.BYTE,gl.BYTE);
+        let maxColorAttachments = 1;
+        if (this._engine.isWebGL2) {
+            const gl2 = gl as WebGL2RenderingContext;
+            maxColorAttachments = Math.min(gl2.getParameter(gl2.MAX_COLOR_ATTACHMENTS), gl2.getParameter(gl2.MAX_DRAW_BUFFERS));
+        }
+        this._glParamsData.set(RenderParams.Max_Color_Attachment_Count, maxColorAttachments);
+        // WebGL does not expose WebGPU's per-sample color attachment byte budget.
+        this._glParamsData.set(RenderParams.Max_Color_Attachment_Bytes_Per_Sample, 0);
 
     }
 

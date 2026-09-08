@@ -107,9 +107,14 @@ export class GLESEngine implements IRenderEngine {
     return this._nativeObj.propertyIDToName(id);
   }
   getParams(params: RenderParams): number {
+    // Do not pass new MRT enum values to an unadapted native runtime.
+    if (params === RenderParams.Max_Color_Attachment_Count || params === RenderParams.Max_Color_Attachment_Bytes_Per_Sample)
+      return 0;
     return this._nativeObj.rt_getParams(params);
   }
   getCapable(capatableType: RenderCapable): boolean {
+    if (capatableType === RenderCapable.MRT)
+      return false;
     return this._nativeObj.rt_getCapable(capatableType);
   }
   getTextureContext(): ITextureContext {

@@ -26,4 +26,9 @@ export enum RenderCapable {
     StorageBuffer,
     ComputeShader,
     IndirectDraw,
+    /**
+     * @en Whether the backend supports multiple color attachments (MRT). This does not validate a specific format combination or shader.
+     * @zh 后端是否具备多颜色附件（MRT）能力；不代表任意格式组合或 Shader 均可用。
+     */
+    MRT,
 }

@@ -88,6 +88,8 @@ export class GlCapable {
         this._capabilityMap.set(RenderCapable.Texture3D, value);
         this._capabilityMap.set(RenderCapable.ComputeShader, false);
         this._capabilityMap.set(RenderCapable.StorageBuffer, false);
+        // The WebGL1 WEBGL_draw_buffers path is not enabled by the engine.
+        this._capabilityMap.set(RenderCapable.MRT, isWebgl2);
     }
 
     private initExtension(isWebgl2: boolean) {

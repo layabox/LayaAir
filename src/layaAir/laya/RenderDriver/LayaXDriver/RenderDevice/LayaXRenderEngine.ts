@@ -100,10 +100,15 @@ export class LayaXRenderEngine implements IRenderEngine {
     }
 
     getParams(params: RenderParams): number {
+        // Do not pass new MRT enum values to an unadapted native runtime.
+        if (params === RenderParams.Max_Color_Attachment_Count || params === RenderParams.Max_Color_Attachment_Bytes_Per_Sample)
+            return 0;
         return this._nativeObj.getParams(params);
     }
 
     getCapable(capatableType: RenderCapable): boolean {
+        if (capatableType === RenderCapable.MRT)
+            return false;
         return this._nativeObj.getCapable(capatableType);
     }
 
