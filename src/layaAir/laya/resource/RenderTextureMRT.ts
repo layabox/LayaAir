@@ -36,6 +36,14 @@ export class RenderTextureMRT extends RenderTexture {
         throw new Error("RenderTextureMRT pooling is not supported; construct a new instance.");
     }
 
+    /**
+     * @en Always true for an MRT resource, even with a single color attachment.
+     * @zh MRT 资源始终为 true，即使只有一个颜色附件。
+     */
+    get isMRT(): boolean {
+        return true;
+    }
+
     /** @en Immutable ordered color formats. @zh 不可变的有序颜色格式列表。 */
     get colorFormats(): readonly RenderTargetFormat[] {
         return this._colorFormats;
