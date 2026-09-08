@@ -55,6 +55,7 @@ export interface ITextureContext {
     /**
      * @en Creates a 2D MRT owning its color attachments and optional shared depth/stencil resource.
      * The initial contract is single-sampled, linear color, mip level 0 only. Unsupported backends must throw, not fall back to a single attachment.
+     * Color formats use ordinary render-target mappings. Callers must check device format support before creation; readback support is validated separately.
      * @param width Positive integer width shared by all attachments.
      * @param height Positive integer height shared by all attachments.
      * @param colorFormats Non-empty ordered list of all color formats, including attachment 0. Index i maps to shader output location i. The implementation must not modify this list.
@@ -62,6 +63,7 @@ export interface ITextureContext {
      * @returns A render target that owns and disposes all resources it creates.
      * @zh 创建拥有颜色附件及可选共享深度/模板资源的 2D MRT。
      * 首版约定为单采样、线性颜色、仅 mip 0；不支持的后端必须报错，不得静默退化为单附件。
+     * 颜色格式沿用普通渲染目标的映射；调用方须在创建前确认设备格式支持，读回支持单独校验。
      * @param width 所有附件共用的宽度，须为正整数。
      * @param height 所有附件共用的高度，须为正整数。
      * @param colorFormats 包含附件 0 的全部颜色格式，非空且有序；索引 i 对应 Shader 输出 location i。实现不得修改传入列表。

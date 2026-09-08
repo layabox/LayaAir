@@ -1026,12 +1026,14 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
         if (!Array.isArray(colorFormats) || colorFormats.length < 1 || colorFormats.length > maxCount)
             throw new RangeError(`MRT requires between 1 and ${maxCount} color attachments.`);
         const formats = colorFormats.slice();
-        for (const format of formats) {
-            if (format !== RenderTargetFormat.R8G8B8A8 && format !== RenderTargetFormat.R16G16B16A16)
-                throw new Error(`Unsupported WebGL2 MRT color format: ${format}.`);
-            if (format === RenderTargetFormat.R16G16B16A16 && !this._engine.getCapable(RenderCapable.RenderTextureFormat_R16G16B16A16))
-                throw new Error("WebGL2 MRT RGBA16F requires half-float color attachment support.");
-        }
+        // Use ordinary RT mappings; the caller is responsible for device format support.
+        const colorParams = Array.from(formats, format => {
+            const params = this.glRenderTextureParam(format, false);
+            if (params.format !== gl.RGB && params.format !== gl.RGBA)
+                throw new Error(`Invalid WebGL2 MRT color format: ${format}.`);
+            // glRenderTextureParam reuses a mutable result object.
+            return { ...params };
+        });
         switch (depthStencilFormat) {
             case RenderTargetFormat.None:
             case RenderTargetFormat.DEPTH_16:
@@ -1071,7 +1073,7 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
                 renderTarget._textures.push(texture);
                 if (!texture.resource)
                     throw new Error(`Unable to allocate MRT color attachment ${i}.`);
-                const params = this.glRenderTextureParam(formats[i], false);
+                const params = colorParams[i];
                 texture.internalFormat = params.internalFormat;
                 texture.format = params.format;
                 texture.type = params.type;
@@ -1326,27 +1328,28 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
             throw new Error("MRT does not belong to this WebGL context or has no framebuffer.");
         if (attachmentIndex >= renderTarget.colorFormats.length)
             throw new RangeError(`MRT color attachment index out of range: ${attachmentIndex}.`);
-        const texture = renderTarget._textures[attachmentIndex];
+        const texture = renderTarget._textures[attachmentIndex] as WebGLInternalTex;
         if (!texture || !texture.resource || renderTarget._samples !== 1)
             throw new Error("MRT readback requires a valid single-sampled color attachment.");
         if (!Number.isInteger(xOffset) || !Number.isInteger(yOffset) || !Number.isInteger(width) || !Number.isInteger(height)
             || xOffset < 0 || yOffset < 0 || width <= 0 || height <= 0 || xOffset + width > texture.width || yOffset + height > texture.height)
             throw new RangeError("MRT readback rectangle must be positive-sized and within the attachment.");
-        const format = renderTarget.colorFormats[attachmentIndex];
+        // Readback support is independent of creation. RGB attachments also return RGBA.
+        const textureType = texture.type;
         let type: number;
         let byteLength: number;
-        if (format === RenderTargetFormat.R8G8B8A8) {
+        if (textureType === gl.UNSIGNED_BYTE) {
             if (!(out instanceof Uint8Array) && !(out instanceof Uint8ClampedArray))
                 throw new TypeError("RGBA8 MRT readback requires Uint8Array or Uint8ClampedArray.");
             type = gl.UNSIGNED_BYTE;
             byteLength = width * height * 4;
-        } else if (format === RenderTargetFormat.R16G16B16A16) {
+        } else if (textureType === gl.HALF_FLOAT || textureType === gl.FLOAT) {
             if (!(out instanceof Float32Array))
-                throw new TypeError("RGBA16F MRT readback requires Float32Array.");
+                throw new TypeError("Floating-point MRT readback requires Float32Array.");
             type = gl.FLOAT;
             byteLength = width * height * 16;
         } else {
-            throw new Error(`Unsupported MRT readback format: ${format}.`);
+            throw new Error(`Unsupported MRT readback texture type: ${textureType}.`);
         }
         if (out.byteLength < byteLength)
             throw new RangeError(`MRT readback output requires at least ${byteLength} bytes.`);
