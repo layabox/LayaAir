@@ -52,6 +52,24 @@ export interface ITextureContext {
 
     createRenderTargetInternal(width: number, height: number, format: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number, storage: boolean): InternalRenderTarget;
 
+    /**
+     * @en Creates a 2D MRT owning its color attachments and optional shared depth/stencil resource.
+     * The initial contract is single-sampled, linear color, mip level 0 only. Unsupported backends must throw, not fall back to a single attachment.
+     * @param width Positive integer width shared by all attachments.
+     * @param height Positive integer height shared by all attachments.
+     * @param colorFormats Non-empty ordered list of all color formats, including attachment 0. Index i maps to shader output location i. The implementation must not modify this list.
+     * @param depthStencilFormat Shared depth/stencil format, or RenderTargetFormat.None.
+     * @returns A render target that owns and disposes all resources it creates.
+     * @zh 创建拥有颜色附件及可选共享深度/模板资源的 2D MRT。
+     * 首版约定为单采样、线性颜色、仅 mip 0；不支持的后端必须报错，不得静默退化为单附件。
+     * @param width 所有附件共用的宽度，须为正整数。
+     * @param height 所有附件共用的高度，须为正整数。
+     * @param colorFormats 包含附件 0 的全部颜色格式，非空且有序；索引 i 对应 Shader 输出 location i。实现不得修改传入列表。
+     * @param depthStencilFormat 共享深度/模板格式，无深度时传 RenderTargetFormat.None。
+     * @returns 统一拥有并释放所创建资源的渲染目标。
+     */
+    createMultiRenderTargetInternal(width: number, height: number, colorFormats: readonly RenderTargetFormat[], depthStencilFormat: RenderTargetFormat): InternalRenderTarget;
+
     createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget;
 
     createRenderTargetDepthTexture(renderTarget: InternalRenderTarget, dimension: TextureDimension, width: number, height: number): InternalTexture;
@@ -72,7 +90,13 @@ export interface ITextureContext {
      * @param out 
      */
     readRenderTargetPixelData(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView;
-    readRenderTargetPixelDataAsync(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): Promise<ArrayBufferView>; //兼容WGSL
+    /**
+     * @en Asynchronously reads a color attachment. Omitting attachmentIndex preserves the existing attachment 0 behavior.
+     * @param attachmentIndex Zero-based color attachment index, not a cube face, array layer, or depth attachment. Defaults to 0. Invalid or unsupported indices must reject the promise, not read attachment 0 instead.
+     * @zh 异步读取颜色附件；省略 attachmentIndex 时保持原有附件 0 的读回行为。
+     * @param attachmentIndex 从 0 开始的颜色附件索引，不是 Cube 面、数组层或深度附件。默认为 0；非法或尚不支持的索引必须拒绝 Promise，不得改读附件 0。
+     */
+    readRenderTargetPixelDataAsync(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView, attachmentIndex?: number): Promise<ArrayBufferView>; //兼容WGSL
 
     updateVideoTexture(texture: InternalTexture, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): void;
 

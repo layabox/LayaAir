@@ -129,6 +129,10 @@ export class LayaXTextureContext implements ITextureContext {
         this._native.unbindRenderTarget(renderTarget._nativeObj);
     }
 
+    createMultiRenderTargetInternal(width: number, height: number, colorFormats: readonly RenderTargetFormat[], depthStencilFormat: RenderTargetFormat): LayaXInternalRT {
+        throw new Error("LayaX createMultiRenderTargetInternal is not implemented.");
+    }
+
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number, storage: boolean): LayaXInternalRT {
         return new LayaXInternalRT(this._native.createRenderTargetInternal(width, height, colorFormat, depthStencilFormat ? depthStencilFormat : RenderTargetFormat.None, generateMipmap, sRGB, multiSamples));
     }
@@ -156,7 +160,9 @@ export class LayaXTextureContext implements ITextureContext {
      * 走 LayaXReadbackDispatcher 等 ReadbackCompleted 事件，不阻塞主线程。
      * bpp 由 `out.byteLength / (w*h)` 推断；wgpu 行宽 256 对齐，回来按行 strip padding 拷贝到 `out`。
      */
-    readRenderTargetPixelDataAsync(renderTarget: LayaXInternalRT, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): Promise<ArrayBufferView> {
+    readRenderTargetPixelDataAsync(renderTarget: LayaXInternalRT, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView, attachmentIndex: number = 0): Promise<ArrayBufferView> {
+        if (attachmentIndex !== 0)
+            return Promise.reject(new Error("LayaX readRenderTargetPixelDataAsync currently only supports color attachment 0."));
         return new Promise<ArrayBufferView>((resolve, reject) => {
             if (!renderTarget || !renderTarget._nativeObj || width <= 0 || height <= 0) {
                 reject(new Error("readRenderTargetPixelDataAsync: invalid args"));

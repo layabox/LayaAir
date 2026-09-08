@@ -1319,6 +1319,11 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         return internalTex;
     }
 
+    // GL2TextureContext inherits this placeholder until MRT allocation is implemented.
+    createMultiRenderTargetInternal(width: number, height: number, colorFormats: readonly RenderTargetFormat[], depthStencilFormat: RenderTargetFormat): WebGLInternalRT {
+        throw new Error("WebGL createMultiRenderTargetInternal is not implemented.");
+    }
+
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number, storage: boolean): WebGLInternalRT {
         multiSamples = 1;
         // storage = false;
@@ -1516,7 +1521,9 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         return out;
     }
 
-    readRenderTargetPixelDataAsync(renderTarget: WebGLInternalRT, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): Promise<ArrayBufferView> { //兼容WGSL
+    readRenderTargetPixelDataAsync(renderTarget: WebGLInternalRT, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView, attachmentIndex: number = 0): Promise<ArrayBufferView> { //兼容WGSL
+        if (attachmentIndex !== 0)
+            return Promise.reject(new Error("WebGL readRenderTargetPixelDataAsync currently only supports color attachment 0."));
         return Promise.resolve(this.readRenderTargetPixelData(renderTarget, xOffset, yOffset, width, height, out));
     }
 

@@ -132,6 +132,10 @@ export class GLESTextureContext implements ITextureContext {
         this._native.unbindRenderTarget(renderTarget._nativeObj);
     }
 
+    createMultiRenderTargetInternal(width: number, height: number, colorFormats: readonly RenderTargetFormat[], depthStencilFormat: RenderTargetFormat): GLESInternalRT {
+        throw new Error("OpenGLES createMultiRenderTargetInternal is not implemented.");
+    }
+
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number, storage: boolean): GLESInternalRT {
         return new GLESInternalRT(this._native.createRenderTargetInternal(width, height, colorFormat, depthStencilFormat ? depthStencilFormat : RenderTargetFormat.None, generateMipmap, sRGB, multiSamples));
     }
@@ -162,7 +166,9 @@ export class GLESTextureContext implements ITextureContext {
         return this._native.readRenderTargetPixelData(renderTarget._nativeObj, xOffset, yOffset, width, height, out);
     }
 
-    readRenderTargetPixelDataAsync(renderTarget: GLESInternalRT, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): Promise<ArrayBufferView> { //兼容WGSL
+    readRenderTargetPixelDataAsync(renderTarget: GLESInternalRT, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView, attachmentIndex: number = 0): Promise<ArrayBufferView> { //兼容WGSL
+        if (attachmentIndex !== 0)
+            return Promise.reject(new Error("OpenGLES readRenderTargetPixelDataAsync currently only supports color attachment 0."));
         return Promise.resolve(this.readRenderTargetPixelData(renderTarget, xOffset, yOffset, width, height, out));
     }
 
