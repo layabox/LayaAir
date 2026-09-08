@@ -1319,7 +1319,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         return internalTex;
     }
 
-    // GL2TextureContext inherits this placeholder until MRT allocation is implemented.
+    // WebGL1's WEBGL_draw_buffers path is not supported; WebGL2 overrides this method.
     createMultiRenderTargetInternal(width: number, height: number, colorFormats: readonly RenderTargetFormat[], depthStencilFormat: RenderTargetFormat): WebGLInternalRT {
         throw new Error("WebGL createMultiRenderTargetInternal is not implemented.");
     }

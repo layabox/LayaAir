@@ -14,6 +14,8 @@ export interface InternalRenderTarget {
     _depthTexture: InternalTexture;
 
     colorFormat: RenderTargetFormat;
+    /** Ordered MRT color formats, including attachment 0. Legacy single-target backends may omit this. */
+    readonly colorFormats?: readonly RenderTargetFormat[];
     depthStencilFormat: RenderTargetFormat;
 
     isSRGB:boolean;

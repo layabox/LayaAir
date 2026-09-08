@@ -28,7 +28,9 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
     _depthTexture: InternalTexture;
 
     colorFormat: RenderTargetFormat;
+    readonly colorFormats?: readonly RenderTargetFormat[];
     depthStencilFormat: RenderTargetFormat;
+    private _disposed: boolean = false;
 
     // 可选：若本 RT 指向某个 Texture2DArray 的单层，记录层号
     _arrayLayerIndex: number = -1;
@@ -52,10 +54,12 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
         LayaGL.statAgent.recordMemoryData(StatElement.M_AllTexture, -this._gpuMemory + value);
 
     }
-    constructor(engine: WebGLEngine, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, isCube: boolean, generateMipmap: boolean, samples: number) {
+    constructor(engine: WebGLEngine, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, isCube: boolean, generateMipmap: boolean, samples: number, colorFormats?: readonly RenderTargetFormat[]) {
         super(engine);
 
         this.colorFormat = colorFormat;
+        if (colorFormats)
+            this.colorFormats = Object.freeze(colorFormats.slice());
         this.depthStencilFormat = depthStencilFormat;
         this._isCube = isCube;
         this._generateMipmap = generateMipmap;
@@ -77,6 +81,10 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
 
 
     dispose(): void {
+        if (this._disposed)
+            return;
+        this._disposed = true;
+        this._destroyed = true;
         if (this._textures) {
             if (this._texturesOwnsResources) {
                 for (let i = this._textures.length - 1; i > -1; i--)

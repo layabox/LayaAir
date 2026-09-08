@@ -7,6 +7,7 @@ import { HDRTextureInfo } from "../../../RenderEngine/HDRTextureInfo";
 import { KTXTextureInfo } from "../../../RenderEngine/KTXTextureInfo";
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
+import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
@@ -1014,6 +1015,101 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
         return internalTex;
     }
 
+    createMultiRenderTargetInternal(width: number, height: number, colorFormats: readonly RenderTargetFormat[], depthStencilFormat: RenderTargetFormat): WebGLInternalRT {
+        const gl = this._gl;
+        if (!this._engine.getCapable(RenderCapable.MRT))
+            throw new Error("WebGL2 MRT is not supported by this engine.");
+        const maxSize = this._engine.getParams(RenderParams.MAX_Texture_Size);
+        if (!Number.isInteger(width) || !Number.isInteger(height) || width <= 0 || height <= 0 || width > maxSize || height > maxSize)
+            throw new RangeError(`MRT dimensions must be positive integers no greater than ${maxSize}.`);
+        const maxCount = this._engine.getParams(RenderParams.Max_Color_Attachment_Count);
+        if (!Array.isArray(colorFormats) || colorFormats.length < 1 || colorFormats.length > maxCount)
+            throw new RangeError(`MRT requires between 1 and ${maxCount} color attachments.`);
+        const formats = colorFormats.slice();
+        for (const format of formats) {
+            if (format !== RenderTargetFormat.R8G8B8A8 && format !== RenderTargetFormat.R16G16B16A16)
+                throw new Error(`Unsupported WebGL2 MRT color format: ${format}.`);
+            if (format === RenderTargetFormat.R16G16B16A16 && !this._engine.getCapable(RenderCapable.RenderTextureFormat_R16G16B16A16))
+                throw new Error("WebGL2 MRT RGBA16F requires half-float color attachment support.");
+        }
+        switch (depthStencilFormat) {
+            case RenderTargetFormat.None:
+            case RenderTargetFormat.DEPTH_16:
+            case RenderTargetFormat.DEPTH_32:
+            case RenderTargetFormat.DEPTHSTENCIL_24_8:
+            case RenderTargetFormat.STENCIL_8:
+                break;
+            default:
+                throw new Error(`Unsupported WebGL2 MRT depth/stencil format: ${depthStencilFormat}.`);
+        }
+        const depthParams = this.glRenderBufferParam(depthStencilFormat, false);
+        if (depthParams) {
+            const maxRenderbufferSize = gl.getParameter(gl.MAX_RENDERBUFFER_SIZE);
+            if (width > maxRenderbufferSize || height > maxRenderbufferSize)
+                throw new RangeError(`MRT depth/stencil dimensions exceed ${maxRenderbufferSize}.`);
+        }
+
+        // Resource creation must not disturb a render pass or a separate read framebuffer.
+        const previousDraw = gl.getParameter(gl.DRAW_FRAMEBUFFER_BINDING);
+        const previousRead = gl.getParameter(gl.READ_FRAMEBUFFER_BINDING);
+        const previousRenderbuffer = gl.getParameter(gl.RENDERBUFFER_BINDING);
+        const previousTexture = gl.getParameter(gl.TEXTURE_BINDING_2D);
+        const textureUnit = this._engine._activedTextureID - gl.TEXTURE0;
+        const previousCachedTexture = this._engine._activeTextures[textureUnit];
+        let renderTarget: WebGLInternalRT;
+        try {
+            renderTarget = new WebGLInternalRT(this._engine, formats[0], depthStencilFormat, false, false, 1, formats);
+            renderTarget.isSRGB = false;
+            if (!renderTarget._framebuffer)
+                throw new Error("Unable to allocate the MRT framebuffer.");
+            gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, renderTarget._framebuffer);
+            const drawBuffers: number[] = [];
+            let memory = this.getGLRTTexMemory(width, height, RenderTargetFormat.None, depthStencilFormat, false, 1, false);
+            for (let i = 0; i < formats.length; i++) {
+                const texture = new WebGLInternalTex(this._engine, gl.TEXTURE_2D, width, height, 1, TextureDimension.Tex2D, false, false, 1);
+                // Establish ownership before storage allocation, so a failure can release it.
+                renderTarget._textures.push(texture);
+                if (!texture.resource)
+                    throw new Error(`Unable to allocate MRT color attachment ${i}.`);
+                const params = this.glRenderTextureParam(formats[i], false);
+                texture.internalFormat = params.internalFormat;
+                texture.format = params.format;
+                texture.type = params.type;
+                this._engine._bindTexture(gl.TEXTURE_2D, texture.resource);
+                gl.texStorage2D(gl.TEXTURE_2D, 1, texture.internalFormat, width, height);
+                const attachment = gl.COLOR_ATTACHMENT0 + i;
+                gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, attachment, gl.TEXTURE_2D, texture.resource, 0);
+                drawBuffers.push(attachment);
+                memory += this.getGLRTTexMemory(width, height, formats[i], RenderTargetFormat.None, false, 1, false);
+            }
+            if (depthParams) {
+                renderTarget._depthbuffer = gl.createRenderbuffer();
+                if (!renderTarget._depthbuffer)
+                    throw new Error("Unable to allocate MRT depth/stencil storage.");
+                gl.bindRenderbuffer(gl.RENDERBUFFER, renderTarget._depthbuffer);
+                gl.renderbufferStorage(gl.RENDERBUFFER, depthParams.internalFormat, width, height);
+                gl.framebufferRenderbuffer(gl.DRAW_FRAMEBUFFER, depthParams.attachment, gl.RENDERBUFFER, renderTarget._depthbuffer);
+            }
+            gl.drawBuffers(drawBuffers);
+            const status = gl.checkFramebufferStatus(gl.DRAW_FRAMEBUFFER);
+            if (status !== gl.FRAMEBUFFER_COMPLETE)
+                throw new Error(`WebGL2 MRT framebuffer is incomplete (0x${status.toString(16)}).`);
+            // Like ordinary 2D RTs, account colors and depth on the target, not again on its textures.
+            renderTarget.gpuMemory = memory;
+            return renderTarget;
+        } catch (error) {
+            renderTarget?.dispose();
+            throw error;
+        } finally {
+            gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, previousDraw);
+            gl.bindFramebuffer(gl.READ_FRAMEBUFFER, previousRead);
+            gl.bindRenderbuffer(gl.RENDERBUFFER, previousRenderbuffer);
+            gl.bindTexture(gl.TEXTURE_2D, previousTexture);
+            // The engine cache tracks one texture per unit, which need not be the 2D binding.
+            this._engine._activeTextures[textureUnit] = previousCachedTexture;
+        }
+    }
+
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number, storage: boolean): WebGLInternalRT {
         let texture = this.createRenderTextureInternal(TextureDimension.Tex2D, width, height, colorFormat, generateMipmap, sRGB);
 
@@ -1182,6 +1278,10 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
 
 
     bindRenderTarget(renderTarget: WebGLInternalRT, slice: number = 0): void {
+        if (!renderTarget || renderTarget.destroyed || !renderTarget._framebuffer)
+            throw new Error("Cannot bind a missing or destroyed WebGL render target.");
+        if (renderTarget.colorFormats && slice !== 0)
+            throw new RangeError("WebGL2 MRT only supports 2D attachments at mip level 0.");
         this.currentActiveRT && this.unbindRenderTarget(this.currentActiveRT);
         let gl = this._gl;
 
@@ -1210,6 +1310,72 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
             gl.bindFramebuffer(gl.FRAMEBUFFER, renderTarget._framebuffer);
         }
         this.currentActiveRT = renderTarget;
+    }
+
+    /** MRT RGBA8 reads into Uint8Array/Uint8ClampedArray; RGBA16F reads into Float32Array. */
+    async readRenderTargetPixelDataAsync(renderTarget: WebGLInternalRT, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView, attachmentIndex: number = 0): Promise<ArrayBufferView> {
+        if (!Number.isInteger(attachmentIndex) || attachmentIndex < 0)
+            throw new RangeError("Color attachment index must be a non-negative integer.");
+        if (!renderTarget || renderTarget.destroyed)
+            throw new Error("Cannot read a missing or destroyed WebGL render target.");
+        // Keep the existing single RT, MSAA, Cube and Array behavior out of this MRT-only path.
+        if (!renderTarget.colorFormats)
+            return super.readRenderTargetPixelDataAsync(renderTarget, xOffset, yOffset, width, height, out, attachmentIndex);
+        const gl = this._gl;
+        if (renderTarget._gl !== gl || !renderTarget._framebuffer)
+            throw new Error("MRT does not belong to this WebGL context or has no framebuffer.");
+        if (attachmentIndex >= renderTarget.colorFormats.length)
+            throw new RangeError(`MRT color attachment index out of range: ${attachmentIndex}.`);
+        const texture = renderTarget._textures[attachmentIndex];
+        if (!texture || !texture.resource || renderTarget._samples !== 1)
+            throw new Error("MRT readback requires a valid single-sampled color attachment.");
+        if (!Number.isInteger(xOffset) || !Number.isInteger(yOffset) || !Number.isInteger(width) || !Number.isInteger(height)
+            || xOffset < 0 || yOffset < 0 || width <= 0 || height <= 0 || xOffset + width > texture.width || yOffset + height > texture.height)
+            throw new RangeError("MRT readback rectangle must be positive-sized and within the attachment.");
+        const format = renderTarget.colorFormats[attachmentIndex];
+        let type: number;
+        let byteLength: number;
+        if (format === RenderTargetFormat.R8G8B8A8) {
+            if (!(out instanceof Uint8Array) && !(out instanceof Uint8ClampedArray))
+                throw new TypeError("RGBA8 MRT readback requires Uint8Array or Uint8ClampedArray.");
+            type = gl.UNSIGNED_BYTE;
+            byteLength = width * height * 4;
+        } else if (format === RenderTargetFormat.R16G16B16A16) {
+            if (!(out instanceof Float32Array))
+                throw new TypeError("RGBA16F MRT readback requires Float32Array.");
+            type = gl.FLOAT;
+            byteLength = width * height * 16;
+        } else {
+            throw new Error(`Unsupported MRT readback format: ${format}.`);
+        }
+        if (out.byteLength < byteLength)
+            throw new RangeError(`MRT readback output requires at least ${byteLength} bytes.`);
+
+        const previousRead = gl.getParameter(gl.READ_FRAMEBUFFER_BINDING);
+        const previousPackBuffer = gl.getParameter(gl.PIXEL_PACK_BUFFER_BINDING);
+        const packParams = [gl.PACK_ALIGNMENT, gl.PACK_ROW_LENGTH, gl.PACK_SKIP_PIXELS, gl.PACK_SKIP_ROWS];
+        const packValues = packParams.map(param => gl.getParameter(param));
+        gl.bindFramebuffer(gl.READ_FRAMEBUFFER, renderTarget._framebuffer);
+        const previousReadBuffer = gl.getParameter(gl.READ_BUFFER);
+        try {
+            gl.readBuffer(gl.COLOR_ATTACHMENT0 + attachmentIndex);
+            if (gl.checkFramebufferStatus(gl.READ_FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE)
+                throw new Error("Cannot read an incomplete MRT framebuffer.");
+            gl.bindBuffer(gl.PIXEL_PACK_BUFFER, null);
+            gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
+            gl.pixelStorei(gl.PACK_ROW_LENGTH, 0);
+            gl.pixelStorei(gl.PACK_SKIP_PIXELS, 0);
+            gl.pixelStorei(gl.PACK_SKIP_ROWS, 0);
+            // This Promise API, like the legacy WebGL path, currently uses synchronous readPixels.
+            gl.readPixels(xOffset, yOffset, width, height, gl.RGBA, type, out);
+            return out;
+        } finally {
+            gl.readBuffer(previousReadBuffer);
+            gl.bindFramebuffer(gl.READ_FRAMEBUFFER, previousRead);
+            gl.bindBuffer(gl.PIXEL_PACK_BUFFER, previousPackBuffer);
+            for (let i = 0; i < packParams.length; i++)
+                gl.pixelStorei(packParams[i], packValues[i]);
+        }
     }
 
     unbindRenderTarget(renderTarget: WebGLInternalRT): void {
