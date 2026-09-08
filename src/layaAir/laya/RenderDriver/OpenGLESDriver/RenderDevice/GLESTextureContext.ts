@@ -6,6 +6,7 @@ import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureComp
 import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
+import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
 import { GLESInternalRT } from "./GLESInternalRT";
 import { GLESInternalTex } from "./GLESInternalTex";
@@ -134,6 +135,10 @@ export class GLESTextureContext implements ITextureContext {
 
     createMultiRenderTargetInternal(width: number, height: number, colorFormats: readonly RenderTargetFormat[], depthStencilFormat: RenderTargetFormat): GLESInternalRT {
         throw new Error("OpenGLES createMultiRenderTargetInternal is not implemented.");
+    }
+
+    createMultiRenderTargetViewInternal(renderTargets: readonly InternalRenderTarget[]): GLESInternalRT {
+        throw new Error("OpenGLES createMultiRenderTargetViewInternal is not implemented.");
     }
 
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number, storage: boolean): GLESInternalRT {

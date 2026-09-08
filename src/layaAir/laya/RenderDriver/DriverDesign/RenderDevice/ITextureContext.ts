@@ -72,6 +72,21 @@ export interface ITextureContext {
      */
     createMultiRenderTargetInternal(width: number, height: number, colorFormats: readonly RenderTargetFormat[], depthStencilFormat: RenderTargetFormat): InternalRenderTarget;
 
+    /**
+     * @internal
+     * @en Creates a non-owning MRT binding from existing single-color 2D targets.
+     * Target i supplies color attachment i; target 0 also supplies depth/stencil.
+     * All targets must be live, distinct, same-sized, single-sampled and without mipmaps.
+     * No texture storage is allocated or copied. Disposing the view only releases its binding.
+     * The caller must keep the source owners alive and out of the pool, and dispose the view
+     * before replacing/resizing/recycling their attachments. Nested views are not supported.
+     * @zh 从现有单颜色 2D RT 创建不拥有附件的 MRT 绑定。第 i 个 RT 提供颜色附件 i，
+     * 第 0 个 RT 同时提供深度/模板；要求资源有效、互不重复、同尺寸、单采样且无 mipmap。
+     * 不分配或复制纹理存储，销毁视图只释放绑定。调用方须保持源资源存活且不入池，
+     * 在替换、重建或回收源附件前销毁视图；不支持嵌套借用视图。
+     */
+    createMultiRenderTargetViewInternal(renderTargets: readonly InternalRenderTarget[]): InternalRenderTarget;
+
     createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget;
 
     createRenderTargetDepthTexture(renderTarget: InternalRenderTarget, dimension: TextureDimension, width: number, height: number): InternalTexture;

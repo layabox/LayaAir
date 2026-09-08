@@ -1112,6 +1112,75 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
         }
     }
 
+    createMultiRenderTargetViewInternal(renderTargets: readonly WebGLInternalRT[]): WebGLInternalRT {
+        const gl = this._gl;
+        if (!this._engine.getCapable(RenderCapable.MRT))
+            throw new Error("WebGL2 MRT is not supported by this engine.");
+        const maxCount = this._engine.getParams(RenderParams.Max_Color_Attachment_Count);
+        if (!Array.isArray(renderTargets) || renderTargets.length < 1 || renderTargets.length > maxCount)
+            throw new RangeError(`MRT view requires between 1 and ${maxCount} source targets.`);
+        const sources = Array.from(renderTargets);
+        const resources = new Set<WebGLTexture>();
+        const textures = sources.map(source => {
+            if (!(source instanceof WebGLInternalRT) || source.destroyed || source._gl !== gl || !source._framebuffer)
+                throw new Error("MRT view requires live targets from the same WebGL context.");
+            if (source._sharedTargets || !source._texturesOwnsResources || source._isCube || source._arrayLayerIndex >= 0
+                || source._samples !== 1 || source._generateMipmap || source._textures.length !== 1)
+                throw new Error("MRT view sources must be owned, single-color, single-sampled 2D targets without mipmaps.");
+            const texture = source._textures[0] as WebGLInternalTex;
+            if (!texture?.resource || texture.target !== gl.TEXTURE_2D || texture.mipmap
+                || (texture.format !== gl.RGB && texture.format !== gl.RGBA))
+                throw new Error("MRT view requires valid 2D color textures at mip level 0.");
+            if (resources.has(texture.resource)) throw new Error("MRT view cannot bind the same color texture twice.");
+            resources.add(texture.resource);
+            return texture;
+        });
+        const main = sources[0], first = textures[0];
+        if (textures.some(texture => texture.width !== first.width || texture.height !== first.height))
+            throw new Error("MRT view attachments must have the same dimensions.");
+        const depth = main._depthTexture as WebGLInternalTex;
+        if (main.depthStencilFormat !== RenderTargetFormat.None && !depth && !main._depthbuffer)
+            throw new Error("MRT view source is missing its depth/stencil attachment.");
+        if (depth && (!depth.resource || depth.target !== gl.TEXTURE_2D || depth.width !== first.width || depth.height !== first.height))
+            throw new Error("MRT view requires a valid same-sized 2D depth/stencil attachment.");
+        const previousDraw = gl.getParameter(gl.DRAW_FRAMEBUFFER_BINDING);
+        let view: WebGLInternalRT;
+        try {
+            view = new WebGLInternalRT(this._engine, main.colorFormat, main.depthStencilFormat, false, false, 1,
+                sources.map(source => source.colorFormat));
+            view._texturesOwnsResources = false;
+            view._depthOwnsResources = false;
+            view._textures = textures;
+            view._depthTexture = main._depthTexture;
+            view._depthbuffer = main._depthbuffer;
+            view._sharedTargets = Object.freeze(sources);
+            view.isSRGB = !!main.isSRGB || first.useSRGBLoad;
+            if (!view._framebuffer) throw new Error("Unable to allocate the MRT view framebuffer.");
+            gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, view._framebuffer);
+            const drawBuffers = textures.map((texture, i) => {
+                const attachment = gl.COLOR_ATTACHMENT0 + i;
+                gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, attachment, gl.TEXTURE_2D, texture.resource, 0);
+                return attachment;
+            });
+            if (main.depthStencilFormat !== RenderTargetFormat.None) {
+                const attachment = this.glRenderTargetAttachment(main.depthStencilFormat);
+                if (depth) gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, attachment, gl.TEXTURE_2D, depth.resource, 0);
+                else gl.framebufferRenderbuffer(gl.DRAW_FRAMEBUFFER, attachment, gl.RENDERBUFFER, main._depthbuffer);
+            }
+            gl.drawBuffers(drawBuffers);
+            const status = gl.checkFramebufferStatus(gl.DRAW_FRAMEBUFFER);
+            if (status !== gl.FRAMEBUFFER_COMPLETE)
+                throw new Error(`WebGL2 MRT view framebuffer is incomplete (0x${status.toString(16)}).`);
+            // Storage and memory statistics remain exclusively on the source owners.
+            return view;
+        } catch (error) {
+            view?.dispose();
+            throw error;
+        } finally {
+            gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, previousDraw);
+        }
+    }
+
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number, storage: boolean): WebGLInternalRT {
         let texture = this.createRenderTextureInternal(TextureDimension.Tex2D, width, height, colorFormat, generateMipmap, sRGB);
 
@@ -1282,6 +1351,7 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
     bindRenderTarget(renderTarget: WebGLInternalRT, slice: number = 0): void {
         if (!renderTarget || renderTarget.destroyed || !renderTarget._framebuffer)
             throw new Error("Cannot bind a missing or destroyed WebGL render target.");
+        if (renderTarget._sharedTargets) renderTarget._validateSharedAttachments();
         if (renderTarget.colorFormats && slice !== 0)
             throw new RangeError("WebGL2 MRT only supports 2D attachments at mip level 0.");
         this.currentActiveRT && this.unbindRenderTarget(this.currentActiveRT);
@@ -1320,6 +1390,7 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
             throw new RangeError("Color attachment index must be a non-negative integer.");
         if (!renderTarget || renderTarget.destroyed)
             throw new Error("Cannot read a missing or destroyed WebGL render target.");
+        if (renderTarget._sharedTargets) renderTarget._validateSharedAttachments();
         // Keep the existing single RT, MSAA, Cube and Array behavior out of this MRT-only path.
         if (!renderTarget.colorFormats)
             return super.readRenderTargetPixelDataAsync(renderTarget, xOffset, yOffset, width, height, out, attachmentIndex);

@@ -1324,6 +1324,10 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         throw new Error("WebGL createMultiRenderTargetInternal is not implemented.");
     }
 
+    createMultiRenderTargetViewInternal(renderTargets: readonly InternalRenderTarget[]): WebGLInternalRT {
+        throw new Error("WebGL createMultiRenderTargetViewInternal is not implemented.");
+    }
+
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number, storage: boolean): WebGLInternalRT {
         multiSamples = 1;
         // storage = false;
@@ -1442,6 +1446,8 @@ export class GLTextureContext extends GLObject implements ITextureContext {
     }
 
     createRenderTargetDepthTexture(renderTarget: WebGLInternalRT, dimension: TextureDimension, width: number, height: number): WebGLInternalTex {
+        if (renderTarget._depthOwnsResources === false)
+            throw new Error("Cannot replace the borrowed depth/stencil attachment of an MRT view.");
         let gl = renderTarget._gl;
 
         if (renderTarget.depthStencilFormat == RenderTargetFormat.None) {

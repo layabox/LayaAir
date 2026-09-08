@@ -25,6 +25,9 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
 
     _textures: InternalTexture[];
     _texturesOwnsResources: boolean = true;
+    _depthOwnsResources: boolean = true;
+    /** Source owners for an immutable, non-owning MRT binding. */
+    _sharedTargets?: readonly WebGLInternalRT[];
     _depthTexture: InternalTexture;
 
     colorFormat: RenderTargetFormat;
@@ -80,6 +83,21 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
     }
 
 
+    /** @internal Reject stale bindings before using the framebuffer. */
+    _validateSharedAttachments(): void {
+        if (!this._sharedTargets) return;
+        if (this.destroyed) throw new Error("Cannot use a destroyed MRT view.");
+        for (let i = 0; i < this._sharedTargets.length; i++) {
+            const source = this._sharedTargets[i];
+            if (source.destroyed || source._textures?.[0] !== this._textures[i] || !this._textures[i]?.resource)
+                throw new Error("MRT view color source was destroyed or replaced; recreate the view.");
+        }
+        const source = this._sharedTargets[0];
+        if (source._depthTexture !== this._depthTexture || source._depthbuffer !== this._depthbuffer
+            || (this._depthTexture && !this._depthTexture.resource))
+            throw new Error("MRT view depth/stencil source was destroyed or replaced; recreate the view.");
+    }
+
     dispose(): void {
         if (this._disposed)
             return;
@@ -92,17 +110,18 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
             }
         }
         this._textures = null;
-        this._depthTexture && this._depthTexture.dispose();
+        this._depthOwnsResources && this._depthTexture && this._depthTexture.dispose();
         this._depthTexture = null;
         this._framebuffer && this._gl.deleteFramebuffer(this._framebuffer);
         this._framebuffer = null;
-        this._depthbuffer && this._gl.deleteRenderbuffer(this._depthbuffer);
+        this._depthOwnsResources && this._depthbuffer && this._gl.deleteRenderbuffer(this._depthbuffer);
         this._depthbuffer = null;
 
         this._msaaFramebuffer && this._gl.deleteFramebuffer(this._msaaFramebuffer);
         this._msaaFramebuffer = null;
         this._msaaRenderbuffer && this._gl.deleteRenderbuffer(this._msaaRenderbuffer);
         this._msaaRenderbuffer = null;
+        this._sharedTargets = null;
 
         this._changeTexMemory(0);
         this._gpuMemory = 0;
