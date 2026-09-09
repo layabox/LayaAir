@@ -2,6 +2,7 @@ import { Config3D } from "../../Config3D";
 import { LayaGL } from "../layagl/LayaGL";
 import { InternalRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
 import { IRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/IRenderTarget";
+import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
@@ -48,6 +49,22 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     private static _pool: RenderTexture[] = [];
     private static _poolMemory: number = 0;
 
+    /** @internal */
+    private static _getCompatibleColorFormat(format: RenderTargetFormat): RenderTargetFormat {
+        if (format !== RenderTargetFormat.R16G16B16 && format !== RenderTargetFormat.R16G16B16A16) return format;
+        if (LayaGL.renderEngine.getCapable(RenderCapable.RenderTextureFormat_R16G16B16A16)) return format;
+
+        const supportFloat32 = LayaGL.renderEngine.getCapable(RenderCapable.RenderTextureFormat_R32G32B32A32);
+        let fallbackFormat: RenderTargetFormat;
+        if (format === RenderTargetFormat.R16G16B16)
+            fallbackFormat = supportFloat32 ? RenderTargetFormat.R32G32B32 : RenderTargetFormat.R8G8B8;
+        else
+            fallbackFormat = supportFloat32 ? RenderTargetFormat.R32G32B32A32 : RenderTargetFormat.R8G8B8A8;
+
+        console.warn(`RenderTexture: ${RenderTargetFormat[format]} is not supported, falling back to ${RenderTargetFormat[fallbackFormat]}.`);
+        return fallbackFormat;
+    }
+
     /**
      * @en Creates a RenderTexture instance from the pool.
      * @param width Width of the RenderTexture.
@@ -74,6 +91,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
 
         // todo mipmap 判断
         mipmap = mipmap && (width & (width - 1)) === 0 && (height & (height - 1)) === 0;
+        colorFormat = RenderTexture._getCompatibleColorFormat(colorFormat);
 
         let n = RenderTexture._pool.length;
         for (let index = 0; index < n; index++) {
@@ -287,7 +305,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
      * @param sRGB 是否sRGB空间。
      */
     constructor(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, generateMipmap: boolean = false, multiSamples: number = 1, generateDepthTexture: boolean = false, sRGB: boolean = false, stroage: boolean = false) {
-        super(width, height, colorFormat);
+        super(width, height, RenderTexture._getCompatibleColorFormat(colorFormat));
 
         this._gammaSpace = sRGB;
 
@@ -342,6 +360,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     recreate(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, generateMipmap: boolean = false, multiSamples: number = 1, generateDepthTexture: boolean = false, sRGB: boolean = false, storage: boolean = false) {
         this._width = width;
         this._height = height;
+        colorFormat = RenderTexture._getCompatibleColorFormat(colorFormat);
         this._format = <TextureFormat><any>colorFormat;
 
         this._gammaSpace = sRGB;
