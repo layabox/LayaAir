@@ -24,6 +24,7 @@ export class WidgetPool {
         }
         this._items = {};
         this._count = 0;
+        this.defaultRes = null;
     }
 
     get count(): number {
@@ -35,9 +36,13 @@ export class WidgetPool {
     }
 
     set defaultRes(value: Prefab) {
+        this._defaultRes?._removeReference();
         this._defaultRes = value;
-        if (value && !value.url)
-            value.url = "data:" + idCounter++;
+        if (value) {
+            value._addReference();
+            if (!value.url)
+                value.url = "data:" + idCounter++;
+        }
     }
 
     get defaultRuntime() {
