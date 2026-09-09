@@ -65,6 +65,10 @@ export class PhysicsColliderComponent extends Component {
     protected _dynamicFriction = 0.0;
     /**@internal */
     protected _staticFriction = 0.0;
+    /** @internal Whether a backend-specific friction value was explicitly set, including zero. */
+    private _hasDynamicFriction = false;
+    /** @internal */
+    private _hasStaticFriction = false;
     /**@internal */
     protected _frictionCombine = 0.0;
     /**@internal */
@@ -113,8 +117,8 @@ export class PhysicsColliderComponent extends Component {
     }
 
     /**
-     * @en The friction of the collider.
-     * @zh 碰撞器的摩擦力。
+     * @en The friction of the collider. PhysX uses this for static and dynamic friction unless individually overridden.
+     * @zh 碰撞器的摩擦力。PhysX 将其用于未单独设置的静摩擦和动摩擦。
      */
     get friction(): number {
         return this._friction;
@@ -126,7 +130,10 @@ export class PhysicsColliderComponent extends Component {
             this._collider.setfriction(value);
         }
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_StaticFriction)) {
-            this._collider.setStaticFriction(value);
+            this._collider.setStaticFriction(this.staticFriction);
+        }
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_DynamicFriction)) {
+            this._collider.setDynamicFriction(this.dynamicFriction);
         }
     }
 
@@ -143,9 +150,6 @@ export class PhysicsColliderComponent extends Component {
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_RollingFriction)) {
             this._collider.setRollingFriction(value);
         }
-        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_DynamicFriction)) {
-            this._collider.setDynamicFriction(value);
-        }
     }
 
     /**
@@ -153,10 +157,12 @@ export class PhysicsColliderComponent extends Component {
      * @zh 碰撞器的动态摩擦力。
      */
     get dynamicFriction(): number {
-        return this._dynamicFriction;
+        return this._hasDynamicFriction ? this._dynamicFriction : this._friction;
     }
 
     set dynamicFriction(value: number) {
+        this._dynamicFriction = value;
+        this._hasDynamicFriction = true;
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_DynamicFriction)) {
             this._collider.setDynamicFriction(value);
         }
@@ -167,11 +173,12 @@ export class PhysicsColliderComponent extends Component {
      * @zh 碰撞器的静态摩擦力。
      */
     get staticFriction(): number {
-        return this._staticFriction;
+        return this._hasStaticFriction ? this._staticFriction : this._friction;
     }
 
     set staticFriction(value: number) {
         this._staticFriction = value;
+        this._hasStaticFriction = true;
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_StaticFriction)) {
             this._collider.setStaticFriction(value);
         }
@@ -376,11 +383,13 @@ export class PhysicsColliderComponent extends Component {
      */
     _cloneTo(dest: PhysicsColliderComponent): void {
         dest.restitution = this._restitution;
+        dest._hasDynamicFriction = this._hasDynamicFriction;
+        dest._hasStaticFriction = this._hasStaticFriction;
+        dest._dynamicFriction = this._dynamicFriction;
+        dest._staticFriction = this._staticFriction;
         dest.friction = this._friction;
         dest.rollingFriction = this._rollingFriction;
 
-        dest.dynamicFriction = this.dynamicFriction;
-        dest.staticFriction = this.staticFriction;
         dest.frictionCombine = this.frictionCombine;
         dest.restitutionCombine = this.restitutionCombine;
 
