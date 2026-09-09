@@ -123,7 +123,7 @@ export class Texture2DLoader implements IResourceLoader {
                                 return null;
                         }
                         else if (ktxInfo.dimension == TextureDimension.Tex2D) {
-                            tex = Texture2D._parseKTX(data, propertyParams, constructParams);
+                            tex = Texture2D._parseKTX(ktxInfo, propertyParams, constructParams);
                         }
                         break;
                     case "pvr":

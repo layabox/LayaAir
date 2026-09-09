@@ -8,6 +8,8 @@ const ITEM_LAYOUT = 4; //callback,target,args,flag(0-deleted,1-normal,2-once)
  * 它支持一次性回调，并且可以管理具有不同目标对象和参数的回调函数。
  */
 export class Delegate {
+    static delegateInvokeCatchError: (error: any) => void;
+
     private _flag: number;
     private _items: Array<any>;
 
@@ -154,6 +156,9 @@ export class Delegate {
             }
             catch (err: any) {
                 console.error(err);
+                if (Delegate.delegateInvokeCatchError) {
+                    Delegate.delegateInvokeCatchError(err);
+                }
             }
             if (arr[i + 3] === 2) {
                 arr[i + 3] = 0;

@@ -726,7 +726,7 @@ export class List extends Box {
         let scrollValue = this._scrollBar!.value;
         let lineX = (this._isVertical ? this.repeatX : this.repeatY);
         let lineY = (this._isVertical ? this.repeatY : this.repeatX);
-        let scrollLine = Math.floor(scrollValue / this._cellSize);
+        let scrollLine = Math.floor(Math.max(scrollValue, 0) / this._cellSize);
 
         if (!this.cacheContent) {
             let index = scrollLine * lineX;
