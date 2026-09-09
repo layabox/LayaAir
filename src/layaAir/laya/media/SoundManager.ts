@@ -10,12 +10,12 @@ import { MathUtil } from "../maths/MathUtil";
  * - The engine has two default sound schemes: WebAudio and H5Audio.
  * - For playing sound effects, WebAudio is prioritized. If WebAudio is not available, H5Audio is used. H5Audio may have compatibility issues on some devices (such as inability to mix sounds or playback delays).
  * - For playing background music, H5Audio is used (using WebAudio would significantly increase memory usage and cause a delay as it needs to wait for the sound to load completely before playing).
- * - It is recommended to use mp3 format for background music and wav or mp3 format for sound effects (if packaging as an app, only wav format can be used for sound effects).
+ * - It is recommended to use mp3 format for background music and wav or mp3 format for sound effects. WAV is preferred for short sound effects to reduce decoding overhead, but mp3/ogg are also supported when packaging as an app.
  * @zh `SoundManager` 是一个声音管理类。提供了对背景音乐、音效的播放控制方法。
  * - 引擎默认有两套声音方案：WebAudio和H5Audio。
  * - 播放音效时，优先使用WebAudio播放声音，如果WebAudio不可用，则用H5Audio播放。H5Audio在部分机器上有兼容问题（比如不能混音，播放有延迟等）。
  * - 播放背景音乐时，则使用H5Audio播放（使用WebAudio会增加特别大的内存，并且要等加载完毕后才能播放，有延迟）。
- * - 建议背景音乐用mp3类型，音效用wav或者mp3类型（如果打包为app，音效只能用wav格式）。
+ * - 建议背景音乐用mp3类型，音效用wav或者mp3类型。短音效推荐使用wav以减少解码开销，但打包为app时mp3、ogg格式同样支持。
  * @blueprintable
  */
 export class SoundManager {
