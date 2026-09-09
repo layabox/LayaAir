@@ -20,11 +20,9 @@ export class FillTextureCmd implements IGraphicsCmd {
      */
     static readonly ID: string = className;
 
-    /**
-     * @en The texture to be filled.
-     * @zh 要填充的纹理。
-     */
-    texture: Texture;
+    /** @internal */
+    _texture: Texture = null;
+
     /**
      * @en X-axis offset.
      * @zh X轴偏移量。
@@ -96,7 +94,6 @@ export class FillTextureCmd implements IGraphicsCmd {
 
         var cmd: FillTextureCmd = Pool.getItemByClass(className, FillTextureCmd);
         cmd.texture = texture;
-        texture._addReference();
         cmd.x = x;
         cmd.y = y;
         cmd.width = width;
@@ -113,10 +110,23 @@ export class FillTextureCmd implements IGraphicsCmd {
      * @zh 回收到对象池
      */
     recover(): void {
-        this.texture && this.texture._removeReference();
-        this.texture = null;
+        this._texture && this._texture._removeReference();
+        this._texture = null;
         this.offset = null;
         Pool.recover(className, this);
+    }
+
+    /**
+     * @en The texture to be filled.
+     * @zh 要填充的纹理。
+     */
+    get texture(): Texture {
+        return this._texture;
+    }
+    set texture(val: Texture) {
+        !!val && val._addReference();
+        this._texture?._removeReference();
+        this._texture = val;
     }
 
     /**
