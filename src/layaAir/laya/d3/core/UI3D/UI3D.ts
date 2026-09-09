@@ -510,6 +510,7 @@ export class UI3D extends BaseRender {
         } else {
             if (this.billboard) {
                 this._sizeChange = false;
+                this.boundsChange = true;
                 let camera = this.owner.scene.cullInfoCamera;
                 Matrix4x4.createAffineTransformation(this._transform.position, camera.transform.rotation, this._scale, this._matrix);
             } else if (this._sizeChange) {
