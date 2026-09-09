@@ -247,6 +247,24 @@ export class BaseRender extends Component {
 
 
     /**
+     * @en Renderer order within the same camera and render phase. Defaults to 0.
+     * Lower values are submitted first, before material queue and distance sorting.
+     * Does not change depth, stencil or blending states.
+     * Supported by WebGL and WebGPU; Native/LayaX currently only retain the value.
+     * Opaque batching may reorder draws; use this property primarily for transparent renderers.
+     * @zh 同一相机、同一渲染阶段内的渲染顺序，默认为 0，主要用于透明渲染器。
+     * 值越小越先提交，优先于材质队列和距离排序。
+     * 不改变深度、模板或混合状态。支持 WebGL、WebGPU；Native/LayaX 当前仅保存该值。
+     * 不透明合批可能重排绘制项，不保证不透明物体的完整提交顺序。
+     */
+    get renderOrder(): number {
+        return this._baseRenderNode.renderOrder;
+    }
+    set renderOrder(value: number) {
+        this._baseRenderNode.renderOrder = value;
+    }
+
+    /**
      * @en The sorting fudge value.
      * @zh 排序矫正值。
      */
@@ -595,6 +613,7 @@ export class BaseRender extends Component {
         this.lightmapIndex = -1;
         this.receiveShadow = false;
         this._baseRenderNode.sortingFudge = 0.0;
+        this._baseRenderNode.renderOrder = 0;
         this.reflectionMode = ReflectionProbeMode.simple;
         if (!!this._calculateBoundingBox) {
             this._baseRenderNode.set_caculateBoundingBox(this, this._calculateBoundingBox);
@@ -846,6 +865,7 @@ export class BaseRender extends Component {
         dest.reflectionMode = this.reflectionMode;
         dest.castShadow = this.castShadow;
         dest.sortingFudge = this.sortingFudge;
+        dest.renderOrder = this.renderOrder;
     }
 
     /**

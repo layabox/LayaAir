@@ -22,6 +22,9 @@ import { LayaXVolumetricGI } from "./LayaXVolumetricGI";
  */
 export class LayaXBaseRenderNode implements IBaseRenderNode {
 
+    // Stored on the JS side only. LayaX sorting requires a matching runtime implementation.
+    renderOrder: number = 0;
+
     /** @internal */
     _nativeObj: any;
 

@@ -132,6 +132,7 @@ class NoRenderBaseRenderNode implements IBaseRenderNode {
     transform: Transform3D;
     distanceForSort: number;
     sortingFudge: number;
+    renderOrder: number = 0;
     castShadow: boolean;
     receiveShadow: boolean;
     enable: boolean;

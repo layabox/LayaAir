@@ -49,6 +49,8 @@ const enum RTBaseRenderNodeSlot {
 }
 
 export class RTBaseRenderNode implements IBaseRenderNode {
+    // Stored on the JS side only. Native sorting requires a matching runtime implementation.
+    renderOrder: number = 0;
     renderelements: IRenderElement3D[];
     private _transform: RTTransform3D;
 
