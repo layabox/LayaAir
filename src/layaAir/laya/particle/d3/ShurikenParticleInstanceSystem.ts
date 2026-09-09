@@ -117,8 +117,6 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
      * @zh 初始化 buffer
      */
     _initBufferDatas(): void {
-        this._nativeParticleUploadOwned = false;
-        this._nativeParticleFallbackRingReleased = false;
         // todo  Resource._addMemory
         if (this._vertexBuffer) {
             // this._instanceBufferState.destroy();
@@ -213,49 +211,6 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
         // Resource._addMemory(memorySize, memorySize);
     }
 
-    /** @internal Releases the full-capacity TS ring after Native copies active records. */
-    _nativeReleaseParticleFallbackRing(): number {
-        if (!this._nativeParticleSimulationOwned || !this._instanceVertex)
-            return 0;
-        const releasedBytes = this._instanceVertex.byteLength ||
-            this._bufferMaxParticles * this._floatCountPerParticleData * 4;
-        this._instanceVertex = null;
-        this._nativeParticleFallbackRingReleased = true;
-        return releasedBytes;
-    }
-
-    /** @internal Replaces the initial max-capacity GPU allocation before Native takeover. */
-    _nativePrepareParticleOwnerBuffer(): void {
-        this._nativeResizeParticleInstanceBuffer(Math.min(this._bufferMaxParticles, 16));
-    }
-
-    private _nativeResizeParticleInstanceBuffer(recordCapacity: number): void {
-        const current = this._instanceParticleVertexBuffer;
-        const byteStride = this._floatCountPerParticleData * 4;
-        const byteLength = Math.max(1, recordCapacity) * byteStride;
-        if (!current || byteStride <= 0 || current._byteLength === byteLength)
-            return;
-        const replacement = Laya3DRender.renderOBJCreate.createVertexBuffer3D(
-            byteLength, BufferUsage.Dynamic, false);
-        replacement.vertexDeclaration = current.vertexDeclaration;
-        replacement.instanceBuffer = true;
-        this._instanceParticleVertexBuffer = replacement;
-        this._bufferState.applyState([this._vertexBuffer, replacement], this._indexBuffer);
-        current.destroy();
-    }
-
-    /** @internal Rebuilds the legacy full-capacity TS ring for a fallback transition. */
-    _nativeRestoreParticleFallbackRing(): ArrayBuffer | null {
-        const floatCount = this._bufferMaxParticles * this._floatCountPerParticleData;
-        if (floatCount <= 0)
-            return null;
-        if (!this._instanceVertex || this._instanceVertex.length !== floatCount)
-            this._instanceVertex = new Float32Array(floatCount);
-        this._nativeResizeParticleInstanceBuffer(this._bufferMaxParticles);
-        this._nativeParticleFallbackRingReleased = false;
-        return this._instanceVertex.buffer;
-    }
-
     protected _retireActiveParticles(): void {
         if (this._instanceParticleVertexBuffer == null) return;
         const epsilon: number = 0.0001;
@@ -276,7 +231,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
             }
         }
 
-        if (this._firstActiveElement != firstActive && !this._nativeParticleUploadOwned) {
+        if (this._firstActiveElement != firstActive) {
             let byteStride = this._floatCountPerParticleData * 4;
             if (this._firstActiveElement < this._firstFreeElement) {
                 let activeStart = this._firstActiveElement * byteStride;
@@ -321,10 +276,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
      * @returns 粒子是否成功添加。
      */
     addParticle(position: Vector3, direction: Vector3, time: number, elapsedTime: number): boolean {
-        if (this._nativeParticleSimulationOwned)
-            return this._nativeQueueAddParticle(position, direction, time, elapsedTime);
         Vector3.normalize(direction, direction);
-        const autoRandomSeed = this.autoRandomSeed && !this._nativeSpawnRandomEnabled;
 
         //下一个粒子
         let nextFreeParticle = this._firstFreeElement + 1;
@@ -362,7 +314,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
                 startSpeed = this.startSpeedConstant;
                 break;
             case 2:
-                if (autoRandomSeed) {
+                if (this.autoRandomSeed) {
                     startSpeed = MathUtil.lerp(this.startSpeedConstantMin, this.startSpeedConstantMax, Math.random());
                 } else {
                     this._rand.seed = this._randomSeeds[8];
@@ -377,7 +329,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
         if (needRandomVelocity) {
             let velocityType = this._velocityOverLifetime.velocity.type;
             if (velocityType == 2 || velocityType == 3) {
-                if (autoRandomSeed) {
+                if (this.autoRandomSeed) {
                     randomVelocityX = Math.random();
                     randomVelocityY = Math.random();
                     randomVelocityZ = Math.random();
@@ -403,7 +355,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
         if (needRandomColor) {
             let colorType = this._colorOverLifetime.color.type;
             if (colorType == 3) {
-                if (autoRandomSeed) {
+                if (this.autoRandomSeed) {
                     randomColor = Math.random();
                 }
                 else {
@@ -425,7 +377,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
         if (needRandomSize) {
             let sizeType = this._sizeOverLifetime.size.type;
             if (sizeType == 3) {
-                if (autoRandomSeed) {
+                if (this.autoRandomSeed) {
                     randomSize = Math.random();
                 }
                 else {
@@ -447,7 +399,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
         if (needRandomRotation) {
             let rotationType = this._rotationOverLifetime.angularVelocity.type;
             if (rotationType == 2 || rotationType == 3) {
-                if (autoRandomSeed) {
+                if (this.autoRandomSeed) {
 
                     randomRotation = Math.random();
                 }
@@ -470,7 +422,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
         if (needRandomTextureAnimation) {
             let textureAnimationType = this._textureSheetAnimation.frame.type;
             if (textureAnimationType == 3) {
-                if (autoRandomSeed) {
+                if (this.autoRandomSeed) {
                     randomTextureAnimation = Math.random();
                 }
                 else {
@@ -573,10 +525,6 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
      * @zh 将新粒子添加到顶点缓冲区。
      */
     addNewParticlesToVertexBuffer(): void {
-        if (this._nativeParticleUploadOwned) {
-            this._firstNewElement = this._firstFreeElement;
-            return;
-        }
         let byteStride = this._floatCountPerParticleData * 4;
         // instance buffer 绘制不能偏移, 每次 从 0 更新整个 buffer
         if (this._firstActiveElement < this._firstFreeElement) {
@@ -602,17 +550,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
      * @zh 更新粒子系统的渲染参数。
      * @param stage 当前渲染上下文。
      */
-    protected _nativeCommitParticleOwnerDrawParams(activeCount: number): void {
-        this.clearRenderParams();
-        this.instanceCount = activeCount;
-        if (activeCount > 0)
-            this.setDrawElemenParams(this._meshIndexCount, 0);
-        this._nativeParticleDrawParamsOwned = true;
-    }
-
     _updateRenderParams(stage: RenderContext3D) {
-        if (this._nativeParticleSimulationOwned && this._nativeParticleDrawParamsOwned)
-            return;
         //this._instanceBufferState.bind();
         // instance buffer 每次从 0 更新
         this.clearRenderParams();
@@ -656,7 +594,6 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
         }
 
         this._instanceVertex = null;
-        this._nativeParticleFallbackRingReleased = false;
         this._meshIndexCount = null;
         this._meshFloatCountPreVertex = null;
     }

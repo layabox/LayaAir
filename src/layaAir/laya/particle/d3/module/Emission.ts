@@ -6,8 +6,6 @@ import { Burst } from "./Burst";
  * @zh Emission 类用于粒子发射器。
  */
 export class Emission implements IClone {
-    /** @internal Mutation version consumed by the Native particle cold-config chain. */
-    _nativeParticleConfigVersion: number = 1;
     /** @internal */
     private _destroyed: boolean;
     /** @internal */
@@ -39,10 +37,7 @@ export class Emission implements IClone {
     set emissionRate(value: number) {
         if (value < 0)
             throw new Error("emissionRate value must large or equal than 0.");
-        if (Object.is(this._emissionRate, value))
-            return;
         this._emissionRate = value;
-        this._markNativeParticleConfigChanged();
     }
 
 
@@ -56,10 +51,7 @@ export class Emission implements IClone {
 
     set emissionRateOverDistance(value: number) {
         value = Math.max(0, value);
-        if (Object.is(this._emissionRateOverDistance, value))
-            return;
         this._emissionRateOverDistance = value;
-        this._markNativeParticleConfigChanged();
     }
 
     /**
@@ -78,12 +70,6 @@ export class Emission implements IClone {
     constructor() {
         this._destroyed = false;
         this._bursts = [];
-    }
-
-    private _markNativeParticleConfigChanged(): void {
-        this._nativeParticleConfigVersion = (this._nativeParticleConfigVersion + 1) >>> 0;
-        if (this._nativeParticleConfigVersion === 0)
-            this._nativeParticleConfigVersion = 1;
     }
 
     /**
@@ -130,7 +116,6 @@ export class Emission implements IClone {
                     this._bursts.splice(i, 0, burst);
             }
         this._bursts.push(burst);
-        this._markNativeParticleConfigChanged();
     }
 
     /**
@@ -143,7 +128,6 @@ export class Emission implements IClone {
         var index: number = this._bursts.indexOf(burst);
         if (index !== -1) {
             this._bursts.splice(index, 1);
-            this._markNativeParticleConfigChanged();
         }
     }
 
@@ -154,10 +138,7 @@ export class Emission implements IClone {
      * @param index 爆发索引。
      */
     removeBurstByIndex(index: number): void {
-        const previousLength = this._bursts.length;
         this._bursts.splice(index, 1);
-        if (this._bursts.length !== previousLength)
-            this._markNativeParticleConfigChanged();
     }
 
     /**
@@ -165,10 +146,7 @@ export class Emission implements IClone {
      * @zh 清空粒子爆发。
      */
     clearBurst(): void {
-        if (this._bursts.length === 0)
-            return;
         this._bursts.length = 0;
-        this._markNativeParticleConfigChanged();
     }
 
     /**
@@ -191,7 +169,6 @@ export class Emission implements IClone {
         destObject._emissionRate = this._emissionRate;
         destObject._emissionRateOverDistance = this._emissionRateOverDistance;
         destObject.enable = this.enable;
-        destObject._markNativeParticleConfigChanged();
     }
 
     /**

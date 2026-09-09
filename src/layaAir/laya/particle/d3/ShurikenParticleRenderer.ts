@@ -35,10 +35,6 @@ import { VertexShurikenParticleMesh } from "./VertexShurikenParticleMesh";
  * @zh `ShurikenParticleRenderer` 类用于创建3D粒子渲染器。
  */
 export class ShurikenParticleRenderer extends BaseRender {
-    /** @internal Monotonic epoch for Native cold particle configuration. */
-    _nativeParticleConfigEpoch: number = 1;
-    /** @internal P3 dirty-only config sink installed while this renderer is registered. */
-    _nativeParticleConfigSink: (() => void) = null;
     /**
      * @en Gravity value.
      * @zh 重力值。
@@ -284,8 +280,6 @@ export class ShurikenParticleRenderer extends BaseRender {
     /** @internal a config property changed: re-apply config uniforms + re-evaluate transform-derived ones. */
     _onParticleConfigChanged(): void {
         if (!this._particleSystem) return;
-        this._nativeParticleConfigEpoch = (this._nativeParticleConfigEpoch + 1) >>> 0;
-        this._nativeParticleConfigSink?.();
         this._applyConfigShaderData();
         this._transformUniformDirty = true;
         this._syncBoundsToNative();
@@ -371,12 +365,9 @@ export class ShurikenParticleRenderer extends BaseRender {
     _needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
         if (!Stat.enableParticle)
             return false;
-        const hasRenderableParticles = this._particleSystem._nativeParticleSimulationOwned
-            ? this._particleSystem._nativeHasRenderableParticles()
-            : this._particleSystem.isAlive;
         if (boundFrustum) {
             if (boundFrustum.intersects(this.bounds)) {
-                if (hasRenderableParticles)
+                if (this._particleSystem.isAlive)
                     return true;
                 else
                     return false;
@@ -397,8 +388,7 @@ export class ShurikenParticleRenderer extends BaseRender {
         var transform: Transform3D = this.owner.transform;
 
         // The particle animation clock is the only genuinely per-frame uniform.
-        if (!particleSystem._nativeParticleRenderPhaseOwned)
-            sv.setNumber(ShuriKenParticle3DShaderDeclaration.CURRENTTIME, particleSystem._currentTime);
+        sv.setNumber(ShuriKenParticle3DShaderDeclaration.CURRENTTIME, particleSystem._currentTime);
 
         // Transform-derived uniforms: only recompute when the emitter transform (or sim/scale mode) changed.
         if (this._transformUniformDirty) {
@@ -456,12 +446,8 @@ export class ShurikenParticleRenderer extends BaseRender {
      */
     renderUpdate(context: RenderContext3D): void {
         this._renderElements.forEach(element => {
-            const geometry = element._geometry;
-            element._renderElementOBJ.isRender = geometry._prepareRender(context);
-            // Native owner results already compact the instance buffer and commit
-            // the matching draw count. Avoid rebuilding it from a fake TS ring.
-            if (!(geometry as any)._nativeParticleDrawParamsOwned)
-                geometry._updateRenderParams(context);
+            element._renderElementOBJ.isRender = element._geometry._prepareRender(context);
+            element._geometry._updateRenderParams(context);
         })
     }
 
