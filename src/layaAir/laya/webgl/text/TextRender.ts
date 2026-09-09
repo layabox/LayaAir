@@ -159,6 +159,10 @@ export class TextRender {
         let rectW = Math.ceil((width + fontSizeOffX + lineWidth * 2 + correctionW) * fontScale) + blockGap * 2;
         let rectH = Math.ceil((fontSizeH + lineWidth * 2 + 1) * fontScale) + blockGap * 2;
 
+        //getImageData会按请求尺寸分配像素，超出canvas的部分也会分配，因此读取区域也需要限制。
+        rectW = Math.min(rectW, TextRenderConfig.maxCanvasWidth);
+        rectH = Math.min(rectH, TextRenderConfig.maxCanvasWidth);
+
         let needCanvW = Math.min(rectW + Math.ceil(margin * 2 * fontScale), TextRenderConfig.maxCanvasWidth);
         let needCanvH = Math.min(rectH + Math.ceil(margin * 2 * fontScale), TextRenderConfig.maxCanvasWidth);
         if (needCanvW > this.canvas.width || needCanvH > this.canvas.height)
@@ -198,8 +202,8 @@ export class TextRender {
     }
 
     private resizeCanvas(ctx: CanvasRenderingContext2D, newWidth: number, newHeight: number): void {
-        newWidth = 512 * Math.ceil(newWidth / 512); //以512为步长增长
-        newHeight = 512 * Math.ceil(newHeight / 512);
+        newWidth = Math.min(512 * Math.ceil(newWidth / 512), TextRenderConfig.maxCanvasWidth); //以512为步长增长，不超过上限
+        newHeight = Math.min(512 * Math.ceil(newHeight / 512), TextRenderConfig.maxCanvasWidth);
 
         //改变Canvas大小会导致状态丢失，所以要保存并恢复相关状态
         let fontStr = ctx.font;
