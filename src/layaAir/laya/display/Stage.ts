@@ -371,6 +371,12 @@ export class Stage extends Sprite {
         screenWidth /= pixelRatio;
         screenHeight /= pixelRatio;
 
+        //设备模式切换时可能短暂出现1像素视口，保留原尺寸，等待后续resize。
+        if (pixelRatio <= 0 || !Number.isFinite(screenWidth) || !Number.isFinite(screenHeight)
+            || screenWidth <= 1 || screenHeight <= 1) {
+            return;
+        }
+
         //计算是否需要旋转
         if (this._screenMode !== Stage.SCREEN_NONE) {
             let screenType: string = screenWidth / screenHeight < 1 ? Stage.SCREEN_VERTICAL : Stage.SCREEN_HORIZONTAL;
