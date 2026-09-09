@@ -5,7 +5,7 @@ export class MgWebSocket implements IWebSocket {
     ws: WechatMinigame.SocketTask;
 
     onOpen: (result: any) => void;
-    onClose: () => void;
+    onClose: (code?: number, reason?: string) => void;
     onError: (e: any) => void;
     onMessage: (data: string | ArrayBuffer) => void;
 
@@ -25,7 +25,7 @@ export class MgWebSocket implements IWebSocket {
         }
 
         this.ws.onOpen(res => this.onOpen(res));
-        this.ws.onClose(() => this.onClose());
+        this.ws.onClose((res: any) => this.onClose(res?.code, res?.reason));
         this.ws.onError(err => this.onError(err));
         this.ws.onMessage(msg => {
             if (msg.data){
