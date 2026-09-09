@@ -24,7 +24,6 @@ export class WidgetPool {
         }
         this._items = {};
         this._count = 0;
-        this.defaultRes = null;
     }
 
     get count(): number {
