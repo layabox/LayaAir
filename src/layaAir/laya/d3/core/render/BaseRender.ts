@@ -250,11 +250,11 @@ export class BaseRender extends Component {
      * @en Renderer order within the same camera and render phase. Defaults to 0.
      * Lower values are submitted first, before material queue and distance sorting.
      * Does not change depth, stencil or blending states.
-     * Supported by WebGL and WebGPU; Native/LayaX currently only retain the value.
+     * Supported by WebGL, WebGPU and matching Native/LayaX runtimes.
      * Opaque batching may reorder draws; use this property primarily for transparent renderers.
      * @zh 同一相机、同一渲染阶段内的渲染顺序，默认为 0，主要用于透明渲染器。
      * 值越小越先提交，优先于材质队列和距离排序。
-     * 不改变深度、模板或混合状态。支持 WebGL、WebGPU；Native/LayaX 当前仅保存该值。
+     * 不改变深度、模板或混合状态。支持 WebGL、WebGPU 和配套的 Native/LayaX 运行时。
      * 不透明合批可能重排绘制项，不保证不透明物体的完整提交顺序。
      */
     get renderOrder(): number {

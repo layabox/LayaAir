@@ -22,9 +22,6 @@ import { LayaXVolumetricGI } from "./LayaXVolumetricGI";
  */
 export class LayaXBaseRenderNode implements IBaseRenderNode {
 
-    // Stored on the JS side only. LayaX sorting requires a matching runtime implementation.
-    renderOrder: number = 0;
-
     /** @internal */
     _nativeObj: any;
 
@@ -52,6 +49,9 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
 
     public get distanceForSort(): number { return this._nativeObj.distanceForSort; }
     public set distanceForSort(value: number) { this._nativeObj.distanceForSort = value; }
+
+    public get renderOrder(): number { return this._nativeObj.renderOrder; }
+    public set renderOrder(value: number) { this._nativeObj.renderOrder = value; }
 
     public get sortingFudge(): number { return this._nativeObj.sortingFudge; }
     public set sortingFudge(value: number) { this._nativeObj.sortingFudge = value; }

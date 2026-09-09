@@ -45,12 +45,17 @@ const enum RTBaseRenderNodeSlot {
     lightmapScaleOffsetW = 27,
     customCull = 28,
     customCullResoult = 29,
-    Count = 30,
+    renderOrder = 30, // Float64 occupies slots 30..31.
+    Count = 32,
 }
 
 export class RTBaseRenderNode implements IBaseRenderNode {
-    // Stored on the JS side only. Native sorting requires a matching runtime implementation.
-    renderOrder: number = 0;
+    public get renderOrder(): number {
+        return this._f64[RTBaseRenderNodeSlot.renderOrder / 2];
+    }
+    public set renderOrder(value: number) {
+        this._f64[RTBaseRenderNodeSlot.renderOrder / 2] = value;
+    }
     renderelements: IRenderElement3D[];
     private _transform: RTTransform3D;
 
@@ -233,6 +238,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     /**@internal 共享属性块（per-instance，与 C++ m_props 同一块内存） */
     private _mem: NativeMemory;
     private _f32: Float32Array;
+    private _f64: Float64Array;
     private _i32: Int32Array;
     private _u32: Uint32Array;
     /**@internal */
@@ -275,6 +281,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     private _initPropertyBuffer(): void {
         this._mem = new NativeMemory(RTBaseRenderNodeSlot.Count * 4, false);
         this._f32 = this._mem.float32Array;
+        this._f64 = new Float64Array(this._mem._buffer);
         this._i32 = this._mem.int32Array;
         this._u32 = this._mem.Uint32Array;
         this._nativeObj.bindPropertyBuffer(this._mem._buffer);
