@@ -10,13 +10,13 @@ import { IWebSocket, IWebSocketConnectOptions } from "./IWebSocket";
  * -  To use Socket class methods, first create a Socket object using the constructor new Socket. Socket transmits and receives data asynchronously.
  * - Event.OPEN event: dispatched after successful connection establishment.
  * - Event.MESSAGE event: dispatched after receiving data.
- * - Event.CLOSE event: dispatched after connection closed.
+ * - Event.CLOSE event: dispatched after connection closed. The callback receives the close code and reason as parameters.
  * - Event.ERROR event: dispatched after an error occurred.
  * @zh Socket 封装了 HTML5 WebSocket，允许服务器端与客户端进行全双工（full-duplex）的实时通信，并且允许跨域通信。在建立连接后，服务器和 Browser/Client Agent 都能主动的向对方发送或接收文本和二进制数据。
  * - 要使用Socket 类的方法，请先使用构造函数 new Socket 创建一个 Socket 对象。 Socket 以异步方式传输和接收数据。
  * - Event.OPEN 事件：连接建立成功后调度。
  * - Event.MESSAGE 事件：接收到数据后调度。
- * - Event.CLOSE 事件：连接被关闭后调度。
+ * - Event.CLOSE 事件：连接被关闭后调度，回调参数为关闭的 code 和 reason。
  * - Event.ERROR 事件：出现异常后调度。
  * @blueprintable
  */
@@ -96,13 +96,13 @@ export class Socket extends EventDispatcher {
 
     /**
      * @en Connect to the specified host and port.
-     * - Dispatches Event.OPEN on successful connection; Event.ERROR on connection failure; Event.CLOSE when the connection is closed; Event.MESSAGE when data is received. Except for Event.MESSAGE where the event parameter is the data content, other event parameters are native HTML DOM Event objects.
+     * - Dispatches Event.OPEN on successful connection; Event.ERROR on connection failure; Event.CLOSE when the connection is closed (the callback receives the close code and reason); Event.MESSAGE when data is received. Except for Event.MESSAGE where the event parameter is the data content, other event parameters are native HTML DOM Event objects.
      * @param host The server address.
      * @param port The server port.
      * @param isSecure Whether to use the WebSocket secure protocol wss, default (false) uses the ordinary protocol ws.
      * @param protocols Subprotocol names. A string or an array of strings of subprotocol names.
      * @zh 连接到指定的主机和端口。
-     * - 连接成功派发 Event.OPEN 事件；连接失败派发 Event.ERROR 事件；连接被关闭派发 Event.CLOSE 事件；接收到数据派发 Event.MESSAGE 事件； 除了 Event.MESSAGE 事件参数为数据内容，其他事件参数都是原生的 HTML DOM Event 对象。
+     * - 连接成功派发 Event.OPEN 事件；连接失败派发 Event.ERROR 事件；连接被关闭派发 Event.CLOSE 事件（回调参数为关闭的 code 和 reason）；接收到数据派发 Event.MESSAGE 事件； 除了 Event.MESSAGE 事件参数为数据内容，其他事件参数都是原生的 HTML DOM Event 对象。
      * @param host 服务器地址。
      * @param port 服务器端口。
      * @param isSecure 是否使用WebSocket安全协议wss，默认（false）使用普通协议ws。
@@ -111,13 +111,13 @@ export class Socket extends EventDispatcher {
     connect(host: string, port: number, isSecure?: boolean, protocols?: string[]): void;
     /**
      * @en Connect to the specified host and port.
-     * - Dispatches Event.OPEN on successful connection; Event.ERROR on connection failure; Event.CLOSE when the connection is closed; Event.MESSAGE when data is received. Except for Event.MESSAGE where the event parameter is the data content, other event parameters are native HTML DOM Event objects.
+     * - Dispatches Event.OPEN on successful connection; Event.ERROR on connection failure; Event.CLOSE when the connection is closed (the callback receives the close code and reason); Event.MESSAGE when data is received. Except for Event.MESSAGE where the event parameter is the data content, other event parameters are native HTML DOM Event objects.
      * @param host The server address.
      * @param port The server port.
      * @param isSecure Whether to use the WebSocket secure protocol wss, default (false) uses the ordinary protocol ws.
      * @param options Options for the WebSocket connection.
      * @zh 连接到指定的主机和端口。
-     * - 连接成功派发 Event.OPEN 事件；连接失败派发 Event.ERROR 事件；连接被关闭派发 Event.CLOSE 事件；接收到数据派发 Event.MESSAGE 事件； 除了 Event.MESSAGE 事件参数为数据内容，其他事件参数都是原生的 HTML DOM Event 对象。
+     * - 连接成功派发 Event.OPEN 事件；连接失败派发 Event.ERROR 事件；连接被关闭派发 Event.CLOSE 事件（回调参数为关闭的 code 和 reason）；接收到数据派发 Event.MESSAGE 事件； 除了 Event.MESSAGE 事件参数为数据内容，其他事件参数都是原生的 HTML DOM Event 对象。
      * @param host 服务器地址。
      * @param port 服务器端口。
      * @param isSecure 是否使用WebSocket安全协议wss，默认（false）使用普通协议ws。
@@ -131,22 +131,22 @@ export class Socket extends EventDispatcher {
 
     /**
      * @en Connect to the specified server WebSocket URL. The URL is similar to ws://yourdomain:port.
-     * - Dispatches Event.OPEN on successful connection; Event.ERROR on connection failure; Event.CLOSE when the connection is closed; Event.MESSAGE when data is received. Except for Event.MESSAGE where the event parameter is the data content, other event parameters are native HTML DOM Event objects.
+     * - Dispatches Event.OPEN on successful connection; Event.ERROR on connection failure; Event.CLOSE when the connection is closed (the callback receives the close code and reason); Event.MESSAGE when data is received. Except for Event.MESSAGE where the event parameter is the data content, other event parameters are native HTML DOM Event objects.
      * @param url The server WebSocket URL to connect to. The URL is similar to ws://yourdomain:port.
      * @param protocols Subprotocol names. A string or an array of strings of subprotocol names.
      * @zh 连接到指定的服务端 WebSocket URL。 URL 类似 ws://yourdomain:port。
-     * - 连接成功派发 Event.OPEN 事件；连接失败派发 Event.ERROR 事件；连接被关闭派发 Event.CLOSE 事件；接收到数据派发 Event.MESSAGE 事件； 除了 Event.MESSAGE 事件参数为数据内容，其他事件参数都是原生的 HTML DOM Event 对象。
+     * - 连接成功派发 Event.OPEN 事件；连接失败派发 Event.ERROR 事件；连接被关闭派发 Event.CLOSE 事件（回调参数为关闭的 code 和 reason）；接收到数据派发 Event.MESSAGE 事件； 除了 Event.MESSAGE 事件参数为数据内容，其他事件参数都是原生的 HTML DOM Event 对象。
      * @param url 要连接的服务端 WebSocket URL。 URL 类似 ws://yourdomain:port。
      * @param protocols 子协议名称。子协议名称字符串，或由多个子协议名称字符串构成的数组。
      */
     connectByUrl(url: string, protocols?: string[]): void;
     /**
      * @en Connect to the specified server WebSocket URL. The URL is similar to ws://yourdomain:port.
-     * - Dispatches Event.OPEN on successful connection; Event.ERROR on connection failure; Event.CLOSE when the connection is closed; Event.MESSAGE when data is received. Except for Event.MESSAGE where the event parameter is the data content, other event parameters are native HTML DOM Event objects.
+     * - Dispatches Event.OPEN on successful connection; Event.ERROR on connection failure; Event.CLOSE when the connection is closed (the callback receives the close code and reason); Event.MESSAGE when data is received. Except for Event.MESSAGE where the event parameter is the data content, other event parameters are native HTML DOM Event objects.
      * @param url The server WebSocket URL to connect to. The URL is similar to ws://yourdomain:port.
      * @param options Options for the WebSocket connection.
      * @zh 连接到指定的服务端 WebSocket URL。 URL 类似 ws://yourdomain:port。
-     * - 连接成功派发 Event.OPEN 事件；连接失败派发 Event.ERROR 事件；连接被关闭派发 Event.CLOSE 事件；接收到数据派发 Event.MESSAGE 事件； 除了 Event.MESSAGE 事件参数为数据内容，其他事件参数都是原生的 HTML DOM Event 对象。
+     * - 连接成功派发 Event.OPEN 事件；连接失败派发 Event.ERROR 事件；连接被关闭派发 Event.CLOSE 事件（回调参数为关闭的 code 和 reason）；接收到数据派发 Event.MESSAGE 事件； 除了 Event.MESSAGE 事件参数为数据内容，其他事件参数都是原生的 HTML DOM Event 对象。
      * @param url 要连接的服务端 WebSocket URL。 URL 类似 ws://yourdomain:port。
      * @param options WebSocket 连接的选项。
      */
@@ -173,9 +173,9 @@ export class Socket extends EventDispatcher {
             this._connected = true;
             this.event(Event.OPEN);
         };
-        this._socket.onClose = () => {
+        this._socket.onClose = (code?: number, reason?: string) => {
             this._connected = false;
-            this.event(Event.CLOSE);
+            this.event(Event.CLOSE, [code, reason]);
         };
         this._socket.onError = (e: any) => {
             if (this.hasListener(Event.ERROR))
@@ -273,7 +273,7 @@ export class Socket extends EventDispatcher {
     /** @internal @blueprintEvent */
     Socket_bpEvent: {
         [Event.OPEN]: () => void;
-        [Event.CLOSE]: () => void;
+        [Event.CLOSE]: (code?: number, reason?: string) => void;
         [Event.ERROR]: (e: any) => void;
         [Event.MESSAGE]: (data: string | ArrayBuffer) => void;
     };

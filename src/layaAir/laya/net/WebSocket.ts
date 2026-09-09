@@ -6,7 +6,7 @@ export class _WebSocket implements IWebSocket {
     ws: WebSocket;
 
     onOpen: (result: any) => void;
-    onClose: () => void;
+    onClose: (code?: number, reason?: string) => void;
     onError: (e: any) => void;
     onMessage: (data: string | ArrayBuffer) => void;
 
@@ -19,7 +19,7 @@ export class _WebSocket implements IWebSocket {
         this.ws.binaryType = "arraybuffer";
 
         this.ws.onopen = e => this.onOpen({});
-        this.ws.onclose = e => this.onClose();
+        this.ws.onclose = e => this.onClose(e.code, e.reason);
         this.ws.onerror = err => this.onError(err);
         this.ws.onmessage = msg => {
             if (msg.data)

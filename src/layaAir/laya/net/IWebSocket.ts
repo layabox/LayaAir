@@ -3,7 +3,7 @@
  */
 export interface IWebSocket {
     onOpen: (result: any) => void;
-    onClose: () => void;
+    onClose: (code?: number, reason?: string) => void;
     onError: (e: any) => void;
     onMessage: (data: string | ArrayBuffer) => void;
 
