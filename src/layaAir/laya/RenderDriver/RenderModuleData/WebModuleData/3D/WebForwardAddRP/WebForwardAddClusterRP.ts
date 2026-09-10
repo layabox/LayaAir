@@ -1,3 +1,4 @@
+import { BaseCamera } from "../../../../../d3/core/BaseCamera";
 import { Camera } from "../../../../../d3/core/Camera";
 import { CommandBuffer } from "../../../../../d3/core/render/command/CommandBuffer";
 import { DepthPass } from "../../../../../d3/depthMap/DepthPass";
@@ -283,9 +284,15 @@ export class WebForwardAddClusterRP implements IMain3DRP {
     * 渲染不透明贴图流程
     */
     protected _opaqueTexturePass(context: IRenderContext3D) {
-        let commanbuffer = this.blitOpaqueBuffer;
-        commanbuffer._apply(false);
-        context.runCMDList(commanbuffer._renderCMDs);
+        const cameraData = context.cameraData;
+        const opaqueTexture = cameraData.getTexture(BaseCamera.OPAQUETEXTURE);
+        // WebGPU validates all bound textures, including unused camera bindings.
+        cameraData.setTexture(BaseCamera.OPAQUETEXTURE, Texture2D.blackTexture);
+        const commandBuffer = this.blitOpaqueBuffer;
+        commandBuffer._apply(false);
+        context.runCMDList(commandBuffer._renderCMDs);
+        // Subsequent transparent draws must sample the completed opaque texture.
+        cameraData.setTexture(BaseCamera.OPAQUETEXTURE, opaqueTexture);
     }
 
     protected _recoverRenderContext3D(context: IRenderContext3D, renderTarget: InternalRenderTarget) {
