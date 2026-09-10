@@ -111,7 +111,7 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         // todo 
         renderpass.pipelineMode = RenderContext3D._instance.configPipeLineMode;
 
-        let enableShadow = Scene3D._updateMark % camera.scene._ShadowMapupdateFrequency == 0 && Stat.enableShadow;
+        let enableShadow = (camera.scene._lightCullingMaskUsed || Scene3D._updateMark % camera.scene._ShadowMapupdateFrequency == 0) && Stat.enableShadow;
         this.renderpass.shadowCastPass = enableShadow;
 
         if (enableShadow) {

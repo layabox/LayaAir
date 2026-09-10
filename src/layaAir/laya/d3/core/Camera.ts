@@ -157,8 +157,6 @@ export class Camera extends BaseCamera {
             scene.skyRenderer.renderUpdate(RenderContext3D._instance);
         }
 
-        //@ts-ignore
-        scene._prepareSceneToRender();
         scene._setCullCamera(camera);
         let recoverTexture = camera.renderTarget;
         camera.renderTarget = renderTexture;
@@ -1389,12 +1387,16 @@ export class Camera extends BaseCamera {
         this._applyViewProject(this.viewMatrix, this.projectionMatrix, context.invertY);
         this._contextApply(context);
 
+        scene._prepareSceneToRender(this);
+
         if (this.clearFlag == CameraClearFlags.Sky) {
             scene.skyRenderer.setRenderElement(this.skyRenderElement);
             this.skyRenderElement.renderpre(context);
         }
 
         scene._componentDriver.callPreRender();
+        if (scene._preparedLightCamera !== this)
+            scene._prepareSceneToRender(this);
         this._preRenderMainPass(context, scene, needInternalRT, viewport);
 
         let multiLight = Config3D._multiLighting;

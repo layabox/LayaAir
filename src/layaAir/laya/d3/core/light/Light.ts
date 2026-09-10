@@ -8,6 +8,8 @@ import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 import { IDirectLightData, IPointLightData, ISpotLightData } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 
+const ALL_LAYERS = 0x7fffffff;
+
 /** 
  * @en Light type.
  * @zh 灯光类型。
@@ -34,6 +36,8 @@ export enum LightMode {
  * @zh LightSprite 类用于创建灯光的父类。
  */
 export class Light extends Component {
+    /** @internal */
+    private _cullingMask: number;
     /**下沉数据集合 */
     protected _dataModule: IDirectLightData | ISpotLightData | IPointLightData;
     protected _shadowMode: ShadowMode = ShadowMode.None;
@@ -61,6 +65,22 @@ export class Light extends Component {
     color: Color;
 
     declare readonly owner: Sprite3D;
+
+    /**
+     * @en The culling mask used to match this light with a camera. The light participates in rendering when its mask overlaps the camera's culling mask.
+     * @zh 用于与相机匹配的剔除遮罩。当该遮罩与相机的 cullingMask 存在交集时，灯光参与该相机的渲染。
+     */
+    get cullingMask(): number {
+        return this._cullingMask;
+    }
+
+    set cullingMask(value: number) {
+        if (this._cullingMask === value)
+            return;
+        this._cullingMask = value;
+        if (this._lightmapBakedType !== LightMode.bakeOnly)
+            this.owner?.scene?._invalidateLightPreparation(value !== ALL_LAYERS);
+    }
 
     /**
      * @en The light intensity.
@@ -211,6 +231,7 @@ export class Light extends Component {
         super();
         this._creatModuleData();
         this.runInEditor = true;
+        this._cullingMask = ALL_LAYERS;
         this._intensity = 1.0;
         this._intensityColor = new Vector3();
         this.color = new Color(1.0, 1.0, 1.0, 1.0);
@@ -247,9 +268,47 @@ export class Light extends Component {
         dest.color = this.color.clone();
         dest.intensity = this.intensity;
         dest.lightmapBakedType = this.lightmapBakedType;
+        dest.cullingMask = this.cullingMask;
+    }
+
+    /**
+     * @en Adds a layer to this light's culling mask.
+     * @param layer The layer to add, ranging from 0 to 30.
+     * @zh 向灯光剔除遮罩中增加一个图层。
+     * @param layer 要增加的图层，范围为 0 到 30。
+     */
+    addLayer(layer: number): void {
+        this.cullingMask |= Math.pow(2, layer);
+    }
+
+    /**
+     * @en Removes a layer from this light's culling mask.
+     * @param layer The layer to remove, ranging from 0 to 30.
+     * @zh 从灯光剔除遮罩中移除一个图层。
+     * @param layer 要移除的图层，范围为 0 到 30。
+     */
+    removeLayer(layer: number): void {
+        this.cullingMask &= ~Math.pow(2, layer);
+    }
+
+    /**
+     * @en Adds all layers to this light's culling mask.
+     * @zh 将所有图层加入灯光剔除遮罩。
+     */
+    addAllLayers(): void {
+        this.cullingMask = ALL_LAYERS;
+    }
+
+    /**
+     * @en Removes all layers from this light's culling mask.
+     * @zh 清空灯光剔除遮罩中的所有图层。
+     */
+    removeAllLayers(): void {
+        this.cullingMask = 0;
     }
     private _addToScene(): void {
         var scene: Scene3D = <Scene3D>this.owner.scene;
+        scene._invalidateLightPreparation(this._cullingMask !== ALL_LAYERS);
         var maxLightCount: number = Config3D.maxLightCount;
         if (scene._lightCount < maxLightCount) {
             scene._lightCount++;
@@ -280,6 +339,7 @@ export class Light extends Component {
                 scene._lightCount++;
             }
         }
+        scene._invalidateLightPreparation();
     }
 
     protected _addToLightQueue(): void {

@@ -12,6 +12,7 @@ import { TextureCube } from "../../../resource/TextureCube";
 import { Utils3D } from "../../utils/Utils3D";
 import { BaseCamera } from "../BaseCamera";
 import { Camera } from "../Camera";
+import type { Light } from "../light/Light";
 import { AlternateLightQueue, LightQueue } from "../light/LightQueue";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { Lightmap } from "./Lightmap";
@@ -53,6 +54,8 @@ import { Config } from "../../../../Config";
 import { Sprite3D } from "../Sprite3D";
 import { VolumetricGI } from "../../component/Volume/VolumetricGI/VolumetricGI";
 import { Node } from "../../../display/Node";
+
+const ALL_LAYERS = 0x7fffffff;
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -319,6 +322,24 @@ export class Scene3D extends Sprite {
     public _spotLights: LightQueue<SpotLightCom> = new LightQueue();
     /** @internal */
     public _directionLights: LightQueue<DirectionLightCom> = new LightQueue();
+    /** @internal Current camera's direction lights. */
+    _renderDirectionLights: LightQueue<DirectionLightCom> = this._directionLights;
+    /** @internal Current camera's point lights. */
+    _renderPointLights: LightQueue<PointLightCom> = this._pointLights;
+    /** @internal Current camera's spot lights. */
+    _renderSpotLights: LightQueue<SpotLightCom> = this._spotLights;
+    /** @internal */
+    private _cameraDirectionLights: LightQueue<DirectionLightCom> = new LightQueue();
+    /** @internal */
+    private _cameraPointLights: LightQueue<PointLightCom> = new LightQueue();
+    /** @internal */
+    private _cameraSpotLights: LightQueue<SpotLightCom> = new LightQueue();
+    /** @internal The camera for which the shared scene lighting state is currently prepared. */
+    _preparedLightCamera: Camera = null;
+    /** @internal Whether this scene requires camera-specific real-time light filtering. */
+    _lightCullingMaskUsed: boolean = false;
+    /** @internal Whether default light data may be reused during the current camera-pool render. */
+    private _allowDefaultLightReuse: boolean = false;
     /** @internal */
     public _alternateLights: AlternateLightQueue = new AlternateLightQueue();
     /** @internal */
@@ -889,7 +910,52 @@ export class Scene3D extends Sprite {
         scenes.splice(scenes.indexOf(this), 1);
     }
 
-    private _prepareSceneToRender(): void {
+    /** @internal */
+    _invalidateLightPreparation(useCullingMask: boolean = false): void {
+        this._preparedLightCamera = null;
+        this._lightCullingMaskUsed ||= useCullingMask;
+    }
+
+    private _getCameraLightQueue<T extends Light>(source: LightQueue<T>, filtered: LightQueue<T>, cameraMask: number): LightQueue<T> {
+        const sourceElements = source._elements;
+        const filteredElements = filtered._elements;
+        let filteredCount = 0;
+        for (let i = 0, n = source._length; i < n; i++) {
+            const light = sourceElements[i];
+            if ((light.cullingMask & cameraMask) !== 0)
+                filteredElements[filteredCount++] = light;
+        }
+        filtered._length = filteredCount;
+        return filteredCount === source._length ? source : filtered;
+    }
+
+    /**
+     * @internal
+     * @param camera The camera being rendered.
+     */
+    _prepareSceneToRender(camera: Camera): void {
+        const cameraMask = camera.cullingMask;
+        if (this._allowDefaultLightReuse && this._preparedLightCamera
+            && !this._lightCullingMaskUsed && (cameraMask & ALL_LAYERS) !== 0) {
+            this._preparedLightCamera = camera;
+            return;
+        }
+
+        const filterLights = this._lightCullingMaskUsed || (cameraMask & ALL_LAYERS) === 0;
+        const directionLights = this._renderDirectionLights = filterLights
+            ? this._getCameraLightQueue(this._directionLights, this._cameraDirectionLights, cameraMask)
+            : this._directionLights;
+        const pointLights = this._renderPointLights = filterLights
+            ? this._getCameraLightQueue(this._pointLights, this._cameraPointLights, cameraMask)
+            : this._pointLights;
+        const spotLights = this._renderSpotLights = filterLights
+            ? this._getCameraLightQueue(this._spotLights, this._cameraSpotLights, cameraMask)
+            : this._spotLights;
+        if (filterLights)
+            this._lightCullingMaskUsed ||= directionLights !== this._directionLights
+                || pointLights !== this._pointLights || spotLights !== this._spotLights;
+        this._preparedLightCamera = camera;
+
         var shaderValues: ShaderData = this._shaderValues;
         var multiLighting: boolean = Config3D._multiLighting && Stat.enableMulLight;
         if (multiLighting) {
@@ -898,12 +964,12 @@ export class Scene3D extends Sprite {
             const pixelWidth: number = ligTex.width;
             const floatWidth: number = pixelWidth * 4;
             var curCount: number = 0;
-            var dirCount: number = Stat.enableLight ? this._directionLights._length : 0;
-            var dirElements: DirectionLightCom[] = this._directionLights._elements;
+            var dirCount: number = Stat.enableLight ? directionLights._length : 0;
+            var dirElements: DirectionLightCom[] = directionLights._elements;
             if (dirCount > 0) {
-                var sunLightIndex: number = this._directionLights.getBrightestLight();//get the brightest light as sun
+                var sunLightIndex: number = directionLights.getBrightestLight();//get the brightest light as sun
                 this._mainDirectionLight = dirElements[sunLightIndex];
-                this._directionLights.normalLightOrdering(sunLightIndex);
+                directionLights.normalLightOrdering(sunLightIndex);
                 for (var i: number = 0; i < dirCount; i++, curCount++) {
                     var dirLight: DirectionLightCom = dirElements[i];
                     var dir: Vector3 = dirLight.direction;
@@ -927,8 +993,8 @@ export class Scene3D extends Sprite {
                     // 	this._setShaderValue(Scene3D.SUNLIGHTDIRECTION, dir);
                     // }
                     if (i === 0) {
-                        this._sunColor = dirLight.color;
-                        this._sundir = dir;
+                        dirLight.color.cloneTo(this._sunColor);
+                        dir.cloneTo(this._sundir);
                     }
                 }
                 shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
@@ -936,14 +1002,16 @@ export class Scene3D extends Sprite {
             else {
                 shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
                 this._mainDirectionLight = null;
+                this._sunColor.setValue(1.0, 1.0, 1.0, 1.0);
+                this._sundir.setValue(0.0, 0.0, 0.0);
             }
 
-            var poiCount: number = Stat.enableLight ? this._pointLights._length : 0;
+            var poiCount: number = Stat.enableLight ? pointLights._length : 0;
             if (poiCount > 0) {
-                var poiElements: PointLightCom[] = this._pointLights._elements;
-                var mainPointLightIndex: number = this._pointLights.getBrightestLight();
+                var poiElements: PointLightCom[] = pointLights._elements;
+                var mainPointLightIndex: number = pointLights.getBrightestLight();
                 this._mainPointLight = poiElements[mainPointLightIndex];
-                this._pointLights.normalLightOrdering(mainPointLightIndex);
+                pointLights.normalLightOrdering(mainPointLightIndex);
                 for (var i: number = 0; i < poiCount; i++, curCount++) {
                     var poiLight: PointLightCom = poiElements[i];
                     var pos: Vector3 = poiLight.owner.transform.position;
@@ -969,12 +1037,12 @@ export class Scene3D extends Sprite {
                 this._mainPointLight = null;
             }
 
-            var spoCount: number = Stat.enableLight ? this._spotLights._length : 0;
+            var spoCount: number = Stat.enableLight ? spotLights._length : 0;
             if (spoCount > 0) {
-                var spoElements: SpotLightCom[] = this._spotLights._elements;
-                var mainSpotLightIndex: number = this._spotLights.getBrightestLight();
+                var spoElements: SpotLightCom[] = spotLights._elements;
+                var mainSpotLightIndex: number = spotLights.getBrightestLight();
                 this._mainSpotLight = spoElements[mainSpotLightIndex];
-                this._spotLights.normalLightOrdering(mainSpotLightIndex)
+                spotLights.normalLightOrdering(mainSpotLightIndex)
                 for (var i: number = 0; i < spoCount; i++, curCount++) {
                     var spoLight: SpotLightCom = spoElements[i];
                     var dir: Vector3 = spoLight.direction;
@@ -1009,14 +1077,14 @@ export class Scene3D extends Sprite {
 
             (curCount > 0) && (ligTex.setSubPixelsData(0, 0, pixelWidth, curCount, ligPix, 0, false, false, false));
             shaderValues.setTexture(Scene3D.LIGHTBUFFER, ligTex);
-            shaderValues.setInt(Scene3D.DIRECTIONLIGHTCOUNT, this._directionLights._length);
+            shaderValues.setInt(Scene3D.DIRECTIONLIGHTCOUNT, dirCount);
             shaderValues.setTexture(Scene3D.CLUSTERBUFFER, Cluster.instance._clusterTexture);
         }
         else {
             if (!Scene3D.LIGHTDIRECTION)//需要更新一下
                 Scene3D.legacyLightingValueInit();
-            if (this._directionLights._length > 0 && Stat.enableLight) {
-                var dirLight: DirectionLightCom = this._directionLights._elements[0];
+            if (directionLights._length > 0 && Stat.enableLight) {
+                var dirLight: DirectionLightCom = directionLights._elements[0];
                 this._mainDirectionLight = dirLight;
                 dirLight._intensityColor.x = Color.gammaToLinearSpace(dirLight.color.r);
                 dirLight._intensityColor.y = Color.gammaToLinearSpace(dirLight.color.g);
@@ -1028,19 +1096,20 @@ export class Scene3D extends Sprite {
                 shaderValues.setVector3(Scene3D.LIGHTDIRCOLOR, dirLight._intensityColor);
                 shaderValues.setVector3(Scene3D.LIGHTDIRECTION, dirLight.direction);
                 shaderValues.setInt(Scene3D.LIGHTMODE, dirLight._lightmapBakedType);
-                if (i === 0) {
-                    this._sunColor = dirLight.color;
-                    this._sundir = dirLight.direction;
-                }
+                dirLight.color.cloneTo(this._sunColor);
+                dirLight.direction.cloneTo(this._sundir);
                 // this._setShaderValue(Scene3D.SUNLIGHTDIRCOLOR, dirLight._intensityColor);
                 // this._setShaderValue(Scene3D.SUNLIGHTDIRECTION, dirLight._direction);
                 shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
             }
             else {
                 shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
+                this._mainDirectionLight = null;
+                this._sunColor.setValue(1.0, 1.0, 1.0, 1.0);
+                this._sundir.setValue(0.0, 0.0, 0.0);
             }
-            if (this._pointLights._length > 0 && Stat.enableLight) {
-                var poiLight: PointLightCom = this._pointLights._elements[0];
+            if (pointLights._length > 0 && Stat.enableLight) {
+                var poiLight: PointLightCom = pointLights._elements[0];
                 this._mainPointLight = poiLight;
                 poiLight._intensityColor.x = Color.gammaToLinearSpace(poiLight.color.r);
                 poiLight._intensityColor.y = Color.gammaToLinearSpace(poiLight.color.g);
@@ -1054,9 +1123,10 @@ export class Scene3D extends Sprite {
             }
             else {
                 shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
+                this._mainPointLight = null;
             }
-            if (this._spotLights._length > 0 && Stat.enableLight) {
-                var spotLight: SpotLightCom = this._spotLights._elements[0];
+            if (spotLights._length > 0 && Stat.enableLight) {
+                var spotLight: SpotLightCom = spotLights._elements[0];
                 this._mainSpotLight = spotLight;
                 spotLight._intensityColor.x = Color.gammaToLinearSpace(spotLight.color.r);
                 spotLight._intensityColor.y = Color.gammaToLinearSpace(spotLight.color.g);
@@ -1074,6 +1144,7 @@ export class Scene3D extends Sprite {
             }
             else {
                 shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
+                this._mainSpotLight = null;
             }
         }
     }
@@ -1170,6 +1241,14 @@ export class Scene3D extends Sprite {
         this._directionLights = null;
         this._pointLights = null;
         this._spotLights = null;
+        this._renderDirectionLights = null;
+        this._renderPointLights = null;
+        this._renderSpotLights = null;
+        this._cameraDirectionLights = null;
+        this._cameraPointLights = null;
+        this._cameraSpotLights = null;
+        this._preparedLightCamera = null;
+        this._allowDefaultLightReuse = false;
         this._alternateLights = null;
         (RenderContext3D._instance.scene == this) && (RenderContext3D._instance.scene = null);
         this._shaderValues.destroy();
@@ -1214,33 +1293,39 @@ export class Scene3D extends Sprite {
 
         if (this._renderByEditor) return;
         //BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind();
-        this._prepareSceneToRender();
         var i: number, n: number, n1: number;
         Scene3D._updateMark++;
 
-        for (i = 0, n = this._cameraPool.length, n1 = n - 1; i < n; i++) {
-            var camera: Camera = (<Camera>this._cameraPool[i]);
-            if (camera.enableRender && camera.activeInHierarchy) {
+        this._allowDefaultLightReuse = true;
+        this._preparedLightCamera = null;
+        try {
+            for (i = 0, n = this._cameraPool.length, n1 = n - 1; i < n; i++) {
+                var camera: Camera = (<Camera>this._cameraPool[i]);
+                if (camera.enableRender && camera.activeInHierarchy) {
 
-                if (camera.renderTarget) {
-                    camera.enableBuiltInRenderTexture ||= false;
+                    if (camera.renderTarget) {
+                        camera.enableBuiltInRenderTexture ||= false;
+                    }
+                    else {
+                        camera.enableBuiltInRenderTexture ||= true;
+                    }
+
+                    camera.render(this);
+
+                    if (!camera._offScreenRenderTexture) {
+                        this.blitMainCanvas(camera._internalRenderTexture, camera.normalizedViewport, camera);
+                    }
+
+                    // if (!camera._cacheDepth) {
+                    //     camera._needInternalRenderTexture() && (!camera._internalRenderTexture._inPool) && RenderTexture.recoverToPool(camera._internalRenderTexture);
+                    // }
+
+                    camera._aftRenderMainPass();
                 }
-                else {
-                    camera.enableBuiltInRenderTexture ||= true;
-                }
-
-                camera.render(this);
-
-                if (!camera._offScreenRenderTexture) {
-                    this.blitMainCanvas(camera._internalRenderTexture, camera.normalizedViewport, camera);
-                }
-
-                // if (!camera._cacheDepth) {
-                //     camera._needInternalRenderTexture() && (!camera._internalRenderTexture._inPool) && RenderTexture.recoverToPool(camera._internalRenderTexture);
-                // }
-
-                camera._aftRenderMainPass();
             }
+        }
+        finally {
+            this._allowDefaultLightReuse = false;
         }
         // Context.set2DRenderConfig();//还原2D配置
         RenderTexture.clearPool();
