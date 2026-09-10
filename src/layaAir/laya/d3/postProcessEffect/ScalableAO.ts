@@ -278,7 +278,7 @@ export class ScalableAO extends PostProcessEffect {
         depthNormalTexture.wrapModeU = WrapMode.Clamp;
         depthNormalTexture.wrapModeV = WrapMode.Clamp;
 
-        let source: RenderTexture = context.source;
+        let source: RenderTexture = context.indirectTarget;
         let width = source.width;
         let height = source.height;
         let textureFormat: RenderTargetFormat = source.colorFormat;
@@ -290,7 +290,7 @@ export class ScalableAO extends PostProcessEffect {
         let shaderData: ShaderData = this._shaderData;
         //depthTexture;
         //depthNormalTexture;
-        cmd.blitScreenTriangle(context.source, finalTex, null, shader, shaderData, 0);
+        cmd.blitScreenTriangle(source, finalTex, null, shader, shaderData, 0);
         //context.source = finalTex;
         let blurTex: RenderTexture = RenderTexture.createFromPool(width, height, textureFormat, depthFormat, false, 1);
         //blur horizontal
@@ -300,7 +300,7 @@ export class ScalableAO extends PostProcessEffect {
         cmd.blitScreenTriangle(blurTex, finalTex, null, this._aoBlurHorizontalShader, this._shaderData, 0);
         //blur Composition
         cmd.setShaderDataTexture(shaderData, ScalableAO.aoTexture, finalTex);
-        cmd.blitScreenTriangle(context.source, context.destination, null, this._aoComposition, this._shaderData, 0);
+        cmd.blitScreenTriangle(source, context.destination, null, this._aoComposition, this._shaderData, 0);
         //context.source = blurTex;
         context.deferredReleaseTextures.push(finalTex);
         context.deferredReleaseTextures.push(blurTex);

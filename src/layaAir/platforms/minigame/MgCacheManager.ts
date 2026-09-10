@@ -345,8 +345,12 @@ export class MgCacheManager {
     }
 
     private saveDirtyManifests(): Promise<void> {
-        return <any>Promise.all(this.toSaveManifestFlags.filter(needSave => needSave)
-            .map((_, index) => this.saveManifest(index)));
+        const tasks: Array<Promise<boolean>> = [];
+        this.toSaveManifestFlags.forEach((needSave, group) => {
+            if (needSave)
+                tasks.push(this.saveManifest(group));
+        });
+        return <any>Promise.all(tasks);
     }
 
     private saveManifest(group: number): Promise<boolean> {
