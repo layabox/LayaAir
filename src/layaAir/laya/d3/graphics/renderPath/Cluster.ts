@@ -473,11 +473,11 @@ export class Cluster {
         var near: number = camera.nearPlane;
         var far: number = camera.farPlane;
         var viewMat: Matrix4x4 = camera.viewMatrix;
-        var curCount: number = scene._directionLights._length;
-        var pointLights: LightQueue<PointLightCom> = scene._pointLights;
+        var curCount: number = scene._renderDirectionLights._length;
+        var pointLights: LightQueue<PointLightCom> = scene._renderPointLights;
         var poiCount: number = pointLights._length;
         var poiElements: PointLightCom[] = <PointLightCom[]>pointLights._elements;
-        var spotLights: LightQueue<SpotLightCom> = scene._spotLights;
+        var spotLights: LightQueue<SpotLightCom> = scene._renderSpotLights;
         var spoCount: number = spotLights._length;
         var spoElements: SpotLightCom[] = <SpotLightCom[]>spotLights._elements;
         if (camera.orthographic) {
