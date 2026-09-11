@@ -304,7 +304,7 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
 
     protected _setWrapMode(pname: number, param: number) {
         let gl = this._gl;
-        if (!this.isPotSize) {
+        if (!this.isPotSize && !this._engine.getCapable(RenderCapable.Texture_NPOTFull)) {
             param = gl.CLAMP_TO_EDGE;
         }
         this._setTexParameteri(pname, param);

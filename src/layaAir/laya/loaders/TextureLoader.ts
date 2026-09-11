@@ -90,8 +90,8 @@ export class Texture2DLoader implements IResourceLoader {
 
             constructParams = [0, 0, fileInfo.format, meta.mipmap, meta.readWrite, meta.sRGB];
             propertyParams = {
-                wrapModeU: meta.wrapMode,
-                wrapModeV: meta.wrapMode,
+                wrapModeU: meta.wrapModeU ?? meta.wrapMode,
+                wrapModeV: meta.wrapModeV ?? meta.wrapMode,
                 filterMode: meta.filterMode,
                 anisoLevel: meta.anisoLevel,
                 premultiplyAlpha: !!meta.pma,
