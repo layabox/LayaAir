@@ -1213,7 +1213,11 @@ export class Scene3D extends Sprite {
         this._lightmaps = null;
         this._volumeManager.destroy();
         this._componentDriver.callDestroy();
-
+        // Components must finish cleanup before their managers release shared resources.
+        this.componentElementMap.forEach(manager => {
+            manager.destroy();
+        });
+        this.componentElementMap.clear();
     }
 
     /**
