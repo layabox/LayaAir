@@ -89,8 +89,8 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
      */
     static createFromPool(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, mipmap: boolean = false, multiSamples: number = 1, depthTexture: boolean = false, sRGB: boolean = false, storage: boolean = false): RenderTexture {
 
-        // todo mipmap 判断
-        mipmap = mipmap && (width & (width - 1)) === 0 && (height & (height - 1)) === 0;
+        mipmap = mipmap && (LayaGL.renderEngine.getCapable(RenderCapable.Texture_NPOTFull)
+            || ((width & (width - 1)) === 0 && (height & (height - 1)) === 0));
         colorFormat = RenderTexture._getCompatibleColorFormat(colorFormat);
 
         let n = RenderTexture._pool.length;

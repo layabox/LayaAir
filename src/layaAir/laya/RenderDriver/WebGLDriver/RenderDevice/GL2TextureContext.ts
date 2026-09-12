@@ -805,8 +805,8 @@ export class GL2TextureContext extends GLTextureContext implements ITextureConte
                 dataOffset += 3 - ((imageSize + 3) % 4);
             }
 
-            mipmapWidth = Math.max(1, mipmapWidth * 0.5);
-            mipmapHeight = Math.max(1, mipmapHeight * 0.5);
+            mipmapWidth = Math.max(1, Math.floor(mipmapWidth * 0.5));
+            mipmapHeight = Math.max(1, Math.floor(mipmapHeight * 0.5));
         }
         texture.gpuMemory = memory;
         this._engine._bindTexture(texture.target, null);

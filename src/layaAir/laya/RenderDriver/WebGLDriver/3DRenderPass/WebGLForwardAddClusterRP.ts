@@ -1,4 +1,5 @@
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { BaseCamera } from "../../../d3/core/BaseCamera";
 import { Camera } from "../../../d3/core/Camera";
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
 import { DepthPass } from "../../../d3/depthMap/DepthPass";
@@ -9,6 +10,7 @@ import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../../maths/Viewport";
 import { DepthTextureMode } from "../../../resource/RenderTexture";
+import { Texture2D } from "../../../resource/Texture2D";
 import { RenderCullUtil } from "../../DriverCommon/RenderCullUtil";
 import { RenderListQueue } from "../../DriverCommon/RenderListQueue";
 import { PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
@@ -251,9 +253,13 @@ export class WebGLForwardAddClusterRP {
     }
 
     private opaqueTexturePass(context: WebGLRenderContext3D) {
-        let commanbuffer = this.blitOpaqueBuffer;
-        commanbuffer._apply(false);
-        context.runCMDList(commanbuffer._renderCMDs);
+        const cameraData = context.cameraData;
+        const opaqueTexture = cameraData.getTexture(BaseCamera.OPAQUETEXTURE);
+        cameraData.setTexture(BaseCamera.OPAQUETEXTURE, Texture2D.blackTexture);
+        const commandBuffer = this.blitOpaqueBuffer;
+        commandBuffer._apply(false);
+        context.runCMDList(commandBuffer._renderCMDs);
+        cameraData.setTexture(BaseCamera.OPAQUETEXTURE, opaqueTexture);
     }
 
     private _mainPass(context: WebGLRenderContext3D): void {
@@ -274,7 +280,7 @@ export class WebGLForwardAddClusterRP {
             context.drawRenderElementOne(skyRenderElement);
         }
 
-        if (this.enableOpaque) {
+        if (this.enableOpaqueTexture) {
             this.opaqueTexturePass(context);
         }
 
