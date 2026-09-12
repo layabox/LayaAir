@@ -100,8 +100,9 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
                 break;
         }
 
-        this._mipmap = mipmap && this.isPotSize;
-        this._mipmapCount = this._mipmap ? Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(height)) + 1) : 1;
+        this._mipmap = mipmap && (this.isPotSize || engine.getCapable(RenderCapable.Texture_NPOTFull));
+        const maxSize = Math.max(width, height, dimension === TextureDimension.Tex3D ? depth : 1);
+        this._mipmapCount = this._mipmap ? Math.floor(Math.log2(maxSize)) + 1 : 1;
         this._maxMipmapLevel = this._mipmapCount - 1;
         this._baseMipmapLevel = 0;
 

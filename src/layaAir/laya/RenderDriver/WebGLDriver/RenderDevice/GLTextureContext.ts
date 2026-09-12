@@ -779,7 +779,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let dataOffset = ddsInfo.dataOffset;
         let bpp = ddsInfo.bpp;
         let blockBytes = ddsInfo.blockBytes;
-        let mipmapCount = ddsInfo.mipmapCount;
+        let mipmapCount = Math.min(ddsInfo.mipmapCount, texture.mipmapCount);
 
         let compressed = ddsInfo.compressed;
 
@@ -803,8 +803,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let memory = 0;
         for (let index = 0; index < mipmapCount; index++) {
             if (compressed) {
-                // todo  size 计算 方式
-                let dataLength = (((Math.max(4, mipmapWidth) / 4) * Math.max(4, mipmapHeight)) / 4) * blockBytes;
+                let dataLength = Math.ceil(mipmapWidth / 4) * Math.ceil(mipmapHeight / 4) * blockBytes;
                 let sourceData = new Uint8Array(source, dataOffset, dataLength);
                 gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
                 memory += sourceData.byteLength;
@@ -819,10 +818,8 @@ export class GLTextureContext extends GLObject implements ITextureContext {
                 dataOffset += dataLength * channelsByte;
             }
 
-            mipmapWidth *= 0.5;
-            mipmapHeight *= 0.5;
-            mipmapWidth = Math.max(1.0, mipmapWidth);
-            mipmapHeight = Math.max(1.0, mipmapHeight);
+            mipmapWidth = Math.max(1, Math.floor(mipmapWidth * 0.5));
+            mipmapHeight = Math.max(1, Math.floor(mipmapHeight * 0.5));
         }
         texture.gpuMemory = memory;//TODO 不太准
         this._engine._bindTexture(texture.target, null);
@@ -1098,10 +1095,8 @@ export class GLTextureContext extends GLObject implements ITextureContext {
                     gl.texImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, format, type, sourceData);
                     memory += sourceData.byteLength;
                     dataOffset += dataLength * channelsByte;
-                    mipmapWidth *= 0.5;
-                    mipmapHeight *= 0.5;
-                    mipmapWidth = Math.max(1.0, mipmapWidth);
-                    mipmapHeight = Math.max(1.0, mipmapHeight);
+                    mipmapWidth = Math.max(1, Math.floor(mipmapWidth * 0.5));
+                    mipmapHeight = Math.max(1, Math.floor(mipmapHeight * 0.5));
                 }
             }
         }
@@ -1111,7 +1106,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
                 let mipmapWidth = width;
                 let mipmapHeight = height;
                 for (let index = 0; index < mipmapCount; index++) {
-                    let dataLength = Math.max(4, mipmapWidth) / 4 * Math.max(4, mipmapHeight) / 4 * blockBytes;
+                    let dataLength = Math.ceil(mipmapWidth / 4) * Math.ceil(mipmapHeight / 4) * blockBytes;
 
                     let sourceData = new Uint8Array(source, dataOffset, dataLength);
 
@@ -1119,10 +1114,8 @@ export class GLTextureContext extends GLObject implements ITextureContext {
                     memory += sourceData.byteLength;
                     dataOffset += bpp ? (mipmapWidth * mipmapHeight * (bpp / 8)) : dataLength;
 
-                    mipmapWidth *= 0.5;
-                    mipmapHeight *= 0.5;
-                    mipmapWidth = Math.max(1.0, mipmapWidth);
-                    mipmapHeight = Math.max(1.0, mipmapHeight);
+                    mipmapWidth = Math.max(1, Math.floor(mipmapWidth * 0.5));
+                    mipmapHeight = Math.max(1, Math.floor(mipmapHeight * 0.5));
                 }
             }
         }
@@ -1203,8 +1196,8 @@ export class GLTextureContext extends GLObject implements ITextureContext {
             }
 
 
-            mipmapWidth = Math.max(1, mipmapWidth * 0.5);
-            mipmapHeight = Math.max(1, mipmapHeight * 0.5);
+            mipmapWidth = Math.max(1, Math.floor(mipmapWidth * 0.5));
+            mipmapHeight = Math.max(1, Math.floor(mipmapHeight * 0.5));
         }
 
         for (let index = ktxInfo.mipmapCount; index < texture.mipmapCount; index++) {
@@ -1219,8 +1212,8 @@ export class GLTextureContext extends GLObject implements ITextureContext {
                 }
             }
 
-            mipmapWidth = Math.max(1, mipmapWidth * 0.5);
-            mipmapHeight = Math.max(1, mipmapHeight * 0.5);
+            mipmapWidth = Math.max(1, Math.floor(mipmapWidth * 0.5));
+            mipmapHeight = Math.max(1, Math.floor(mipmapHeight * 0.5));
         }
 
         this._engine._bindTexture(texture.target, null);

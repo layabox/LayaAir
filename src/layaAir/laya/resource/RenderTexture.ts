@@ -2,6 +2,7 @@ import { Config3D } from "../../Config3D";
 import { LayaGL } from "../layagl/LayaGL";
 import { InternalRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
 import { IRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/IRenderTarget";
+import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
@@ -72,8 +73,8 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
      */
     static createFromPool(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, mipmap: boolean = false, multiSamples: number = 1, depthTexture: boolean = false, sRGB: boolean = false, storage: boolean = false): RenderTexture {
 
-        // todo mipmap 判断
-        mipmap = mipmap && (width & (width - 1)) === 0 && (height & (height - 1)) === 0;
+        mipmap = mipmap && (LayaGL.renderEngine.getCapable(RenderCapable.Texture_NPOTFull)
+            || ((width & (width - 1)) === 0 && (height & (height - 1)) === 0));
 
         let n = RenderTexture._pool.length;
         for (let index = 0; index < n; index++) {
