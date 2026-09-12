@@ -230,8 +230,8 @@ export class ForwardAddClusterRP {
             if (skyRenderElement.subShader)
                 context.drawRenderElementOne(skyRenderElement);
         }
-        if (this.enableOpaque)
-            this._opaqueTexturePass();
+        if (this.camera.opaquePass)
+            this._opaqueTexturePass(context);
         RenderPassUtil.renderCmd(this.beforeTransparentCmds, context);
         RenderPassUtil.recoverRenderContext3D(context, this.destTarget);
         time = performance.now()//T_Render_TransparentRender Stat
@@ -242,7 +242,7 @@ export class ForwardAddClusterRP {
     /**
      * 渲染不透明贴图流程
      */
-    protected _opaqueTexturePass() {
+    protected _opaqueTexturePass(context: IRenderContext3D) {
         // const blit = BlitScreenQuadCMD.create(currentTarget, this._opaqueTexture);
         // blit.setContext(renderContext);
         // blit.run();

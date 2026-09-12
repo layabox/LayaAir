@@ -150,7 +150,7 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         }
 
         renderpass.blitOpaqueBuffer.clear();
-        let needBlitOpaque = camera.opaquePass;
+        let needBlitOpaque = camera.opaquePass && !!camera._opaqueTexture;
         renderpass.enableOpaqueTexture = needBlitOpaque;
         if (needBlitOpaque) {
             renderpass.opaqueTexture = camera._opaqueTexture._renderTarget;

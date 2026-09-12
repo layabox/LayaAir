@@ -26,4 +26,9 @@ export enum RenderCapable {
     StorageBuffer,
     ComputeShader,
     IndirectDraw,
+    /**
+     * @en The backend supports non-power-of-two textures with Repeat/Mirrored wrapping and mipmaps. Engine paths enable these features separately.
+     * @zh 后端支持非二次幂纹理的重复/镜像寻址和 mipmap，引擎各路径分别接入这些能力。
+     */
+    Texture_NPOTFull,
 }
