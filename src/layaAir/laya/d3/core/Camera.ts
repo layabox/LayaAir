@@ -107,6 +107,9 @@ export enum CameraEventFlags {
  */
 export class Camera extends BaseCamera {
 
+    /** @internal Identifies the camera used by the editor Scene view. */
+    isEditorCamera: boolean = false;
+
     /** @internal*/
     static _context3DViewPortCatch: Viewport = new Viewport(0, 0, 0, 0);
     /**@internal */
