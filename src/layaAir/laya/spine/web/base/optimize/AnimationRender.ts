@@ -231,53 +231,33 @@ export class AnimationRender {
 
                 this.hasVertexAnimation = true;
 
-                if (frames.length == 5 && frames[0] == 0 && frames[4] == 0) {//优化，当0帧 透明度0时。
-                    let change = new ChangeSlot();
-                    change.slotId = slotIndex;
-                    change.attachment = null;
-                    let frame = 0;
-                    let changeItem = changeMap.get(frame);
-                    if (!changeItem) {
-                        this.frames.indexOf(frame) == -1 && this.frames.push(frame);
-                        changeItem = {
-                            iChanges: []
-                        };
-                        changeMap.set(frame, changeItem);
-                    }
+                let changeRGBA = new ChangeRGBA(slotIndex);
+                let startFrame = frames[0];
+                let frameEntries = typeof (time as any).getFrameEntries === "function"
+                    ? (time as any).getFrameEntries()
+                    : (spineRuntime.TwoColorTimeline && time instanceof spineRuntime.TwoColorTimeline ? 8 : 5);
+                let num = frames.length / frameEntries | 0;
+                let endFrame = frames[(num - 1) * frameEntries];
 
-                    let arr = changeItem.iChanges = changeItem.iChanges || [];
-                    arr.push(change);
+                changeRGBA.startFrame = startFrame;
+                changeRGBA.endFrame = endFrame;
+
+                let changeItem = changeMap.get(startFrame);
+                if (!changeItem) {
+                    this.frames.indexOf(startFrame) == -1 && this.frames.push(startFrame);
+                    changeItem = {
+                        vChanges: []
+                    };
+                    changeMap.set(startFrame, changeItem);
                 }
-                else {
 
-                    let changeRGBA = new ChangeRGBA(slotIndex);
-                    let startFrame = frames[0];
-                    let frameEntries = typeof (time as any).getFrameEntries === "function"
-                        ? (time as any).getFrameEntries()
-                        : (spineRuntime.TwoColorTimeline && time instanceof spineRuntime.TwoColorTimeline ? 8 : 5);
-                    let num = frames.length / frameEntries | 0;
-                    let endFrame = frames[(num - 1) * frameEntries];
+                this.frames.indexOf(endFrame) == -1 && this.frames.push(endFrame);
 
-                    changeRGBA.startFrame = startFrame;
-                    changeRGBA.endFrame = endFrame;
-
-                    let changeItem = changeMap.get(startFrame);
-                    if (!changeItem) {
-                        this.frames.indexOf(startFrame) == -1 && this.frames.push(startFrame);
-                        changeItem = {
-                            vChanges: []
-                        };
-                        changeMap.set(startFrame, changeItem);
-                    }
-
-                    this.frames.indexOf(endFrame) == -1 && this.frames.push(endFrame);
-
-                    let arr = changeItem.vChanges = changeItem.vChanges || [];
-                    arr.push(changeRGBA);
-                    //this.vb = this.vb || mainvb.clone();
-                    //changeRGBA.initChange(slotIndex, this.vb);
-                    // this.changeVB.push(changeRGBA);
-                }
+                let arr = changeItem.vChanges = changeItem.vChanges || [];
+                arr.push(changeRGBA);
+                //this.vb = this.vb || mainvb.clone();
+                //changeRGBA.initChange(slotIndex, this.vb);
+                // this.changeVB.push(changeRGBA);
                 isDynamic = true;
             }
             else if (time instanceof window.spine.ClippingAttachment) {
