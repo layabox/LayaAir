@@ -180,6 +180,7 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
             const transform = pxColliderShape.transform;
             if (this._pxCollider.owner)
                 Vector3.multiply(position, this._scale, transform.translation);
+            this._getLocalRotation(transform.rotation);
             this._pxShape.setLocalPose(transform);
         }
     }

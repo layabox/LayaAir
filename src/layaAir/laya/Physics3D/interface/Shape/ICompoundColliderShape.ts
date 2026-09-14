@@ -1,4 +1,5 @@
 import { PhysicsColliderComponent } from "../../../d3/physics/PhysicsColliderComponent";
+import { Quaternion } from "../../../maths/Quaternion";
 import { IColliderShape } from "./IColliderShape";
 
 /**
@@ -10,10 +11,12 @@ export interface ICompoundColliderShape extends IColliderShape {
     /**
      * @en Adds a child shape to the compound collider shape.
      * @param shape The child shape to add.
+     * @param localRotation The child shape rotation relative to the compound shape.
      * @zh 添加一个子形状到组合碰撞器形状。
      * @param shape 要添加的子形状。
+     * @param localRotation 子形状相对于组合形状的旋转。
      */
-    addChildShape(shape: IColliderShape): void;
+    addChildShape(shape: IColliderShape, localRotation?: Quaternion): void;
 
     /**
      * @en Removes a child shape from the compound collider shape.

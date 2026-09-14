@@ -1,7 +1,6 @@
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { ICapsuleColliderShape } from "../../interface/Shape/ICapsuleColliderShape";
-import { pxCollider } from "../Collider/pxCollider";
 import { pxStatics } from "../pxStatics";
 import { pxColliderShape } from "./pxColliderShape";
 /**
@@ -41,24 +40,9 @@ export class pxCapsuleColliderShape extends pxColliderShape implements ICapsuleC
         this._createShape();
     }
 
-    /**
-     * @internal
-     * rotate capusle in physx, physx capsule heigth is X axis
-     */
-    _setCapsuleRotation() {
-        pxColliderShape.transform.rotation.setValue(this._rotation.x, this._rotation.y, this._rotation.z, this._rotation.w)
-        this._pxShape.setLocalPose(pxColliderShape.transform);
-    }
-
-    /**
-     * @en Adds the shape to a collider.
-     * @param collider The collider to add the shape to.
-     * @zh 将形状添加到碰撞器。
-     * @param collider 要添加形状的碰撞器。
-     */
-    addToActor(collider: pxCollider): void {
-        super.addToActor(collider);
-        this._setCapsuleRotation();
+    /** @internal */
+    protected _getLocalRotation(out: Quaternion): void {
+        Quaternion.multiply(this._localRotation, this._rotation, out);
     }
 
     /**
