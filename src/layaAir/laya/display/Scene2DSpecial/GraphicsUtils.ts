@@ -185,6 +185,20 @@ export class GraphicsRenderer {
 
 
    /**
+    * Rewrites the sampler for submits that use a Texture wrapper whose bitmap
+    * was replaced in place (for example a reused VideoTexture after source switch).
+    * @internal
+    */
+   refreshTexture(textureHost: Texture | BaseTexture): void {
+      const texture = textureHost instanceof Texture ? textureHost.bitmap : textureHost;
+      for (let i = 0, n = this._submits.length; i < n; i++) {
+         const shaderInfo = this._submits.elements[i]._internalInfo;
+         if (shaderInfo.textureHost === textureHost)
+            shaderInfo.shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, texture);
+      }
+   }
+
+   /**
     * @internal
     */
    onModified(){

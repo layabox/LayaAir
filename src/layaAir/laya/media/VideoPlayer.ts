@@ -6,6 +6,7 @@ import { Sprite } from "../display/Sprite";
 import { Event } from "../events/Event";
 import { PAL } from "../platform/PlatformAdapters";
 import { Texture } from "../resource/Texture";
+import { Browser } from "../utils/Browser";
 import { IVideoPlayerOptions, VideoPlayerBackend } from "./VideoPlayerBackend";
 import { VideoTexture } from "./VideoTexture";
 
@@ -333,6 +334,11 @@ export class VideoPlayer extends Component {
 
     private _vtReady() {
         this._textureCmd.texture.setTo(this._vtex);
+        if (Browser.onLayaRuntime) {
+            // VideoTexture is reused while its native texture is replaced on source switch.
+            // Refresh existing native submits so they do not keep the released texture.
+            this.owner?._graphicsRenderer?.refreshTexture(this._textureCmd.texture);
+        }
         this.owner?.graphics.repaint();
     }
 
