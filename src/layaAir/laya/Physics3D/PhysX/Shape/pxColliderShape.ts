@@ -1,3 +1,4 @@
+import type { PhysicsCombineMode } from "../../../d3/physics/PhysicsColliderComponent";
 import { Physics3DUtils } from "../../../d3/utils/Physics3DUtils";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
@@ -38,6 +39,9 @@ export class pxColliderShape implements IColliderShape {
     };
 
     _offset: Vector3 = new Vector3(0, 0, 0);
+
+    /** @internal Scale relative to the compound collider owner. */
+    protected _compoundLocalScale: Vector3 = new Vector3(1, 1, 1);
 
     _scale: Vector3 = new Vector3(1, 1, 1);
 
@@ -124,18 +128,28 @@ export class pxColliderShape implements IColliderShape {
      */
     setOffset(position: Vector3): void {
         position.cloneTo(this._offset);
-        if (!this._pxCollider) return;
-        if (this._pxShape) {
-            const transform = pxColliderShape.transform;
-            this._pxCollider.owner.transform.getWorldLossyScale().cloneTo(this._scale);
-            if (this._pxCollider.owner)
-                Vector3.multiply(position, this._scale, transform.translation);
-            this._pxShape.setLocalPose(transform);
-        }
+        this._setLocalPose();
     }
 
     getOffset(): Vector3 {
         return this._offset;
+    }
+
+    /** @internal */
+    setCompoundTransform(position: Vector3, _rotation: Quaternion, scale: Vector3): void {
+        scale.cloneTo(this._compoundLocalScale);
+        this.setOffset(position);
+    }
+
+    /** @internal */
+    protected _setLocalPose(): void {
+        if (!this._pxCollider || !this._pxShape)
+            return;
+        const transform = pxColliderShape.transform;
+        const ownerScale = this._pxCollider.owner.transform.getWorldLossyScale();
+        Vector3.multiply(ownerScale, this._compoundLocalScale, this._scale);
+        Vector3.multiply(this._offset, ownerScale, transform.translation);
+        this._pxShape.setLocalPose(transform);
     }
 
     /**
@@ -191,6 +205,26 @@ export class pxColliderShape implements IColliderShape {
             this._pxShape.setQueryFilterData(this.filterData);
         }
 
+    }
+
+    setBounciness(value: number): void {
+        this._pxMaterials[0]?.setBounciness(value);
+    }
+
+    setDynamicFriction(value: number): void {
+        this._pxMaterials[0]?.setDynamicFriction(value);
+    }
+
+    setStaticFriction(value: number): void {
+        this._pxMaterials[0]?.setStaticFriction(value);
+    }
+
+    setFrictionCombine(value: PhysicsCombineMode): void {
+        this._pxMaterials[0]?.setFrictionCombine(value);
+    }
+
+    setBounceCombine(value: PhysicsCombineMode): void {
+        this._pxMaterials[0]?.setBounceCombine(value);
     }
 
     /**
