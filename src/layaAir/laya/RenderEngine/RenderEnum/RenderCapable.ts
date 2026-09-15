@@ -31,4 +31,6 @@ export enum RenderCapable {
      * @zh 后端是否具备多颜色附件（MRT）能力；不代表任意格式组合或 Shader 均可用。
      */
     MRT,
+    RenderTextureFormat_R16,
+    RenderTextureFormat_R16G16,
 }
