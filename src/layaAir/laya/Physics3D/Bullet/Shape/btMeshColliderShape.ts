@@ -182,7 +182,7 @@ export class btMeshColliderShape extends btColliderShape implements IMeshCollide
      * @param value 缩放向量。
      */
     setWorldScale(value: Vector3): void {
-        if (this._btShape && this._btCollider) {
+        if (this._btShape) {
             let bt = btStatics.bt;
             bt.btVector3_setValue(btMeshColliderShape._btTempVector30, value.x, value.y, value.z);
             bt.btCollisionShape_setLocalScaling(this._btShape, btMeshColliderShape._btTempVector30);
