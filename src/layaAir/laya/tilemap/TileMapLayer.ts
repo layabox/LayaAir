@@ -15,6 +15,7 @@ import { TileMapPhysics } from "./TileMapPhysics";
 import { TileSetCellData } from "./TileSetCellData";
 import { Matrix } from "../maths/Matrix";
 import { Laya } from "../../Laya";
+import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { Rectangle } from "../maths/Rectangle";
 import { RectClipper } from "./RectClipper";
 import { Texture2D } from "../resource/Texture2D";
@@ -507,7 +508,8 @@ export class TileMapLayer extends BaseRenderNode2D {
         let camera = (<Area2D>scene)?.mainCamera;
         let ofx = 0, ofy = 0;
         if (camera == null) {
-            renderRect.setTo(0, 0, Laya.stage.width, Laya.stage.height);
+            // Global transforms include stage scaling, so cull in render pixels.
+            renderRect.setTo(0, 0, RenderState2D.width, RenderState2D.height);
             mat.copyTo(clipChuckMat);
             ofx = renderRect.width / 2;
             ofy = renderRect.height / 2;
