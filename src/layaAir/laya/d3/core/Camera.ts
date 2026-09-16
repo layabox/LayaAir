@@ -1492,8 +1492,8 @@ export class Camera extends BaseCamera {
             var clientHeight: number = this.clientHeight;
             var ratioX: number = this.orthographicVerticalSize * this.aspectRatio / clientWidth;
             var ratioY: number = this.orthographicVerticalSize / clientHeight;
-            out.x = (-clientWidth / 2 + source.x * ILaya.stage.clientScaleX) * ratioX;
-            out.y = (clientHeight / 2 - source.y * ILaya.stage.clientScaleY) * ratioY;
+            out.x = (-clientWidth / 2 + source.x * ILaya.stage.clientScaleX * Config3D.pixelRatio) * ratioX;
+            out.y = (clientHeight / 2 - source.y * ILaya.stage.clientScaleY * Config3D.pixelRatio) * ratioY;
             out.z = (this.nearPlane - this.farPlane) * (source.z + 1) / 2 - this.nearPlane;
             Vector3.transformCoordinate(out, this.transform.worldMatrix, out);
             return true;
