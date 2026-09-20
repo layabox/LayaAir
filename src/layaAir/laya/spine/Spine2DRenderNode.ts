@@ -161,7 +161,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         // 计算坐标系偏移，与 Spine 渲染时使用的偏移保持一致
         let transform = this._spineRender.getSkeletonTransform();
         let offsetX = -transform.x + this._renderOffset.x;
-        let offsetY = -transform.y + this._renderOffset.y;
+        // Spine uses a Y-up coordinate system. Flip the bone Y value, but keep
+        // the Laya render offset in the same direction as the render path.
+        let offsetY = -transform.y - this._renderOffset.y;
         
         for (let i = 0; i < bones.length; i++) {
             let bone = bones[i];
@@ -599,6 +601,11 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             this._doAutoAdjust();
         }
 
+        // Bone sprites must use the same render offset from their first frame.
+        this._renderOffset.x = this._offset.x + this._templet.offsetX;
+        this._renderOffset.y = this._offset.y - this._templet.offsetY;
+        this._renderHandle.offset = this._renderOffset;
+
         if (this._createBone) {
             this._createBones();
         }
@@ -606,10 +613,6 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this.onTransformChanged();
 
         this.boundsChange = true;
-
-        this._renderOffset.x = this._offset.x + this._templet.offsetX;
-        this._renderOffset.y = this._offset.y - this._templet.offsetY;
-        this._renderHandle.offset = this._renderOffset;
 
         let skinIndex = this._templet.getSkinIndexByName(this._skinName);
         if (skinIndex != -1)
@@ -786,7 +789,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         let transform = this._spineRender.getSkeletonTransform();
         let offset = this._renderOffset;
         let offsetX = -transform.x + offset.x;
-        let offsetY = -transform.y + offset.y;
+        let offsetY = -transform.y - offset.y;
 
         for (let i = 0; i < bones.length && i < this._bones.length; i++) {
             let bone = bones[i];
