@@ -164,7 +164,6 @@ export class GlowEffect2D extends PostProcess2DEffect {
             this._glowElement.subShader = this._glowMat.shader.getSubShaderAt(0);
         }
 
-
         //compositemat
         (!this._compositeMat) && (this._compositeMat = new Material());
         this._compositeMat.setShaderName("ColorEffect2D");
@@ -200,8 +199,8 @@ export class GlowEffect2D extends PostProcess2DEffect {
         //glow rt
         this._glowMat.setVector2("u_centerScale", Vector2.ONE);
         this._glowMat.setTexture("u_MainTex", this._blitExtendRT);
-        this._sv_blurInfo2.x = width;
-        this._sv_blurInfo2.y = height;
+        this._sv_blurInfo2.x = texwidth;
+        this._sv_blurInfo2.y = texheight;
         this._glowMat.setVector4("u_blurInfo2", this._sv_blurInfo2);
         context.command.setRenderTarget(this._destRT, true, Color.CLEAR);
         context.command.drawRenderElement(this._glowElement, Matrix.EMPTY);

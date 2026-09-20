@@ -6,21 +6,27 @@ varying vec2 v_Texcoord0;
 
 void main()
 {
-    const float c_IterationTime = 10.0;
-    float floatIterationTotalTime = c_IterationTime * c_IterationTime;
-    vec4 vec4Color = vec4(0.0, 0.0, 0.0, 0.0);
-    vec2 vec2FilterDir = vec2(-u_blurInfo1.z / u_blurInfo2.x, -u_blurInfo1.w / u_blurInfo2.y);
-    vec2 vec2FilterOff = vec2(u_blurInfo1.x / u_blurInfo2.x / c_IterationTime * 2.0, u_blurInfo1.y / u_blurInfo2.y / c_IterationTime * 2.0);
-    float maxNum = u_blurInfo1.x * u_blurInfo1.y;
-    vec2 vec2Off = vec2(0.0, 0.0);
-    float floatOff = c_IterationTime / 2.0;
-    for (float i = 0.0; i <= c_IterationTime; ++i){
-        for (float j = 0.0; j <= c_IterationTime; ++j){
-            vec2Off = vec2(vec2FilterOff.x * (i - floatOff), vec2FilterOff.y * (j - floatOff));
-            vec4Color += texture2D(u_MainTex, v_Texcoord0.xy + vec2FilterDir + vec2Off);
+    const float c_BlurRadius = 12.0;
+    const float c_PairedRadius = 6.0;
+    const float c_KernelWeight = 25.0 * 25.0;
+    // The legacy shader accumulated 11x11 samples but divided by 10x10.
+    // Preserve its 121/100 perceived intensity with a dense single-pass kernel.
+    const float c_LegacyIntensity = 1.21;
+    vec2 textureSize = u_blurInfo2.xy;
+    vec2 filterOffset = -u_blurInfo1.zw / textureSize;
+    vec2 filterScale = u_blurInfo1.xy / textureSize / c_BlurRadius;
+    float alpha = 0.0;
+    for (float y = -c_PairedRadius; y <= c_PairedRadius; ++y) {
+        float sampleY = y == 0.0 ? 0.0 : sign(y) * (abs(y) * 2.0 - 0.5);
+        float weightY = y == 0.0 ? 1.0 : 2.0;
+        for (float x = -c_PairedRadius; x <= c_PairedRadius; ++x) {
+            float sampleX = x == 0.0 ? 0.0 : sign(x) * (abs(x) * 2.0 - 0.5);
+            float weightX = x == 0.0 ? 1.0 : 2.0;
+            vec2 sampleOffset = vec2(sampleX, sampleY) * filterScale;
+            alpha += texture2D(u_MainTex, v_Texcoord0.xy + filterOffset + sampleOffset).a * weightX * weightY;
         }
     }
-    vec4Color /= floatIterationTotalTime;
-    gl_FragColor = vec4(u_color.rgb, vec4Color.a * u_blurInfo2.z);
+    alpha = alpha / c_KernelWeight * u_blurInfo2.z * c_LegacyIntensity;
+    gl_FragColor = vec4(u_color.rgb, alpha);
     gl_FragColor.rgb *= gl_FragColor.a;
 }
