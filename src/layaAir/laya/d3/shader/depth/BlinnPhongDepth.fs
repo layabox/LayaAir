@@ -1,4 +1,4 @@
-#define SHADER_NAME PBRDepthFS
+#define SHADER_NAME BlinnPhongDepthFS
 
 #include "DepthFrag.glsl";
 #include "Sprite3DFrag.glsl";
@@ -11,20 +11,20 @@ varying float v_AlphaTestVertexAlpha;
 void main()
 {
 #ifdef ALPHATEST
-    float alpha = u_AlbedoColor.a * v_AlphaTestVertexAlpha;
+    float alpha = u_DiffuseColor.a * v_AlphaTestVertexAlpha;
 
-    #ifdef ALBEDOTEXTURE
+    #ifdef DIFFUSEMAP
     #ifdef UV
     vec2 uv = transformUV(v_AlphaTestUV, u_TilingOffset);
     #else // UV
     vec2 uv = vec2(0.0);
     #endif // UV
-    alpha *= texture2D(u_AlbedoTexture, uv).a;
-    #endif // ALBEDOTEXTURE
+    alpha *= texture2D(u_DiffuseTexture, uv).a;
+    #endif // DIFFUSEMAP
 
     if (alpha < u_AlphaTestValue)
         discard;
-    #endif // ALPHATEST
+#endif // ALPHATEST
 
     gl_FragColor = getDepthColor();
 }

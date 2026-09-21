@@ -5,7 +5,7 @@ import BlinnPhongFragGLSL from "./BlinnPhongFrag.glsl";
 import BlinnPhongVS from "./BlinnPhong.vs";
 import BlinnPhongFS from "./BlinnPhong.fs";
 import DepthVS from "../depth/Depth.vs";
-import DepthFS from "../depth/Depth.fs";
+import DepthFS from "../depth/BlinnPhongDepth.fs";
 import DepthNormalVS from "./BlinnPhongDepthNormal.vs";
 import DepthNormalFS from "./BlinnPhongDepthNormal.fs";
 import { Color } from "../../../maths/Color";
