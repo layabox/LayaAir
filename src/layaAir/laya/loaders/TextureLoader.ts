@@ -308,8 +308,12 @@ export class TextureLoader implements IResourceLoader {
                 url.propertyParams = propertyParams2d;
             else if (task.options.propertyParams.premultiplyAlpha == null
                 || task.options.propertyParams.wrapModeU == null
-                || task.options.propertyParams.wrapModeV == null)
+                || task.options.propertyParams.wrapModeV == null) {
                 url.propertyParams = Object.assign({}, propertyParams2d, task.options.propertyParams);
+                url.propertyParams.premultiplyAlpha ??= propertyParams2d.premultiplyAlpha;
+                url.propertyParams.wrapModeU ??= propertyParams2d.wrapModeU;
+                url.propertyParams.wrapModeV ??= propertyParams2d.wrapModeV;
+            }
 
             if (!task.options.constructParams)
                 url.constructParams = constructParams2d;
