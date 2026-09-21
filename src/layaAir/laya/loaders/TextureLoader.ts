@@ -17,6 +17,7 @@ import { LayaEnv } from "../../LayaEnv";
 import { LayaGL } from "../layagl/LayaGL";
 import { DDSTextureInfo } from "../RenderEngine/DDSTextureInfo";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
 
 var internalResources: Record<string, Texture2D>;
 
@@ -264,7 +265,12 @@ export class VideoTextureLoader implements IResourceLoader {
     }
 }
 
-const propertyParams2d: TexturePropertyParams = { premultiplyAlpha: true };
+const propertyParams2d: TexturePropertyParams = {
+    premultiplyAlpha: true,
+    // 独立 2D 图 UV 为 0~1，默认 Repeat 会在四周双线性采样到对面像素形成杂色
+    wrapModeU: WrapMode.Clamp,
+    wrapModeV: WrapMode.Clamp,
+};
 const constructParams2d: TextureConstructParams = [null, null, TextureFormat.R8G8B8A8, false, false, true];
 
 export class TextureLoader implements IResourceLoader {
@@ -303,8 +309,14 @@ export class TextureLoader implements IResourceLoader {
 
             if (!task.options.propertyParams)
                 url.propertyParams = propertyParams2d;
-            else if (task.options.propertyParams.premultiplyAlpha == null)
+            else if (task.options.propertyParams.premultiplyAlpha == null
+                || task.options.propertyParams.wrapModeU == null
+                || task.options.propertyParams.wrapModeV == null) {
                 url.propertyParams = Object.assign({}, propertyParams2d, task.options.propertyParams);
+                url.propertyParams.premultiplyAlpha ??= propertyParams2d.premultiplyAlpha;
+                url.propertyParams.wrapModeU ??= propertyParams2d.wrapModeU;
+                url.propertyParams.wrapModeV ??= propertyParams2d.wrapModeV;
+            }
 
             if (!task.options.constructParams)
                 url.constructParams = constructParams2d;
