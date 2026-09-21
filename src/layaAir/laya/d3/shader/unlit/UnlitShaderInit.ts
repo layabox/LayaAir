@@ -1,7 +1,7 @@
 import UnlitVS from "./Unlit.vs";
 import UnlitFS from "./Unlit.fs";
-import DepthVS from "../depth/Depth.vs";
-import DepthFS from "../depth/Depth.fs";
+import DepthVS from "../depth/PBRDepth.vs";
+import DepthFS from "../depth/UnlitDepth.fs";
 import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";

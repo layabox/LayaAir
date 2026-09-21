@@ -1,22 +1,33 @@
 #define SHADER_NAME PBRDepthVS
+
 #include "DepthVertex.glsl";
 
-#ifdef COLOR
-    varying vec4 v_VertexColor;
-#endif // COLOR
+#ifdef ALPHATEST
+varying vec2 v_AlphaTestUV;
+varying float v_AlphaTestVertexAlpha;
+#endif // ALPHATEST
 
-varying vec2 v_Texcoord0;
 void main()
 {
     Vertex vertex;
     getVertexParams(vertex);
-    
-    #ifdef COLOR
-        v_VertexColor = a_Color;
-    #endif // COLOR
-    
+
+#ifdef ALPHATEST
+    #ifdef UV
+    v_AlphaTestUV = vertex.texCoord0;
+    #else // UV
+    v_AlphaTestUV = vec2(0.0);
+    #endif // UV
+
+    #if defined(COLOR) && defined(ENABLEVERTEXCOLOR)
+    v_AlphaTestVertexAlpha = vertex.vertexColor.a;
+    #else // COLOR && ENABLEVERTEXCOLOR
+    v_AlphaTestVertexAlpha = 1.0;
+    #endif // COLOR && ENABLEVERTEXCOLOR
+#endif // ALPHATEST
+
     mat4 worldMat = getWorldMatrix();
-    vec4 pos = (worldMat * vec4(vertex.positionOS, 1.0));
+    vec4 pos = worldMat * vec4(vertex.positionOS, 1.0);
     vec3 positionWS = pos.xyz / pos.w;
 
     mat4 normalMat = transpose(inverse(worldMat));

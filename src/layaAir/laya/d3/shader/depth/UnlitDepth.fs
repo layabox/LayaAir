@@ -1,4 +1,4 @@
-#define SHADER_NAME PBRDepthFS
+#define SHADER_NAME UnlitDepthFS
 
 #include "DepthFrag.glsl";
 #include "Sprite3DFrag.glsl";
@@ -13,14 +13,14 @@ void main()
 #ifdef ALPHATEST
     float alpha = u_AlbedoColor.a * v_AlphaTestVertexAlpha;
 
-    #ifdef ALBEDOTEXTURE
+    #if defined(UV) && defined(ALBEDOTEXTURE)
     vec2 uv = transformUV(v_AlphaTestUV, u_TilingOffset);
     alpha *= texture2D(u_AlbedoTexture, uv).a;
-    #endif // ALBEDOTEXTURE
+    #endif // UV && ALBEDOTEXTURE
 
     if (alpha < u_AlphaTestValue)
         discard;
-    #endif // ALPHATEST
+#endif // ALPHATEST
 
     gl_FragColor = getDepthColor();
 }

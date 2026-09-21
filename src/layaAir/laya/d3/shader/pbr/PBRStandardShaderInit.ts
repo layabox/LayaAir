@@ -3,8 +3,8 @@ import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/
 import PBRStandardVS from "./pbrStandard.vs";
 import PBRStandardFS from "./pbrStandard.fs";
 
-import PBRDepthVS from "../depth/Depth.vs";
-import PBRDepthFS from "../depth/Depth.fs";
+import PBRDepthVS from "../depth/PBRDepth.vs";
+import PBRDepthFS from "../depth/PBRDepth.fs";
 
 import DepthNormalVS from "./PBRStandardDepthNormal.vs";
 import DepthNormalFS from "./PBRStandardDepthNormal.fs";
