@@ -14,7 +14,11 @@ void main()
     float alpha = u_AlbedoColor.a * v_AlphaTestVertexAlpha;
 
     #ifdef ALBEDOTEXTURE
+    #ifdef UV
     vec2 uv = transformUV(v_AlphaTestUV, u_TilingOffset);
+    #else // UV
+    vec2 uv = vec2(0.0);
+    #endif // UV
     alpha *= texture2D(u_AlbedoTexture, uv).a;
     #endif // ALBEDOTEXTURE
 

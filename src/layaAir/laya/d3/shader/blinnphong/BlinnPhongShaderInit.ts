@@ -4,7 +4,7 @@ import BlinnPhongVertexGLSL from "./BlinnPhongVertex.glsl";
 import BlinnPhongFragGLSL from "./BlinnPhongFrag.glsl";
 import BlinnPhongVS from "./BlinnPhong.vs";
 import BlinnPhongFS from "./BlinnPhong.fs";
-import DepthVS from "../depth/PBRDepth.vs";
+import DepthVS from "../depth/Depth.vs";
 import DepthFS from "../depth/BlinnPhongDepth.fs";
 import DepthNormalVS from "./BlinnPhongDepthNormal.vs";
 import DepthNormalFS from "./BlinnPhongDepthNormal.fs";

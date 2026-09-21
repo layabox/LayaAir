@@ -6,7 +6,7 @@ import { Vector4 } from "../../maths/Vector4";
 import glTFMetallicRoughnessGLSL from "./glTFMetallicRoughness.glsl";
 import glTFPBRVS from "./glTFPBR.vs";
 import glTFPBRFS from "./glTFPBR.fs";
-import DepthVS from "./glTFPBRDepth.vs";
+import DepthVS from "../../d3/shader/depth/Depth.vs";
 import DephtFS from "./glTFPBRDepth.fs";
 import DepthNormalVS from "./glTFPBRDepthNormal.vs";
 import DepthNormalFS from "./glTFPBRDepthNormal.fs";
