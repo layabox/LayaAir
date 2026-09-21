@@ -300,6 +300,7 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
         for (let i = 0; i < value.length; i++) {
             this.renderelements.push(value[i]);
             value[i].owner = this;
+            value[i].sortIndex = i;
             tempArray.push((value[i] as any)._nativeObj);
         }
         this._nativeObj.setRenderElements(tempArray);

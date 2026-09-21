@@ -160,6 +160,7 @@ export class NoRenderRenderElement3D implements IRenderElement3D {
     geometry: IRenderGeometryElement;
     materialShaderData: ShaderData;
     materialRenderQueue: number;
+    sortIndex: number = 0;
     renderShaderData: ShaderData;
     transform: Transform3D;
     canDynamicBatch: boolean;

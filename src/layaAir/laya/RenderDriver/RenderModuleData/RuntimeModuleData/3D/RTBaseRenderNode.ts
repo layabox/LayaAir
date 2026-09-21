@@ -376,6 +376,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         for (var i = 0; i < value.length; i++) {
             this.renderelements.push(value[i]);
             value[i].owner = this;
+            value[i].sortIndex = i;
 
             tempArray.push((value[i] as any)._nativeObj);
         }

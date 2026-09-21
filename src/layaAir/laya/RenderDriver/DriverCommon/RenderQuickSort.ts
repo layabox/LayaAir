@@ -68,7 +68,10 @@ export class RenderQuickSort {
         const renderQueue = left.materialRenderQueue - right.materialRenderQueue;
         if (renderQueue === 0) {
             const sort = this.isTransparent ? right.owner.distanceForSort - left.owner.distanceForSort : left.owner.distanceForSort - right.owner.distanceForSort;
-            return sort + right.owner.sortingFudge - left.owner.sortingFudge;
+            const sortKey = sort + right.owner.sortingFudge - left.owner.sortingFudge;
+            if (sortKey !== 0)
+                return sortKey;
+            return left.sortIndex - right.sortIndex;
         } else return renderQueue;
     }
 }

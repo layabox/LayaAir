@@ -25,6 +25,8 @@ const enum GLESRenderElement3DSlot {
 }
 export class GLESRenderElement3D implements IRenderElement3D {
 
+    sortIndex: number = 0;
+
     private _geometry: GLESRenderGeometryElement;
 
     private _materialShaderData: GLESShaderData;
