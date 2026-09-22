@@ -59,9 +59,27 @@ export class Physics2D extends EventDispatcher {
 
     private _update(): void {
         //时间步太长，会导致错误穿透
-        var delta = Math.min(ILaya.timer.delta / 1000, 0.033);
+        const delta = Math.min(ILaya.timer.delta / 1000, 0.033);
+        this.update(delta);
+    }
 
-        this._factory.update(delta);
+    /**
+     * @en Advances the 2D physics simulation by the specified time and synchronizes physics transforms to render objects.
+     * When updating physics manually, set `Physics2DOption.customUpdate` to `true` before initializing the engine to avoid automatic updates.
+     * @param deltaTime The simulation time step in seconds. It must be a finite, non-negative number.
+     * @zh 按指定时间推进 2D 物理模拟，并将物理变换同步到渲染对象。
+     * 手动更新物理时，应在初始化引擎前将 `Physics2DOption.customUpdate` 设置为 `true`，以避免与自动更新重复执行。
+     * @param deltaTime 模拟时间步长，单位为秒。必须是有限的非负数。
+     */
+    update(deltaTime: number): void {
+        if (!Number.isFinite(deltaTime) || deltaTime < 0)
+            throw new Error("Physics2D.update: deltaTime must be a finite, non-negative number.");
+
+        // Physics2D may be referenced before its asynchronous initialization has completed.
+        if (!this._factory || !this._rigiBodyList)
+            return;
+
+        this._factory.update(deltaTime);
 
         //同步物理坐标到渲染坐标
         this._updatePhysicsTransformToRender();
