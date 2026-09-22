@@ -31,6 +31,9 @@ import { Rectangle } from "../../../maths/Rectangle";
 import { RepaintFlag } from "../../../display/SpriteConst";
 import { ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
 
+/** Custom renderbit bit: skip 3D draw until the 2D UI RT is ready (avoids first-frame white flash). */
+const UI3D_TEXTURE_NOT_READY_BIT = 4;
+
 class UI3DShellSprite extends Sprite {
 
     _rtWidth: number;
@@ -40,6 +43,9 @@ class UI3DShellSprite extends Sprite {
     _invertY: boolean;
 
     updateRT: boolean = false;
+
+    /** The RT currently sampled by the 3D material; _drawOriRT is the 2D render target. */
+    displayRT: RenderTexture2D;
 
     /** @internal 内容渲染偏移量 */
     _contentOffsetX: number = 0;
@@ -90,7 +96,9 @@ class UI3DShellSprite extends Sprite {
             if (this._rtWidth === oldRT.width && this._rtHeight === oldRT.height) {
                 return false;
             }
-            oldRT.destroy();
+            // Keep the displayed RT alive until the newly rendered RT is bound.
+            if (oldRT !== this.displayRT)
+                oldRT.destroy();
         }
 
         let renderTexture: RenderTexture2D;
@@ -127,8 +135,6 @@ export class UI3D extends BaseRender {
     private _uisprite: Sprite;
 
     private _ui3DMat: Material;
-
-    private _rendertexure2D: RenderTexture2D;
 
     private _geometry: UI3DGeometry;
 
@@ -196,6 +202,7 @@ export class UI3D extends BaseRender {
         }
         this._resizeRT();
         this._shellSprite.repaint();
+        this.setRenderbitFlag(UI3D_TEXTURE_NOT_READY_BIT, !value || !this._shellSprite.displayRT);
         this.boundsChange = true;
     }
 
@@ -389,6 +396,7 @@ export class UI3D extends BaseRender {
         // shellSprite 不在渲染树，_updateStruct 不会被调用，手动初始化确保 root.trans 有效
         this._shellSprite._struct.renderMatrix = this._shellSprite.globalTrans.getMatrix();
         this._baseRenderNode.shaderData.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0);
+        this.setRenderbitFlag(UI3D_TEXTURE_NOT_READY_BIT, true);
 
         this._matrix = new Matrix4x4();
         this._scale = new Vector3(1.0, 1.0, 1.0);
@@ -425,7 +433,6 @@ export class UI3D extends BaseRender {
             this._creatDefaultMat();
             this.sharedMaterial = this._ui3DMat;
         }
-        this._setMaterialTexture();
         var material: Material = this.sharedMaterial;
         var element: RenderElement = new RenderElement();
         element.setTransform(this.owner._transform);
@@ -452,7 +459,10 @@ export class UI3D extends BaseRender {
     private _parseHit(ray: Ray) {
         let _tempRay = UI3D._ray;
         let u, v;
-        if (!this._uisprite || !LayaEnv.isPlaying) return null;
+        const displayRT = this._shellSprite.displayRT;
+        if (!this._uisprite || !displayRT || !LayaEnv.isPlaying) return null;
+        if (displayRT.width !== this._shellSprite.rtWidth || displayRT.height !== this._shellSprite.rtHeight)
+            return null;
         this._matrix.invert(tempMatrix);
         Vector3.transformCoordinate(ray.origin, tempMatrix, _tempRay.origin);
         Vector3.TransformNormal(ray.direction, tempMatrix, _tempRay.direction);
@@ -473,8 +483,8 @@ export class UI3D extends BaseRender {
         normalizeHitWidth = u + 0.5;
         normalizeHitHeight = v + 0.5;
 
-        let cx = normalizeHitWidth * this._rendertexure2D.width;
-        let cy = (1.0 - normalizeHitHeight) * this._rendertexure2D.height;
+        let cx = normalizeHitWidth * displayRT.width;
+        let cy = (1.0 - normalizeHitHeight) * displayRT.height;
 
         // RT 像素坐标 → shellSprite 空间 → _uisprite 局部坐标
         cx += this._shellSprite._contentOffsetX - this._uisprite.x;
@@ -505,7 +515,6 @@ export class UI3D extends BaseRender {
             this._shellSprite && (this._shellSprite.rtHeight = height);
             this._shellSprite && (this._shellSprite.invertY = !LayaGL.renderEngine._screenInvertY);
             this._shellSprite && this._shellSprite.repaint(RepaintFlag.UpdateRT);
-            this._setMaterialTexture();
         }
     }
 
@@ -562,7 +571,7 @@ export class UI3D extends BaseRender {
      * @zh 获得ui渲染图
      */
     getUITexture(): BaseTexture {
-        return this._rendertexure2D;
+        return this._shellSprite.displayRT;
     }
 
     /**
@@ -605,8 +614,13 @@ export class UI3D extends BaseRender {
      */
     _submitRT() {
         if (this._shellSprite.updateRT) {
+            const oldRT = this._shellSprite.displayRT;
             this._shellSprite.updateRT = false;
+            // Stage draws the new 2D RT after 3D in the previous frame; bind it only now.
             this._setMaterialTexture();
+            this.setRenderbitFlag(UI3D_TEXTURE_NOT_READY_BIT, !this._uisprite || !this._shellSprite.displayRT);
+            if (oldRT && oldRT !== this._shellSprite.displayRT)
+                oldRT.destroy();
         }
     }
 
@@ -618,9 +632,10 @@ export class UI3D extends BaseRender {
         if (this._shellSprite._drawOriRT) {
             this.sharedMaterial.addDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE);
             this.sharedMaterial.setTexture(this._bindPropertyName, this._shellSprite._drawOriRT);
-            this._rendertexure2D = this._shellSprite._drawOriRT;
+            this._shellSprite.displayRT = this._shellSprite._drawOriRT;
         } else {
             this.sharedMaterial.removeDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE)
+            this._shellSprite.displayRT = null;
         }
 
 
@@ -664,7 +679,11 @@ export class UI3D extends BaseRender {
 
     protected _onDestroy() {
         super._onDestroy();
-        this._rendertexure2D && this._rendertexure2D.destroy();
+        const displayRT = this._shellSprite.displayRT;
+        displayRT && displayRT.destroy();
+        const drawRT = this._shellSprite._drawOriRT;
+        if (drawRT && drawRT !== displayRT)
+            drawRT.destroy();
         if (this._shellSprite) {
             this._shellSprite._parent = null;
             this._shellSprite._syncTransParent(); // 同步 SoA parent(置为 root)
