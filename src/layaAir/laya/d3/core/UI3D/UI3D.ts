@@ -545,6 +545,8 @@ export class UI3D extends BaseRender {
         } else {
             if (this.billboard) {
                 this._sizeChange = false;
+                // billboard 矩阵每帧跟随相机旋转重建，bounds 需同步失效，否则裁剪会用到旧朝向的 AABB
+                this.boundsChange = true;
                 let camera = this.owner.scene.cullInfoCamera;
                 let e = this._transform.worldMatrix.elements;
                 let sx = Math.sqrt(e[0] * e[0] + e[1] * e[1] + e[2] * e[2]);
