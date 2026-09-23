@@ -248,8 +248,9 @@ export class PhysicsColliderComponent extends Component {
         }
         this._colliderShape && this._colliderShape.destroy();
         this._colliderShape = value;
-        if (this._collider && value) {
+        if (value)
             value.physicsComponent = this;
+        if (this._collider && value) {
             this._collider.setColliderShape(value._shape);
         }
     }

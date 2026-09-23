@@ -35,10 +35,17 @@ export enum PxMeshGeometryFlag {
  * @zh 表示物理引擎中的网格碰撞器形状。
  */
 export class pxMeshColliderShape extends pxColliderShape implements IMeshColliderShape {
+    private static _compoundTransform = {
+        translation: new Vector3(),
+        rotation: new Quaternion()
+    };
+
     private _limitvertex = 255;
     private _mesh: Mesh;
     private _convex: boolean;
     private _meshScale: any;
+    private _appliedScale: Vector3 = new Vector3(-1, -1, -1);
+    private _compoundLocalRotation: Quaternion = new Quaternion();
     /**
      * @en Creates a new instance of pxMeshColliderShape.
      * @zh 创建一个新的 pxMeshColliderShape 实例。
@@ -147,7 +154,9 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
 
     private _reConfigShape() {
         if (this._pxCollider) {
+            const eventFilterData = this.filterData.word2;
             this.setSimulationFilterData(this._pxCollider._collisionGroup, this._pxCollider._canCollisionWith);
+            this.setEventFilterData(eventFilterData);
             this.setOffset(this._offset);
             this._pxCollider._pxActor.attachShape(this._pxShape);
         }
@@ -155,15 +164,34 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
 
 
     private _setScale(scale: Vector3) {
-        if (this._pxShape && scale.equal(this._scale))
+        if (this._pxShape && scale.equal(this._appliedScale))
             return;
         scale.cloneTo(this._scale);
+        scale.cloneTo(this._appliedScale);
         this._meshScale.scale = this._scale;
         if (this._convex)
             this._createConvexMeshGeometry();
         else
             this._createTrianggleMeshGeometry();
 
+    }
+
+    /** @internal */
+    setCompoundTransform(position: Vector3, rotation: Quaternion, scale: Vector3): void {
+        rotation.cloneTo(this._compoundLocalRotation);
+        super.setCompoundTransform(position, rotation, scale);
+    }
+
+    /** @internal */
+    protected _setLocalPose(): void {
+        if (!this._pxCollider || !this._pxShape)
+            return;
+        const transform = pxMeshColliderShape._compoundTransform;
+        const ownerScale = this._pxCollider.owner.transform.getWorldLossyScale();
+        Vector3.multiply(ownerScale, this._compoundLocalScale, this._scale);
+        Vector3.multiply(this._offset, ownerScale, transform.translation);
+        this._compoundLocalRotation.cloneTo(transform.rotation);
+        this._pxShape.setLocalPose(transform);
     }
 
     /**
@@ -173,15 +201,9 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
      * @param position 新的偏移位置。
      */
     setOffset(position: Vector3): void {
-        if (!this._pxCollider) return;
-        position.cloneTo(this._offset);
-        this._setScale(this._pxCollider.owner.transform.getWorldLossyScale());
-        if (this._pxShape) {
-            const transform = pxColliderShape.transform;
-            if (this._pxCollider.owner)
-                Vector3.multiply(position, this._scale, transform.translation);
-            this._pxShape.setLocalPose(transform);
-        }
+        super.setOffset(position);
+        if (this._pxCollider)
+            this._setScale(this._scale);
     }
 
 

@@ -89,4 +89,6 @@ export enum EPhysicsCapable {
      * @zh 6自由度（D6）关节能力。
      */
     Physics_D6Joint,
+    /** Vehicle system capability. */
+    Physics_VehicleSystem,
 }

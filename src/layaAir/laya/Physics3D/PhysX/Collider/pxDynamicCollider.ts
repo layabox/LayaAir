@@ -335,6 +335,8 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         value = Math.max(value, 1e-07);
         this._mass = value;
         this._pxActor.setMassAndUpdateInertia(value);
+        // Recomputing mass properties also replaces the native center-of-mass pose.
+        this._pxActor.setCMassLocalPose(this._centerOfMass);
     }
 
     /**
@@ -346,6 +348,13 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
     setCenterOfMass(value: Vector3): void {
         this._centerOfMass = value;
         this._pxActor.setCMassLocalPose(value);
+    }
+
+    /** @internal Copies the configured actor-local center of mass without native allocations. */
+    _getLocalCenterOfMass(out: { x: number; y: number; z: number }): void {
+        out.x = this._centerOfMass.x;
+        out.y = this._centerOfMass.y;
+        out.z = this._centerOfMass.z;
     }
 
     /**
