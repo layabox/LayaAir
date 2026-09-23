@@ -44,7 +44,7 @@ class SortedStructs {
    }
 
    reset() {
-      this._indice.forEach(i => this.lists.get(i).length = 0);
+      this._indice.forEach(i => this.lists.get(i).clear());
       this._indice.clear();
       this._sortedIndice.length = 0;
    }
@@ -256,6 +256,9 @@ export class WebRender2DPass implements IRender2DPass {
             this.fillRenderElements();
             this._enableBatch && LayaEnv.isPlaying && this.batch();
          }
+
+         // Release stale tail references only after in-place batching has finished.
+         this._renderElements.clean();
 
          WebRender2DPass.uploadBuffer();
          context.drawRenderElementList(this._renderElements);
@@ -536,7 +539,7 @@ export class WebRender2DPass implements IRender2DPass {
          return;
       }
       this.destroyed = true;
-      this._renderElements.length = 0;
+      this._renderElements.clear();
       for (let i = 0, n = this._batchProviders.length; i < n; i++) {
          this._batchProviders[i] && this._batchProviders[i].destroy();
       }

@@ -781,6 +781,7 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this._clipRect = null;
       this.renderElements = null;
       this.spriteShaderData = null;
+      this.owner = null;
       this.parent = null;
       this.children.length = 0;
       this.children = null;
