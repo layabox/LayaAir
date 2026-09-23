@@ -108,10 +108,14 @@ export class Texture2DLoader implements IResourceLoader {
         const applyTextureCubeProperties = (texture: BaseTexture) => {
             if (!propertyParams)
                 return;
-            texture.wrapModeU = propertyParams.wrapModeU;
-            texture.wrapModeV = propertyParams.wrapModeV;
-            texture.filterMode = propertyParams.filterMode;
-            texture.anisoLevel = propertyParams.anisoLevel;
+            //未配置的属性保持引擎默认值，避免用 undefined 覆盖
+            if (propertyParams.wrapModeU != null) texture.wrapModeU = propertyParams.wrapModeU;
+            if (propertyParams.wrapModeV != null) texture.wrapModeV = propertyParams.wrapModeV;
+            //立方体采样使用 S/T/R 三个轴，W 随 V，缺失时随 U
+            if (propertyParams.wrapModeV != null || propertyParams.wrapModeU != null)
+                texture.wrapModeW = propertyParams.wrapModeV ?? propertyParams.wrapModeU;
+            if (propertyParams.filterMode != null) texture.filterMode = propertyParams.filterMode;
+            if (propertyParams.anisoLevel != null) texture.anisoLevel = propertyParams.anisoLevel;
         };
 
         let compress = compressedFormats.indexOf(ext) != -1 ? ext : null;
@@ -152,7 +156,7 @@ export class Texture2DLoader implements IResourceLoader {
                             if (cls) {
                                 let mipmapRequested = constructParams?.[3] ?? true;
                                 let mipmap = mipmapRequested && ktxInfo.mipmapCount > 1;
-                                let sRGB = constructParams ? !!constructParams[5] : ktxInfo.sRGB;
+                                let sRGB = constructParams?.[5] ?? ktxInfo.sRGB;
                                 let premultiplyAlpha = propertyParams ? propertyParams.premultiplyAlpha : false;
                                 let tc = new cls(ktxInfo.width, ktxInfo.format, mipmap, sRGB, premultiplyAlpha);
                                 tc.setKTXData(ktxInfo);
