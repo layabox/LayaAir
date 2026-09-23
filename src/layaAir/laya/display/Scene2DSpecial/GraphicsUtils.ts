@@ -72,6 +72,9 @@ export class GraphicsRenderer {
 
    private _renderDataHandle: I2DPrimitiveDataHandle;
 
+   /** @internal 是否已销毁，避免重复 destroy 以及残留的 owner 监听 */
+   private _destroyed: boolean = false;
+
    graphics:Graphics = null;
    modified = -1;
 
@@ -271,6 +274,15 @@ export class GraphicsRenderer {
    }
 
    destroy(): void {
+      if (this._destroyed)
+         return;
+      this._destroyed = true;
+      // owner 在 destroy 后仍可能存活(例如清空 graphics 后继续使用该节点)，必须摘掉监听，
+      // 否则已销毁的 renderer 会被 owner 的事件表一直持有，并在布局变化时被反复回调。
+      if (this.owner) {
+         this.owner.off(SpriteGlobalTransform.CHANGED, this, this._onOwnerTransformChanged);
+      }
+
       this.clear();
 
       for (const bucket of this._cachedBuckets) {
