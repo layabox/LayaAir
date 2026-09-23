@@ -11,7 +11,7 @@ import { Vector3 } from "../../maths/Vector3";
 import { NotImplementedError } from "../../utils/Error";
 import { Stat } from "../../utils/Stat";
 import { ICollider } from "../interface/ICollider";
-import { IPhysicsManager } from "../interface/IPhysicsManager";
+import { IPhysicsManager, IPhysicsStepListener } from "../interface/IPhysicsManager";
 import { Physics3DStatInfo } from "../interface/Physics3DStatInfo";
 import { EPhysicsStatisticsInfo } from "../physicsEnum/EPhysicsStatisticsInfo";
 import { pxCharactorCollider } from "./Collider/pxCharactorCollider";
@@ -27,6 +27,18 @@ import { pxStatics } from "./pxStatics";
  * @zh `pxPhysicsManager` 类用于实现物理管理。
  */
 export class pxPhysicsManager implements IPhysicsManager {
+    /** @internal Fixed-step listeners shared by advanced physics components. */
+    private _physicsStepListeners: IPhysicsStepListener[] = [];
+    /** @internal Operations requested from inside a physics callback. */
+    private _pendingPhysicsOperations: Array<() => void> = [];
+    /** @internal */
+    private _inPhysicsUpdate: boolean = false;
+    /** @internal */
+    private _destroyed: boolean = false;
+    /** Scene-owned callback wrapper. It must outlive the PxScene. */
+    private _simulationCallback: any = null;
+    /** Descriptor returned by getDefaultSceneDesc and owned by this manager. */
+    private _sceneDesc: any = null;
     /** @internal 引擎更新物理列表*/
     _physicsUpdateList = new PhysicsUpdateList();
 
@@ -39,6 +51,9 @@ export class pxPhysicsManager implements IPhysicsManager {
      * @zh 物理模拟的固定时间步长。
      */
     fixedTime: number = 1.0 / 60.0;
+
+    /** @en Max fixed steps per outer update. @zh 单帧最多固定步数。 */
+    maxSubSteps: number = 1;
 
     /**
      * @en Whether to enable Continuous Collision Detection (CCD).
@@ -67,7 +82,8 @@ export class pxPhysicsManager implements IPhysicsManager {
     //
     _pxcontrollerManager: any;//PxControllerManager*
 
-    private _gravity: Vector3 = new Vector3(0, -9.81, 0);
+    /** @internal Current gravity used by advanced solvers. */
+    _gravity: Vector3 = new Vector3(0, -9.81, 0);
 
     /**temp tranform object */
     private static _tempTransform: {
@@ -125,15 +141,16 @@ export class pxPhysicsManager implements IPhysicsManager {
         };
         this.enableCCD = physicsSettings.enableCCD;
         const pxPhysics = pxStatics._physics;
-        pxStatics._physXSimulationCallbackInstance = pxStatics._physX.PxSimulationEventCallback.implement(triggerCallback);
-        pxStatics._sceneDesc = pxStatics._physX.getDefaultSceneDesc(pxPhysics.getTolerancesScale(), 0, pxStatics._physXSimulationCallbackInstance);
-        this._pxScene = pxPhysics.createScene(pxStatics._sceneDesc);
+        this._simulationCallback = pxStatics._physX.PxSimulationEventCallback.implement(triggerCallback);
+        this._sceneDesc = pxStatics._physX.getDefaultSceneDesc(pxPhysics.getTolerancesScale(), 0, this._simulationCallback);
+        this._pxScene = pxPhysics.createScene(this._sceneDesc);
         this.setGravity(this._gravity);
         this._pxcontrollerManager = this._pxScene.createControllerManager();
         if (pxStatics._physXPVD) {
             this._pxScene.setPVDClient();
         }
         this.fixedTime = physicsSettings.fixedTimeStep;
+        this.maxSubSteps = physicsSettings.maxSubSteps;
     }
 
     /**
@@ -215,6 +232,7 @@ export class pxPhysicsManager implements IPhysicsManager {
      * @param gravity 要设置的重力向量。
      */
     setGravity(gravity: Vector3): void {
+        gravity.cloneTo(this._gravity);
         this._pxScene.setGravity(gravity);
     }
 
@@ -487,10 +505,35 @@ export class pxPhysicsManager implements IPhysicsManager {
      * @param elapsedTime 自上次更新以来经过的时间。
      */
     update(elapsedTime: number): void {
+        if (this._destroyed || !this._pxScene)
+            return;
         this._updatePhysicsTransformFromRender();//update render to physics
-        //simulate
-        this._pxScene.simulate(1 / 60, true);
-        this._pxScene.fetchResults(true);
+        const fixedDeltaTime = this.fixedTime > 0 ? this.fixedTime : elapsedTime;
+        const requestedSteps = (fixedDeltaTime > 0 && elapsedTime > 0)
+            ? Math.max(1, Math.round(elapsedTime / fixedDeltaTime)) : 0;
+        // Clamp like Bullet: never exceed maxSubSteps; 0 when elapsedTime is 0.
+        const stepCount = Math.min(Math.max(1, this.maxSubSteps), requestedSteps);
+        try {
+            this._flushPendingPhysicsOperations();
+            for (let step = 0; step < stepCount; step++) {
+                this._inPhysicsUpdate = true;
+                try {
+                    const listeners = this._physicsStepListeners;
+                    for (let i = 0, n = listeners.length; i < n; i++)
+                        listeners[i].beforePhysicsStep(fixedDeltaTime);
+                    this._pxScene.simulate(fixedDeltaTime, true);
+                    this._pxScene.fetchResults(true);
+                    for (let i = 0, n = listeners.length; i < n; i++)
+                        listeners[i].afterPhysicsStep(fixedDeltaTime);
+                } finally {
+                    this._inPhysicsUpdate = false;
+                    this._flushPendingPhysicsOperations();
+                }
+            }
+        } finally {
+            this._inPhysicsUpdate = false;
+            this._flushPendingPhysicsOperations();
+        }
         //update dynamic
         this._updatePhysicsTransformToRender();
         // update Events
@@ -614,8 +657,79 @@ export class pxPhysicsManager implements IPhysicsManager {
     sphereQuery?(pos: Vector3, radius: number, result: ICollider[], collisionmask: number): void {
         //TODO
     }
+
+    addPhysicsStepListener(listener: IPhysicsStepListener): void {
+        if (this._destroyed)
+            return;
+        this.deferPhysicsOperation(() => {
+            if (this._physicsStepListeners.indexOf(listener) === -1)
+                this._physicsStepListeners.push(listener);
+        });
+    }
+
+    removePhysicsStepListener(listener: IPhysicsStepListener): void {
+        if (this._destroyed)
+            return;
+        this.deferPhysicsOperation(() => {
+            const index = this._physicsStepListeners.indexOf(listener);
+            if (index !== -1)
+                this._physicsStepListeners.splice(index, 1);
+        });
+    }
+
+    deferPhysicsOperation(operation: () => void): void {
+        if (this._destroyed)
+            return;
+        if (this._inPhysicsUpdate)
+            this._pendingPhysicsOperations.push(operation);
+        else
+            operation();
+    }
+
+    private _flushPendingPhysicsOperations(): void {
+        while (this._pendingPhysicsOperations.length > 0) {
+            const operations = this._pendingPhysicsOperations.splice(0, this._pendingPhysicsOperations.length);
+            for (let i = 0; i < operations.length; i++)
+                operations[i]();
+        }
+    }
+
     destroy(): void {
-        //TODO
+        if (this._destroyed)
+            return;
+        this._inPhysicsUpdate = false;
+        this._flushPendingPhysicsOperations();
+        this._destroyed = true;
+        this._physicsStepListeners.length = 0;
+        this._pendingPhysicsOperations.length = 0;
+        this._releaseNative(this._pxcontrollerManager, "release", "PxControllerManager");
+        this._pxcontrollerManager = null;
+        this._releaseNative(this._pxScene, "release", "PxScene");
+        this._pxScene = null;
+        this._releaseNative(this._sceneDesc, "delete", "PxSceneDesc");
+        this._sceneDesc = null;
+        this._releaseNative(this._simulationCallback, "delete", "PxSimulationEventCallback");
+        this._simulationCallback = null;
+        this._physicsUpdateList.clear();
+        this._dynamicUpdateList.clear();
+        this._contactCollisionsBegin.clear();
+        this._contactCollisionsPersist.clear();
+        this._contactCollisionsEnd.clear();
+        this._triggerCollisionsBegin.clear();
+        this._triggerCollisionsPersist.clear();
+        this._triggerCollisionsEnd.clear();
+    }
+
+    private _releaseNative(resource: any, method: string, name: string): void {
+        if (!resource || typeof resource[method] !== "function")
+            return;
+        try {
+            resource[method]();
+            if (method !== "delete" && typeof resource.delete === "function")
+                resource.delete();
+        } catch (error) {
+            console.error("[PhysX] Failed to release " + name + ".", error);
+        }
     }
 
 }

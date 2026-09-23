@@ -30,6 +30,8 @@ import { btSphereColliderShape } from "./Shape/btSphereColliderShape";
 import { BulletInteractive } from "./btInteractive";
 import { btPhysicsManager } from "./btPhysicsManager";
 import { btStatics } from "./btStatics";
+import { btVehicle } from "./Vehicle/btVehicle";
+import { VehicleDesc } from "../interface/IVehicle/IPhysicsVehicle";
 /**
  * @en The `btPhysicsCreateUtil` class is responsible for creating and managing various physics objects and capabilities within the Bullet physics engine.
  * @zh `btPhysicsCreateUtil` 类负责在 Bullet 物理引擎中创建和管理各种物理对象和功能。
@@ -64,6 +66,7 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SpringJoint, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_HingeJoint, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CreateCorveMesh, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_VehicleSystem, true);
     }
 
     /**
@@ -86,20 +89,31 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
      */
     initialize(): Promise<void> {
         let physics3D: Function = (window as any).Physics3D;
-        physics3D(Math.max(16, Config3D.defaultPhysicsMemory) * 16, new BulletInteractive(null, null)).then(() => {
-            btStatics.bt = (window as any).Physics3D;
-            this.initPhysicsCapable();
-            btPhysicsManager.init();
-            btCollider.__init__();
-            btRigidBodyCollider.__init__();
-            btStaticCollider.__init__();
-            btCharacterCollider.__init__();
-            btMeshColliderShape.__init__();
-            return Promise.resolve();
-        }
-        );
-
-        return Promise.resolve();
+        return new Promise<void>((resolve, reject) => {
+            try {
+                const initialization = physics3D(
+                    Math.max(16, Config3D.defaultPhysicsMemory) * 16,
+                    new BulletInteractive(null, null)
+                );
+                initialization.then(() => {
+                    try {
+                        btStatics.bt = (window as any).Physics3D;
+                        this.initPhysicsCapable();
+                        btPhysicsManager.init();
+                        btCollider.__init__();
+                        btRigidBodyCollider.__init__();
+                        btStaticCollider.__init__();
+                        btCharacterCollider.__init__();
+                        btMeshColliderShape.__init__();
+                        resolve();
+                    } catch (error) {
+                        reject(error);
+                    }
+                }, reject);
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     /**
@@ -311,6 +325,10 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
         }
         return (<any>mesh).__convexMesh;
 
+    }
+
+    createVehicle(manager: btPhysicsManager, desc: VehicleDesc): btVehicle {
+        return new btVehicle(manager, desc);
     }
 }
 
