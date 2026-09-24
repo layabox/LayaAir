@@ -219,9 +219,10 @@ export const allBundles = [{
         'laya/d3/physics/PhysicsCollider.ts',
         'laya/d3/physics/PhysicsColliderComponent.ts',
         'laya/d3/physics/PhysicsUpdateList.ts',
-        'laya/d3/physics/RaycastVehicle.ts',
-        'laya/d3/physics/RaycastWheel.ts',
+        'laya/d3/physics/PhysicsVehicleComponent.ts',
+        'laya/d3/physics/VehicleConfigResolver.ts',
         'laya/d3/physics/Rigidbody3D.ts',
+        'laya/d3/physics/WheelCollider.ts',
     ],
 },
 {

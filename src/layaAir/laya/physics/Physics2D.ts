@@ -58,22 +58,27 @@ export class Physics2D extends EventDispatcher {
     }
 
     private _update(): void {
+        const deltaMs = ILaya.timer.delta;
+        if (!Number.isFinite(deltaMs))
+            return;
+
         //时间步太长，会导致错误穿透
-        const delta = Math.min(ILaya.timer.delta / 1000, 0.033);
-        this.update(delta);
+        this.update(Math.min(deltaMs / 1000, 0.033));
     }
 
     /**
      * @en Advances the 2D physics simulation by the specified time and synchronizes physics transforms to render objects.
      * When updating physics manually, set `Physics2DOption.customUpdate` to `true` before initializing the engine to avoid automatic updates.
-     * @param deltaTime The simulation time step in seconds. It must be a finite, non-negative number.
+     * Non-positive steps do not advance the simulation, but Box2D still updates contacts and clears forces when auto-clear is enabled.
+     * @param deltaTime The simulation time step in seconds. It must be a finite number.
      * @zh 按指定时间推进 2D 物理模拟，并将物理变换同步到渲染对象。
      * 手动更新物理时，应在初始化引擎前将 `Physics2DOption.customUpdate` 设置为 `true`，以避免与自动更新重复执行。
-     * @param deltaTime 模拟时间步长，单位为秒。必须是有限的非负数。
+     * 非正时间步不推进模拟，但 Box2D 仍更新接触，并在启用自动清力时清除力。
+     * @param deltaTime 模拟时间步长，单位为秒。必须是有限数。
      */
     update(deltaTime: number): void {
-        if (!Number.isFinite(deltaTime) || deltaTime < 0)
-            throw new Error("Physics2D.update: deltaTime must be a finite, non-negative number.");
+        if (!Number.isFinite(deltaTime))
+            throw new Error("Physics2D.update: deltaTime must be a finite number.");
 
         // Physics2D may be referenced before its asynchronous initialization has completed.
         if (!this._factory || !this._rigiBodyList)
