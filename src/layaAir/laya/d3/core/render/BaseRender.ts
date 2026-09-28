@@ -639,7 +639,7 @@ export class BaseRender extends Component {
         this._renderElements.forEach(element => {
             arrayElement.push(element._renderElementOBJ);
         });
-        this._baseRenderNode.setRenderelements(arrayElement);
+        this._baseRenderNode.setRenderelements(arrayElement, !this._batchRender);
         this._batchRender && this._batchRender.updateProperty(this, propertyChangeFlag.renderELement);
     }
 

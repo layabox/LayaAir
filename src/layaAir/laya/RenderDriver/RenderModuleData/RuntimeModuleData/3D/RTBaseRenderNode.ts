@@ -12,6 +12,7 @@ import { RTVolumetricGI } from "./RTVolumetricGI";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { Vector2 } from "../../../../maths/Vector2";
 import { NativeMemory } from "../NativeMemory";
+import { GLESGeometryUpdateBatch } from "../../../OpenGLESDriver/RenderDevice/GLESGeometryUpdateBatch";
 
 /** @internal conchRTBaseRenderNode 共享属性块槽位（与 C++ RTBaseRenderNode::Props 字段顺序严格一致）。 */
 const enum RTBaseRenderNodeSlot {
@@ -206,6 +207,13 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     private _caculateBoundingBoxbindFun: any;
 
     private _renderUpdatePrebindFun: any;
+    private _renderUpdatePreCaller: any;
+    private _renderUpdatePreFunction: any;
+
+    /** A cohort may only complete the callback it actually executed. */
+    isRenderUpdatePreCall(call: any, fun: any): boolean {
+        return this._renderUpdatePreCaller === call && this._renderUpdatePreFunction === fun;
+    }
 
     /**
      * 设置更新数据
@@ -215,6 +223,8 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     set_renderUpdatePreCall(call: any, fun: any): void {
         this._renderUpdatePrebindFun = fun.bind(call, RenderContext3D._instance._contextOBJ);
         this._nativeObj.setRenderUpdatePre(this._renderUpdatePrebindFun);
+        this._renderUpdatePreCaller = call;
+        this._renderUpdatePreFunction = fun;
     }
 
     /**
@@ -361,15 +371,19 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     _applyReflection(): void {
         this._nativeObj._applyReflection();
     }
-    setRenderelements(value: IRenderElement3D[]): void {
-        var tempArray: any[] = [];
+    setRenderelements(value: IRenderElement3D[], deferUntilSubmit: boolean = false): void {
+        const batch = GLESGeometryUpdateBatch.active;
+        // Direct callers and host batching hooks observe the native list
+        // synchronously. Drain earlier bindings before crossing that boundary.
+        if (!deferUntilSubmit) batch?.flush();
         this.renderelements.length = 0;
         for (var i = 0; i < value.length; i++) {
             this.renderelements.push(value[i]);
             value[i].owner = this;
 
-            tempArray.push((value[i] as any)._nativeObj);
         }
+        if (deferUntilSubmit && batch?.bindRenderElements(this._nativeObj, this.renderelements)) return;
+        const tempArray = this.renderelements.map(element => (element as any)._nativeObj);
         this._nativeObj.setRenderElements(tempArray);
     }
 
@@ -393,6 +407,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
 
     destroy(): void {
+        GLESGeometryUpdateBatch.active?.flush();
         this._nativeObj.destroy();
         for (let i = 0, n = this.renderelements.length; i < n; i++) {
             this.renderelements[i].destroy();

@@ -8,6 +8,7 @@ import { RTSubShader } from "../../RenderModuleData/RuntimeModuleData/RTSubShade
 import { GLESRenderGeometryElement } from "../RenderDevice/GLESRenderGeometryElement";
 import { GLESShaderData } from "../RenderDevice/GLESShaderData";
 import { NativeMemory } from "../../RenderModuleData/RuntimeModuleData/NativeMemory";
+import { GLESGeometryUpdateBatch } from "../RenderDevice/GLESGeometryUpdateBatch";
 
 export enum RenderElementType {
     Base = 0,
@@ -88,8 +89,10 @@ export class GLESRenderElement3D implements IRenderElement3D {
         return this._owner;
     }
     public set owner(value: RTBaseRenderNode) {
-        this._owner = value;
+        if (this._owner === value) return;
         this._nativeObj.setOwner(value._nativeObj);
+        // Publish only after the bridge succeeds so a failed assignment retries.
+        this._owner = value;
     }
 
     private _subShader: SubShader;
@@ -132,6 +135,7 @@ export class GLESRenderElement3D implements IRenderElement3D {
     }
 
     destroy(): void {
+        GLESGeometryUpdateBatch.active?.flush();
         this._geometry = null;
         this._materialShaderData = null;
         this._renderShaderData = null;

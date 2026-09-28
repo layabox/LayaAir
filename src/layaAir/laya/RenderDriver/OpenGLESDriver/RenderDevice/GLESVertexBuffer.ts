@@ -2,6 +2,7 @@ import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/
 import { VertexDeclaration, VertexStateContext } from "../../../RenderEngine/VertexDeclaration";
 import { IDeviceBuffer } from "../../DriverDesign/RenderDevice/IDeviceBuffer";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
+import { GLESGeometryUpdateBatch } from "./GLESGeometryUpdateBatch";
 
 export class GLESVertexBuffer implements IVertexBuffer {
     _instanceBuffer: boolean;
@@ -48,12 +49,18 @@ export class GLESVertexBuffer implements IVertexBuffer {
 
     setData(buffer: ArrayBuffer, bufferOffset: number, dataStartIndex: number, dataCount: number): void {
         this._bufferRef = buffer;
+        if (GLESGeometryUpdateBatch.active) {
+            GLESGeometryUpdateBatch.active.upload(this._nativeObj, buffer, bufferOffset, dataStartIndex, dataCount);
+            return;
+        }
         this._nativeObj.setData(buffer, bufferOffset, dataStartIndex, dataCount);
     }
     setDataLength(byteLength: number): void {
+        GLESGeometryUpdateBatch.active?.flush();
         this._nativeObj.setDataLength(byteLength);
     }
     destroy(): void {
+        GLESGeometryUpdateBatch.active?.flush();
         this._nativeObj.destroy();
         this._bufferRef = null;
     }

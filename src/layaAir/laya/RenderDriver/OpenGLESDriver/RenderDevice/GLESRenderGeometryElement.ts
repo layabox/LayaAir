@@ -4,6 +4,7 @@ import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { FastSinglelist } from "../../../utils/SingletonList";
 import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
+import { GLESGeometryUpdateBatch } from "./GLESGeometryUpdateBatch";
 
 /** JS-read mirror slot layout; shared contract with C++ GLESRenderGeometryElement. */
 const enum GeoSlot {
@@ -24,6 +25,7 @@ export class GLESRenderGeometryElement implements IRenderGeometryElement {
 
   /** JS-read mirror of [mode, drawType, instanceCount, indexFormat]; shared with C++. */
   private _props: Uint32Array;
+  private _indexFormatInitialized = false;
 
   /**@internal */
   constructor(mode: MeshTopology, drawType: DrawType) {
@@ -42,21 +44,25 @@ export class GLESRenderGeometryElement implements IRenderGeometryElement {
   setDrawArrayParams(first: number, count: number): void {
     this.drawParams.add(first);
     this.drawParams.add(count);
+    if (GLESGeometryUpdateBatch.active) { GLESGeometryUpdateBatch.active.geometry(this); return; }
     this._nativeObj.setDrawArrayParams(first, count);
   }
 
   setDrawElemenParams(count: number, offset: number): void {
     this.drawParams.add(offset);
     this.drawParams.add(count);
+    if (GLESGeometryUpdateBatch.active) { GLESGeometryUpdateBatch.active.geometry(this); return; }
     this._nativeObj.setDrawElementParams(count, offset);
   }
 
   destroy(): void {
+    GLESGeometryUpdateBatch.active?.flush();
     this._nativeObj.destroy();
   }
 
   clearRenderParams() {
     this.drawParams.length = 0;
+    if (GLESGeometryUpdateBatch.active) { GLESGeometryUpdateBatch.active.geometry(this); return; }
     this._nativeObj.clearRenderParams();
   }
 
@@ -86,6 +92,10 @@ export class GLESRenderGeometryElement implements IRenderGeometryElement {
   }
 
   set instanceCount(value: number) {
+    if (GLESGeometryUpdateBatch.active) {
+      this._props[GeoSlot.InstanceCount] = value;
+      GLESGeometryUpdateBatch.active.geometry(this); return;
+    }
     this._nativeObj.rt_setInstanceCount(value);
   }
 
@@ -94,7 +104,11 @@ export class GLESRenderGeometryElement implements IRenderGeometryElement {
   }
 
   set indexFormat(value: IndexFormat) {
+    // The initial mirror contains the enum default, but its GL mapping is not
+    // initialized until the first setter. Native setters keep the mirror current.
+    if (this._indexFormatInitialized && this._props[GeoSlot.IndexFormat] === value) return;
     this._nativeObj.rt_setIndexFormat(value);
+    this._indexFormatInitialized = true;
   }
 
   get indexFormat(): IndexFormat {

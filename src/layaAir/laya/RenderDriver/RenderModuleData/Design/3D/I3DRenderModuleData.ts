@@ -83,7 +83,7 @@ export interface IBaseRenderNode {
     /**
      * @param value 
      */
-    setRenderelements(value: IRenderElement3D[]): void;
+    setRenderelements(value: IRenderElement3D[], deferUntilSubmit?: boolean): void;
     /**
      * @internal
      * @param value 
