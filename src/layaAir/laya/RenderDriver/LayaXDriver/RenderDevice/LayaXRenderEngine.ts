@@ -28,6 +28,7 @@ export class LayaXRenderEngine implements IRenderEngine {
     private _lastDeviceBufferMemory: number = 0;
     private _lastGpuBufferMemory: number = 0;
     private _lastGpuMemory: number = 0;
+    private readonly _capabilities = new Map<RenderCapable, boolean>();
 
     shaderCompiler: LayaXShaderCompiler;
 
@@ -51,6 +52,7 @@ export class LayaXRenderEngine implements IRenderEngine {
     _breakTextureSample: boolean = false;
 
     initRenderEngine(canvas: HTMLCanvasElement): void {
+        this._capabilities.clear();
         this._nativeObj.initRenderEngine((canvas as any)._nativeObj);
         this._textureContext = new LayaXTextureContext(this._nativeObj.getTextureContext());
         Config._uniformBlock = Config.enableUniformBufferObject && this.getCapable(RenderCapable.UnifromBufferObject);
@@ -104,7 +106,12 @@ export class LayaXRenderEngine implements IRenderEngine {
     }
 
     getCapable(capatableType: RenderCapable): boolean {
-        return this._nativeObj.getCapable(capatableType);
+        let value = this._capabilities.get(capatableType);
+        if (value === undefined) {
+            value = this._nativeObj.getCapable(capatableType);
+            this._capabilities.set(capatableType, value);
+        }
+        return value;
     }
 
     getTextureContext(): ITextureContext {

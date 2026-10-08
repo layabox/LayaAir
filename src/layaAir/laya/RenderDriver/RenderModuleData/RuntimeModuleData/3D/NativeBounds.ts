@@ -43,7 +43,10 @@ export class NativeBounds implements IClone {
     /**@internal */
     static BOUNDS_EXTENT_DATAOFFSET: number = 9;
     /**@internal */
-    static BOUNDS_SHARE_MEMORY_SIZE: number = 12;
+    static BOUNDS_SHARE_MEMORY_SIZE: number = 13;
+    // Native acknowledges a private output buffer; legacy DLLs keep the scratch path.
+    private static readonly _sharedReady = 0x42590000;
+    private _sharedState: Uint32Array;
     /**@internal	*/
     nativeMemory: NativeMemory;
     /**@internal	*/
@@ -78,10 +81,12 @@ export class NativeBounds implements IClone {
      * @param value	包围盒的最小点。
      */
     setMin(value: Vector3): void {
+        const { x, y, z } = value;
+        this._sharedState[12] &= ~3;
         let index = NativeBounds.BOUNDS_MIN_DATAOFFSET;
-        this.float32Array[index] = value.x;
-        this.float32Array[index + 1] = value.y;
-        this.float32Array[index + 2] = value.z;
+        this.float32Array[index] = x;
+        this.float32Array[index + 1] = y;
+        this.float32Array[index + 2] = z;
         this._nativeObj.setMin();
     }
 
@@ -91,7 +96,7 @@ export class NativeBounds implements IClone {
      */
     getMin(): Vector3 {
         var min: Vector3 = this._boundBox.min;
-        this._nativeObj.getMin();
+        if ((this._sharedState[12] & ~2) !== (NativeBounds._sharedReady | 1)) this._nativeObj.getMin();
         let index = NativeBounds.BOUNDS_MIN_DATAOFFSET;
         min.x = this.float32Array[index];
         min.y = this.float32Array[index + 1];
@@ -104,10 +109,12 @@ export class NativeBounds implements IClone {
      * @param value	包围盒的最大点。
      */
     setMax(value: Vector3): void {
+        const { x, y, z } = value;
+        this._sharedState[12] &= ~3;
         let index = NativeBounds.BOUNDS_MAX_DATAOFFSET;
-        this.float32Array[index] = value.x;
-        this.float32Array[index + 1] = value.y;
-        this.float32Array[index + 2] = value.z;
+        this.float32Array[index] = x;
+        this.float32Array[index + 1] = y;
+        this.float32Array[index + 2] = z;
         this._nativeObj.setMax();
     }
 
@@ -117,7 +124,7 @@ export class NativeBounds implements IClone {
      */
     getMax(): Vector3 {
         var max: Vector3 = this._boundBox.max;
-        this._nativeObj.getMax();
+        if ((this._sharedState[12] & ~1) !== (NativeBounds._sharedReady | 2)) this._nativeObj.getMax();
         let index = NativeBounds.BOUNDS_MAX_DATAOFFSET;
         max.x = this.float32Array[index];
         max.y = this.float32Array[index + 1];
@@ -130,10 +137,12 @@ export class NativeBounds implements IClone {
      * @param value	包围盒的中心点。
      */
     setCenter(value: Vector3): void {
+        const { x, y, z } = value;
+        this._sharedState[12] &= ~3;
         let index = NativeBounds.BOUNDS_CENTER_DATAOFFSET;
-        this.float32Array[index] = value.x;
-        this.float32Array[index + 1] = value.y;
-        this.float32Array[index + 2] = value.z;
+        this.float32Array[index] = x;
+        this.float32Array[index + 1] = y;
+        this.float32Array[index + 2] = z;
         this._nativeObj.setCenter();
     }
 
@@ -156,10 +165,12 @@ export class NativeBounds implements IClone {
      * @param value	包围盒的范围。
      */
     setExtent(value: Vector3): void {
+        const { x, y, z } = value;
+        this._sharedState[12] &= ~3;
         let index = NativeBounds.BOUNDS_EXTENT_DATAOFFSET;
-        this.float32Array[index] = value.x;
-        this.float32Array[index + 1] = value.y;
-        this.float32Array[index + 2] = value.z;
+        this.float32Array[index] = x;
+        this.float32Array[index + 1] = y;
+        this.float32Array[index + 2] = z;
         this._nativeObj.setExtent();
     }
 
@@ -183,9 +194,17 @@ export class NativeBounds implements IClone {
      * @param max  max 最大坐标。
      */
     constructor(min?: Vector3, max?: Vector3) {
-        this.nativeMemory = new NativeMemory(NativeBounds.BOUNDS_SHARE_MEMORY_SIZE * 4, true);
-        this.float32Array = this.nativeMemory.float32Array;
+        this.nativeMemory = new NativeMemory(NativeBounds.BOUNDS_SHARE_MEMORY_SIZE * 4, false);
+        this._sharedState = this.nativeMemory.Uint32Array;
+        this._sharedState[12] = 0x42580000;
         this._nativeObj = new (window as any).conchBounds(this.nativeMemory._buffer);
+        if ((this._sharedState[12] & ~3) !== NativeBounds._sharedReady) {
+            this.nativeMemory = new NativeMemory(12 * 4, true);
+            this._nativeObj = new (window as any).conchBounds(this.nativeMemory._buffer);
+            // Keep legacy scratch contents out of the handshake.
+            this._sharedState = new Uint32Array(13);
+        }
+        this.float32Array = this.nativeMemory.float32Array;
         min && this.setMin(min);
         max && this.setMax(max);
     }
@@ -197,7 +216,7 @@ export class NativeBounds implements IClone {
     }
 
     _getBoundBox(): BoundBox {
-        this._nativeObj._getBoundBox();
+        if (this._sharedState[12] !== (NativeBounds._sharedReady | 3)) this._nativeObj._getBoundBox();
         let minIndex = NativeBounds.BOUNDS_MIN_DATAOFFSET;
         let maxIndex = NativeBounds.BOUNDS_MAX_DATAOFFSET;
         this._boundBox.min.x = this.float32Array[minIndex];

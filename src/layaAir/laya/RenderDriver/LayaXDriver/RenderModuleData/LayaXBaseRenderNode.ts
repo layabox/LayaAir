@@ -25,6 +25,8 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
     /** @internal */
     _nativeObj: any;
 
+    private _readbackFlags: Uint32Array | null = null;
+
     /** @internal */
     renderelements: IRenderElement3D[];
 
@@ -64,7 +66,7 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
     public get enable(): boolean { return this._nativeObj.enable; }
     public set enable(value: boolean) { this._nativeObj.enable = value; }
 
-    public get renderbitFlag(): number { return this._nativeObj.renderbitFlag; }
+    public get renderbitFlag(): number { return this._readbackFlags ? this._readbackFlags[0] : this._nativeObj.renderbitFlag; }
     public set renderbitFlag(value: number) { this._nativeObj.renderbitFlag = value; }
 
     public get visibalRangeBit(): number { return this._nativeObj.visibalRangeBit; }
@@ -109,7 +111,7 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
     public get lightProbUpdateMark(): number { return this._nativeObj.lightProbUpdateMark; }
     public set lightProbUpdateMark(value: number) { this._nativeObj.lightProbUpdateMark = value; }
 
-    public get perCameraUpdate(): boolean { return this._nativeObj.perCameraUpdate; }
+    public get perCameraUpdate(): boolean { return this._readbackFlags ? this._readbackFlags[1] !== 0 : this._nativeObj.perCameraUpdate; }
     public set perCameraUpdate(value: boolean) { this._nativeObj.perCameraUpdate = value; }
 
     // ------------------------------------------------------------------
@@ -238,10 +240,18 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
 
     private _caculateBoundingBoxbindFun: any;
     private _renderUpdatePrebindFun: any;
+    private _renderUpdatePreOwner: any;
+    private _renderUpdatePreFunction: any;
 
     set_renderUpdatePreCall(call: any, fun: any): void {
+        this._renderUpdatePreOwner = call;
+        this._renderUpdatePreFunction = fun;
         this._renderUpdatePrebindFun = fun.bind(call, RenderContext3D._instance._contextOBJ);
         this._nativeObj.setRenderUpdatePre(this._renderUpdatePrebindFun);
+    }
+
+    isRenderUpdatePreCall(call: any, fun: any): boolean {
+        return this._renderUpdatePreOwner === call && this._renderUpdatePreFunction === fun;
     }
 
     set_caculateBoundingBox(call: any, fun: any): void {
@@ -259,6 +269,10 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
 
     constructor() {
         this._getNativeObj();
+        if (this._nativeObj.bindReadbackFlags) {
+            const flags = new Uint32Array(2);
+            if (this._nativeObj.bindReadbackFlags(flags.buffer)) this._readbackFlags = flags;
+        }
         this._defaultBaseGeometryBounds = new Bounds();
         this.baseGeometryBounds = this._defaultBaseGeometryBounds;
         this.renderelements = [];

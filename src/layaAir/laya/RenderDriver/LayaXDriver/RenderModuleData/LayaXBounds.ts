@@ -7,9 +7,8 @@ import { IClone } from "../../../utils/IClone";
 /**
  * LayaX Bounds bridge.
  *
- * Wraps a `conchLayaXBounds` native object. Unlike the RT path which uses
- * shared memory for min/max/center/extent, the LayaX path delegates via
- * simple setter/getter calls on the native object.
+ * Native and JS read the same min/max block. Older runtimes keep the
+ * scalar-property fallback; cached Vector3 objects retain their identity.
  */
 export class LayaXBounds implements IClone {
     private static readonly _batchTargets: any[] = [];
@@ -45,6 +44,7 @@ export class LayaXBounds implements IClone {
 
     /** @internal */
     _nativeObj: any;
+    private _readback: Float32Array | null = null;
 
     /** @internal */
     _center: Vector3 = new Vector3();
@@ -75,7 +75,7 @@ export class LayaXBounds implements IClone {
     }
 
     getMin(): Vector3 {
-        this._nativeObj.getMin();
+        if (!this._readback) this._nativeObj.getMin();
         this._syncBoundBoxFromNative();
         return this._boundBox.min;
     }
@@ -86,7 +86,7 @@ export class LayaXBounds implements IClone {
     }
 
     getMax(): Vector3 {
-        this._nativeObj.getMax();
+        if (!this._readback) this._nativeObj.getMax();
         this._syncBoundBoxFromNative();
         return this._boundBox.max;
     }
@@ -96,7 +96,7 @@ export class LayaXBounds implements IClone {
     }
 
     getCenter(): Vector3 {
-        this._nativeObj.getCenter();
+        if (!this._readback) this._nativeObj.getCenter();
         this._syncBoundBoxFromNative();
         const min = this._boundBox.min;
         const max = this._boundBox.max;
@@ -113,7 +113,7 @@ export class LayaXBounds implements IClone {
     }
 
     getExtent(): Vector3 {
-        this._nativeObj.getExtent();
+        if (!this._readback) this._nativeObj.getExtent();
         this._syncBoundBoxFromNative();
         const min = this._boundBox.min;
         const max = this._boundBox.max;
@@ -127,6 +127,10 @@ export class LayaXBounds implements IClone {
 
     constructor(min?: Vector3, max?: Vector3) {
         this._nativeObj = new (window as any).conchLayaXBounds();
+        if (this._nativeObj.bindReadbackBuffer) {
+            const values = new Float32Array(6);
+            if (this._nativeObj.bindReadbackBuffer(values.buffer)) this._readback = values;
+        }
         min && this.setMin(min);
         max && this.setMax(max);
     }
@@ -137,7 +141,7 @@ export class LayaXBounds implements IClone {
     }
 
     _getBoundBox(): BoundBox {
-        this._nativeObj._getBoundBox();
+        if (!this._readback) this._nativeObj._getBoundBox();
         this._syncBoundBoxFromNative();
         return this._boundBox;
     }
@@ -145,6 +149,11 @@ export class LayaXBounds implements IClone {
     private _syncBoundBoxFromNative(): void {
         const min = this._boundBox.min;
         const max = this._boundBox.max;
+        if (this._readback) {
+            min.setValue(this._readback[0], this._readback[1], this._readback[2]);
+            max.setValue(this._readback[3], this._readback[4], this._readback[5]);
+            return;
+        }
         min.setValue(this._nativeObj._minX, this._nativeObj._minY, this._nativeObj._minZ);
         max.setValue(this._nativeObj._maxX, this._nativeObj._maxY, this._nativeObj._maxZ);
     }

@@ -10,10 +10,16 @@ import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
  */
 export class LayaXDefineDatas implements IDefineDatas {
     _nativeObj: any;
+    private _readback: Uint32Array | null = null;
 
     constructor() {
         this._nativeObj = new (window as any).conchLayaXDefineDatas();
         this._nativeObj.create();
+        if (this._nativeObj.bindReadback) {
+            // Native owns this prefix; definitions beyond it retain the API path.
+            const words = new Uint32Array(9);
+            if (this._nativeObj.bindReadback(words.buffer)) this._readback = words;
+        }
     }
 
     get _length(): number {
@@ -41,11 +47,16 @@ export class LayaXDefineDatas implements IDefineDatas {
     }
 
     add(define: ShaderDefine): void {
-        this._nativeObj.add(define._index, define._value);
+        const words = this._readback, index = define._index >>> 0, value = define._value >>> 0;
+        if (words?.[0] && index < words.length - 1 && value !== 0
+            && ((words[index + 1] & value) >>> 0) === value) return;
+        this._nativeObj.add(index, value);
     }
 
     remove(define: ShaderDefine): void {
-        this._nativeObj.remove(define._index, define._value);
+        const words = this._readback, index = define._index >>> 0, value = define._value >>> 0;
+        if (words?.[0] === 1 && index < words.length - 1 && (words[index + 1] & value) === 0) return;
+        this._nativeObj.remove(index, value);
     }
 
     addDefineDatas(define: IDefineDatas): void {
@@ -60,7 +71,9 @@ export class LayaXDefineDatas implements IDefineDatas {
     }
 
     has(define: ShaderDefine): boolean {
-        return this._nativeObj.has(define._index, define._value);
+        const words = this._readback, index = define._index >>> 0, value = define._value >>> 0;
+        return words?.[0] && index < words.length - 1
+            ? (words[index + 1] & value) !== 0 : this._nativeObj.has(index, value);
     }
 
     clear(): void {

@@ -92,6 +92,8 @@ export class LayaXTransform3D extends Transform3D {
      *   ② Rust tick 内迁移 → 下一帧 Stat.loopCount 变化 → 每实例每帧至少慢检一次(帧界兜底)。
      */
     private static _structGen: number = 1;
+    /** Any local write invalidates repeated world reads, including ancestor writes. */
+    private static _worldWriteEpoch: number = 1;
 
     /** 进程级一次性探测：external ArrayBuffer 可用 = true；沙箱/OHOS = false。 */
     private static _zeroCopyProbed: boolean = false;
@@ -160,6 +162,10 @@ export class LayaXTransform3D extends Transform3D {
     private _worldGenSum: number = -1;
     /** @internal 上次记录 _worldGenSum 时的结构代数(见 _worldNeedRefresh 碰撞防护) */
     private _worldGenStruct: number = -1;
+    private _worldGateFrame: number = -1;
+    private _worldGateWrite: number = -1;
+    private _worldGateNative: number = -1;
+    private _worldGateStruct: number = -1;
     /**
      * @internal 子树(不含自己)内 TRANSFORM_CHANGED 订阅者总数。写路径的事件派发只深入
      * `自身有监听 || _subtreeListenerTotal>0` 的分支(订阅剪枝)。与 _hasTransformChangedListener
@@ -253,7 +259,7 @@ export class LayaXTransform3D extends Transform3D {
         // world 矩阵脱离 chunk：换回独立堆并标脏，待下次入场景重算。
         this._worldMatrix.elements = new Float32Array(16);
         this._setTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX, true);
-        this._writeGen++;
+        this._writeGen++; LayaXTransform3D._worldWriteEpoch++;
         // swap-remove 会搬第三方实体的行(INV-6):bump 代数,受影响实例下次访问经慢检发现 VIEW_STALE
         LayaXTransform3D._structGen++;
     }
@@ -527,10 +533,25 @@ export class LayaXTransform3D extends Transform3D {
      * (直读快路径仍按 dirtyWord 三条件独立判断,在 super 之前)。返回是否发生变化。
      */
     private _worldNeedRefresh(): boolean {
+        const sharedEpoch = LayaXTransform3D._syncEpochView;
+        const nativeEpoch = sharedEpoch !== null ? sharedEpoch[0] : -1;
+        const writeEpoch = LayaXTransform3D._worldWriteEpoch;
+        const structure = LayaXTransform3D._structGen, frame = Stat.loopCount;
+        if (sharedEpoch !== null && this._worldGateFrame === frame
+            && this._worldGateWrite === writeEpoch && this._worldGateNative === nativeEpoch
+            && this._worldGateStruct === structure) return false;
         // 判据复合结构代数:重挂会换祖先链,新旧链 gen 和可能恰好碰撞(对拍器抓到
         // 23+96 == 26+93 的实例)。同一结构代内链形状固定且 sum 严格单调(写只增),
         // 不可能回撞;跨代(重挂/实体增删,低频)强制刷新一次,严格正确。
         const sum = this._chainGenSum();
+        // Keep the entry epochs: a pull or callback during traversal must miss
+        // this gate on the next read. Publish only after traversal completes.
+        if (sharedEpoch !== null) {
+            this._worldGateFrame = frame;
+            this._worldGateWrite = writeEpoch;
+            this._worldGateNative = nativeEpoch;
+            this._worldGateStruct = structure;
+        }
         if (sum === this._worldGenSum && this._worldGenStruct === LayaXTransform3D._structGen)
             return false;
         this._worldGenSum = sum;
@@ -603,7 +624,7 @@ export class LayaXTransform3D extends Transform3D {
         if (pending & LayaXTransform3D.SYNC_ROT) this._pullRot();
         if (pending & LayaXTransform3D.SYNC_SCALE) this._pullScale();
         this._flagU32[LayaXTransform3D.FLAG_SYNC_IDX] &= ~pending;
-        this._writeGen++; // C++ 写化入本节点写代数
+        this._writeGen++; LayaXTransform3D._worldWriteEpoch++; // C++ 写化入本节点写代数
         this._setTransformFlag(Transform3D.TRANSFORM_LOCALMATRIX, true);
         // 按分量选择性置脏(对拍器精化):与 WebGL 侧等效写的递归类型对齐——
         // 统一 _onWorldTransform() 全量置脏会改变 TRANSFORM_CHANGED 的边缘触发时刻
@@ -895,7 +916,7 @@ export class LayaXTransform3D extends Transform3D {
     // ---- local→自己 slot 落库（零拷贝直写 + 标自己 dirty bit；未绑定经 C++ 推）----
 
     private _pushLocalPos(): void {
-        this._writeGen++;
+        this._writeGen++; LayaXTransform3D._worldWriteEpoch++;
         this._checkViewStale();
         const lp = this._localPosition;
         if (this._viewsBound) {
@@ -910,7 +931,7 @@ export class LayaXTransform3D extends Transform3D {
     }
 
     private _pushLocalRot(): void {
-        this._writeGen++;
+        this._writeGen++; LayaXTransform3D._worldWriteEpoch++;
         this._checkViewStale();
         const lr = this.localRotation;    // 经基类 getter 懒求值，保证四元数最新（与 WebGL bit-exact）
         if (this._viewsBound) {
@@ -925,7 +946,7 @@ export class LayaXTransform3D extends Transform3D {
     }
 
     private _pushLocalScale(): void {
-        this._writeGen++;
+        this._writeGen++; LayaXTransform3D._worldWriteEpoch++;
         this._checkViewStale();
         const ls = this._localScale;
         if (this._viewsBound) {
@@ -962,7 +983,7 @@ export class LayaXTransform3D extends Transform3D {
         }
         super._setParent(value);
         this._nativeObj.setParent(value ? (value as any)._nativeObj : null);
-        this._writeGen++; // 链形状变化,等价于一次写
+        this._writeGen++; LayaXTransform3D._worldWriteEpoch++; // 链形状变化,等价于一次写
         // setParent 触发 archetype 迁移(ffi 内 re-mark dirty),行可能搬家:bump 结构代数
         LayaXTransform3D._structGen++;
     }
