@@ -14,7 +14,7 @@ LayaAir引擎已适配众多主流的图形API，如WebGL/WebGPU/OpenGL/Vulkan�
 
 LayaAir引擎可一键发布到多个游戏平台，除HTML5 WEB外，还同时支持发布Native APP（安卓、iOS、鸿蒙NEXT、Windows、Mac、Linux），小游戏（微信小游戏、字节跳动小游戏、支付宝小游戏、OPPO小游戏、vivo小游戏、小米快游戏、淘宝小游戏等）。
 
-LayaAir引擎提供强大的IDE集成环境，包含3D场景编辑器、材质编辑器、粒子编辑器、蓝图编辑器、动画编辑器、物理编辑器、UI编辑器。IDE提供丰富的扩展能力给开发者自定义工作流，开发者更可更上传插件到资源商店分享和销售。
+LayaAir引擎提供强大的IDE集成环境，包含3D场景编辑器、材质编辑器、粒子编辑器、蓝图编辑器、动画编辑器、物理编辑器、UI编辑器。IDE提供丰富的扩展能力给开发者自定义工作流，开发者还可上传插件到资源商店分享和销售。
 
 LayaAir引擎积极拥抱AI，已内置AIGC框架，提供AI创作生成、AI控制IDE、AI客服等产品。
 
@@ -62,9 +62,9 @@ npm run build
 
 - LayaAir_3.x:  例如LayaAir_3.1等，是LayaAir3引擎稳定版本，**每一个次版本号对应一个分支**。
 
-- LayaAir_2.x:  例如LayaAIr_2.13.3等，是LayaAir2引擎稳定版本。**每一个修订版本号对应一个分支**。
+- LayaAir_2.x:  例如LayaAir_2.13.3等，是LayaAir2引擎稳定版本。**每一个修订版本号对应一个分支**。
 
-- Master3.0:  LayaAir3的活跃开发版本，请不要用于生成环境。
+- Master3.0:  LayaAir3的活跃开发版本，请不要用于生产环境。
 
 ## 贡献代码
 
