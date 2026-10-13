@@ -25,6 +25,10 @@ export class TextInputAdapter {
     protected _enterEvent: Event;
     protected _lastTransform: { x: number, y: number, width: number, height: number, scaleX: number, scaleY: number };
     protected _beginFlag: number = 0;
+    private _beginTarget: Input;
+    private _selectionReady: boolean = false;
+    private _selectionSession: number = 0;
+    private _pendingSelection: { target: Input, start: number, end: number };
 
     /**
      * If true, the input box will be displayed inline with the canvas.
@@ -47,7 +51,11 @@ export class TextInputAdapter {
             return Promise.resolve();
 
         this._beginFlag = 1;
-        return (this.target ? this.end(false, this.target.editable) : Promise.resolve()).then(() => {
+        this._selectionReady = false;
+        this._selectionSession++;
+        const ending = this.target ? this.end(false, this.target.editable) : Promise.resolve();
+        this._beginTarget = target;
+        return ending.then(() => {
             (<Mutable<this>>this).target = target;
             (<Mutable<Stage>>ILaya.stage).focus = target;
 
@@ -68,7 +76,7 @@ export class TextInputAdapter {
         }).then(() => {
             if (!fromTouchBegin) {
                 this._beginFlag = 0;
-                return this.onCanShowKeyboard().catch(e => {
+                return this.showKeyboard().catch(e => {
                     console.error("TextInputAdapter begin error:", e);
                 });
             }
@@ -80,6 +88,10 @@ export class TextInputAdapter {
     }
 
     end(complete?: boolean, switching?: boolean): Promise<void> {
+        this._selectionReady = false;
+        this._selectionSession++;
+        this._beginTarget = null;
+        this._pendingSelection = null;
         let target = this.target;
         if (!target)
             return Promise.resolve();
@@ -174,6 +186,35 @@ export class TextInputAdapter {
         }
     }
 
+    /** @internal Set selection after the target's input element is ready. */
+    setSelectionFor(target: Input, startIndex: number, endIndex: number): void {
+        if (this.target === target && this._selectionReady) {
+            this._pendingSelection = null;
+            this.setSelection(startIndex, endIndex);
+            return;
+        }
+
+        this.begin(target);
+        // begin ignores other targets while an input session is starting.
+        if (this.target === target || this._beginTarget === target)
+            this._pendingSelection = { target, start: startIndex, end: endIndex };
+    }
+
+    private showKeyboard(): Promise<void> {
+        const target = this.target;
+        const session = this._selectionSession;
+        return this.onCanShowKeyboard().then(() => {
+            if (!target || this.target !== target || this._selectionSession !== session)
+                return;
+            this._selectionReady = true;
+            this._beginTarget = null;
+            const selection = this._pendingSelection;
+            this._pendingSelection = null;
+            if (selection && selection.target === target)
+                this.setSelection(selection.start, selection.end);
+        });
+    }
+
     private onTouchBegin(): void {
         let lastFocus = ILaya.stage.focus;
         let touchTarget = InputManager.touchTarget;
@@ -192,7 +233,7 @@ export class TextInputAdapter {
             }
             else { //==2
                 this._beginFlag = 0;
-                this.onCanShowKeyboard().catch(e => {
+                this.showKeyboard().catch(e => {
                     console.error("TextInputAdapter begin error:", e);
                 });
             }
