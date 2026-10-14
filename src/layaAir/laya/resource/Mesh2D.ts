@@ -149,7 +149,7 @@ export class Mesh2D extends Resource {
         let indexBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
         indexBuffer._setIndexDataLength(ib.buffer.byteLength);
         indexBuffer._setIndexData(ib, 0);
-        
+        indexBuffer.indexCount = ib.length;
         indexBuffer.indexType = ibFormat;
 
         mesh2d._setBuffers(vbArray, indexBuffer);
@@ -396,7 +396,7 @@ export class Mesh2D extends Resource {
             iscreateBuffer = true;
             this._indexBuffer = indexBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Static);
             this._indexBuffer._setIndexDataLength(indices.byteLength);
-            indexBuffer.indexCount = indexBuffer.indexCount;
+            indexBuffer.indexCount = indices.length;
             indexBuffer.indexType = format;
         }
         indexBuffer._setIndexData(indices, 0);
