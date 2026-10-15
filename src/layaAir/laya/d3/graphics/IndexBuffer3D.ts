@@ -122,13 +122,13 @@ export class IndexBuffer3D {
         if (needSubData) {
             switch (this._indexType) {
                 case IndexFormat.UInt32:
-                    data = new Uint32Array(data.buffer, dataStartIndex * byteCount, dataCount);
+                    data = new Uint32Array(data.buffer, (data.byteOffset || 0) + dataStartIndex * byteCount, dataCount);
                     break;
                 case IndexFormat.UInt16:
-                    data = new Uint16Array(data.buffer, dataStartIndex * byteCount, dataCount);
+                    data = new Uint16Array(data.buffer, (data.byteOffset || 0) + dataStartIndex * byteCount, dataCount);
                     break;
                 case IndexFormat.UInt8:
-                    data = new Uint8Array(data.buffer, dataStartIndex * byteCount, dataCount);
+                    data = new Uint8Array(data.buffer, (data.byteOffset || 0) + dataStartIndex * byteCount, dataCount);
                     break;
             }
         }
