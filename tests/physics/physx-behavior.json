@@ -1,0 +1,46 @@
+{
+  "description": "Pre-optimization physx JS behavior; exact numeric state, ordered contacts/events and query outputs. Negative zero is encoded explicitly.",
+  "baselineSourceSha256": "1720f304945e857292b7e208d4007a527d6298826154701404a1efa8622101b9",
+  "cases": [
+    {
+      "name": "mixed-legacy",
+      "stateHash": "db6a418cc5018cf455c9d7f5abe04bd9d5f5ea981fc0055315f7ec3de5b59aa0",
+      "behaviorHash": "a3151b35a3695af209d02e5441075792ca5febeb7056d6eb59bd8dfebe0c07cd"
+    },
+    {
+      "name": "mixed-pcm",
+      "stateHash": "f1e7ffe15733005137e103f8ef95d84aa0f7003934bf13c37368103044493950",
+      "behaviorHash": "3caa3686503261ebd82292039af5cbc906dca948f8ee036d7c1db5b2a3818538"
+    },
+    {
+      "name": "convex-legacy",
+      "stateHash": "947428084fdcbc903bd08dbc8193304617b12795d20f643b5640941c117ce2e6",
+      "behaviorHash": "81f29867623157bc907ce32e3bfbce7255e0bbe6ef5a9a48b6aceb199a350a7e"
+    },
+    {
+      "name": "convex-pcm",
+      "stateHash": "896b9d8c65eaac749e01225ec81e31aa440df81b3bdc8273b1f414cb2423b9b3",
+      "behaviorHash": "584b0962deb01ed6509cc49a1c16b3ea2c24b0836e36c3389fca74e58aa39c53"
+    },
+    {
+      "name": "convex-ccd",
+      "stateHash": "03921fc988968efb73cc1343c1d0d27a0a9d6e89a695f3bcb07f6c5dcbb5bae8",
+      "behaviorHash": "42a42168880118b32320a65c0deb52ba389a7c9eac24bbf5fc55b5f162925ec4"
+    },
+    {
+      "name": "heightfield",
+      "stateHash": "b7e2d78cbfdcd76e29d964f0fcbf0045849c8234c796517d1e9abe7717e77220",
+      "behaviorHash": "227449e2e1c2f1a3e62efc16b8fc7ba2716597461dbf8446994a8b4a607bf91e"
+    },
+    {
+      "name": "mesh-legacy",
+      "stateHash": "707757be120ce6d115f8f6e16ef5aef17adc06bca0a1d30a3496cc3fe314cd10",
+      "behaviorHash": "a9484d240c416a7568c3093a5aaf2e6f6097899d788ee91c78c949c893aed6ee"
+    },
+    {
+      "name": "mesh-controller-pcm",
+      "stateHash": "72d3c338ddcd3d6f8aed4b1046bb16091621a2cad57cc9caa7074fbc54d32913",
+      "behaviorHash": "07070d6fd35bdccb51361f2b298f20a233e24437be21bb3043ce15348c7a24e6"
+    }
+  ]
+}
