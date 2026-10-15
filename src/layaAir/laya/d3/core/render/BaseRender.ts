@@ -689,6 +689,11 @@ export class BaseRender extends Component {
     renderUpdate(context: RenderContext3D) {
 
     }
+    /** @internal */
+    get _is3DRender(): boolean {
+        return true;
+    }
+
     protected _onAdded(): void {
         this._transform = this.owner.transform;
         this.owner._isRenderNode++;
