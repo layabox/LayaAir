@@ -258,6 +258,20 @@ export class BaseRender extends Component {
     }
 
     /**
+     * @en Renderer order within each opaque/transparent pass on the Web backend.
+     * Lower values render first, before material queue and distance sorting.
+     * Native backends require matching renderer support. Opaque batching may reorder draws.
+     * @zh Web 后端在各自不透明/透明阶段内的渲染顺序，值小先画，优先于材质队列和距离。
+     * 原生后端需要配套实现；不透明合批可能重排绘制项。
+     */
+    get renderOrder(): number {
+        return this._baseRenderNode.renderOrder ?? 0;
+    }
+    set renderOrder(value: number) {
+        this._baseRenderNode.renderOrder = value;
+    }
+
+    /**
      * @en The render bit flag of the render node.
      * @zh 渲染节点的渲染禁用位。
      */
@@ -595,6 +609,7 @@ export class BaseRender extends Component {
         this.lightmapIndex = -1;
         this.receiveShadow = false;
         this._baseRenderNode.sortingFudge = 0.0;
+        this._baseRenderNode.renderOrder = 0;
         this.reflectionMode = ReflectionProbeMode.simple;
         if (!!this._calculateBoundingBox) {
             this._baseRenderNode.set_caculateBoundingBox(this, this._calculateBoundingBox);
@@ -846,6 +861,7 @@ export class BaseRender extends Component {
         dest.reflectionMode = this.reflectionMode;
         dest.castShadow = this.castShadow;
         dest.sortingFudge = this.sortingFudge;
+        dest.renderOrder = this.renderOrder;
     }
 
     /**

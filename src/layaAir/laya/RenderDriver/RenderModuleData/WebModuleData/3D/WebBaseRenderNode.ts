@@ -28,6 +28,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     boundsChange: boolean;
     distanceForSort: number;
     sortingFudge: number;
+    renderOrder: number = 0;
     castShadow: boolean;
     receiveShadow: boolean;
     enable: boolean;

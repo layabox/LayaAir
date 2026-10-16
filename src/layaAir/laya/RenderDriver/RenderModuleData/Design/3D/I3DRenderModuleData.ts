@@ -43,6 +43,8 @@ export interface IBaseRenderNode {
     transform: Transform3D;
     distanceForSort: number;
     sortingFudge: number;
+    /** Web renderer order within each opaque/transparent pass; native support is optional. */
+    renderOrder?: number;
     castShadow: boolean;
     receiveShadow: boolean;
     enable: boolean;
