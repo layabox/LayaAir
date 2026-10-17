@@ -337,10 +337,14 @@ export class SpineShaderInit {
                         element = new VertexElement(offset, VertexElementFormat.Vector4, 7);
                         offset += 16;
                         break;
-                    // case "RIGIDBODY":
-                    //     element = new VertexElement(offset, VertexElementFormat.Single, 4);
-                    //     offset += 4;
-                    //     break;
+                    case "RIGIDBODY":
+                        element = new VertexElement(offset, VertexElementFormat.Single, 3);
+                        elements.push(element);
+                        offset += 4;
+
+                        element = new VertexElement(offset, VertexElementFormat.Single, 4);
+                        offset += 4;
+                        break;
                     case "UV":
                         element = new VertexElement(offset, VertexElementFormat.Vector2, 0);
                         offset += 8;
@@ -378,7 +382,9 @@ export class SpineShaderInit {
             "UV,COLOR,POSITION",
             "UV,COLOR,POSITION,COLOR2",
             "UV,COLOR,POSITION,BONE",
-            "UV,COLOR,POSITION,BONE,COLOR2"
+            "UV,COLOR,POSITION,BONE,COLOR2",
+            "UV,COLOR,POSITION,RIGIDBODY",
+            "UV,COLOR,POSITION,RIGIDBODY,COLOR2"
         ];
         for (const vertexFlag of vertexFlags) {
             this._declarations[vertexFlag] = SpineShaderInit.getVertexDeclaration(vertexFlag);

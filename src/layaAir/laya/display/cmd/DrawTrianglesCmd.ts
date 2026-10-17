@@ -29,11 +29,9 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      */
     static readonly ID: string = className;
 
-    /**
-     * @en The texture to be drawn.
-     * @zh 要绘制的纹理。
-     */
-    texture: Texture | null;
+    /** @internal */
+    _texture: Texture | null = null;
+
     /**
      * @en X-axis offset.
      * @zh X轴偏移量。
@@ -122,7 +120,6 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
         matrix?: Matrix, alpha?: number, color?: string | number, blendMode?: string): DrawTrianglesCmd {
         var cmd: DrawTrianglesCmd = Pool.getItemByClass(className, DrawTrianglesCmd);
         cmd.texture = texture;
-        texture?._addReference();
         cmd.x = x;
         cmd.y = y;
         cmd.vertices = vertices;
@@ -151,7 +148,6 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
     static create2(texture: Texture, mesh: IMeshFactory, color?: string | number): DrawTrianglesCmd {
         var cmd: DrawTrianglesCmd = Pool.getItemByClass(className, DrawTrianglesCmd);
         cmd.texture = texture;
-        texture?._addReference();
         cmd.x = 0;
         cmd.y = 0;
         cmd.mesh = mesh;
@@ -165,8 +161,8 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
      * @zh 回收到对象池
      */
     recover(): void {
-        this.texture?._removeReference();
-        this.texture = null;
+        this._texture?._removeReference();
+        this._texture = null;
         this.vertices = null;
         this.uvs = null;
         this.indices = null;
@@ -177,6 +173,19 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
         this._dynamic = null;
         this._tempUVs = null;
         Pool.recover(className, this);
+    }
+
+    /**
+     * @en The texture to be drawn.
+     * @zh 要绘制的纹理。
+     */
+    get texture(): Texture | null {
+        return this._texture;
+    }
+    set texture(val: Texture | null) {
+        !!val && val._addReference();
+        this._texture?._removeReference();
+        this._texture = val;
     }
 
     /**

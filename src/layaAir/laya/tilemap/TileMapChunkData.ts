@@ -901,7 +901,7 @@ export class TileMapChunkData {
             localIndexArray.splice(localIndexArray.indexOf(chunkCellInfo.chuckLocalindex), 1);
             if (localIndexArray.length == 0) {
                 delete this._cellDataRefMap[oldGid];
-                this._refGids.splice(this._refGids.indexOf(gid), 1);
+                this._refGids.splice(this._refGids.indexOf(oldGid), 1);
                 oldcell._removeNoticeRenderTile(this);
             }
             chunkCellInfo.cell = cellData;
@@ -962,7 +962,7 @@ export class TileMapChunkData {
             chunkCellInfo.cell._removeNoticeRenderTile(this);
         }
 
-        this._reCreateRenderData = true;
+        this._modifyData();
     }
 
     _modifyData() {
@@ -984,7 +984,7 @@ export class TileMapChunkData {
      * 根据四种形状计算包围盒
      */
     private _calculateRange() {
-        if (!this._tileSize || this._tileSize.x <= 0 || this._tileSize.y <= 0) {
+        if (!this._chuckCellList.length || !this._tileSize || this._tileSize.x <= 0 || this._tileSize.y <= 0) {
             this._range.setTo(0, 0, 0, 0);
             return;
         }
@@ -1100,12 +1100,11 @@ export class TileMapChunkData {
     _clearOneCell(cell: TileSetCellData) {
         let gid = cell.gid;
         let listArray = this._cellDataRefMap[gid];
-        if (listArray)
-            listArray.forEach(element => this._removeCell(element));
-
-        cell._removeNoticeRenderTile(this);
-        delete this._cellDataRefMap[gid];
-        this._refGids.splice(this._refGids.indexOf(gid), 1);
+        // _removeCell mutates the index list and unregisters the final reference.
+        if (listArray) {
+            for (const index of listArray.slice())
+                this._removeCell(index);
+        }
         this._modifyData();
         this._dirtyFlags.forEach(flags => flags.delete(gid));
     }

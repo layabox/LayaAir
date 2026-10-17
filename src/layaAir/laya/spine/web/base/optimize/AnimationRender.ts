@@ -100,6 +100,9 @@ export class AnimationRender {
    
 
     hasEvent: boolean = false;
+
+    /** @internal Whether this animation changes vertex data, such as color or deform. */
+    hasVertexAnimation: boolean = false;
     /**
      * @en Indicates if the animation is cached.
      * @zh 指示动画是否已缓存。
@@ -158,6 +161,7 @@ export class AnimationRender {
         let timeline = animation.timelines;
         let changeMap = this.changeMap;
         let renderFrames = this.frames;
+        let spineRuntime: any = (window as any).spine;
         //this.mainIb = mainib;
         let hasClip: boolean = false;
         let hasEvent = false;
@@ -213,55 +217,47 @@ export class AnimationRender {
                 }
                 // spine.timline
             }
-            //@ts-ignore
-            else if (time instanceof (spine.ColorTimeline || spine.RGBATimeline) || (spine.TwoColorTimeline && time instanceof spine.TwoColorTimeline)) {
+            else if (
+                (spineRuntime.ColorTimeline && time instanceof spineRuntime.ColorTimeline)
+                || (spineRuntime.RGBATimeline && time instanceof spineRuntime.RGBATimeline)
+                || (spineRuntime.RGBTimeline && time instanceof spineRuntime.RGBTimeline)
+                || (spineRuntime.AlphaTimeline && time instanceof spineRuntime.AlphaTimeline)
+                || (spineRuntime.TwoColorTimeline && time instanceof spineRuntime.TwoColorTimeline)
+                || (spineRuntime.RGBA2Timeline && time instanceof spineRuntime.RGBA2Timeline)
+                || (spineRuntime.RGB2Timeline && time instanceof spineRuntime.RGB2Timeline)
+            ) {
                 let rgba = time as spine.RGBATimeline;
                 let slotIndex = rgba.slotIndex;
 
-                if (frames.length == 5 && frames[0] == 0 && frames[4] == 0) {//优化，当0帧 透明度0时。
-                    let change = new ChangeSlot();
-                    change.slotId = slotIndex;
-                    change.attachment = null;
-                    let frame = 0;
-                    let changeItem = changeMap.get(frame);
-                    if (!changeItem) {
-                        this.frames.indexOf(frame) == -1 && this.frames.push(frame);
-                        changeItem = {
-                            iChanges: []
-                        };
-                        changeMap.set(frame, changeItem);
-                    }
+                this.hasVertexAnimation = true;
 
-                    let arr = changeItem.iChanges = changeItem.iChanges || [];
-                    arr.push(change);
+                let changeRGBA = new ChangeRGBA(slotIndex);
+                let startFrame = frames[0];
+                let frameEntries = typeof (time as any).getFrameEntries === "function"
+                    ? (time as any).getFrameEntries()
+                    : (spineRuntime.TwoColorTimeline && time instanceof spineRuntime.TwoColorTimeline ? 8 : 5);
+                let num = frames.length / frameEntries | 0;
+                let endFrame = frames[(num - 1) * frameEntries];
+
+                changeRGBA.startFrame = startFrame;
+                changeRGBA.endFrame = endFrame;
+
+                let changeItem = changeMap.get(startFrame);
+                if (!changeItem) {
+                    this.frames.indexOf(startFrame) == -1 && this.frames.push(startFrame);
+                    changeItem = {
+                        vChanges: []
+                    };
+                    changeMap.set(startFrame, changeItem);
                 }
-                else {
 
-                    let changeRGBA = new ChangeRGBA(slotIndex);
-                    let startFrame = frames[0];
-                    let num = frames.length / 5 | 0;
-                    let endFrame = frames[(num - 1) * 5];
+                this.frames.indexOf(endFrame) == -1 && this.frames.push(endFrame);
 
-                    changeRGBA.startFrame = startFrame;
-                    changeRGBA.endFrame = endFrame;
-
-                    let changeItem = changeMap.get(startFrame);
-                    if (!changeItem) {
-                        this.frames.indexOf(startFrame) == -1 && this.frames.push(startFrame);
-                        changeItem = {
-                            vChanges: []
-                        };
-                        changeMap.set(startFrame, changeItem);
-                    }
-
-                    this.frames.indexOf(endFrame) == -1 && this.frames.push(endFrame);
-
-                    let arr = changeItem.vChanges = changeItem.vChanges || [];
-                    arr.push(changeRGBA);
-                    //this.vb = this.vb || mainvb.clone();
-                    //changeRGBA.initChange(slotIndex, this.vb);
-                    // this.changeVB.push(changeRGBA);
-                }
+                let arr = changeItem.vChanges = changeItem.vChanges || [];
+                arr.push(changeRGBA);
+                //this.vb = this.vb || mainvb.clone();
+                //changeRGBA.initChange(slotIndex, this.vb);
+                // this.changeVB.push(changeRGBA);
                 isDynamic = true;
             }
             else if (time instanceof window.spine.ClippingAttachment) {
@@ -279,6 +275,7 @@ export class AnimationRender {
                 hasEvent = true;
             }
             else if (time instanceof spine.DeformTimeline) {
+                this.hasVertexAnimation = true;
                 let slotIndex = time.slotIndex;
                 let change = new ChangeDeform();
                 change.slotId = slotIndex;

@@ -17,7 +17,7 @@ export class NodeFlags {
     //static ACTUAL_VISIBLE = 0x8;
     static DISPLAY = 0x10;
     static HAS_ZORDER = 0x20;
-    //static = 0x40;
+    static RENDERERS_CACHE = 0x40; //参与渲染组件缓存的子树节点
     static DISPLAYED_INSTAGE = 0x80;
     //static = 0x100;
     static CHECK_INPUT = 0x200;

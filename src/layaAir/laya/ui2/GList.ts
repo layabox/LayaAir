@@ -46,6 +46,7 @@ export class GList extends GPanel {
 
     /** @ignore */
     destroy(): void {
+        this.itemTemplate = null; //release the reference held on the template resource
         this._pool.clear();
 
         super.destroy();

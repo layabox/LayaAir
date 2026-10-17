@@ -18,6 +18,7 @@ import { IHeightFieldShape } from "./Shape/IHeightFieldShape";
 import { IMeshColliderShape } from "./Shape/IMeshColliderShape";
 import { IPlaneColliderShape } from "./Shape/IPlaneColliderShape";
 import { ISphereColliderShape } from "./Shape/ISphereColliderShape";
+import { IPhysicsVehicle, VehicleDesc } from "./IVehicle/IPhysicsVehicle";
 
 /**
  * @en Interface for physics creation utility.
@@ -171,4 +172,7 @@ export interface IPhysicsCreateUtil {
      * @param mesh 输入的网格。
      */
     createCorveMesh?(mesh: Mesh): Mesh;
+
+    /** Create a complete disabled backend vehicle. */
+    createVehicle?(manager: IPhysicsManager, desc: VehicleDesc): IPhysicsVehicle;
 }

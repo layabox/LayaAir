@@ -50,6 +50,8 @@ void getVertexParams(inout Vertex vertex)
     vertex.vertexColor = vec4(1.0,1.0,1.0,1.0);
 
     vertex.vertexColor = a_color;
+    // Spine vertex RGB is gamma encoded, independent of texture decoding.
+    vertex.vertexColor.rgb = pow(vertex.vertexColor.rgb, vec3(2.2));
     vertex.vertexColor.rgb *=a_color.a;
 
     vertex.texCoord0 = a_uv;

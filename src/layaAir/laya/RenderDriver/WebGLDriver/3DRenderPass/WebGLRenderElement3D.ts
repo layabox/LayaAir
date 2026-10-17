@@ -45,6 +45,8 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
     materialRenderQueue: number;
 
+    sortIndex: number = 0;
+
     _renderShaderData: WebGLShaderData;
 
     transform: Transform3D;

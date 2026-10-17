@@ -247,6 +247,24 @@ export class BaseRender extends Component {
 
 
     /**
+     * @en Renderer order within the same camera and render phase. Defaults to 0.
+     * Lower values are submitted first, before material queue and distance sorting.
+     * Does not change depth, stencil or blending states.
+     * Supported by WebGL, WebGPU and matching Native/LayaX runtimes.
+     * Opaque batching may reorder draws; use this property primarily for transparent renderers.
+     * @zh 同一相机、同一渲染阶段内的渲染顺序，默认为 0，主要用于透明渲染器。
+     * 值越小越先提交，优先于材质队列和距离排序。
+     * 不改变深度、模板或混合状态。支持 WebGL、WebGPU 和配套的 Native/LayaX 运行时。
+     * 不透明合批可能重排绘制项，不保证不透明物体的完整提交顺序。
+     */
+    get renderOrder(): number {
+        return this._baseRenderNode.renderOrder;
+    }
+    set renderOrder(value: number) {
+        this._baseRenderNode.renderOrder = value;
+    }
+
+    /**
      * @en The sorting fudge value.
      * @zh 排序矫正值。
      */
@@ -255,20 +273,6 @@ export class BaseRender extends Component {
     }
     set sortingFudge(value: number) {
         this._baseRenderNode.sortingFudge = value;
-    }
-
-    /**
-     * @en Renderer order within each opaque/transparent pass on the Web backend.
-     * Lower values render first, before material queue and distance sorting.
-     * Native backends require matching renderer support. Opaque batching may reorder draws.
-     * @zh Web 后端在各自不透明/透明阶段内的渲染顺序，值小先画，优先于材质队列和距离。
-     * 原生后端需要配套实现；不透明合批可能重排绘制项。
-     */
-    get renderOrder(): number {
-        return this._baseRenderNode.renderOrder ?? 0;
-    }
-    set renderOrder(value: number) {
-        this._baseRenderNode.renderOrder = value;
     }
 
     /**
@@ -685,6 +689,11 @@ export class BaseRender extends Component {
     renderUpdate(context: RenderContext3D) {
 
     }
+    /** @internal */
+    get _is3DRender(): boolean {
+        return true;
+    }
+
     protected _onAdded(): void {
         this._transform = this.owner.transform;
         this.owner._isRenderNode++;

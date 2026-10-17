@@ -27,16 +27,27 @@ import { WebStencilClip2D } from "./WebStencilClip2D";
 
 BatchManager.registerProvider(BaseRender2DType.graphics, WebGraphicsBatch);
 
+class ReusableStructList extends FastSinglelist<WebRenderStruct2D> {
+   previousLength: number = 0;
+   generation: number = -1;
+}
+
 class SortedStructs {
-   readonly lists: Map<number, FastSinglelist<WebRenderStruct2D>> = new Map();
+   readonly lists: Map<number, ReusableStructList> = new Map();
 
    private _indice = new Set<number>;
    private _sortedIndice: Array<number> = [];
+   private _generation: number = 0;
 
    add(struct: WebRenderStruct2D, zIndex: number) {
       let list = this.lists.get(zIndex);
       if (!list)
-         this.lists.set(zIndex, list = new FastSinglelist<WebRenderStruct2D>());
+         this.lists.set(zIndex, list = new ReusableStructList());
+      if (list.generation !== this._generation) {
+         list.previousLength = list.length;
+         list.length = 0;
+         list.generation = this._generation;
+      }
       list.add(struct);
       if (list.length === 1)
          this._indice.add(zIndex);
@@ -44,7 +55,32 @@ class SortedStructs {
    }
 
    reset() {
-      this._indice.forEach(i => this.lists.get(i).length = 0);
+      this._generation++;
+      this._sortedIndice.length = 0;
+   }
+
+   releaseUnused() {
+      this._indice.forEach(i => {
+         let list = this.lists.get(i);
+         if (list.generation !== this._generation) {
+            list.elements.fill(null, 0, list.length);
+            list.length = 0;
+         } else if (list.length < list.previousLength) {
+            list.elements.fill(null, list.length, list.previousLength);
+         }
+         list.previousLength = 0;
+         if (list.length === 0)
+            this._indice.delete(i);
+      });
+   }
+
+   clear() {
+      this._indice.forEach(i => {
+         let list = this.lists.get(i);
+         list.elements.fill(null, 0, Math.max(list.length, list.previousLength));
+         list.length = 0;
+         list.previousLength = 0;
+      });
       this._indice.clear();
       this._sortedIndice.length = 0;
    }
@@ -75,7 +111,7 @@ export class WebRender2DPass implements IRender2DPass {
    private _renderElements = new FastSinglelist<IRenderElement2D>();
    private _elementGroups: FastSinglelist<any> = new FastSinglelist<any>();
    private _structs: SortedStructs = new SortedStructs();
-   private _structsPool = Pool.createPool(SortedStructs, null, obj => obj.reset());
+   private _structsPool = Pool.createPool(SortedStructs, null, obj => obj.clear());
    private _pStructs: SortedStructs;
    private _batchProviders: IBatch2DProvider[] = [];
    private _stencilClip2D: WebStencilClip2D = new WebStencilClip2D();
@@ -253,6 +289,9 @@ export class WebRender2DPass implements IRender2DPass {
          if (this.root) {
             this._pStructs = this._structs;
             this.cullAndSort(context, this.root);
+         }
+         this._structs.releaseUnused();
+         if (this.root) {
             this.fillRenderElements();
             this._enableBatch && LayaEnv.isPlaying && this.batch();
          }

@@ -366,9 +366,9 @@ export class Camera2D extends Sprite {
             }
 
             let sceneRect_left = this._cameraPos.x - extendHorizental;
-            let sceneRect_right = sceneRect_left + viewport.x;
+            let sceneRect_right = sceneRect_left + extendHorizental * 2;
             let sceneRect_top = this._cameraPos.y - extendVertical;
-            let sceneRect_bottom = sceneRect_top + viewport.y;
+            let sceneRect_bottom = sceneRect_top + extendVertical * 2;
 
             //limit
             if (sceneRect_left < this._limit_Left) {

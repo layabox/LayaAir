@@ -110,12 +110,6 @@ export class WebRender3DProcess implements IRender3DProcess {
         renderPass.enableOpaque = Stat.enableOpaque;
         renderPass.enableTransparent = Stat.enableTransparent;
         renderPass.enableCMD = Stat.enableCameraCMD;
-        // Rebind each frame: the camera's source target may come from the pool.
-        // Clear even when disabled so no previous camera/target is copied.
-        renderPass.blitOpaqueBuffer.clear();
-        if (camera.opaquePass && camera._opaqueTexture) {
-            renderPass.blitOpaqueBuffer.blitScreenQuad(renderRT, camera._opaqueTexture);
-        }
         renderPass.setBeforeSkyboxCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeSkyBox]);
         renderPass.setBeforeForwardCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeForwardOpaque]);
         renderPass.setBeforeTransparentCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeTransparent]);
@@ -156,6 +150,11 @@ export class WebRender3DProcess implements IRender3DProcess {
 
         } else {
             context.preDrawUniformMaps.delete("Shadow");
+        }
+
+        renderPass.blitOpaqueBuffer.clear();
+        if (camera.opaquePass && camera._opaqueTexture) {
+            renderPass.blitOpaqueBuffer.blitScreenQuad(renderRT, camera._opaqueTexture);
         }
 
 

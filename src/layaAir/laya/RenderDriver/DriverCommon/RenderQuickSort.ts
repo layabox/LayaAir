@@ -62,13 +62,16 @@ export class RenderQuickSort {
      * @internal
      */
     private _compare(left: IRenderElement3D, right: IRenderElement3D): number {
-        const renderOrder = (left.owner.renderOrder ?? 0) - (right.owner.renderOrder ?? 0);
+        const renderOrder = left.owner.renderOrder - right.owner.renderOrder;
         if (renderOrder !== 0)
             return renderOrder;
         const renderQueue = left.materialRenderQueue - right.materialRenderQueue;
         if (renderQueue === 0) {
             const sort = this.isTransparent ? right.owner.distanceForSort - left.owner.distanceForSort : left.owner.distanceForSort - right.owner.distanceForSort;
-            return sort + right.owner.sortingFudge - left.owner.sortingFudge;
+            const sortKey = sort + right.owner.sortingFudge - left.owner.sortingFudge;
+            if (sortKey !== 0)
+                return sortKey;
+            return left.sortIndex - right.sortIndex;
         } else return renderQueue;
     }
 }

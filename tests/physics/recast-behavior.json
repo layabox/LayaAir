@@ -1,0 +1,42 @@
+{
+  "description": "Captured from the unmodified JS Recast library before splitting nd/Jg; deterministic six-scene path and Crowd regression.",
+  "baselineSourceSha256": "5143adbfbb47a9096fb2e7867a2ede5a4168d333b6abd21a15b83f433c87bb0a",
+  "cases": [
+    {
+      "name": "plane",
+      "positionHash": "de03b6c236eff2ba8d8af4b6b340b0e158902116d9c18b298d04a61c64a0117d",
+      "stateHash": "203bbf879637208c88d27c7267013fa068ad5cb92e746beea54c6cc3ea225bc0",
+      "behaviorHash": "45085ebc314586845567892c3e1f58aba7c5dc15167315428178fece9d9df50d"
+    },
+    {
+      "name": "obstacle-watershed",
+      "positionHash": "e00c1bd3258450535e7ffbcafe474896092ac3a72432f69adb59e31a9a74bac8",
+      "stateHash": "5c09bfa20db6f35d7944f412169ee1fe856f9a22c2c8de06d7421a3ef48b0b81",
+      "behaviorHash": "671b034c3b8e46bb1c6aed0d7f0faa80d664fa4f5d428dc6f3289a06b00e8589"
+    },
+    {
+      "name": "obstacle-monotone",
+      "positionHash": "e00c1bd3258450535e7ffbcafe474896092ac3a72432f69adb59e31a9a74bac8",
+      "stateHash": "5c09bfa20db6f35d7944f412169ee1fe856f9a22c2c8de06d7421a3ef48b0b81",
+      "behaviorHash": "02587c2e6d369a8990a8de03f8240b1df6a09b753a06eb151b61b0374a46de5d"
+    },
+    {
+      "name": "obstacle-layers",
+      "positionHash": "574606f655d8f5342b0b14f73dbe17cb0a969d235e9ec4b8a840d531ec53483a",
+      "stateHash": "cc35a3a3c910654feeac0c396911f3adae25bdba8742bb38465a00d61258fe96",
+      "behaviorHash": "a623734d3e1e96243782e7e040df23be04d4f20ac58117a0ea26555282fe7df8"
+    },
+    {
+      "name": "disconnected",
+      "positionHash": "edf7a3c7802853ccd362769b24df06bbd66b418833b3290de3142ddc655ae2cb",
+      "stateHash": "e747aa0fae5e3b438e74ff82cd0494b3b4ecd7b5a691fd3955de77fed7f0981f",
+      "behaviorHash": "40a22842b7ee22ad89afde1f51027fa23700bfbf9a19c342c0f4dae0d79ce078"
+    },
+    {
+      "name": "offmesh-link",
+      "positionHash": "56b8e4273e2c6f506c072cc107cc74acd32575cee3a0d8cc1a57f1af77896a69",
+      "stateHash": "a6ca20fcc5692585f2c72e7ab68541b4fd0a0eac7e8f5f7df6bef1140ae07565",
+      "behaviorHash": "4734b091cfd580820c800906b0ed0dc3af8ee5fc364a82c81750d4c626cf3d4d"
+    }
+  ]
+}

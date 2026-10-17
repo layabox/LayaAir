@@ -177,7 +177,7 @@ export class Timer {
                 handler.caller = caller;
                 handler.method = method;
                 handler.args = args;
-                handler.exeTime = delay + (useFrame ? this.currFrame : this.currTimer + performance.now() - this._lastTimer);
+                handler.exeTime = delay + (useFrame ? this.currFrame : this.currTimer + (performance.now() - this._lastTimer) * this.scale);
                 return handler;
             }
         }
@@ -191,7 +191,7 @@ export class Timer {
         handler.caller = caller;
         handler.method = method;
         handler.args = args;
-        handler.exeTime = delay + (useFrame ? this.currFrame : this.currTimer + performance.now() - this._lastTimer);
+        handler.exeTime = delay + (useFrame ? this.currFrame : this.currTimer + (performance.now() - this._lastTimer) * this.scale);
 
         //索引handler
         this._map[key] = handler;

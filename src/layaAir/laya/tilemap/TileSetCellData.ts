@@ -422,7 +422,8 @@ export class TileSetCellData {
 
     //删除
     destroy() {
-        this._notiveRenderTile.forEach(element => {
+        // Clearing a chunk unregisters it from this list.
+        this._notiveRenderTile.slice().forEach(element => {
             element._clearOneCell(this);
         });
         this._destroyed = true;

@@ -42,6 +42,8 @@ void main()
     
     #ifdef COLOR2
         v_color2 = a_color2;
+        // Dark tint uses the same gamma-encoded vertex color input.
+        v_color2.rgb = pow(v_color2.rgb, vec3(2.2));
     #else
         v_color2 = vec4(0.0, 0.0, 0.0, 1.0);
     #endif

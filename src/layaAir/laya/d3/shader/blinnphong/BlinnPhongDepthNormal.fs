@@ -18,6 +18,25 @@ void main()
     PixelParams pixel;
     getPixelParams(pixel);
 
+#ifdef ALPHATEST
+    float alpha = u_DiffuseColor.a;
+    #if defined(COLOR) && defined(ENABLEVERTEXCOLOR)
+    alpha *= pixel.vertexColor.a;
+    #endif // COLOR && ENABLEVERTEXCOLOR
+
+    #ifdef DIFFUSEMAP
+    #ifdef UV
+    vec2 alphaUV = transformUV(pixel.uv0, u_TilingOffset);
+    #else // UV
+    vec2 alphaUV = vec2(0.0);
+    #endif // UV
+    alpha *= texture2D(u_DiffuseTexture, alphaUV).a;
+    #endif // DIFFUSEMAP
+
+    if (alpha < u_AlphaTestValue)
+        discard;
+#endif // ALPHATEST
+
     vec3 normalWS = pixel.normalWS;
 
 #ifdef NORMALMAP

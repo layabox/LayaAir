@@ -27,22 +27,6 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
 
     /** @internal */
     _texture: Texture = null;
-    /**
-     * @en The texture to be drawn
-     * @zh 要绘制的纹理
-     */
-    get texture(): Texture {
-        return this._texture;
-    }
-    /**
-     * @en The texture to be drawn
-     * @zh 要绘制的纹理
-     */
-    set texture(val: Texture) { //修复场景或预制体加载时没有添加资源引用
-        !!val && val._addReference();
-        this._texture?._removeReference();
-        this._texture = val;
-    }
 
     /**
      * @en (Optional) X-axis offset
@@ -132,6 +116,23 @@ export class Draw9GridTextureCmd implements IGraphicsCmd {
         this._texture?._removeReference();
         this._texture = null;
         Pool.recover(className, this);
+    }
+
+    /**
+     * @en The texture to be drawn
+     * @zh 要绘制的纹理
+     */
+    get texture(): Texture {
+        return this._texture;
+    }
+    /**
+     * @en The texture to be drawn
+     * @zh 要绘制的纹理
+     */
+    set texture(val: Texture) {
+        !!val && val._addReference();
+        this._texture?._removeReference();
+        this._texture = val;
     }
 
     /**

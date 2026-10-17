@@ -19,6 +19,8 @@ import { LayaXSubShader } from "../RenderModuleData/LayaXSubShader";
  */
 export class LayaXRenderElement3D implements IRenderElement3D, IRenderStateListener {
 
+    sortIndex: number = 0;
+
     /** C++ 原生对象（conchLayaXRenderElement） */
     _nativeObj: any;
 

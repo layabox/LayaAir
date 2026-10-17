@@ -5,6 +5,12 @@ import { Vector3 } from "../../maths/Vector3";
 import { ICollider } from "./ICollider";
 import { IColliderShape } from "./Shape/IColliderShape";
 
+/** @internal A backend-neutral participant in a fixed physics step. */
+export interface IPhysicsStepListener {
+    beforePhysicsStep(fixedDeltaTime: number): void;
+    afterPhysicsStep(fixedDeltaTime: number): void;
+}
+
 /**
  * @en Interface for physics manager.
  * @zh 物理管理器的接口。
@@ -57,6 +63,15 @@ export interface IPhysicsManager {
      * @blueprintIgnore
      */
     update(elapsedTime: number): void;
+
+    /** @internal Registers a listener that is called for every actual fixed step. */
+    addPhysicsStepListener(listener: IPhysicsStepListener): void;
+
+    /** @internal Removes a previously registered fixed-step listener. */
+    removePhysicsStepListener(listener: IPhysicsStepListener): void;
+
+    /** @internal Runs an operation outside the native simulate/fetch callback stack. */
+    deferPhysicsOperation(operation: () => void): void;
 
     /**
      * @en Perform a raycast to find the first collision.

@@ -128,6 +128,8 @@ export interface IRenderElement3D {
     geometry: IRenderGeometryElement;
     materialShaderData: ShaderData;
     materialRenderQueue: number;
+    /** @internal Index in the owning render node's element list. */
+    sortIndex: number;
     materialId: number;
     renderShaderData: ShaderData;
     transform: Transform3D;

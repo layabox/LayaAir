@@ -18,6 +18,8 @@ import { MeshColliderShape } from "./shape/MeshColliderShape";
 import { Physics3DColliderShape } from "./shape/Physics3DColliderShape";
 import { SphereColliderShape } from "./shape/SphereColliderShape";
 import { Physics3DStatInfo } from "../../Physics3D/interface/Physics3DStatInfo";
+import { PhysicsVehicleComponent } from "./PhysicsVehicleComponent";
+import { WheelCollider } from "./WheelCollider";
 
 let c = ClassUtils.regClass;
 
@@ -43,3 +45,5 @@ c("PhysicsColliderComponent", PhysicsColliderComponent);
 c("PhysicsCollider", PhysicsCollider);
 c("PhysicsUpdateList", PhysicsUpdateList);
 c("Physics3DStatInfo", Physics3DStatInfo);
+c("PhysicsVehicleComponent", PhysicsVehicleComponent);
+c("WheelCollider", WheelCollider);

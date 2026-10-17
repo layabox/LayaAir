@@ -259,6 +259,12 @@ export class WebGLShaderInstance implements IShaderInstance {
     }
 
     updateRenderState(renderState: RenderState) {
+        // The 3D prepare path can update render state before checking complete.
+        // Failed GLSL compilation leaves _shaderPass uninitialized; skip state
+        // updates just as rendering skips this failed shader instance.
+        if (!this._renderShaderInstance._complete)
+            return;
+
         if (this._shaderPass.statefirst) {
             if (this.matRenderStateCache === renderState.hash) {
                 return;

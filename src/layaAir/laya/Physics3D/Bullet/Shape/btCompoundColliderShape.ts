@@ -1,9 +1,10 @@
 import { PhysicsColliderComponent } from "../../../d3/physics/PhysicsColliderComponent";
-import { Physics3DColliderShape } from "../../../d3/physics/shape/Physics3DColliderShape";
+import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { NotImplementedError } from "../../../utils/Error";
 import { ICompoundColliderShape } from "../../interface/Shape/ICompoundColliderShape";
 import { btStatics } from "../btStatics";
+import type { btRigidBodyCollider } from "../Collider/btRigidBodyCollider";
 import { btColliderShape } from "./btColliderShape";
 
 /**
@@ -23,7 +24,7 @@ export class btCompoundColliderShape extends btColliderShape implements ICompoun
     private _btRotation: any;
 
     /**@internal */
-    private _childColliderShapes: Physics3DColliderShape[] = [];
+    private _childColliderShapes: btColliderShape[] = [];
 
     /**
      * @en create a new instance of btCompoundColliderShape.
@@ -48,25 +49,40 @@ export class btCompoundColliderShape extends btColliderShape implements ICompoun
     }
 
     addChildShape(shape: btColliderShape): void {
-        var offset: Vector3 = shape.getOffset();
-        var bt: any = btStatics.bt;
-        bt.btVector3_setValue(this._btOffset, offset.x, offset.y, offset.z);
-        // 这里没有设置形状的旋转，默认为不旋转了
-        bt.btQuaternion_setValue(this._btRotation, 0, 0, 0, 1);
+        this.addChildShapeWithTransform(shape, shape.getOffset(), Quaternion.DEFAULT, Vector3.ONE);
+    }
+
+    addChildShapeWithTransform(shape: btColliderShape, localPosition: Vector3, localRotation: Quaternion, localScale: Vector3): void {
+        const bt: any = btStatics.bt;
+        shape.setWorldScale(localScale);
+        bt.btTransform_setIdentity(this._btTransform);
+        bt.btVector3_setValue(this._btOffset, localPosition.x, localPosition.y, localPosition.z);
+        bt.btQuaternion_setValue(this._btRotation, localRotation.x, localRotation.y, localRotation.z, localRotation.w);
         bt.btTransform_setOrigin(this._btTransform, this._btOffset);
         bt.btTransform_setRotation(this._btTransform, this._btRotation);
 
-        var btScale: number = bt.btCollisionShape_getLocalScaling(this._btShape);
+        const btScale: any = bt.btCollisionShape_getLocalScaling(this._btShape);
         bt.btCollisionShape_setLocalScaling(this._btShape, this._btVector3One);
         let childShape = shape.getPhysicsShape();
-        childShape && bt.btCompoundShape_addChildShape(this._btShape, this._btTransform, childShape);
+        if (childShape) {
+            bt.btCompoundShape_addChildShape(this._btShape, this._btTransform, childShape);
+            this._childColliderShapes.push(shape);
+        }
         bt.btCollisionShape_setLocalScaling(this._btShape, btScale);
 
     }
 
     removeChildShape(shape: btColliderShape, index: number): void {
-        let bt = btStatics.bt;
+        if (index < 0 || index >= this._childColliderShapes.length || this._childColliderShapes[index] !== shape)
+            return;
+        const bt = btStatics.bt;
         bt.btCompoundShape_removeChildShapeByIndex(this._btShape, index);
+        this._childColliderShapes.splice(index, 1);
+    }
+
+    refreshMassProperties(mass: number): void {
+        if (this._btCollider?._btColliderShape === this)
+            (this._btCollider as btRigidBodyCollider).setMass(mass);
     }
 
     setShapeData(component: PhysicsColliderComponent): void {
@@ -83,6 +99,7 @@ export class btCompoundColliderShape extends btColliderShape implements ICompoun
      */
     destroy(): void {
         super.destroy();
+        this._childColliderShapes.length = 0;
         this._btRotation = null;
         this._btTransform = null;
         this._btVector3One = null;
@@ -90,5 +107,3 @@ export class btCompoundColliderShape extends btColliderShape implements ICompoun
     }
 
 }
-
-

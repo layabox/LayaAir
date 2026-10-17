@@ -1,5 +1,4 @@
-import { timeStamp } from "console";
-import { LayaGL } from "../../../layagl/LayaGL";
+ import { LayaGL } from "../../../layagl/LayaGL";
 import { StatElement } from "../../../layagl/StatisticsContext";
 import { InternalRenderTarget } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
 import { InternalTexture } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";

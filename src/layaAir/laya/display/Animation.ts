@@ -234,6 +234,12 @@ export class Animation extends Sprite {
      * @param label 帧标签名称。注意：如果为空，则删除所有帧标签！
      */
     removeLabel(label: string): void {
+        if (!label) {
+            this._labels = null;
+            this._comp._labels = null;
+            return;
+        }
+
         if (!this._labels)
             return;
 

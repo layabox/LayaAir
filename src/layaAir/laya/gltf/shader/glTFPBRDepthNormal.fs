@@ -19,6 +19,27 @@ void main()
     PixelParams pixel;
     getPixelParams(pixel);
 
+#ifdef ALPHATEST
+    float alpha = u_BaseColorFactor.w;
+    #if defined(COLOR) && defined(ENABLEVERTEXCOLOR)
+    alpha *= pixel.vertexColor.a;
+    #endif // COLOR && ENABLEVERTEXCOLOR
+
+    #ifdef BASECOLORMAP
+    vec2 baseColorUV = vec2(0.0);
+    #ifdef UV
+    baseColorUV = pixel.uv0;
+    #endif // UV
+    #ifdef BASECOLORMAP_TRANSFORM
+    baseColorUV = (u_BaseColorMapTransform * vec3(baseColorUV, 1.0)).xy;
+    #endif // BASECOLORMAP_TRANSFORM
+    alpha *= texture2D(u_BaseColorTexture, baseColorUV).a;
+    #endif // BASECOLORMAP
+
+    if (alpha < u_AlphaTestValue)
+        discard;
+#endif // ALPHATEST
+
     vec3 normalWS = pixel.normalWS;
 
 #ifdef NORMALMAP

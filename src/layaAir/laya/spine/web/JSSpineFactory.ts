@@ -18,10 +18,10 @@ export class JSSpineFactory implements ISpineFactory {
         return new WebSpineTempletParser();
     }
     createSpineRenderDataHandle(): ISpineRenderDataHandle {
-        if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() !== 2) {
+        if (LayaEnv.isConch && (window as any).conchConfig.getGraphicsAPI() !== 2)
             return new NativeSpineRenderDataHandle();
-        }else
-            return new WebSpineRenderDataHandle();
+
+        return new WebSpineRenderDataHandle();
     }
     /**
      * @zh 创建Spine渲染器，统一使用SpineOptimizeRender2D，通过mode属性切换不同实现

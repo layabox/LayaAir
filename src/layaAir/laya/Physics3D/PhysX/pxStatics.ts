@@ -12,9 +12,6 @@ export class pxStatics {
 
     static _pvd: any;
     static _PxPvdTransport: any;
-    static _physXSimulationCallbackInstance: any;
-    static _sceneDesc: any;
-
     static _allocator: any;
     static _tolerancesScale: any;
 

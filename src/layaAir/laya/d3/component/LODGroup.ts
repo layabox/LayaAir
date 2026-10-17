@@ -497,6 +497,9 @@ export class LODGroup extends Component {
         }
         if (LayaEnv.isEditor) {
             let checkCamera = (this.owner.scene as Scene3D).cullInfoCamera;
+            // Scene and Game views render the same components with different cameras.
+            if (!LayaEnv.isPlaying && !checkCamera.isEditorCamera)
+                return;
             let maxYDistance = checkCamera.maxlocalYDistance;
             let cameraFrustum = checkCamera.boundFrustum;
             Vector3.subtract(this._lodPosition, checkCamera.transform.position, tempVec);

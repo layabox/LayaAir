@@ -17,6 +17,7 @@ import { LayaEnv } from "../../LayaEnv";
 import { LayaGL } from "../layagl/LayaGL";
 import { DDSTextureInfo } from "../RenderEngine/DDSTextureInfo";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
 
 var internalResources: Record<string, Texture2D>;
 
@@ -90,8 +91,9 @@ export class Texture2DLoader implements IResourceLoader {
 
             constructParams = [0, 0, fileInfo.format, meta.mipmap, meta.readWrite, meta.sRGB];
             propertyParams = {
+                // Keep the legacy wrapMode as U; an omitted V follows U.
                 wrapModeU: meta.wrapMode,
-                wrapModeV: meta.wrapMode,
+                wrapModeV: meta.wrapModeV ?? meta.wrapMode,
                 filterMode: meta.filterMode,
                 anisoLevel: meta.anisoLevel,
                 premultiplyAlpha: !!meta.pma,
@@ -102,6 +104,19 @@ export class Texture2DLoader implements IResourceLoader {
             constructParams = task.options.constructParams;
             propertyParams = task.options.propertyParams;
         }
+
+        const applyTextureCubeProperties = (texture: BaseTexture) => {
+            if (!propertyParams)
+                return;
+            //未配置的属性保持引擎默认值，避免用 undefined 覆盖
+            if (propertyParams.wrapModeU != null) texture.wrapModeU = propertyParams.wrapModeU;
+            if (propertyParams.wrapModeV != null) texture.wrapModeV = propertyParams.wrapModeV;
+            //立方体采样使用 S/T/R 三个轴，W 随 V，缺失时随 U
+            if (propertyParams.wrapModeV != null || propertyParams.wrapModeU != null)
+                texture.wrapModeW = propertyParams.wrapModeV ?? propertyParams.wrapModeU;
+            if (propertyParams.filterMode != null) texture.filterMode = propertyParams.filterMode;
+            if (propertyParams.anisoLevel != null) texture.anisoLevel = propertyParams.anisoLevel;
+        };
 
         let compress = compressedFormats.indexOf(ext) != -1 ? ext : null;
         if (compress != null) {
@@ -118,8 +133,10 @@ export class Texture2DLoader implements IResourceLoader {
                             let cls = ClassUtils.getClass("TextureCube");
                             if (cls) {
                                 let srgb = constructParams ? !!constructParams[5] : false;
-                                let tc = new cls(ddsInfo.width, ddsInfo.format, ddsInfo.mipmapCount > 1, srgb);
+                                let premultiplyAlpha = propertyParams ? propertyParams.premultiplyAlpha : false;
+                                let tc = new cls(ddsInfo.width, ddsInfo.format, ddsInfo.mipmapCount > 1, srgb, premultiplyAlpha);
                                 tc.setDDSData(ddsInfo);
+                                applyTextureCubeProperties(tc);
                                 tex = tc;
                             }
                             else {
@@ -139,8 +156,11 @@ export class Texture2DLoader implements IResourceLoader {
                             if (cls) {
                                 let mipmapRequested = constructParams?.[3] ?? true;
                                 let mipmap = mipmapRequested && ktxInfo.mipmapCount > 1;
-                                let tc = new cls(ktxInfo.width, ktxInfo.format, mipmap, ktxInfo.sRGB);
+                                let sRGB = constructParams?.[5] ?? ktxInfo.sRGB;
+                                let premultiplyAlpha = propertyParams ? propertyParams.premultiplyAlpha : false;
+                                let tc = new cls(ktxInfo.width, ktxInfo.format, mipmap, sRGB, premultiplyAlpha);
                                 tc.setKTXData(ktxInfo);
+                                applyTextureCubeProperties(tc);
                                 tex = tc;
                             }
                             else
@@ -263,7 +283,12 @@ export class VideoTextureLoader implements IResourceLoader {
     }
 }
 
-const propertyParams2d: TexturePropertyParams = { premultiplyAlpha: true };
+const propertyParams2d: TexturePropertyParams = {
+    premultiplyAlpha: true,
+    // 独立 2D 图 UV 为 0~1，默认 Repeat 会在四周双线性采样到对面像素形成杂色
+    wrapModeU: WrapMode.Clamp,
+    wrapModeV: WrapMode.Clamp,
+};
 const constructParams2d: TextureConstructParams = [null, null, TextureFormat.R8G8B8A8, false, false, true];
 
 export class TextureLoader implements IResourceLoader {
@@ -302,8 +327,14 @@ export class TextureLoader implements IResourceLoader {
 
             if (!task.options.propertyParams)
                 url.propertyParams = propertyParams2d;
-            else if (task.options.propertyParams.premultiplyAlpha == null)
+            else if (task.options.propertyParams.premultiplyAlpha == null
+                || task.options.propertyParams.wrapModeU == null
+                || task.options.propertyParams.wrapModeV == null) {
                 url.propertyParams = Object.assign({}, propertyParams2d, task.options.propertyParams);
+                url.propertyParams.premultiplyAlpha ??= propertyParams2d.premultiplyAlpha;
+                url.propertyParams.wrapModeU ??= propertyParams2d.wrapModeU;
+                url.propertyParams.wrapModeV ??= propertyParams2d.wrapModeV;
+            }
 
             if (!task.options.constructParams)
                 url.constructParams = constructParams2d;

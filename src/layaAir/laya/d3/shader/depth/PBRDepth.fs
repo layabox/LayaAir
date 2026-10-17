@@ -1,25 +1,29 @@
 #define SHADER_NAME PBRDepthFS
 
 #include "DepthFrag.glsl";
-varying vec2 v_Texcoord0;
-#ifdef COLOR
-    varying vec4 v_VertexColor;
-#endif // COLOR
+#include "Sprite3DFrag.glsl";
+
+#ifdef ALPHATEST
+varying vec2 v_AlphaTestUV;
+varying float v_AlphaTestVertexAlpha;
+#endif // ALPHATEST
+
 void main()
 {
-    #ifdef ALPHATEST
-        float alpha = u_AlbedoColor.a;    
-    #ifdef COLOR
-        #ifdef ENABLEVERTEXCOLOR
-            alpha *= v_VertexColor.a;
-        #endif // ENABLEVERTEXCOLOR
-    #endif // COLOR
-    
+#ifdef ALPHATEST
+    float alpha = u_AlbedoColor.a * v_AlphaTestVertexAlpha;
+
     #ifdef ALBEDOTEXTURE
-        alpha *= texture2D(u_AlbedoTexture, v_Texcoord0).a;
-    #endif
-        if (alpha < u_AlphaTestValue)
-            discard;
+    #ifdef UV
+    vec2 uv = transformUV(v_AlphaTestUV, u_TilingOffset);
+    #else // UV
+    vec2 uv = vec2(0.0);
+    #endif // UV
+    alpha *= texture2D(u_AlbedoTexture, uv).a;
+    #endif // ALBEDOTEXTURE
+
+    if (alpha < u_AlphaTestValue)
+        discard;
     #endif // ALPHATEST
 
     gl_FragColor = getDepthColor();

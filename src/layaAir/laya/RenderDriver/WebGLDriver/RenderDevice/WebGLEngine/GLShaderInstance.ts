@@ -15,6 +15,9 @@ import { ShaderDataType } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { WebGLEngine } from "../WebGLEngine";
 import { IWebGLUniformBuffer } from "../IWebGLUniformBuffer";
 import { GLObject } from "./GLObject";
+import { WebGLInternalTex } from "../WebGLInternalTex";
+import { WebGLInternalRT } from "../WebGLInternalRT";
+import { TextureDimension } from "../../../../RenderEngine/RenderEnum/TextureDimension";
 
 export class GLShaderInstance extends GLObject {
 
@@ -38,8 +41,8 @@ export class GLShaderInstance extends GLObject {
     private _attributeMap: { [name: string]: [number, ShaderDataType] };
     /**@internal */
     private _uniformMap: ShaderVariable[];
-    /** Warn only once for each texture uniform that falls back to a default texture. */
-    private _defaultTextureWarnings: Set<number> = new Set();
+    /** Warn once per uniform, texture and invalid resource state. */
+    private _defaultTextureWarnings: WeakMap<BaseTexture | WebGLInternalTex | WebGLInternalRT, Set<string>> = new WeakMap();
     /**@internal */
     // todo 没用到
     private _uniformObjectMap: { [key: string]: ShaderVariable };
@@ -478,23 +481,23 @@ export class GLShaderInstance extends GLObject {
     /**
      * @internal
      */
-    _uniform_sampler2D(one: any, texture: BaseTexture): number {//TODO:TEXTURTE ARRAY
-        var value: any = this._getTextureSource(one, texture, Texture2D.errorTexture, "2D");
+    _uniform_sampler2D(one: any, texture: BaseTexture | WebGLInternalTex | WebGLInternalRT): number {//TODO:TEXTURTE ARRAY
         var gl: WebGLRenderingContext = this._gl;
+        var value: any = this._getTextureSource(one, texture, Texture2D.errorTexture, "2D", gl.TEXTURE_2D);
         this._bindTexture(one.textureID, gl.TEXTURE_2D, value);
         return 0;
     }
 
-    _uniform_sampler2DArray(one: any, texture: BaseTexture): number {
-        var value: any = this._getTextureSource(one, texture, Texture2DArray.defaultTexture, "2D array");
+    _uniform_sampler2DArray(one: any, texture: BaseTexture | WebGLInternalTex | WebGLInternalRT): number {
         var gl: WebGL2RenderingContext = this._gl as WebGL2RenderingContext;
+        var value: any = this._getTextureSource(one, texture, Texture2DArray.defaultTexture, "2D array", gl.TEXTURE_2D_ARRAY);
         this._bindTexture(one.textureID, gl.TEXTURE_2D_ARRAY, value);
         return 0;
     }
 
-    _uniform_sampler3D(one: any, texture: BaseTexture): number {//TODO:TEXTURTE ARRAY
-        var value: any = this._getTextureSource(one, texture, Texture3D.defaultTexture, "3D");
+    _uniform_sampler3D(one: any, texture: BaseTexture | WebGLInternalTex | WebGLInternalRT): number {//TODO:TEXTURTE ARRAY
         var gl: WebGL2RenderingContext = this._gl as WebGL2RenderingContext;
+        var value: any = this._getTextureSource(one, texture, Texture3D.defaultTexture, "3D", gl.TEXTURE_3D);
         this._bindTexture(one.textureID, gl.TEXTURE_3D, value);
         return 0;
     }
@@ -502,25 +505,41 @@ export class GLShaderInstance extends GLObject {
     /**
      * @internal
      */
-    _uniform_samplerCube(one: any, texture: BaseTexture): number {//TODO:TEXTURTECUBE ARRAY
-        var value: any = this._getTextureSource(one, texture, TextureCube.errorTexture, "cube");
+    _uniform_samplerCube(one: any, texture: BaseTexture | WebGLInternalTex | WebGLInternalRT): number {//TODO:TEXTURTECUBE ARRAY
         var gl: WebGLRenderingContext = this._gl;
+        var value: any = this._getTextureSource(one, texture, TextureCube.errorTexture, "cube", gl.TEXTURE_CUBE_MAP);
         this._bindTexture(one.textureID, gl.TEXTURE_CUBE_MAP, value);
         return 0;
     }
 
-    private _getTextureSource(one: ShaderVariable, texture: BaseTexture, defaultTexture: BaseTexture, textureType: string): WebGLTexture {
+    private _getTextureSource(one: ShaderVariable, texture: BaseTexture | WebGLInternalTex | WebGLInternalRT, defaultTexture: BaseTexture, textureType: string, expectedTarget: number): WebGLTexture {
         const source = texture && texture._getSource();
-        if (source)
+        // Only validate inputs that expose a wrapped texture target.
+        const asset = texture as BaseTexture;
+        const actualTarget = (asset?._texture as WebGLInternalTex)?.target;
+        if (source && (actualTarget == null || actualTarget === expectedTarget))
             return source;
 
-        if (!this._defaultTextureWarnings.has(one.onID)) {
-            const reason = texture ? "has no valid GPU resource" : "is not set";
-            console.warn(`[LayaAir] Texture uniform \"${one.name}\" ${reason}; binding the default ${textureType} texture.`);
-            this._defaultTextureWarnings.add(one.onID);
+        if (texture) {
+            const warningKey = `${one.onID}:${expectedTarget}:${source ? actualTarget : "missing"}`;
+            let warnings = this._defaultTextureWarnings.get(texture);
+            if (!warnings) {
+                warnings = new Set();
+                this._defaultTextureWarnings.set(texture, warnings);
+            }
+            if (!warnings.has(warningKey)) {
+                const actualType = TextureDimension[asset.dimension] ?? actualTarget;
+                const resource = asset.url || asset.name || (asset.id != null ? `#${asset.id}` : "internal texture");
+                const reason = source
+                    ? `expects ${textureType}, but texture "${resource}" has target ${actualType}`
+                    : `texture "${resource}" has no valid GPU resource`;
+                console.warn(`Texture uniform "${one.name}": ${reason}.`);
+                warnings.add(warningKey);
+            }
         }
 
-        return defaultTexture && defaultTexture._getSource();
+        return (defaultTexture?._texture as WebGLInternalTex)?.target === expectedTarget
+            ? defaultTexture._getSource() : null;
     }
 
     _uniform_UniformBuffer(one: ShaderVariable, value: IWebGLUniformBuffer) {
@@ -550,7 +569,7 @@ export class GLShaderInstance extends GLObject {
 
     destroy() {
         super.destroy();
-        this._defaultTextureWarnings.clear();
+        this._defaultTextureWarnings = new WeakMap();
         const gl = this._gl;
         gl.deleteShader(this._vshader);
         gl.deleteShader(this._pshader);

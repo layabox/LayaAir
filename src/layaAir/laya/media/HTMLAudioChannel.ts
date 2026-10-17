@@ -57,8 +57,10 @@ export class HTMLAudioChannel extends SoundChannel {
     }
 
     protected onPlayAgain(): void {
-        this._ele.currentTime = this.startTime;
-        this._ele.play().catch(e => { });
+        if (this._ele) {
+            this._ele.currentTime = this.startTime;
+            this._ele.play().catch(e => { });
+        }
     }
 
     protected onStop(): void {

@@ -52,6 +52,9 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
     public get distanceForSort(): number { return this._nativeObj.distanceForSort; }
     public set distanceForSort(value: number) { this._nativeObj.distanceForSort = value; }
 
+    public get renderOrder(): number { return this._nativeObj.renderOrder; }
+    public set renderOrder(value: number) { this._nativeObj.renderOrder = value; }
+
     public get sortingFudge(): number { return this._nativeObj.sortingFudge; }
     public set sortingFudge(value: number) { this._nativeObj.sortingFudge = value; }
 
@@ -311,6 +314,7 @@ export class LayaXBaseRenderNode implements IBaseRenderNode {
         for (let i = 0; i < value.length; i++) {
             this.renderelements.push(value[i]);
             value[i].owner = this;
+            value[i].sortIndex = i;
             tempArray.push((value[i] as any)._nativeObj);
         }
         this._nativeObj.setRenderElements(tempArray);

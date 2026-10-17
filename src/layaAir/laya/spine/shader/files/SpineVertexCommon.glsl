@@ -71,10 +71,14 @@ vec4 getSpinePos(){
 
         float offset = 1.0 / u_SimpleAnimatorTextureSize;
 
-        return getBonePosBake(currentPixelPos,a_BoneId,a_weight,a_position,offset)
-        +getBonePosBake(currentPixelPos,a_PosWeightBoneID_2.w,a_PosWeightBoneID_2.z,a_PosWeightBoneID_2.xy,offset)
-        +getBonePosBake(currentPixelPos,a_PosWeightBoneID_3.w,a_PosWeightBoneID_3.z,a_PosWeightBoneID_3.xy,offset)
-        +getBonePosBake(currentPixelPos,a_PosWeightBoneID_4.w,a_PosWeightBoneID_4.z,a_PosWeightBoneID_4.xy,offset);
+        #ifdef SPINE_RB
+            return getBonePosBake(currentPixelPos,a_BoneId,a_weight,a_position,offset);
+        #else
+            return getBonePosBake(currentPixelPos,a_BoneId,a_weight,a_position,offset)
+            +getBonePosBake(currentPixelPos,a_PosWeightBoneID_2.w,a_PosWeightBoneID_2.z,a_PosWeightBoneID_2.xy,offset)
+            +getBonePosBake(currentPixelPos,a_PosWeightBoneID_3.w,a_PosWeightBoneID_3.z,a_PosWeightBoneID_3.xy,offset)
+            +getBonePosBake(currentPixelPos,a_PosWeightBoneID_4.w,a_PosWeightBoneID_4.z,a_PosWeightBoneID_4.xy,offset);
+        #endif
     #else
         #ifdef SPINE_FAST
             return getBonePos(a_BoneId,a_weight,a_position)
@@ -86,6 +90,7 @@ vec4 getSpinePos(){
         #ifdef SPINE_RB
             vec2 pos;
             transfrom(a_position,u_sBone0,u_sBone1,pos);
+            pos *= a_weight;
             return vec4(pos,0.,1.);
             // return getBonePos(a_BoneId,1.0,a_position);
         #endif

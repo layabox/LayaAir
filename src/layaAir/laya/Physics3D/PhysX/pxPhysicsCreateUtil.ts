@@ -37,6 +37,8 @@ import { pxStatics } from "./pxStatics";
 import { ICompoundColliderShape } from "../interface/Shape/ICompoundColliderShape";
 import { pxCompoundColliderShape } from "./Shape/pxCompoundColliderShape";
 import { Config3D } from "../../../Config3D";
+import { pxVehicle } from "./Vehicle/pxVehicle";
+import { VehicleDesc } from "../interface/IVehicle/IPhysicsVehicle";
 
 
 /**
@@ -72,6 +74,7 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_HingeJoint, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_D6Joint, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CreateCorveMesh, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_VehicleSystem, true);
     }
 
     /**
@@ -403,6 +406,10 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
         }
         return (<any>mesh).__convexMesh;
 
+    }
+
+    createVehicle(manager: pxPhysicsManager, desc: VehicleDesc): pxVehicle {
+        return new pxVehicle(manager, desc);
     }
 }
 

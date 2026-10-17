@@ -1,7 +1,6 @@
 import { Mesh } from "../../../d3/resource/models/Mesh";
 import { Vector3 } from "../../../maths/Vector3";
 import { IMeshColliderShape } from "../../interface/Shape/IMeshColliderShape";
-import { btPhysicsManager } from "../btPhysicsManager";
 import { btStatics, convertToBulletVec3 } from "../btStatics";
 import { btColliderShape } from "./btColliderShape";
 
@@ -15,6 +14,11 @@ export class btMeshColliderShape extends btColliderShape implements IMeshCollide
 
     /**@internal */
     private _physicMesh: any;
+    /**@internal */
+    private _physicsMeshOwned: boolean = false;
+
+    // Keep source geometry available after Mesh.markAsUnreadbale(), without sharing native scaling.
+    private static _meshGeometryCache = new WeakMap<Mesh, { positions: Vector3[], indices: Uint16Array | Uint32Array }>();
 
     /**@internal */
     static _btTempVector30: number;
@@ -103,23 +107,35 @@ export class btMeshColliderShape extends btColliderShape implements IMeshCollide
         return this._convex;
     }
 
-    private _createPhysicsMeshFromMesh(value: Mesh): number {
-        if (value._triangleMesh) {
+    private _createPhysicsMeshFromMesh(value: Mesh, shared: boolean): number {
+        if (shared && value._triangleMesh) {
             return value._triangleMesh;
         }
         let bt = btStatics.bt;
 
-        var triangleMesh: number = value._triangleMesh = bt.btTriangleMesh_create();//TODO:独立抽象btTriangleMesh,增加内存复用
+        let geometry = btMeshColliderShape._meshGeometryCache.get(value);
+        if (value._isReadable || !geometry) {
+            const positions: Vector3[] = [];
+            value.getPositions(positions);
+            const indices = (value._indexBuffer.getData() as Uint16Array | Uint32Array).slice();
+            geometry = { positions, indices };
+            btMeshColliderShape._meshGeometryCache.set(value, geometry);
+        }
+        const posArray = geometry.positions;
+        const indices = geometry.indices;
+        if (this._convex && posArray.length > this._limitvertex) {
+            console.warn("MeshColliderShape: The number of vertices exceeds the limit, please reduce the number of vertices.");
+        }
+
+        // Each non-convex collider owns its native triangle mesh, including its scaling.
+        var triangleMesh: number = bt.btTriangleMesh_create();
+        if (shared) {
+            value._triangleMesh = triangleMesh;
+        }
         var nativePositio0: number = btMeshColliderShape._btTempVector30;
         var nativePositio1: number = btMeshColliderShape._btTempVector31;
         var nativePositio2: number = btMeshColliderShape._btTempVector32;
 
-        let posArray = new Array<Vector3>();
-        value.getPositions(posArray);
-        if (this._convex && posArray.length > this._limitvertex) {
-            console.warn("MeshColliderShape: The number of vertices exceeds the limit, please reduce the number of vertices.");
-        }
-        var indices: Uint16Array = value._indexBuffer.getData() as Uint16Array;//TODO:API修改问题
         for (var i: number = 0, n: number = indices.length; i < n; i += 3) {
             var position0: Vector3 = posArray[indices[i]];
             var position1: Vector3 = posArray[indices[i + 1]];
@@ -134,7 +150,7 @@ export class btMeshColliderShape extends btColliderShape implements IMeshCollide
 
     private _createConvexMeshFromMesh(value: Mesh): number {
         if (!value._convexMesh) {
-            let physicMesh = this._createPhysicsMeshFromMesh(this._mesh);
+            let physicMesh = this._createPhysicsMeshFromMesh(this._mesh, true);
             value._convexMesh = btStatics.bt.btShapeHull_create(physicMesh);
         }
         return value._convexMesh;
@@ -145,7 +161,11 @@ export class btMeshColliderShape extends btColliderShape implements IMeshCollide
         if (this._btShape) {
             bt.btCollisionShape_destroy(this._btShape);
         }
-        this._physicMesh = this._createPhysicsMeshFromMesh(this._mesh);
+        if (this._physicMesh && this._physicsMeshOwned) {
+            bt.btStridingMeshInterface_destroy(this._physicMesh);
+        }
+        this._physicMesh = this._createPhysicsMeshFromMesh(this._mesh, false);
+        this._physicsMeshOwned = true;
         if (this._physicMesh) {
             this._btShape = bt.btBvhTriangleMeshShape_create(this._physicMesh);
             if (this._btCollider) this._btCollider.setColliderShape(this);
@@ -156,6 +176,11 @@ export class btMeshColliderShape extends btColliderShape implements IMeshCollide
         let bt = btStatics.bt;
         if (this._btShape) {
             bt.btCollisionShape_destroy(this._btShape);
+        }
+        if (this._physicMesh && this._physicsMeshOwned) {
+            bt.btStridingMeshInterface_destroy(this._physicMesh);
+            this._physicMesh = null;
+            this._physicsMeshOwned = false;
         }
         let convexMesh = this._createConvexMeshFromMesh(this._mesh);
         this._btShape = bt.btConvexHullShape_create(convexMesh);
@@ -171,13 +196,22 @@ export class btMeshColliderShape extends btColliderShape implements IMeshCollide
      * @param value 缩放向量。
      */
     setWorldScale(value: Vector3): void {
-        if (this._btShape && this._btCollider) {
+        if (this._btShape) {
             let bt = btStatics.bt;
             bt.btVector3_setValue(btMeshColliderShape._btTempVector30, value.x, value.y, value.z);
             bt.btCollisionShape_setLocalScaling(this._btShape, btMeshColliderShape._btTempVector30);
             // if (this._btCollider._btColliderShape && this._btCollider._enableProcessCollisions) {
             // 	bt.btGImpactShapeInterface_updateBound(this._btShape);//更新缩放后需要更新包围体,有性能损耗
             // }
+        }
+    }
+
+    destroy(): void {
+        super.destroy();
+        if (this._physicMesh && this._physicsMeshOwned) {
+            btStatics.bt.btStridingMeshInterface_destroy(this._physicMesh);
+            this._physicMesh = null;
+            this._physicsMeshOwned = false;
         }
     }
 

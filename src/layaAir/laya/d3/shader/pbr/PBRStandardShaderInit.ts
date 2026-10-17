@@ -3,8 +3,8 @@ import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/
 import PBRStandardVS from "./pbrStandard.vs";
 import PBRStandardFS from "./pbrStandard.fs";
 
-import PBRDepthVS from "../depth/Depth.vs";
-import PBRDepthFS from "../depth/Depth.fs";
+import DepthVS from "../depth/Depth.vs";
+import PBRDepthFS from "../depth/PBRDepth.fs";
 
 import DepthNormalVS from "./PBRStandardDepthNormal.vs";
 import DepthNormalFS from "./PBRStandardDepthNormal.fs";
@@ -77,7 +77,7 @@ export class PBRStandardShaderInit {
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let shadingPass = subShader.addShaderPass(PBRStandardVS, PBRStandardFS);
-        let shadowPass = subShader.addShaderPass(PBRDepthVS, PBRDepthFS, "ShadowCaster");
+        let shadowPass = subShader.addShaderPass(DepthVS, PBRDepthFS, "ShadowCaster");
         let depthNormal = subShader.addShaderPass(DepthNormalVS, DepthNormalFS, "DepthNormal");
     }
 

@@ -2,6 +2,7 @@ import { IClone } from "../utils/IClone";
 import { AnimatorPlayState2D } from "./AnimatorPlayState2D";
 import { AnimatorState2D } from "./AnimatorState2D";
 import { AnimatorTransition2D } from "./AnimatorTransition2D";
+import { KeyframeNode2D } from "./KeyframeNode2D";
 
 /**
  * @en Layer of 2D animation controllers
@@ -40,16 +41,20 @@ export class AnimatorControllerLayer2D implements IClone {
     _crossMark: number = 0;
 
     /**@internal */
-    _crossNodesOwnersCount: number = 0;
-
-    /**@internal */
-    _crossNodesOwnersIndicesMap: any = {};
-
-    /**@internal */
     _srcCrossClipNodeIndices: number[] = [];
 
     /**@internal */
     _destCrossClipNodeIndices: number[] = [];
+
+    /** Transition duration in seconds. */
+    _crossDuration = 0;
+    _crossElapsedTime = 0;
+    _crossNodes: KeyframeNode2D[] = [];
+    /** Values for tracks missing from either clip. */
+    _crossDefaultValues: AnimatorState2D["_realtimeDatas"] = [];
+    /** Last blended pose, also used when interrupting a transition. */
+    _crossValues: AnimatorState2D["_realtimeDatas"] = [];
+    _crossFixedValues: AnimatorState2D["_realtimeDatas"] = [];
 
     /**@internal */
     _enterTransition: AnimatorTransition2D;
@@ -302,6 +307,7 @@ export class AnimatorControllerLayer2D implements IClone {
      * @zh 销毁动画控制器层及其所有状态。
      */
     destroy() {
+        this._crossNodes.length = this._crossDefaultValues.length = this._crossValues.length = this._crossFixedValues.length = 0;
         this._removeReference();
         for (var i = 0, n = this._states.length; i < n; i++) {
             this._states[i].destroy();

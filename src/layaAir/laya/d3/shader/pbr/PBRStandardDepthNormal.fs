@@ -18,6 +18,25 @@ void main()
     PixelParams pixel;
     getPixelParams(pixel);
 
+#ifdef ALPHATEST
+    float alpha = u_AlbedoColor.a;
+    #if defined(COLOR) && defined(ENABLEVERTEXCOLOR)
+    alpha *= pixel.vertexColor.a;
+    #endif // COLOR && ENABLEVERTEXCOLOR
+
+    #ifdef ALBEDOTEXTURE
+    #ifdef UV
+    vec2 alphaUV = transformUV(pixel.uv0, u_TilingOffset);
+    #else // UV
+    vec2 alphaUV = vec2(0.0);
+    #endif // UV
+    alpha *= texture2D(u_AlbedoTexture, alphaUV).a;
+    #endif // ALBEDOTEXTURE
+
+    if (alpha < u_AlphaTestValue)
+        discard;
+#endif // ALPHATEST
+
     vec3 normalWS = pixel.normalWS;
 
 #ifdef NORMALTEXTURE

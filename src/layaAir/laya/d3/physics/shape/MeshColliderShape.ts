@@ -27,7 +27,9 @@ export class MeshColliderShape extends Physics3DColliderShape {
     }
 
     set mesh(value: Mesh) {
-        if ((this._mesh == value && this._shape) || !value)
+        if (!value)
+            return;
+        if (this._mesh == value && this._shape && this._shape.getPhysicsShape())
             return;
         this._mesh = value;
         this._changeShape();

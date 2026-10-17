@@ -60,9 +60,21 @@ export class CubemapLoader implements IResourceLoader {
                 }
 
                 let constructParams = task.options.constructParams;
+                let propertyParams = task.options.propertyParams;
                 let mipmapRequested = constructParams?.[3] ?? true;
                 let mipmap = mipmapRequested && ktxInfo.mipmapCount > 1;
-                let tex = new TextureCube(ktxInfo.width, ktxInfo.format, mipmap, ktxInfo.sRGB);
+                //立方体贴图同样需要遵循 meta 中配置的 sRGB 与采样属性
+                let sRGB = constructParams?.[5] ?? ktxInfo.sRGB;
+                let premultiplyAlpha = propertyParams ? propertyParams.premultiplyAlpha : false;
+                let tex = new TextureCube(ktxInfo.width, ktxInfo.format, mipmap, sRGB, premultiplyAlpha);
+                if (propertyParams) {
+                    if (propertyParams.wrapModeU != null) tex.wrapModeU = propertyParams.wrapModeU;
+                    if (propertyParams.wrapModeV != null) tex.wrapModeV = propertyParams.wrapModeV;
+                    if (propertyParams.wrapModeV != null || propertyParams.wrapModeU != null)
+                        tex.wrapModeW = propertyParams.wrapModeV ?? propertyParams.wrapModeU;
+                    if (propertyParams.filterMode != null) tex.filterMode = propertyParams.filterMode;
+                    if (propertyParams.anisoLevel != null) tex.anisoLevel = propertyParams.anisoLevel;
+                }
                 tex.setKTXData(ktxInfo);
 
                 let obsoluteInst = task.obsoluteInst;

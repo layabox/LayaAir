@@ -557,11 +557,12 @@ export class Button extends UIComponent implements ISelect {
     protected changeClips(): void {
         let width: number = 0, height: number = 0;
 
-        let img: Texture = Loader.getRes(this._skin);
-        if (!img) {
-            console.log(`lose skin ${this._skin}`);
+        let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
+        let img: Texture = Loader.getRes(url);
+        // Skin loading is asynchronous; _skinLoaded schedules another update when ready.
+        // Actual load failures are reported by Loader.
+        if (!img)
             return;
-        }
 
         width = img.sourceWidth;
         height = img.sourceHeight / (img._stateNum || this._stateNum);

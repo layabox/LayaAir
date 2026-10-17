@@ -1,13 +1,11 @@
 var WASI_STDOUT_FILENO = 1;
 var WASI_ESUCCESS = 0;
-function locateFile(path) {
-  return scriptDirectory + path;
-}
-let scriptDirectory = "";
-if(typeof document!=="undefined") {
-  scriptDirectory = (document.currentScript && document.currentScript.src) ? document.currentScript.src : "";
-  if(scriptDirectory)
-    scriptDirectory = scriptDirectory.substr(0, scriptDirectory.replace(/[?#].*/, "").lastIndexOf("/") + 1)
+var scriptDirectory = "";
+
+if (typeof document !== "undefined") {
+  scriptDirectory = document.currentScript && document.currentScript.src ? document.currentScript.src : "";
+  if (scriptDirectory)
+    scriptDirectory = scriptDirectory.substr(0, scriptDirectory.replace(/[?#].*/, "").lastIndexOf("/") + 1);
 }
 
 if (window.conch && window.layaConchBullet) {
@@ -15,70 +13,65 @@ if (window.conch && window.layaConchBullet) {
     window.conch.setGetWorldTransformFunction(interactive.getWorldTransform);
     window.conch.setSetWorldTransformFunction(interactive.setWorldTransform);
     var conchBullet = window.layaConchBullet;
-    conchBullet.then = (complete) => {
+    conchBullet.then = function(complete) {
       complete();
     };
     window.Physics3D = conchBullet;
     return conchBullet;
   };
-  }
-  else{
-window.Physics3D = function (initialMemory, interactive) {
-    let mem = new Laya.WasmAdapter.Memory({ initial: initialMemory });
-    let imports ={
+} else {
+  window.Physics3D = function(initialMemory, interactive) {
+    var mem = new Laya.WasmAdapter.Memory({ initial: initialMemory });
+    var imports = {
       LayaAirInteractive: interactive,
       wasi_snapshot_preview1: {
-        fd_close: () => { },
-        fd_seek: () => { },
-        fd_fdstat_get: (fd, bufPtr) => { },
-        fd_prestat_get: () => { },
-        fd_prestat_dir_name: (fd, bufPtr) => { },
-        fd_write: (fd, iovs, iovsLen, nwritten) => {
-          if (fd == 1) {//stdout
+        fd_close: function() { return WASI_ESUCCESS; },
+        fd_seek: function() { return WASI_ESUCCESS; },
+        fd_fdstat_get: function() { return WASI_ESUCCESS; },
+        fd_prestat_get: function() { return WASI_ESUCCESS; },
+        fd_prestat_dir_name: function() { return WASI_ESUCCESS; },
+        fd_write: function(fd, iovs, iovsLen, nwritten) {
+          if (fd === WASI_STDOUT_FILENO) {
             var view = new DataView(mem.buffer);
-            var ptr = iovs; //实际iovs是一个数组 [{ptr,len},{ptr,len}...]
-            var buf = view.getUint32(ptr, true);
-            var bufLen = view.getUint32(ptr + 4, true);
-            let u8buff = new Uint8Array(mem.buffer, buf, bufLen);
-            let txdec = new TextDecoder();
-            let str = txdec.decode(u8buff);
-            console.log(str);
-            view.setUint32(nwritten, bufLen, true);
+            var bufferPointer = view.getUint32(iovs, true);
+            var bufferLength = view.getUint32(iovs + 4, true);
+            var bytes = new Uint8Array(mem.buffer, bufferPointer, bufferLength);
+            console.log(new TextDecoder().decode(bytes));
+            view.setUint32(nwritten, bufferLength, true);
           }
           return WASI_ESUCCESS;
         },
-        proc_exit: () => { },
-        path_open: () => { },
-        path_filestat_get: () => { },
-        path_unlink_file: () => { },
-        path_remove_directory: () => { },
-        path_create_directory: () => { },
-        fd_fdstat_set_flags: () => { },
-        fd_read: () => { },
-        clock_time_get: () => { },
-        environ_sizes_get: () => { },
-        environ_get: () => { },
-        __wasm_lpad_context: () => { }
+        proc_exit: function() { return WASI_ESUCCESS; },
+        path_open: function() { return WASI_ESUCCESS; },
+        path_filestat_get: function() { return WASI_ESUCCESS; },
+        path_unlink_file: function() { return WASI_ESUCCESS; },
+        path_remove_directory: function() { return WASI_ESUCCESS; },
+        path_create_directory: function() { return WASI_ESUCCESS; },
+        fd_fdstat_set_flags: function() { return WASI_ESUCCESS; },
+        fd_read: function() { return WASI_ESUCCESS; },
+        clock_time_get: function() { return WASI_ESUCCESS; },
+        environ_sizes_get: function() { return WASI_ESUCCESS; },
+        environ_get: function() { return WASI_ESUCCESS; },
+        __wasm_lpad_context: function() { return WASI_ESUCCESS; }
       },
-      env: {
-        memory: mem,
-      }
+      env: { memory: mem }
     };
 
-    let p;
-    if(Laya.WasmAdapter.instantiateWasm) {
-      p = Laya.WasmAdapter.instantiateWasm("bullet.wasm", imports);
-    }
-    else {
-      p = fetch((Laya.WasmAdapter.locateFile || Laya.WasmAdapter.locateFileDefault)("bullet.wasm", scriptDirectory)).then((response) =>
-        response.arrayBuffer().then((buffer) => WebAssembly.instantiate(buffer, imports)));
+    var promise;
+    if (Laya.WasmAdapter.instantiateWasm) {
+      promise = Laya.WasmAdapter.instantiateWasm("bullet.wasm", imports);
+    } else {
+      var locate = Laya.WasmAdapter.locateFile || Laya.WasmAdapter.locateFileDefault;
+      promise = fetch(locate("bullet.wasm", scriptDirectory))
+        .then(function(response) { return response.arrayBuffer(); })
+        .then(function(buffer) { return WebAssembly.instantiate(buffer, imports); });
     }
 
-    return p.then((physics3D) => {
-      let bt = window.Physics3D = physics3D.instance.exports;
-      if (bt.main) {
+    return promise.then(function(physics3D) {
+      var bt = window.Physics3D = physics3D.instance.exports;
+      if (bt.main)
         bt.main();
-      }
+      return bt;
     });
+  };
 }
-  }

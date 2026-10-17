@@ -785,5 +785,6 @@ export class WebRenderStruct2D implements IRenderStruct2D {
       this.children.length = 0;
       this.children = null;
       this._pass = null;
+      this.owner = null;
    }
 }

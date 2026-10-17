@@ -1,4 +1,7 @@
 import { Node } from "../../display/Node";
+import { NodeFlags } from "../../Const";
+import type { Component } from "../../components/Component";
+import type { BaseRender } from "./render/BaseRender";
 import { Handler } from "../../utils/Handler";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { Stat } from "../../utils/Stat";
@@ -115,6 +118,8 @@ export class Sprite3D extends Node {
     /**@internal 0表示不是渲染节点*/
     _isRenderNode: number = 0;
 
+    declare private _renderers: BaseRender[] | null;
+
     declare _children: Sprite3D[];
     declare _scene: Scene3D;
 
@@ -212,6 +217,55 @@ export class Sprite3D extends Node {
         this._transform.inActiveInScene();
     }
 
+    /**
+     * @en Gets a cached, read-only snapshot of renderers on this node and its descendants,
+     * including inactive nodes and disabled renderers. Call again after hierarchy or renderer
+     * changes to obtain the updated snapshot. Do not modify the returned array.
+     * @returns The renderers on this node and its descendants.
+     * @zh 获取自身及所有子节点的渲染组件缓存快照，包含未激活节点和禁用的渲染组件。
+     * 层级或渲染组件变化后，应重新调用以获取最新快照。请勿修改返回的数组。
+     * @returns 自身及所有子节点的渲染组件列表。
+     */
+    getRenderersInChildren(): ReadonlyArray<BaseRender> {
+        if (!this._renderers) {
+            const renderers: BaseRender[] = [];
+            Sprite3D._collectRenderers(this, renderers);
+            this._renderers = renderers;
+        }
+        return this._renderers;
+    }
+
+    private static _collectRenderers(node: Node, renderers: BaseRender[]): void {
+        node._setBit(NodeFlags.RENDERERS_CACHE, true);
+        for (const component of node.components) {
+            const render = component as BaseRender;
+            if (render._is3DRender === true && !render.destroyed)
+                renderers.push(render);
+        }
+        for (let i = 0, n = node.numChildren; i < n; i++)
+            Sprite3D._collectRenderers(node.getChildAt(i), renderers);
+    }
+
+    private _invalidateRenderers(): void {
+        // 仅访问参与缓存的路径；失效后停止跟踪，下一次查询时再恢复标记。
+        for (let node: Node = this; node && node._getBit(NodeFlags.RENDERERS_CACHE); node = node.parent) {
+            node._setBit(NodeFlags.RENDERERS_CACHE, false);
+            if (node instanceof Sprite3D && node._renderers)
+                node._renderers = null;
+        }
+    }
+
+    protected _childChanged(child?: Node): void {
+        super._childChanged(child);
+        if (this._getBit(NodeFlags.RENDERERS_CACHE))
+            this._invalidateRenderers();
+    }
+
+    protected _componentsChanged(comp: Component, _action: 0 | 1 | 2): void {
+        if (this._getBit(NodeFlags.RENDERERS_CACHE) && (!comp || (comp as BaseRender)._is3DRender === true))
+            this._invalidateRenderers();
+    }
+
     protected _onAdded(): void {
         if (this._parent instanceof Sprite3D) {
             var parent3D: Sprite3D = (<Sprite3D>this._parent);
@@ -299,6 +353,7 @@ export class Sprite3D extends Node {
             return;
 
         super.destroy(destroyChild);
+        this._renderers = null;
         this._transform = null;
     }
 }

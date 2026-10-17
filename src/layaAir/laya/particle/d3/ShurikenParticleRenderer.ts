@@ -476,6 +476,7 @@ export class ShurikenParticleRenderer extends BaseRender {
         dest.stretchedBillboardSpeedScale = this.stretchedBillboardSpeedScale;
         dest.stretchedBillboardLengthScale = this.stretchedBillboardLengthScale;
         dest.sortingFudge = this.sortingFudge;
+        dest.renderOrder = this.renderOrder;
     }
 
     protected _onDestroy() {
