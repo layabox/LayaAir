@@ -2,59 +2,16 @@ import { LayaGL } from "../layagl/LayaGL";
 import { StatElement } from "../layagl/StatisticsContext";
 import { Component } from "./Component";
 
-// Set membership and observable order are unchanged. The hot dispatch walks
-// an array; removals leave holes until no outer dispatch can hold an index.
-class ComponentCallbacks extends Set<Component> {
-    private _items: (Component | null)[] = [];
-    private _depth: number = 0;
-    private _dirty: boolean = false;
-
-    add(component: Component): this {
-        if (!this.has(component)) {
-            super.add(component);
-            this._items.push(component);
-        }
-        return this;
-    }
-
-    delete(component: Component): boolean {
-        if (!super.delete(component)) return false;
-        // ponytail: removal is O(n); add an index only if membership churn is hot.
-        this._items[this._items.indexOf(component)] = null;
-        this._dirty = true;
-        return true;
-    }
-
-    clear(): void {
-        super.clear();
-        if (this._depth) { this._items.fill(null); this._dirty = true; }
-        else { this._items.length = 0; this._dirty = false; }
-    }
-
-    begin(): (Component | null)[] {
-        if (this._depth === 0 && this._dirty) {
-            let count = 0;
-            for (const item of this._items) if (item) this._items[count++] = item;
-            this._items.length = count;
-            this._dirty = false;
-        }
-        this._depth++;
-        return this._items;
-    }
-
-    end(): void { this._depth--; }
-}
-
 /**
  * @en Core classes for managing and driving the lifecycle of components
  * @zh 用于管理和驱动组件生命周期的核心类
  */
 export class ComponentDriver {
-    private _onUpdates = new ComponentCallbacks();
-    private _onLateUpdates = new ComponentCallbacks();
-    private _onAfterSceneUpdates = new ComponentCallbacks();
-    private _onPreRenders = new ComponentCallbacks();
-    private _onPostRenders = new ComponentCallbacks();
+    private _onUpdates: Set<Component> = new Set();
+    private _onLateUpdates: Set<Component> = new Set();
+    private _onAfterSceneUpdates: Set<Component> = new Set();
+    private _onPreRenders: Set<Component> = new Set();
+    private _onPostRenders: Set<Component> = new Set();
 
     private _toStarts: Set<Component> = new Set();
     readonly _toDestroys: Set<Component> = new Set();
@@ -86,20 +43,16 @@ export class ComponentDriver {
      */
     callUpdate() {
         let t = performance.now();
-        const items = this._onUpdates.begin();
-        try {
-            for (let index = 0; index < items.length; index++) {
-                const ele = items[index];
-                if (ele && ele._status == 3) {
-                    try {
-                        ele.onUpdate();
-                    }
-                    catch (err: any) {
-                        this.onError(err);
-                    }
+        for (let ele of this._onUpdates) {
+            if (ele._status == 3) {
+                try {
+                    ele.onUpdate();
+                }
+                catch (err: any) {
+                    this.onError(err);
                 }
             }
-        } finally { this._onUpdates.end(); }
+        }
         LayaGL.statAgent.recordTimeData(StatElement.T_ScriptUpdateTime, performance.now() - t);
     }
 
@@ -110,20 +63,16 @@ export class ComponentDriver {
      */
     callLateUpdate() {
         let t = performance.now();
-        const items = this._onLateUpdates.begin();
-        try {
-            for (let index = 0; index < items.length; index++) {
-                const ele = items[index];
-                if (ele && ele._status == 3) {
-                    try {
-                        ele.onLateUpdate();
-                    }
-                    catch (err: any) {
-                        this.onError(err);
-                    }
+        for (let ele of this._onLateUpdates) {
+            if (ele._status == 3) {
+                try {
+                    ele.onLateUpdate();
+                }
+                catch (err: any) {
+                    this.onError(err);
                 }
             }
-        } finally { this._onLateUpdates.end(); }
+        }
         LayaGL.statAgent.recordTimeData(StatElement.T_ScriptLateUpdateTime, performance.now() - t);
     }
 
@@ -133,20 +82,16 @@ export class ComponentDriver {
      * @zh 调用组件 onAfterSceneUpdate
      */
     callAfterSceneUpdate() {
-        const items = this._onAfterSceneUpdates.begin();
-        try {
-            for (let index = 0; index < items.length; index++) {
-                const ele = items[index];
-                if (ele && ele._status == 3) {
-                    try {
-                        ele.onAfterSceneUpdate();
-                    }
-                    catch (err: any) {
-                        this.onError(err);
-                    }
+        for (let ele of this._onAfterSceneUpdates) {
+            if (ele._status == 3) {
+                try {
+                    ele.onAfterSceneUpdate();
+                }
+                catch (err: any) {
+                    this.onError(err);
                 }
             }
-        } finally { this._onAfterSceneUpdates.end(); }
+        }
     }
 
     /**
@@ -155,20 +100,16 @@ export class ComponentDriver {
      * @zh 调用组件onPreRender
      */
     callPreRender() {
-        const items = this._onPreRenders.begin();
-        try {
-            for (let index = 0; index < items.length; index++) {
-                const ele = items[index];
-                if (ele && ele._status == 3) {
-                    try {
-                        ele.onPreRender();
-                    }
-                    catch (err: any) {
-                        this.onError(err);
-                    }
+        for (let ele of this._onPreRenders) {
+            if (ele._status == 3) {
+                try {
+                    ele.onPreRender();
+                }
+                catch (err: any) {
+                    this.onError(err);
                 }
             }
-        } finally { this._onPreRenders.end(); }
+        }
     }
 
     /**
@@ -177,20 +118,16 @@ export class ComponentDriver {
      * @zh 调用组件onPostRender
      */
     callPostRender() {
-        const items = this._onPostRenders.begin();
-        try {
-            for (let index = 0; index < items.length; index++) {
-                const ele = items[index];
-                if (ele && ele._status == 3) {
-                    try {
-                        ele.onPostRender();
-                    }
-                    catch (err: any) {
-                        this.onError(err);
-                    }
+        for (let ele of this._onPostRenders) {
+            if (ele._status == 3) {
+                try {
+                    ele.onPostRender();
+                }
+                catch (err: any) {
+                    this.onError(err);
                 }
             }
-        } finally { this._onPostRenders.end(); }
+        }
     }
 
     /**
