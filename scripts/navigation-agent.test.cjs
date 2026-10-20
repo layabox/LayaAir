@@ -90,7 +90,7 @@ test('an unknown surface type warns without constructing or registering a mesh, 
     const surface = Object.create(BaseNavMeshSurface.prototype);
     let registrations = 0, created = 0, config = null;
     Object.assign(surface, { owner: { name: 'OldSurface' }, _agentType: 'old', enabled: true,
-        _oriTiles: { length: 1, getNavData: () => ({ x: 0, y: 0 }) }, _buildTileList: new Set(),
+        _cacheDataMap: new Map(), _oriTiles: { length: 1, getNavData: () => ({ x: 0, y: 0 }) }, _buildTileList: new Set(),
         _getManager: () => ({ getNavConfig: () => config, regNavMeshSurface() { registrations++; }, removeNavMeshSurface() {} }),
         _crateNavMesh(actualConfig) { assert.equal(actualConfig, config); created++; return {
             navTileGrid: { _refeashBound() {} }, _navMeshInit() {}, _removeTile() {},
@@ -136,5 +136,17 @@ test('legacy 2D component data preserves omitted and explicitly serialized accel
         const agent = new Nav2DAgent();
         Object.assign(agent, data);
         assert.equal(agent.maxAcceleration, data.maxAcceleration ?? 10);
+    }
+});
+
+test('arrival controls use normal defaults and accept explicit settings', () => {
+    for (const Agent of [NavAgent, Nav2DAgent]) {
+        const legacy = new Agent();
+        assert.equal(legacy.autoBraking, true);
+        assert.equal(legacy.stopDistance, 0);
+        assert.equal(legacy.maxAcceleration, 10);
+        const configured = new Agent();configured.autoBraking=true;configured.stopDistance=2.5;
+        assert.equal(configured.autoBraking,true);assert.equal(configured.stopDistance,2.5);
+        for (const invalid of [-1,NaN,Infinity]) {configured.stopDistance=invalid;assert.equal(configured.stopDistance,0);}
     }
 });

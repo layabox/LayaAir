@@ -24,7 +24,7 @@ export class NavModifleData extends BaseData{
 
     constructor(){
         super();
-        this._bindData = NavigationUtils._createdtNavTileCache();
+
     }
 
     /**
@@ -53,7 +53,7 @@ export class NavModifleData extends BaseData{
     private _updateTileIndexs(cache:CacheData,oldTileIndex:Set<number>,newTileIndexs:Set<number>):void{
         let surface = cache._surface;
         oldTileIndex.forEach((index)=>{
-            surface._featureCache.get(index).delete(this._bindData);
+            surface._featureCache.get(index)?.delete(this._bindData);
         })
 
         if(this._datas == null) return;
@@ -68,7 +68,8 @@ export class NavModifleData extends BaseData{
      * @internal
      */
     _initSurface(surface:Array<BaseNavMeshSurface>): void {
-        this._cacheDatas = [];
+        this._destory();
+        if (surface.length > 0) this._bindData = NavigationUtils._createdtNavTileCache();
         surface.forEach(element => {
             let cache = element._addModifileNavMesh(this)
             cache._setUpdateDataHander(Handler.create(this,this._updateBuffer,undefined,false));
@@ -88,10 +89,14 @@ export class NavModifleData extends BaseData{
             let surface = element._surface;
             let oldTileIndex = element._titleIndex;
             oldTileIndex.forEach((index)=>{
-                surface._featureCache.get(index).delete(this._bindData);
+                surface._featureCache.get(index)?.delete(this._bindData);
             })
             surface._removeModifileNavMesh(this);
         });
         this._cacheDatas = [];
+        if (this._bindData) {
+            NavigationUtils._freeLayaData(this._bindData);
+            this._bindData = null;
+        }
     }
 }

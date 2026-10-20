@@ -380,18 +380,16 @@ export class NavigationUtils {
         this._recast.dtFreeCrowd(data);
     }
 
-    /**
-     * free any other
-     */
+    /** Free an Embind-owned native object through its registered destructor. */
     static _free(data: any) {
-        this._recast.dtFree(data);
+        data.delete();
     }
 
     /**
     * free any layaData
     */
     static _freeLayaData(data: any) {
-        this._recast._free(data);
+        data.delete();
     }
     /**
      * check Status is Succeed

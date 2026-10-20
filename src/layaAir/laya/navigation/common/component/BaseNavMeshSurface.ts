@@ -72,6 +72,11 @@ export class BaseNavMeshSurface extends Component {
      */
     set agentType(value: string) {
         if (this._agentType == value) return;
+        if (this._navMesh) {
+            this._manager.removeNavMeshSurface(this);
+            this._navMesh._destroy();
+            this._navMesh = null;
+        }
         this._agentType = value;
         if (!this._navMesh && this._manager && this.enabled) this._onEnable();
         if (this._oriTiles == null) return;
@@ -279,14 +284,12 @@ export class BaseNavMeshSurface extends Component {
      * @zh 刷新原始数据的Flag
     */
     protected _updateOrigTileCache(cache: CacheData, areaflags: number) {
-        if (!cache._getCacheFlag(CacheData.AreaFlag)) return;
+        if (!cache._getCacheFlag(CacheData.DataFlag | CacheData.AreaFlag)) return;
         let datas = cache._cacheData;
         let tileCount = datas.length;
 
-        if (cache._getCacheFlag(CacheData.DataFlag | CacheData.AreaFlag)) {
-            for (var i = 0; i < tileCount; i++) {
-                datas[i].setFlag(areaflags);
-            }
+        for (var i = 0; i < tileCount; i++) {
+            datas[i].setFlag(areaflags);
         }
 
     }
@@ -314,7 +317,6 @@ export class BaseNavMeshSurface extends Component {
         if (cacheData == null) return null;
         this._cacheDataMap.delete(data);
         cacheData._destroy();
-        this._navMesh?._deleteConvexVoume(cacheData.id);
         return cacheData;
     }
 
@@ -325,6 +327,7 @@ export class BaseNavMeshSurface extends Component {
     protected _updateNavData(): void {
         this._featureCache.clear();
         this._cleanBindData();
+        this._oriTiles?.destroy();
         if (this._navMesh) this._navMesh._clearn();
         if (this._datas) {
             this._oriTiles = new NavTileData(this._datas);
@@ -372,6 +375,10 @@ export class BaseNavMeshSurface extends Component {
         }
 
         this._manager.regNavMeshSurface(this);
+        if (this._oriTiles) {
+            for (let i = 0; i < this._oriTiles.length; i++) this._buildTileList.add(i);
+            this._cacheDataMap.forEach(cache => cache._resetData());
+        }
     }
 
 
@@ -417,11 +424,20 @@ export class BaseNavMeshSurface extends Component {
     }
 
     protected _onDisable(): void {
+        this._navMesh?._clearn();
         this.cleanAllTile();
-        this._manager.removeNavMeshSurface(this);
+        this._manager?.removeNavMeshSurface(this);
     }
     protected _onDestroy(): void {
-        if (this._oriTiles) this._oriTiles = null;
+        this._navMesh?._destroy();
+        this._navMesh = null;
+        this._cleanBindData();
+        this._oriTiles?.destroy();
+        this._oriTiles = null;
+        this._cacheDataMap.clear();
+        this._featureCache.clear();
+        this._delayCacheMap.clear();
+        this._buildTileList.clear();
     }
 
     /**
@@ -432,6 +448,9 @@ export class BaseNavMeshSurface extends Component {
         surface._agentType = this._agentType;
         surface.areaFlag = this.areaFlag;
         surface._partitionType = this._partitionType;
+        surface.asyn = this.asyn;
+        surface.maxSimplificationError = this.maxSimplificationError;
+        surface.datas = this.datas;
         super._cloneTo(dest);
     }
 
@@ -477,6 +496,15 @@ export class BaseNavMeshSurface extends Component {
     }
 
     /** @internal */
+    _removeModifileLink(link: NavMeshLinkData) {
+        const cache = this._cacheDataMap.get(link);
+        if (!cache) return;
+        this._navMesh?._removeNavMeshLink(cache.id);
+        this._meshlinkOffMaps.removeItem(link);
+        this._removeCacheData(link);
+    }
+
+    /** @internal */
     _addConvexVoume(volume: ModifierVolumeData) {
         let cache = this._getCahceData(volume);
         let volumeId = this._meshVolumeMaps.getId(cache);
@@ -492,6 +520,11 @@ export class BaseNavMeshSurface extends Component {
      * @param volume 
      */
     _deleteCovexVoume(volume: ModifierVolumeData) {
+        const cache = this._cacheDataMap.get(volume);
+        if (cache) {
+            this._navMesh?._deleteConvexVoume(cache.id);
+            this._meshVolumeMaps.removeItem(cache);
+        }
         this._removeCacheData(volume);
     }
 

@@ -26,7 +26,7 @@ export class NavMeshLinkData extends BaseData{
     _endNavSurfaces: BaseNavMeshSurface[] = [];
 
     /**@internal */
-    private _regisgMaps:[];
+    private _regisgMaps: Array<[BaseNavMeshSurface, BaseNavMeshSurface]>;
 
     constructor() {
         super();
@@ -48,14 +48,14 @@ export class NavMeshLinkData extends BaseData{
     }
 
     public _updateStartPoint(value:Vector3):void{
-        if(Vector3.equals(this._startPoint,value))
+        if(value !== this._startPoint && Vector3.equals(this._startPoint,value))
             return;
         value.cloneTo(this._startPoint);
         this._updateData(CacheData.DataFlag);
     }
 
     public _updateEndPoint(value:Vector3):void{
-        if(Vector3.equals(this._endPoint,value))
+        if(value !== this._endPoint && Vector3.equals(this._endPoint,value))
             return;
         value.cloneTo(this._endPoint);
         this._updateData(CacheData.DataFlag);
@@ -73,7 +73,7 @@ export class NavMeshLinkData extends BaseData{
      * @internal
      */
     _initSurface(surface:Array<BaseNavMeshSurface>): void {
-        this._cacheDatas.length = 0;
+        this.destroy();
         surface.forEach(element => {
             let cache = element._addModifileLink(this);
             cache._setUpdateDataHander(Handler.create(this,this._updateBuffer,undefined,false));
@@ -92,36 +92,34 @@ export class NavMeshLinkData extends BaseData{
             Vector3.transformCoordinate(this._startPoint,this._transfrom,this.globalStart);
             Vector3.transformCoordinate(this._endPoint,this._transfrom,this.globalEnd);
         }
-        let surface = cache._surface;
-        let manager = surface._manager;
-        var starts = manager.getNavMeshSurfaces(this.globalStart);
-        var ends = manager.getNavMeshSurfaces(this.globalEnd);
-        for (var i = starts.length - 1; i >= 0; i--) {
-            let surface = starts[i];
-            let index = ends.indexOf(surface);
-            if (index < 0) {
-                continue;
-            }
-            ends.splice(index, 1);
-            starts.splice(i);
-            surface._navMesh._addNavMeshLink(cache.id,this.globalStart, this.globalEnd, this._width, this._bidirectional, areaFlag);
+        // Bounds schedule both old and new endpoint tiles, including links far from the origin.
+        Vector3.min(this.globalStart, this.globalEnd, this._min);
+        Vector3.max(this.globalStart, this.globalEnd, this._max);
+        this._min.x -= this._width;
+        this._min.z -= this._width;
+        this._max.x += this._width;
+        this._max.z += this._width;
+        cache._cacheBound(this._min, this._max);
+        const surface = cache._surface;
+        surface._navMesh._addNavMeshLink(cache.id, this.globalStart, this.globalEnd, this._width, this._bidirectional, areaFlag);
+        this._clearRegistrations();
+        const manager = surface._manager;
+        const starts = manager.getNavMeshSurfaces(this.globalStart).filter(s => s.agentType === this.agentType);
+        const ends = manager.getNavMeshSurfaces(this.globalEnd).filter(s => s.agentType === this.agentType);
+        this._startNavSurfaces = starts;
+        this._endNavSurfaces = ends;
+        for (const start of starts) for (const end of ends) {
+            if (start === end) continue;
+            manager.regNavMeshLink(start, end, this);
+            this._regisgMaps.push([start, end]);
         }
+    }
 
-        if (ends.length > 0 && starts.length > 0) {
-            starts.forEach((value) => {
-                this._startNavSurfaces.push(value);
-            })
-
-            ends.forEach((value) => {
-                this._endNavSurfaces.push(value);
-            })
-
-            for (var i = 0, n = starts.length; i < n; i++) {
-                for (var j = 0, k = ends.length; j < k; j++) {
-                    manager.regNavMeshLink(starts[i], ends[j], this);
-                }
-            }
-        }
+    private _clearRegistrations(): void {
+        for (const [start, end] of this._regisgMaps) start._manager.removeMeshLink(start, end, this);
+        this._regisgMaps.length = 0;
+        this._startNavSurfaces.length = 0;
+        this._endNavSurfaces.length = 0;
     }
 
     /**@internal */
@@ -130,9 +128,9 @@ export class NavMeshLinkData extends BaseData{
     }
 
     destroy():void{
-        this._cacheDatas.forEach(element => {
-            element._destroy();
-        });
+        this._clearRegistrations();
+        this._cacheDatas.forEach(element => element._surface._removeModifileLink(this));
+        this._cacheDatas.length = 0;
     }
     
 }

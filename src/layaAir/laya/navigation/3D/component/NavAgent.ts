@@ -72,7 +72,7 @@ export class NavAgent extends BaseNavAgent {
      */
     _getradius(): number {
         let scale = this.owner.transform.getWorldLossyScale();
-        return this._radius * Math.max(scale.x, scale.y);
+        return this._radius * Math.max(Math.abs(scale.x), Math.abs(scale.z));
     }
 
     /**
