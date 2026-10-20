@@ -139,7 +139,7 @@ export class BaseNavAgent extends Component {
     set maxAcceleration(value: number) {
         this._maxAcceleration = value;
         if (this._crowAgent) {
-            this._crowAgent.getparams().maxAcceleration = this._speed;
+            this._crowAgent.getparams().maxAcceleration = this._maxAcceleration;
         }
     }
 
@@ -222,7 +222,7 @@ export class BaseNavAgent extends Component {
     set agentType(value: string) {
         if (value == this._agentType) return;
         this._agentType = value;
-        if (this._crowAgent) {
+        if (this._navManager) {
             this._removeAgent();
             this._addAgent();
         }
@@ -317,6 +317,7 @@ export class BaseNavAgent extends Component {
         if (!this._navManager) return;
         if (this._currentNaveSurface == null || !this._currentNaveSurface.enabled) return;
         let targetSurface: BaseNavMeshSurface = this._navManager.getNavMeshSurface(value, this._agentType);
+        if (targetSurface == null) return;
         if (targetSurface == this._currentNaveSurface) {
             this._currentNaveSurface._navMesh._requestMoveTarget(this, this._targetPos);
             return;
@@ -396,6 +397,10 @@ export class BaseNavAgent extends Component {
         this._fllowPath = [];
         let manager = this._navManager = this._getManager();
         this._areaMask._setAreaMap(manager.getAreaFlagMap())
+        if (!manager.getNavConfig(this._agentType)) {
+            console.warn(`[Navigation] Unknown agent type "${this._agentType}" on "${this.owner.name}". Navigation agent initialization was skipped; select an existing agent type.`);
+            return;
+        }
         this._addAgent();
     }
 

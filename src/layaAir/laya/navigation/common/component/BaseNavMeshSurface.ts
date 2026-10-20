@@ -73,6 +73,7 @@ export class BaseNavMeshSurface extends Component {
     set agentType(value: string) {
         if (this._agentType == value) return;
         this._agentType = value;
+        if (!this._navMesh && this._manager && this.enabled) this._onEnable();
         if (this._oriTiles == null) return;
         let tileCount = this._oriTiles.length;
         for (var i = 0; i < tileCount; i++) {
@@ -188,7 +189,7 @@ export class BaseNavMeshSurface extends Component {
      * @zh 清理所有的Tile
      */
     public cleanAllTile() {
-        if (!this._oriTiles) return;
+        if (!this._oriTiles || !this._navMesh) return;
         for (var i = 0, n = this._oriTiles.length; i < n; i++) {
             let tile = this._oriTiles.getNavData(i);
             this._navMesh._removeTile(tile.x, tile.y);
@@ -313,7 +314,7 @@ export class BaseNavMeshSurface extends Component {
         if (cacheData == null) return null;
         this._cacheDataMap.delete(data);
         cacheData._destroy();
-        this._navMesh._deleteConvexVoume(cacheData.id);
+        this._navMesh?._deleteConvexVoume(cacheData.id);
         return cacheData;
     }
 
@@ -358,7 +359,12 @@ export class BaseNavMeshSurface extends Component {
     _onEnable(): void {
         this._manager = this._getManager();
         if (!this._navMesh) {
-            this._navMesh = this._crateNavMesh(this._manager.getNavConfig(this._agentType), this._boundMin, this._boundMax);
+            const config = this._manager.getNavConfig(this._agentType);
+            if (!config) {
+                console.warn(`[Navigation] Unknown agent type "${this._agentType}" on "${this.owner.name}". Navigation surface initialization was skipped; select an existing agent type.`);
+                return;
+            }
+            this._navMesh = this._crateNavMesh(config, this._boundMin, this._boundMax);
             if (this._oriTiles) {
                 this._navMesh.navTileGrid._refeashBound(this._oriTiles);
                 this._navMesh._navMeshInit()
@@ -374,7 +380,7 @@ export class BaseNavMeshSurface extends Component {
      * @param dt 
      */
     _update(dt: number) {
-        if (this._oriTiles == null) return;
+        if (this._oriTiles == null || !this._navMesh) return;
         this._delayCacheMap.forEach((value) => { value._updateCache() });
         this._delayCacheMap.clear();
         if (this._needAsyn) {
