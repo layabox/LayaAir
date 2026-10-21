@@ -35,7 +35,7 @@ export class LayaXShaderData extends ShaderData {
     private static _matScratchBuf = new ArrayBuffer(16 * 4);
     private static _matScratch = new Float32Array(LayaXShaderData._matScratchBuf);
 
-    /** @internal 构造期缓存 Rust ShaderData handle，供 LayaXComputeContext 每帧 setShaderData 复用（省每次 getHandle FFI） */
+    /** @internal 构造期缓存 C++ ShaderData handle，供 LayaXComputeContext 每帧 setShaderData 复用（省每次 getHandle FFI） */
     _handleId: number = 0;
 
     /**
@@ -63,18 +63,19 @@ export class LayaXShaderData extends ShaderData {
      * @internal
      */
     getData(): any {
-        // TODO
+        // Native owns the data storage; this bridge exposes no JS object view.
     }
 
     clearData(): void {
         // 对齐 WebGPU/WebGL 后端:释放 BaseTexture 引用计数,清空 TS 侧值缓存。
         // setTexture 走 _addReference,这里必须对应 _removeReference,否则纹理
         // 引用计数悬挂直到下次同 slot 被覆盖或 ShaderData 整体销毁。
-        for (let index in this._textureData) {
-            let tex = this._textureData[index];
+        const textures = this._textureData;
+        this._textureData = {};
+        for (let index in textures) {
+            let tex = textures[index];
             tex && tex._removeReference();
         }
-        this._textureData = {};
         this._bufferData = {};
         this._deviceBufferData = {};
         this._defineDatas.clear();
@@ -297,6 +298,7 @@ export class LayaXShaderData extends ShaderData {
         var lastValue: BaseTexture = this._textureData[index];
 
         if (value && (value as any).bitmap) value = (value as any).bitmap;
+        value && value._addReference();
         // Maintain reference
         this._textureData[index] = value;
         if (value && value._texture) {
@@ -312,7 +314,6 @@ export class LayaXShaderData extends ShaderData {
             this._setInternalTexture(index, null);
         }
         lastValue && lastValue._removeReference();
-        value && value._addReference();
     }
 
     /**@internal */
@@ -341,7 +342,7 @@ export class LayaXShaderData extends ShaderData {
                 if (value instanceof BaseTexture) {
                     destData[k] = value;
                     value._addReference();
-                    // 同步纹理到 Rust ShaderDataBlock
+                    // 同步纹理到 C++ ShaderDataBlock
                     dest.setTexture(parseInt(k), value);
                 }
             }

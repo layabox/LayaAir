@@ -8,7 +8,7 @@ import { LayaXVertexBuffer } from "./LayaXVertexBuffer";
  * LayaX 后端 DeviceBuffer (Storage Buffer) 薄包装。
  *
  * - native 对象由 `conchLayaXDeviceBuffer(rhiUsage, heapType)` 构造，持有 GpuDeviceBufferId (u32)
- * - 越界 setData 由 Rust FFI 自动 destroy + recreate 扩容（与 VB/IB 一致）
+ * - 越界 setData 由 LayaX C API 自动 destroy + recreate 扩容（与 VB/IB 一致）
  * - 扩容后已绑定到 ShaderData 的旧 handle 不会自动刷新，调用方需重新 `setDeviceBuffer`
  */
 export class LayaXDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
@@ -27,9 +27,9 @@ export class LayaXDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
     }
 
     /**
-     * EDeviceBufferUsage(LayaAir) → rhi_resource::buffer_usage(Rust) 位映射。
+     * EDeviceBufferUsage(LayaAir) → rhi_resource::buffer_usage(C++) 位映射。
      *
-     * Rust bit:  VERTEX=0, INDEX=1, UNIFORM=2, STORAGE=3, INDIRECT=4, COPY_SRC=5, COPY_DST=6
+     * C++ bit:  VERTEX=0, INDEX=1, UNIFORM=2, STORAGE=3, INDIRECT=4, COPY_SRC=5, COPY_DST=6
      * MAP_READ / MAP_WRITE 不在 usage flags 中，它们决定 heap_type。
      */
     private static _convertUsage(usage: EDeviceBufferUsage): number {
@@ -79,7 +79,7 @@ export class LayaXDeviceBuffer implements IDeviceBuffer, IGPUBuffer {
     }
 
     copyToTexture(): void {
-        // TODO: 与 Compute Pass 一起补
+        // Buffer-to-texture copies are currently unsupported by this bridge.
     }
 
     readData(dest: ArrayBuffer, destOffset: number, srcOffset: number, byteLength: number): Promise<void> {

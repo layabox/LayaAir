@@ -4,7 +4,7 @@ import { LayaXTransform3D } from "./LayaXTransform3D";
 
 /**
  * TS-owned per-point-light buffer layout. Contract shared with C++ `LayaXPointLight_JS`
- * (and future Rust direct-read) — changing it requires updating both sides.
+ * — changing the layout requires updating both sides.
  */
 const enum PLSlot {
     Range = 0,             // f32
@@ -21,10 +21,9 @@ const enum PLSlot {
 /**
  * LayaX PointLight bridge.
  *
- * Point light range / shadow params live in a TS-owned ArrayBuffer that C++ holds (and Rust
- * will read directly once a point-light system lands) — no per-property FFI. The transform
- * reference still goes through a native setter. (Replaces the previous JS-expando properties,
- * whose data never reached native.)
+ * TS owns the range/shadow property block and passes its pointer to
+ * `conchLayaXPointLight`. The current native wrapper stores this pointer and the
+ * transform reference; the C++ point-light rendering system does not consume them.
  */
 export class LayaXPointLight implements IPointLightData {
 

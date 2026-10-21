@@ -10,7 +10,7 @@ import { IVolumetricGIData } from "../../RenderModuleData/Design/3D/I3DRenderMod
 
 /**
  * TS-owned per-GI buffer layout. Contract shared with C++ `LayaXVolumetricGI_JS`
- * (and future Rust direct-read) — changing it requires updating both sides.
+ * — changing the layout requires updating both sides.
  */
 const enum GISlot {
     Intensity = 0,    // f32
@@ -24,10 +24,9 @@ const enum GISlot {
 /**
  * LayaX VolumetricGI bridge.
  *
- * Numeric GI properties live in a TS-owned ArrayBuffer that C++ holds (and Rust will read
- * directly once a GI system lands) — no per-property FFI. Object refs (bounds / textures)
- * still go through native setters. Today `applyRenderData()` pushes everything into the
- * ShaderData; the buffer is the forward path for native consumption.
+ * TS owns the property block and retains bounds/textures. `applyRenderData()`
+ * publishes those values to ShaderData. The native wrapper stores the block pointer;
+ * its bounds/texture setters currently perform no work.
  */
 export class LayaXVolumetricGI implements IVolumetricGIData {
 
@@ -69,7 +68,7 @@ export class LayaXVolumetricGI implements IVolumetricGIData {
     public get bound(): Bounds { return this._bound; }
     public set bound(value: Bounds) {
         this._bound = value;
-        // TODO(Q13): Confirm Bounds._imp._nativeObj path for LayaX Bounds wrapper
+        // Bounds uses the LayaXBounds implementation selected by the module factory.
         this._nativeObj.setBounds(value ? (value._imp as any)._nativeObj : null);
     }
 

@@ -92,6 +92,8 @@ export class GLESRenderContext3D implements IRenderContext3D {
     private _mem: NativeMemory;
     private _i32: Int32Array;
     private _u32: Uint32Array;
+    private _clearColorRGBA: number[] = [];
+    private _clearColorEnabled: number[] = [];
 
     constructor() {
         this._nativeObj = new (window as any).conchGLESRenderContext3D();
@@ -112,8 +114,24 @@ export class GLESRenderContext3D implements IRenderContext3D {
     setScissor(value: Vector4): void {
         this._nativeObj.setScissor(value);
     }
-    setClearData(clearFlag: number, color: Color, depth: number, stencil: number): number {
-        return this._nativeObj.setClearData(clearFlag, color, depth, stencil);
+    setClearData(clearFlag: number, color: Color, depth: number, stencil: number, colorValues?: readonly (Color | null)[]): number {
+        const result = this._nativeObj.setClearData(clearFlag, color, depth, stencil);
+        if ((clearFlag & RenderClearFlag.Color) && colorValues) {
+            const rgba = this._clearColorRGBA;
+            const enabled = this._clearColorEnabled;
+            rgba.length = colorValues.length * 4;
+            enabled.length = colorValues.length;
+            for (let i = 0; i < colorValues.length; i++) {
+                const value = colorValues[i];
+                enabled[i] = value ? 1 : 0;
+                rgba[i * 4] = value?.r ?? 0;
+                rgba[i * 4 + 1] = value?.g ?? 0;
+                rgba[i * 4 + 2] = value?.b ?? 0;
+                rgba[i * 4 + 3] = value?.a ?? 0;
+            }
+            this._nativeObj.setClearColorValues(rgba, enabled);
+        }
+        return result;
     }
 
     clearRenderTarget(): void {

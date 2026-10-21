@@ -241,6 +241,17 @@ export class WebDirCascadeShadowRP implements IDirShadowRP {
             shadowCullInfo.cullPlaneCount = sliceData.cullPlaneCount;
             shadowCullInfo.cullSphere = sliceData.splitBoundSphere;
             shadowCullInfo.direction = this._lightForward;
+            let receiverMargin = 0;
+            if (this._cascadeCount > 1) {
+                this._getShadowBias(sliceData.projectionMatrix, sliceData.resolution, this._shadowBias);
+                const texelSize = 2.0 / sliceData.projectionMatrix.elements[0] / sliceData.resolution;
+                // Include bilinear filtering as well as the PCF fetch offsets.
+                const filterRadius = this._light.shadowMode === ShadowMode.SoftHigh ? 3.0
+                    : this._light.shadowMode === ShadowMode.SoftLow ? 1.5 : 1.0;
+                receiverMargin = Math.SQRT2 * filterRadius * texelSize
+                    + Math.abs(this._shadowBias.x) + Math.abs(this._shadowBias.y);
+            }
+            shadowCullInfo.prepareReceiverSphereCulling(this._cascadeCount > 1, receiverMargin);
         }
     }
 

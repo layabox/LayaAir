@@ -14,10 +14,10 @@ const _defineStrings: Array<string> = [];
  * Flow (TS 侧，对标 WebGPUComputeShaderInstance + LayaXShaderInstance)：
  * 1. compile(info) 收集 define + uniform sets
  * 2. LayaX_GLSLForVulkanGenerator.proccessCompute 生成 compute GLSL
- * 3. glslang.wasm: GLSL → SPIR-V (stage = 'compute')
- * 4. naga.wasm:   SPIR-V → WGSL
+ * 3. conchGlslangCompiler: GLSL → SPIR-V (stage = 'compute')
+ * 4. conchNagaCompiler: SPIR-V → WGSL
  * 5. new conchLayaXComputeShaderInstance() → _nativeObj.create(wgsl, propJson)
- * 6. C++ 调 layax_create_compute_program → Rust 建 ShaderModule + 注册
+ * 6. LayaX C API 在 C++ RHI 中创建并注册 compute program
  *
  * 不存 entry_point：dispatch 时传入 kernel 名。
  */

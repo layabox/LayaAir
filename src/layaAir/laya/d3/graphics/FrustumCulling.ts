@@ -50,7 +50,6 @@ export class FrustumCulling {
 
 		var pass: boolean = true;
 		// cull by planes
-		// Improve:Maybe use sphre and direction cull can savle the far plane cull
 		for (var j: number = 0; j < cullPlaneCount; j++) {
 			var plane: Plane = cullPlanes[j];
 			var normal: Vector3 = plane.normal;
@@ -59,7 +58,55 @@ export class FrustumCulling {
 				break;
 			}
 		}
-		return pass;
+		if (!pass)
+			return false;
+
+		// Only directional cascades prepare this radius; other callers keep the plane test.
+		const receiverRadius = cullInfo.receiverSphereCullingRadius;
+		if (!(receiverRadius >= 0))
+			return true;
+
+		// Reuse the min/max values already read for the planes, without more bounds getters.
+		const centerX = (minX + maxX) * 0.5;
+		const centerY = (minY + maxY) * 0.5;
+		const centerZ = (minZ + maxZ) * 0.5;
+		const receiver = cullInfo.cullSphere.center;
+		const direction = cullInfo.receiverSphereCullingDirection;
+		let x = centerX - receiver.x;
+		let y = centerY - receiver.y;
+		let z = centerZ - receiver.z;
+		const along = x * direction.x + y * direction.y + z * direction.z;
+		// Upstream casters can be arbitrarily far away. Use the closest point on
+		// their forward ray, avoiding the cancellation in |V|^2 - dot(V,D)^2.
+		if (along < 0) {
+			x -= along * direction.x;
+			y -= along * direction.y;
+			z -= along * direction.z;
+		}
+		const distanceSquared = x * x + y * y + z * z;
+		// If the center ray reaches the receiver, the bounds cannot be culled.
+		if (distanceSquared <= receiverRadius * receiverRadius)
+			return true;
+
+		const extentX = (maxX - minX) * 0.5;
+		const extentY = (maxY - minY) * 0.5;
+		const extentZ = (maxZ - minZ) * 0.5;
+		if (extentX < 0 || extentY < 0 || extentZ < 0)
+			return true;
+		const casterRadiusSquared = extentX * extentX + extentY * extentY + extentZ * extentZ;
+		// Cover floating-point receiver uniforms and large world coordinates.
+		const epsilon = 1e-6 * Math.max(1, Math.abs(centerX), Math.abs(centerY), Math.abs(centerZ),
+			Math.abs(receiver.x), Math.abs(receiver.y), Math.abs(receiver.z), extentX + extentY + extentZ, receiverRadius);
+		const radius = receiverRadius + epsilon;
+		const radiusSquared = radius * radius;
+		const limit = radiusSquared + casterRadiusSquared;
+		if (!Number.isFinite(distanceSquared) || !(distanceSquared > limit))
+			return true;
+
+		// d > R + sqrt(s) iff d^2 - R^2 - s > 0 and (d^2 - R^2 - s)^2 > 4 R^2 s.
+		// No per-renderer square roots. The negated comparison also fails open on NaN/overflow.
+		const delta = distanceSquared - limit;
+		return !(delta * delta > 4 * radiusSquared * casterRadiusSquared);
 	}
 
 	// /**

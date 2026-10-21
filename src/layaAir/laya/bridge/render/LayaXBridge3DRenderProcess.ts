@@ -88,7 +88,7 @@ export class LayaXBridge3DRenderProcess implements IBridge3DRenderProcess {
 	/**
 	 * 统一渲染入口（对标 LayaXRender3DProcess.fowardRender）
 	 * 由 Bridge3DCamera.render() 调用，编排完整流程：
-	 *   1. syncProjection (同步相机参数到Rust ECS)
+	 *   1. syncProjection (同步相机参数到 C++ ECS)
 	 *   2. Bridge3D context 准备（单次 C++ 调用）
 	 *   3. 元素 context3d 设置
 	 *   4. 阴影渲染（条件）
@@ -109,7 +109,7 @@ export class LayaXBridge3DRenderProcess implements IBridge3DRenderProcess {
 			cameraData.addDefine(RenderContext3D.GammaCorrect);
 		}
 
-		// 1. Sync camera projection params to Rust ECS for culling
+		// 1. Sync camera projection params to C++ ECS for culling
 		// (matches LayaXRender3DProcess.initRenderpass line 60)
 		(<LayaXCameraNodeData>camera._renderDataModule).syncProjection();
 

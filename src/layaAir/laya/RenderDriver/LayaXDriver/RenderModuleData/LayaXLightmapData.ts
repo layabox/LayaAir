@@ -3,7 +3,7 @@ import { ILightMapData } from "../../RenderModuleData/Design/3D/I3DRenderModuleD
 
 /**
  * TS-owned lightmap-data buffer layout. Contract shared with C++ `LayaXLightmapData_JS`
- * (and future Rust direct-read) — changing it requires updating both sides.
+ * — changing the layout requires updating both sides.
  */
 const enum LMSlot {
     OffsetX = 0,       // f32 xyzw
@@ -14,9 +14,9 @@ const enum LMSlot {
 /**
  * LayaX LightmapData bridge.
  *
- * Wraps lightmap color and direction textures for the Rust rendering pipeline
- * via `conchLayaXLightmapData`. offset xyzw + lightmapIndex live in a TS-owned
- * ArrayBuffer that C++ holds (pointer reserved for future Rust direct-read).
+ * Retains lightmap textures in TS and in `conchLayaXLightmapData`. TS owns the
+ * offset/index property block; native currently stores its pointer without a render
+ * consumer. LayaXBaseRenderNode publishes the lightmap values through ShaderData.
  */
 export class LayaXLightmapData implements ILightMapData {
 
@@ -29,7 +29,7 @@ export class LayaXLightmapData implements ILightMapData {
     _lightmapDirection: InternalTexture;
 
     // TS owns this buffer; C++ caches its pointer via bindBuffer. Held as an instance
-    // field so it stays alive (GC). No consumer yet — forward path for native/Rust.
+    // field so it stays alive (GC); native does not currently read these numeric values.
     private _buf: ArrayBuffer;
     private _f32: Float32Array;
     private _i32: Int32Array;

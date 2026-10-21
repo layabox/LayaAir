@@ -81,7 +81,7 @@ export class DrawMeshCMD extends Command {
         this._meshRender = new MeshRenderer();
 
         // LayaX: 预绑 transform 到 baseRenderNode。DrawMeshCMD.run() 每帧会重绑，
-        // 触发 Rust 侧 render_node_set_transform 里 world_mat_version 自增，
+        // 触发 C++ 侧 render_node_set_transform 里 world_mat_version 自增，
         // 驱动 pre_render_update 把 ECS 计算好的 WorldMat 写入 Sprite3D UBO。
         // 这里不挂 CullComponent（挂了会让 node 走 scene 可见性/阴影采样路径，
         // 触发 bg_set1 sampler filtering 校验错误，且和 CommandBuffer 的主动绘制语义重复）。

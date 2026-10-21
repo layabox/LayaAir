@@ -12,17 +12,18 @@ import { LayaX_GLSLForVulkanGenerator } from "./ShaderGenerate/LayaX_GLSLForVulk
 
 /**
  * @internal
- * LayaX shader instance — compiles GLSL→WGSL and creates pipeline via native conchLayaXShaderInstance.
+ * Generates GLSL/WGSL and registers a render program via conchLayaXShaderInstance.
+ * The C++ backend creates render pipelines later for the active target and draw state.
  *
  * Flow:
  * 1. _create() receives ShaderProcessInfo + ShaderPass
- * 2. Reads set→map names from LayaXShaderPass.compileSetMapNames (set by Rust callback)
+ * 2. Reads set→map names from LayaXShaderPass.compileSetMapNames (set by C++ callback)
  * 3. Builds bindingInfoMap from LayaXCommandUniformMap per set (unified, no 2D/3D distinction)
- * 4. Processes GLSL → Vulkan GLSL via GLSLForVulkanGenerator (TODO: extract as shared service)
- * 5. Compiles to SPIR-V via glslang.wasm → WGSL via naga.wasm (TODO: extract as shared service)
+ * 4. Processes GLSL → Vulkan GLSL via LayaX_GLSLForVulkanGenerator
+ * 5. Calls the native conchGlslangCompiler and conchNagaCompiler synchronously
  * 6. Computes textureExits
  * 7. Calls C++ conchLayaXShaderInstance.create(vs_wgsl, fs_wgsl, propertySetMapJson, textureExitsJson)
- * 8. C++ calls Rust FFI layax_create_render_program → ProgramHandle
+ * 8. The C++ LayaX C API registers shader modules and returns a ProgramHandle
  */
 export class LayaXShaderInstance implements IShaderInstance {
 
@@ -55,7 +56,7 @@ export class LayaXShaderInstance implements IShaderInstance {
         this._shaderPass = shaderPass;
         const moduleData = shaderPass.moduleData as LayaXShaderPass;
 
-        // 1. Read set→map names from LayaXShaderPass (stored by Rust compile callback)
+        // 1. Read set→map names from LayaXShaderPass (stored by C++ compile callback)
         //    All sets (scene, camera, node, material, etc.) are included — no hardcoded logic.
         const setMapNames = moduleData.compileSetMapNames;
         if (!setMapNames || setMapNames.size === 0) {
@@ -126,7 +127,7 @@ export class LayaXShaderInstance implements IShaderInstance {
         // bindingInfoMap is now culled with continuous binding indices
 
         // 7. Compile GLSL → SPIR-V → WGSL
-        // TODO: Extract shaderCompiler as shared service (not WebGPU-specific)
+        // The render engine owns the native glslang/naga compiler wrappers.
         const engine = LayaXRenderEngine._instance;
         let vs_wgsl = "";
         let fs_wgsl = "";
@@ -140,6 +141,8 @@ export class LayaXShaderInstance implements IShaderInstance {
                 let passIndex = subShader._passes.indexOf(this._shaderPass);
                 console.error(`${shader.name}_sub${subIndex}_pass${passIndex}`);
                 console.error(vertexSpvRes.info_log);
+                throw Object.assign(new Error(`${shader.name}_sub${subIndex}_pass${passIndex}: vertex compilation failed: ${vertexSpvRes.info_log}`),
+                    { shaderSource: glslObj.vertex });
             }
             let vertexSpirv = new Uint8Array(vertexSpvRes.spirv.buffer, vertexSpvRes.spirv.byteOffset, vertexSpvRes.spirv.byteLength);
 
@@ -151,6 +154,8 @@ export class LayaXShaderInstance implements IShaderInstance {
                 let passIndex = subShader._passes.indexOf(this._shaderPass);
                 console.error(`${shader.name}_sub${subIndex}_pass${passIndex}`);
                 console.error(fragmentSpvRes.info_log);
+                throw Object.assign(new Error(`${shader.name}_sub${subIndex}_pass${passIndex}: fragment compilation failed: ${fragmentSpvRes.info_log}`),
+                    { shaderSource: glslObj.fragment });
             }
             let fragmentSpv = new Uint8Array(fragmentSpvRes.spirv.buffer, fragmentSpvRes.spirv.byteOffset, fragmentSpvRes.spirv.byteLength);
 
@@ -174,7 +179,7 @@ export class LayaXShaderInstance implements IShaderInstance {
             }
         }
 
-        // 10. Serialize and create native shader instance → C++ → Rust FFI
+        // 10. Serialize and create native shader instance → Native C++ → LayaX C API
         const propertySetMapJson = this._serializeBindingInfoMap();
         const textureExitsJson = this._serializeTextureExits();
 
@@ -208,7 +213,7 @@ export class LayaXShaderInstance implements IShaderInstance {
     }
 
     /**
-     * Serialize bindingInfoMap to JSON for Rust FFI.
+     * Serialize bindingInfoMap to JSON for LayaX C API.
      * Format: {"0":[{"id":0,"name":"Scene3D","set":0,"binding":0,"bindingType":"uniform","dataType":0,"propertyId":1},...]}
      */
     private _serializeBindingInfoMap(): string {
@@ -231,7 +236,7 @@ export class LayaXShaderInstance implements IShaderInstance {
     }
 
     /**
-     * Serialize textureExits to JSON for Rust FFI.
+     * Serialize textureExits to JSON for LayaX C API.
      * Format: {"2":3,"3":5}
      */
     private _serializeTextureExits(): string {

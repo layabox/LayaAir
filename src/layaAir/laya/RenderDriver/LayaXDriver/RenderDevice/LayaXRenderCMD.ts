@@ -93,7 +93,7 @@ export class LayaXSetRenderData extends SetRenderDataCMD {
                 break;
             case ShaderDataType.Texture2D:
                 this._value = this.data_texture = value as BaseTexture;
-                this._nativeObj.setTexture2D((this.data_texture._texture as any)._nativeObj);
+                this._nativeObj.setTexture2D(this.data_texture ? (this.data_texture._texture as any)._nativeObj : null);
                 break;
             case ShaderDataType.Vector4:
                 !this.data_v4 && (this.data_v4 = new Vector4());

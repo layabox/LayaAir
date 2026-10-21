@@ -7,14 +7,14 @@ import { LayaXTransform3D } from "./LayaXTransform3D";
 /**
  * LayaX SkinRenderNode bridge.
  *
- * Provides skinned mesh rendering data to the Rust side via `conchLayaXSkinRenderNode`.
+ * Provides skinned mesh rendering data to the C++ side via `conchLayaXSkinRenderNode`.
  * Bone transforms and inverse bind poses are pushed to native for GPU skinning.
  */
 export class LayaXSkinRenderNode extends LayaXBaseRenderNode implements ISkinRenderNode {
 
     private boneNums: number = 0;
 
-    /** 方案 B：骨骼 entity id 是否已注册给 native（一次性）。setBones 重新绑定时置 false。 */
+    /** 骨骼 entity id 是否已注册给 native（一次性）。setBones 重新绑定时置 false。 */
     private _bonesRegistered: boolean = false;
 
     /** @internal */
@@ -27,7 +27,7 @@ export class LayaXSkinRenderNode extends LayaXBaseRenderNode implements ISkinRen
     }
 
     computeSkinnedData(): void {
-        // 方案 B：骨骼矩阵计算已下沉 Rust（在 cull 之后对可见节点计算），此处不再触发计算。
+        // 骨骼矩阵计算已下沉 C++（在 cull 之后对可见节点计算），此处不再触发计算。
         // 仅做一次性的骨骼 entity id 注册——骨骼节点入场景后其 native handle 才有效，
         // 故延迟到首帧 renderUpdate 重试，成功后不再触发（boneNums===0 时直接视为完成）。
         if (this._bonesRegistered) return;
@@ -69,7 +69,7 @@ export class LayaXSkinRenderNode extends LayaXBaseRenderNode implements ISkinRen
             this._nativeObj.setBoneIndicesList(i, cacheMesh.getSubMesh(i)._boneIndicesList);
         }
 
-        // 方案 B：上面把原料交给 native 后，一次性注册给 Rust（submesh 数 / invBindPose / 逐 batch index）。
+        // 上面把原料交给 native 后，一次性注册给 C++（submesh 数 / invBindPose / 逐 batch index）。
         this._nativeObj.commitCacheMeshSkinData();
     }
 

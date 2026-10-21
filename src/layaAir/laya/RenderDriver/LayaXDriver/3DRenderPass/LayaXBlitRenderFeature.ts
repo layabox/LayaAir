@@ -8,9 +8,9 @@ import { LayaXRenderElement3D } from "./LayaXRenderElement3D";
  * LayaX Blit RenderFeature — TS 层封装。
  *
  * 当 destRT == null（渲染到 swapchain）时，由外部调用 dispatch()，
- * 传入 RenderElement3D + 上下文数据，Rust 端 BlitRenderFeature 直接录制渲染。
+ * 传入 RenderElement3D + 上下文数据，C++ 端 BlitRenderFeature 直接录制渲染。
  *
- * 对应 C++ conchLayaXBlitFeature → Rust BlitRenderFeature。
+ * conchLayaXBlitFeature 通过 LayaX C API 调用 C++ BlitRenderFeature。
  */
 export class LayaXBlitRenderFeature {
 

@@ -94,7 +94,7 @@ export class LayaXRenderContext2D implements IRenderContext2D {
     }
 
     // ---- draw ----
-    // LayaX: 不调 native，渲染由 Rust 回调 C++ doRender 驱动
+    // 此接口不提交绘制；C++ RenderFeature 回调原生 doRender 录制 2D pass。
     drawRenderElementOne(node: IRenderElement2D): void {
     }
 

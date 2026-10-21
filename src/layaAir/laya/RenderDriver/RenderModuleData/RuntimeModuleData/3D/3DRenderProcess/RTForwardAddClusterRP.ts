@@ -71,7 +71,7 @@ export class RTForwardAddClusterRP {
     }
     public set depthTarget(value: InternalRenderTarget) {
         this._depthTarget = value;
-        this._nativeObj.setDepthTarget((value as any)._nativeObj);
+        this._nativeObj.setDepthTarget(value ? (value as any)._nativeObj : null);
     }
 
     private _destTarget: InternalRenderTarget;
@@ -80,9 +80,37 @@ export class RTForwardAddClusterRP {
     }
     public set destTarget(value: InternalRenderTarget) {
         this._destTarget = value;
-        this._nativeObj.setDestTarget((value as any)._nativeObj);
+        this._nativeObj.setDestTarget(value ? (value as any)._nativeObj : null);
     }
 
+    private _opaqueMRTTarget: InternalRenderTarget;
+    get opaqueMRTTarget(): InternalRenderTarget { return this._opaqueMRTTarget; }
+    set opaqueMRTTarget(value: InternalRenderTarget) {
+        this._opaqueMRTTarget = value;
+        this._nativeObj.setOpaqueMRTTarget(value ? (value as any)._nativeObj : null);
+    }
+
+    private _opaqueMRTClearColors: readonly (Color | null)[];
+    private _opaqueMRTClearRGBA: number[] = [];
+    private _opaqueMRTClearEnabled: number[] = [];
+    get opaqueMRTClearColors(): readonly (Color | null)[] { return this._opaqueMRTClearColors; }
+    set opaqueMRTClearColors(value: readonly (Color | null)[]) {
+        this._opaqueMRTClearColors = value;
+        const rgba = this._opaqueMRTClearRGBA;
+        const enabled = this._opaqueMRTClearEnabled;
+        const count = value?.length ?? 0;
+        rgba.length = count * 4;
+        enabled.length = count;
+        for (let i = 0; i < count; i++) {
+            const color = value[i];
+            enabled[i] = color ? 1 : 0;
+            rgba[i * 4] = color?.r ?? 0;
+            rgba[i * 4 + 1] = color?.g ?? 0;
+            rgba[i * 4 + 2] = color?.b ?? 0;
+            rgba[i * 4 + 3] = color?.a ?? 0;
+        }
+        this._nativeObj.setOpaqueMRTClearColors(rgba, enabled);
+    }
 
     private _depthNormalTarget: InternalRenderTarget;
     public get depthNormalTarget(): InternalRenderTarget {
@@ -90,7 +118,7 @@ export class RTForwardAddClusterRP {
     }
     public set depthNormalTarget(value: InternalRenderTarget) {
         this._depthNormalTarget = value;
-        this._nativeObj.setDepthNormalTarget((value as any)._nativeObj);
+        this._nativeObj.setDepthNormalTarget(value ? (value as any)._nativeObj : null);
     }
 
     public get enableCMD(): boolean {

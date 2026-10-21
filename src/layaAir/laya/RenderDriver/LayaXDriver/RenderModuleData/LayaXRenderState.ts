@@ -1,19 +1,10 @@
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 
 /**
- * LayaX RenderState — Rust-backed render state.
- *
- * Inherits all state storage from base RenderState.
- * TODO: Add FFI sync to Rust when RenderState FFI is implemented.
+ * TS render-state value object. ShaderPass and render elements snapshot these
+ * fields into immutable C++ render-state handles when preparing a draw.
  */
 export class LayaXRenderState extends RenderState {
-    _nativeObj: any;
-
-    protected createObj(): void {
-        // TODO: create native object when FFI sync is implemented
-        this._nativeObj = null;
-    }
-
     constructor() {
         super();
     }

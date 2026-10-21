@@ -14,7 +14,7 @@ import { LayaGL } from "../../../layagl/LayaGL";
 /**
  * LayaX UnitRenderModuleDataFactory
  *
- * Creates LayaX (Rust-backed) versions of shader variant system objects.
+ * Creates shader variant data wrappers for the C++ LayaX runtime.
  * Replaces RTUintRenderModuleDataFactory for the LayaX rendering path.
  */
 export class LayaXUnitRenderModuleDataFactory implements IUnitRenderModuleDataFactory {

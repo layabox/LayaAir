@@ -15,7 +15,7 @@ import { LayaXBridge3DContext } from "./LayaXBridge3DContext";
  * LayaXBridge3DRenderElement - LayaX (wgpu) native implementation of IBridgeRenderElement
  *
  * Wraps the C++ LayaXBridge3DRenderElement2D_JS which handles all rendering logic
- * (projection correction, clip transform, 3D queue rendering) via Rust FFI.
+ * (projection correction, clip transform, 3D queue rendering) via LayaX C API.
  */
 export class LayaXBridge3DRenderElement implements IBridgeRenderElement {
 	// IRenderElement2D interface properties

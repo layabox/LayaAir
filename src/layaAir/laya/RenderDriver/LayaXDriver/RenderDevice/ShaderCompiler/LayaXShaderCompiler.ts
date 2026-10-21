@@ -1,7 +1,4 @@
 
-declare const ShaderCompiler: () => Promise<any>;
-
-declare const wasm_bindgen: () => Promise<any>;
 export interface GlslangCompiler {
 
     getVersion(): string;

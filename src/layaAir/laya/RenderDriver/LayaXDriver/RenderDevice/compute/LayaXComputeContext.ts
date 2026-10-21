@@ -92,7 +92,7 @@ export class LayaXComputeContext implements IComputeContext {
      * 保证命令流的"录制+重放"语义 —— 同一个 ComputeCommandBuffer 被重复
      * execute 时每次都按原始值序列写。对标 WebGPUComputeContext 行为。
      *
-     * DeviceBuffer / ReadOnlyDeviceBuffer 暂不走命令流(Rust ShaderDataValue
+     * DeviceBuffer / ReadOnlyDeviceBuffer 暂不走命令流(C++ ShaderDataValue
      * 未包含该变体),保留立即写到 ShaderDataBlock。
      */
     addSetShaderDataCommand(
@@ -134,7 +134,7 @@ export class LayaXComputeContext implements IComputeContext {
                 break;
             }
             case ShaderDataType.Color: {
-                // Rust ShaderDataValue 只有 Vector4 变体,Color pack 成 (r,g,b,a) Vec4 下传。
+                // C++ ShaderDataValue 只有 Vector4 变体,Color pack 成 (r,g,b,a) Vec4 下传。
                 const c = value as Color;
                 this._nativeObj.setShaderDataVec4(sdHandle, propertyID, c.r, c.g, c.b, c.a);
                 break;
@@ -170,7 +170,7 @@ export class LayaXComputeContext implements IComputeContext {
             }
             case ShaderDataType.DeviceBuffer:
             case ShaderDataType.ReadOnlyDeviceBuffer:
-                // 暂不走命令流,保留立即写(Rust 侧 ShaderDataValue 未加 DeviceBuffer 变体)。
+                // 暂不走命令流,保留立即写(C++ 侧 ShaderDataValue 未加 DeviceBuffer 变体)。
                 shaderData.setDeviceBuffer(propertyID, value as LayaXDeviceBuffer);
                 break;
             default:
@@ -194,11 +194,11 @@ export class LayaXComputeContext implements IComputeContext {
     }
 
     addBufferToTextureCommand(_src: IGPUBuffer, _srcInfo: any, _dstInfo: any, _copySize: any): void {
-        // TODO: 等实际需要时三端补齐
+        // Buffer-to-texture copies are currently unsupported by this command stream.
     }
 
     addTextureToBufferCommand(_srcInfo: any, _dst: IGPUBuffer, _dstInfo: any, _copySize: Iterable<number>): void {
-        // TODO: 等实际需要时三端补齐
+        // Texture-to-buffer copies are currently unsupported by this command stream.
     }
 
     addTextureToTextureCommand(

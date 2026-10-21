@@ -21,7 +21,7 @@ export enum LayaXBindingInfoType {
  *
  * Duck-type compatible with WebGPUUniformPropertyBindingInfo so
  * GLSLForVulkanGenerator.process can consume it without changes.
- * Also serialized to JSON for Rust FFI (layax_create_render_program).
+ * Also serialized to JSON for LayaX C API (layax_create_render_program).
  */
 export interface LayaXBindingInfo {
     id: number;
@@ -29,10 +29,10 @@ export interface LayaXBindingInfo {
     set: number;
     binding: number;
     propertyId: number;
-    /** Source ShaderPropertyMap ID (matches Rust source_map_id for ShaderDataBlock lookup) */
+    /** Source ShaderPropertyMap ID (matches C++ source_map_id for ShaderDataBlock lookup) */
     sourceMapId: number;
     type: LayaXBindingInfoType;
-    /** For Rust JSON serialization */
+    /** For C++ JSON serialization */
     bindingType: string;
     dataType: number;
     /** GLSLForVulkanGenerator reads these for texture/sampler declarations */

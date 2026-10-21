@@ -1,7 +1,7 @@
 /**
  * LayaXChunkPages —— JS 供页注册表（stable_row_chunk_design.md §7.1）。
  *
- * ECS chunk 页内存由 JS 分配（1MB = 64 chunk）并注册给 Rust 当 chunk 内存：
+ * ECS chunk 页内存由 JS 分配（1MB = 64 chunk）并注册给 C++ 当 chunk 内存：
  * chunk 数据因此住在 JS 自己的 ArrayBuffer 里，零拷贝视图是自家 buffer 上的
  * 普通 TypedArray——V8 沙箱（Android）/OHOS JSVM 无 external ArrayBuffer 的
  * 缺口全消失，全平台统一。
@@ -9,7 +9,7 @@
  * 规则：
  *   - 注册表持强引用防 GC（INV-7）；页归 JS 所有，跨 device 重建存活。
  *   - register 返回 0xFFFFFFFF（provider 未启用/失败）则永久停供，
- *     回退 Rust 堆页（行为不变，仅丢沙箱零拷贝）。
+ *     回退 C++ 堆页（行为不变，仅丢沙箱零拷贝）。
  */
 export class LayaXChunkPages {
     /** 页大小：1MB = 64 chunk */
@@ -19,7 +19,7 @@ export class LayaXChunkPages {
     private static readonly ENTITY_CREATE_RESERVE = 16;
     private static readonly MAX_REGISTER_PER_ENSURE = 128;
 
-    /** 已注册页（下标 = Rust 侧 page_id，注册顺序一致；强引用防 GC） */
+    /** 已注册页（下标 = C++ 侧 page_id，注册顺序一致；强引用防 GC） */
     private static _pages: ArrayBuffer[] = [];
     private static _dead: boolean = false;
 

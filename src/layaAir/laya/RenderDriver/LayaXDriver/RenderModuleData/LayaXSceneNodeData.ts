@@ -3,7 +3,7 @@ import { ISceneNodeData } from "../../RenderModuleData/Design/3D/I3DRenderModule
 /**
  * LayaX SceneNodeData bridge.
  *
- * Wraps scene-level data (currently just the lightmap dirty flag) for the Rust
+ * Wraps scene-level data (currently just the lightmap dirty flag) for the C++
  * rendering pipeline via `conchLayaXSceneNodeData`.
  */
 export class LayaXSceneNodeData implements ISceneNodeData {

@@ -104,7 +104,7 @@ export class LayaXRenderDeviceFactory implements IRenderDeviceFactory {
         LayaGL.renderEngine = engine;
         LayaGL.textureContext = engine.getTextureContext();
 
-        // 初始化 glslang + naga WASM（shader 编译需要）
+        // 初始化 conchGlslangCompiler / conchNagaCompiler 原生编译器。
         await engine.shaderCompiler.init();
     }
 }
