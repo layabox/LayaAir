@@ -261,7 +261,8 @@ export class StandardSpineRenderer extends SpineBaseRenderer {
     render(curTime: number , offsetX: number = 0, offsetY: number = 0) {
         let skinData = this.updater?.currentData;
 
-        if (skinData && (skinData.hasRenderCache || this.normalUpdater.autoCacheEnabled)) {
+        if (skinData && !this.updater.owner._hasExternalSkin
+            && (skinData.hasRenderCache || this.normalUpdater.autoCacheEnabled)) {
             let cache = skinData.renderCache[this.updater.cacheFrameIndex];
             if (cache) {
                 this.normalUpdater.restoreFromCache(cache);

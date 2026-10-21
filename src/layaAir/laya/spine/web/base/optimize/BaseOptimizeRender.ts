@@ -87,6 +87,9 @@ export abstract class BaseOptimizeRender implements ISpineRender {
     /** @internal */
     _enableCache: boolean = false;
 
+    /** @internal External attachments cannot use or populate shared setup-pose caches. */
+    _hasExternalSkin: boolean = false;
+
     _destroyed = false;
 
     /** 
@@ -113,8 +116,12 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         this._mode = value;
 
         if (this._curAnimationName) {
+            if (this._enableCache && this.updater.currentData?.renderCache[this.updater.cacheFrameIndex]) {
+                this._applyCurrentPose();
+            }
             this._clearRenderElements();
-            this.play(this._curAnimationName , this.trackEntry.loop , this.trackEntry.trackIndex , this.trackEntry.animationStart);
+            // Changing the renderer must not recreate tracks, queues or mixing state.
+            this._updateRenderProxy();
         }
     }
 
@@ -220,6 +227,8 @@ export abstract class BaseOptimizeRender implements ISpineRender {
 
         this._skeleton.setSkin(this._optimize.getSkin(skinIndex));
         this._skeleton.setSlotsToSetupPose();
+        if (this._currentAnimator)
+            this._applyCurrentPose();
     }
     
     setAttachment(slotName: string, attachmentName: string | null): void {
@@ -241,6 +250,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         if (bakeNeedsSlotState || (
             (
                 !this._enableCache
+                || this._hasExternalSkin
                 || !this.updater.currentData.renderCache[cacheFrameIndex]
             )
             && this.renderProxy.type !== ESpineRenderMode.Bake
@@ -336,6 +346,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         this._skeleton.update(time);
 
         if ((!this._enableCache
+            || this._hasExternalSkin
             || !this.updater.currentData.renderCache[this.updater.cacheFrameIndex])
             && this.renderProxy.type !== ESpineRenderMode.Bake
         ) {
@@ -478,7 +489,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         
         if (this._currentAnimator) {
             this._clearRenderElements();
-            this.play(this._curAnimationName);
+            this._updateRenderProxy();
         }
     }
 
@@ -535,6 +546,23 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         this._clearRenderElements();
     }
 
+    private _applyCurrentPose(): void {
+        // Re-evaluate the current tracks after a skin/cache change without
+        // advancing time or redispatching already-delivered events.
+        const queue = this._state.queue;
+        const pendingCount = queue.objects.length;
+        const drainDisabled = queue.drainDisabled;
+        queue.drainDisabled = true;
+        try {
+            this._state.apply(this._skeleton);
+        }
+        finally {
+            // Preserve events already queued, including when called by a listener.
+            queue.objects.length = pendingCount;
+            queue.drainDisabled = drainDisabled;
+        }
+    }
+
     /**
      * @en Play a specific animation.
      * @param animationName The name of the animation to play.
@@ -557,11 +585,18 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         }
         
         this._curAnimationName = animationName;
+        this._updateRenderProxy();
+        if (this.renderProxy.type !== ESpineRenderMode.Optimize) {
+            this._skeleton.setBonesToSetupPose();
+        }
+    }
+
+    private _updateRenderProxy(): void {
+        const animationName = this._curAnimationName;
         let oldProxy = this.renderProxy;
         
         this.updater.reset();
 
-        let oldAnimator = this._currentAnimator;
         let skinAttach = this._skinAttach;
 
         let currentAnimator = this._optimize.animators.find(animator => animator.name === animationName);
@@ -619,10 +654,6 @@ export abstract class BaseOptimizeRender implements ISpineRender {
             this._currentAnimator = currentAnimator;
             this.renderProxy.change();
         }
-
-        if (this.renderProxy.type !== ESpineRenderMode.Optimize) {
-            this._skeleton.setBonesToSetupPose();
-        }
     }
     
     addAnimation(animationName: string, loop: boolean = false, delay: number = 0, trackIndex: number = 0): void {
@@ -678,10 +709,15 @@ export abstract class BaseOptimizeRender implements ISpineRender {
     
     resetExternalSkin(): void {
         if (!this._skeleton || !this._templet) return;
+        this._hasExternalSkin = false;
         let optimize = this._templet.optimize as any;
         if (optimize && optimize.data) {
-            let newSkeleton = new spine.Skeleton(optimize.data);
-            this.changeSkeleton(newSkeleton);
+            // Restore attachments on the existing skeleton. Replacing it loses the
+            // current bone/physics pose and invalidates render-handle references.
+            for (const slot of this._skeleton.slots) {
+                const name = slot.data.attachmentName;
+                slot.setAttachment(name ? this._skeleton.getAttachment(slot.data.index, name) : null);
+            }
         }
     }
     
@@ -744,6 +780,15 @@ export abstract class BaseOptimizeRender implements ISpineRender {
     }
 
     clearCacheMaterials(): void {
+        if (this._hasExternalSkin) {
+            // Material remap changes rebuild template aliases. Restore aliases for
+            // this instance's current attachments only when invalidating materials.
+            for (const slot of this._skeleton.slots) {
+                const page = (slot.getAttachment() as any)?.region?.page;
+                if (page)
+                    this._templet._registerSpineMaterialTexture(page.name, page.texture.realTexture);
+            }
+        }
         this.updater._clearCacheMaterials();
     }
     
@@ -854,11 +899,18 @@ export abstract class BaseOptimizeRender implements ISpineRender {
             }
 
             if (attachment && (attachment as any).region) {
-                let regionPage = (attachment as any).region.page;
-                this._templet.setTexture(regionPage.name , regionPage.texture.realTexture);
+                // Normal rendering reads the texture directly from the attachment.
+                // Do not overwrite the shared template's atlas page mapping: other
+                // instances may still use it for optimized rendering.
                 let slotObj = this._skeleton.findSlot(targetSlotName);
                 if (slotObj) {
                     slotObj.setAttachment(attachment);
+                    this._hasExternalSkin = true;
+                    const page = (attachment as any).region.page;
+                    this._templet._registerSpineMaterialTexture(page.name, page.texture.realTexture);
+                    // Invalidate only this instance, without scanning other slots
+                    // or writing the shared template's texture-name mapping.
+                    this.updater._clearCacheMaterials();
                 }
             }
         }

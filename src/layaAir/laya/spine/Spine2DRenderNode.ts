@@ -90,6 +90,7 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     private _offset: Vector2 = new Vector2();
     /** @internal Transform events only mark dirty; skeleton world position is synchronized once in update. */
     private _transformDirty: boolean = true;
+    private _skinRenderDirty: boolean = false;
     private _setPreAlphaFlag = false;
     private _premultipliedAlpha = true;
 
@@ -230,6 +231,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         if (this._spineRender) {
             this._spineRender.resetExternalSkin();
             this._flushExtSkin();
+            this._skinRenderDirty = true;
+            this.owner?.repaint(RepaintFlag.UpdateRT);
         }
     }
 
@@ -747,7 +750,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     }
 
     onPreRender(): void {
-        if (this._needUpdate) {
+        if (this._needUpdate || this._skinRenderDirty) {
+            this._skinRenderDirty = false;
             const spineRender = this._spineRender;
             if (!spineRender) {
                 return;
@@ -768,14 +772,17 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
             let delta = timerDelta * this._playbackRate;
 
             // 使用当前动画和事件设置骨架
-            spineRender.update(delta);
+            if (this._needUpdate)
+                spineRender.update(delta);
 
             // spine在state.apply中发送事件，开发者可能会在事件中进行destroy等操作，导致无法继续执行
             if (this.destroyed || spineRender !== this._spineRender) {
                 return;
             }
 
-            spineRender.render(spineRender.currentTime, this.physicsUpdate);
+            // Refresh a paused skin without advancing animation or physics.
+            spineRender.render(this._needUpdate ? spineRender.currentTime : 0,
+                this._needUpdate ? this.physicsUpdate : 0);
             this._updateBones();
         }
     }
@@ -814,11 +821,12 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
 
     private _flushExtSkin() {
         let skins = this._externalSkins;
-        if (skins) {
+        if (skins && skins.length > 0) {
+            // External attachments require the normal renderer before applying them.
+            this.useFastRender = false;
             for (let i = skins.length - 1; i >= 0; i--) {
                 skins[i].flush();
             }
-            this.useFastRender = false;
         }
     }
     /**
@@ -878,6 +886,10 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
      */
     showSkinByIndex(skinIndex: number): void {
         this._spineRender.showSkinByIndex(skinIndex);
+        // Keep external overrides and refresh paused/stopped skins on the next draw.
+        this._flushExtSkin();
+        this._skinRenderDirty = true;
+        this.owner?.repaint(RepaintFlag.UpdateRT);
     }
 
     /**
@@ -1061,6 +1073,8 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         }
 
         this._spineRender.setTempletAttachment(templet, targetSlotName, skinName, attachmentName);
+        this._skinRenderDirty = true;
+        this.owner?.repaint(RepaintFlag.UpdateRT);
     }
 
     /**

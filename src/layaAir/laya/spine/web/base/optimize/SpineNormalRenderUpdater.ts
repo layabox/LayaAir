@@ -487,7 +487,7 @@ export class SpineNormalRenderUpdater implements ISpineNormalUpdater {
 
         this.needUpdate = true;
 
-        if (this.autoCacheEnabled && updater) {
+        if (this.autoCacheEnabled && updater && !updater.owner._hasExternalSkin) {
             let frameIndex = updater.cacheFrameIndex;
             let cacheTarget = updater.currentData;
             if (frameIndex >= 0 && !cacheTarget.renderCache[frameIndex]) {
