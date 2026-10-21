@@ -152,7 +152,7 @@ class LayaXBlitQuadCMDData extends BlitQuadCMDData {
     }
     set source(value: InternalTexture) {
         this._source = value;
-        // Pass source texture to C++ → Rust for execute_blit_quad to set u_MainTex
+        // The native command passes the source texture to execute_blit_quad for u_MainTex.
         this._nativeObj.setSource(value ? (value as any)._nativeObj : null);
     }
 
@@ -168,8 +168,8 @@ class LayaXBlitQuadCMDData extends BlitQuadCMDData {
 
     apply(_context: IRenderContext3D): void {
         // 注意：LayaX 路径下 apply() 不会被调用（LayaXForwardAddRP 用 _apply(false)
-        // 只执行 cmd.run()，然后把 _nativeObj 列表直接交给 Rust 端处理）。
-        // offsetScale / texelSize / source 的 materialShaderData 写入由 Rust 端的
+        // 只执行 cmd.run()，然后把 _nativeObj 列表直接交给 C++ 端处理）。
+        // offsetScale / texelSize / source 的 materialShaderData 写入由 C++ 端的
         // execute_blit_quad 负责完成。
         this._nativeObj.execute();
     }
@@ -259,6 +259,8 @@ class LayaXSetRenderTargetCMD extends SetRenderTargetCMD {
     protected _clearDepthValue: number;
     protected _clearStencilValue: number;
     protected _clearColorValue: Color;
+    private _clearColorRGBA: number[] = [];
+    private _clearColorEnabled: number[] = [];
 
     constructor() {
         super();
@@ -285,10 +287,31 @@ class LayaXSetRenderTargetCMD extends SetRenderTargetCMD {
         return this._clearColorValue;
     }
     set clearColorValue(value: Color) {
-        this._clearColorValue = value;
+        this._clearColorValue = value?.clone();
+        this._clearColorValues = null;
         if (value) {
             this._nativeObj.clearColorValue(value.r, value.g, value.b, value.a);
         }
+    }
+
+    get clearColorValues(): readonly (Color | null)[] { return this._clearColorValues; }
+
+    set clearColorValues(value: readonly (Color | null)[]) {
+        super.clearColorValues = value;
+        const rgba = this._clearColorRGBA;
+        const enabled = this._clearColorEnabled;
+        const count = this._clearColorValues?.length ?? 0;
+        rgba.length = count * 4;
+        enabled.length = count;
+        for (let i = 0; i < count; i++) {
+            const color = this._clearColorValues[i];
+            enabled[i] = color ? 1 : 0;
+            rgba[i * 4] = color?.r ?? 0;
+            rgba[i * 4 + 1] = color?.g ?? 0;
+            rgba[i * 4 + 2] = color?.b ?? 0;
+            rgba[i * 4 + 3] = color?.a ?? 0;
+        }
+        this._nativeObj.setClearColorValues(rgba, enabled);
     }
 
     get clearDepthValue(): number {

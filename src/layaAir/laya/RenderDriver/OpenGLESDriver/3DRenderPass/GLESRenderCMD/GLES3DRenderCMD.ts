@@ -50,7 +50,7 @@ export class GLESDrawNodeCMDData extends DrawNodeCMDData {
 
     set node(value: RTBaseRenderNode) {
         this._node = value;
-        this._nativeObj.setBaseRenderNode(value._nativeObj);
+        this._nativeObj.setBaseRenderNode(value ? value._nativeObj : null);
     }
 
     get destShaderData(): GLESShaderData {
@@ -59,7 +59,7 @@ export class GLESDrawNodeCMDData extends DrawNodeCMDData {
 
     set destShaderData(value: GLESShaderData) {
         this._destShaderData = value;
-        this._nativeObj.setShaderData(value._nativeObj);
+        this._nativeObj.setShaderData(value ? value._nativeObj : null);
     }
 
     get destSubShader(): SubShader {
@@ -68,7 +68,7 @@ export class GLESDrawNodeCMDData extends DrawNodeCMDData {
 
     set destSubShader(value: SubShader) {
         this._destSubShader = value;
-        this._nativeObj.setSubShader((value.moduleData as any as RTSubShader)._nativeObj);
+        this._nativeObj.setSubShader(value ? (value.moduleData as any as RTSubShader)._nativeObj : null);
     }
 
     get subMeshIndex(): number {
@@ -266,6 +266,8 @@ export class GLESSetRenderTargetCMD extends SetRenderTargetCMD {
     protected _clearDepthValue: number;
 
     protected _clearStencilValue: number;
+    private _clearColorRGBA: number[] = [];
+    private _clearColorEnabled: number[] = [];
 
     get rt(): GLESInternalRT {
         return this._rt;
@@ -273,7 +275,7 @@ export class GLESSetRenderTargetCMD extends SetRenderTargetCMD {
 
     set rt(value: GLESInternalRT) {
         this._rt = value;
-        this._nativeObj.setRT(value._nativeObj);
+        this._nativeObj.setRT(value ? value._nativeObj : null);
     }
 
     get clearFlag(): number {
@@ -291,7 +293,28 @@ export class GLESSetRenderTargetCMD extends SetRenderTargetCMD {
 
     set clearColorValue(value: Color) {
         value.cloneTo(this._clearColorValue);
+        this._clearColorValues = null;
         this._nativeObj.clearColorValue(value);
+    }
+
+    get clearColorValues(): readonly (Color | null)[] { return this._clearColorValues; }
+
+    set clearColorValues(value: readonly (Color | null)[]) {
+        super.clearColorValues = value;
+        const rgba = this._clearColorRGBA;
+        const enabled = this._clearColorEnabled;
+        const count = this._clearColorValues?.length ?? 0;
+        rgba.length = count * 4;
+        enabled.length = count;
+        for (let i = 0; i < count; i++) {
+            const color = this._clearColorValues[i];
+            enabled[i] = color ? 1 : 0;
+            rgba[i * 4] = color?.r ?? 0;
+            rgba[i * 4 + 1] = color?.g ?? 0;
+            rgba[i * 4 + 2] = color?.b ?? 0;
+            rgba[i * 4 + 3] = color?.a ?? 0;
+        }
+        this._nativeObj.setClearColorValues(rgba, enabled);
     }
 
     get clearDepthValue(): number {

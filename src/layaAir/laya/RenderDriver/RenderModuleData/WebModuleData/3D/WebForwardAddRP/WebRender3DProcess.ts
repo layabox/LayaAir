@@ -28,6 +28,7 @@ export class WebRender3DProcess implements IRender3DProcess {
     _renderPass: IForwardAddRP;
 
     protected _defaultDepthTex: RenderTexture;
+    private _useCachedDepth: boolean = false;
     protected _defaultShadowMap: RenderTexture;
     constructor() {
         this._defaultDepthTex = RenderTexture.createFromPool(1, 1, RenderTargetFormat.DEPTH_32, RenderTargetFormat.None, false, 1);
@@ -86,9 +87,12 @@ export class WebRender3DProcess implements IRender3DProcess {
         const clearValue = renderRT._texture.gammaCorrection !== 1 ? camera.clearColor : camera._linearClearColor;
 
         renderPass.camera = camera;
-        renderPass.destTarget = renderRT._renderTarget;
+        renderPass.destTarget = renderRT._getRenderTarget(!!camera.effectiveOpaqueMRT);
         renderPass.clearFlag = clearConst;
         renderPass.clearColor = clearValue;
+        renderPass.opaqueMRTTarget = camera.effectiveOpaqueMRT ? renderRT._getRenderTarget() : null;
+        renderPass.opaqueMRTClearColors = camera._getOpaqueMRTClearColors(
+            (clearConst & RenderClearFlag.Color) ? clearValue : null);
 
         let needInternalRT = camera._needInternalRenderTexture();
 
@@ -183,6 +187,8 @@ export class WebRender3DProcess implements IRender3DProcess {
     }
 
     protected _renderDepth(camera: Camera) {
+        this._useCachedDepth = false;
+        this._renderPass.mainRenderpass.depthTarget = null;
         let depthMode = camera.depthTextureMode;
         if (camera.postProcess && camera.postProcess.enable) {
             depthMode |= camera.postProcess.cameraDepthTextureMode;
@@ -190,7 +196,13 @@ export class WebRender3DProcess implements IRender3DProcess {
         if ((depthMode & DepthTextureMode.Depth) != 0) {
 
             Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat);
-            this._renderPass.mainRenderpass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget;
+            this._useCachedDepth = camera.canblitDepth && camera.depthTexture === camera._cacheDepthTexture.depthStencilTexture;
+            if (this._useCachedDepth) {
+                // 上帧深度只采样，不再次把借用的深度视图作为绘制目标。
+                depthMode &= ~DepthTextureMode.Depth;
+            } else {
+                this._renderPass.mainRenderpass.depthTarget = (<RenderTexture>camera.depthTexture)._getRenderTarget();
+            }
             Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, camera);
         }
         if ((depthMode & DepthTextureMode.DepthNormals) != 0) {
@@ -214,6 +226,8 @@ export class WebRender3DProcess implements IRender3DProcess {
         var time = Browser.now();//T_Render_ShadowPassMode Stat
 
         context.cameraData.setTexture(DepthPass.DEPTHTEXTURE, this._defaultDepthTex);
+        if (this._useCachedDepth)
+            Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, renderPass.mainRenderpass.camera);
         if (renderPass.shadowCastPass) {
 
             context.sceneData.setTexture(ShadowCasterPass.SHADOW_MAP, this._defaultShadowMap);
@@ -263,6 +277,8 @@ export class WebRender3DProcess implements IRender3DProcess {
         this._renderDepth(camera);
         this._initRenderPass(camera, context);
         this._renderForwardAddCameraPass(context, this._renderPass);
+        this._renderPass.mainRenderpass.opaqueMRTTarget = null;
+        this._renderPass.mainRenderpass.opaqueMRTClearColors = null;
     }
 
 

@@ -56,7 +56,7 @@ export class LayaXRender3DProcess implements IRender3DProcess {
     }
 
     initRenderpass(camera: Camera, context: IRenderContext3D) {
-        // Sync camera projection params (fov/near/far/aspect) to Rust ECS for culling
+        // Sync camera projection params (fov/near/far/aspect) to C++ ECS for culling
         (<LayaXCameraNodeData>camera._renderDataModule).syncProjection();
 
         let renderpass = this._renderPass.mainRenderpass;
@@ -94,9 +94,12 @@ export class LayaXRender3DProcess implements IRender3DProcess {
 
         renderpass.camera = <LayaXCameraNodeData>camera._renderDataModule;
 
-        renderpass.destTarget = renderRT._renderTarget;
+        renderpass.destTarget = renderRT._getRenderTarget(!!camera.effectiveOpaqueMRT);
         renderpass.clearFlag = clearConst;
         renderpass.clearColor = clearValue;
+        renderpass.opaqueMRTTarget = camera.effectiveOpaqueMRT ? renderRT._getRenderTarget() : null;
+        renderpass.opaqueMRTClearColors = camera._getOpaqueMRTClearColors(
+            (clearConst & RenderClearFlag.Color) ? clearValue : null);
 
         let needInternalRT = camera._needInternalRenderTexture();
 
@@ -130,7 +133,6 @@ export class LayaXRender3DProcess implements IRender3DProcess {
         this._renderPass.setBeforeImageEffect(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeImageEffect]);
         this._renderPass.setAfterEventCmd(camera._cameraEventCommandBuffer[CameraEventFlags.AfterEveryThing]);
 
-        // todo
         renderpass.pipelineMode = RenderContext3D._instance.configPipeLineMode;
 
         let enableShadow = Scene3D._updateMark % camera.scene._ShadowMapupdateFrequency == 0 && Stat.enableShadow;
@@ -193,13 +195,18 @@ export class LayaXRender3DProcess implements IRender3DProcess {
     }
 
     renderDepth(camera: Camera) {
+        this._renderPass.mainRenderpass.depthTarget = null;
         let depthMode = camera.depthTextureMode;
         if (camera.postProcess && camera.postProcess.enable) {
             depthMode |= camera.postProcess.cameraDepthTextureMode;
         }
         if ((depthMode & DepthTextureMode.Depth) != 0) {
             Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat);
-            this._renderPass.mainRenderpass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget;
+            const useCachedDepth = camera.canblitDepth && camera.depthTexture === camera._cacheDepthTexture.depthStencilTexture;
+            if (useCachedDepth)
+                depthMode &= ~DepthTextureMode.Depth;
+            else
+                this._renderPass.mainRenderpass.depthTarget = (<RenderTexture>camera.depthTexture)._getRenderTarget();
             Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, camera);
         }
         if ((depthMode & DepthTextureMode.DepthNormals) != 0) {
@@ -216,9 +223,15 @@ export class LayaXRender3DProcess implements IRender3DProcess {
         LayaXRender3DProcess._flushDirtyProbes();
 
         Camera.depthPass.cleanUp(camera);
+        context.cameraData.setTexture(DepthPass.DEPTHTEXTURE, this._defaultDepthTex);
         this.renderDepth(camera);
         this.initRenderpass(camera, context);
-        this.renderFowarAddCameraPass(context, this._renderPass);
+        try {
+            this.renderFowarAddCameraPass(context, this._renderPass);
+        } finally {
+            this._renderPass.mainRenderpass.opaqueMRTTarget = null;
+            this._renderPass.mainRenderpass.opaqueMRTClearColors = null;
+        }
     }
 
     /** @internal Bridge3DRenderProcess 也需在 fowardRender 开头调用，把 dirty ReflectionProbe/VolumetricGI 数据 flush 到 ShaderData */

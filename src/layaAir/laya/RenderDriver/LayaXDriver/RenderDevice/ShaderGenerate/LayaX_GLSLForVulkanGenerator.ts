@@ -2,6 +2,7 @@ import { Config3D } from "../../../../../Config3D";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { RenderParams } from "../../../../RenderEngine/RenderEnum/RenderParams";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderMRT } from "../../../../RenderEngine/RenderShader/ShaderMRT";
 import { ShaderNode } from "../../../../webgl/utils/ShaderNode";
 import { UniformProperty } from "../../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../../DriverDesign/RenderDevice/ShaderData";
@@ -70,7 +71,7 @@ export class LayaX_GLSLForVulkanGenerator {
             defMap[define] = true;
         }
 
-        // todo 
+        // Select the GLES3 declarations consumed by the Vulkan GLSL conversion.
         defMap["GRAPHICS_API_GLES3"] = true;
 
         // particle uniform 
@@ -93,6 +94,9 @@ export class LayaX_GLSLForVulkanGenerator {
 
         let vertexCode = vs.join('\n');
         let fragmentCode = fs.join('\n');
+        const mrtTargetCount = ShaderMRT.getTargetCount(defines);
+        const mrt = mrtTargetCount > 0 || defines.indexOf(ShaderMRT.defineName) !== -1;
+        if (mrtTargetCount) fragmentCode = ShaderMRT.prepare(fragmentCode, mrtTargetCount);
 
         const defineStrs = defineString(defMap);
 
@@ -125,8 +129,7 @@ ${vertexCode}
 
             let fs = `layout(std140, column_major) uniform;
 #define varying in
-out highp vec4 pc_fragColor;
-#define gl_FragColor pc_fragColor
+${mrt ? "" : "out highp vec4 pc_fragColor;\n#define gl_FragColor pc_fragColor"}
 #define gl_FragDepthEXT gl_FragDepth
 #define texture2D texture
 #define textureCube texture
@@ -147,6 +150,7 @@ ${fragmentCode}
             let resFS = engine.shaderCompiler.glslang.glsl300es_preprocess(fs, "fragment");
 
             if (!resFS.success) {
+                if (mrt) throw new Error(`LAYA_MRT fragment preprocessing failed: ${resFS.info_log}`);
                 console.error("fragment shader preprocess error", resFS.info_log);
             }
             fragmentCode = resFS.preprocessed_code;
@@ -165,7 +169,9 @@ ${fragmentCode}
             vsOnlyGlobalStrs += `${v}\n`;
         }
 
-        const fragmentOutStrs = fragmentOutString(fragmentCode);
+        const mrtOutputs = mrt ? ShaderMRT.extract(fragmentCode, mrtTargetCount > 0) : null;
+        const fragmentOutStrs = mrtOutputs ? mrtOutputs.declarations : fragmentOutString(fragmentCode);
+        if (mrtOutputs) fragmentCode = mrtOutputs.source;
 
         // 将 materialMap 中通过 regIncludeBindUnifrom 注册的 uniform 预先加入 collectionUniforms，
         // 这些 uniform（如 u_IBLDFG）不在 GLSL 源码中声明，正则提取不到，
@@ -186,7 +192,6 @@ ${fragmentCode}
         }
 
         const uniformCollect = (match: string, precision: string, type: string, name: string, arrayDecl: string, arrayLength: string) => {
-            // todo
             const oldUniform = collectionUniforms.get(name);
             let u: CollectUniform = {
                 type: getShaderDataType(type),
@@ -202,7 +207,6 @@ ${fragmentCode}
                 u.samplerType = "depth";
             }
 
-            // todo
             if (type == "sampler2DArray") {
                 u.demision = "2d-array";
             }
@@ -307,7 +311,7 @@ ${fragmentCode}
         // replace texture samplers function
 
         // fragment out 
-        fragmentCode = fragmentCode.replace(vertexVaryingRegex, "");
+        if (!mrt) fragmentCode = fragmentCode.replace(vertexVaryingRegex, "");
 
         vertexCode = replaceTextureSampler(vertexCode, useTexArray);
         fragmentCode = replaceTextureSampler(fragmentCode, useTexArray);
@@ -609,7 +613,7 @@ function attributeString(attributeMap: AttributeMapType, nouseAttributeMap: Attr
     for (const key in attributeMap) {
         let type = getTypeString(attributeMap[key][1]);
 
-        // todo
+        // Bone indices use the unsigned integer vertex attribute format.
         if (key == "a_BoneIndices") {
             type = "uvec4";
         }
@@ -633,7 +637,7 @@ function attributeString(attributeMap: AttributeMapType, nouseAttributeMap: Attr
     for (const key in nouseAttributeMap) {//兼容gles可以有没有绑定的Attribute的方案
         let type = getTypeString(nouseAttributeMap[key][1]);
         let defaultValue = getTypeDefaultString(nouseAttributeMap[key][1]);
-        // todo
+        // Bone indices use the unsigned integer vertex attribute format.
         if (key == "a_BoneIndices") {
             type = "uvec4";
             defaultValue = "uvec4(0)"
@@ -677,7 +681,8 @@ function uniformMapString(uniformMap: Map<number, UniformProperty>, name: string
     let res = "";
     let binding = bindOffset;
     if (blockUniforms.length > 0) {
-        res = `${res}layout(std140, set=${set}, binding=${binding++}) uniform ${name} {`;
+        const blockName = /^[A-Za-z_]\w*$/.test(name) ? name : `LayaUBO_${set}_${binding}`;
+        res = `${res}layout(std140, set=${set}, binding=${binding++}) uniform ${blockName} {`;
 
         for (let uniform of blockUniforms) {
             let uniformName = uniform.propertyName;
@@ -713,7 +718,7 @@ function uniformMapString(uniformMap: Map<number, UniformProperty>, name: string
 layout(set=${set}, binding=${binding++}) uniform sampler ${uniform.propertyName}_Sampler;
 `;
                     break;
-                // todo
+                // This declaration path does not emit array/3D texture bindings.
                 case ShaderDataType.Texture2DArray:
                 case ShaderDataType.Texture3D:
                 default:
@@ -740,10 +745,10 @@ function uniformString2(uniformSetMap: Map<number, LayaXBindingInfo[]>, material
             for (let uniform of value) {
                 switch (uniform.type) {
                     case LayaXBindingInfoType.storageBuffer:
-                        //TODO
+                        // Storage bindings are not emitted by this graphics declaration path.
                         break;
                     case LayaXBindingInfoType.storageTexture:
-                        //TODO
+                        // Storage bindings are not emitted by this graphics declaration path.
                         break;
                     case LayaXBindingInfoType.buffer:
                         {
@@ -855,7 +860,7 @@ function executeVaryings(fsSource: string, vsSource: string) {
 }
 
 function fragmentOutString(source: string) {
-    // todo mrt
+    // MRT declarations are supplied by ShaderMRT; this is the single-target fallback.
     return "layout(location = 0) out vec4 pc_fragColor;"
 }
 
@@ -931,7 +936,6 @@ function additionDefineString() {
 
 }
 
-// todo
 function getSamplerTextureType(type: string = "float", dimension: string = "2d") {
     if (dimension == "2d") {
         switch (type) {
@@ -1010,7 +1014,6 @@ function getDimensionTextureType(type: string) {
 }
 
 function getShaderDataType(type: string) {
-    // todo types
     switch (type) {
         case "float":
             return ShaderDataType.Float;

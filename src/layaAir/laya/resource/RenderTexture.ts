@@ -46,11 +46,11 @@ export enum DepthTextureMode {
  */
 export class RenderTexture extends BaseTexture implements IRenderTarget {
 
-    private static _pool: RenderTexture[] = [];
-    private static _poolMemory: number = 0;
+    protected static _pool: RenderTexture[] = [];
+    protected static _poolMemory: number = 0;
 
     /** @internal */
-    private static _getCompatibleColorFormat(format: RenderTargetFormat): RenderTargetFormat {
+    protected static _getCompatibleColorFormat(format: RenderTargetFormat): RenderTargetFormat {
         if (format !== RenderTargetFormat.R16G16B16 && format !== RenderTargetFormat.R16G16B16A16) return format;
         if (LayaGL.renderEngine.getCapable(RenderCapable.RenderTextureFormat_R16G16B16A16)) return format;
 
@@ -97,7 +97,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         for (let index = 0; index < n; index++) {
             let rt = RenderTexture._pool[index];
 
-            if (rt.width == width && rt.height == height && rt.colorFormat == colorFormat && rt.depthStencilFormat == depthFormat && rt._generateMipmap == mipmap && rt.multiSamples == multiSamples && rt._gammaSpace == sRGB && rt._storage == storage) {
+            if (!rt.destroyed && !rt.isMRT && rt.width == width && rt.height == height && rt.colorFormat == colorFormat && rt.depthStencilFormat == depthFormat && rt._generateMipmap == mipmap && rt.multiSamples == multiSamples && rt._gammaSpace == sRGB && rt._storage == storage) {
                 rt._inPool = false;
                 let end = RenderTexture._pool[n - 1];
                 RenderTexture._pool[index] = end;
@@ -175,7 +175,15 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
      */
     _renderTarget: InternalRenderTarget;
 
-    private _generateDepthTexture: boolean = false;
+    /** 是否拥有多个颜色附件的资源组。 */
+    get isMRT(): boolean { return false; }
+
+    /** @internal 获取绘制绑定；普通 RT 只有一个颜色附件。 */
+    _getRenderTarget(_colorAttachment0Only: boolean = false): InternalRenderTarget {
+        return this._renderTarget;
+    }
+
+    protected _generateDepthTexture: boolean = false;
     /**
      * @en Whether to generate depth texture maps.
      * @zh 是否生成深度纹理贴图。
@@ -207,7 +215,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
      * @en Depth and stencil removal texture mapping
      * @zh 深度与模板剔除纹理贴图
      */
-    private _depthStencilTexture: BaseTexture;
+    protected _depthStencilTexture: BaseTexture;
 
     /**
      * @en Depth and stencil removal texture mapping

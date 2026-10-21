@@ -1,5 +1,6 @@
 import { PostProcess } from "./PostProcess";
 import { PostProcessRenderContext } from "./PostProcessRenderContext";
+import type { CameraOpaqueMRTRequirement } from "../../Camera";
 
 /**
  * @en Used to create post-processing rendering effects.
@@ -46,6 +47,17 @@ export class PostProcessEffect {
      */
     getCameraDepthTextureModeFlag() {
         return 0;
+    }
+
+    /**
+     * 声明本效果需要的相机不透明 MRT 数据，无需求时返回 null。
+     * index 是辅助附件下标，对应 Shader location = index + 1；名称用于查询，不改变输出位置。
+     * 此声明只安排附件，材质 Shader 仍须写入约定的数据与编码，未提供的输出不会自动生成。
+     * 此方法须为纯查询；相机分配目标前与效果执行前均会读取，影响布局的参数应在相机渲染开始前设置。
+     * 中途启用或修改效果时，当前附件满足声明即可执行，否则本次跳过该效果。
+     */
+    getCameraOpaqueMRTRequirements(): readonly CameraOpaqueMRTRequirement[] | null {
+        return null;
     }
 
     /**

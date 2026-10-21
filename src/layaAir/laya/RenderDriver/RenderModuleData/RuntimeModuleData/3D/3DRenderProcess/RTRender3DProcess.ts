@@ -89,9 +89,12 @@ export class RTRender3DProcess implements IRender3DProcess {
 
         renderpass.camera = <RTCameraNodeData>camera._renderDataModule;
 
-        renderpass.destTarget = renderRT._renderTarget;
+        renderpass.destTarget = renderRT._getRenderTarget(!!camera.effectiveOpaqueMRT);
         renderpass.clearFlag = clearConst;
         renderpass.clearColor = clearValue;
+        renderpass.opaqueMRTTarget = camera.effectiveOpaqueMRT ? renderRT._getRenderTarget() : null;
+        renderpass.opaqueMRTClearColors = camera._getOpaqueMRTClearColors(
+            (clearConst & RenderClearFlag.Color) ? clearValue : null);
 
         let needInternalRT = camera._needInternalRenderTexture();
 
@@ -194,13 +197,18 @@ export class RTRender3DProcess implements IRender3DProcess {
 
 
     renderDepth(camera: Camera) {
+        this._renderPass.mainRenderpass.depthTarget = null;
         let depthMode = camera.depthTextureMode;
         if (camera.postProcess && camera.postProcess.enable) {
             depthMode |= camera.postProcess.cameraDepthTextureMode;
         }
         if ((depthMode & DepthTextureMode.Depth) != 0) {
             Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat);
-            this._renderPass.mainRenderpass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget;
+            const useCachedDepth = camera.canblitDepth && camera.depthTexture === camera._cacheDepthTexture.depthStencilTexture;
+            if (useCachedDepth)
+                depthMode &= ~DepthTextureMode.Depth;
+            else
+                this._renderPass.mainRenderpass.depthTarget = (<RenderTexture>camera.depthTexture)._getRenderTarget();
             Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, camera);
         }
         if ((depthMode & DepthTextureMode.DepthNormals) != 0) {
@@ -214,9 +222,15 @@ export class RTRender3DProcess implements IRender3DProcess {
 
     fowardRender(context: IRenderContext3D, camera: Camera): void {
         Camera.depthPass.cleanUp(camera);
+        context.cameraData.setTexture(DepthPass.DEPTHTEXTURE, this._defaultDepthTex);
         this.renderDepth(camera);
         this.initRenderpass(camera, context);
-        this.renderFowarAddCameraPass(context, this._renderPass);
+        try {
+            this.renderFowarAddCameraPass(context, this._renderPass);
+        } finally {
+            this._renderPass.mainRenderpass.opaqueMRTTarget = null;
+            this._renderPass.mainRenderpass.opaqueMRTClearColors = null;
+        }
     }
 
     renderFowarAddCameraPass(context: IRenderContext3D, renderpass: RTForwardAddRP): void {

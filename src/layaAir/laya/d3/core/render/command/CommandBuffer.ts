@@ -389,9 +389,10 @@ export class CommandBuffer {
      * @param shader 着色器。如果为null，则使用内部拷贝着色器，不进行任何处理。
      * @param shaderData 着色器数据。如果为null，只接受sourceTexture。
      * @param subShader SubShader索引，默认值为0。
+     * @param color0Only 是否仅绑定颜色附件 0；默认相机目标为 true，显式目标为 false。
      */
-    blitScreenQuad(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0): void {
-        let cmd = BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD.SCREENTYPE_QUAD, this);
+    blitScreenQuad(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0, color0Only: boolean = dest == null): void {
+        let cmd = BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD.SCREENTYPE_QUAD, this, color0Only);
         this._commands.push(cmd);
         cmd.getRenderCMD && this._renderCMDs.push(cmd.getRenderCMD());
     }
@@ -409,15 +410,16 @@ export class CommandBuffer {
      * @param offsetScale 偏移缩放。
      * @param material 材质。
      * @param subShader Shader索引。
+     * @param color0Only 是否仅绑定颜色附件 0；默认相机目标为 true，显式目标为 false。
      */
-    blitScreenQuadByMaterial(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, material: Material = null, subShader: number = 0): void {
+    blitScreenQuadByMaterial(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, material: Material = null, subShader: number = 0, color0Only: boolean = dest == null): void {
         var shader: Shader3D;
         var shaderData: ShaderData;
         if (material) {
             shader = material._shader;
             shaderData = material.shaderData
         }
-        let cmd = BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD.SCREENTYPE_QUAD, this);
+        let cmd = BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD.SCREENTYPE_QUAD, this, color0Only);
         this._commands.push(cmd);
         cmd.getRenderCMD && this._renderCMDs.push(cmd.getRenderCMD());
     }
@@ -437,9 +439,10 @@ export class CommandBuffer {
      * @param shader 着色器。如果为null，则使用内部拷贝着色器，不进行任何处理。
      * @param shaderData 着色器数据。如果为null，只接受sourceTexture。
      * @param subShader SubShader索引，默认值为0。
+     * @param color0Only 是否仅绑定颜色附件 0；默认相机目标为 true，显式目标为 false。
      */
-    blitScreenTriangle(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0): void {
-        let cmd = BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD.SCREENTYPE_TRIANGLE, this);
+    blitScreenTriangle(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0, color0Only: boolean = dest == null): void {
+        let cmd = BlitScreenQuadCMD.create(source, dest, offsetScale, shader, shaderData, subShader, BlitScreenQuadCMD.SCREENTYPE_TRIANGLE, this, color0Only);
         this._commands.push(cmd);
         cmd.getRenderCMD && this._renderCMDs.push(cmd.getRenderCMD());
     }
@@ -452,19 +455,22 @@ export class CommandBuffer {
 
     /**
      * @en Sets the render target for the command buffer.
-     * @param renderTexture The render target texture.
+     * @param renderTexture The render target texture. RenderTextureMRT binds all color attachments;
+     * drawing requires a matching shader with the LAYA_MRT define enabled explicitly.
      * @param clearColor Whether to clear the color buffer.
      * @param clearDepth Whether to clear the depth buffer.
-     * @param backgroundColor The background color when clearing. Defaults to black.
+     * @param backgroundColor One clear color for all attachments, or one color per attachment in binding order.
+     * Arrays must match the color attachment count. Values are copied when recording. Ignored when clearColor is false.
      * @param depth The depth value when clearing. Defaults to 1.
      * @zh 设置命令缓冲区的渲染目标。
-     * @param renderTexture 渲染目标纹理。
+     * @param renderTexture 渲染目标纹理。RenderTextureMRT 绑定全部颜色附件；绘制时须显式启用 LAYA_MRT 并提供匹配的多输出 Shader。
      * @param clearColor 是否清除颜色缓冲区。
      * @param clearDepth 是否清除深度缓冲区。
-     * @param backgroundColor 清除时的背景颜色，默认为黑色。
+     * @param backgroundColor 统一清屏颜色（默认黑色），或按绑定顺序提供每个颜色附件的清屏颜色。
+     * 数组长度须与颜色附件数一致，录制时复制颜色值；clearColor 为 false 时忽略。
      * @param depth 清除时的深度值，默认为1。
      */
-    setRenderTarget(renderTexture: RenderTexture, clearColor: boolean, clearDepth: boolean, backgroundColor: Color = Color.BLACK, depth: number = 1): void {
+    setRenderTarget(renderTexture: RenderTexture, clearColor: boolean, clearDepth: boolean, backgroundColor: Color | readonly (Color | null)[] = Color.BLACK, depth: number = 1): void {
         let cmd = SetRTCMD.create(renderTexture, clearColor, clearDepth, false, backgroundColor, depth, 0, this);
         this._commands.push(cmd);
         cmd.getRenderCMD && this._renderCMDs.push(cmd.getRenderCMD());

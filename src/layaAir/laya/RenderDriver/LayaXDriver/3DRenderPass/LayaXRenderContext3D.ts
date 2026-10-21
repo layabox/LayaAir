@@ -14,9 +14,9 @@ import { LayaXRenderElement3D } from "./LayaXRenderElement3D";
 /**
  * LayaX render context for 3D.
  *
- * 职责精简：只负责 ShaderData / ModuleData / InvertY 绑定到 Rust。
- * 渲染 Pass 配置（viewport/scissor/clear/RT）由 LayaXForwardAddClusterRP 直接设置。
- * RenderElement 是 Rust 侧持久对象，draw 方法为 no-op。
+ * 将 ShaderData、ModuleData 和翻转状态绑定到 C++ 上下文。
+ * 常规相机 pass 由 LayaXForwardAddClusterRP 配置；独立 draw 经 BlitRenderFeature
+ * 录制，clearRenderTarget 经缓存的 SetRenderTarget 命令提交并消费清除状态。
  */
 export class LayaXRenderContext3D implements IRenderContext3D {
 
@@ -24,7 +24,7 @@ export class LayaXRenderContext3D implements IRenderContext3D {
     _nativeObj: any;
 
     // ------------------------------------------------------------------
-    // ShaderData bindings → C++ → Rust FFI
+    // ShaderData bindings → Native C++ → LayaX C API
     // ------------------------------------------------------------------
 
     private _globalShaderData: ShaderData;
@@ -55,7 +55,7 @@ export class LayaXRenderContext3D implements IRenderContext3D {
     }
 
     // ------------------------------------------------------------------
-    // ModuleData bindings → C++ → Rust FFI
+    // ModuleData bindings → Native C++ → LayaX C API
     // ------------------------------------------------------------------
 
     private _sceneModuleData: ISceneNodeData;
@@ -127,9 +127,17 @@ export class LayaXRenderContext3D implements IRenderContext3D {
     private _scissor: Vector4 = new Vector4();
     /** 缓存当前 offsetScale (ox, oy, sx, sy) */
     private _offsetScale: Vector4 = new Vector4(0, 0, 1, 1);
+    private _clearCommand: any;
+    private _clearFlag: number = RenderClearFlag.Nothing;
+    private _clearColor: Color = new Color();
+    private _clearDepth: number = 1;
+    private _clearStencil: number = 0;
+    private _clearColorRGBA: number[] = [];
+    private _clearColorEnabled: number[] = [];
 
     setRenderTarget(value: InternalRenderTarget, clearFlag: RenderClearFlag): void {
         this._destRT = value;
+        this._clearFlag = clearFlag ?? RenderClearFlag.Nothing;
     }
 
     setViewPort(value: Viewport): void {
@@ -140,13 +148,41 @@ export class LayaXRenderContext3D implements IRenderContext3D {
         value.cloneTo(this._scissor);
     }
 
-    setClearData(clearFlag: number, color: Color, depth: number, stencil: number): number {
-        // No-op: clear is set via LayaXForwardAddClusterRP.setClearFlag/setClearColor → Rust FFI
+    setClearData(clearFlag: number, color: Color, depth: number, stencil: number, colorValues?: readonly (Color | null)[]): number {
+        this._clearFlag = clearFlag;
+        color.cloneTo(this._clearColor);
+        this._clearDepth = depth;
+        this._clearStencil = stencil;
+        const rgba = this._clearColorRGBA;
+        const enabled = this._clearColorEnabled;
+        const count = (clearFlag & RenderClearFlag.Color) ? colorValues?.length ?? 0 : 0;
+        rgba.length = count * 4;
+        enabled.length = count;
+        for (let i = 0; i < count; i++) {
+            const value = colorValues[i];
+            enabled[i] = value ? 1 : 0;
+            rgba[i * 4] = value?.r ?? 0;
+            rgba[i * 4 + 1] = value?.g ?? 0;
+            rgba[i * 4 + 2] = value?.b ?? 0;
+            rgba[i * 4 + 3] = value?.a ?? 0;
+        }
         return 0;
     }
 
     clearRenderTarget(): void {
-        // No-op: clear is part of the render pass begin in Rust
+        if (this._clearFlag === RenderClearFlag.Nothing) return;
+        const cmd = this._clearCommand ||= new (window as any).conchLayaXSetRenderTargetCMD();
+        cmd.setRT(this._destRT ? (this._destRT as any)._nativeObj : null);
+        cmd.setClearFlag(this._clearFlag);
+        const color = this._clearColor;
+        cmd.clearColorValue(color.r, color.g, color.b, color.a);
+        cmd.clearDepthValue(this._clearDepth);
+        cmd.clearStencilValue(this._clearStencil);
+        cmd.setClearColorValues(this._clearColorRGBA, this._clearColorEnabled);
+        cmd.execute();
+        this._clearFlag = RenderClearFlag.Nothing;
+        this._clearColorRGBA.length = 0;
+        this._clearColorEnabled.length = 0;
     }
 
     drawRenderElementList(list: FastSinglelist<IRenderElement3D>): number {
@@ -159,6 +195,7 @@ export class LayaXRenderContext3D implements IRenderContext3D {
 
     drawRenderElementOne(node: IRenderElement3D): number {
         if (!node) return 0;
+        this.clearRenderTarget();
         if (!this._blitFeature) {
             this._blitFeature = new LayaXBlitRenderFeature();
         }

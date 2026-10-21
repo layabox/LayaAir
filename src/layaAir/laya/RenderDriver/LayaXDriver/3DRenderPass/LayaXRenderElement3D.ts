@@ -13,7 +13,7 @@ import { LayaXSubShader } from "../RenderModuleData/LayaXSubShader";
  * LayaX render element for 3D.
  *
  * 每个实例持有 C++ _nativeObj（conchLayaXRenderElement），
- * 每个 setter 同步到 C++ → Rust FFI → Rust LYRenderElement3D。
+ * setter 经原生对象和 LayaX C API 更新 C++ LYRenderElement3D。
  *
  * 不再用 POD packToBuffer，而是持久对象 handle 模式。
  */
@@ -139,7 +139,7 @@ export class LayaXRenderElement3D implements IRenderElement3D, IRenderStateListe
     set subShader(value: SubShader) {
         this._subShader = value;
         if (this._nativeObj) {
-            // 传 SubShader handle 给 Rust，用于查找 ShaderPass 并触发编译回调；null 时也要清掉 native 旧状态。
+            // 传 SubShader handle 给 C++，用于查找 ShaderPass 并触发编译回调；null 时也要清掉 native 旧状态。
             this._nativeObj.setSubShader(value ? (value.moduleData as LayaXSubShader)._nativeObj : null);
         }
     }
@@ -153,7 +153,7 @@ export class LayaXRenderElement3D implements IRenderElement3D, IRenderStateListe
 
     // --- RenderState ---
 
-    /** @internal 从 materialShaderData 读取完整渲染状态并传给 Rust */
+    /** @internal 从 materialShaderData 读取完整渲染状态并传给 C++ */
     _onRenderStateChanged(): void {
         let sd = this._materialShaderData;
         if (!sd || !this._nativeObj) return;

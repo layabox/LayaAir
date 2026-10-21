@@ -9,16 +9,13 @@ import { LayaXDefineDatas } from "./LayaXDefineDatas";
 import { LayaXRenderState } from "./LayaXRenderState";
 
 /**
- * LayaX ShaderPass — Rust-backed shader pass with compile callback.
+ * C++ shader-pass wrapper with an owner-thread compile callback.
  *
- * When Rust encounters a variant cache miss during ForwardAddFeature::execute,
- * it calls back into C++ → this TS class to compile WGSL and create pipeline.
- *
- * The compile flow:
- * 1. Rust sets compileDefines + setMapNames on the pass
- * 2. Rust invokes compile callback (C++ → TS)
- * 3. TS reads compileDefine + setMapNames, generates WGSL, creates LayaXShaderInstance
- * 4. Returns ProgramHandle to Rust
+ * ShaderResolutionService combines defines and resolves the variant cache. On an
+ * owner-thread miss it supplies define names, set maps and attributes to this callback.
+ * TS generates shader sources and LayaXShaderInstance registers a C++ render program.
+ * The returned ProgramHandle enters the existing variant cache. Workers use prepared
+ * variants; this callback remains on the JS owner thread.
  */
 export class LayaXShaderPass implements IShaderPassData {
     _nativeObj: any;
@@ -35,7 +32,7 @@ export class LayaXShaderPass implements IShaderPassData {
     additionShaderData: string[] = [];
     attributeLocations: Set<number> = new Set();
 
-    /** @internal set→map names from Rust compile callback, consumed by LayaXShaderInstance._create */
+    /** @internal set→map names from C++ compile callback, consumed by LayaXShaderInstance._create */
     compileSetMapNames: Map<number, string[]> | null = null;
 
     constructor(pass: ShaderPass) {
@@ -47,7 +44,7 @@ export class LayaXShaderPass implements IShaderPassData {
         this._renderState = new LayaXRenderState();
         this._renderState.setNull();
 
-        // Register compile callback: Rust → C++ → this function
+        // Register the synchronous native-to-TS compile callback.
         this._compileCallbackBound = this._onCompileCallback.bind(this);
         this._nativeObj.setCompileCallback(this._compileCallbackBound);
     }
@@ -97,7 +94,7 @@ export class LayaXShaderPass implements IShaderPassData {
     }
 
     /**
-     * Parse set→map name mapping string from Rust.
+     * Parse set→map name mapping string from C++.
      * Format: "0:Scene3D,Global,Shadow;1:BaseCamera;2:Sprite3D"
      * Returns Map<setIndex, mapNames[]>
      */
@@ -120,7 +117,7 @@ export class LayaXShaderPass implements IShaderPassData {
     }
 
     /**
-     * Parse attribute locations string from Rust.
+     * Parse attribute locations string from C++.
      * Format: "0,1,2,5"
      * Returns Set<number>
      */
@@ -138,17 +135,9 @@ export class LayaXShaderPass implements IShaderPassData {
     }
 
     /**
-     * Compile callback invoked by Rust on variant cache miss.
+     * Sync pass renderState to C++.
      *
-     * @param defineNamesStr - newline-separated define names from Rust (e.g. "DIRECTIONLIGHT\nSHADOWMAP")
-     * @param setMapNamesStr - set→map name mapping from Rust (format: "0:Scene3D,Global;1:BaseCamera;2:Sprite3D")
-     * @param attributeLocationsStr - attribute locations from Rust (format: "0,1,2,5")
-     * @returns LayaXShaderInstance._nativeObj (C++ LayaXShaderInstance_JS*), C++ extracts handle
-     */
-    /**
-     * Sync pass renderState to Rust.
-     *
-     * 普通 3D 元素仍由 Rust 按 statefirst 决定是否使用 pass state；
+     * 普通 3D 元素仍由 C++ 按 statefirst 决定是否使用 pass state；
      * CommandBuffer blit / postprocess 的 standalone element 需要 pass state
      * 作为屏幕 quad 的渲染状态来源。
      */
@@ -227,11 +216,18 @@ export class LayaXShaderPass implements IShaderPassData {
         }
     }
 
+    /**
+     * Synchronous owner-thread callback for a variant cache miss.
+     * @param defineNamesStr Newline-separated define names.
+     * @param setMapNamesStr Set-to-map names, e.g. "0:Scene3D,Global;1:BaseCamera".
+     * @param attributeLocationsStr Comma-separated attribute locations.
+     * @returns Native shader-instance wrapper from which C++ extracts the program handle.
+     */
     private _onCompileCallback(defineNamesStr: string, setMapNamesStr: string, attributeLocationsStr: string): any {
-        // Sync pass renderState to Rust on first compile
+        // Sync pass renderState to C++ on first compile
         this._syncRenderState();
 
-        // 1. Parse define names from Rust (newline-separated → string[])
+        // 1. Parse define names from C++ (newline-separated → string[])
         const defineStrings = defineNamesStr
             ? defineNamesStr.split('\n').filter(s => s.length > 0)
             : [];
@@ -242,7 +238,7 @@ export class LayaXShaderPass implements IShaderPassData {
         // 3. Parse attribute locations
         this.attributeLocations = this._parseAttributeLocations(attributeLocationsStr);
 
-        // 4. Build ShaderProcessInfo directly with define names from Rust
+        // 4. Build ShaderProcessInfo directly with define names from C++
         const shaderProcessInfo: ShaderProcessInfo = {
             is2D: this.is2D,
             vs: this._pass._VS,
@@ -268,13 +264,13 @@ export class LayaXShaderPass implements IShaderPassData {
     }
 
     setCacheShader(defines: IDefineDatas, shaderInstance: IShaderInstance): void {
-        // Caching is handled by Rust's ShaderVariantCache
+        // Caching is handled by the C++ runtime's ShaderVariantCache
         // This is a no-op on the TS side for LayaX path
     }
 
     getCacheShader(defines: IDefineDatas): IShaderInstance {
-        // Cache lookup is handled by Rust's ShaderVariantCache
-        // TS side returns null; Rust resolves the variant
+        // Cache lookup is handled by the C++ runtime's ShaderVariantCache
+        // TS side returns null; C++ resolves the variant
         return null as any;
     }
 

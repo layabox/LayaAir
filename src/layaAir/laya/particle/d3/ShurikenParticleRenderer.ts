@@ -211,7 +211,7 @@ export class ShurikenParticleRenderer extends BaseRender {
     /**
      * @internal
      * LayaX：包围盒输入下沉 ECS——geometryBounds(local) + 世界空间重力 pad + 来源模式，
-     * 世界 AABB 由 Rust update_cull_bounds_system 统一计算。发射参数变化时调用；
+     * 世界 AABB 由 C++ update_cull_bounds_system 统一计算。发射参数变化时调用；
      * Web/RT 驱动无此接口，直接返回（沿用惰性 _calculateBoundingBox 路径）。
      */
     _syncBoundsToNative(): void {

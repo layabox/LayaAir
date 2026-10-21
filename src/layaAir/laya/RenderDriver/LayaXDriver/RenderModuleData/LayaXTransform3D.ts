@@ -15,10 +15,10 @@ const ALL_WORLD_FLAGS =
     Transform3D.TRANSFORM_WORLDSCALE;
 
 /**
- * LayaX Transform3D —— chunk 共享存储上的三端同源方案（world 计算回 JS）。
+ * LayaX Transform3D —— JS 与 C++ 共用 ECS chunk 存储（world 计算回 JS）。
  *
- * 存储模型（stable_row_chunk_design.md）：local TRS 唯一源 = ECS chunk 的
- * Transform 组件；WorldMat 组件由 Rust propagate 独家产出。本类是基类纯 TS
+ * 存储模型：local TRS 唯一源 = ECS chunk 的
+ * Transform 组件；WorldMat 组件由 C++ propagate 独家产出。本类是基类纯 TS
  * `Transform3D` 之上的薄壳：
  *   - JS 写 local：经本 slot 零拷贝视图**直写 chunk + 标 slot 脏位**，
  *     0 跨语言调用；视图不可用（native 页 + 沙箱/OHOS）则降级
@@ -36,7 +36,7 @@ const ALL_WORLD_FLAGS =
  *   - 路径③：两者都不可用 → 不绑定，写 local 走 C++ 推。
  *   失效协议：只有 VIEW_STALE 表示本实体 row moved，需要重绑；普通 epoch 变化只刷新快照。
  *
- * ⚠ 构造时序铁律（见 memory project_layax_transform_init_order）：基类 ctor 在 `super()`
+ * 构造时序：基类 ctor 在 `super()`
  * 期间调 `this._initProperty()`，子类字段初始化器在 `super()` 返回后才执行、会覆盖 `_initProperty`
  * 里赋的值。故①不重声明 `_localPosition` 等基类字段；②在 `_initProperty` 赋值的子类字段
  * （`_nativeFloat32Buffer`/`_nativeObj`）不能带 `= 初值`。
@@ -89,7 +89,7 @@ export class LayaXTransform3D extends Transform3D {
      * 结构事件(实体增删触发的 swap-remove、tick 内迁移)时变化,为它们在 90k 次/帧的
      * 热路径上逐访问查共享内存是付费错位;快检门把成本降为 2 次字段比较,同时保证:
      *   ① JS 帧中结构操作(useSkill 式特效增删)→ _structGen++ → 所有实例下次访问慢检一次;
-     *   ② Rust tick 内迁移 → 下一帧 Stat.loopCount 变化 → 每实例每帧至少慢检一次(帧界兜底)。
+     *   ② C++ tick 内迁移 → 下一帧 Stat.loopCount 变化 → 每实例每帧至少慢检一次(帧界兜底)。
      */
     private static _structGen: number = 1;
     /** Any local write invalidates repeated world reads, including ancestor writes. */
@@ -230,7 +230,7 @@ export class LayaXTransform3D extends Transform3D {
     // ------------------------------------------------------------------
 
     /**
-     * 在 Rust ECS 创建 entity（chunk 行随 spawn 分配），随后绑定本 slot 的零拷贝视图。
+     * 在 C++ ECS 创建 entity（chunk 行随 spawn 分配），随后绑定本 slot 的零拷贝视图。
      * 创建前补足 JS 供页储备（§7.1）。
      */
     createEntity(): void {
@@ -369,7 +369,7 @@ export class LayaXTransform3D extends Transform3D {
     }
 
     /**
-     * Rust ECS entity 是否已创建且存活。
+     * C++ ECS entity 是否已创建且存活。
      */
     get isEntityValid(): boolean {
         return this._nativeObj.isEntityValid();
@@ -424,7 +424,7 @@ export class LayaXTransform3D extends Transform3D {
      * @internal Rebind only when this entity's row moved.
      * 快检门:VIEW_STALE/epoch 只随结构事件变化——同一(结构代数,帧号)内重复访问
      * 直接短路(2 次字段比较,无共享内存读)。结构事件两来源都会使门失效:
-     * JS 结构操作 → _structGen++(操作返回点语义);Rust tick 内迁移 → 下帧
+     * JS 结构操作 → _structGen++(操作返回点语义);C++ tick 内迁移 → 下帧
      * Stat.loopCount 变化(帧界兜底)。tick 与 JS 帧互斥(tick timing contract),
      * 帧中无 JS 结构操作时行不可能被搬,门短路是安全的。
      */
@@ -574,7 +574,7 @@ export class LayaXTransform3D extends Transform3D {
     }
 
     /**
-     * 读 world 消除双算：flag 干净 → 直读 chunk WorldMat（Rust propagate 的产物，
+     * 读 world 消除双算：flag 干净 → 直读 chunk WorldMat（C++ propagate 的产物，
      * 容忍 1 帧），免去 JS 沿父链的矩阵乘；本帧写过 local（flag 脏）→ 回落基类
      * 自算，结果只落 JS 堆（propagate 仍是组件唯一写者）。
      */
@@ -961,7 +961,7 @@ export class LayaXTransform3D extends Transform3D {
     }
 
     // ------------------------------------------------------------------
-    // Hierarchy —— 父子链结构由基类维护，额外通知 Rust ECS（propagate 依赖 Parent 组件）
+    // Hierarchy —— 父子链结构由基类维护，额外通知 C++ ECS（propagate 依赖 Parent 组件）
     // ------------------------------------------------------------------
 
     /** @internal */

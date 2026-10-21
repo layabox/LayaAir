@@ -56,6 +56,32 @@ export class CameraCullInfo {
  */
 export class ShadowCullInfo {
 
+    /** @internal Expanded receiver radius; negative disables the additional cull. */
+    receiverSphereCullingRadius: number = -1;
+    /** @internal Normalized light propagation direction, prepared once per slice update. */
+    receiverSphereCullingDirection: Vector3 = new Vector3();
+
+    /** @internal Single-cascade receivers use a projection box rather than a sphere. */
+    prepareReceiverSphereCulling(enabled: boolean, margin: number = 0): void {
+        this.receiverSphereCullingRadius = -1;
+        const sphere = this.cullSphere;
+        const direction = this.direction;
+        if (!enabled || !sphere || !sphere.center || !direction)
+            return;
+
+        const center = sphere.center;
+        const radius = sphere.radius + margin;
+        const lengthSquared = direction.x * direction.x + direction.y * direction.y + direction.z * direction.z;
+        if (!(sphere.radius > 0) || !(margin >= 0) || !Number.isFinite(radius)
+            || !Number.isFinite(center.x) || !Number.isFinite(center.y) || !Number.isFinite(center.z)
+            || !(lengthSquared > 1e-12) || !Number.isFinite(lengthSquared))
+            return;
+
+        const inverseLength = 1 / Math.sqrt(lengthSquared);
+        this.receiverSphereCullingDirection.setValue(direction.x * inverseLength, direction.y * inverseLength, direction.z * inverseLength);
+        this.receiverSphereCullingRadius = radius;
+    }
+
     cameraPosition: Vector3;
     /**
      * @en Position.

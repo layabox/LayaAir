@@ -12,7 +12,7 @@ import { LayaXCameraNodeData } from "../RenderModuleData/LayaXCameraNodeData";
 
 /**
  * TS-owned main-pass config buffer layout (mixed i32/u32/f32). Contract shared with C++
- * `LayaXForwardAddClusterRP_JS` and Rust `layax_main_pass_bind_config_buffer` /
+ * `LayaXForwardAddClusterRP_JS` and C++ `layax_main_pass_bind_config_buffer` /
  * `layax_execute_forward_pass` — changing it requires updating all three. u32 slots use
  * the Uint32Array view, i32 (scissor) the Int32Array view, the rest Float32Array.
  */
@@ -48,7 +48,7 @@ export class LayaXForwardAddClusterRP {
 
     _nativeObj: any;
 
-    // TS owns this buffer; Rust caches its raw pointer via bindBuffer and applies it each
+    // TS owns this buffer; C++ caches its raw pointer via bindBuffer and applies it each
     // frame in layax_execute_forward_pass. Instance field → stays alive (GC).
     private _buf: ArrayBuffer;
     private _f32: Float32Array;
@@ -68,15 +68,13 @@ export class LayaXForwardAddClusterRP {
     public get depthTextureMode(): DepthTextureMode { return this._u32[MSlot.DepthTextureMode]; }
     public set depthTextureMode(value: DepthTextureMode) { this._u32[MSlot.DepthTextureMode] = value; }
 
-    blitOpaqueBuffer: CommandBuffer; // TODO
-
     private _depthTarget: InternalRenderTarget;
     public get depthTarget(): InternalRenderTarget {
         return this._depthTarget;
     }
     public set depthTarget(value: InternalRenderTarget) {
         this._depthTarget = value;
-        this._nativeObj.setDepthTarget((value as any)._nativeObj);
+        this._nativeObj.setDepthTarget(value ? (value as any)._nativeObj : null);
     }
 
     private _destTarget: InternalRenderTarget;
@@ -85,7 +83,36 @@ export class LayaXForwardAddClusterRP {
     }
     public set destTarget(value: InternalRenderTarget) {
         this._destTarget = value;
-        this._nativeObj.setDestTarget((value as any)._nativeObj);
+        this._nativeObj.setDestTarget(value ? (value as any)._nativeObj : null);
+    }
+
+    private _opaqueMRTTarget: InternalRenderTarget;
+    get opaqueMRTTarget(): InternalRenderTarget { return this._opaqueMRTTarget; }
+    set opaqueMRTTarget(value: InternalRenderTarget) {
+        this._opaqueMRTTarget = value;
+        this._nativeObj.setOpaqueMRTTarget(value ? (value as any)._nativeObj : null);
+    }
+
+    private _opaqueMRTClearColors: readonly (Color | null)[];
+    private _opaqueMRTClearRGBA: number[] = [];
+    private _opaqueMRTClearEnabled: number[] = [];
+    get opaqueMRTClearColors(): readonly (Color | null)[] { return this._opaqueMRTClearColors; }
+    set opaqueMRTClearColors(value: readonly (Color | null)[]) {
+        this._opaqueMRTClearColors = value;
+        const rgba = this._opaqueMRTClearRGBA;
+        const enabled = this._opaqueMRTClearEnabled;
+        const count = value?.length ?? 0;
+        rgba.length = count * 4;
+        enabled.length = count;
+        for (let i = 0; i < count; i++) {
+            const color = value[i];
+            enabled[i] = color ? 1 : 0;
+            rgba[i * 4] = color?.r ?? 0;
+            rgba[i * 4 + 1] = color?.g ?? 0;
+            rgba[i * 4 + 2] = color?.b ?? 0;
+            rgba[i * 4 + 3] = color?.a ?? 0;
+        }
+        this._nativeObj.setOpaqueMRTClearColors(rgba, enabled);
     }
 
     private _depthNormalTarget: InternalRenderTarget;
@@ -94,7 +121,7 @@ export class LayaXForwardAddClusterRP {
     }
     public set depthNormalTarget(value: InternalRenderTarget) {
         this._depthNormalTarget = value;
-        this._nativeObj.setDepthNormalTarget((value as any)._nativeObj);
+        this._nativeObj.setDepthNormalTarget(value ? (value as any)._nativeObj : null);
     }
 
     public get enableCMD(): boolean { return this._u32[MSlot.EnableCMD] !== 0; }
@@ -139,7 +166,7 @@ export class LayaXForwardAddClusterRP {
     /**@internal */
     setCameraCullInfo(value: Camera, sceneManager: ISceneRenderManager): void {
         // In LayaX, camera position/frustum data flows through the camera ECS bridge.
-        // Pass culling mask and static mask to Rust for layer-based culling.
+        // Pass culling mask and static mask to C++ for layer-based culling.
         let pos = value._transform.position;
         this._u32[MSlot.CullMask] = value.cullingMask;
         this._u32[MSlot.StaticMask] = value.staticMask;

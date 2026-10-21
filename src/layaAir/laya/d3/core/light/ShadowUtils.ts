@@ -543,8 +543,10 @@ export class ShadowUtils {
         shadowMapSize.setValue(1.0 / shadowMapWidth, 1.0 / shadowMapHeight, shadowMapWidth, shadowMapHeight);
         if (cascadeCount > 1) {
             const matrixFloatCount: number = 16;
-            for (var i: number = cascadeCount * matrixFloatCount, n: number = 4 * matrixFloatCount; i < n; i++)//the last matrix is always ZERO
-                shadowMatrices[i] = 0.0;//set Matrix4x4.ZERO to project the cascade index is 4
+            // Clear inactive slots when switching from four cascades to two.
+            // The shader handles the outside-cascade sentinel before accessing this array.
+            for (var i: number = cascadeCount * matrixFloatCount, n: number = 4 * matrixFloatCount; i < n; i++)
+                shadowMatrices[i] = 0.0;
 
             for (var i: number = 0; i < cascadeCount; i++) {
                 var boundSphere: BoundSphere = shadowSliceDatas[i].splitBoundSphere;
@@ -558,7 +560,7 @@ export class ShadowUtils {
             }
             const sphereFloatCount: number = 4;
             for (var i: number = cascadeCount * sphereFloatCount, n: number = 4 * sphereFloatCount; i < n; i++)
-                splitBoundSpheres[i] = 0.0;//set Matrix4x4.ZERO to project the cascade index is 4
+                splitBoundSpheres[i] = 0.0;//a zero radius never matches a receiver
         }
     }
 }

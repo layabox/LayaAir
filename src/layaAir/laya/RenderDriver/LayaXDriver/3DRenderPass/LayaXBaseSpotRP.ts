@@ -15,7 +15,7 @@ export class LayaXBaseSpotRP {
     }
 
     setShadowCasterCommanBuffer(cmd: CommandBuffer[]): void {
-        // TODO: forward to native when needed
+        // Spot-shadow command buffers are currently unsupported by this bridge.
     }
 
     setCameraCullInfo(sceneManager: ISceneRenderManager): void {

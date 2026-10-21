@@ -11,7 +11,7 @@ import { IReflectionProbeData } from "../../RenderModuleData/Design/3D/I3DRender
 
 /**
  * TS-owned per-probe buffer layout. Contract shared with C++ `LayaXReflectionProbe_JS`
- * (and future Rust direct-read) — changing it requires updating both sides.
+ * — changing the layout requires updating both sides.
  */
 const enum RPSlot {
     BoxProjection = 0,       // i32 (0/1)
@@ -28,10 +28,9 @@ const enum RPSlot {
 /**
  * LayaX ReflectionProbe bridge.
  *
- * Numeric probe properties live in a TS-owned ArrayBuffer that C++ holds (and Rust will
- * read directly once a probe system lands) — no per-property FFI. Object refs (bounds /
- * textures / ambientSH) still go through native setters. Today `applyRenderData()` pushes
- * everything into the ShaderData; the buffer is the forward path for native consumption.
+ * TS owns the property block and retains bounds/textures/ambientSH.
+ * `applyRenderData()` publishes the values to ShaderData. The native wrapper stores
+ * the block pointer; its bounds/texture/SH setters currently perform no work.
  */
 export class LayaXReflectionProbe implements IReflectionProbeData {
 
@@ -64,7 +63,7 @@ export class LayaXReflectionProbe implements IReflectionProbeData {
     public get bound(): Bounds { return this._bound; }
     public set bound(value: Bounds) {
         this._bound = value;
-        // TODO(Q13): Confirm Bounds._imp._nativeObj path for LayaX Bounds wrapper
+        // Bounds uses the LayaXBounds implementation selected by the module factory.
         this._nativeObj.setBounds(value ? (value._imp as any)._nativeObj : null);
     }
 

@@ -5,6 +5,16 @@
 
     #include "PBRFrag.glsl";
 
+    #ifdef LAYA_MRT
+        // 通过通用 Material 加载的标准 PBR 也遵循默认全部输出；显式 None 由配置宏区分。
+        #if !defined(GBUFFER_OUTPUTS_CONFIGURED)
+            #define GBUFFER_NORMAL
+            #define GBUFFER_ALBEDO
+            #define GBUFFER_SURFACE
+        #endif
+        #include "GBuffer.glsl";
+    #endif
+
 struct SurfaceInputs {
     vec3 diffuseColor;
     float alpha;
@@ -85,6 +95,11 @@ vec4 PBR_Metallic_Flow(const in SurfaceInputs inputs, in PixelParams pixel)
 
     PixelInfo info;
     getPixelInfo(info, pixel, surface);
+
+    #ifdef LAYA_MRT
+    // 复用实际着色法线与材质参数，包含法线贴图、细节法线和粗糙度限制。
+    writeGBuffer(info.normalWS, inputs.diffuseColor, inputs.metallic, surface.perceptualRoughness, surface.occlusion);
+    #endif
 
     vec3 surfaceColor = vec3(0.0);
     surfaceColor += PBRLighting(surface, info);

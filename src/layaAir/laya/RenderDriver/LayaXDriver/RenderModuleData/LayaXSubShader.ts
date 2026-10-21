@@ -6,7 +6,7 @@ import { LayaXCommandUniformMap } from "../RenderDevice/LayaXCommandUniformMap";
 import { LayaXShaderPass } from "./LayaXShaderPass";
 
 /**
- * LayaX SubShader — Rust-backed SubShader container.
+ * SubShader container owned by the C++ runtime.
  *
  * SubShaderHandle doubles as shader_template_id for the variant cache key.
  * Holds passes, uniform properties, and instance flag.
@@ -31,7 +31,8 @@ export class LayaXSubShader implements ISubshaderData {
     }
 
     get enableInstance(): boolean {
-        return false; // TODO: read from native
+        // This interface does not expose a native instance-flag readback.
+        return false;
     }
 
     set enableInstance(value: boolean) {

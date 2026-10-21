@@ -35,14 +35,8 @@ export class LayaXDirCascadeShadowRP {
 
     setRPData(dirLight: LayaXDirectLight, camera: LayaXCameraNodeData, context: IRenderContext3D): void {
         this._destShadowRT = Scene3D._shadowCasterPass.getDirectLightShadowMap(dirLight as any);
-        this._nativeObj.setRPData(
-            dirLight._nativeObj,
-            camera._nativeObj,
-            (context as any)._nativeObj,
-            (this._destShadowRT._renderTarget as any)._nativeObj
-        );
-
-        // Pass light orientation (up/side/forward) to Rust for cascade VP computation
+        // Publish the basis before selecting this light. ECS snapshots it together with
+        // the existing shadow mode, resolution and biases when preparing cascade culling.
         if (dirLight.transform) {
             let lightWorld = Matrix4x4.TEMP;
             Matrix4x4.createFromQuaternion(dirLight.transform.rotation, lightWorld);
@@ -53,6 +47,12 @@ export class LayaXDirCascadeShadowRP {
                 -e[8], -e[9], -e[10]  // lightForward
             );
         }
+        this._nativeObj.setRPData(
+            dirLight._nativeObj,
+            camera._nativeObj,
+            (context as any)._nativeObj,
+            (this._destShadowRT._renderTarget as any)._nativeObj
+        );
     }
 
     setCameraCullInfo(sceneManager: ISceneRenderManager): void {

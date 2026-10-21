@@ -14,7 +14,7 @@ import { RenderState2D } from "../../webgl/utils/RenderState2D";
  * LayaXBridge3DContext - LayaX (wgpu) native wrapper for Bridge3D rendering context
  *
  * Uses conchLayaXBridge3DContext native class.
- * Each setter syncs to C++ via _nativeObj, C++ calls Rust FFI.
+ * Each setter syncs to C++ via _nativeObj, C++ calls LayaX C API.
  */
 export class LayaXBridge3DContext {
 	_nativeObj: any;
@@ -80,7 +80,7 @@ export class LayaXBridge3DContext {
 	}
 
 	applyToContext(context: IRenderContext3D): void {
-		// Not used on LayaX native - C++ handles context application via Rust FFI
+		// Not used on LayaX native - C++ handles context application via LayaX C API
 	}
 
 	get clearDepthBeforeRender(): boolean {

@@ -5,7 +5,7 @@ import { LayaXTransform3D } from "./LayaXTransform3D";
 
 /**
  * TS-owned per-spot-light buffer layout (mixed u32/f32). Contract shared with C++
- * `LayaXSpotLight_JS` and Rust `LightData` / `layax_light_bind_buffer` — changing it
+ * `LayaXSpotLight_JS` and C++ `LightData` / `layax_light_bind_buffer` — changing it
  * requires updating all three. u32 slots use the Uint32Array view, the rest Float32Array.
  */
 const enum SSlot {
@@ -18,7 +18,7 @@ const enum SSlot {
     ShadowNormalBias = 21,
     ShadowStrength = 22,
     ShadowMode = 23,        // u32
-    ShadowDistance = 24,    // TS-only (Rust spot path does not consume it)
+    ShadowDistance = 24,    // TS-only (C++ spot path does not consume it)
     Count = 25,
 }
 
@@ -26,7 +26,7 @@ const enum SSlot {
  * LayaX SpotLight bridge.
  *
  * worldMatrix + angle/range + shadow params travel through a TS-owned ArrayBuffer that
- * Rust absorbs each frame (`camera_cull_prepare_system`) — no per-field FFI. Only the
+ * C++ absorbs each frame (`camera_cull_prepare_system`) — no per-field FFI. Only the
  * transform reference still goes through a native call.
  */
 export class LayaXSpotLight implements ISpotLightData {
@@ -36,7 +36,7 @@ export class LayaXSpotLight implements ISpotLightData {
 
     private _transform: LayaXTransform3D;
 
-    // TS owns this buffer; Rust caches its raw pointer via bindBuffer and absorbs it each
+    // TS owns this buffer; C++ caches its raw pointer via bindBuffer and absorbs it each
     // frame. Instance field → stays alive (GC) for the light's lifetime.
     private _buf: ArrayBuffer;
     private _f32: Float32Array;
@@ -76,7 +76,7 @@ export class LayaXSpotLight implements ISpotLightData {
     public set spotAngle(value: number) { this._f32[SSlot.SpotAngle] = value; }
 
     setDirection(value: Vector3): void {
-        // No-op on the LayaX path: spot direction is derived from worldMatrix by Rust, not
+        // No-op on the LayaX path: spot direction is derived from worldMatrix by C++, not
         // stored separately. (Also fixes a prior bug calling a non-existent native binding.)
     }
 
@@ -105,7 +105,7 @@ export class LayaXSpotLight implements ISpotLightData {
     }
 
     /// 每帧在 needSpotShadow 分支调：把最新 world matrix 写进 buffer（angle/range/shadow
-    /// 参数已由各 property setter 写入），Rust 下帧 absorb。
+    /// 参数已由各 property setter 写入），C++ 下帧 absorb。
     syncShadow(): void {
         if (this._transform) {
             this._f32.set(this._transform.worldMatrix.elements, SSlot.WorldMatrix);

@@ -1,4 +1,5 @@
 import { Camera } from "../core/Camera";
+import { BaseTexture } from "../../resource/BaseTexture";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { Vector4 } from "../../maths/Vector4";
@@ -36,7 +37,9 @@ export class DepthPass {
     }
 
     /**@internal */
-    private _depthTexture: RenderTexture;
+    private _depthTexture: BaseTexture;
+    /** 非空时仅借用相机缓存；否则深度目标由本 Pass 回收。 */
+    private _borrowedDepthCamera: Camera = null;
     /**@internal */
     private _depthNormalsTexture: RenderTexture;
     /**@internal */
@@ -62,11 +65,12 @@ export class DepthPass {
             case DepthTextureMode.Depth:
                 {
                     if (camera.canblitDepth && camera._internalRenderTexture.depthStencilTexture) {
-                        camera.depthTexture = this._depthTexture = camera._cacheDepthTexture;
-                        camera.depthTextureMode &= ~DepthTextureMode.Depth;
+                        camera.depthTexture = this._depthTexture = camera._cacheDepthTexture.depthStencilTexture;
+                        this._borrowedDepthCamera = camera;
                     }
                     else {
                         camera.depthTexture = this._depthTexture = RenderTexture.createFromPool(this._viewPort.width, this._viewPort.height, depthTextureFormat, RenderTargetFormat.None, false, 1);
+                        this._borrowedDepthCamera = null;
                     }
                 }
                 break;
@@ -104,21 +108,32 @@ export class DepthPass {
         }
     }
 
+    /** @internal 在相机归还上帧整组之前，解除本帧对其深度采样视图的借用。 */
+    releaseCachedDepth(camera: Camera): void {
+        if (this._borrowedDepthCamera !== camera) return;
+        if (camera._shaderValues.getTexture(DepthPass.DEPTHTEXTURE) === this._depthTexture) {
+            camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, null);
+            camera.depthTexture = null;
+        }
+        this._depthTexture = null;
+        this._borrowedDepthCamera = null;
+    }
+
     /**
      * @internal
      * @en Clear the depth data.
      * @zh 清理深度数据
      */
     cleanUp(camera: Camera): void {
-        if (this._depthTexture) {
+        if (this._borrowedDepthCamera) {
+            this.releaseCachedDepth(this._borrowedDepthCamera);
+        } else if (this._depthTexture) {
             let cameraDephtTex = camera._shaderValues.getTexture(DepthPass.DEPTHTEXTURE);
-
             if (cameraDephtTex == this._depthTexture) {
                 camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, null);
                 camera.depthTexture = null;
             }
-
-            RenderTexture.recoverToPool(this._depthTexture);
+            RenderTexture.recoverToPool(this._depthTexture as RenderTexture);
             this._depthTexture = null;
         }
 

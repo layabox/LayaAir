@@ -2,11 +2,10 @@ import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 
 /**
- * LayaX DefineDatas — Rust-backed shader define bitmask.
+ * Shader define bitmask stored by the C++ runtime.
  *
- * Delegates all operations to `conchLayaXDefineDatas` (C++ → Rust FFI).
- * Unlike RTDefineDatas which uses conchRTDefineDatas (GLES path),
- * this uses the LayaX path with Rust-side storage and variant selection.
+ * Native operations go through `conchLayaXDefineDatas` and the LayaX C API.
+ * Variant resolution reads the same C++ define storage.
  */
 export class LayaXDefineDatas implements IDefineDatas {
     _nativeObj: any;
@@ -23,26 +22,26 @@ export class LayaXDefineDatas implements IDefineDatas {
     }
 
     get _length(): number {
-        // Rust manages length internally; return 0 for interface compat
+        // C++ manages length internally; return 0 for interface compat
         return 0;
     }
 
     set _length(value: number) {
-        // No-op: Rust manages length
+        // No-op: C++ manages length
     }
 
     get _mask(): number[] {
-        // Rust manages mask internally; return empty for interface compat
+        // C++ manages mask internally; return empty for interface compat
         return [];
     }
 
     set _mask(value: number[]) {
-        // No-op: Rust manages mask
+        // No-op: C++ manages mask
     }
 
     /** @internal */
     _intersectionDefineDatas(define: IDefineDatas): void {
-        // Intersection is done in Rust during variant resolution.
+        // Intersection is done in C++ during variant resolution.
         // This is a no-op on the TS side for the LayaX path.
     }
 

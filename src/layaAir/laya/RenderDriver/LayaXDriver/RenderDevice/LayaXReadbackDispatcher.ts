@@ -6,7 +6,7 @@
  * 2. `LayaXRenderEngine.startFrame` 每帧调 `pump(device)` 拉底层 DeviceEvent
  * 3. 按 requestId 找到登记的 Promise 完成/失败
  *
- * DeviceEventType 与 Rust 保持一致：
+ * DeviceEventType 与 C++ 保持一致：
  *   0=DeviceLost, 1=SwapchainOutOfDate, 2=OutOfMemory, 3=BackendError,
  *   4=ReadbackCompleted, 5=ReadbackFailed
  */

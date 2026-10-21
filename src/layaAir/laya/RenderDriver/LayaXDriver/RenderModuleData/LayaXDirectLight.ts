@@ -6,7 +6,7 @@ import { LayaXTransform3D } from "./LayaXTransform3D";
 
 /**
  * TS-owned per-directional-light buffer layout (mixed u32/f32). Contract shared with
- * C++ `LayaXDirectLight_JS` and Rust `LightData` / `layax_light_bind_buffer` — changing
+ * C++ `LayaXDirectLight_JS` and C++ `LightData` / `layax_light_bind_buffer` — changing
  * it requires updating all three. u32 slots use the Uint32Array view, the rest Float32Array.
  */
 const enum LSlot {
@@ -29,10 +29,10 @@ const enum LSlot {
 /**
  * LayaX DirectLight bridge.
  *
- * Shadow params + light orientation travel through a TS-owned ArrayBuffer that Rust
+ * Shadow params + light orientation travel through a TS-owned ArrayBuffer that C++
  * absorbs each frame (`camera_cull_prepare_system`) — no per-field FFI. Only the
  * transform reference still goes through a native call. direction / color are consumed
- * via Scene3D ShaderData on the LayaX path, not this light's Rust component.
+ * via Scene3D ShaderData on the LayaX path, not this light's C++ component.
  */
 export class LayaXDirectLight implements IDirectLightData {
 
@@ -41,7 +41,7 @@ export class LayaXDirectLight implements IDirectLightData {
 
     private _transform: LayaXTransform3D;
 
-    // TS owns this buffer; Rust caches its raw pointer via bindBuffer and absorbs it each
+    // TS owns this buffer; C++ caches its raw pointer via bindBuffer and absorbs it each
     // frame. Instance field → stays alive (GC) for the light's lifetime.
     private _buf: ArrayBuffer;
     private _f32: Float32Array;
@@ -105,7 +105,7 @@ export class LayaXDirectLight implements IDirectLightData {
 
     setDirection(value: Vector3): void {
         // No-op on the LayaX path: directional light direction is consumed via Scene3D
-        // ShaderData, not this light's Rust component. Kept for IDirectLightData conformance.
+        // ShaderData, not this light's C++ component. Kept for IDirectLightData conformance.
     }
 
     constructor() {
@@ -135,7 +135,7 @@ export class LayaXDirectLight implements IDirectLightData {
     }
 
     syncShadow(): void {
-        // Shadow params already live in the bound buffer (Rust absorbs them each frame);
+        // Shadow params already live in the bound buffer (C++ absorbs them each frame);
         // nothing to push. Kept for the per-frame call site in LayaXRender3DProcess.
     }
 }

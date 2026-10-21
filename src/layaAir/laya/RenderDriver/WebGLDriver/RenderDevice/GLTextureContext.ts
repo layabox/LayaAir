@@ -1253,6 +1253,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let gl = renderTarget._gl;
         if (renderTarget && renderTarget._generateMipmap) {
             renderTarget._textures.forEach(tex => {
+                if (!tex) return;
                 let target = (<WebGLInternalTex>tex).target;
                 this._engine._bindTexture(target, tex.resource);
                 gl.generateMipmap(target);
@@ -1310,6 +1311,11 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         }
 
         return internalTex;
+    }
+
+    // WebGL1's WEBGL_draw_buffers path is not supported; WebGL2 overrides this method.
+    createMultiRenderTargetInternal(width: number, height: number, colorFormats: readonly (RenderTargetFormat | null)[], depthStencilFormat: RenderTargetFormat, color0SRGB: boolean = false): WebGLInternalRT {
+        throw new Error("WebGL createMultiRenderTargetInternal is not implemented.");
     }
 
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number, storage: boolean): WebGLInternalRT {
@@ -1430,6 +1436,10 @@ export class GLTextureContext extends GLObject implements ITextureContext {
     }
 
     createRenderTargetDepthTexture(renderTarget: WebGLInternalRT, dimension: TextureDimension, width: number, height: number): WebGLInternalTex {
+        if (renderTarget._owner)
+            throw new Error("Cannot replace the borrowed depth/stencil attachment of an MRT color-0 target.");
+        if (renderTarget.colorFormats)
+            return this._createMRTDepthTexture(renderTarget, dimension, width, height);
         let gl = renderTarget._gl;
 
         if (renderTarget.depthStencilFormat == RenderTargetFormat.None) {
@@ -1460,6 +1470,76 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, attachment, gl.TEXTURE_2D, texture.resource, 0);
         gl.bindFramebuffer(gl.FRAMEBUFFER, WebGLEngine._lastFrameBuffer_WebGLOBJ);
 
+        return texture;
+    }
+
+    /** 两个 FBO 同步更换深度，验证失败时保留旧附件。 */
+    private _createMRTDepthTexture(renderTarget: WebGLInternalRT, dimension: TextureDimension, width: number, height: number): WebGLInternalTex {
+        const format = renderTarget.depthStencilFormat;
+        if (format === RenderTargetFormat.None) return null;
+        if (format !== RenderTargetFormat.DEPTH_16 && format !== RenderTargetFormat.DEPTH_32 && format !== RenderTargetFormat.DEPTHSTENCIL_24_8)
+            throw new Error("MRT sampleable depth requires a supported depth texture format.");
+        const color = renderTarget._textures?.[0];
+        const color0 = renderTarget._color0Target;
+        if (renderTarget.destroyed || !renderTarget._framebuffer || !color0?._framebuffer)
+            throw new Error("Cannot create depth storage for a missing or destroyed MRT.");
+        if (dimension !== TextureDimension.Tex2D || width !== color?.width || height !== color?.height)
+            throw new RangeError("MRT depth texture must match the color attachment dimensions.");
+        const params = { ...this.glRenderTextureParam(format, false) };
+        const attachment = this.glRenderTargetAttachment(format);
+        const gl = renderTarget._gl as WebGL2RenderingContext;
+        const previousDraw = gl.getParameter(gl.DRAW_FRAMEBUFFER_BINDING);
+        const previousTexture = gl.getParameter(gl.TEXTURE_BINDING_2D);
+        const textureUnit = this._engine._activedTextureID - gl.TEXTURE0;
+        const previousCachedTexture = this._engine._activeTextures[textureUnit];
+        const oldTexture = renderTarget._depthTexture as WebGLInternalTex;
+        const oldBuffer = renderTarget._depthbuffer;
+        const targets = [renderTarget, color0];
+        const texture = new WebGLInternalTex(this._engine, gl.TEXTURE_2D, width, height, 1, dimension, false, false, 1);
+        let error: string = null;
+        let attachmentChanged = false;
+        if (!texture.resource)
+            error = "Unable to allocate the MRT depth texture.";
+        else {
+            texture.internalFormat = params.internalFormat;
+            texture.format = params.format;
+            texture.type = params.type;
+            this._engine._bindTexture(gl.TEXTURE_2D, texture.resource);
+            gl.texStorage2D(gl.TEXTURE_2D, 1, texture.internalFormat, width, height);
+            texture.filterMode = FilterMode.Point;
+            for (const target of targets) {
+                gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, target._framebuffer);
+                gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, attachment, gl.TEXTURE_2D, texture.resource, 0);
+                attachmentChanged = true;
+                const status = gl.checkFramebufferStatus(gl.DRAW_FRAMEBUFFER);
+                if (status !== gl.FRAMEBUFFER_COMPLETE) {
+                    error = `WebGL2 MRT depth framebuffer is incomplete (0x${status.toString(16)}).`;
+                    break;
+                }
+            }
+        }
+        if (error && attachmentChanged) {
+            for (const target of targets) {
+                gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, target._framebuffer);
+                if (oldTexture)
+                    gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, attachment, gl.TEXTURE_2D, oldTexture.resource, 0);
+                else
+                    gl.framebufferRenderbuffer(gl.DRAW_FRAMEBUFFER, attachment, gl.RENDERBUFFER, oldBuffer);
+            }
+        }
+        gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, previousDraw);
+        gl.bindTexture(gl.TEXTURE_2D, previousTexture);
+        this._engine._activeTextures[textureUnit] = previousCachedTexture;
+        if (error) {
+            texture.dispose();
+            throw new Error(error);
+        }
+        for (const target of targets) {
+            target._depthTexture = texture;
+            target._depthbuffer = null;
+        }
+        oldTexture?.dispose();
+        if (oldBuffer) gl.deleteRenderbuffer(oldBuffer);
         return texture;
     }
 
@@ -1509,7 +1589,9 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         return out;
     }
 
-    readRenderTargetPixelDataAsync(renderTarget: WebGLInternalRT, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): Promise<ArrayBufferView> { //兼容WGSL
+    readRenderTargetPixelDataAsync(renderTarget: WebGLInternalRT, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView, attachmentIndex: number = 0): Promise<ArrayBufferView> { //兼容WGSL
+        if (attachmentIndex !== 0)
+            return Promise.reject(new Error("WebGL readRenderTargetPixelDataAsync currently only supports color attachment 0."));
         return Promise.resolve(this.readRenderTargetPixelData(renderTarget, xOffset, yOffset, width, height, out));
     }
 

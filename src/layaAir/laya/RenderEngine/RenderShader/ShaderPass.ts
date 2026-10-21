@@ -8,6 +8,8 @@ import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderSt
 import { IDefineDatas } from "../../RenderDriver/RenderModuleData/Design/IDefineDatas";
 import { IShaderInstance } from "../../RenderDriver/DriverDesign/RenderDevice/IShaderInstance";
 import { IShaderPassData } from "../../RenderDriver/RenderModuleData/Design/IShaderPassData";
+import { ShaderMRT } from "./ShaderMRT";
+import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 
 
 /**
@@ -51,6 +53,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
     }
 
     moduleData: IShaderPassData;
+    private _mrtTargetDefines: Map<number, ShaderDefine>;
 
     get attributeLocations(): Set<number> {
         return this.moduleData.attributeLocations;
@@ -108,7 +111,31 @@ export class ShaderPass extends ShaderCompileDefineBase {
      * @override
      * @internal
      */
-    withCompile(compileDefine: IDefineDatas, is2D: boolean = false): IShaderInstance {
+    withCompile(compileDefine: IDefineDatas, is2D: boolean = false, mrtTargetCount?: number): IShaderInstance {
+        // 运行时由实际绑定的目标控制 MRT；离线编译保留请求的目标变体。
+        if (mrtTargetCount !== undefined) {
+            const mrtDefine = Shader3D.getDefineByName(ShaderMRT.defineName);
+            if (mrtTargetCount > 0) compileDefine.add(mrtDefine);
+            else compileDefine.remove(mrtDefine);
+        } else {
+            // 过滤有效宏前读取槽位跨度，保留离线预热的目标布局。
+            const defineNames: string[] = [];
+            Shader3D._getNamesByDefineData(compileDefine, defineNames);
+            mrtTargetCount = ShaderMRT.getTargetCount(defineNames);
+        }
+        if (this._mrtTargetDefines) {
+            for (const define of this._mrtTargetDefines.values()) compileDefine.remove(define);
+        }
+        if (mrtTargetCount > 0) {
+            this._mrtTargetDefines ||= new Map();
+            let define = this._mrtTargetDefines.get(mrtTargetCount);
+            if (!define) {
+                define = Shader3D.getDefineByName(ShaderMRT.targetDefinePrefix + mrtTargetCount);
+                this._mrtTargetDefines.set(mrtTargetCount, define);
+                this._validDefine.add(define);
+            }
+            compileDefine.add(define);
+        }
         var shader: IShaderInstance = this.moduleData.getCacheShader(compileDefine);
         if (shader)
             return shader;

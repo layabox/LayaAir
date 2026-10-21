@@ -214,6 +214,9 @@ export class NoTextureContext implements ITextureContext {
         texture.compareMode = compareMode;
         return compareMode;
     }
+    createMultiRenderTargetInternal(width: number, height: number, colorFormats: readonly RenderTargetFormat[], depthStencilFormat: RenderTargetFormat): InternalRenderTarget {
+        throw new Error("NoRender createMultiRenderTargetInternal is not implemented.");
+    }
     createRenderTargetInternal(width: number, height: number, format: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number, storage: boolean): InternalRenderTarget {
         return this._createRenderTarget(TextureDimension.Tex2D, width, height, 1, format, depthStencilFormat, generateMipmap, sRGB, multiSamples);
     }
@@ -244,7 +247,9 @@ export class NoTextureContext implements ITextureContext {
         new Uint8Array(out.buffer, out.byteOffset, out.byteLength).fill(0);
         return out;
     }
-    readRenderTargetPixelDataAsync(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): Promise<ArrayBufferView> {
+    readRenderTargetPixelDataAsync(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView, attachmentIndex: number = 0): Promise<ArrayBufferView> {
+        if (attachmentIndex !== 0)
+            return Promise.reject(new Error("NoRender readRenderTargetPixelDataAsync currently only supports color attachment 0."));
         return Promise.resolve(this.readRenderTargetPixelData(renderTarget, xOffset, yOffset, width, height, out));
     }
     updateVideoTexture(texture: InternalTexture, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): void {

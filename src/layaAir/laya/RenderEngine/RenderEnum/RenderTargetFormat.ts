@@ -15,5 +15,9 @@ export enum RenderTargetFormat {
     STENCIL_8 = 36,
     DEPTHSTENCIL_24_8 = 37,
     DEPTH_32 = 38,
-    DEPTHSTENCIL_24_Plus = 39
+    DEPTHSTENCIL_24_Plus = 39,
+    /** Single-channel half-float; check RenderTextureFormat_R16 first. */
+    R16 = 40,
+    /** Two-channel half-float; check RenderTextureFormat_R16G16 first. */
+    R16G16 = 41
 }

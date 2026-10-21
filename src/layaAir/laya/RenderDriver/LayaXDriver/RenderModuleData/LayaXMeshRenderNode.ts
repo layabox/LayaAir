@@ -5,15 +5,13 @@ import { LayaXBaseRenderNode } from "./LayaXBaseRenderNode";
  * LayaX MeshRenderNode bridge.
  *
  * Extends LayaXBaseRenderNode and implements IMeshRenderNode.
- * Currently identical to the base — the native class `conchLayaXMeshRenderNode`
- * may carry additional mesh-specific state on the Rust side.
+ * Creates `conchLayaXMeshRenderNode`, whose C++ wrapper owns the LayaX mesh node handle.
  */
 export class LayaXMeshRenderNode extends LayaXBaseRenderNode implements IMeshRenderNode {
 
     /** @internal */
     protected _getNativeObj(): void {
-        // TODO(Q13): Confirm if LayaX needs a distinct native class for mesh render nodes
-        // or if conchLayaXBaseRenderNode is sufficient.
+        // The mesh node has a distinct native constructor registered by the module factory.
         this._nativeObj = new (window as any).conchLayaXMeshRenderNode();
     }
 }

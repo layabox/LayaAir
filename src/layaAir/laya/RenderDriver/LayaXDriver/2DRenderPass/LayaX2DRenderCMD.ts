@@ -65,9 +65,9 @@ export class LayaXSetRendertarget2DCMD extends SetRendertarget2DCMD {
 
     apply(_context: IRenderContext2D): void {
         // RT 切换 / clear / viewport / invertY / u_size 全部由 native 的
-        // layax_2d_set_rt_cmd_execute（Rust 权威）完成，TS 侧无需再推一遍，
+        // layax_2d_set_rt_cmd_execute（C++ 权威）完成，TS 侧无需再推一遍，
         // 否则 context.setRenderTarget 会立刻切一次 RT 并可能 clear，然后
-        // Rust 路径又切一次，造成双重切换和双重 clear。
+        // C++ 路径又切一次，造成双重切换和双重 clear。
         // this._nativeObj.execute();
     }
 }

@@ -25,7 +25,7 @@ import { LayaXVolumetricGI } from "./LayaXVolumetricGI";
  * LayaX 3D RenderModule factory.
  *
  * Creates LayaX-specific bridge objects that wrap `conchLayaX*` native classes.
- * All rendering is driven by the Rust RenderFeature; these objects serve as
+ * All rendering is driven by the C++ RenderFeature; these objects serve as
  * the TS-side data bridge.
  */
 export class LayaX3DRenderModuleFactory implements I3DRenderModuleFactory {
