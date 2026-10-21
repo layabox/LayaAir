@@ -213,6 +213,9 @@ export class ConstraintComponent extends Component {
         this._boundOwnCollider = own;
         this._boundConnectCollider = connected;
         this._jointReady = true;
+        // Native actors can become ready after properties were deserialized.
+        this._joint.setBreakForce(this._breakForce);
+        this._joint.setBreakTorque(this._breakTorque);
         this._onJointReady();
         this._joint.isEnable(this.enabled);
     }

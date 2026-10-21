@@ -5,6 +5,8 @@ import { IJoint } from "./IJoint";
  * @zh 铰链关节接口。
  */
 export interface IHingeJoint extends IJoint {
+    /** @internal False for backends without a configurable contact distance. */
+    readonly supportsContactDistance?: boolean;
     /**
      * @en Sets the axis of rotation for the hinge joint.
      * @param value The axis vector to set.

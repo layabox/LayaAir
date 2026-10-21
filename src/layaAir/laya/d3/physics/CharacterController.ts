@@ -1,3 +1,4 @@
+import { ILaya } from "../../../ILaya";
 import { Vector3 } from "../../maths/Vector3";
 import { PhysicsColliderComponent } from "./PhysicsColliderComponent";
 import { Laya3D } from "../../../Laya3D";
@@ -81,8 +82,12 @@ export class CharacterController extends PhysicsColliderComponent {
     onUpdate(): void {
         if (this._collider && this._collider.getCapable(ECharacterCapable.Character_SimulateGravity)) {
             // physX need to simulate character Gravity.
-            this._simGravity.setValue(this._gravity.x / 60.0, this._gravity.y / 60.0, this._gravity.z / 60.0);
-            this.move(this._simGravity);
+            if (this._collider.simulateGravity) {
+                this._collider.simulateGravity(ILaya.timer.delta / 1000);
+            } else {
+                this._simGravity.setValue(this._gravity.x / 60.0, this._gravity.y / 60.0, this._gravity.z / 60.0);
+                this.move(this._simGravity);
+            }
         }
     }
 
