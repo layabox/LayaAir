@@ -7,6 +7,8 @@ import { ISubshaderData } from "../../RenderModuleData/Design/ISubShaderData";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { NoRenderDefineDatas } from "./NoRenderDeviceFactory";
+import { UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
+import { IUnitRenderModuleDataFactory } from "../../RenderModuleData/Design/IUnitRenderModuleDataFactory";
 
 class NoRenderShaderPass implements IShaderPassData {
     is2D: boolean;
@@ -19,6 +21,13 @@ class NoRenderShaderPass implements IShaderPassData {
 
     private _validDefine: NoRenderDefineDatas = new NoRenderDefineDatas();
     private _renderState: RenderState = new RenderState();
+    private _cacheShaders = new Map<string, IShaderInstance>();
+
+    private _cacheKey(define: IDefineDatas): string {
+        let length = define._length;
+        while (length > 0 && !define._mask[length - 1]) length--;
+        return define._mask.slice(0, length).join(",");
+    }
 
     get validDefine(): NoRenderDefineDatas { return this._validDefine; }
     set validDefine(value: NoRenderDefineDatas) { this._validDefine = value; }
@@ -31,13 +40,20 @@ class NoRenderShaderPass implements IShaderPassData {
     }
 
     setCacheShader(compileDefine: IDefineDatas, shader: IShaderInstance): void {
+        const key = this._cacheKey(compileDefine);
+        if (shader) this._cacheShaders.set(key, shader);
+        else this._cacheShaders.delete(key);
     }
 
     getCacheShader(compileDefine: IDefineDatas): IShaderInstance {
-        return null;
+        compileDefine._intersectionDefineDatas(this._validDefine);
+        return this._cacheShaders.get(this._cacheKey(compileDefine)) || null;
     }
 
     destroy(): void {
+        for (const shader of new Set(this._cacheShaders.values())) shader._disposeResource();
+        this._cacheShaders.clear();
+        this._validDefine.destroy();
     }
 }
 
@@ -45,12 +61,19 @@ class NoRenderSubShader implements ISubshaderData {
     shaderName: string;
     enableInstance: boolean;
 
-    addShaderPass(pass: IShaderPassData): void { }
-    setUniformMap(_uniformMap: Map<number, any>): void { }
-    destroy(): void { }
+    shaderPasses: IShaderPassData[] = [];
+    uniformMap = new Map<number, UniformProperty>();
+
+    addShaderPass(pass: IShaderPassData): void { this.shaderPasses.push(pass); }
+    setUniformMap(uniformMap: Map<number, UniformProperty>): void { this.uniformMap = new Map(uniformMap); }
+    destroy(): void {
+        for (const pass of this.shaderPasses) pass.destroy();
+        this.shaderPasses.length = 0;
+        this.uniformMap.clear();
+    }
 }
 
-export class NoRenderUnitModuleDataFactory {
+export class NoRenderUnitModuleDataFactory implements IUnitRenderModuleDataFactory {
     createSubShader(): NoRenderSubShader {
         return new NoRenderSubShader();
     }

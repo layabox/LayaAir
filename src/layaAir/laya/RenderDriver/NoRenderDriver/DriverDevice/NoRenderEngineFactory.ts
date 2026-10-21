@@ -118,58 +118,70 @@ export class NoInternalTexture implements InternalTexture {
     isPotSize: boolean;
     mipmap: boolean;
     mipmapCount: number;
-    filterMode: FilterMode;
-    wrapU: WrapMode;
-    wrapV: WrapMode;
-    wrapW: WrapMode;
-    anisoLevel: number;
-    baseMipmapLevel: number;
-    maxMipmapLevel: number;
-    compareMode: TextureCompareMode;
-    gpuMemory: number;
-    useSRGBLoad: boolean;
-    gammaCorrection: number;
+    filterMode: FilterMode = FilterMode.Bilinear;
+    wrapU: WrapMode = WrapMode.Repeat;
+    wrapV: WrapMode = WrapMode.Repeat;
+    wrapW: WrapMode = WrapMode.Repeat;
+    anisoLevel: number = 1;
+    baseMipmapLevel: number = 0;
+    maxMipmapLevel: number = 0;
+    compareMode: TextureCompareMode = TextureCompareMode.None;
+    gpuMemory: number = 0;
+    useSRGBLoad: boolean = false;
+    gammaCorrection: number = 1;
     dispose(): void {
     }
 }
 
 export class NoInternalRT implements InternalRenderTarget {
-    _isCube: boolean;
-    _samples: number;
-    _generateMipmap: boolean;
+    _isCube: boolean = false;
+    _samples: number = 1;
+    _generateMipmap: boolean = false;
     _textures: InternalTexture[] = [];
     _texturesResolve?: InternalTexture[];
     _depthTexture: InternalTexture;
     colorFormat: RenderTargetFormat;
     depthStencilFormat: RenderTargetFormat;
     isSRGB: boolean;
-    gpuMemory: number;
+    gpuMemory: number = 0;
     dispose(): void {
+        for (const texture of this._textures) texture.dispose();
+        this._textures.length = 0;
+        this._depthTexture?.dispose();
+        this._depthTexture = null;
     }
 
 }
 
 
 export class NoTextureContext implements ITextureContext {
-    createRenderTargetArrayInternal(width: number, height: number, depth: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
-        let texture = this.createTextureInternal(TextureDimension.Texture2DArray, width, height, TextureFormat.R8G8B8A8, generateMipmap, sRGB, false);
-        texture.depth = depth;
-        let renderTarget = new NoInternalRT();
+    private _createRenderTarget(dimension: TextureDimension, width: number, height: number, depth: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): NoInternalRT {
+        const texture = this.createTexture3DInternal(dimension, width, height, depth, <TextureFormat><number>colorFormat, generateMipmap, sRGB, false);
+        const renderTarget = new NoInternalRT();
         renderTarget._textures.push(texture);
+        renderTarget._isCube = dimension === TextureDimension.Cube;
+        renderTarget._samples = Math.max(1, multiSamples);
+        renderTarget._generateMipmap = texture.mipmap;
         renderTarget.colorFormat = colorFormat;
         renderTarget.depthStencilFormat = depthStencilFormat;
         renderTarget.isSRGB = sRGB;
         return renderTarget;
     }
-    needBitmap: boolean;
+
+    createRenderTargetArrayInternal(width: number, height: number, depth: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
+        return this._createRenderTarget(TextureDimension.Texture2DArray, width, height, depth, colorFormat, depthStencilFormat, generateMipmap, sRGB, multiSamples);
+    }
+    needBitmap: boolean = false;
     createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
         let internalTex = new NoInternalTexture();
         internalTex.width = width;
         internalTex.height = height;
         internalTex.depth = 1;
-        internalTex.mipmapCount = 1;
-        internalTex.mipmap = false;
-        internalTex.isPotSize = true;
+        internalTex.isPotSize = width > 0 && height > 0 && (width & (width - 1)) === 0 && (height & (height - 1)) === 0;
+        internalTex.mipmap = generateMipmap;
+        internalTex.mipmapCount = generateMipmap ? 1 + Math.floor(Math.log2(Math.max(1, width, height))) : 1;
+        internalTex.maxMipmapLevel = internalTex.mipmapCount - 1;
+        internalTex.gammaCorrection = sRGB ? 2.2 : 1;
         return internalTex;
     }
     setTextureImageData(texture: InternalTexture, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap | ImageData, premultiplyAlpha: boolean, invertY: boolean): void {
@@ -199,31 +211,19 @@ export class NoTextureContext implements ITextureContext {
     setCubeKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo): void {
     }
     setTextureCompareMode(texture: InternalTexture, compareMode: TextureCompareMode): TextureCompareMode {
-        return TextureCompareMode.None;
+        texture.compareMode = compareMode;
+        return compareMode;
     }
     createRenderTargetInternal(width: number, height: number, format: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number, storage: boolean): InternalRenderTarget {
-        multiSamples = 1;
-        let texture = this.createTextureInternal(TextureDimension.Tex2D, width, height, TextureFormat.R8G8B8A8, generateMipmap, sRGB, false);
-        let renderTarget = new NoInternalRT();
-        renderTarget._textures.push(texture);
-        return renderTarget;
+        return this._createRenderTarget(TextureDimension.Tex2D, width, height, 1, format, depthStencilFormat, generateMipmap, sRGB, multiSamples);
     }
     createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
-        multiSamples = 1;
-        let texture = this.createTextureInternal(TextureDimension.Cube, size, size, TextureFormat.R8G8B8A8, generateMipmap, sRGB, false);
-        let renderTarget = new NoInternalRT();
-        renderTarget._textures.push(texture);
-        return renderTarget;
+        return this._createRenderTarget(TextureDimension.Cube, size, size, 1, colorFormat, depthStencilFormat, generateMipmap, sRGB, multiSamples);
     }
     createRenderTargetDepthTexture(renderTarget: InternalRenderTarget, dimension: TextureDimension, width: number, height: number): InternalTexture {
-        let internalTex = new NoInternalTexture();
-        internalTex.width = width;
-        internalTex.height = height;
-        internalTex.depth = 1;
-        internalTex.mipmapCount = 1;
-        internalTex.mipmap = false;
-        internalTex.isPotSize = true;
-        return internalTex;
+        const texture = this.createTextureInternal(dimension, width, height, <TextureFormat><number>renderTarget.depthStencilFormat, false, false, false);
+        renderTarget._depthTexture = texture;
+        return texture;
     }
     bindRenderTarget(renderTarget: InternalRenderTarget, faceIndex?: number): void {
     }
@@ -232,22 +232,31 @@ export class NoTextureContext implements ITextureContext {
     unbindRenderTarget(renderTarget: InternalRenderTarget): void {
     }
     readRenderTargetPixelData(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView {
-        return new Float32Array()
+        // No GPU pixels exist. Return a deterministic blank image using the caller's view.
+        if (!out) {
+            const format = renderTarget.colorFormat;
+            const floatFormat = format === RenderTargetFormat.R16G16B16 || format === RenderTargetFormat.R16G16B16A16 ||
+                format === RenderTargetFormat.R32G32B32 || format === RenderTargetFormat.R32G32B32A32;
+            const channels = format === RenderTargetFormat.R8G8B8 || format === RenderTargetFormat.R16G16B16 ||
+                format === RenderTargetFormat.R32G32B32 ? 3 : 4;
+            out = floatFormat ? new Float32Array(width * height * channels) : new Uint8Array(width * height * channels);
+        }
+        new Uint8Array(out.buffer, out.byteOffset, out.byteLength).fill(0);
+        return out;
     }
     readRenderTargetPixelDataAsync(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): Promise<ArrayBufferView> {
-        return Promise.resolve(new Float32Array());
+        return Promise.resolve(this.readRenderTargetPixelData(renderTarget, xOffset, yOffset, width, height, out));
     }
     updateVideoTexture(texture: InternalTexture, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): void {
     }
     createTexture3DInternal(dimension: TextureDimension, width: number, height: number, depth: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
-        let internalTex = new NoInternalTexture();
-        internalTex.width = width;
-        internalTex.height = height;
-        internalTex.depth = 1;
-        internalTex.mipmapCount = 1;
-        internalTex.mipmap = false;
-        internalTex.isPotSize = true;
-        return internalTex;
+        const texture = this.createTextureInternal(dimension, width, height, format, generateMipmap, sRGB, premultipliedAlpha);
+        texture.depth = depth;
+        if (generateMipmap && dimension === TextureDimension.Tex3D) {
+            texture.mipmapCount = 1 + Math.floor(Math.log2(Math.max(1, width, height, depth)));
+            texture.maxMipmapLevel = texture.mipmapCount - 1;
+        }
+        return texture;
     }
     setTexture3DImageData(texture: InternalTexture, source: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
     }
