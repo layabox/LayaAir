@@ -72,7 +72,7 @@ export class GearJoint extends JointBase {
 
     set ratio(value: number) {
         this._ratio = value;
-        if (this._joint) this._factory.set_GearJoint_SetRatio(this._joint, value);
+        if (this._joint) this._factory.set_GearJoint_SetRatio(this._joint, -value);
     }
 
     /**

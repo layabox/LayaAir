@@ -47,7 +47,7 @@ export class MouseJoint extends JointBase {
 
     set maxForce(value: number) {
         this._maxForce = value;
-        if (this._joint) this._factory.set_MotorJoint_SetMaxForce(this._joint, value);
+        if (this._joint) this._factory.set_MouseJoint_MaxForce(this._joint, value);
     }
 
     /**

@@ -675,6 +675,9 @@ export interface IPhysics2DFactory {
      */
     set_Joint_SetMaxMotorTorque(joint: any, maxTorque: number): void;
 
+    /** @internal Set the prismatic motor force. */
+    set_Joint_SetMaxMotorForce(joint: any, maxForce: number): void;
+
     /** 
      * @internal
      */
@@ -685,10 +688,13 @@ export interface IPhysics2DFactory {
      */
     set_Joint_SetLimits(joint: any, lowerAngle: number, upperAngle: number): void;
 
+    /** @internal Set translation limits in pixels. */
+    set_Joint_SetTranslationLimits(joint: any, lower: number, upper: number): void;
+
     /** 
      * @internal
      */
-    set_Joint_frequencyAndDampingRatio(joint: any, frequency: number, dampingRatio: number, isdamping: boolean): void;
+    set_Joint_frequencyAndDampingRatio(joint: any, frequency: number, dampingRatio: number, isdamping: boolean, isAngular?: boolean): void;
 
     /** 
      * @internal
@@ -721,6 +727,9 @@ export interface IPhysics2DFactory {
      * @internal
      */
     set_MouseJoint_target(joint: any, x: number, y: number): void;
+
+    /** @internal Set the mass-scaled mouse joint force. */
+    set_MouseJoint_MaxForce(joint: any, maxForce: number): void;
 
     /** 
      * @internal

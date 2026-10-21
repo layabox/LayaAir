@@ -413,8 +413,10 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
     }
 
     removeJoint(world: any, joint: any): void {
-        if (joint && world && !world.destroyed && !joint.bodyA.destroyed && !joint.bodyB.destroyed)
+        if (world && this.isValidJoint(joint)) {
             world.DestroyJoint(joint);
+            joint.destroyed = true;
+        }
     }
 
     _createBox2DJoint(world: any, def: any, cls: any): any {
@@ -424,6 +426,7 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
             joint = this.castObject(joint, cls);
         }
         joint.m_userData = {};
+        joint.destroyed = false;
         joint.world = world;
         return joint;
     }
@@ -492,6 +495,11 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         joint.SetMaxMotorTorque(maxTorque);
     }
 
+    /** @internal */
+    set_Joint_SetMaxMotorForce(joint: any, maxForce: number): void {
+        joint.SetMaxMotorForce(maxForce);
+    }
+
     /**
      * @en Enable or disable the limit of a joint.
      * @param joint The joint.
@@ -518,6 +526,11 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         joint.SetLimits(lowerAngle, upperAngle);
     }
 
+    /** @internal */
+    set_Joint_SetTranslationLimits(joint: any, lower: number, upper: number): void {
+        joint.SetLimits(this.convertLayaValueToPhysics(joint.world, lower), this.convertLayaValueToPhysics(joint.world, upper));
+    }
+
     /**
      * @en Set the frequency and damping ratio of a joint.
      * @param joint The joint.
@@ -530,9 +543,12 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
      * @param dampingRatio 阻尼比。
      * @param isdamping 是否应用阻尼。
      */
-    set_Joint_frequencyAndDampingRatio(joint: any, frequency: number, dampingRatio: number, isdamping: boolean): void {
-        let out: any = {}
-        this.box2d.b2AngularStiffness(out, frequency, dampingRatio, joint.GetBodyA(), joint.GetBodyB());
+    set_Joint_frequencyAndDampingRatio(joint: any, frequency: number, dampingRatio: number, isdamping: boolean, isAngular: boolean = true): void {
+        let out: any = {};
+        if (isAngular)
+            this.b2AngularStiffness(out, frequency, dampingRatio, joint.GetBodyA(), joint.GetBodyB());
+        else
+            this.b2LinearStiffness(out, frequency, dampingRatio, joint.GetBodyA(), joint.GetBodyB());
         if (!isdamping) {
             joint.SetStiffness(out.stiffness);
         }
@@ -634,6 +650,11 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         joint.SetTarget(this._tempVe21)
     }
 
+    /** @internal */
+    set_MouseJoint_MaxForce(joint: any, maxForce: number): void {
+        joint.SetMaxForce(maxForce * joint.GetBodyB().GetMass());
+    }
+
     /** 
      * @en Set the frequency and damping ratio of a mouse joint.
      * @param Joint The mouse joint.
@@ -722,8 +743,10 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         return torque;
     }
     isValidJoint(joint: any): boolean {
-        let isConnected: boolean = joint.GetCollideConnected();
-        return isConnected;
+        // Body destruction also destroys attached native joints. Check wrapper
+        // lifetime flags before calling any method on a potentially freed pointer.
+        return !!(joint && !joint.destroyed && joint.world && !joint.world.destroyed
+            && joint.bodyA && !joint.bodyA.destroyed && joint.bodyB && !joint.bodyB.destroyed);
     }
 
     createShapeDef(world: any, shapeDef: Box2DShapeDef, filter: any) {
