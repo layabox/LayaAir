@@ -116,22 +116,24 @@ export class NoRenderPrimitiveRenderElement2D extends NoRenderElement2D implemen
 }
 
 export class NoRenderContext2D implements IRenderContext2D {
+    private _renderTarget: InternalRenderTarget = null;
+    private _offscreenView = new Vector4();
     passData: ShaderData;
     getRenderTarget(): InternalRenderTarget {
-        return null;
+        return this._renderTarget;
     }
 
     sceneData: ShaderData;
-    invertY: boolean;
-    pipelineMode: string;
+    invertY: boolean = false;
+    pipelineMode: string = "Forward";
     setRenderTarget(value: InternalRenderTarget, clear: boolean, clearColor: Color): void {
-
+        this._renderTarget = value;
     }
-    setOffscreenView(width: number, height: number, x?: number, y?: number): void {
-
+    setOffscreenView(width: number, height: number, x: number = 0, y: number = 0): void {
+        this._offscreenView.setValue(x, y, width, height);
     }
     getOffscreenView(out: Vector4): void {
-
+        this._offscreenView.cloneTo(out);
     }
     drawRenderElementOne(node: IRenderElement2D): void {
 

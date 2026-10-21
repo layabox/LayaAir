@@ -30,6 +30,7 @@ import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderG
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
+import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { ShaderData, ShaderDataItem, ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
@@ -148,6 +149,7 @@ export class NoRenderDefineDatas implements IDefineDatas {
 }
 
 export class NoRenderDeviceFactory implements IRenderDeviceFactory {
+    private _uniformMaps = new Map<string, NoRenderCommandUnifojrmMap>();
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): IShaderInstance {
         return new NoRenderShaderInstance();
     }
@@ -161,7 +163,7 @@ export class NoRenderDeviceFactory implements IRenderDeviceFactory {
         return new NoRenderBufferState();
     }
     createRenderGeometryElement(mode: MeshTopology, drawType: DrawType): IRenderGeometryElement {
-        return new NoRenderGeometryElement();
+        return new NoRenderGeometryElement(mode, drawType);
     }
     createEngine(config: Config, canvas: HTMLCanvas): Promise<void> {
         let engine = new NoRenderEngine();
@@ -171,17 +173,31 @@ export class NoRenderDeviceFactory implements IRenderDeviceFactory {
         return Promise.resolve();
     }
     createGlobalUniformMap(blockName: string): CommandUniformMap {
-        return new NoRenderCommandUnifojrmMap(blockName);
+        let map = this._uniformMaps.get(blockName);
+        if (!map) {
+            map = new NoRenderCommandUnifojrmMap(blockName);
+            this._uniformMaps.set(blockName, map);
+        }
+        return map;
     }
     createShaderData(ownerResource?: Resource): ShaderData {
-        return new NoRenderShaderData();
+        return new NoRenderShaderData(ownerResource);
     }
 
 }
 
 export class NoRenderCommandUnifojrmMap extends CommandUniformMap {
+    _idata = new Map<number, UniformProperty>();
+    _defaultTextures = new Map<number, BaseTexture>();
+    private _stateID: number;
+
     constructor(stateName: string) {
         super(stateName);
+        this._stateID = LayaGL.renderEngine.propertyNameToID(stateName);
+    }
+
+    hasPtrID(propertyID: number): boolean {
+        return this._stateID === propertyID || this._idata.has(propertyID);
     }
     /**
      * 增加一个Uniform参数
@@ -189,15 +205,19 @@ export class NoRenderCommandUnifojrmMap extends CommandUniformMap {
      * @param propertyKey 
      */
     addShaderUniform(propertyID: number, propertyKey: string, uniformtype: ShaderDataType, options?: UniformOptions): void {
-
+        this._idata.set(propertyID, { id: propertyID, propertyName: propertyKey, uniformtype, arrayLength: 0, ...options });
     }
 
     /**
      * 增加一个UniformArray参数
      */
     addShaderUniformArray(propertyID: number, propertyName: string, uniformtype: ShaderDataType, arrayLength: number, block: string = ""): void {
-
+        this._idata.set(propertyID, { id: propertyID, propertyName, uniformtype, arrayLength });
     } //兼容WGSL
+
+    setDefaultTextureData(key: number, defaultTex: BaseTexture): void {
+        this._defaultTextures.set(key, defaultTex);
+    }
 }
 
 export class NoRenderShaderInstance implements IShaderInstance {
@@ -256,21 +276,34 @@ export class NoRenderBufferState implements IBufferState {
 }
 
 export class NoRenderGeometryElement implements IRenderGeometryElement {
+    constructor(mode: MeshTopology = MeshTopology.Triangles, drawType: DrawType = DrawType.DrawElement) {
+        this.mode = mode;
+        this.drawType = drawType;
+    }
+
     getDrawDataParams(out: FastSinglelist<number>): void {
+        out && this.drawParams.cloneTo(out);
     }
     bufferState: IBufferState;
     mode: MeshTopology;
     drawType: DrawType;
-    instanceCount: number;
+    instanceCount: number = 1;
     indexFormat: IndexFormat;
-    drawParams: FastSinglelist<number>;
+    drawParams: FastSinglelist<number> = new FastSinglelist();
     setDrawArrayParams(first: number, count: number): void {
+        this.drawParams.add(first);
+        this.drawParams.add(count);
     }
     setDrawElemenParams(count: number, offset: number): void {
+        this.drawParams.add(offset);
+        this.drawParams.add(count);
     }
     clearRenderParams(): void {
+        this.drawParams.clear();
     }
     destroy(): void {
+        this.drawParams.clear();
+        this.bufferState = null;
     }
 
 }
@@ -331,6 +364,7 @@ export class NoRenderShaderData extends ShaderData {
             }
         }
         this._data = {};
+        this.clearDefine();
     }
 
     /**
@@ -402,7 +436,11 @@ export class NoRenderShaderData extends ShaderData {
      * @param value Vector2向量。
      */
     setVector2(index: number, value: Vector2): void {
-        this._data[index] = value;
+        const current = this._data[index];
+        if (value && current instanceof Vector2)
+            value.cloneTo(current);
+        else
+            this._data[index] = value ? value.clone() : value;
     }
 
     /**
@@ -420,7 +458,11 @@ export class NoRenderShaderData extends ShaderData {
      * @param value Vector3向量。
      */
     setVector3(index: number, value: Vector3): void {
-        this._data[index] = value;
+        const current = this._data[index];
+        if (value && current instanceof Vector3)
+            value.cloneTo(current);
+        else
+            this._data[index] = value ? value.clone() : value;
     }
 
     /**
@@ -438,7 +480,11 @@ export class NoRenderShaderData extends ShaderData {
      * @param value 向量。
      */
     setVector(index: number, value: Vector4): void {
-        this._data[index] = value;
+        const current = this._data[index];
+        if (value && current instanceof Vector4)
+            value.cloneTo(current);
+        else
+            this._data[index] = value ? value.clone() : value;
     }
 
     /**
@@ -456,7 +502,11 @@ export class NoRenderShaderData extends ShaderData {
      * @param value 颜色值
      */
     setColor(index: number, value: Color): void {
-        this._data[index] = value;
+        const current = this._data[index];
+        if (value && current instanceof Color)
+            value.cloneTo(current);
+        else
+            this._data[index] = value ? value.clone() : value;
     }
 
     /**
@@ -474,7 +524,11 @@ export class NoRenderShaderData extends ShaderData {
      * @param value  矩阵。
      */
     setMatrix4x4(index: number, value: Matrix4x4): void {
-        this._data[index] = value;
+        const current = this._data[index];
+        if (value && current instanceof Matrix4x4)
+            value.cloneTo(current);
+        else
+            this._data[index] = value ? value.clone() : value;
     }
 
     /**
@@ -492,7 +546,11 @@ export class NoRenderShaderData extends ShaderData {
      * @param value 
      */
     setMatrix3x3(index: number, value: Matrix3x3): void {
-        this._data[index] = value;
+        const current = this._data[index];
+        if (value && current instanceof Matrix3x3)
+            value.cloneTo(current);
+        else
+            this._data[index] = value ? value.clone() : value;
     }
 
     /**
@@ -519,7 +577,12 @@ export class NoRenderShaderData extends ShaderData {
      * @param value 纹理。
      */
     setTexture(index: number, value: BaseTexture): void {
+        const previous = this._data[index];
+        if (previous === value) return;
+        // Retain the new texture before releasing the previous one.
+        value && value._addReference();
         this._data[index] = value;
+        if (previous instanceof Resource) previous._removeReference();
     }
 
     /**
@@ -611,8 +674,14 @@ export class NoRenderShaderData extends ShaderData {
     /**
      * @private
      */
-    _setInternalTexture(index: number, value: InternalTexture): void {
+    _setInternalTexture(index: number, value: InternalTexture | InternalRenderTarget): void {
+        const previous = this._data[index];
+        this._data[index] = value;
+        if (previous instanceof Resource) previous._removeReference();
+    }
 
+    update(name: string): void {
+        // CPU values are already current; NoRender has no uniform buffers to upload.
     }
 
 
@@ -621,41 +690,21 @@ export class NoRenderShaderData extends ShaderData {
      * @param destObject 克隆源。
      */
     cloneTo(destObject: NoRenderShaderData): void {
-        let destData: { [key: string]: number | boolean | Vector2 | Vector3 | Vector4 | Matrix3x3 | Matrix4x4 | Resource } = destObject._data;
-        for (let k in this._data) { //TODO:需要优化,杜绝is判断，慢
-            let value: any = this._data[k];
-            if (value != null) {
-                if (typeof value == "number") {
-                    destData[k] = value;
-                } else if (typeof value == "boolean") {
-                    destData[k] = value;
-                } else if (value instanceof Vector2) {
-                    let v2 = destData[k] || (destData[k] = new Vector2());
-                    value.cloneTo(<Vector2>v2);
-                } else if (value instanceof Vector3) {
-                    let v3 = destData[k] || (destData[k] = new Vector3());
-                    value.cloneTo(<Vector3>v3);
-                } else if (value instanceof Vector4) {
-                    let color = this.getColor(parseInt(k));
-                    if (color) {
-                        let clonecolor = color.clone();
-                        destObject.setColor(parseInt(k), clonecolor);
-                    } else {
-                        let v4 = destData[k] || (destData[k] = new Vector4());
-                        value.cloneTo(<Vector4>v4);
-                    }
-                }
-                else if (value instanceof Matrix3x3) {
-                    let mat = destData[k] || (destData[k] = new Matrix3x3());
-                    value.cloneTo(<Matrix3x3>mat);
-                }
-                else if (value instanceof Matrix4x4) {
-                    let mat = destData[k] || (destData[k] = new Matrix4x4());
-                    value.cloneTo(<Matrix4x4>mat);
-                } else if (value instanceof Resource) {
-                    destData[k] = value;
-                    value._addReference();
-                }
+        if (destObject === this) return;
+        destObject.clearData();
+        for (const key in this._data) {
+            const value = this._data[key];
+            if (value instanceof Resource) {
+                value._addReference();
+                destObject._data[key] = value;
+            } else if (value instanceof Float32Array) {
+                destObject._data[key] = value.slice();
+            } else if (value instanceof Color || value instanceof Vector2 || value instanceof Vector3 ||
+                value instanceof Vector4 || value instanceof Matrix3x3 || value instanceof Matrix4x4) {
+                destObject._data[key] = value.clone();
+            } else {
+                // Scalars, nulls and non-owned internal textures retain their values.
+                destObject._data[key] = value;
             }
         }
         this._defineDatas.cloneTo(destObject._defineDatas);
@@ -672,15 +721,10 @@ export class NoRenderShaderData extends ShaderData {
     }
 
     destroy(): void {
+        if (!this._data) return;
+        this.clearData();
         this._defineDatas.destroy();
         this._defineDatas = null;
-        for (var k in this._data) {
-            //维护Refrence
-            var value: any = this._data[k];
-            if (value instanceof Resource) {
-                value._removeReference();
-            }
-        }
         this._data = null;
     }
 }
@@ -728,7 +772,7 @@ export class NoRenderSetRenderData extends SetRenderDataCMD {
         return this._value;
     }
     set value(value: ShaderDataItem) {
-
+        this._value = value;
     }
 
     constructor() {

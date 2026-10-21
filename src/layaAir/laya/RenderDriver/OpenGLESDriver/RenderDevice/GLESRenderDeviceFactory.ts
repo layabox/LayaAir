@@ -33,8 +33,14 @@ import { GLESComputeShaderInstance } from "./compute/GLESComputeShaderInstance";
 import { GLESDeviceBuffer } from "./compute/GLESDeviceBuffer";
 import { EDeviceBufferUsage, IDeviceBuffer } from "../../DriverDesign/RenderDevice/IDeviceBuffer";
 import { GLESComputeContext } from "./compute/GLESComputeContext";
+import { GLESGeometryUpdateBatch } from "./GLESGeometryUpdateBatch";
 
 export class GLESRenderDeviceFactory implements IRenderDeviceFactory {
+    beginGeometryUpdateBatch(): (() => void) | null { return GLESGeometryUpdateBatch.begin(); }
+    getGeometryUpdateBatchDiagnostics() { return { ...GLESGeometryUpdateBatch.diagnostics }; }
+    completeCameraRenderUpdateBatch(nodes: readonly any[], cameraMask: number): boolean {
+        return GLESGeometryUpdateBatch.completeCameraRenderUpdateBatch(nodes, cameraMask);
+    }
     createShaderData(ownerResource: Resource): ShaderData {
         return new GLESShaderData(ownerResource);
     }

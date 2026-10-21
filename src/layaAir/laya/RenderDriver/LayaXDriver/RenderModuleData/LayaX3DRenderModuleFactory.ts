@@ -6,6 +6,7 @@ import { Vector3 } from "../../../maths/Vector3";
 import { IPointLightData, ISimpleSkinRenderNode, ISkinRenderNode } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { I3DRenderModuleFactory } from "../../RenderModuleData/Design/3D/I3DRenderModuleFactory";
 import { LayaXBounds } from "./LayaXBounds";
+import type { Bounds } from "../../../d3/math/Bounds";
 import { LayaXTransform3D } from "./LayaXTransform3D";
 import { LayaXCameraNodeData } from "./LayaXCameraNodeData";
 import { LayaXSceneNodeData } from "./LayaXSceneNodeData";
@@ -35,6 +36,9 @@ export class LayaX3DRenderModuleFactory implements I3DRenderModuleFactory {
 
     createBounds(min: Vector3, max: Vector3): LayaXBounds {
         return new LayaXBounds(min, max);
+    }
+    setBoundsMinMaxBatch(targets: readonly Bounds[], values: Float64Array, count: number): boolean {
+        return LayaXBounds.setMinMaxBatch(targets, values, count);
     }
 
     createVolumetricGI(): LayaXVolumetricGI {

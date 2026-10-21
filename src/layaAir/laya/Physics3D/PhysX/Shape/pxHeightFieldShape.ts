@@ -23,6 +23,8 @@ export class pxHeightFieldShape extends pxColliderShape implements IHeightFieldS
     private _minHeight: number;
     /**@internal */
     private _maxHeight: number;
+    private _terrainYScale: number = 1;
+    private _heightOffset = new Vector3();
 
     /**@ignore */
     constructor() {
@@ -43,7 +45,7 @@ export class pxHeightFieldShape extends pxColliderShape implements IHeightFieldS
         let deltaHeight = this._maxHeight - this._minHeight;
         let data = pxStatics.createFloat32Array(this._heightData.length);
         this._heightData.forEach((value, index) => {
-            data.buffer[index] = (value - this._minHeight) / deltaHeight;
+            data.buffer[index] = deltaHeight > 0 ? (value - this._minHeight) / deltaHeight : 0;
         })
         return data;
     }
@@ -71,7 +73,7 @@ export class pxHeightFieldShape extends pxColliderShape implements IHeightFieldS
         let heightdata = this.getHeightData();
         let flagdata = this.getFlagData();
         this._heightFiled = pxStatics._physX.createHeightField(this._numRows, this._numCols, heightdata.ptr, flagdata.ptr, pxStatics._allocator, pxStatics._tolerancesScale, pxStatics._physics);
-        let heightScale = (this._scale.y * (this._maxHeight - this._minHeight)) / 32767;
+        let heightScale = (this._scale.y * (this._maxHeight - this._minHeight || 1)) / 32767;
         let flags = new pxStatics._physX.PxMeshGeometryFlags(PxMeshGeometryFlag.eTIGHT_BOUNDS);
         this._pxGeometry = new pxStatics._physX.PxHeightFieldGeometry(this._heightFiled, flags, heightScale, this._scale.x, this._scale.z);
         this._pxShape && this._pxCollider._pxActor.detachShape(this._pxShape, true);
@@ -94,11 +96,29 @@ export class pxHeightFieldShape extends pxColliderShape implements IHeightFieldS
      * @param flag 标志数据数组。
      * @param scale 高度场的缩放。
      */
+    protected _setLocalPose(): void {
+        if (!this._pxCollider || !this._pxShape) return;
+        const transform = pxColliderShape.transform;
+        const ownerScale = this._pxCollider.owner.transform.getWorldLossyScale();
+        Vector3.multiply(ownerScale, this._compoundLocalScale, this._scale);
+        Vector3.multiply(this._offset, ownerScale, transform.translation);
+        this._compoundRotation.cloneTo(transform.rotation);
+        // Height normalization moves the terrain origin along its own Y axis.
+        // Compose that offset with the child rotation before owner scaling.
+        const offset = this._heightOffset;
+        offset.setValue(0, this._minHeight * this._terrainYScale * this._compoundLocalScale.y, 0);
+        Vector3.transformQuat(offset, this._compoundRotation, offset);
+        Vector3.multiply(offset, ownerScale, offset);
+        Vector3.add(transform.translation, offset, transform.translation);
+        this._pxShape.setLocalPose(transform);
+    }
+
     setHeightFieldData(numRows: number, numCols: number, heightData: Float32Array, flag: Uint8Array, scale: Vector3): void {
         this._numRows = numRows;
         this._numCols = numCols;
         this._heightData = heightData;
         this._flag = flag;
+        this._terrainYScale = scale.y;
         scale.cloneTo(this._scale);
         this._createHeightField();
     }

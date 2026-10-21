@@ -1,3 +1,6 @@
+import type { Rigidbody3D } from "../../../d3/physics/Rigidbody3D";
+import { PhysicsForceMode } from "../../../d3/physics/PhysicsColliderComponent";
+import { Matrix3x3 } from "../../../maths/Matrix3x3";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { NotImplementedError } from "../../../utils/Error";
@@ -11,6 +14,66 @@ import { btJoint } from "./btJoint";
  * @zh 类`btCustomJoint`用于实现关节的详细控制。
  */
 export class btCustomJoint extends btJoint implements ID6Joint {
+    private _linearDrives = Array.from({ length: 3 }, () => ({ stiffness: 0, damping: 0, forceLimit: 0 }));
+    private _drivePosition = new Vector3();
+    private _driveVelocity = new Vector3();
+    private _drivesEnabled = true;
+    private _driveRegistered = false;
+    private _driveScratch: Vector3[];
+    private static readonly _driveKeys = ["x", "y", "z"] as const;
+    private _driveStep = { beforePhysicsStep: (dt: number) => this._applyLinearDrives(dt), afterPhysicsStep: (_dt: number) => {} };
+
+    isEnable(value: boolean): void {
+        this._drivesEnabled = value;
+        super.isEnable(value);
+    }
+
+    private _applyLinearDrives(deltaTime: number): void {
+        const a = this._collider as btRigidBodyCollider;
+        const b = this._connectCollider as btRigidBodyCollider;
+        if (!this._drivesEnabled || !this._btJoint || !a || !b || a._destroyed || b._destroyed) return;
+        const scratch = this._driveScratch;
+        const pa = scratch[0], pb = scratch[1], ra = scratch[2], rb = scratch[3];
+        Vector3.transformCoordinate(this._anchor, a.owner.transform.worldMatrix, pa);
+        Vector3.transformCoordinate(this._connectAnchor, b.owner.transform.worldMatrix, pb);
+        Vector3.subtract(pa, a.owner.transform.position, ra);
+        Vector3.subtract(pb, b.owner.transform.position, rb);
+        const aDynamic = a instanceof btRigidBodyCollider, bDynamic = b instanceof btRigidBodyCollider;
+        const va = scratch[4], vb = scratch[5], spin = scratch[6];
+        if (aDynamic) a.getLinearVelocity().cloneTo(va); else va.setValue(0, 0, 0);
+        if (bDynamic) b.getLinearVelocity().cloneTo(vb); else vb.setValue(0, 0, 0);
+        if (aDynamic) { Vector3.cross(a.getAngularVelocity(), ra, spin); Vector3.add(va, spin, va); }
+        if (bDynamic) { Vector3.cross(b.getAngularVelocity(), rb, spin); Vector3.add(vb, spin, vb); }
+        const delta = scratch[7], velocity = scratch[8];
+        Vector3.subtract(pb, pa, delta); Vector3.subtract(vb, va, velocity);
+        const x = scratch[9], y = scratch[10], z = scratch[11];
+        this._axis.cloneTo(x);
+        x.normalize(); Vector3.cross(x, this._secondAxis, z); z.normalize(); Vector3.cross(z, x, y);
+        const keys = btCustomJoint._driveKeys;
+        const inverseMass = (aDynamic && !(a.component as Rigidbody3D).isKinematic ? 1 / Math.max((a.component as Rigidbody3D).mass, 1e-7) : 0)
+            + (bDynamic && !(b.component as Rigidbody3D).isKinematic ? 1 / Math.max((b.component as Rigidbody3D).mass, 1e-7) : 0);
+        const force = scratch[12];
+        force.setValue(0, 0, 0);
+        for (let i = 0; i < 3; i++) {
+            const drive = this._linearDrives[i];
+            const motion = i === 0 ? this._linearXMotion : i === 1 ? this._linearYMotion : this._linearZMotion;
+            if (motion === D6Axis.eLOCKED || !(drive.forceLimit > 0)) continue;
+            const axis = scratch[9 + i]; Vector3.transformQuat(axis, a.owner.transform.rotation, axis);
+            const error = this._drivePosition[keys[i]] - Vector3.dot(delta, axis);
+            const speed = Vector3.dot(velocity, axis);
+            const speedError = this._driveVelocity[keys[i]] - speed;
+            // Backward Euler PD avoids an explicit spring becoming unstable for
+            // light bodies or high stiffness at the configured fixed step.
+            const denominator = 1 + inverseMass * deltaTime * (drive.damping + drive.stiffness * deltaTime);
+            const requestedForce = (drive.stiffness * (error - deltaTime * speed) + drive.damping * speedError) / denominator;
+            const amount = Math.max(-drive.forceLimit, Math.min(drive.forceLimit, requestedForce));
+            force.x += axis.x * amount; force.y += axis.y * amount; force.z += axis.z * amount;
+        }
+        if (force.lengthSquared() < 1e-12) return;
+        if (bDynamic && !(b.component as Rigidbody3D).isKinematic) b.addForce(force, PhysicsForceMode.Force, rb);
+        if (aDynamic && !(a.component as Rigidbody3D).isKinematic) { Vector3.scale(force, -1, force); a.addForce(force, PhysicsForceMode.Force, ra); }
+    }
+
 
     /**
      * @internal
@@ -115,13 +178,13 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      * @en Bullet physics primary axis representation
      * @zh Bullet物理引擎的轴表示
      */
-    _btAxis: number = 0;
+    _btAxis: number;
     /**
      * @internal
      * @en Bullet physics secondary axis representation
      * @zh Bullet物理引擎的副轴表示
      */
-    _btsceondAxis: number = 0;
+    _btsceondAxis: number;
 
     /**
      * @en Initializes the joint.
@@ -135,8 +198,8 @@ export class btCustomJoint extends btJoint implements ID6Joint {
 
     protected _createJoint(): void {
         let bt = btStatics.bt;
-        this._manager && this._manager.removeJoint(this);
-        if (this._collider && this._connectCollider) {
+        this._btJoint && this._manager && this._manager.removeJoint(this);
+        if ((this._collider as btRigidBodyCollider)?._btCollider && (this._connectCollider as btRigidBodyCollider)?._btCollider) {
             this._btJoint = bt.btGeneric6DofSpring2Constraint_create((this._collider as btRigidBodyCollider)._btCollider, this._btTempTrans0, (this._connectCollider as btRigidBodyCollider)._btCollider, this._btTempTrans1, 0);
             this._btJointFeedBackObj = bt.btJointFeedback_create(this._btJoint);
             bt.btTypedConstraint_setJointFeedback(this._btJoint, this._btJointFeedBackObj);
@@ -217,11 +280,30 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      */
     setAxis(axis: Vector3, secendary: Vector3): void {
         var bt = btStatics.bt;
-        this._axis.setValue(axis.x, axis.y, axis.y);
+        // Bullet's setAxis rebuilds the frames around the world origin and loses
+        // local anchors. Build both local bases explicitly instead.
+        const x = new Vector3(axis.x, axis.y, axis.z);
+        const y = new Vector3(secendary.x, secendary.y, secendary.z);
+        const z = new Vector3();
+        x.normalize();
+        Vector3.cross(x, y, z);
+        const crossLength = z.lengthSquared();
+        if (!(crossLength >= 1e-12) || !Number.isFinite(crossLength)) return;
+        z.normalize();
+        Vector3.cross(z, x, y);
+        this._axis.setValue(axis.x, axis.y, axis.z);
         this._secondAxis.setValue(secendary.x, secendary.y, secendary.z);
-        this._btAxis = bt.btVector3_setValue(-axis.x, axis.y, axis.z);
-        this._btsceondAxis = bt.btVector3_setValue(-secendary.x, secendary.y, secendary.z);
-        bt.btGeneric6DofSpring2Constraint_setAxis(this._btJoint, this._btAxis, this._btsceondAxis);
+        bt.btVector3_setValue(this._btAxis, -axis.x, axis.y, axis.z);
+        bt.btVector3_setValue(this._btsceondAxis, -secendary.x, secendary.y, secendary.z);
+        const matrix = new Matrix3x3();
+        matrix.elements.set([x.x, x.y, x.z, y.x, y.y, y.z, z.x, z.y, z.z]);
+        const rotation = new Quaternion();
+        Quaternion.rotationMatrix(matrix, rotation);
+        const nativeRotation = bt.btQuaternion_create(rotation.x, rotation.y, rotation.z, rotation.w);
+        bt.btTransform_setRotation(this._btTempTrans0, nativeRotation);
+        bt.btTransform_setRotation(this._btTempTrans1, nativeRotation);
+        bt.btQuaternion_delete(nativeRotation);
+        bt.btGeneric6DofSpring2Constraint_setFrames(this._btJoint, this._btTempTrans0, this._btTempTrans1);
     }
 
     /**
@@ -527,8 +609,23 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      * @param forceLimit 驱动力限制。
      */
     setDrive(index: D6Drive, stiffness: number, damping: number, forceLimit: number): void {
-        // enable motor
-        btStatics.bt.btGeneric6DofSpring2Constraint_enableMotor(this._btJoint, index, true);
+        if (index <= D6Drive.eZ) {
+            const drive = this._linearDrives[index];
+            drive.stiffness = Math.max(0, stiffness);
+            drive.damping = Math.max(0, damping);
+            drive.forceLimit = Math.max(0, forceLimit);
+            // Spring2's native servo has no separate stiffness/damping/force-cap
+            // model. Apply the PD force per fixed step while native D6 limits
+            // continue to solve the constrained degrees of freedom.
+            btStatics.bt.btGeneric6DofSpring2Constraint_enableMotor(this._btJoint, index, false);
+            const active = this._linearDrives.some(d => d.forceLimit > 0 && (d.stiffness > 0 || d.damping > 0));
+            if (active && !this._driveScratch) this._driveScratch = Array.from({ length: 13 }, () => new Vector3());
+            if (active && !this._driveRegistered) this._manager.addPhysicsStepListener(this._driveStep);
+            else if (!active && this._driveRegistered) this._manager.removePhysicsStepListener(this._driveStep);
+            this._driveRegistered = active;
+        } else {
+            btStatics.bt.btGeneric6DofSpring2Constraint_enableMotor(this._btJoint, index, stiffness > 0 || damping > 0);
+        }
     }
 
     /**
@@ -540,9 +637,8 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      * @param rotate 目标旋转。
      */
     setDriveTransform(position: Vector3, rotate: Quaternion): void {
-        let axis = D6Drive.eY;
-        // TODO
-        // btStatics.bt.btGeneric6DofSpring2Constraint_setServoTarget(this._btJoint, axis, target);
+        position.cloneTo(this._drivePosition);
+        // Angular target drives retain their existing backend behavior.
     }
 
     /**
@@ -554,8 +650,9 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      * @param angular 目标角速度。
      */
     setDriveVelocity(position: Vector3, angular: Vector3): void {
+        position.cloneTo(this._driveVelocity);
         let bt = btStatics.bt;
-        let axis = D6Drive.eX;
+        let axis: number = D6Drive.eX;
         // position
         bt.btGeneric6DofSpring2Constraint_setTargetVelocity(this._btJoint, axis, position.x);
         axis = D6Drive.eY;
@@ -563,11 +660,11 @@ export class btCustomJoint extends btJoint implements ID6Joint {
         axis = D6Drive.eZ;
         bt.btGeneric6DofSpring2Constraint_setTargetVelocity(this._btJoint, axis, position.z);
         // angular
-        axis = D6Drive.eX;
+        axis = D6MotionType.eTWIST;
         bt.btGeneric6DofSpring2Constraint_setTargetVelocity(this._btJoint, axis, angular.x);
-        axis = D6Drive.eY;
+        axis = D6MotionType.eSWING1;
         bt.btGeneric6DofSpring2Constraint_setTargetVelocity(this._btJoint, axis, angular.y);
-        axis = D6Drive.eZ;
+        axis = D6MotionType.eSWING2;
         bt.btGeneric6DofSpring2Constraint_setTargetVelocity(this._btJoint, axis, angular.z);
     }
 
@@ -604,8 +701,10 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      * @zh 销毁关节
      */
     destroy(): void {
+        if (this._driveRegistered) this._manager.removePhysicsStepListener(this._driveStep);
+        this._driveRegistered = false;
+        super.destroy();
         this._btJoint = null;
         this._btJointFeedBackObj = null;
-        super.destroy();
     }
 }

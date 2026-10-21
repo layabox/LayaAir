@@ -70,8 +70,8 @@ export class Physics2DOption {
      */
     static drawCenterOfMass: boolean = false;
     /**
-     * @zh 子步数，用于定义物理世界中每个模拟步（Step）的时间长度（秒），保证物理计算在不同帧率下具有一致性和稳定性。步长越小，物理精度越高，但 CPU 开销增加。
-     * @en Specifies the duration of a single physics simulation step (in seconds), ensuring consistent and stable physics results across different frame rates. Smaller values increase simulation accuracy at the cost of higher CPU usage.
+     * @zh 旧版子步配置值。为保留旧项目的模拟效果，该配置不自动启用子步；需通过场景 Physics2DWorldManager.setSubStep 显式设置运行时子步数。
+     * @en Legacy substep setting. To preserve existing simulations, this configuration does not automatically enable substeps; explicitly call the scene Physics2DWorldManager.setSubStep at runtime.
      */
     static subStep: number = 1;
 }

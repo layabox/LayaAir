@@ -31,13 +31,6 @@ export class Physics2D extends EventDispatcher {
     /** 是否已经激活*/
     private _enabled: boolean;
 
-    /**
-     * @internal
-     * @en An empty body node for joints that do not require a node.
-     * @zh 给不需要节点的关节使用的空的 body 节点。
-     */
-    _emptyBody: any;
-
     _factory: IPhysics2DFactory;
 
     /**
@@ -126,7 +119,7 @@ export class Physics2D extends EventDispatcher {
             this._enabled = true;
         }
         if (!this._rigiBodyList) this._rigiBodyList = new SingletonList<RigidBody>();
-        else this._rigiBodyList.clear();
+
 
         if (!Physics2DOption.customUpdate && LayaEnv.isPlaying)
             ILaya.physicsTimer.frameLoop(1, this, this._update);
@@ -148,7 +141,6 @@ export class Physics2D extends EventDispatcher {
      * @zh 停止物理世界。
      */
     stop(): void {
-        this._rigiBodyList.clear();
         ILaya.physicsTimer.clear(this, this._update);
     }
 

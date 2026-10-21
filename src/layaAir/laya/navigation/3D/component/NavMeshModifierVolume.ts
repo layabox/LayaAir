@@ -99,6 +99,7 @@ export class NavMeshModifierVolume extends Component {
      * @internal
      */
     protected _onDisable(): void {
+        this.owner.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
         this._volumeData._destory();
     }
 

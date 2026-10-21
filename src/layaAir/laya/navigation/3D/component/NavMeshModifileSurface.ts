@@ -88,6 +88,12 @@ export class NavMeshModifileSurface extends BaseNav3DModifle {
         }
     }
 
+    protected _onDestroy(): void {
+        this._oriTiles?.destroy();
+        this._oriTiles = null;
+        super._onDestroy();
+    }
+
     _cloneTo(dest: NavMeshModifileSurface): void {
         dest.datas = this.datas;
         super._cloneTo(dest);

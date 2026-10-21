@@ -123,11 +123,11 @@ const fillGradientTimeRange = (gradient: Gradient, range: Vector4, maxCount: num
     range.setValue(colorMinTime, colorMaxTime, alphaMinTime, alphaMaxTime);
 }
 
-const fillCurveMinMaxTimeRange = (curve0: GradientDataNumber, curve1: GradientDataNumber, range: Vector4) => {
+const fillCurveMinMaxTimeRange = (curve0: GradientDataNumber, curve1: GradientDataNumber, range: Vector4, maxCount: number) => {
 
     let curve0MinTime = 1;
     let curve0MaxTime = 0;
-    let count = Math.min(curve0.gradientCount, 4);
+    let count = Math.min(curve0.gradientCount, maxCount);
     if (count == 1) {
         curve0MinTime = 0;
         curve0MaxTime = 1;
@@ -149,7 +149,7 @@ const fillCurveMinMaxTimeRange = (curve0: GradientDataNumber, curve1: GradientDa
 
     let curve1MinTime = 1;
     let curve1MaxTime = 0;
-    count = Math.min(curve1.gradientCount, 4);
+    count = Math.min(curve1.gradientCount, maxCount);
     if (count == 1) {
         curve1MinTime = 0;
         curve1MaxTime = 1;
@@ -425,7 +425,7 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
                         shaderData.setBuffer(Particle2DShader.SizeCurveMaxY, sizeY.curve._elements);
 
                         let range = tempV4;
-                        fillCurveMinMaxTimeRange(sizeX.curve, sizeY.curve, range);
+                        fillCurveMinMaxTimeRange(sizeX.curve, sizeY.curve, range, this.particleSystem.gradientKeyCount8 ? 8 : 4);
                         shaderData.setVector(Particle2DShader.SizeCurveMinTimeRange, range);
                         shaderData.setVector(Particle2DShader.SizeCurveMaxTimeRange, range);
                     }
@@ -438,7 +438,7 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
                         shaderData.setBuffer(Particle2DShader.SizeCurveMaxY, sizeX.curve._elements);
 
                         let range = tempV4;
-                        fillCurveMinMaxTimeRange(sizeX.curve, sizeX.curve, range);
+                        fillCurveMinMaxTimeRange(sizeX.curve, sizeX.curve, range, this.particleSystem.gradientKeyCount8 ? 8 : 4);
                         shaderData.setVector(Particle2DShader.SizeCurveMinTimeRange, range);
                         shaderData.setVector(Particle2DShader.SizeCurveMaxTimeRange, range);
                     }
@@ -457,10 +457,10 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
                         shaderData.setBuffer(Particle2DShader.SizeCurveMaxY, sizeY.curveMax._elements);
 
                         let range = tempV4;
-                        fillCurveMinMaxTimeRange(sizeX.curveMin, sizeY.curveMin, range);
+                        fillCurveMinMaxTimeRange(sizeX.curveMin, sizeY.curveMin, range, this.particleSystem.gradientKeyCount8 ? 8 : 4);
                         shaderData.setVector(Particle2DShader.SizeCurveMinTimeRange, range);
 
-                        fillCurveMinMaxTimeRange(sizeX.curveMax, sizeY.curveMax, range);
+                        fillCurveMinMaxTimeRange(sizeX.curveMax, sizeY.curveMax, range, this.particleSystem.gradientKeyCount8 ? 8 : 4);
                         shaderData.setVector(Particle2DShader.SizeCurveMaxTimeRange, range);
                     }
                     else {
@@ -473,10 +473,10 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
                         shaderData.setBuffer(Particle2DShader.SizeCurveMaxY, sizeX.curveMax._elements);
 
                         let range = tempV4;
-                        fillCurveMinMaxTimeRange(sizeX.curveMin, sizeX.curveMin, range);
+                        fillCurveMinMaxTimeRange(sizeX.curveMin, sizeX.curveMin, range, this.particleSystem.gradientKeyCount8 ? 8 : 4);
                         shaderData.setVector(Particle2DShader.SizeCurveMinTimeRange, range);
 
-                        fillCurveMinMaxTimeRange(sizeX.curveMax, sizeX.curveMax, range);
+                        fillCurveMinMaxTimeRange(sizeX.curveMax, sizeX.curveMax, range, this.particleSystem.gradientKeyCount8 ? 8 : 4);
                         shaderData.setVector(Particle2DShader.SizeCurveMaxTimeRange, range);
                     }
                     break;
@@ -571,7 +571,7 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
                         shaderData.setBuffer(Particle2DShader.TextureSheetFrameMax, frame.curve._elements);
 
                         let range = tempV4;
-                        fillCurveMinMaxTimeRange(frame.curve, frame.curve, range);
+                        fillCurveMinMaxTimeRange(frame.curve, frame.curve, range, this.particleSystem.gradientKeyCount8 ? 8 : 4);
                         shaderData.setVector(Particle2DShader.TextureSheetFrameRange, range);
                         break;
                     }
@@ -582,7 +582,7 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
                         shaderData.setBuffer(Particle2DShader.TextureSheetFrameMax, frame.curve._elements);
 
                         let range = tempV4;
-                        fillCurveMinMaxTimeRange(frame.curve, frame.curve, range);
+                        fillCurveMinMaxTimeRange(frame.curve, frame.curve, range, this.particleSystem.gradientKeyCount8 ? 8 : 4);
                         shaderData.setVector(Particle2DShader.TextureSheetFrameRange, range);
                         break;
                     };
@@ -596,7 +596,7 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
                         shaderData.setBuffer(Particle2DShader.TextureSheetFrameMax, frame.curveMax._elements);
 
                         let range = tempV4;
-                        fillCurveMinMaxTimeRange(frame.curveMin, frame.curveMax, range);
+                        fillCurveMinMaxTimeRange(frame.curveMin, frame.curveMax, range, this.particleSystem.gradientKeyCount8 ? 8 : 4);
                         shaderData.setVector(Particle2DShader.TextureSheetFrameRange, range);
                         break;
                     }
@@ -608,7 +608,7 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
                         shaderData.setBuffer(Particle2DShader.TextureSheetFrameMax, frame.curveMax._elements);
 
                         let range = tempV4;
-                        fillCurveMinMaxTimeRange(frame.curveMin, frame.curveMax, range);
+                        fillCurveMinMaxTimeRange(frame.curveMin, frame.curveMax, range, this.particleSystem.gradientKeyCount8 ? 8 : 4);
                         shaderData.setVector(Particle2DShader.TextureSheetFrameRange, range);
                         break;
                     }
@@ -712,6 +712,14 @@ export class ShurikenParticle2DRenderer extends BaseRenderNode2D {
             ps._emitDistance += distance;
 
             ps.emission._lastPosition.set(posX, posY, 0);
+        }
+
+        if (ps._dirtyFlags & Particle2DSystemDirtyFlagBits.GradientKeyCountBit) {
+            if (ps.gradientKeyCount8)
+                shaderData.addDefine(Particle2DShader.GradientKeyCount8Def);
+            else
+                shaderData.removeDefine(Particle2DShader.GradientKeyCount8Def);
+            ps._dirtyFlags &= ~Particle2DSystemDirtyFlagBits.GradientKeyCountBit;
         }
 
         // ColorOverLifetime

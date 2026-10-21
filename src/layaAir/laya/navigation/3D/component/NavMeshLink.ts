@@ -82,8 +82,8 @@ export class NavMeshLink extends BaseNav3DModifle {
     protected _onEnable(): void {
         super._onEnable();
         this._onWorldMatNeedChange();
-        Vector3.min(this._data._startPoint, this._data._endPoint, tempVec3);
-        Vector3.max(this._data._startPoint, this._data._endPoint, tempVec31);
+        Vector3.min(this._data.globalStart, this._data.globalEnd, tempVec3);
+        Vector3.max(this._data.globalStart, this._data.globalEnd, tempVec31);
         let surface = this._manager.getNavMeshSurfacesByBound(tempVec3, tempVec31, this._modifierData.agentType);
         this._data._initSurface(surface);
     }
@@ -105,7 +105,7 @@ export class NavMeshLink extends BaseNav3DModifle {
     _cloneTo(dest: NavMeshLink): void {
         dest.start = this.start;
         dest.end = this.end;
-        dest.agentType = this._agentType;
+        dest.agentType = this.agentType;
         dest.areaFlag = this.areaFlag;
         dest.width = this.width;
         dest.bidirectional = this.bidirectional;

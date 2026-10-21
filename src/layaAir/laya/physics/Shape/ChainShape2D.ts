@@ -95,7 +95,7 @@ export class ChainShape2D extends Physics2DShapeBase {
 
     cloneTo(destObject: ChainShape2D): void {
         super.cloneTo(destObject);
-        destObject.datas = this.datas;
+        destObject.datas = this.datas.slice();
         destObject.loop = this.loop;
     }
 

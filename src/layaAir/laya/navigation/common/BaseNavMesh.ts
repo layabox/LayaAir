@@ -35,7 +35,7 @@ export class BaseNavMesh {
     /**@internal 过滤信息 */
     protected _defatfilter: any;
 
-    /**@internal TODO */
+    /**@internal 查找最近导航多边形时的搜索包围盒半尺寸，分别对应导航坐标系的 X、Y、Z 轴。 */
     protected _extents: number[] = [2, 4, 2];
 
     /**@internal */
@@ -134,14 +134,20 @@ export class BaseNavMesh {
         if (this._fiterMap.has(excludeflag)) {
             return this._fiterMap.get(excludeflag);
         }
-        let size = this._fiterMap.size;
-        if (size >= CROW_MAX_FILTER) {
-            console.error("Not max " + CROW_MAX_FILTER + ".");
-            return null;
-        }
+        // Detour exposes sixteen crowd filters. Reuse only slots no live agent uses.
+        const used = new Set<number>([this._defatfilter?.queryFilterType]);
+        this._allAgents.forEach(agent => used.add(agent._filter.queryFilterType));
+        let size = 0;
+        while (size < CROW_MAX_FILTER && used.has(size)) size++;
+        if (size >= CROW_MAX_FILTER) return null;
+        this._fiterMap.forEach((filter, key) => {
+            if (filter.queryFilterType === size) this._fiterMap.delete(key);
+        });
         let fiter = this._crowd.getFilter(size);
-        fiter.setIncludeFlags(areaMask.flag);
-        fiter.setExcludeFlags(excludeflag);
+        // Area zero is unwalkable; native polygon flags use areaIndex - 1.
+        // Keep the serialized/public mask indexed by areaIndex.
+        fiter.setIncludeFlags(areaMask.flag >>> 1);
+        fiter.setExcludeFlags(excludeflag >>> 1);
         fiter.queryFilterType = size;
         this._fiterMap.set(excludeflag, fiter);
         return fiter;
@@ -152,7 +158,8 @@ export class BaseNavMesh {
      * @param agent 
      */
     protected _createAgents(agent: BaseNavAgent) {
-        agent._filter = this._getFilter(agent._areaMask)
+        agent._filter = this._getFilter(agent._areaMask);
+        if (!agent._filter) return;
         let params = NavigationUtils._getCrowdAgentParams();
         params.radius = agent._getradius();
         params.collisionQueryRange = agent._getcollisionQueryRange();
@@ -166,7 +173,10 @@ export class BaseNavMesh {
         params.updateFlags = agent._getUpdateFlags();
         agent._getpos(tempVec3);
         let refPoint = this._navQuery.findNearestPoly(tempVec3.toArray(), this._extents, agent._filter);
-        agent._agentId = this._crowd.addAgent(refPoint.data, params);
+        if (!refPoint.polyRef) return;
+        const id = this._crowd.addAgent(refPoint.data, params);
+        if (id < 0) return;
+        agent._agentId = id;
         agent._crowAgent = this._crowd.getAgent(agent._agentId);
         this._allAgents.set(agent._agentId, agent);
     }
@@ -177,6 +187,7 @@ export class BaseNavMesh {
      * @param agent 
      */
     _addAgent(agent: BaseNavAgent) {
+        if (agent._crowAgent) return;
         agent._getpos(tempVec3);
         let tileIndex = this._grid.getTileIndexByPos(tempVec3.x, tempVec3.z);
         if (this._navcreateedTileMaps.has(tileIndex)) {
@@ -185,7 +196,8 @@ export class BaseNavMesh {
             if (!this._delayCreates.has(tileIndex)) {
                 this._delayCreates.set(tileIndex, []);
             }
-            this._delayCreates.get(tileIndex).push(agent);
+            const pending = this._delayCreates.get(tileIndex);
+            if (!pending.includes(agent)) pending.push(agent);
         }
     }
 
@@ -263,9 +275,11 @@ export class BaseNavMesh {
         if (!filter) filter = this._defatfilter;
         let tileIndex = this._grid.getTileIndexByPos(startPos.x, startPos.z);
         if (this._navcreateedTileMaps.has(tileIndex)) {
-            NavigationUtils._findFllowPath(this, filter, startPos, endPos, speed * 0.1, 0.01, fllowPaths);
-            return true;
+            const step = speed > 0 ? speed * 0.1 : this._grid.config.cellSize;
+            NavigationUtils._findFllowPath(this, filter, startPos, endPos, step, 0.01, fllowPaths);
+            return fllowPaths.length > 0;
         } else {
+            fllowPaths.length = 0;
             return false;
         }
     }
@@ -294,10 +308,12 @@ export class BaseNavMesh {
      * @returns 
      */
     _requestMoveTarget(agent: BaseNavAgent, destination: Vector3): boolean {
+        if (agent._agentId == null || !agent._crowAgent) return false;
         agent._getpos(tempVec3);
         let tileIndex = this._grid.getTileIndexByPos(tempVec3.x, tempVec3.z);
         if (this._navcreateedTileMaps.has(tileIndex)) {
             let refPoint = this._navQuery.findNearestPoly(destination.toArray(), this._extents, agent._filter);
+            if (!refPoint.polyRef) return false;
             this.crowd.requestMoveTarget(agent._agentId, refPoint);
             return true;
         } else {
@@ -346,6 +362,9 @@ export class BaseNavMesh {
      * @param dt (秒)
      */
     _updateNavMesh(dt: number) {
+        // Arrival can rebind an agent to clear residual velocity. Iterate a
+        // snapshot so the newly inserted entry is not visited again this frame.
+        for (const agent of Array.from(this._allAgents.values())) agent._updateBraking(dt);
         let datas: Float32Array = NavigationUtils._updateCrowd(this._crowd, dt);
         this._allAgents.forEach((agent, index) => {
             let off = agent._agentId * 6;
@@ -422,10 +441,7 @@ export class BaseNavMesh {
         this._titileConfig._setMax(cache.boundMax);
         this._titileConfig.maxSimplificationError = maxSimplificationError;
         this._removeTile(cache.x, cache.y);
-        let ptrs: number[] = [];
-        binds.forEach((value) => {
-            ptrs.push(value.$$.ptr);
-        });
+        const ptrs = binds.map(value => value.$$.ptr);
         this._navMesh.addTile(config, this._titileConfig, ptrs, this._navMeshLink, this._navConvexVolume);
         const tileIndex = this._grid.getTileIndex(cache.x, cache.y);
         this._navcreateedTileMaps.add(tileIndex);
@@ -453,9 +469,11 @@ export class BaseNavMesh {
     /**@internal */
     _clearn() {
         this._allAgents.forEach((agent) => {
-            this._removeAgent(agent);
+            (agent as any)._removeAgent();
         });
         this._allAgents.clear();
+        this._delayCreates.forEach(agents => [...agents].forEach(agent => (agent as any)._removeAgent()));
+        this._delayCreates.clear();
     }
 
 
@@ -463,6 +481,7 @@ export class BaseNavMesh {
      * @internal
      */
     _destroy(): void {
+        this._clearn();
 
         if (this._navMesh) {
             NavigationUtils._freeNavMesh(this._navMesh);

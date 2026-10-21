@@ -1,0 +1,21 @@
+{
+  "description": "Pre-optimization bullet JS behavior; exact numeric state, ordered contacts/events and query outputs. Negative zero is encoded explicitly.",
+  "baselineSourceSha256": "a710e0dcabb8fb1ebf04a256369448878eab8c10941c1757f90db20f836ed165",
+  "cases": [
+    {
+      "name": "mixed-shapes",
+      "stateHash": "d70da253386e27e5a71c05209905b13f6c65db4cc1e3e519fbc6fce0a289b402",
+      "behaviorHash": "298c6d18a9ea1d1e1668b2876d153d746f43c7719be3de68a4fea1c5aaf01261"
+    },
+    {
+      "name": "convex-hulls",
+      "stateHash": "692d9459b8ec15e8e845d51697c88ad0e3a40fe766c69c4926c34355586de0b2",
+      "behaviorHash": "41ff033d494d3f2ce477bf207d769433f26d8521ffe76c7b45e3db339dd9e406"
+    },
+    {
+      "name": "fixed-joint-debug",
+      "stateHash": "8532db5eecb0c087c4b3e1311c3d69f0ce647fc96c89b1a6f6d66db96804ba29",
+      "behaviorHash": "37e3bf349c7cfb945406302e77fc91ab6c88f80b4dddbc1ad0e7db4d97474903"
+    }
+  ]
+}

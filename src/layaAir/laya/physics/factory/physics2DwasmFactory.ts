@@ -78,8 +78,13 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
     }
 
     shiftOrigin(world: any, newOrigin: Vector2): void {
-        if (!world) console.warn("shiftOrigin world is null");
-        world.ShiftOrigin({ x: newOrigin.x, y: newOrigin.y });
+        if (!world || world.destroyed) return;
+        if (typeof world.ShiftOrigin !== "function") {
+            console.warn("Physics2D.shiftOrigin is not supported by the current Box2D binding; the world is unchanged.");
+            return;
+        }
+        this._tempVe21.Set(newOrigin.x, newOrigin.y);
+        world.ShiftOrigin(this._tempVe21);
     }
 
     appendFlags(jsDraw: any, flags: number): void {
@@ -207,12 +212,25 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
             // preStep 处理
 
             //2.4
-            world.box2DWorld.Step(delta, velocityIterations, positionIterations);
-            if (world.enableDebugDraw) {
-                world.box2DWorld.DebugDraw();
+            const nativeWorld = world.box2DWorld;
+            const substeps = delta > 0 ? (world._subStepCount || 1) : 1;
+            const autoClear = substeps > 1 && nativeWorld.GetAutoClearForces();
+            if (autoClear) nativeWorld.SetAutoClearForces(false);
+            try {
+                for (let step = 0; step < substeps; step++) {
+                    nativeWorld.Step(delta / substeps, velocityIterations, positionIterations);
+                    if (nativeWorld.destroyed) break;
+                }
+            } finally {
+                if (autoClear && !nativeWorld.destroyed) {
+                    nativeWorld.ClearForces();
+                    nativeWorld.SetAutoClearForces(true);
+                }
             }
-            // afterStep 处理
-            world.sendEvent();
+            if (!nativeWorld.destroyed) {
+                if (world.enableDebugDraw) nativeWorld.DebugDraw();
+                world.sendEvent();
+            }
 
         }
         // this._world & this._world.Step(delta, this.velocityIterations, this.positionIterations, 3);
@@ -413,8 +431,10 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
     }
 
     removeJoint(world: any, joint: any): void {
-        if (joint && world && !world.destroyed && !joint.bodyA.destroyed && !joint.bodyB.destroyed)
+        if (world && this.isValidJoint(joint)) {
             world.DestroyJoint(joint);
+            joint.destroyed = true;
+        }
     }
 
     _createBox2DJoint(world: any, def: any, cls: any): any {
@@ -424,6 +444,7 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
             joint = this.castObject(joint, cls);
         }
         joint.m_userData = {};
+        joint.destroyed = false;
         joint.world = world;
         return joint;
     }
@@ -492,6 +513,11 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         joint.SetMaxMotorTorque(maxTorque);
     }
 
+    /** @internal */
+    set_Joint_SetMaxMotorForce(joint: any, maxForce: number): void {
+        joint.SetMaxMotorForce(maxForce);
+    }
+
     /**
      * @en Enable or disable the limit of a joint.
      * @param joint The joint.
@@ -518,6 +544,11 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         joint.SetLimits(lowerAngle, upperAngle);
     }
 
+    /** @internal */
+    set_Joint_SetTranslationLimits(joint: any, lower: number, upper: number): void {
+        joint.SetLimits(this.convertLayaValueToPhysics(joint.world, lower), this.convertLayaValueToPhysics(joint.world, upper));
+    }
+
     /**
      * @en Set the frequency and damping ratio of a joint.
      * @param joint The joint.
@@ -530,9 +561,12 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
      * @param dampingRatio 阻尼比。
      * @param isdamping 是否应用阻尼。
      */
-    set_Joint_frequencyAndDampingRatio(joint: any, frequency: number, dampingRatio: number, isdamping: boolean): void {
-        let out: any = {}
-        this.box2d.b2AngularStiffness(out, frequency, dampingRatio, joint.GetBodyA(), joint.GetBodyB());
+    set_Joint_frequencyAndDampingRatio(joint: any, frequency: number, dampingRatio: number, isdamping: boolean, isAngular: boolean = true): void {
+        let out: any = {};
+        if (isAngular)
+            this.b2AngularStiffness(out, frequency, dampingRatio, joint.GetBodyA(), joint.GetBodyB());
+        else
+            this.b2LinearStiffness(out, frequency, dampingRatio, joint.GetBodyA(), joint.GetBodyB());
         if (!isdamping) {
             joint.SetStiffness(out.stiffness);
         }
@@ -556,8 +590,7 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
     get_DistanceJoint_length(joint: any): number {
         let world: any = joint.world;
         let len = joint.GetLength();
-        this.convertPhysicsValueToLaya(world, len);
-        return len;
+        return this.convertPhysicsValueToLaya(world, len);
     }
 
     /**
@@ -632,6 +665,11 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         this._tempVe21.x = this.convertLayaValueToPhysics(world, x);
         this._tempVe21.y = this.convertLayaValueToPhysics(world, y);
         joint.SetTarget(this._tempVe21)
+    }
+
+    /** @internal */
+    set_MouseJoint_MaxForce(joint: any, maxForce: number): void {
+        joint.SetMaxForce(maxForce * joint.GetBodyB().GetMass());
     }
 
     /** 
@@ -722,8 +760,10 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         return torque;
     }
     isValidJoint(joint: any): boolean {
-        let isConnected: boolean = joint.GetCollideConnected();
-        return isConnected;
+        // Body destruction also destroys attached native joints. Check wrapper
+        // lifetime flags before calling any method on a potentially freed pointer.
+        return !!(joint && !joint.destroyed && joint.world && !joint.world.destroyed
+            && joint.bodyA && !joint.bodyA.destroyed && joint.bodyB && !joint.bodyB.destroyed);
     }
 
     createShapeDef(world: any, shapeDef: Box2DShapeDef, filter: any) {
@@ -1116,39 +1156,39 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         };
     }
 
-    rigidBody_applyForce(body: any, force: IV2, position: IV2) {
+    rigidBody_applyForce(body: any, force: IV2, position: IV2, wake: boolean = true) {
         let world: any = body.world;
         this._tempVe21.x = this.convertLayaValueToPhysics(world, position.x);
         this._tempVe21.y = this.convertLayaValueToPhysics(world, position.y);
         this._tempVe22.x = force.x;
         this._tempVe22.y = force.y;
-        body.ApplyForce(this._tempVe22, this._tempVe21, false);
+        body.ApplyForce(this._tempVe22, this._tempVe21, wake);
     }
 
-    rigidBody_applyForceToCenter(body: any, force: IV2) {
+    rigidBody_applyForceToCenter(body: any, force: IV2, wake: boolean = true) {
         this._tempVe21.x = force.x;
         this._tempVe21.y = force.y;
-        body.ApplyForceToCenter(this._tempVe21);
+        body.ApplyForceToCenter(this._tempVe21, wake);
     }
 
 
-    rigidbody_ApplyLinearImpulse(body: any, impulse: IV2, position: IV2) {
+    rigidbody_ApplyLinearImpulse(body: any, impulse: IV2, position: IV2, wake: boolean = true) {
         let world: any = body.world;
         this._tempVe21.x = impulse.x;
         this._tempVe21.y = impulse.y;
         this._tempVe22.x = this.convertLayaValueToPhysics(world, position.x);
         this._tempVe22.y = this.convertLayaValueToPhysics(world, position.y);
-        body.ApplyLinearImpulse(this._tempVe21, this._tempVe22);
+        body.ApplyLinearImpulse(this._tempVe21, this._tempVe22, wake);
     }
 
-    rigidbody_ApplyLinearImpulseToCenter(body: any, impulse: IV2) {
+    rigidbody_ApplyLinearImpulseToCenter(body: any, impulse: IV2, wake: boolean = true) {
         this._tempVe21.x = impulse.x;
         this._tempVe21.y = impulse.y;
-        body.ApplyLinearImpulseToCenter(this._tempVe21);
+        body.ApplyLinearImpulseToCenter(this._tempVe21, wake);
     }
 
-    rigidbody_applyTorque(body: any, torque: number): void {
-        body.ApplyTorque(torque);
+    rigidbody_applyTorque(body: any, torque: number, wake: boolean = true): void {
+        body.ApplyTorque(torque, wake);
     }
 
     set_rigidbody_Velocity(body: any, velocity: IV2): void {
@@ -1424,8 +1464,8 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
     get_rigidBody_LocalVector(body: any, value: Vector2): Vector2 {
         return body.GetLocalVector(value);
     }
-    rigidbody_ApplyAngularImpulse(body: any, impulse: number): void {
-        body.ApplyAngularImpulse(impulse, true);
+    rigidbody_ApplyAngularImpulse(body: any, impulse: number, wake: boolean = true): void {
+        body.ApplyAngularImpulse(impulse, wake);
     }
 
     set_rigidBody_Awake(body: any, awake: boolean): void {
@@ -1470,7 +1510,7 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         let world: any = body.world;
         this._tempVe21.x = this.convertLayaValueToPhysics(world, worldPoint.x);
         this._tempVe21.y = this.convertLayaValueToPhysics(world, worldPoint.y);
-        let velocity = body.GetLinearVelocityFromWorldPoint(worldPoint);
+        let velocity = body.GetLinearVelocityFromWorldPoint(this._tempVe21);
         velocity.x = this.convertPhysicsValueToLaya(world, velocity.x);
         velocity.y = this.convertPhysicsValueToLaya(world, velocity.y);
         return velocity;
@@ -1480,7 +1520,7 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         let world: any = body.world;
         this._tempVe21.x = this.convertLayaValueToPhysics(world, localPoint.x);
         this._tempVe21.y = this.convertLayaValueToPhysics(world, localPoint.y);
-        let velocity = body.GetLinearVelocityFromLocalPoint(localPoint);
+        let velocity = body.GetLinearVelocityFromLocalPoint(this._tempVe21);
         velocity.x = this.convertPhysicsValueToLaya(world, velocity.x);
         velocity.y = this.convertPhysicsValueToLaya(world, velocity.y);
         return velocity;

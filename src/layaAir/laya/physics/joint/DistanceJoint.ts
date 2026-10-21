@@ -174,10 +174,7 @@ export class DistanceJoint extends JointBase {
                 def.localAnchorA.setValue(point.x, point.y);
                 this.otherBody.owner.on("shapeChange", this, this._refeahJoint);
             } else {
-                if (!Physics2D.I._emptyBody) {
-                    Physics2D.I._emptyBody = Physics2D.I._factory.createBody(this._physics2DManager.box2DWorld, null);
-                }
-                def.bodyA = Physics2D.I._emptyBody;
+                def.bodyA = this._physics2DManager.getEmptyBody();
                 def.localAnchorA.setValue(this.otherAnchor[0], this.otherAnchor[1]);
             }
 

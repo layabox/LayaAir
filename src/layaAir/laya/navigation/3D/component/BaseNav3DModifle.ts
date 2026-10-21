@@ -1,3 +1,5 @@
+import { NavMeshLinkData } from "../../common/data/NavMeshLinkData";
+import { NavModifleData } from "../../common/data/NavModifleData";
 import { Component } from "../../../components/Component";
 import { Sprite3D } from "../../../d3/core/Sprite3D";
 import { Event } from "../../../events/Event";
@@ -56,6 +58,26 @@ export class BaseNav3DModifle extends Component {
         this._manager = NavigationManager._getNavManager(this);
         this._onWorldMatNeedChange();
         this.owner.transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
+    }
+
+    protected _onDisable(): void {
+        this.owner.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);
+        const data = this._modifierData;
+        if (data instanceof NavMeshLinkData) data.destroy();
+        else if (data instanceof NavModifleData) data._destory();
+        super._onDisable();
+    }
+
+    protected _onDestroy(): void {
+        if (this._modifierData instanceof NavModifleData) this._modifierData._destory();
+        super._onDestroy();
+    }
+
+    _cloneTo(dest: Component): void {
+        const modifier = dest as BaseNav3DModifle;
+        modifier.agentType = this.agentType;
+        modifier.areaFlag = this.areaFlag;
+        super._cloneTo(dest);
     }
 
     /**

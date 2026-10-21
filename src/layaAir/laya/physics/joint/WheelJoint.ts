@@ -85,7 +85,7 @@ export class WheelJoint extends JointBase {
     set frequency(value: number) {
         this._frequency = value;
         if (this._joint) {
-            this._factory.set_Joint_frequencyAndDampingRatio(this._joint, this._frequency, this._dampingRatio, false)
+            this._factory.set_Joint_frequencyAndDampingRatio(this._joint, this._frequency, this._dampingRatio, false, false)
         }
     }
 
@@ -100,7 +100,7 @@ export class WheelJoint extends JointBase {
     set damping(value: number) {
         this._dampingRatio = value;
         if (this._joint) {
-            this._factory.set_Joint_frequencyAndDampingRatio(this._joint, this._frequency, this._dampingRatio, true)
+            this._factory.set_Joint_frequencyAndDampingRatio(this._joint, this._frequency, this._dampingRatio, true, false)
         }
     }
 
@@ -166,7 +166,7 @@ export class WheelJoint extends JointBase {
 
     set lowerTranslation(value: number) {
         this._lowerTranslation = value;
-        if (this._joint) this._factory.set_Joint_SetLimits(this._joint, value, this._upperTranslation);
+        if (this._joint) this._factory.set_Joint_SetTranslationLimits(this._joint, value, this._upperTranslation);
     }
 
     /**
@@ -179,7 +179,7 @@ export class WheelJoint extends JointBase {
 
     set upperTranslation(value: number) {
         this._upperTranslation = value;
-        if (this._joint) this._factory.set_Joint_SetLimits(this._joint, this._lowerTranslation, value);
+        if (this._joint) this._factory.set_Joint_SetTranslationLimits(this._joint, this._lowerTranslation, value);
     }
 
     /**

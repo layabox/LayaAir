@@ -42,6 +42,7 @@ export class pxColliderShape implements IColliderShape {
 
     /** @internal Scale relative to the compound collider owner. */
     protected _compoundLocalScale: Vector3 = new Vector3(1, 1, 1);
+    protected _compoundRotation: Quaternion = new Quaternion();
 
     _scale: Vector3 = new Vector3(1, 1, 1);
 
@@ -66,7 +67,7 @@ export class pxColliderShape implements IColliderShape {
      * @zh 碰撞和查询的过滤数据。
      * - 0]: 组, 1: 掩码, 2: 事件
      */
-    filterData: pxFilterData = { word0: Physics3DUtils.PHYSXDEFAULTMASKVALUE, word1: Physics3DUtils.PHYSXDEFAULTMASKVALUE, word2: 0, word3: 0 };//PxFilterData
+    filterData: pxFilterData = { word0: Physics3DUtils.PHYSXDEFAULTMASKVALUE, word1: Physics3DUtils.PHYSXDEFAULTMASKVALUE, word2: partFlag.eCONTACT_DEFAULT | partFlag.eTRIGGER_DEFAULT, word3: 0 };//PxFilterData
 
     /** @ignore */
     constructor() {
@@ -136,7 +137,8 @@ export class pxColliderShape implements IColliderShape {
     }
 
     /** @internal */
-    setCompoundTransform(position: Vector3, _rotation: Quaternion, scale: Vector3): void {
+    setCompoundTransform(position: Vector3, rotation: Quaternion, scale: Vector3): void {
+        rotation.cloneTo(this._compoundRotation);
         scale.cloneTo(this._compoundLocalScale);
         this.setOffset(position);
     }
@@ -149,6 +151,7 @@ export class pxColliderShape implements IColliderShape {
         const ownerScale = this._pxCollider.owner.transform.getWorldLossyScale();
         Vector3.multiply(ownerScale, this._compoundLocalScale, this._scale);
         Vector3.multiply(this._offset, ownerScale, transform.translation);
+        this._compoundRotation.cloneTo(transform.rotation);
         this._pxShape.setLocalPose(transform);
     }
 
@@ -181,7 +184,6 @@ export class pxColliderShape implements IColliderShape {
         //这里把查询和碰撞检测设置到一起
         this.filterData.word0 = colliderGroup;
         this.filterData.word1 = colliderMask;
-        this.filterData.word2 = partFlag.eCONTACT_DEFAULT;
         if (this._pxShape) {
             this._pxShape.setSimulationFilterData(this.filterData);
             this._pxShape.setQueryFilterData(this.filterData);

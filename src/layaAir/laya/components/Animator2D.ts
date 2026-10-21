@@ -6,6 +6,10 @@ import { Animation2DParm } from "./Animation2DParm";
 import { AnimatorController2D } from "./AnimatorController2D";
 import { AniParmType } from "./AnimatorControllerParse";
 import { AnimatorTransition2D } from "./AnimatorTransition2D";
+import { Vector3 } from "../maths/Vector3";
+import { CurvePath } from "../tween/CurvePath";
+
+type AnimationValue2D = AnimatorState2D["_realtimeDatas"][number];
 
 /**
  * @en 2D animation components
@@ -149,6 +153,8 @@ export class Animator2D extends Animator2DBase {
             var clipDuration = animatorState._clip!._duration;
             var calclipduration = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
 
+            this._clearCrossFade(controllerLayer);
+
             // 更新owner映射中的defVal，以支持additive模式基于最新值叠加
             this._updateDefVal();
 
@@ -201,6 +207,8 @@ export class Animator2D extends Animator2DBase {
             var clipDuration = animatorState._clip!._duration;
             var calclipduration = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
 
+            this._clearCrossFade(controllerLayer);
+
             // 更新owner映射中的defVal，以支持additive模式基于最新值叠加
             this._updateDefVal();
 
@@ -227,6 +235,7 @@ export class Animator2D extends Animator2DBase {
                     playStateInfo._resetPlayState(clipDuration * animatorState.clipStart, calclipduration);
                 }
             }
+            controllerLayer._playType = 0;
             this._switchState(curPlayState, animatorState);
             animatorState._eventStart(this, layerIndex);
         }
@@ -288,7 +297,7 @@ export class Animator2D extends Animator2DBase {
 
 
             var playStateInfo = controllerLayer._playStateInfo!;
-            //var crossPlayStateInfo = controllerLayer._crossPlayStateInfo!;
+
             var addtive = controllerLayer.blendingMode != AnimatorControllerLayer2D.BLENDINGMODE_OVERRIDE;
             switch (controllerLayer._playType) {
                 case 0:
@@ -318,6 +327,17 @@ export class Animator2D extends Animator2DBase {
                     } else {
                         this._updatePlayer(animatorState, playStateInfo, delta * speed * dir, loop, i);
                     }
+                    // A transition started while updating the source. Render its initial pose
+                    // without advancing either clip a second time this frame.
+                    if (controllerLayer._playType !== 0) {
+                        if (!finish) {
+                            this._updateEventScript(animatorState, playStateInfo);
+                            this._updateStateFinish(animatorState, playStateInfo);
+                        }
+                        if (controllerLayer._playType === 1 || controllerLayer._playType === 2)
+                            this._updateCrossFade(controllerLayer, i, 0);
+                        break;
+                    }
                     playStateInfo = controllerLayer._playStateInfo!;
                     animatorState = playStateInfo._currentState!;
                     if (needRender) {
@@ -329,8 +349,91 @@ export class Animator2D extends Animator2DBase {
                     }
                     finish || this._updateStateFinish(animatorState, playStateInfo);
                     break;
+                case 1:
+                case 2:
+                    this._updateCrossFade(controllerLayer, i, delta);
+                    break;
             }
         }
+    }
+
+    private _clearCrossFade(layer: AnimatorControllerLayer2D): void {
+        layer._crossMark++;
+        layer._crossNodes.length = layer._crossDefaultValues.length = layer._crossValues.length = layer._crossFixedValues.length = 0;
+        layer._srcCrossClipNodeIndices.length = layer._destCrossClipNodeIndices.length = 0;
+        layer._crossPlayStateInfo._currentState = null;
+    }
+
+    private _blendValue(source: AnimationValue2D, target: AnimationValue2D, weight: number): AnimationValue2D {
+        if (typeof source === "number" && typeof target === "number")
+            return source + (target - source) * weight;
+        if (source && target && typeof source === "object" && typeof target === "object") {
+            const blendVector = (a: Vector3, b: Vector3): Vector3 => {
+                if (!a || !b) return weight < 1 ? a : b;
+                return new Vector3(a.x + (b.x - a.x) * weight, a.y + (b.y - a.y) * weight, a.z + (b.z - a.z) * weight);
+            };
+            return { pos: blendVector(source.pos, target.pos), rotation: blendVector(source.rotation, target.rotation) };
+        }
+        // Texture references, strings and booleans cannot be interpolated.
+        return weight < 1 ? source : target;
+    }
+
+    /** Advance a clip without checking its outgoing transitions. */
+    private _advanceCrossState(layer: AnimatorControllerLayer2D, info: AnimatorPlayState2D, delta: number, additive: boolean): boolean {
+        const mark = layer._crossMark;
+        const state = info._currentState;
+        const finished = info._finish;
+        if (!finished && delta !== 0) {
+            const loop = state.loop <= -1 ? (state._clip.islooping ? 0 : 1) : state.loop;
+            this._updatePlayerTime(state, info, delta * this._speed * state.speed * (info._frontPlay ? 1 : -1), loop);
+            if (mark !== layer._crossMark) return false;
+        }
+        this._updateClipDatas(state, additive, info);
+        if (!finished && delta !== 0) {
+            this._updateEventScript(state, info);
+            if (mark !== layer._crossMark) return false;
+            this._updateStateFinish(state, info);
+        }
+        return mark === layer._crossMark;
+    }
+
+    private _updateCrossFade(layer: AnimatorControllerLayer2D, layerIndex: number, delta: number): void {
+        const mark = layer._crossMark;
+        const sourceInfo = layer._playStateInfo;
+        const targetInfo = layer._crossPlayStateInfo;
+        const source = sourceInfo._currentState;
+        const target = targetInfo._currentState;
+        const additive = layer.blendingMode !== AnimatorControllerLayer2D.BLENDINGMODE_OVERRIDE;
+        if (layer._playType === 1 && !this._advanceCrossState(layer, sourceInfo, delta, additive)) return;
+        const previousTime = targetInfo._elapsedTime;
+        if (!this._advanceCrossState(layer, targetInfo, delta, additive)) return;
+        layer._crossElapsedTime += Math.abs(delta * this._speed);
+        const weight = Math.min(layer._crossElapsedTime / layer._crossDuration, 1);
+        for (let j = 0; j < layer._crossNodes.length; j++) {
+            const srcIndex = layer._srcCrossClipNodeIndices[j];
+            const dstIndex = layer._destCrossClipNodeIndices[j];
+            const fallback = layer._crossDefaultValues[j];
+            const srcValue = layer._playType === 2 ? layer._crossFixedValues[j] : (srcIndex < 0 ? fallback : source._realtimeDatas[srcIndex]);
+            const dstValue = dstIndex < 0 ? fallback : target._realtimeDatas[dstIndex];
+            const value = this._blendValue(srcValue == null ? fallback : srcValue, dstValue == null ? fallback : dstValue, weight);
+            layer._crossValues[j] = value;
+            const owner = this.getOwner(layer._crossNodes[j]);
+            if (owner && value != null) this._applyAniData(owner, additive, layer.defaultWeight, value);
+            if (mark !== layer._crossMark) return;
+        }
+        if (weight === 1) {
+            const sourceFinished = sourceInfo._finish;
+            targetInfo._cloneTo(sourceInfo);
+            sourceInfo._currentState = target;
+            layer._playType = 0;
+            this._clearCrossFade(layer);
+            const completedMark = layer._crossMark;
+            if (!sourceFinished && source !== target) source._eventExit();
+            if (completedMark !== layer._crossMark) return;
+        }
+        const duration = targetInfo._duration;
+        const replay = Math.floor(Math.abs(previousTime) / duration) !== Math.floor(Math.abs(targetInfo._elapsedTime) / duration);
+        this._applyTransition(layerIndex, target._eventtransition(targetInfo._normalizedPlayTime, this.parameters, replay));
     }
 
     /**
@@ -371,12 +474,87 @@ export class Animator2D extends Animator2DBase {
         var controllerLayer = this._controllerLayers[layerIndex];
         if (controllerLayer) {
             var destAnimatorState = controllerLayer.getStateByName(name);
-            if (destAnimatorState) {
-                this.play(name, layerIndex, normalizedTime);
+            if (destAnimatorState && destAnimatorState._clip) {
+                const sourceInfo = controllerLayer._playStateInfo;
+                const source = sourceInfo._currentState;
+                if (!source || !(transitionDuration > 0) || !Number.isFinite(transitionDuration)) {
+                    this.play(name, layerIndex, normalizedTime);
+                    return true;
+                }
+                const duration = source._clip._duration * (source.clipEnd - source.clipStart) * transitionDuration;
+                if (!(duration > 0)) {
+                    this.play(name, layerIndex, normalizedTime);
+                    return true;
+                }
+                const additive = controllerLayer.blendingMode !== AnimatorControllerLayer2D.BLENDINGMODE_OVERRIDE;
+                const interrupted = controllerLayer._playType === 1 || controllerLayer._playType === 2;
+                const fixed = interrupted || source === destAnimatorState;
+                const nodes = interrupted ? controllerLayer._crossNodes.slice() : [];
+                const values = interrupted ? controllerLayer._crossValues.slice() : [];
+                const defaults = interrupted ? controllerLayer._crossDefaultValues.slice() : [];
+                const previousTarget = interrupted ? controllerLayer._crossPlayStateInfo._currentState : source;
+                const previousTargetFinished = interrupted && controllerLayer._crossPlayStateInfo._finish;
+                this._updateClipDatas(source, additive, sourceInfo);
+                const sourceNodes = source._clip._nodes;
+                const targetNodes = destAnimatorState._clip._nodes;
+                if (!interrupted) {
+                    for (let j = 0; j < sourceNodes.count; j++)
+                        nodes.push(sourceNodes.getNodeByIndex(j));
+                }
+                const known = new Set(nodes.map(node => node.fullPath));
+                for (let j = 0; j < targetNodes.count; j++) {
+                    const node = targetNodes.getNodeByIndex(j);
+                    if (!known.has(node.fullPath)) {
+                        nodes.push(node);
+                        known.add(node.fullPath);
+                    }
+                }
+                this._clearCrossFade(controllerLayer);
+                controllerLayer._crossNodes = nodes;
+                for (let j = 0; j < nodes.length; j++) {
+                    const node = nodes[j];
+                    const srcNode = source._clip._nodesDic[node.fullPath];
+                    const dstNode = destAnimatorState._clip._nodesDic[node.fullPath];
+                    const srcIndex = srcNode ? srcNode._indexInList : -1;
+                    const dstIndex = dstNode ? dstNode._indexInList : -1;
+                    const owner = this.getOwner(node);
+                    let fallback: AnimationValue2D = defaults[j];
+                    if (fallback == null && owner && owner.pro) {
+                        // CurvePath tracks write the property owner itself, not pro[key].
+                        const isPath = node.keyFramesCount > 0 && node.getKeyframeByIndex(0).data.val instanceof CurvePath;
+                        const value = isPath ? owner.pro.ower : owner.pro.defVal;
+                        fallback = isPath && value
+                            ? { pos: new Vector3(value.x, value.y, 0), rotation: new Vector3(0, 0, value.rotation || 0) }
+                            : value;
+                        if (additive && typeof fallback === "number") fallback = 0;
+                    }
+                    const sourceValue = srcIndex < 0 ? fallback : source._realtimeDatas[srcIndex];
+                    controllerLayer._srcCrossClipNodeIndices[j] = srcIndex;
+                    controllerLayer._destCrossClipNodeIndices[j] = dstIndex;
+                    controllerLayer._crossDefaultValues[j] = fallback;
+                    controllerLayer._crossFixedValues[j] = interrupted && j < values.length ? values[j] : sourceValue;
+                    controllerLayer._crossValues[j] = fixed ? controllerLayer._crossFixedValues[j] : sourceValue;
+                }
+                const targetInfo = controllerLayer._crossPlayStateInfo;
+                const clipDuration = destAnimatorState._clip._duration;
+                targetInfo._resetPlayState(normalizedTime === Number.NEGATIVE_INFINITY ? 0 : clipDuration * normalizedTime,
+                    clipDuration * (destAnimatorState.clipEnd - destAnimatorState.clipStart));
+                targetInfo._currentState = destAnimatorState;
+                controllerLayer._crossDuration = duration;
+                controllerLayer._crossElapsedTime = 0;
+                controllerLayer._playType = fixed ? 2 : 1;
+                this._isPlaying = true;
+                if (this._checkEnterIndex) {
+                    const index = this._checkEnterIndex.indexOf(layerIndex);
+                    if (index >= 0) this._checkEnterIndex.splice(index, 1);
+                }
+                if (interrupted && previousTarget !== source && !previousTargetFinished) previousTarget._eventExit();
+                this._switchState(previousTarget, destAnimatorState);
+                destAnimatorState._eventStart(this, layerIndex);
                 return true;
             }
             else {
-                console.warn("Invalid layerIndex " + layerIndex + ".");
+                console.warn("Invalid animation state " + name + ".");
             }
         }
         return false;

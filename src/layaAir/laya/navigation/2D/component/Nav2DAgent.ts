@@ -35,7 +35,6 @@ export class Nav2DAgent extends BaseNavAgent {
         this._baseOffset = 0;
         this._radius = 10;
         this._speed = 100;
-        this._Acceleration = 300;
 
     }
     /**@ignore */

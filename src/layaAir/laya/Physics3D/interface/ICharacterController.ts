@@ -14,6 +14,8 @@ export interface ICharacterController extends ICollider {
    * @param disp 位移向量
    */
   move(disp: Vector3): void;
+  /** @internal Integrate gravity and jump velocity for controllers without native dynamics. */
+  simulateGravity?(deltaTime: number): void;
 
   /**
    * @en Make the character jump.

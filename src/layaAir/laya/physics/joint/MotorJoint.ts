@@ -14,7 +14,7 @@ export class MotorJoint extends JointBase {
     /**@internal */
     private static _temp: physics2D_MotorJointDef;
 
-    /**@internal 基于otherBody坐标位置的偏移量，也是selfBody的目标位置*/
+    /**@internal otherBody相对selfBody的位置偏移，使用selfBody的局部坐标系，单位为像素*/
     private _linearOffset: any[] = [0, 0];
 
     /**@internal 基于otherBody的角度偏移量，也是selfBody的目标角度*/
@@ -48,8 +48,8 @@ export class MotorJoint extends JointBase {
     collideConnected: boolean = false;
 
     /**
-     * @en The offset from the other body's coordinates, which is also the target position for the self body.
-     * @zh 基于 otherBody 坐标位置的偏移量，也是 selfBody 的目标位置。
+     * @en The position of otherBody relative to selfBody, expressed in selfBody's local coordinate system, in pixels.
+     * @zh otherBody 相对 selfBody 的位置偏移，使用 selfBody 的局部坐标系，单位为像素。
      */
     get linearOffset(): any[] {
         return this._linearOffset;

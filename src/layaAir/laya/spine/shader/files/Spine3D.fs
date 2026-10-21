@@ -36,7 +36,7 @@ void main()
     gl_FragColor = outputTransform(gl_FragColor);
     
 #ifdef FOG
-    gl_FragColor = sceneLitFog(gl_FragColor);
+    gl_FragColor.rgb = sceneLitFog(gl_FragColor.rgb);
 #endif
 }
 

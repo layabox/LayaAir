@@ -4,6 +4,8 @@ import { NodeFlags } from "../../../../Const";
 import { Stat } from "../../../../utils/Stat";
 import { AnimationEvent } from "../../../animation/AnimationEvent";
 import { Scene3D } from "../../../core/scene/Scene3D";
+import { Camera } from "../../../core/Camera";
+import { Sprite3D } from "../../../core/Sprite3D";
 import { Animator } from "../Animator";
 import { AnimatorControllerLayer } from "../AnimatorControllerLayer";
 import { AnimatorPlayState } from "../AnimatorPlayState";
@@ -103,7 +105,7 @@ export class AnimatorManager implements IElementComponentManager {
      * 单个 Animator 的逐帧推进。
      * 步骤：
      *   1) 取 delta 并按 updateMode 调整（LowFrame 抽帧 / UnScaleTime 等）；
-     *   2) speed=0 / delta=0 / Stat 关闭 → 全 layer 置 Idle 并提前返回；
+     *   2) speed=0 / delta=0 / Stat 关闭 / 完全裁剪 → 全 layer 置 Idle 并提前返回；
      *   3) bump slot._updateMark（applier 同帧多 layer 合并要用）；
      *   4) 遍历 controllerLayers：disable 或 sleep+finished+playType==0 → Idle；
      *      否则按 _playType 分派给 _tickPlayTypeNormal / Cross / FixedCross。
@@ -114,7 +116,7 @@ export class AnimatorManager implements IElementComponentManager {
         const timer = scene.timer;
         let delta = timer.delta / 1000.0;
         delta = this._applyUpdateMode(animator, delta);
-        if (animator._speed === 0 || delta === 0 || !Stat.enableAnimatorUpdate) {
+        if (animator._speed === 0 || delta === 0 || !Stat.enableAnimatorUpdate || this._isCulled(animator)) {
             slot.submitAllIdle();
             return;
         }
@@ -147,6 +149,30 @@ export class AnimatorManager implements IElementComponentManager {
                     break;
             }
         }
+    }
+
+    private _isCulled(animator: Animator): boolean {
+        if (animator.cullingMode !== Animator.CULLINGMODE_CULLCOMPLETELY)
+            return false;
+        // 没有渲染组件的纯属性动画仍需更新，避免默认裁剪模式使其永久停止。
+        const owner = animator.owner as Sprite3D;
+        const cameras = owner._scene._cameraPool;
+        let hasRenderer = false;
+        for (const render of owner.getRenderersInChildren()) {
+            if (render.destroyed)
+                continue;
+            hasRenderer = true;
+            const node = render.owner;
+            if (!node.activeInHierarchy || !render.enabled || render.renderbitFlag !== 0 || render._renderElements.length === 0)
+                continue;
+            for (let j = 0, m = cameras.length; j < m; j++) {
+                const camera = cameras[j] as Camera;
+                if (camera.activeInHierarchy && camera.enableRender && (camera.cullingMask & (1 << node.layer)) !== 0
+                    && camera.boundFrustum.intersects(render.bounds))
+                    return false;
+            }
+        }
+        return hasRenderer;
     }
 
     /**

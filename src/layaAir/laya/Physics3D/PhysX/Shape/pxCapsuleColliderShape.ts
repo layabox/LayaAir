@@ -46,7 +46,7 @@ export class pxCapsuleColliderShape extends pxColliderShape implements ICapsuleC
      * rotate capusle in physx, physx capsule heigth is X axis
      */
     _setCapsuleRotation() {
-        pxColliderShape.transform.rotation.setValue(this._rotation.x, this._rotation.y, this._rotation.z, this._rotation.w)
+        Quaternion.multiply(this._compoundRotation, this._rotation, pxColliderShape.transform.rotation);
         this._pxShape.setLocalPose(pxColliderShape.transform);
     }
 
@@ -56,6 +56,12 @@ export class pxCapsuleColliderShape extends pxColliderShape implements ICapsuleC
      * @zh 将形状添加到碰撞器。
      * @param collider 要添加形状的碰撞器。
      */
+    protected _setLocalPose(): void {
+        if (!this._pxCollider || !this._pxShape) return;
+        super._setLocalPose();
+        this._setCapsuleRotation();
+    }
+
     addToActor(collider: pxCollider): void {
         super.addToActor(collider);
         this._setCapsuleRotation();
@@ -115,8 +121,20 @@ export class pxCapsuleColliderShape extends pxColliderShape implements ICapsuleC
         if (this._pxShape && this._upAxis == upAxis)
             return;
         this._upAxis = upAxis;
+        switch (upAxis) {
+            case ColliderShapeUpAxis.X:
+                this._rotation.setValue(0, 0, 0, 1);
+                break;
+            case ColliderShapeUpAxis.Y:
+                this._rotation.setValue(0, 0, Math.SQRT1_2, Math.SQRT1_2);
+                break;
+            case ColliderShapeUpAxis.Z:
+                this._rotation.setValue(0, -Math.SQRT1_2, 0, Math.SQRT1_2);
+                break;
+        }
         this.setHeight((this._halfHeight + this._radius) * 2);
         this.setRadius(this._radius);
+        this._setLocalPose();
     }
 
     /**

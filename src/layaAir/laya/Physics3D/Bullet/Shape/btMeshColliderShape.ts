@@ -1,7 +1,6 @@
 import { Mesh } from "../../../d3/resource/models/Mesh";
 import { Vector3 } from "../../../maths/Vector3";
 import { IMeshColliderShape } from "../../interface/Shape/IMeshColliderShape";
-import { btPhysicsManager } from "../btPhysicsManager";
 import { btStatics, convertToBulletVec3 } from "../btStatics";
 import { btColliderShape } from "./btColliderShape";
 
@@ -17,6 +16,9 @@ export class btMeshColliderShape extends btColliderShape implements IMeshCollide
     private _physicMesh: any;
     /**@internal */
     private _physicsMeshOwned: boolean = false;
+
+    // Keep source geometry available after Mesh.markAsUnreadbale(), without sharing native scaling.
+    private static _meshGeometryCache = new WeakMap<Mesh, { positions: Vector3[], indices: Uint16Array | Uint32Array }>();
 
     /**@internal */
     static _btTempVector30: number;
@@ -111,8 +113,21 @@ export class btMeshColliderShape extends btColliderShape implements IMeshCollide
         }
         let bt = btStatics.bt;
 
-        // For non-convex mesh colliders, each collider should own an independent triangle mesh.
-        // Sharing btTriangleMesh across multiple shapes causes scale coupling between colliders.
+        let geometry = btMeshColliderShape._meshGeometryCache.get(value);
+        if (value._isReadable || !geometry) {
+            const positions: Vector3[] = [];
+            value.getPositions(positions);
+            const indices = (value._indexBuffer.getData() as Uint16Array | Uint32Array).slice();
+            geometry = { positions, indices };
+            btMeshColliderShape._meshGeometryCache.set(value, geometry);
+        }
+        const posArray = geometry.positions;
+        const indices = geometry.indices;
+        if (this._convex && posArray.length > this._limitvertex) {
+            console.warn("MeshColliderShape: The number of vertices exceeds the limit, please reduce the number of vertices.");
+        }
+
+        // Each non-convex collider owns its native triangle mesh, including its scaling.
         var triangleMesh: number = bt.btTriangleMesh_create();
         if (shared) {
             value._triangleMesh = triangleMesh;
@@ -121,12 +136,6 @@ export class btMeshColliderShape extends btColliderShape implements IMeshCollide
         var nativePositio1: number = btMeshColliderShape._btTempVector31;
         var nativePositio2: number = btMeshColliderShape._btTempVector32;
 
-        let posArray = new Array<Vector3>();
-        value.getPositions(posArray);
-        if (this._convex && posArray.length > this._limitvertex) {
-            console.warn("MeshColliderShape: The number of vertices exceeds the limit, please reduce the number of vertices.");
-        }
-        var indices: Uint16Array = value._indexBuffer.getData() as Uint16Array;//TODO:API修改问题
         for (var i: number = 0, n: number = indices.length; i < n; i += 3) {
             var position0: Vector3 = posArray[indices[i]];
             var position1: Vector3 = posArray[indices[i + 1]];

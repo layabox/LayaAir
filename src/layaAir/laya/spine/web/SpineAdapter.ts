@@ -30,6 +30,12 @@ export class SpineAdapter {
                 return result;
             }
 
+            // Spine 4.1 removed the skeleton clock; it has no physics simulation.
+            // Keep the shared render path compatible without replacing 4.2's update.
+            if (SpineConst.VERSION === "4.1" && typeof ns.Skeleton.prototype.update !== "function") {
+                ns.Skeleton.prototype.update = function (_delta: number) { };
+            }
+
             if (SpineConst.VERSION == "3.7") {
                 let bone_proto = ns.Bone.prototype
                 bone_proto.active = true;

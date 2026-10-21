@@ -29,6 +29,15 @@ export class Physics2DWorldManager implements IElementComponentManager {
     name: string;
 
     private _box2DWorld: any;
+    private _emptyBody: any;
+
+    /** @internal Static ground for joints in this world only. */
+    getEmptyBody(): any {
+        return this._emptyBody || (this._emptyBody = Physics2D.I._factory.createBody(this._box2DWorld, null));
+    }
+
+    /** @internal Explicit runtime substeps; saved legacy settings retain their previous behavior. */
+    _subStepCount: number = 1;
     private _pixelRatio: number = 50;
     private _RePixelRatio: number = 1 / this._pixelRatio;
     private _scene: Scene | Sprite;
@@ -147,7 +156,13 @@ export class Physics2DWorldManager implements IElementComponentManager {
      * @param gravity gravity
      */
     setGravity(gravity: Vector2): void {
-        this._gravity = gravity;
+        this._gravity.setValue(gravity.x, gravity.y);
+        if (this._box2DWorld) {
+            const factory = Physics2D.I._factory;
+            const value = factory.createPhyVec2(gravity.x, gravity.y);
+            this._box2DWorld.SetGravity(value);
+            factory.destroyData(value);
+        }
     }
 
     /**
@@ -161,8 +176,8 @@ export class Physics2DWorldManager implements IElementComponentManager {
     }
 
     /**
-     * @zh 平移整个物理世界的远点
-     * @en Shift the far point of the entire physics world
+     * @zh 平移物理世界原点（物理单位）。当前绑定不支持时警告并保持世界不变。
+     * @en Shift the world origin in physics units. Unsupported bindings warn and leave the world unchanged.
      * @param newOrigin 新的物理世界原点
      * @en New physics world origin
      */
@@ -196,7 +211,11 @@ export class Physics2DWorldManager implements IElementComponentManager {
      * @param pixelRatio The pixel ratio of the physics world
      */
     setPixel_Ratio(pixelRatio: number): void {
+        if (!Number.isFinite(pixelRatio) || pixelRatio <= 0)
+            throw new Error("Physics2D pixel ratio must be a finite positive number.");
         this._pixelRatio = pixelRatio;
+        this._RePixelRatio = 1 / pixelRatio;
+        if (this._box2DWorld) this._box2DWorld._pixelRatio = pixelRatio;
     }
 
     /**
@@ -210,13 +229,15 @@ export class Physics2DWorldManager implements IElementComponentManager {
     }
 
     /**
-     * @zh 设置物理世界子步迭代次数
+     * @zh 显式设置运行时子步数。旧项目保存的 subStep 配置保留原先单步行为。
      * @param subStep 设置物理世界子步迭代次数 
-     * @en Set the number of substeps in the physics world
+     * @en Explicitly opt into runtime substeps. Saved legacy subStep settings retain single-step behavior.
      * @param subStep The number of substeps in the physics world
      */
     setSubStep(subStep: number): void {
-        this._subStep = subStep;
+        if (!Number.isSafeInteger(subStep) || subStep < 1)
+            throw new Error("Physics2D substeps must be a positive integer.");
+        this._subStep = this._subStepCount = subStep;
     }
 
     /**
@@ -234,17 +255,20 @@ export class Physics2DWorldManager implements IElementComponentManager {
      * @en dispath the events of the physics2d world
      */
     sendEvent(): void {
-        let length: number = this._eventList.length;
+        const events = this._eventList;
+        if (!events) return;
+        this._subStepStayEvents?.clear();
+        let length: number = events.length;
         if (length > 0) {
-            for (let i = 0; i < length; i += 2) {
-                this._dispatchEvent(this._eventList[i], this._eventList[i + 1]);
+            for (let i = 0; i < length && this._box2DWorld; i += 2) {
+                this._dispatchEvent(events[i], events[i + 1]);
             }
             // 清理 Emscripten __cache__ 中的 b2Contact wrapper，防止缓存条目只增不减
             let factory = Physics2D.I._factory;
             for (let i = 1; i < length; i += 2) {
-                factory._cleanCache(this._eventList[i]);
+                if (!events[i]._subStepSnapshot) factory._cleanCache(events[i]);
             }
-            this._eventList.length = 0;
+            events.length = 0;
         }
     }
 
@@ -393,8 +417,8 @@ export class Physics2DWorldManager implements IElementComponentManager {
             hitRes.collider = collider;
             hitRes.hitPoint.x = this.physics2DToLaya(px);
             hitRes.hitPoint.y = this.physics2DToLaya(py);
-            hitRes.hitNormal.x = this.physics2DToLaya(nx);
-            hitRes.hitNormal.y = this.physics2DToLaya(ny);
+            hitRes.hitNormal.x = nx;
+            hitRes.hitNormal.y = ny;
             hitRes.fraction = fraction;
             res.push(hitRes);
 
@@ -415,9 +439,9 @@ export class Physics2DWorldManager implements IElementComponentManager {
     destroy(): void {
         if (!this._box2DWorld) return;
 
-        if (Physics2D.I._emptyBody) {
-            Physics2D.I._factory.removeBody(this._box2DWorld, Physics2D.I._emptyBody);
-            Physics2D.I._emptyBody = null;
+        if (this._emptyBody) {
+            Physics2D.I._factory.removeBody(this._box2DWorld, this._emptyBody);
+            this._emptyBody = null;
         }
 
         if (this._debugDraw) {
@@ -430,21 +454,59 @@ export class Physics2DWorldManager implements IElementComponentManager {
         Physics2D.I._factory.destroyWorld(this._box2DWorld);
         this._box2DWorld = null;
         this._eventList = null;
+        this._subStepStayEvents?.clear();
+    }
+
+    private _subStepStayEvents: Map<any, number>;
+
+    private _queueContactEvent(type: string, pointer: any): void {
+        const factory = Physics2D.I._factory;
+        const contact = factory.warpPoint(pointer, Ebox2DType.b2Contact);
+        if (!(this._subStepCount > 1)) {
+            this._eventList.push(type, contact);
+            return;
+        }
+        // Contacts may be freed by a later substep. Keep only fixtures and copied hit data.
+        const a = factory.getContactShapeA(contact);
+        const b = factory.getContactShapeB(contact);
+        const hit = new Physics2DContactHitResult();
+        const count = factory.getContactWorldManifold(contact, hit);
+        for (let i = 0; i < count; i++) {
+            hit.points[i].x = this.physics2DToLaya(hit.points[i].x);
+            hit.points[i].y = this.physics2DToLaya(hit.points[i].y);
+            hit.separations[i] = this.physics2DToLaya(hit.separations[i]);
+        }
+        const snapshot = {
+            _subStepSnapshot: true,
+            GetFixtureA: () => a,
+            GetFixtureB: () => b,
+            getHitInfo: () => hit
+        };
+        factory._cleanCache(contact);
+        const stays = this._subStepStayEvents || (this._subStepStayEvents = new Map());
+        if (type === "triggerstay") {
+            const index = stays.get(pointer);
+            if (index !== undefined) {
+                this._eventList[index] = snapshot;
+                return;
+            }
+            stays.set(pointer, this._eventList.length + 1);
+        } else {
+            stays.delete(pointer);
+        }
+        this._eventList.push(type, snapshot);
     }
 
     private _worldBeginContactCallback(contact: any) {
-        let contactInfo = Physics2D.I._factory.warpPoint(contact, Ebox2DType.b2Contact);
-        this._eventList.push("triggerenter", contactInfo);
+        this._queueContactEvent("triggerenter", contact);
     }
 
     private _worldEndContactCallback(contact: any) {
-        let contactInfo = Physics2D.I._factory.warpPoint(contact, Ebox2DType.b2Contact);
-        this._eventList.push("triggerexit", contactInfo);
+        this._queueContactEvent("triggerexit", contact);
     }
 
     private _worldPreSolveCallback(contact: any, oldManifold: any) {
-        let contactInfo = Physics2D.I._factory.warpPoint(contact, Ebox2DType.b2Contact);
-        this._eventList.push("triggerstay", contactInfo);
+        this._queueContactEvent("triggerstay", contact);
     }
 
     private _worldPostSolveCallback(contact: any, impulse: any) {
@@ -650,7 +712,7 @@ export class Physics2DWorldManager implements IElementComponentManager {
         let ownerB: any = colliderB.owner;
         let __this = this;
         let _hitResult: Physics2DContactHitResult;
-        contact.getHitInfo = function (): Physics2DContactHitResult {
+        if (!contact._subStepSnapshot) contact.getHitInfo = function (): Physics2DContactHitResult {
             if (!_hitResult) _hitResult = new Physics2DContactHitResult();
             let pointCount = Physics2D.I._factory.getContactWorldManifold(contact, _hitResult);
             // 将接触点从物理坐标转换为像素坐标（法线是单位向量，不需要转换）
@@ -665,7 +727,7 @@ export class Physics2DWorldManager implements IElementComponentManager {
             var args: any[] = [colliderB, colliderA, contact];
             ownerA.event(type, args);
         }
-        if (ownerB) {
+        if (ownerB && this._box2DWorld && !colliderA.destroyed && !colliderB.destroyed) {
             args = [colliderA, colliderB, contact];
             ownerB.event(type, args);
         }

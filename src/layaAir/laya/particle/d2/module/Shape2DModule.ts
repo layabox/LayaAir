@@ -22,7 +22,7 @@ export class Shape2DModule implements IClone {
     cloneTo(destObject: Shape2DModule): void {
         destObject.enable = this.enable;
         destObject.alignToDirection = this.alignToDirection;
-        this.shape.cloneTo(destObject.shape);
+        destObject.shape = this.shape?.clone();
     }
 
     clone() {

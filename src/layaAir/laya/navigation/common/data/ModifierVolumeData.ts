@@ -86,7 +86,7 @@ export class ModifierVolumeData extends BaseData{
      * @internal
      */
     _initSurface(surface:Array<BaseNavMeshSurface>): void {
-        this._cacheDatas = [];
+        this._destory();
         surface.forEach(element => {
             let cache = element._addConvexVoume(this);
             cache._setUpdateDataHander(Handler.create(this,this._updateBuffer,undefined,false));

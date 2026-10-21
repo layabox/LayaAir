@@ -5,6 +5,7 @@ import { Vector3 } from "../../../../maths/Vector3";
 import { IPointLightData, ISimpleSkinRenderNode, ISkinRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { I3DRenderModuleFactory } from "../../Design/3D/I3DRenderModuleFactory";
 import { NativeBounds } from "./NativeBounds";
+import type { Bounds } from "../../../../d3/math/Bounds";
 import { RTTransform3D } from "./RTTransform3D";
 import { RTCameraNodeData, RTSceneNodeData } from "./RT3DRenderModuleData";
 import { RTBaseRenderNode } from "./RTBaseRenderNode";
@@ -26,6 +27,9 @@ export class RT3DRenderModuleFactory implements I3DRenderModuleFactory {
     }
     createBounds(min: Vector3, max: Vector3): NativeBounds {
         return new NativeBounds(min, max);
+    }
+    setBoundsMinMaxBatch(targets: readonly Bounds[], values: Float64Array, count: number): boolean {
+        return NativeBounds.setMinMaxBatch(targets, values, count);
     }
     createVolumetricGI(): RTVolumetricGI {
         return new RTVolumetricGI();

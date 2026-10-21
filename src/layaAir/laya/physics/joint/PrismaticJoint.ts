@@ -106,7 +106,7 @@ export class PrismaticJoint extends JointBase {
 
     set maxMotorForce(value: number) {
         this._maxMotorForce = value;
-        if (this._joint) this._factory.set_Joint_SetMaxMotorTorque(this._joint, value);
+        if (this._joint) this._factory.set_Joint_SetMaxMotorForce(this._joint, value);
     }
 
     /**
@@ -132,7 +132,7 @@ export class PrismaticJoint extends JointBase {
 
     set lowerTranslation(value: number) {
         this._lowerTranslation = value;
-        if (this._joint) this._factory.set_Joint_SetLimits(this._joint, value, this._upperTranslation);
+        if (this._joint) this._factory.set_Joint_SetTranslationLimits(this._joint, value, this._upperTranslation);
     }
 
     /**
@@ -145,7 +145,7 @@ export class PrismaticJoint extends JointBase {
 
     set upperTranslation(value: number) {
         this._upperTranslation = value;
-        if (this._joint) this._factory.set_Joint_SetLimits(this._joint, this._lowerTranslation, value);
+        if (this._joint) this._factory.set_Joint_SetTranslationLimits(this._joint, this._lowerTranslation, value);
     }
 
     /**
@@ -177,10 +177,7 @@ export class PrismaticJoint extends JointBase {
                 this.selfBody.owner.on("bodyCreated", this, this._createJoint);
                 return;
             }
-            if (!Physics2D.I._emptyBody) {
-                Physics2D.I._emptyBody = Physics2D.I._factory.createBody(this._physics2DManager.box2DWorld, null);
-            }
-            def.bodyA = this.otherBody ? this.otherBody.getBox2DBody() : Physics2D.I._emptyBody;
+            def.bodyA = this.otherBody ? this.otherBody.getBox2DBody() : this._physics2DManager.getEmptyBody();
             if (!def.bodyA) {
                 this.otherBody.isConnectedJoint = true;
                 this.otherBody.owner.on("bodyCreated", this, this._createJoint);

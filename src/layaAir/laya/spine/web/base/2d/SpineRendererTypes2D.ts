@@ -114,7 +114,8 @@ export class StandardSpine2DRenderer extends StandardSpineRenderer{
             this.updateRenderMatrix(this._struct.renderMatrix, handle.offset, false);
         }
 
-        if (skinData && (skinData.hasRenderCache || this.normalUpdater.autoCacheEnabled)) {
+        if (skinData && !this.updater.owner._hasExternalSkin
+            && (skinData.hasRenderCache || this.normalUpdater.autoCacheEnabled)) {
             let cache = skinData.renderCache[this.updater.cacheFrameIndex];
             // console.log(this.updater.cacheFrameIndex, "@@@Frame")
             if (cache) {

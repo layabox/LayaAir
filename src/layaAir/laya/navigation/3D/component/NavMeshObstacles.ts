@@ -211,6 +211,8 @@ export class NavMeshObstacles extends BaseNav3DModifle {
 
     /**@internal */
     protected _onDestroy(): void {
+        if (this._oriTiles) this._oriTiles.destroy();
+        this._oriTiles = null;
         super._onDestroy();
     }
 
@@ -222,6 +224,7 @@ export class NavMeshObstacles extends BaseNav3DModifle {
         this.size.cloneTo(obstacles.size);
         obstacles.radius = this.radius;
         obstacles.height = this.height;
+        obstacles.datas = this.datas;
         super._cloneTo(dest);
     }
 

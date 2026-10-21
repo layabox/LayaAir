@@ -1,4 +1,5 @@
 import { LayaEnv } from "../../../LayaEnv";
+import { Vector2 } from "../../maths/Vector2";
 import { Sprite } from "../../display/Sprite";
 import { IClone } from "../../utils/IClone";
 import { ColliderBase } from "../Collider2D/ColliderBase";
@@ -88,7 +89,10 @@ export class Physics2DShapeBase implements IClone {
     public set density(value: number) {
         this._density = value;
         this._shapeDef.density = value;
-        this._box2DShape && Physics2D.I._factory.set_shape_density(this._box2DShape, value);
+        if (this._box2DShape) {
+            Physics2D.I._factory.set_shape_density(this._box2DShape, value);
+            this._body._resetMassData();
+        }
     }
 
     /**
@@ -224,6 +228,19 @@ export class Physics2DShapeBase implements IClone {
         this._initShape();
     }
 
+    /** @internal Update geometry without replacing the fixture or resetting its contacts. */
+    protected _refreshShape(update: (shape: any) => void): void {
+        const factory = Physics2D.I._factory;
+        update(factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType));
+        if (!this._box2DShape) return;
+        update(factory.getShape(this._box2DShape, this._shapeDef.shapeType));
+        // SetTransform also synchronizes the fixture's broadphase proxies at the same position.
+        const position = Vector2.TEMP;
+        factory.get_RigidBody_Position(this._box2DBody, position);
+        factory.set_RigibBody_Transform(this._box2DBody, position.x, position.y, factory.get_RigidBody_Angle(this._box2DBody));
+        this._body._resetMassData();
+    }
+
     private _initShape(): void {
         if (!LayaEnv.isPlaying) return;
         this._createShape();
@@ -299,7 +316,7 @@ export class Physics2DShapeBase implements IClone {
 
     cloneTo(destObject: Physics2DShapeBase): void {
         destObject.density = this.density;
-        destObject.filterData = this.filterData;
+        destObject.filterData = Object.assign(new FilterData(), this.filterData);
         destObject.friction = this.friction;
         destObject.isSensor = this.isSensor;
         destObject.restitution = this.restitution;

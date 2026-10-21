@@ -115,6 +115,13 @@ export class NavMesh2DSurface extends BaseNavMeshSurface {
         });
     }
 
+    protected _onDestroy(): void {
+        this._navMeshAreas.forEach(area => area._destroy());
+        this._navMeshObstacles.forEach(obstacle => obstacle._destroy());
+        this._navMeshLink.forEach(link => link.destroy());
+        super._onDestroy();
+    }
+
     /**@internal */
     _getManager(): Navigation2DManage {
         return Navigation2DManage._getNavManager(this);

@@ -1,0 +1,45 @@
+{
+  "description": "Captured from the existing Layabox/official-2024 source with unmodified upstream layer merging; independent reference for the official-main native mode.",
+  "sourceRevision": "9352c4f7f424a1a2d541d89782be019fd4dc3957",
+  "sourceTree": "f99ef2cc0f2ad5c02e0ce305179907e6e89e09e6",
+  "layerMode": "upstream",
+  "baselineSourceSha256": "353005d4b2a97a6a32a1034bdf38e5ad54c5ce6ff43c38907beae9607f4f692d",
+  "cases": [
+    {
+      "name": "plane",
+      "positionHash": "de03b6c236eff2ba8d8af4b6b340b0e158902116d9c18b298d04a61c64a0117d",
+      "stateHash": "203bbf879637208c88d27c7267013fa068ad5cb92e746beea54c6cc3ea225bc0",
+      "behaviorHash": "308bb20f16c3d77b285001fd4b6cc62f80e80a63402601da45d2e6bd6f2cf316"
+    },
+    {
+      "name": "obstacle-watershed",
+      "positionHash": "e00c1bd3258450535e7ffbcafe474896092ac3a72432f69adb59e31a9a74bac8",
+      "stateHash": "5c09bfa20db6f35d7944f412169ee1fe856f9a22c2c8de06d7421a3ef48b0b81",
+      "behaviorHash": "76b8545be4102e638c3bde89b9a79eb96f1501fcfe979734f43cb546713a8e19"
+    },
+    {
+      "name": "obstacle-monotone",
+      "positionHash": "e00c1bd3258450535e7ffbcafe474896092ac3a72432f69adb59e31a9a74bac8",
+      "stateHash": "5c09bfa20db6f35d7944f412169ee1fe856f9a22c2c8de06d7421a3ef48b0b81",
+      "behaviorHash": "d8f1e729aa2e7afa4536840e6d9b50f759f23fabffcc1ce086ad048e7c1a52b7"
+    },
+    {
+      "name": "obstacle-layers",
+      "positionHash": "e00c1bd3258450535e7ffbcafe474896092ac3a72432f69adb59e31a9a74bac8",
+      "stateHash": "5c09bfa20db6f35d7944f412169ee1fe856f9a22c2c8de06d7421a3ef48b0b81",
+      "behaviorHash": "5219409170c7a65af4b633302fee95ae34cf529265f912dd1fadf96261f93a87"
+    },
+    {
+      "name": "disconnected",
+      "positionHash": "edf7a3c7802853ccd362769b24df06bbd66b418833b3290de3142ddc655ae2cb",
+      "stateHash": "e747aa0fae5e3b438e74ff82cd0494b3b4ecd7b5a691fd3955de77fed7f0981f",
+      "behaviorHash": "7cd3b01896ace235e57a455221f87a65c273e9f6a18b9fb6614be21b494ccea6"
+    },
+    {
+      "name": "offmesh-link",
+      "positionHash": "56b8e4273e2c6f506c072cc107cc74acd32575cee3a0d8cc1a57f1af77896a69",
+      "stateHash": "a6ca20fcc5692585f2c72e7ab68541b4fd0a0eac7e8f5f7df6bef1140ae07565",
+      "behaviorHash": "839bafe60b664d393098d0421f98d791d1c676fbe4f940a754bb7e33979ffa3d"
+    }
+  ]
+}

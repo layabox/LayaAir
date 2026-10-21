@@ -10,6 +10,33 @@ import { BoundBox } from "./BoundBox";
  */
 export class Bounds implements IClone {
     /**
+     * @en Sets a batch of min/max pairs. Each record contains six doubles in
+     * minXYZ/maxXYZ order. Duplicate targets are applied in input order.
+     * Invalid target/range arguments are rejected before any bounds is changed.
+     * @zh 按输入顺序批量设置包围盒，六个值一组（minXYZ/maxXYZ）。
+     */
+    static setMinMaxBatch(targets: readonly Bounds[], values: Float64Array, count: number = targets.length): void {
+        if (!Number.isSafeInteger(count) || count < 0 || count > targets.length
+            || !(values instanceof Float64Array) || count > Math.floor(values.length / 6))
+            throw new RangeError("Invalid Bounds batch range");
+        for (let i = 0; i < count; i++)
+            if (!(targets[i] instanceof Bounds)) throw new TypeError("Invalid Bounds batch target");
+        if (count === 0) return;
+        const factory = Laya3DRender.Render3DModuleDataFactory;
+        if (factory.setBoundsMinMaxBatch?.(targets, values, count)) return;
+        // Per-call scratch keeps nested/custom setter calls safe. Ordinary Web
+        // users that do not submit batches incur no new per-frame work.
+        const min = new Vector3(), max = new Vector3();
+        for (let i = 0; i < count; i++) {
+            const offset = i * 6;
+            min.setValue(values[offset], values[offset + 1], values[offset + 2]);
+            max.setValue(values[offset + 3], values[offset + 4], values[offset + 5]);
+            targets[i].setMin(min);
+            targets[i].setMax(max);
+        }
+    }
+
+    /**
      * @en Merges two bounding boxes into one.
      * @param box1 The first bounding box.
      * @param box2 The second bounding box.

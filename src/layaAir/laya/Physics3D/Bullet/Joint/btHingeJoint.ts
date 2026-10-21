@@ -10,6 +10,7 @@ import { btJoint } from "./btJoint";
  * @zh 类 `btHingeJoint` 表示两个刚体之间的摆动关节。
  */
 export class btHingeJoint extends btJoint implements IHingeJoint {
+    readonly supportsContactDistance = false;
 
     /**@internal */
     static ANGULAR_X: number = 3;
@@ -19,21 +20,22 @@ export class btHingeJoint extends btJoint implements IHingeJoint {
     static ANGULAR_Z: number = 5;
 
     /**@internal */
-    _uperLimit: number = 0;
+    _uperLimit: number = Math.PI / 2;
     /**@internal */
-    _lowerLimit: number = 1;
+    _lowerLimit: number = -Math.PI / 2;
     /**@internal */
-    _angularAxis: number = 0;
+    _angularAxis: number = 3;
     /**@internal */
     _enableLimit: boolean = false;
     /**@internal */
     _enableDrive: boolean = false;
+    private _driveVelocity: number = 0;
 
     protected _createJoint(): void {
         var bt = btStatics.bt;
         // last param 0 is R0.XYZ
-        this._manager && this._manager.removeJoint(this);
-        if (this._collider && this._connectCollider) {
+        this._btJoint && this._manager && this._manager.removeJoint(this);
+        if ((this._collider as btRigidBodyCollider)?._btCollider && (this._connectCollider as btRigidBodyCollider)?._btCollider) {
             this._btJoint = bt.btGeneric6DofSpring2Constraint_create((this._collider as btRigidBodyCollider)._btCollider, this._btTempTrans0, (this._connectCollider as btRigidBodyCollider)._btCollider, this._btTempTrans1, 0);
             this._btJointFeedBackObj = bt.btJointFeedback_create(this._btJoint);
             bt.btTypedConstraint_setJointFeedback(this._btJoint, this._btJointFeedBackObj);
@@ -48,6 +50,7 @@ export class btHingeJoint extends btJoint implements IHingeJoint {
      */
     _initJointConstraintInfo() {
         let bt = btStatics.bt;
+        for (let i = 0; i < 3; i++) bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, i, 0, 0);
         bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, btHingeJoint.ANGULAR_X, 0, 0);
         bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, btHingeJoint.ANGULAR_Y, 0, 0);
         bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, btHingeJoint.ANGULAR_Z, 0, 0);
@@ -93,10 +96,9 @@ export class btHingeJoint extends btJoint implements IHingeJoint {
      * @param lowerLimit 新的下限值，单位为弧度。
      */
     setLowerLimit(lowerLimit: number): void {
-        if (!this._btJoint) return;
-        if (lowerLimit == this._lowerLimit) return;
-        this._lowerLimit = lowerLimit / Math.PI * 180;
-        btStatics.bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, this._angularAxis, this._lowerLimit, this._uperLimit);
+        this._lowerLimit = lowerLimit;
+        if (this._btJoint && this._enableLimit)
+            btStatics.bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, this._angularAxis, this._lowerLimit, this._uperLimit);
     }
 
     /**
@@ -106,10 +108,9 @@ export class btHingeJoint extends btJoint implements IHingeJoint {
      * @param value 新的上限值，单位为弧度。
      */
     setUpLimit(value: number): void {
-        if (!this._btJoint) return;
-        if (value == this._uperLimit) return;
-        this._uperLimit = value / Math.PI * 180;
-        btStatics.bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, this._angularAxis, this._lowerLimit, this._uperLimit);
+        this._uperLimit = value;
+        if (this._btJoint && this._enableLimit)
+            btStatics.bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, this._angularAxis, this._lowerLimit, this._uperLimit);
     }
     /**
      * @en Sets the bounciness of the joint.
@@ -150,6 +151,8 @@ export class btHingeJoint extends btJoint implements IHingeJoint {
      */
     enableLimit(value: boolean): void {
         this._enableLimit = value;
+        if (this._btJoint)
+            btStatics.bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, this._angularAxis, value ? this._lowerLimit : 1, value ? this._uperLimit : 0);
     }
     /**
      * @en Enables or disables the joint drive.
@@ -179,30 +182,24 @@ export class btHingeJoint extends btJoint implements IHingeJoint {
      * @param value 表示旋转轴的向量。
      */
     setAxis(value: Vector3): void {
-        if (value.x == 1) {
-            this._angularAxis = btHingeJoint.ANGULAR_X;
-            if (this._enableLimit) {
-                btStatics.bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, this._angularAxis, this._lowerLimit, this._uperLimit);
-            } else {
-                btStatics.bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, this._angularAxis, 1, 0);
-            }
+        const axis = value.x === 1 ? btHingeJoint.ANGULAR_X
+            : value.y === 1 ? btHingeJoint.ANGULAR_Y
+            : value.z === 1 ? btHingeJoint.ANGULAR_Z : -1;
+        if (axis < 0) return;
+        const previousAxis = this._angularAxis;
+        this._angularAxis = axis;
+        if (!this._btJoint) return;
+        const bt = btStatics.bt;
+        // Only the selected hinge axis may rotate. Transfer an already running
+        // motor when the axis is changed at runtime.
+        if (previousAxis !== axis) bt.btGeneric6DofSpring2Constraint_enableMotor(this._btJoint, previousAxis, false);
+        for (let i = btHingeJoint.ANGULAR_X; i <= btHingeJoint.ANGULAR_Z; i++) {
+            bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, i,
+                i === axis ? (this._enableLimit ? this._lowerLimit : 1) : 0,
+                i === axis ? (this._enableLimit ? this._uperLimit : 0) : 0);
         }
-        if (value.y == 1) {
-            this._angularAxis = btHingeJoint.ANGULAR_Y;
-            if (this._enableLimit) {
-                btStatics.bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, this._angularAxis, this._lowerLimit, this._uperLimit);
-            } else {
-                btStatics.bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, this._angularAxis, 1, 0);
-            }
-        }
-        if (value.z == 1) {
-            this._angularAxis = btHingeJoint.ANGULAR_Z;
-            if (this._enableLimit) {
-                btStatics.bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, this._angularAxis, this._lowerLimit, this._uperLimit);
-            } else {
-                btStatics.bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, this._angularAxis, 1, 0);
-            }
-        }
+        this.setDriveVelocity(this._driveVelocity);
+        this.enableDrive(this._enableDrive);
     }
     /**
      * @en Sets the swing offset for the joint.
@@ -262,7 +259,8 @@ export class btHingeJoint extends btJoint implements IHingeJoint {
      * @param velocity 关节电机的目标速度。
      */
     setDriveVelocity(velocity: number): void {
-        btStatics.bt.btGeneric6DofSpring2Constraint_setTargetVelocity(this._btJoint, this._angularAxis, velocity);
+        this._driveVelocity = velocity;
+        if (this._btJoint) btStatics.bt.btGeneric6DofSpring2Constraint_setTargetVelocity(this._btJoint, this._angularAxis, velocity);
     }
     /**
      * @en Sets the drive force limit for the joint.
@@ -299,8 +297,8 @@ export class btHingeJoint extends btJoint implements IHingeJoint {
      * @zh 销毁关节
      */
     destroy(): void {
+        super.destroy();
         this._btJoint = null;
         this._btJointFeedBackObj = null;
-        super.destroy();
     }
 }

@@ -128,8 +128,9 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
         this._staticCapableMap.set(EColliderCapable.Collider_RollingFriction, true);
         this._staticCapableMap.set(EColliderCapable.Collider_DynamicFriction, false);
         this._staticCapableMap.set(EColliderCapable.Collider_StaticFriction, false);
-        this._staticCapableMap.set(EColliderCapable.Collider_BounceCombine, true);
-        this._staticCapableMap.set(EColliderCapable.Collider_FrictionCombine, true);
+        // Bullet has no custom material-combine setter in the shipped native API.
+        this._staticCapableMap.set(EColliderCapable.Collider_BounceCombine, false);
+        this._staticCapableMap.set(EColliderCapable.Collider_FrictionCombine, false);
         this._staticCapableMap.set(EColliderCapable.Collider_EventFilter, false);
         this._staticCapableMap.set(EColliderCapable.Collider_CollisionDetectionMode, false);
         this._staticCapableMap.set(EColliderCapable.RigidBody_AllowSleep, true);
@@ -151,6 +152,8 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
      * @zh 销毁静态碰撞器
      */
     destroy(): void {
+        if (this._destroyed) return;
+        super.destroy();
         this._btCollider = null;
         Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaStaticRigidBody, -1);
     }

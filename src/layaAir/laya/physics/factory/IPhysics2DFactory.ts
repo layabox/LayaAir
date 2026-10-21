@@ -675,6 +675,9 @@ export interface IPhysics2DFactory {
      */
     set_Joint_SetMaxMotorTorque(joint: any, maxTorque: number): void;
 
+    /** @internal Set the prismatic motor force. */
+    set_Joint_SetMaxMotorForce(joint: any, maxForce: number): void;
+
     /** 
      * @internal
      */
@@ -685,10 +688,13 @@ export interface IPhysics2DFactory {
      */
     set_Joint_SetLimits(joint: any, lowerAngle: number, upperAngle: number): void;
 
+    /** @internal Set translation limits in pixels. */
+    set_Joint_SetTranslationLimits(joint: any, lower: number, upper: number): void;
+
     /** 
      * @internal
      */
-    set_Joint_frequencyAndDampingRatio(joint: any, frequency: number, dampingRatio: number, isdamping: boolean): void;
+    set_Joint_frequencyAndDampingRatio(joint: any, frequency: number, dampingRatio: number, isdamping: boolean, isAngular?: boolean): void;
 
     /** 
      * @internal
@@ -721,6 +727,9 @@ export interface IPhysics2DFactory {
      * @internal
      */
     set_MouseJoint_target(joint: any, x: number, y: number): void;
+
+    /** @internal Set the mass-scaled mouse joint force. */
+    set_MouseJoint_MaxForce(joint: any, maxForce: number): void;
 
     /** 
      * @internal
@@ -922,29 +931,29 @@ export interface IPhysics2DFactory {
     /** 
      * @internal
      */
-    rigidBody_applyForce(body: any, force: IV2, position: IV2): void;
+    rigidBody_applyForce(body: any, force: IV2, position: IV2, wake?: boolean): void;
 
     /** 
      * @internal
      */
-    rigidBody_applyForceToCenter(body: any, force: IV2): void;
+    rigidBody_applyForceToCenter(body: any, force: IV2, wake?: boolean): void;
 
     /** 
      * @internal
      */
-    rigidbody_ApplyLinearImpulse(body: any, impulse: IV2, position: IV2): void;
+    rigidbody_ApplyLinearImpulse(body: any, impulse: IV2, position: IV2, wake?: boolean): void;
 
-    rigidbody_ApplyAngularImpulse(body: any, impulse: number): void;
-
-    /** 
-     * @internal
-     */
-    rigidbody_ApplyLinearImpulseToCenter(body: any, impulse: IV2): void;
+    rigidbody_ApplyAngularImpulse(body: any, impulse: number, wake?: boolean): void;
 
     /** 
      * @internal
      */
-    rigidbody_applyTorque(body: any, torque: number): void;
+    rigidbody_ApplyLinearImpulseToCenter(body: any, impulse: IV2, wake?: boolean): void;
+
+    /** 
+     * @internal
+     */
+    rigidbody_applyTorque(body: any, torque: number, wake?: boolean): void;
 
     /** 
      * @internal

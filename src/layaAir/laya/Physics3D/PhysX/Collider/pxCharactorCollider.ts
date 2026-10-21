@@ -73,6 +73,10 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
 
     private _nonWalkableMode: ControllerNonWalkableMode = ControllerNonWalkableMode.ePREVENT_CLIMBING_AND_FORCE_SLIDING;
 
+    private _jumpVelocity = new Vector3();
+    private _gravityDisplacement = new Vector3();
+    private _lastCollisionFlags: number = 0;
+
     private _gravity: Vector3 = new Vector3(0, -9.81, 0);
 
     private _characterCollisionFlags: number = 0;
@@ -242,7 +246,8 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
      * @param disp 位移向量。
      */
     move(disp: Vector3): void {
-        return this._pxController && this._pxController.move(disp, this._minDistance, 1 / 60);
+        if (this._pxController)
+            this._lastCollisionFlags = this._pxController.move(disp, this._minDistance, 1 / 60);
     }
 
     /**
@@ -252,12 +257,36 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
      * @param velocity 跳跃速度。
      */
     jump?(velocity: Vector3): void {
-        return this._pxController && this._pxController.move(velocity, this._minDistance, 1 / 60);
+        if (!this._pxController || !this.isGrounded()) return;
+        if (velocity) velocity.cloneTo(this._jumpVelocity);
+        else Vector3.scale(this._upDirection, 5, this._jumpVelocity);
+        this._lastCollisionFlags = 0;
+    }
+
+    simulateGravity(deltaTime: number): void {
+        if (!this._pxController || !(deltaTime > 0)) return;
+        const velocity = this._jumpVelocity;
+        velocity.x += this._gravity.x * deltaTime;
+        velocity.y += this._gravity.y * deltaTime;
+        velocity.z += this._gravity.z * deltaTime;
+        const displacement = this._gravityDisplacement;
+        Vector3.scale(velocity, deltaTime, displacement);
+        this._lastCollisionFlags = this._pxController.move(displacement, this._minDistance, deltaTime);
+        const upSpeed = Vector3.dot(velocity, this._upDirection);
+        if (((this._lastCollisionFlags & ECharacterCollisionFlag.eCOLLISION_DOWN) && upSpeed < 0)
+            || ((this._lastCollisionFlags & ECharacterCollisionFlag.eCOLLISION_UP) && upSpeed > 0)) {
+            velocity.x -= this._upDirection.x * upSpeed;
+            velocity.y -= this._upDirection.y * upSpeed;
+            velocity.z -= this._upDirection.z * upSpeed;
+        }
+    }
+
+    getVerticalVel(): number {
+        return Vector3.dot(this._jumpVelocity, this._upDirection);
     }
 
     isGrounded(): boolean {
-        let flag: ECharacterCollisionFlag = this._pxController && this._pxController.move(new Vector3(0, -0.1, 0), this._minDistance, 1 / 60);
-        return (flag & ECharacterCollisionFlag.eCOLLISION_DOWN) != 0;
+        return (this._lastCollisionFlags & ECharacterCollisionFlag.eCOLLISION_DOWN) != 0;
     }
 
     /**

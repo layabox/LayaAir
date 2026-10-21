@@ -96,7 +96,7 @@ export class JointBase extends Component {
 
     /**@internal */
     protected _onDisable(): void {
-        if (this._joint && this._factory.getJoint_userData(this._joint) && !this._factory.getJoint_userData_destroy(this._joint)) {
+        if (this._factory.isValidJoint(this._joint)) {
             Physics2D.I._factory.removeJoint(this._physics2DManager.box2DWorld, this._joint);
         }
         this._joint = null;

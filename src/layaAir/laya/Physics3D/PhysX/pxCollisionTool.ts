@@ -18,6 +18,7 @@ export class pxCollisionTool {
     static _tempV3: Vector3 = new Vector3();
     /**@internal */
     static _contactPoint: ContactPoint = new ContactPoint();
+    private static _contactPool: ContactPoint[] = [];
 
     /**@ignore */
     constructor() {
@@ -28,16 +29,18 @@ export class pxCollisionTool {
     /**
      * @internal
      */
-    static getCollision(pxCollsionData: any, isTrigger: boolean): Collision {
-        let collisionData = pxCollsionData.get(0);
+    static getCollision(pxCollsionData: any, isTrigger: boolean, index: number = 0): Collision {
+        let collisionData = pxCollsionData.get(index);
         if (!collisionData) return null;
         let collsion = pxCollisionTool._collisionPool.length === 0 ? new Collision() : pxCollisionTool._collisionPool.pop();
         collsion._inPool = false;
+        collsion.contacts.length = 0;
+        collsion._isTrigger = isTrigger;
         if (isTrigger) {
             // trigger
             let otherShape = pxColliderShape._shapePool.get(collisionData.otherShape);
             let triggerShape = pxColliderShape._shapePool.get(collisionData.triggerShape);
-            if (!otherShape || !triggerShape) return null;
+            if (!otherShape || !triggerShape) { pxCollisionTool.reCoverCollision(collsion); return null; }
             collsion._colliderA = otherShape._pxCollider;
             collsion._colliderB = triggerShape._pxCollider;
             collsion._isTrigger = true;
@@ -45,19 +48,21 @@ export class pxCollisionTool {
             // collision
             let shape0 = pxColliderShape._shapePool.get(collisionData.pxShape0);
             let shape1 = pxColliderShape._shapePool.get(collisionData.pxShape1);
-            if (!shape0 || !shape1) return null;
+            if (!shape0 || !shape1) { pxCollisionTool.reCoverCollision(collsion); return null; }
             // get pxCollider
             collsion._colliderA = shape0._pxCollider;
             collsion._colliderB = shape1._pxCollider;
             for (let i = 0, j = collisionData.contactCount; i < j; i++) {
                 let contactInfo = collisionData["contactPoint" + i];
                 if (!contactInfo) continue;
-                let contact = pxCollisionTool._contactPoint;
+                let contact = pxCollisionTool._contactPool.pop() || new ContactPoint();
                 contact._colliderA = collsion._colliderA;
                 contact._colliderB = collsion._colliderB;
                 // contact.distance = 
-                contact.normal = pxCollisionTool._tempV3.setValue(contactInfo.normal.x, contactInfo.normal.y, contactInfo.normal.z);
-                contact.positionOnA = contact.positionOnB = pxCollisionTool._tempV3.setValue(contactInfo.position.x, contactInfo.position.y, contactInfo.position.z);
+                contact.normal.setValue(contactInfo.normal.x, contactInfo.normal.y, contactInfo.normal.z);
+                contact.positionOnA.setValue(contactInfo.position.x, contactInfo.position.y, contactInfo.position.z);
+                contact.positionOnA.cloneTo(contact.positionOnB);
+                contact.distance = contactInfo.separation;
                 collsion.contacts.push(contact);
             }
         }
@@ -75,6 +80,8 @@ export class pxCollisionTool {
      * @returns 转换后的HitResult
      */
     static getRayCastResult(out: HitResult, quaryResult: any): HitResult {
+        out.succeeded = false;
+        out.collider = null;
         if (quaryResult.Quary) {
             out.succeeded = quaryResult.Quary;
             let normal = out.normal;
@@ -101,9 +108,9 @@ export class pxCollisionTool {
      * @returns 转换后的HitResult数组
      */
     static getRayCastResults(out: HitResult[], quaryResults: any): HitResult[] {
+        out.length = 0;
         let quarySize: number = quaryResults.size();
         if (quarySize <= 0) return out;
-        out.length = 0;
         for (let i = 0; i < quarySize; i++) {
             let result: any = quaryResults.get(i);
             let outItem: HitResult = pxCollisionTool._hitPool.length === 0 ? new HitResult() : pxCollisionTool._hitPool.pop();
@@ -134,6 +141,8 @@ export class pxCollisionTool {
     static reCoverCollision(value: Collision) {
         if (!value._inPool) {
             value._inPool = true;
+            for (const contact of value.contacts) pxCollisionTool._contactPool.push(contact);
+            value.contacts.length = 0;
             pxCollisionTool._collisionPool.push(value);
         }
     }

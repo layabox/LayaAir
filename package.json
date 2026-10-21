@@ -6,6 +6,7 @@
   "scripts": {
     "start": "npm-run-all clean copyShaders copyJsLibs --parallel watchShaders watchSamples",
     "build": "node scripts/buildEngine.mjs",
+    "check:js-bytecode": "node scripts/checkJsBytecode.mjs",
     "buildSamples": "node scripts/buildSamples.mjs",
     "esbuildSamplesWebGL": "node scripts/watchSamples.mjs webgl",
     "esbuildSamplesWebGPU": "node scripts/watchSamples.mjs webgpu",

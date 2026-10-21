@@ -37,14 +37,11 @@ export class BaseNavAgent extends Component {
     /**@internal */
     protected _angularSpeed: number = 120;
 
-    /**@internal TODO*/
-    protected _stopDistance: number;
+    /**@internal */
+    protected _stopDistance: number = 0;
 
-    /**@internal TODO*/
-    protected _Acceleration: number;
-
-    /**@internal TODO*/
-    protected _autoBraking: boolean;
+    /**@internal */
+    protected _autoBraking: boolean = true;
 
     /**@internal */
     protected _radius: number = 0.5;
@@ -82,6 +79,9 @@ export class BaseNavAgent extends Component {
     _curentSpeed: Vector3;
     /**@internal navMeshSurface是否准备好，这里处理先添加agent再初始化navMeshSurface的情况*/
     private _navMeshSurfaceReady: boolean = false;
+    private _hasTarget: boolean = false;
+    private _brakingTarget: Vector3;
+    private _arrivalStopped: boolean = false;
 
     /**
      * @en Radius of the agent.
@@ -93,8 +93,8 @@ export class BaseNavAgent extends Component {
             let params = this._crowAgent.getparams();
             const radius = this._getradius()
             params.radius = radius;
-            params.collisionQueryRange = radius * 12;
-            params.pathOptimizationRange = radius * 30;
+            params.collisionQueryRange = this._getcollisionQueryRange();
+            params.pathOptimizationRange = this._getpathOptimizationRange();
         }
     }
 
@@ -139,12 +139,41 @@ export class BaseNavAgent extends Component {
     set maxAcceleration(value: number) {
         this._maxAcceleration = value;
         if (this._crowAgent) {
-            this._crowAgent.getparams().maxAcceleration = this._speed;
+            this._crowAgent.getparams().maxAcceleration = this._maxAcceleration;
         }
     }
 
     get maxAcceleration() {
         return this._maxAcceleration;
+    }
+
+    /**
+     * @en Automatically slow down before the end of a path. Defaults to true.
+     * @zh 是否在路径终点前自动减速。默认为 true。
+     */
+    get autoBraking(): boolean {
+        return this._autoBraking;
+    }
+
+    set autoBraking(value: boolean) {
+        this._autoBraking = value === true;
+        if (this._crowAgent) this._crowAgent.getparams().maxSpeed = this._arrivalStopped ? 0 : this._speed;
+    }
+
+    /**
+     * @en Remaining path distance within which the agent stops, in world units. Defaults to zero.
+     * @zh 代理允许停止的剩余路径距离，使用世界单位。默认为 0。
+     */
+    get stopDistance(): number {
+        return this._stopDistance;
+    }
+
+    set stopDistance(value: number) {
+        this._stopDistance = Number.isFinite(value) ? Math.max(0, value) : 0;
+        if (this._arrivalStopped) {
+            this._arrivalStopped = false;
+            if (this._hasTarget) this._setTarget(this._targetPos);
+        }
     }
 
     /**
@@ -222,7 +251,7 @@ export class BaseNavAgent extends Component {
     set agentType(value: string) {
         if (value == this._agentType) return;
         this._agentType = value;
-        if (this._crowAgent) {
+        if (this._navManager) {
             this._removeAgent();
             this._addAgent();
         }
@@ -237,7 +266,15 @@ export class BaseNavAgent extends Component {
      * @zh 设置代理的区域掩码。
      */
     set areaMask(value: number) {
-        this._areaMask.flag = value
+        if (this._areaMask.flag === value) return;
+        this._areaMask.flag = value;
+        if (this._currentNaveSurface) {
+            this._removeAgent();
+            if (this.enabled) {
+                this._addAgent();
+                if (this._crowAgent && this._hasTarget) this._setTarget(this._targetPos);
+            }
+        }
     }
 
     get areaMask(): number {
@@ -259,15 +296,22 @@ export class BaseNavAgent extends Component {
      * 由系统调用
      */
     onUpdate() {
-        if (this._crowAgent != null) return;
-        if (!this._navMeshSurfaceReady) this._addAgent();
+        if (this._crowAgent != null) {
+            if (!this._navMeshSurfaceReady) {
+                this._navMeshSurfaceReady = true;
+                if (this._hasTarget && !this._arrivalStopped && !this._navAgentLinkAnim._active) this._setTarget(this._targetPos);
+            }
+            return;
+        }
+        if (!this._navMeshSurfaceReady && !this._navAgentLinkAnim._active) this._addAgent();
         if (!this._navAgentLinkAnim._active) return;
         let position = tempVector3;
         let dir = tempVector31;
         this._navAgentLinkAnim._update(position, dir);
         if (this._navAgentLinkAnim._nearerEndPos(position)) {
-            this._addAgent();
+            this._updatePosition(position, dir);
             this._navAgentLinkAnim._clearn();
+            this._addAgent();
             this._setTarget(this._targetPos);
         }
         this._updatePosition(position, dir);
@@ -313,12 +357,20 @@ export class BaseNavAgent extends Component {
      */
 
     protected _setTarget(value: Vector3) {
+        this._hasTarget = true;
         value.cloneTo(this._targetPos);
+        if (this._arrivalStopped && this._brakingTarget && Vector3.equals(value, this._brakingTarget)) return;
         if (!this._navManager) return;
         if (this._currentNaveSurface == null || !this._currentNaveSurface.enabled) return;
         let targetSurface: BaseNavMeshSurface = this._navManager.getNavMeshSurface(value, this._agentType);
+        if (targetSurface == null) return;
         if (targetSurface == this._currentNaveSurface) {
-            this._currentNaveSurface._navMesh._requestMoveTarget(this, this._targetPos);
+            if (this._currentNaveSurface._navMesh._requestMoveTarget(this, this._targetPos)) {
+                if (!this._brakingTarget) this._brakingTarget = new Vector3();
+                value.cloneTo(this._brakingTarget);
+                this._arrivalStopped = false;
+                this._crowAgent.getparams().maxSpeed = this._speed;
+            }
             return;
         }
         let linkes = this._navManager.getNavMeshLink(this._currentNaveSurface, targetSurface);
@@ -331,14 +383,14 @@ export class BaseNavAgent extends Component {
             if (value._startNavSurfaces.indexOf(this._currentNaveSurface) >= 0) {
                 let dis = value.getDistance();
                 if (dis < distance) {
-                    dis = distance;
+                    distance = dis;
                     link = value;
                     isstart = true;
                 }
             } else if (value._endNavSurfaces.indexOf(this._currentNaveSurface) >= 0 && value._bidirectional) {
                 let dis = value.getDistance();
                 if (dis < distance) {
-                    dis = distance;
+                    distance = dis;
                     link = value;
                     isstart = false;
                 }
@@ -396,6 +448,10 @@ export class BaseNavAgent extends Component {
         this._fllowPath = [];
         let manager = this._navManager = this._getManager();
         this._areaMask._setAreaMap(manager.getAreaFlagMap())
+        if (!manager.getNavConfig(this._agentType)) {
+            console.warn(`[Navigation] Unknown agent type "${this._agentType}" on "${this.owner.name}". Navigation agent initialization was skipped; select an existing agent type.`);
+            return;
+        }
         this._addAgent();
     }
 
@@ -416,16 +472,17 @@ export class BaseNavAgent extends Component {
         }
         this._currentNaveSurface = surface;
         this._currentNaveSurface._navMesh._addAgent(this);
-        this._navMeshSurfaceReady = true;
     }
 
     /**
      * @internal 
      */
     protected _removeAgent() {
-        if (this._currentNaveSurface == null || this._agentId == null || this._crowAgent == null)
+        if (this._currentNaveSurface == null)
             return;
-        this._currentNaveSurface._navMesh._removeAgent(this);
+        this._currentNaveSurface._navMesh?._removeAgent(this);
+        this._agentId = null;
+        this._crowAgent = null;
         this._currentNaveSurface = null;
         this._navMeshSurfaceReady = false;
     }
@@ -458,6 +515,69 @@ export class BaseNavAgent extends Component {
     _onDestroy(): void {
         super._onDestroy();
         this._removeAgent();
+    }
+
+    /**@internal Update arrival steering before the crowd integrates its velocity. */
+    _updateBraking(dt: number): void {
+        if (!this._crowAgent) return;
+        const params = this._crowAgent.getparams();
+        if (this._arrivalStopped) {
+            params.maxSpeed = 0;
+            return;
+        }
+        if (!this._autoBraking && this._stopDistance === 0) return;
+        params.maxSpeed = this._speed;
+        if (!this._brakingTarget || this._navAgentLinkAnim._active || this.isOnOffMeshLink) return;
+
+        const mesh = this._currentNaveSurface._navMesh;
+        this._getpos(tempVector3);
+        // A straight-line distance is only a cheap lower bound. The actual braking
+        // distance must follow the traversable path, including routes around walls.
+        const brakeRange = this._stopDistance + this._speed * this._speed / Math.max(this._maxAcceleration, 0.0001);
+        if (Vector3.distanceSquared(tempVector3, this._brakingTarget) > brakeRange * brakeRange) return;
+        const query = mesh.navQuery;
+        const start = query.findNearestPoly(tempVector3.toArray(), mesh.extents, this._filter);
+        const end = query.findNearestPoly(this._brakingTarget.toArray(), mesh.extents, this._filter);
+        if (!start.polyRef || !end.polyRef) return;
+        const polys = query.findPath(start, end, this._filter, 256).polys;
+        if (!polys.length) return;
+        const startPos = query.closestPointOnPolyByRefPointData(start);
+        const endPos = query.closestPointOnPoly(polys[polys.length - 1], end.data);
+        const path = query.findStraightPath(startPos, endPos, polys, polys.length, 256);
+        const count = path.nsteerPath;
+        if (!count || !(path.steerPathFlags[count - 1] & 2)) return; // DT_STRAIGHTPATH_END; ignore truncated results.
+        const points = path.steerPath;
+        let remaining = 0;
+        for (let i = 1; i < count; i++) {
+            const off = i * 3;
+            remaining += Math.hypot(points[off] - points[off - 3], points[off + 1] - points[off - 2], points[off + 2] - points[off - 1]);
+            // Leave off-mesh traversal to Detour near its entrance.
+            if ((path.steerPathFlags[i] & 4) && Math.hypot(points[off] - startPos[0], points[off + 2] - startPos[2]) <= this._getradius() * 2.25) return;
+        }
+        const complete = polys[polys.length - 1] === end.polyRef;
+        const tolerance = Math.max(0.001, mesh.navTileGrid.config.cellSize * 0.01);
+        if (complete && remaining <= this._stopDistance + tolerance) {
+            this._arrivalStopped = true;
+            // The binding has no resetMoveTarget/velocity setter. Rebind in place
+            // once to clear both the old corridor and residual native velocity.
+            this._removeAgent();
+            this._addAgent();
+            if (this._crowAgent) this._crowAgent.getparams().maxSpeed = 0;
+            this._curentSpeed.setValue(0, 0, 0);
+            return;
+        }
+        if (!this._autoBraking || this._speed <= 0 || this._maxAcceleration <= 0 || dt <= 0) return;
+        const distance = Math.max(0, remaining - (complete ? this._stopDistance : 0));
+        const frameDelta = this._maxAcceleration * dt;
+        // Reserve some acceleration for steering/avoidance and discrete integration.
+        let limit = 0.8 * (Math.sqrt(frameDelta * frameDelta + 2 * this._maxAcceleration * distance) - frameDelta);
+        if (count <= 2) {
+            // Detour already multiplies speed by distance/(2*radius) on the final
+            // segment. Compensate before applying our cap to avoid a creeping tail.
+            const nativeScale = Math.min(1, Math.hypot(endPos[0] - startPos[0], endPos[2] - startPos[2]) / Math.max(this._getradius() * 2, 0.0001));
+            if (nativeScale > 0) limit /= nativeScale;
+        }
+        params.maxSpeed = Math.max(0, Math.min(this._speed, limit));
     }
 
     /**
@@ -502,6 +622,9 @@ export class BaseNavAgent extends Component {
         agent.quality = this.quality;
         agent.priority = this.priority;
         agent.maxAcceleration = this.maxAcceleration;
+        agent.autoBraking = this.autoBraking;
+        agent.stopDistance = this.stopDistance;
+        agent._baseOffset = this._baseOffset;
         super._cloneTo(dest);
     }
 }

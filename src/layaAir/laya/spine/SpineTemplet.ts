@@ -277,7 +277,8 @@ export class SpineTemplet extends Resource {
             this._registerSpineMaterialTexture(name, this._textures[name]);
     }
 
-    private _registerSpineMaterialTexture(name: string, texture: Texture2D): void {
+    /** @internal Register material lookup aliases without changing atlas page textures. */
+    _registerSpineMaterialTexture(name: string, texture: Texture2D): void {
         if (!texture)
             return;
 

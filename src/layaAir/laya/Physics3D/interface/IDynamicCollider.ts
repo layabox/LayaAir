@@ -76,6 +76,9 @@ export interface IDynamicCollider extends ICollider {
      */
     setInertiaTensor(value: Vector3): void;
 
+    /** @en Set per-body gravity. @zh 设置单个刚体的重力。 */
+    setGravity?(value: Vector3): void;
+
     /**
      * @en Sets the mass-normalized kinetic energy threshold below which an actor may go to sleep.
      * @param value Energy below which an actor may go to sleep.

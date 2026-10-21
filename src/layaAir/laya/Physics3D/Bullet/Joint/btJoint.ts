@@ -58,7 +58,9 @@ export class btJoint implements IJoint {
 
 
     /**@internal */
-    _id: number;
+    private static _nextId = 0;
+    _id: number = btJoint._nextId++;
+    private _destroyed = false;
     /**@internal */
     _btJoint: any;
     /**@internal 回调参数*/
@@ -138,6 +140,10 @@ export class btJoint implements IJoint {
     }
 
     destroy(): void {
+        if (this._destroyed) return;
+        this._destroyed = true;
+        if (this._btJoint && this._manager)
+            this._manager.removeJoint(this);
         Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicsJoint, -1);
     }
 
@@ -226,7 +232,7 @@ export class btJoint implements IJoint {
      * @param value 是否启用关节。
      */
     isEnable(value: boolean): void {
-        btStatics.bt.btTypedConstraint_setEnabled(this._btJoint, value);
+        if (this._btJoint) btStatics.bt.btTypedConstraint_setEnabled(this._btJoint, value);
     }
     /**
      * @en Set whether collision is enabled between connected bodies.

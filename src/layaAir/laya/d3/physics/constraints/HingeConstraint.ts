@@ -57,6 +57,21 @@ export class HingeConstraint extends ConstraintComponent {
         }
     }
 
+    protected _onJointReady(): void {
+        this._joint.setAxis(this._axis);
+        this.lowerLimit = this._lowerLimit;
+        this.uperLimit = this._uperLimit;
+        this._joint.enableLimit(this._limit);
+        this._joint.setBounceness(this._bounciness);
+        this._joint.setBouncenMinVelocity(this._bounceMinVelocity);
+        // The default contact distance needs no call; Bullet does not support it.
+        if (this._contactDistance !== 0 && this._joint.supportsContactDistance !== false)
+            this._joint.setContactDistance(this._contactDistance);
+        this._joint.enableFreeSpin(this._freeSpin);
+        this._joint.setDriveVelocity(this._targetVelocity);
+        this._joint.enableDrive(this._motor);
+    }
+
     protected _onEnable(): void {
         super._onEnable();
         if (this._joint)
@@ -82,7 +97,7 @@ export class HingeConstraint extends ConstraintComponent {
         }
         value = value.normalize();//归一化轴
         value.cloneTo(this._axis);
-        this._joint && this._joint.setAxis(value);
+        this._jointReady && this._joint.setAxis(value);
     }
 
     /**
@@ -96,7 +111,7 @@ export class HingeConstraint extends ConstraintComponent {
     set lowerLimit(value: number) {
         this._lowerLimit = value;
         let lowerValue = value < this._lowerLimit ? this._lowerLimit : (value < (-Math.PI / 2) ? (-Math.PI) : value);
-        this._joint && this._joint.setLowerLimit(lowerValue);
+        this._jointReady && this._joint.setLowerLimit(lowerValue);
     }
 
     /**
@@ -110,7 +125,7 @@ export class HingeConstraint extends ConstraintComponent {
     set uperLimit(value: number) {
         this._uperLimit = value;
         let uperValue = value > this._uperLimit ? this._uperLimit : (value > (Math.PI / 2) ? (Math.PI) : value);
-        this._joint && this._joint.setUpLimit(uperValue);
+        this._jointReady && this._joint.setUpLimit(uperValue);
     }
 
     /**
@@ -124,7 +139,7 @@ export class HingeConstraint extends ConstraintComponent {
     set bounceness(value: number) {
         value = value < 0 ? 0 : (value > 1 ? 1 : value);
         this._bounciness = value;
-        this._joint && this._joint.setBounceness(value);
+        this._jointReady && this._joint.setBounceness(value);
     }
 
     /**
@@ -137,7 +152,7 @@ export class HingeConstraint extends ConstraintComponent {
 
     set bouncenMinVelocity(value: number) {
         this._bounceMinVelocity = value;
-        this._joint && this._joint.setBouncenMinVelocity(value);
+        this._jointReady && this._joint.setBouncenMinVelocity(value);
     }
 
     /**
@@ -150,7 +165,7 @@ export class HingeConstraint extends ConstraintComponent {
 
     set contactDistance(value: number) {
         this._contactDistance = value;
-        this._joint && this._joint.setContactDistance(value);
+        this._jointReady && this._joint.setContactDistance(value);
     }
 
     /**
@@ -163,7 +178,7 @@ export class HingeConstraint extends ConstraintComponent {
 
     set limit(value: boolean) {
         this._limit = value;
-        this._joint && this._joint.enableLimit(value);
+        this._jointReady && this._joint.enableLimit(value);
     }
 
     /**
@@ -176,7 +191,7 @@ export class HingeConstraint extends ConstraintComponent {
 
     set motor(value: boolean) {
         this._motor = value;
-        this._motor && this._joint.enableDrive(value);
+        this._jointReady && this._joint.enableDrive(value);
     }
 
     /**
@@ -189,7 +204,7 @@ export class HingeConstraint extends ConstraintComponent {
 
     set freeSpin(value: boolean) {
         this._freeSpin = value;
-        this._joint && this._joint.enableFreeSpin(value);
+        this._jointReady && this._joint.enableFreeSpin(value);
     }
 
     /**
@@ -202,7 +217,7 @@ export class HingeConstraint extends ConstraintComponent {
 
     set targetVelocity(velocity: number) {
         this._targetVelocity = velocity;
-        this._joint && this._joint.setDriveVelocity(velocity)
+        this._jointReady && this._joint.setDriveVelocity(velocity)
     }
 
     /**

@@ -80,7 +80,7 @@ export class pxRevoluteJoint extends pxJoint implements IHingeJoint {
 
     /**@internal */
     setUpLimit(value: number): void {
-        if (this._uperLimit == value || !this._enableLimit)
+        if (this._uperLimit == value)
             return;
         this._uperLimit = value;
         this._setLimit();
@@ -130,14 +130,19 @@ export class pxRevoluteJoint extends pxJoint implements IHingeJoint {
 
     /**@internal */
     setAxis(value: Vector3): void {
-        const xAxis = pxRevoluteJoint._xAxis;
-        const axisRotationQuaternion = this._axisRotationQuaternion;
-        xAxis.set(1, 0, 0);
-        value = value.normalize();
-        const angle = Math.acos(Vector3.dot(xAxis, value));
-        Vector3.cross(xAxis, value, xAxis);
-        Quaternion.rotationAxisAngle(xAxis, angle, axisRotationQuaternion);
+        const length = value.length();
+        if (!(length > 0) || !Number.isFinite(length)) return;
+        const x = value.x / length, y = value.y / length, z = value.z / length;
+        const rotation = this._axisRotationQuaternion;
+        // Rotation from +X to the requested axis. Antiparallel vectors need an
+        // explicit half turn; their cross product is zero.
+        if (x < -1 + 1e-12) rotation.setValue(0, 1, 0, 0);
+        else {
+            rotation.setValue(0, -z, y, 1 + x);
+            rotation.normalize(rotation);
+        }
         this._setLocalPose(0, this._localPos);
+        this._setLocalPose(1, this._connectlocalPos);
     }
 
     /**@internal */
