@@ -249,6 +249,13 @@ test('rigid body cleanup releases only its owned legacy fixtures, including late
  rb._shapes=[{destroy(){calls.push('modern')}}];RigidBody.prototype._destroyAllShape.call(rb);assert.deepEqual(calls,['legacy','legacy','modern']);
 });
 
+test('events queued by a contact callback are dispatched once on the next update',()=>{
+ const cleaned=[],seen=[];physics.I._factory={_cleanCache:v=>cleaned.push(v)};
+ const enter={},exit={_eventSnapshot:true};
+ const m=Object.assign(Object.create(WorldManager.prototype),{_box2DWorld:{},_eventList:['triggerenter',enter],_dispatchEvent(type){seen.push(type);if(type==='triggerenter')this._eventList.push('triggerexit',exit)}});
+ m.sendEvent();assert.deepEqual(seen,['triggerenter']);m.sendEvent();m.sendEvent();assert.deepEqual(seen,['triggerenter','triggerexit']);assert.deepEqual(cleaned,[enter]);
+});
+
 // Exercise the shipped native implementations, not a mock of Step/contact behavior.
 for (const backend of ['js','wasm']) test(`native ${backend}: geometry continuity, legacy fixture lifecycle and substep callback forces`,async()=>{
  const nativeDir=path.resolve(root,'../jsLibs');
@@ -346,6 +353,39 @@ for (const backend of ['js','wasm']) test(`native ${backend}: geometry continuit
    for(const c of colliders){const fi=c._box2DShape;assert.equal(fi.GetBody(),current);assert.equal(fi.collider,c);const filter=fi.GetFilterData();assert.deepEqual([filter.groupIndex,filter.categoryBits,filter.maskBits],[-2,4,7]);}
   }
   RigidBody.prototype._destroyAllShape.call(rigid);f.removeBody(w,current);
+
+  for(const n of [1,4]) for(const sensor of [true,false]) for(const inCallback of [false,true]){
+   const m=manager(n),w=m.box2DWorld,events=[],otherEvents=[];let b,co,rb,callbackHit;
+   const owner={pivotX:0,pivotY:0,scene:{getComponentElementManager:()=>m},getComponents:()=>[co],event(type,args){events.push(type);if(type==='triggerenter'&&inCallback){const readHit=args[2].getHitInfo.bind(args[2]);other.s.width=41;RigidBody.prototype._destroyAllShape.call(rb);f.removeBody(w,b);b=null;rb._box2DBody=null;callbackHit=readHit();}}};
+   rb={owner,_shapes:null,getBox2DBody:()=>b,group:0,category:1,mask:65535};
+   const C=isolatedPhysics('physics/Collider2D/BoxCollider',{'../StaticCollider':{StaticCollider:LegacyStatic},'../Physics2D':{Physics2D:physics},'../factory/IPhysics2DFactory':load('physics/factory/IPhysics2DFactory')}).BoxCollider;
+   co=new C();co.owner=owner;co._getPhysicsManager=()=>co._physics2DManager=m;co.width=40;co.height=40;co.isSensor=sensor;
+   const other=shape(m,0,'BoxShape2D');other.s.isSensor=sensor;if(!sensor)other.b.SetTransform(new box.b2Vec2(0,.8),0);
+   other.c.owner.event=(type,args)=>{otherEvents.push(type);const hit=args[2].getHitInfo();assert.ok(Array.isArray(hit.points));assert.ok(hit.points.every(p=>Number.isFinite(p.x)&&Number.isFinite(p.y)));assert.equal(args[0],co);assert.equal(args[1],other.c);};
+   const create=()=>{const d=new box.b2BodyDef();d.type=2;b=f.createBody(w,d);rb._box2DBody=b;co.createShape(rb);};
+   f.worldMap=new Map([[0,m]]);f.worldCount=0;
+   for(let cycle=0;cycle<(inCallback?1:3);cycle++){
+    create();f.update(1/60);assert.equal(events.filter(x=>x==='triggerenter').length,cycle+1);
+    if(!inCallback){RigidBody.prototype._destroyAllShape.call(rb);f.removeBody(w,b);b=null;rb._box2DBody=null;}
+    const exitsBefore=events.filter(x=>x==='triggerexit').length;assert.equal(exitsBefore,cycle,'exit remains deferred');
+    f.update(1/60);assert.equal(events.filter(x=>x==='triggerexit').length,cycle+1,'disabled legacy collider receives one exit');assert.equal(otherEvents.filter(x=>x==='triggerexit').length,cycle+1,'other collider receives one exit');f.update(1/60);assert.equal(events.filter(x=>x==='triggerexit').length,cycle+1,'exit is not duplicated');
+   }
+   if(inCallback){assert.ok(callbackHit);assert.equal(events.filter(x=>x==='triggerstay').length,0,'no stale Stay after disable in Enter');}
+  }
+  for(const name of ['BoxShape2D','CircleShape2D','PolygonShape2D']){
+   const m=manager(1,9.8),a=shape(m,2,name),ground=shape(m,0,'BoxShape2D');a.s.isSensor=false;ground.s.isSensor=false;ground.b.SetTransform(new box.b2Vec2(0,.8),0);a.b.SetSleepingAllowed(true);a.b.SetFixedRotation(true);
+   for(let i=0;i<180;i++)step(m);assert.equal(a.b.IsAwake(),false,name+' sleeps before resize');const y=a.b.GetPosition().y,fi=a.s._box2DShape;
+   if(name==='BoxShape2D')a.s.height=40;if(name==='CircleShape2D')a.s.radius=20;
+   assert.equal(a.b.IsAwake(),false,'unchanged dimensions do not wake the body');
+   if(name==='BoxShape2D')a.s.height=20;if(name==='CircleShape2D')a.s.radius=10;if(name==='PolygonShape2D')a.s.datas=[0,0,40,0,40,20,0,20];
+   assert.equal(a.b.IsAwake(),true,name+' wakes after resize');assert.equal(a.s._box2DShape,fi,'wake does not replace fixture');
+   for(let i=0;i<180;i++)step(m);assert.ok(Math.abs(a.b.GetPosition().y-y-(name==='CircleShape2D'?.2:.4))<.04,name+' falls to its new resting position');
+  }
+  for(const name of ['BoxShape2D','CircleShape2D','PolygonShape2D','EdgeShape2D']){
+   const m=manager(1,9.8),a=shape(m,2,'BoxShape2D'),ground=shape(m,0,name);a.s.isSensor=false;ground.s.isSensor=false;if(name==='EdgeShape2D')ground.s.datas=[0,0,40,0];ground.b.SetTransform(new box.b2Vec2(0,.8),0);a.b.SetSleepingAllowed(true);a.b.SetFixedRotation(true);
+   for(let i=0;i<180;i++)step(m);assert.equal(a.b.IsAwake(),false,'body sleeps on '+name);const y=a.b.GetPosition().y;ground.s.y+=20;assert.equal(a.b.IsAwake(),true,'changing static '+name+' wakes supported body');
+   for(let i=0;i<180;i++)step(m);assert.ok(Math.abs(a.b.GetPosition().y-y-.4)<.05,'body follows resized/moved static '+name);
+  }
   const transient=manager(4),fast=shape(transient,2,'BoxShape2D'),sensor=shape(transient,0,'BoxShape2D',1.25);
   fast.b.SetLinearVelocity(new box.b2Vec2(300,0));
   f.worldMap=new Map([[0,transient]]);f.worldCount=0;f.update(1/60);

@@ -804,6 +804,9 @@ export interface IPhysics2DFactory {
 
     destroyShape(world: any, body: any, shape: any): void;
 
+    /** @internal Synchronize changed fixture geometry and wake affected bodies. */
+    synchronizeShape(body: any, shape: any): void;
+
     /** 
      * @internal
      */
