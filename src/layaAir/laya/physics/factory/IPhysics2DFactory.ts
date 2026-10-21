@@ -922,29 +922,29 @@ export interface IPhysics2DFactory {
     /** 
      * @internal
      */
-    rigidBody_applyForce(body: any, force: IV2, position: IV2): void;
+    rigidBody_applyForce(body: any, force: IV2, position: IV2, wake?: boolean): void;
 
     /** 
      * @internal
      */
-    rigidBody_applyForceToCenter(body: any, force: IV2): void;
+    rigidBody_applyForceToCenter(body: any, force: IV2, wake?: boolean): void;
 
     /** 
      * @internal
      */
-    rigidbody_ApplyLinearImpulse(body: any, impulse: IV2, position: IV2): void;
+    rigidbody_ApplyLinearImpulse(body: any, impulse: IV2, position: IV2, wake?: boolean): void;
 
-    rigidbody_ApplyAngularImpulse(body: any, impulse: number): void;
-
-    /** 
-     * @internal
-     */
-    rigidbody_ApplyLinearImpulseToCenter(body: any, impulse: IV2): void;
+    rigidbody_ApplyAngularImpulse(body: any, impulse: number, wake?: boolean): void;
 
     /** 
      * @internal
      */
-    rigidbody_applyTorque(body: any, torque: number): void;
+    rigidbody_ApplyLinearImpulseToCenter(body: any, impulse: IV2, wake?: boolean): void;
+
+    /** 
+     * @internal
+     */
+    rigidbody_applyTorque(body: any, torque: number, wake?: boolean): void;
 
     /** 
      * @internal

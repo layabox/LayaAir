@@ -568,10 +568,11 @@ export class RigidBody extends ColliderBase {
      * @zh 对刚体施加力。
      * @param position 施加力的点，如 {x: 100, y: 100}，全局坐标。
      * @param force 施加的力，如 {x: 0.1, y: 0.1}。
+     * @param wake Whether to wake the body. Defaults to true. 是否唤醒刚体，默认为 true。
      */
-    applyForce(position: IV2, force: IV2): void {
+    applyForce(position: IV2, force: IV2, wake: boolean = true): void {
         if (!this._box2DBody) return;
-        Physics2D.I._factory.rigidBody_applyForce(this._box2DBody, force, position);
+        Physics2D.I._factory.rigidBody_applyForce(this._box2DBody, force, position, wake);
     }
 
     /**
@@ -579,10 +580,11 @@ export class RigidBody extends ColliderBase {
      * @param force The force to be applied, such as {x: 0.1, y: 0.1}.
      * @zh 从中心点对刚体施加力，防止对象旋转。
      * @param force 施加的力，如 {x: 0.1, y: 0.1}。
+     * @param wake Whether to wake the body. Defaults to true. 是否唤醒刚体，默认为 true。
      */
-    applyForceToCenter(force: IV2): void {
+    applyForceToCenter(force: IV2, wake: boolean = true): void {
         if (!this._box2DBody) return;
-        Physics2D.I._factory.rigidBody_applyForceToCenter(this._box2DBody, force);
+        Physics2D.I._factory.rigidBody_applyForceToCenter(this._box2DBody, force, wake);
     }
 
     /**
@@ -592,10 +594,11 @@ export class RigidBody extends ColliderBase {
      * @zh 施加速度冲量，添加的速度冲量会与刚体原有的速度叠加，产生新的速度。
      * @param position 施加力的点，如 {x: 100, y: 100}，全局坐标。
      * @param impulse 施加的速度冲量，如 {x: 0.1, y: 0.1}。
+     * @param wake Whether to wake the body. Defaults to true. 是否唤醒刚体，默认为 true。
      */
-    applyLinearImpulse(position: IV2, impulse: IV2): void {
+    applyLinearImpulse(position: IV2, impulse: IV2, wake: boolean = true): void {
         if (!this._box2DBody) return;
-        Physics2D.I._factory.rigidbody_ApplyLinearImpulse(this._box2DBody, impulse, position);
+        Physics2D.I._factory.rigidbody_ApplyLinearImpulse(this._box2DBody, impulse, position, wake);
     }
 
     /**
@@ -603,10 +606,11 @@ export class RigidBody extends ColliderBase {
      * @param impulse The velocity impulse to be applied, such as {x: 0.1, y: 0.1}.
      * @zh 施加速度冲量，添加的速度冲量会与刚体原有的速度叠加，产生新的速度。
      * @param impulse 施加的速度冲量，如 {x: 0.1, y: 0.1}。
+     * @param wake Whether to wake the body. Defaults to true. 是否唤醒刚体，默认为 true。
      */
-    applyLinearImpulseToCenter(impulse: IV2): void {
+    applyLinearImpulseToCenter(impulse: IV2, wake: boolean = true): void {
         if (!this._box2DBody) return;
-        Physics2D.I._factory.rigidbody_ApplyLinearImpulseToCenter(this._box2DBody, impulse);
+        Physics2D.I._factory.rigidbody_ApplyLinearImpulseToCenter(this._box2DBody, impulse, wake);
     }
 
     /**
@@ -614,10 +618,11 @@ export class RigidBody extends ColliderBase {
      * @param impulse 角速度冲量
      * @en Apply angular velocity impulse
      * @param impulse angular impulse
+     * @param wake Whether to wake the body. Defaults to true. 是否唤醒刚体，默认为 true。
      */
-    applyAngularImpulse(impulse: number): void {
+    applyAngularImpulse(impulse: number, wake: boolean = true): void {
         if (!this._box2DBody) return;
-        Physics2D.I._factory.rigidbody_ApplyAngularImpulse(this._box2DBody, impulse);
+        Physics2D.I._factory.rigidbody_ApplyAngularImpulse(this._box2DBody, impulse, wake);
     }
 
     /**
@@ -625,10 +630,11 @@ export class RigidBody extends ColliderBase {
      * @param torque The torque to be applied.
      * @zh 对刚体施加扭矩，使其旋转。
      * @param torque 施加的扭矩。
+     * @param wake Whether to wake the body. Defaults to true. 是否唤醒刚体，默认为 true。
      */
-    applyTorque(torque: number): void {
+    applyTorque(torque: number, wake: boolean = true): void {
         if (!this._box2DBody) return;
-        Physics2D.I._factory.rigidbody_applyTorque(this._box2DBody, torque);
+        Physics2D.I._factory.rigidbody_applyTorque(this._box2DBody, torque, wake);
     }
 
     /**

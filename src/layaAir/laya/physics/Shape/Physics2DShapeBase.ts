@@ -299,7 +299,7 @@ export class Physics2DShapeBase implements IClone {
 
     cloneTo(destObject: Physics2DShapeBase): void {
         destObject.density = this.density;
-        destObject.filterData = this.filterData;
+        destObject.filterData = Object.assign(new FilterData(), this.filterData);
         destObject.friction = this.friction;
         destObject.isSensor = this.isSensor;
         destObject.restitution = this.restitution;

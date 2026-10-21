@@ -56,7 +56,7 @@ export class PolygonShape2D extends Physics2DShapeBase {
 
     cloneTo(destObject: PolygonShape2D): void {
         super.cloneTo(destObject);
-        destObject.datas = this.datas;
+        destObject.datas = this.datas.slice();
     }
 
 }

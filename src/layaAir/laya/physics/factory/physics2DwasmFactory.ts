@@ -1116,39 +1116,39 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         };
     }
 
-    rigidBody_applyForce(body: any, force: IV2, position: IV2) {
+    rigidBody_applyForce(body: any, force: IV2, position: IV2, wake: boolean = true) {
         let world: any = body.world;
         this._tempVe21.x = this.convertLayaValueToPhysics(world, position.x);
         this._tempVe21.y = this.convertLayaValueToPhysics(world, position.y);
         this._tempVe22.x = force.x;
         this._tempVe22.y = force.y;
-        body.ApplyForce(this._tempVe22, this._tempVe21, false);
+        body.ApplyForce(this._tempVe22, this._tempVe21, wake);
     }
 
-    rigidBody_applyForceToCenter(body: any, force: IV2) {
+    rigidBody_applyForceToCenter(body: any, force: IV2, wake: boolean = true) {
         this._tempVe21.x = force.x;
         this._tempVe21.y = force.y;
-        body.ApplyForceToCenter(this._tempVe21);
+        body.ApplyForceToCenter(this._tempVe21, wake);
     }
 
 
-    rigidbody_ApplyLinearImpulse(body: any, impulse: IV2, position: IV2) {
+    rigidbody_ApplyLinearImpulse(body: any, impulse: IV2, position: IV2, wake: boolean = true) {
         let world: any = body.world;
         this._tempVe21.x = impulse.x;
         this._tempVe21.y = impulse.y;
         this._tempVe22.x = this.convertLayaValueToPhysics(world, position.x);
         this._tempVe22.y = this.convertLayaValueToPhysics(world, position.y);
-        body.ApplyLinearImpulse(this._tempVe21, this._tempVe22);
+        body.ApplyLinearImpulse(this._tempVe21, this._tempVe22, wake);
     }
 
-    rigidbody_ApplyLinearImpulseToCenter(body: any, impulse: IV2) {
+    rigidbody_ApplyLinearImpulseToCenter(body: any, impulse: IV2, wake: boolean = true) {
         this._tempVe21.x = impulse.x;
         this._tempVe21.y = impulse.y;
-        body.ApplyLinearImpulseToCenter(this._tempVe21);
+        body.ApplyLinearImpulseToCenter(this._tempVe21, wake);
     }
 
-    rigidbody_applyTorque(body: any, torque: number): void {
-        body.ApplyTorque(torque);
+    rigidbody_applyTorque(body: any, torque: number, wake: boolean = true): void {
+        body.ApplyTorque(torque, wake);
     }
 
     set_rigidbody_Velocity(body: any, velocity: IV2): void {
@@ -1424,8 +1424,8 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
     get_rigidBody_LocalVector(body: any, value: Vector2): Vector2 {
         return body.GetLocalVector(value);
     }
-    rigidbody_ApplyAngularImpulse(body: any, impulse: number): void {
-        body.ApplyAngularImpulse(impulse, true);
+    rigidbody_ApplyAngularImpulse(body: any, impulse: number, wake: boolean = true): void {
+        body.ApplyAngularImpulse(impulse, wake);
     }
 
     set_rigidBody_Awake(body: any, awake: boolean): void {

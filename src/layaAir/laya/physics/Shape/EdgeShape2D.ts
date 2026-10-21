@@ -53,7 +53,7 @@ export class EdgeShape2D extends Physics2DShapeBase {
 
     cloneTo(destObject: EdgeShape2D): void {
         super.cloneTo(destObject);
-        destObject.datas = this.datas;
+        destObject.datas = this.datas.slice();
     }
 
 }
