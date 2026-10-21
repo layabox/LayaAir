@@ -12,6 +12,7 @@ import { Viewport } from "../../../../maths/Viewport"
 import { PostProcessRenderContext } from "./PostProcessRenderContext"
 import { ColorGradEffect } from "../../../postProcessEffect/ColorGradEffect"
 import { PostProcessEffect } from "./PostProcessEffect"
+import type { CameraOpaqueMRTRequirement } from "../../Camera"
 
 /**
  * @en The `PostProcess` class is used to create post-processing components.
@@ -80,6 +81,7 @@ export class PostProcess {
 
     /**@internal */
     private _depthtextureFlag: DepthTextureMode;
+
     /**
      * @internal 
      * @en Color Effect
@@ -163,6 +165,25 @@ export class PostProcess {
         return this._depthtextureFlag;
     }
 
+    /** @internal 纯查询启用效果的需求；配置校验和渲染准备均可调用，不保存相机或执行快照。 */
+    _collectCameraMRTRequirements(enabled: boolean): readonly CameraOpaqueMRTRequirement[] | null {
+        if (!enabled || !this._enable) return null;
+        let requirements: CameraOpaqueMRTRequirement[] = null;
+        for (const effect of this._effects) {
+            if (!effect.active) continue;
+            const requested = effect.getCameraOpaqueMRTRequirements();
+            if (requested != null) {
+                if (!Array.isArray(requested))
+                    throw new TypeError("Post-process MRT requirements must be an array or null.");
+                if (requested.length) {
+                    requirements = requirements || [];
+                    requirements.push(...requested);
+                }
+            }
+        }
+        return requirements;
+    }
+
     /**
      *@internal
      */
@@ -207,12 +228,12 @@ export class PostProcess {
             this._ColorGradEffect._buildLUT();
         }
         let runIndex = 0;
-        let hasActiveEffects = false;
 
         for (let i: number = 0, n: number = this._effects.length; i < n; i++) {
-            if (this._effects[i].active) {
-                this._effects[i].render(context);
-                hasActiveEffects = true;
+            const effect = this._effects[i];
+            // 普通效果保持原有启停时序；缺少所需附件时只跳过对应的 MRT 效果。
+            if (effect.active && camera._hasOpaqueMRTRequirements(effect.getCameraOpaqueMRTRequirements())) {
+                effect.render(context);
                 context.indirectTarget = context.destination;
                 runIndex++;
                 // 确保下一个目标不会与当前目标冲突
@@ -221,7 +242,7 @@ export class PostProcess {
         }
 
         if (context.indirectTarget !== cameraTarget) {
-            context.command.blitScreenTriangle(context.indirectTarget, cameraTarget);
+            context.command.blitScreenTriangle(context.indirectTarget, cameraTarget, null, null, null, 0, true);
         }
         this._compositeShaderData.addDefine(PostProcess.SHADERDEFINE_FINALPASS);
 
@@ -240,7 +261,8 @@ export class PostProcess {
         }
 
         //释放临时纹理
-        if (internalRT) RenderTexture.recoverToPool(cameraTarget);
+        // 相机内部目标由相机在命令执行和屏幕合成后统一处理，后处理仅归还自己的临时目标。
+        if (!internalRT) RenderTexture.recoverToPool(cameraTarget);
         RenderTexture.recoverToPool(screenTexture);
         RenderTexture.recoverToPool(Indirect[0]);
         RenderTexture.recoverToPool(Indirect[1]);

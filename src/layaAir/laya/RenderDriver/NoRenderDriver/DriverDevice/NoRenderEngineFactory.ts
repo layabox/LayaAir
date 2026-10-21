@@ -201,6 +201,9 @@ export class NoTextureContext implements ITextureContext {
     setTextureCompareMode(texture: InternalTexture, compareMode: TextureCompareMode): TextureCompareMode {
         return TextureCompareMode.None;
     }
+    createMultiRenderTargetInternal(width: number, height: number, colorFormats: readonly RenderTargetFormat[], depthStencilFormat: RenderTargetFormat): InternalRenderTarget {
+        throw new Error("NoRender createMultiRenderTargetInternal is not implemented.");
+    }
     createRenderTargetInternal(width: number, height: number, format: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number, storage: boolean): InternalRenderTarget {
         multiSamples = 1;
         let texture = this.createTextureInternal(TextureDimension.Tex2D, width, height, TextureFormat.R8G8B8A8, generateMipmap, sRGB, false);
@@ -234,7 +237,9 @@ export class NoTextureContext implements ITextureContext {
     readRenderTargetPixelData(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView {
         return new Float32Array()
     }
-    readRenderTargetPixelDataAsync(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): Promise<ArrayBufferView> {
+    readRenderTargetPixelDataAsync(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView, attachmentIndex: number = 0): Promise<ArrayBufferView> {
+        if (attachmentIndex !== 0)
+            return Promise.reject(new Error("NoRender readRenderTargetPixelDataAsync currently only supports color attachment 0."));
         return Promise.resolve(new Float32Array());
     }
     updateVideoTexture(texture: InternalTexture, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): void {

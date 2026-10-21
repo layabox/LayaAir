@@ -8,6 +8,7 @@ import VertexGLSL from "./common/VertexCommon.glsl";
 import ShadingCommonGLSL from "./common/ShadingCommon.glsl";
 import ShadingVertexGLSL from "./common/ShadingVertex.glsl";
 import ShadingFragGLSL from "./common/ShadingFrag.glsl";
+import GBufferGLSL from "./common/GBuffer.glsl";
 import SceneGLSL from "./common/SceneCommon.glsl";
 import CameraGLSL from "./common/CameraCommon.glsl";
 import SkyCommon from "./common/SkyCommon.glsl";
@@ -58,6 +59,7 @@ export class ShaderInit3D {
 		Shader3D.addInclude("ShadingCommon.glsl", ShadingCommonGLSL);
 		Shader3D.addInclude("ShadingVertex.glsl", ShadingVertexGLSL);
 		Shader3D.addInclude("ShadingFrag.glsl", ShadingFragGLSL);
+		Shader3D.addInclude("GBuffer.glsl", GBufferGLSL);
 
 	
 

@@ -42,6 +42,8 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     private _cameraData: WebGLShaderData;
     /**@internal */
     private _renderTarget: InternalRenderTarget;
+    /** Internal MRT shader variant; ordinary RTs keep their existing shader path. */
+    get _mrtColorAttachmentCount(): number { return this._renderTarget?.colorFormats?.length || 0; }
     /**@internal */
     private _viewPort: Viewport;
     /**@internal */
@@ -58,6 +60,10 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     private _clearFlag: number;
     /**@internal */
     private _clearColor: Color;
+    private _clearColorValues: (Color | null)[] = null;
+    private _clearColorValuesCache: (Color | null)[];
+    // Retain per-slot Color objects across null entries and smaller target layouts.
+    private _clearColorValuePool: Color[];
     /**@internal */
     private _clearDepth: number;
     /**@internal */
@@ -141,7 +147,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     }
 
     private _getSceneCameraCacheKey() {
-        let key: string = `${this.sceneData ? this.sceneData._id : -1} + ${this.cameraData ? this.cameraData._id : -1}+${this._pipelineMode}`;
+        let key: string = `${this.sceneData ? this.sceneData._id : -1} + ${this.cameraData ? this.cameraData._id : -1}+${this._pipelineMode}+${this._mrtColorAttachmentCount}`;
         this._curRenderGlobalKey = this.globalComkeyToID(key);
 
         if (!this._globalRendercacheInfoMap.has(this._curRenderGlobalKey)) {
@@ -205,6 +211,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         this._clearFlag = clearFlag;
         if (value == this._renderTarget)
             return;
+        this._clearColorValues = null;
         this._renderTarget = value;
         this._needStart = true;
     }
@@ -278,9 +285,23 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         });
     }
 
-    setClearData(clearFlag: number, color: Color, depth: number, stencil: number): number {
+    setClearData(clearFlag: number, color: Color, depth: number, stencil: number, colorValues?: readonly (Color | null)[]): number {
         this._clearFlag = clearFlag;
         color.cloneTo(this._clearColor);
+        if ((clearFlag & RenderClearFlag.Color) && colorValues) {
+            const values = this._clearColorValuesCache ||= [];
+            const colors = this._clearColorValuePool ||= [];
+            values.length = colorValues.length;
+            for (let i = 0; i < colorValues.length; i++) {
+                const value = colorValues[i];
+                if (value) {
+                    const snapshot = colors[i] ||= new Color();
+                    value.cloneTo(snapshot);
+                    values[i] = snapshot;
+                } else values[i] = null;
+            }
+            this._clearColorValues = values;
+        } else this._clearColorValues = null;
         this._clearDepth = depth;
         this._clearStencil = stencil;
         return 0;
@@ -357,13 +378,16 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         WebGLEngine.instance.viewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height);
         WebGLEngine.instance.scissor(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height);
         if (this._clearFlag != RenderClearFlag.Nothing)
-            WebGLEngine.instance.clearRenderTexture(this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil);
+            WebGLEngine.instance.clearRenderTexture(this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil, this._clearColorValues);
+        this._clearFlag = RenderClearFlag.Nothing;
+        this._clearColorValues = null;
         WebGLEngine.instance.scissor(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
     }
 
     clearRenderTarget(): void {
         this._bindRenderTarget();
         this._start();
+        this._needStart = false;
     }
 
 }

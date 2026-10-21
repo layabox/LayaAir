@@ -52,6 +52,14 @@ export interface ITextureContext {
 
     createRenderTargetInternal(width: number, height: number, format: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number, storage: boolean): InternalRenderTarget;
 
+    /**
+     * 创建整组拥有颜色及共享深度/模板的 2D MRT；单采样、仅 mip 0。
+     * 数组索引即固定 location，附件 0 必须存在，null 槽不分配或绑定纹理；不修改传入列表。
+     * 仅附件 0 可使用 sRGB，辅助附件保持线性；尺寸和格式须受设备支持，读回支持单独校验。
+     * 未适配后端可省略此方法；调用方须检查支持情况。
+     */
+    createMultiRenderTargetInternal?(width: number, height: number, colorFormats: readonly (RenderTargetFormat | null)[], depthStencilFormat: RenderTargetFormat, color0SRGB?: boolean): InternalRenderTarget;
+
     createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget;
 
     createRenderTargetDepthTexture(renderTarget: InternalRenderTarget, dimension: TextureDimension, width: number, height: number): InternalTexture;
@@ -72,7 +80,11 @@ export interface ITextureContext {
      * @param out 
      */
     readRenderTargetPixelData(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView;
-    readRenderTargetPixelDataAsync(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): Promise<ArrayBufferView>; //兼容WGSL
+    /**
+     * 异步读取颜色附件，默认附件 0；索引不是 Cube 面、数组层或深度附件。
+     * 空槽、越界或后端不支持的索引直接拒绝 Promise。
+     */
+    readRenderTargetPixelDataAsync(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView, attachmentIndex?: number): Promise<ArrayBufferView>; //兼容WGSL
 
     updateVideoTexture(texture: InternalTexture, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): void;
 

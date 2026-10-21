@@ -2,6 +2,7 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { PBRMaterial } from "./PBRMaterial";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { GBuffer, GBufferOutput } from "../render/GBuffer";
 
 /**
  * @en Metallic PBR material smoothness data source.
@@ -57,6 +58,15 @@ export class PBRStandardMaterial extends PBRMaterial {
 
     /** @internal */
     private _smoothnessSource: PBRMetallicSmoothnessSource = 0;
+
+    /** MRT 内置输出，默认 All；1～3 固定为法线、底色、材质参数，关闭项不改变槽位。 */
+    get gBufferOutputs(): GBufferOutput {
+        return GBuffer.getShaderOutputs(this._shaderValues);
+    }
+
+    set gBufferOutputs(value: GBufferOutput) {
+        GBuffer.applyShaderOutputs(this._shaderValues, value);
+    }
 
     /**
      * @en Metallic gloss texture.

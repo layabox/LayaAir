@@ -49,10 +49,12 @@ export class BlitScreenQuadCMD extends Command {
      * @param subShader subshader的节点
      * @param screenType 渲染的屏幕类型
      * @param commandbuffer 命令缓冲
+     * @param color0Only 是否仅绑定目标的颜色附件 0。
      */
-    static create(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0, screenType: number = BlitScreenQuadCMD.SCREENTYPE_QUAD, commandbuffer: CommandBuffer = null): BlitScreenQuadCMD {
+    static create(source: BaseTexture, dest: RenderTexture, offsetScale: Vector4 = null, shader: Shader3D = null, shaderData: ShaderData = null, subShader: number = 0, screenType: number = BlitScreenQuadCMD.SCREENTYPE_QUAD, commandbuffer: CommandBuffer = null, color0Only: boolean = false): BlitScreenQuadCMD {
         let cmd = BlitScreenQuadCMD._pool.take();
         cmd._source = source;
+        cmd._color0Only = color0Only;
         cmd.dest = dest;
         cmd.offsetScale = offsetScale || _defaultOffsetScale;
         cmd.setshader(shader, subShader, shaderData);
@@ -62,6 +64,7 @@ export class BlitScreenQuadCMD extends Command {
 
     private _source: BaseTexture = null;
     private _dest: RenderTexture = null;
+    private _color0Only: boolean = false;
     private _offsetScale: Vector4 = new Vector4();
     private _shader: Shader3D = null;
     private _shaderData: ShaderData = null;
@@ -107,7 +110,7 @@ export class BlitScreenQuadCMD extends Command {
 
     set dest(value: RenderTexture) {
         this._dest = value;
-        this._blitQuadCMDData.dest = value ? value._renderTarget : null;
+        this._blitQuadCMDData.dest = value ? value._getRenderTarget(this._color0Only) : null;
     }
 
     /**
@@ -160,7 +163,7 @@ export class BlitScreenQuadCMD extends Command {
             source = this._source;
         this._blitQuadCMDData.source = source._texture;
         var dest: RenderTexture = this._dest ? this._dest : this._commandBuffer._camera._internalRenderTexture;//set dest
-        if (dest != this._dest) this._blitQuadCMDData.dest = dest._renderTarget;
+        this._blitQuadCMDData.dest = dest ? dest._getRenderTarget(this._color0Only) : null;
         if (dest) {//set viewport
             Viewport.TEMP.set(0, 0, dest.width, dest.height);
             Vector4.TEMP.setValue(0, 0, dest.width, dest.height);
@@ -203,6 +206,7 @@ export class BlitScreenQuadCMD extends Command {
         BlitScreenQuadCMD._pool.recover(this);
         this._source = null;
         this._dest = null;
+        this._color0Only = false;
         _defaultOffsetScale.cloneTo(this._offsetScale);
         this._shader = null;
         this._shaderData = null;

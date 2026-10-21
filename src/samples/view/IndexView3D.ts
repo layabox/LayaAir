@@ -111,6 +111,11 @@ import { ProstProcess_AO } from "../3d/LayaAir3D_PostProcess/PostProcess_AO";
 import { Utils } from "laya/utils/Utils";
 import Client from "../Client";
 import { Main } from "../Main";
+import { MRT_Camera } from "../3d/LayaAir3D_MRT/MRT_Camera";
+import { MRT_PostProcess } from "../3d/LayaAir3D_MRT/MRT_PostProcess";
+import { MRT_CommandBuffer } from "../3d/LayaAir3D_MRT/MRT_CommandBuffer";
+import { MRT_CustomLocation } from "../3d/LayaAir3D_MRT/MRT_CustomLocation";
+import { MRT_Sparse } from "../3d/LayaAir3D_MRT/MRT_Sparse";
 import { StencilDemo } from "../3d/LayaAir3D_Material/StencilDemo";
 import { WebXRStart } from "../3d/WebXR/WebXRStart";
 import { WebXRControllerDemo } from "../3d/WebXR/WebXRControllerDemo";
@@ -151,8 +156,8 @@ export class IndexView3D extends IndexViewUI {
     //var s:Secne3DPlayer2D    
     //AStarFindPath 删除
     // Scene2DPlayer3D暂时去掉
-    private _advanceClsArr: any[] = [DrawTextTexture, Laya3DCombineHtml, NavMeshDemo, Secne3DPlayer2D, VideoPlayIn3DWorld, CommandBuffer_Outline, CommandBuffer_BlurryGlass, CommandBuffer_DrawCustomInstance, CameraDepthModeTextureDemo, ReflectionProbeDemo, SeparableSSS_RenderDemo, UI3DDemo, LodDemo];
-    private _advanceArr: any[] = ['DrawTextTexture', 'Laya3DCombineHtml', 'NavMeshDemo', 'Secne3DPlayer2D', 'VideoPlayIn3DWorld', 'CommandBuffer_Outline', 'CommandBuffer_BlurryGlass', 'CommandBuffer_DrawCustomInstance', 'CameraDepthTextureDemo', 'ReflectionProbeDemo', 'SeparableSSS_RenderDemo', 'UI3DDemo', 'LodDemo'];
+    private _advanceClsArr: any[] = [DrawTextTexture, Laya3DCombineHtml, NavMeshDemo, Secne3DPlayer2D, VideoPlayIn3DWorld, CommandBuffer_Outline, CommandBuffer_BlurryGlass, CommandBuffer_DrawCustomInstance, CameraDepthModeTextureDemo, ReflectionProbeDemo, SeparableSSS_RenderDemo, UI3DDemo, LodDemo, MRT_Camera, MRT_PostProcess, MRT_CommandBuffer, MRT_CustomLocation, MRT_Sparse];
+    private _advanceArr: any[] = ['DrawTextTexture', 'Laya3DCombineHtml', 'NavMeshDemo', 'Secne3DPlayer2D', 'VideoPlayIn3DWorld', 'CommandBuffer_Outline', 'CommandBuffer_BlurryGlass', 'CommandBuffer_DrawCustomInstance', 'CameraDepthTextureDemo', 'ReflectionProbeDemo', 'SeparableSSS_RenderDemo', 'UI3DDemo', 'LodDemo', 'MRT_Camera', 'MRT_PostProcess', 'MRT_CommandBuffer', 'MRT_CustomLocation', 'MRT_Sparse'];
 
     private _postProcessClsArr: any[] = [PostProcessBloom, PostProcess_Blur, PostProcess_Edge, PostProcessDoF, ProstProcess_AO, PostProcess_LensFlare];
     private _postProcessArr: any[] = ['PostProcessBloom', 'PostProcess_Blur', 'PostProcess_Edge', 'PostProcessDOF', 'PostProcessAO', 'PostProcess_LensFlare'];

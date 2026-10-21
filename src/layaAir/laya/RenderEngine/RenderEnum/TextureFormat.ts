@@ -10,7 +10,7 @@ export enum TextureFormat {
     R8G8B8A8 = 1,
     /**RGB格式纹理,R通道5位，G通道6位，B通道5位。*/
     R5G6B5 = 16,
-    /**纹理格式_ALPHA8。*/
+    /**单通道8位纹理。WebGL1 使用 ALPHA（读取 .a）；WebGL2/WebGPU 使用 R8（读取 .r）。*/
     Alpha8 = 2,
     /**纹理格式_DXT1。*/
     DXT1 = 3,

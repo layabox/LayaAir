@@ -208,6 +208,8 @@ export class SetRenderTargetCMD implements IRender3DCMD {
 
     protected _clearColorValue: Color;
 
+    protected _clearColorValues: (Color | null)[] = null;
+
     get rt(): InternalRenderTarget {
         return this._rt;
     }
@@ -246,6 +248,17 @@ export class SetRenderTargetCMD implements IRender3DCMD {
 
     set clearColorValue(value: Color) {
         this._clearColorValue = value;
+        this._clearColorValues = null;
+    }
+
+    /** 按固定槽位清除；数组中的 null 保留该槽内容，数组为 null 时使用统一清除色。 */
+    get clearColorValues(): readonly (Color | null)[] {
+        return this._clearColorValues;
+    }
+
+    set clearColorValues(value: readonly (Color | null)[]) {
+        // 命令保存快照，空槽保持为空，不受调用方随后修改影响。
+        this._clearColorValues = value ? Array.from(value, color => color?.clone() ?? null) : null;
     }
 
     apply(context: IRenderContext3D): void {
