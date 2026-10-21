@@ -170,3 +170,61 @@ test('explicit removal and component disable do not remove a joint twice or read
     native.destroyed=false;a.destroyed=true;component._physics2DManager={box2DWorld:world};component._onDisable();
     assert.equal(count,1);assert.equal(component._joint,null);
 });
+
+// Final release sweep: native arguments, world ownership and runtime lifecycle.
+function isolatedPhysics(name, mocks) {
+    const file=path.resolve(root,name+'.ts');
+    const code=ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2021,module:ts.ModuleKind.CommonJS}}).outputText;
+    const exp={};vm.runInThisContext('(function(exports,require){'+code+'\n})',{filename:file})(exp,id=>mocks[id]||{});return exp;
+}
+const {Vector2}=load('maths/Vector2');
+const {Physics2DWorldManager:WorldManager}=isolatedPhysics('physics/Physics2DWorldManager',{'../display/Scene':{Scene:{regManager(){}}},'./Physics2D':{Physics2D:physics},'../maths/Vector2':{Vector2}});
+const {ColliderBase:MassCollider}=isolatedPhysics('physics/Collider2D/ColliderBase',{'../../components/Component':{Component:class{}},'../Physics2D':{Physics2D:physics},'../../maths/Point':load('maths/Point'),'../../maths/Vector2':{Vector2}});
+for(const space of ['World','Local'])test(`point velocity ${space}: native vector input, pixel result, input remains unchanged`,()=>{
+    const f=new Factory();f._tempVe21={};const point={x:100,y:150};const body={world:{_pixelRatio:50},['GetLinearVelocityFrom'+space+'Point'](p){assert.equal(p,f._tempVe21);assert.deepEqual(p,{x:2,y:3});return {x:4,y:-2};}};
+    assert.deepEqual(f['get_rigidBody_linearVelocityFrom'+space+'Point'](body,point),{x:200,y:-100});assert.deepEqual(point,{x:100,y:150});
+});
+test('distance length read uses same pixel units as write',()=>{
+ const f=new Factory();const j={world:{_pixelRatio:50},SetLength(n){this.length=n},GetLength(){return this.length}};f.set_DistanceJoint_length(j,60);assert.equal(j.length,1.2);assert.equal(f.get_DistanceJoint_length(j),60);
+});
+test('joint grounds belong to their manager and survive destruction of another world',()=>{
+ const removed=[];physics.I._factory={createBody(world){return {world}},removeBody(world,b){assert.equal(b.world,world);removed.push(b);},worldMap:new Map(),destroyWorld(world){world.destroyed=true}};
+ const a=Object.assign(Object.create(WorldManager.prototype),{_box2DWorld:{_indexInMap:1}}),b=Object.assign(Object.create(WorldManager.prototype),{_box2DWorld:{_indexInMap:2}});
+ const ga=a.getEmptyBody(),gb=b.getEmptyBody();assert.notEqual(ga,gb);assert.equal(a.getEmptyBody(),ga);b.destroy();assert.deepEqual(removed,[gb]);assert.equal(a.getEmptyBody(),ga);a.destroy();assert.deepEqual(removed,[gb,ga]);
+});
+test('world runtime parameters update native gravity and inverse conversion together; old substeps remain opt-in',()=>{
+ const values=[];physics.I._factory={createPhyVec2:(x,y)=>({x,y}),destroyData:v=>values.push(v)};
+ const m=Object.assign(Object.create(WorldManager.prototype),{_gravity:new Vector2(),_pixelRatio:50,_RePixelRatio:.02,_box2DWorld:{SetGravity(v){this.gravity={...v}}},_subStep:4,_subStepCount:1});
+ m.setGravity(new Vector2(0,0));assert.deepEqual(m.box2DWorld.gravity,{x:0,y:0});assert.equal(values.length,1);m.setPixel_Ratio(100);assert.equal(m.box2DWorld._pixelRatio,100);assert.equal(m.physics2DToLaya(m.layaToPhysics2D(125)),125);
+ assert.equal(m._subStepCount,1,'legacy config does not silently change simulation');m.setSubStep(3);assert.equal(m._subStepCount,3);for(const n of [NaN,0,-1,Infinity])assert.throws(()=>m.setPixel_Ratio(n));for(const n of [0,1.5,Infinity])assert.throws(()=>m.setSubStep(n));
+});
+test('runtime substeps preserve a force for the full frame and dispatch between steps',()=>{
+ const f=new Factory(),steps=[],events=[];let auto=true,clears=0;const native={_pixelRatio:50,GetBodyCount:()=>1,GetAutoClearForces:()=>auto,SetAutoClearForces:v=>auto=v,Step(dt,v,p){assert.equal(auto,false);steps.push([dt,v,p])},ClearForces(){clears++}};
+ f.worldMap.set(0,{box2DWorld:native,_subStepCount:3,getVelocityIterations:()=>6,getPositionIterations:()=>2,sendEvent:()=>events.push(steps.length)});f.worldCount=0;physics.I._factory=f;f.update(.03);assert.deepEqual(steps,[[.01,6,2],[.01,6,2],[.01,6,2]]);assert.deepEqual(events,[1,2,3]);assert.equal(clears,1);assert.equal(auto,true);
+});
+test('substep callback can destroy a world without stepping a freed native world',()=>{
+ const f=new Factory();let steps=0;const native={GetBodyCount:()=>1,GetAutoClearForces:()=>true,SetAutoClearForces(){},Step(){steps++}};
+ f.worldMap.set(0,{box2DWorld:native,_subStepCount:4,getVelocityIterations:()=>8,getPositionIterations:()=>3,sendEvent(){native.destroyed=true;f.worldMap.delete(0)}});f.worldCount=0;physics.I._factory=f;f.update(.04);assert.equal(steps,1);
+});
+test('manual mass stays explicit; automatic mass can be restored without reinterpreting manual center units',()=>{
+ const calls=[];physics.I._factory={retSet_rigidBody_MassData:()=>calls.push('auto'),set_rigidBody_Mass:(...v)=>calls.push(v)};
+ const c=Object.assign(Object.create(MassCollider.prototype),{_box2DBody:{},_mass:7,_inertia:1000,_centerOfMass:new Vector2(2,3),_massData:{},_useAutoMass:false});c._resetMassData();assert.equal(calls[0][2],c._centerOfMass);c.useAutoMass=true;assert.equal(calls[1],'auto');c.useAutoMass=true;assert.equal(calls.length,2);c.useAutoMass=false;assert.deepEqual([calls[2][2].x,calls[2][2].y],[2,3]);
+});
+test('shape array replacement removes old fixtures for dynamic and static colliders',()=>{
+ const {StaticCollider}=load('physics/StaticCollider');
+ for(const C of [RigidBody,StaticCollider]){
+  let deleted=0,attached=0;const old={destroy(){deleted++}},next={setCollider(){attached++},destroy(){deleted++}};
+  const body={_shapes:[old],_useAutoMass:true,_box2DBody:null};Object.getOwnPropertyDescriptor(C.prototype,'shapes').set.call(body,[next]);assert.equal(deleted,1);assert.equal(attached,1);Object.getOwnPropertyDescriptor(C.prototype,'shapes').set.call(body,[]);assert.equal(deleted,2);
+ }
+});
+test('stop/start retains registered bodies for render synchronization',()=>{
+ const timer={frameLoop(){},clear(){}};const {Physics2D:P}=isolatedPhysics('physics/Physics2D',{'../../Laya':{Laya:{addInitCallback(){}}},'../events/EventDispatcher':{EventDispatcher:class{}},'../../ILaya':{ILaya:{physicsTimer:timer}},'../../LayaEnv':{LayaEnv:{isPlaying:true}},'./Physics2DOption':{Physics2DOption:{}},'../utils/SingletonList':{SingletonList:class{}}});
+ let synced=0;const p=new P();const body={_updatePhysicsTransformToRender(){synced++}};p._rigiBodyList={length:1,elements:[body],clear(){throw Error('registered bodies must survive pause')}};p.stop();p.start();p._updatePhysicsTransformToRender();assert.equal(synced,1);
+});
+test('unsupported origin shift warns without mutating bodies; supported binding receives native vector',()=>{
+ const f=new Factory();let warned=0,called;const warn=console.warn;console.warn=()=>warned++;try{f.shiftOrigin({},new Vector2(2,3));}finally{console.warn=warn;}assert.equal(warned,1);f._tempVe21={Set(x,y){this.x=x;this.y=y}};f.shiftOrigin({ShiftOrigin(v){called=v}},new Vector2(2,3));assert.equal(called,f._tempVe21);assert.deepEqual([called.x,called.y],[2,3]);
+});
+
+test('destroying a scene during a contact callback stops queued native contact access',()=>{
+ const cleaned=[];physics.I._factory={_cleanCache:v=>cleaned.push(v)};const first={},second={};let calls=0;const m=Object.assign(Object.create(WorldManager.prototype),{_box2DWorld:{},_eventList:['triggerenter',first,'triggerenter',second],_dispatchEvent(){calls++;this._box2DWorld=null;this._eventList=null}});m.sendEvent();assert.equal(calls,1);assert.deepEqual(cleaned,[first,second]);m.sendEvent();
+});

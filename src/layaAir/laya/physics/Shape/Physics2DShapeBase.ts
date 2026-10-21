@@ -88,7 +88,10 @@ export class Physics2DShapeBase implements IClone {
     public set density(value: number) {
         this._density = value;
         this._shapeDef.density = value;
-        this._box2DShape && Physics2D.I._factory.set_shape_density(this._box2DShape, value);
+        if (this._box2DShape) {
+            Physics2D.I._factory.set_shape_density(this._box2DShape, value);
+            this._body._resetMassData();
+        }
     }
 
     /**
@@ -222,6 +225,15 @@ export class Physics2DShapeBase implements IClone {
         Physics2D.I._factory.set_shape_collider(this._box2DShapeDef, this._body);
         this._updateShapeData();
         this._initShape();
+    }
+
+    /** @internal Refresh native geometry, broadphase proxies and mass together. */
+    protected _refreshShape(): void {
+        if (!this._box2DShape) return;
+        Physics2D.I._factory.destroyShape(this._physics2DManager.box2DWorld, this._box2DBody, this._box2DShape);
+        this._box2DShape = null;
+        this._initShape();
+        this._body._resetMassData();
     }
 
     private _initShape(): void {

@@ -78,8 +78,13 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
     }
 
     shiftOrigin(world: any, newOrigin: Vector2): void {
-        if (!world) console.warn("shiftOrigin world is null");
-        world.ShiftOrigin({ x: newOrigin.x, y: newOrigin.y });
+        if (!world || world.destroyed) return;
+        if (typeof world.ShiftOrigin !== "function") {
+            console.warn("Physics2D.shiftOrigin is not supported by the current Box2D binding; the world is unchanged.");
+            return;
+        }
+        this._tempVe21.Set(newOrigin.x, newOrigin.y);
+        world.ShiftOrigin(this._tempVe21);
     }
 
     appendFlags(jsDraw: any, flags: number): void {
@@ -207,12 +212,26 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
             // preStep 处理
 
             //2.4
-            world.box2DWorld.Step(delta, velocityIterations, positionIterations);
-            if (world.enableDebugDraw) {
-                world.box2DWorld.DebugDraw();
+            const nativeWorld = world.box2DWorld;
+            const substeps = delta > 0 ? (world._subStepCount || 1) : 1;
+            const autoClear = substeps > 1 && nativeWorld.GetAutoClearForces();
+            if (autoClear) nativeWorld.SetAutoClearForces(false);
+            try {
+                for (let step = 0; step < substeps; step++) {
+                    nativeWorld.Step(delta / substeps, velocityIterations, positionIterations);
+                    if (step < substeps - 1) world.sendEvent();
+                    if (nativeWorld.destroyed) break;
+                }
+            } finally {
+                if (autoClear && !nativeWorld.destroyed) {
+                    nativeWorld.ClearForces();
+                    nativeWorld.SetAutoClearForces(true);
+                }
             }
-            // afterStep 处理
-            world.sendEvent();
+            if (!nativeWorld.destroyed) {
+                if (world.enableDebugDraw) nativeWorld.DebugDraw();
+                world.sendEvent();
+            }
 
         }
         // this._world & this._world.Step(delta, this.velocityIterations, this.positionIterations, 3);
@@ -572,8 +591,7 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
     get_DistanceJoint_length(joint: any): number {
         let world: any = joint.world;
         let len = joint.GetLength();
-        this.convertPhysicsValueToLaya(world, len);
-        return len;
+        return this.convertPhysicsValueToLaya(world, len);
     }
 
     /**
@@ -1493,7 +1511,7 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         let world: any = body.world;
         this._tempVe21.x = this.convertLayaValueToPhysics(world, worldPoint.x);
         this._tempVe21.y = this.convertLayaValueToPhysics(world, worldPoint.y);
-        let velocity = body.GetLinearVelocityFromWorldPoint(worldPoint);
+        let velocity = body.GetLinearVelocityFromWorldPoint(this._tempVe21);
         velocity.x = this.convertPhysicsValueToLaya(world, velocity.x);
         velocity.y = this.convertPhysicsValueToLaya(world, velocity.y);
         return velocity;
@@ -1503,7 +1521,7 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         let world: any = body.world;
         this._tempVe21.x = this.convertLayaValueToPhysics(world, localPoint.x);
         this._tempVe21.y = this.convertLayaValueToPhysics(world, localPoint.y);
-        let velocity = body.GetLinearVelocityFromLocalPoint(localPoint);
+        let velocity = body.GetLinearVelocityFromLocalPoint(this._tempVe21);
         velocity.x = this.convertPhysicsValueToLaya(world, velocity.x);
         velocity.y = this.convertPhysicsValueToLaya(world, velocity.y);
         return velocity;

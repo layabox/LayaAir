@@ -138,8 +138,8 @@ export class ColliderBase extends Component {
     }
 
     /**
-     * @en The center of mass of the rigid body. (Only valid when not using automatic mass calculation)
-     * @zh 刚体质心（只在未开启自动质量计算时才有效）
+     * @en Manual center of mass retains Box2D units (meters); automatic mode returns pixels. getCenter() always returns pixels.
+     * @zh 手动质心沿用 Box2D 物理单位（米）；自动质量模式返回像素。getCenter() 始终返回像素偏移。
      */
     public get centerOfMass(): IV2 | Vector2 {
         let center;
@@ -192,8 +192,17 @@ export class ColliderBase extends Component {
         return this._useAutoMass;
     }
     public set useAutoMass(value: boolean) {
+        if (this._useAutoMass === value) return;
         this._useAutoMass = value;
-        this._box2DBody && Physics2D.I._factory.set_rigidBody_Mass(this._box2DBody, this._mass, this._centerOfMass, this._inertia, this._massData);
+        this._resetMassData();
+    }
+
+    /** @internal Recompute automatic mass or restore the owner's manual mass after fixture changes. */
+    _resetMassData(): void {
+        if (!this._box2DBody || this._box2DBody.destroyed) return;
+        const factory = Physics2D.I._factory;
+        if (this._useAutoMass) factory.retSet_rigidBody_MassData(this._box2DBody);
+        else if (this._massData) factory.set_rigidBody_Mass(this._box2DBody, this._mass, this._centerOfMass, this._inertia, this._massData);
     }
 
     /**

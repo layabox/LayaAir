@@ -147,10 +147,7 @@ export class RevoluteJoint extends JointBase {
                 this.selfBody.owner.on("bodyCreated", this, this._createJoint);
                 return;
             }
-            if (!Physics2D.I._emptyBody) {
-                Physics2D.I._emptyBody = Physics2D.I._factory.createBody(this._physics2DManager.box2DWorld, null);
-            }
-            def.bodyA = this.otherBody ? this.otherBody.getBox2DBody() : Physics2D.I._emptyBody;
+            def.bodyA = this.otherBody ? this.otherBody.getBox2DBody() : this._physics2DManager.getEmptyBody();
             if (!def.bodyA) {
                 this.otherBody.isConnectedJoint = true;
                 this.otherBody.owner.on("bodyCreated", this, this._createJoint);

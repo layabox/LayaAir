@@ -33,7 +33,6 @@ export class EdgeShape2D extends Physics2DShapeBase {
 
     protected _createShape(): void {
         this._box2DShape = Physics2D.I._factory.createShape(this._physics2DManager.box2DWorld, this._box2DBody, EPhysics2DShape.EdgeShape, this._box2DShapeDef);
-        this._updateShapeData();
     }
 
     protected _updateShapeData(): void {
@@ -41,8 +40,9 @@ export class EdgeShape2D extends Physics2DShapeBase {
 
         var len: number = this._datas.length;
         if (len % 2 == 1) throw "EdgeCollider points lenth must a multiplier of 2";
-        let shape: any = this._box2DShape ? Physics2D.I._factory.getShape(this._box2DShape, this._shapeDef.shapeType) : Physics2D.I._factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType);
+        let shape: any = Physics2D.I._factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType);
         Physics2D.I._factory.set_EdgeShape_data(shape, this.pivotoffx, this.pivotoffy, this._datas, this.scaleX, this.scaleY);
+        this._refreshShape();
     }
 
     clone(): EdgeShape2D {

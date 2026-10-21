@@ -29,7 +29,6 @@ export class CircleShape2D extends Physics2DShapeBase {
 
     protected _createShape(): void {
         this._box2DShape = Physics2D.I._factory.createShape(this._physics2DManager.box2DWorld, this._box2DBody, EPhysics2DShape.CircleShape, this._box2DShapeDef);
-        this._updateShapeData();
     }
 
     protected _updateShapeData(): void {
@@ -37,9 +36,10 @@ export class CircleShape2D extends Physics2DShapeBase {
 
         var scale: number = Math.max(Math.abs(this.scaleX), Math.abs(this.scaleY));
         let radius = this.radius;
-        let shape: any = this._box2DShape ? Physics2D.I._factory.getShape(this._box2DShape, this._shapeDef.shapeType) : Physics2D.I._factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType);
+        let shape: any = Physics2D.I._factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType);
         Physics2D.I._factory.set_CircleShape_radius(shape, radius, scale);
         Physics2D.I._factory.set_CircleShape_pos(shape, this.pivotoffx, this.pivotoffy, this.scaleX, this.scaleY);
+        this._refreshShape();
     }
 
     clone(): CircleShape2D {

@@ -102,8 +102,7 @@ export class MouseJoint extends JointBase {
                 anchorPos.x = Physics2D.toPhysicsX(anchorPos.x);
                 anchorPos.y = Physics2D.toPhysicsY(anchorPos.y);
             }
-            if (!Physics2D.I._emptyBody) Physics2D.I._emptyBody = Physics2D.I._factory.createBody(this._physics2DManager.box2DWorld, null);
-            def.bodyA = Physics2D.I._emptyBody;
+            def.bodyA = this._physics2DManager.getEmptyBody();
             def.bodyB = this.selfBody.getBox2DBody();
             if (!def.bodyB) {
                 this.selfBody.isConnectedJoint = true;
