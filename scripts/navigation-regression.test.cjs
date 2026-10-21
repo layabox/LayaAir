@@ -76,6 +76,22 @@ function pathTo(s,start=new V(3,0,4),end=new V(13,0,4)) {const p=[];const ok=s.f
   check(`${dim}D surface clones preserve serialized properties`,()=>{s.asyn=true;s.maxSimplificationError=.4;const clone=dim===2?new L.NavMesh2DSurface():new L.NavMeshSurface();s._cloneTo(clone);assert.equal(clone.datas,s.datas);assert.equal(clone.asyn,true);assert.equal(clone.maxSimplificationError,.4);clone._onDestroy();});
   check(`${dim}D native surface resources are released`,()=>{const mesh=s._navMesh,ori=s._oriTiles,cache=s._cachedata._cacheData[0];s._onDisable();s._onDestroy();assert.equal(mesh._navMesh,null);assert.equal(mesh._navQuery,null);assert.equal(mesh._crowd,null);assert.equal(ori._oriTiles,null);assert.ok(cache.isDeleted());});
  }
+ for(const [name,type] of [['rectangle',L.NavObstacles2DType.RECT],['circle',L.NavObstacles2DType.CIRCLE],['custom',L.NavObstacles2DType.CUSTOMER]]) {
+  check(`2D ${name} coplanar unwalk obstacle blocks ground and removal restores it`,()=>{
+   L.Navigation2DManage.__init__();
+   const s=surface(2),obstacle=new L.NavMesh2DObstacles();obstacle.meshType=type;obstacle.areaFlag='unwalk';
+   obstacle.size=new L.Vector2(4,4);obstacle.radius=2;
+   if(type===L.NavObstacles2DType.CUSTOMER){obstacle.datas=resource({width:4,depth:4});obstacle.position=new L.Vector2(6,2);}
+   else obstacle.position=new L.Vector2(8,4);
+   s.obstacles=[obstacle];s._update(0);
+   const center=nearest(s,new V(8,0,4));
+   assert.ok(!center.ref || Math.hypot(center.out.x-8,center.out.z-4)>1,'obstacle center must not remain walkable');
+   const route=pathTo(s);assert.ok(route.complete,'path can go around obstacle');
+   assert.ok(route.p.some(p=>Math.abs(p.pos.z-4)>1.5),'path must detour around obstacle');
+   s.obstacles=[];s._update(0);const restored=nearest(s,new V(8,0,4));assert.ok(restored.ref && Math.abs(restored.out.x-8)<.2 && Math.abs(restored.out.z-4)<.2);
+   s._onDisable();s._onDestroy();
+  });
+ }
  check('2D embedded custom obstacle cache is released with its surface',()=>{
   const s=surface(2),obstacle=new L.NavMesh2DObstacles();obstacle.meshType=L.NavObstacles2DType.CUSTOMER;obstacle.datas=resource({width:4});s.obstacles=[obstacle];s._update(0);
   const cache=obstacle._modifierData._bindData;assert.ok(cache);s._onDisable();s._onDestroy();assert.ok(cache.isDeleted());assert.equal(obstacle._modifierData._bindData,null);

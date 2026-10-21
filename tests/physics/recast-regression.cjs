@@ -1,5 +1,5 @@
 // node tests/physics/recast-regression.cjs [source.js] [baseline-result.json] [--build-benchmark]
-// Defaults to the checked-in pre-optimization behavior fixture.
+// Defaults to the independent official native-layer behavior fixture.
 // Also runnable with ELECTRON_RUN_AS_NODE=1 to test the target Chromium/V8.
 const fs = require('node:fs');
 const path = require('node:path');
@@ -40,12 +40,13 @@ function plain(value) {
 }
 async function scenario(spec) {
     const diagnostics = [];
-    let seed = 123456789;
-    const randomMath = Object.create(Math);
-    randomMath.random = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296);
-    const context = { window: {}, Math: randomMath, performance, setTimeout, clearTimeout,
+    const context = { window: {}, performance, setTimeout, clearTimeout,
         console: Object.fromEntries(['log','info','warn','error'].map(level => [level, (...args) => diagnostics.push([level, args.map(String)])])) };
-    vm.runInNewContext(source, context, { filename: sourcePath });
+    // Keep Math intrinsics in the library realm; importing the host Math object
+    // changes V8 optimization and makes JS performance measurements misleading.
+    vm.createContext(context);
+    vm.runInContext('let randomSeed=123456789; Math.random=()=>((randomSeed=(Math.imul(randomSeed,1664525)+1013904223)>>>0)/4294967296);', context);
+    vm.runInContext(source, context, {filename:sourcePath});
     const m = await context.Recast();
     const nav = new m.dtNavMesh();
     nav.init([0,-1,0], [spec.width,3,8], .25, 32);
@@ -157,7 +158,15 @@ async function scenario(spec) {
     if (!benchmarkBuild || args[1]) {
         const baselinePath = args[1] || path.join(__dirname,'recast-behavior.json');
         const baseline = JSON.parse(fs.readFileSync(baselinePath,'utf8'));
-        const behavior = rows => rows.map(({timing,...rest}) => rest);
+        // Failed nearest-poly queries leave the native output vector uninitialized.
+        // Match the fork reference normalization; successful coordinates remain exact.
+        const normalize = value => {
+            if (Array.isArray(value)) return value.map(normalize);
+            if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value)
+                .map(([key, entry]) => [key, value.polyRef === 0 && key === 'data' ? [] : normalize(entry)]));
+            return value;
+        };
+        const behavior = rows => rows.map(({timing,...rest}) => normalize(rest));
         if (baseline.cases[0].behaviorHash) {
             const signatures = behavior(result.cases).map(item => ({ name:item.name,
                 positionHash:item.positionHash, stateHash:item.stateHash,

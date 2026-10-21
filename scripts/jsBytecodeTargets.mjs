@@ -1,6 +1,7 @@
 // Only these performance-critical paths are inspected. Initialization wrappers,
 // asset readers, debug rendering, and libraries not shipped by the build are
 // deliberately excluded. Source-shape checks make renamed minified code visible.
+// Recast is built and bytecode-checked in layabox/recastnavigation (laya/).
 export const jsBytecodeTargets = [
     {
         file: "laya.Box2D.js",
@@ -106,25 +107,6 @@ export const jsBytecodeTargets = [
                 functionNames: [`__physxqFPhase${String(index + 1).padStart(2, "0")}`],
                 bytecodeFilter: "__physx*",
             })),
-        ],
-    },
-    {
-        file: "recast-navigation.js",
-        targets: [
-            // Probe: 240 updateCrowd calls enter nd 240 times, not Jg.
-            { label: "Recast crowd update", functionNames: ["nd"], minSourceLength: 5_000 },
-            // Probe: dtNavMesh.addTile enters Jg. Important for runtime rebuilds,
-            // but this is an on-demand build path rather than the crowd update.
-            { label: "Recast navigation tile build", functionNames: ["Kg", "Jg"], minSourceLength: 10_000 },
-            // Keep every extracted phase visible to the same warning check.
-            ...Array.from({ length: 7 }, (_, index) => {
-                const name = `__recastCrowdPhase${String(index + 1).padStart(2, "0")}`;
-                return { label: `Recast crowd phase ${index + 1}`, functionNames: [name] };
-            }),
-            ...Array.from({ length: 18 }, (_, index) => {
-                const name = `__recastBuildPhase${String(index + 1).padStart(2, "0")}`;
-                return { label: `Recast tile build phase ${index + 1}`, functionNames: [name] };
-            }),
         ],
     },
 ];
