@@ -370,7 +370,16 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
      * @zh 销毁角色控制器。
      */
     destroy(): void {
+        if (this._destroyed) return;
         this._releaseController();
+        if (this._pxNullShape) {
+            // The helper shape is not an actor-owned collider shape.
+            this._pxNullShape._pxCollider = null;
+            this._pxNullShape.destroy();
+            this._pxNullShape = null;
+        }
+        super.destroy();
+        Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaCharacterController, -1);
     }
 
     /**

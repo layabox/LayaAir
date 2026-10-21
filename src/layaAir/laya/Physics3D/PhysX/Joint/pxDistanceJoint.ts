@@ -87,7 +87,6 @@ export class pxDistanceJoint extends pxJoint implements ISpringJoint {
      * @zh 销毁关节
      */
     destroy(): void {
-        this._pxJoint && this._pxJoint.release();
         super.destroy();
     }
 

@@ -1089,6 +1089,10 @@ export class btPhysicsManager implements IPhysicsManager {
     destroy(): void {
         this._inPhysicsUpdate = false;
         this._flushPendingPhysicsOperations();
+        // Scene components can finish destruction after their physics manager.
+        // Detach owned joints while the native dynamics world is still valid.
+        for (const id in this._currentConstraint)
+            this._currentConstraint[id].destroy();
         this._physicsStepListeners.length = 0;
         this._pendingPhysicsOperations.length = 0;
         var bt = btStatics.bt;
