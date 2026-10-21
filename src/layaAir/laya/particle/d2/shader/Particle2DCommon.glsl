@@ -1,6 +1,14 @@
 #if !defined(ShruikenParticleCommon_glsl)
 #define ShruikenParticleCommon_glsl
 
+#ifdef GRADIENTKEYCOUNT_8
+#define PARTICLE2D_GRADIENT_VEC4_COUNT 4
+#define PARTICLE2D_GRADIENT_KEY_COUNT 8
+#else
+#define PARTICLE2D_GRADIENT_VEC4_COUNT 2
+#define PARTICLE2D_GRADIENT_KEY_COUNT 4
+#endif
+
 // render node 2d
 uniform vec3 u_NMatrix_0;
 uniform vec3 u_NMatrix_1;
@@ -32,11 +40,11 @@ uniform vec4 u_GradientMaxTimeRange;
 
 #ifdef VELOCITYOVERLIFETIME
 
-uniform vec4 u_VelocityCurveMinX[2];
-uniform vec4 u_VelocityCurveMinY[2];
+uniform vec4 u_VelocityCurveMinX[PARTICLE2D_GRADIENT_VEC4_COUNT];
+uniform vec4 u_VelocityCurveMinY[PARTICLE2D_GRADIENT_VEC4_COUNT];
 
-uniform vec4 u_VelocityCurveMaxX[2];
-uniform vec4 u_VelocityCurveMaxY[2];
+uniform vec4 u_VelocityCurveMaxX[PARTICLE2D_GRADIENT_VEC4_COUNT];
+uniform vec4 u_VelocityCurveMaxY[PARTICLE2D_GRADIENT_VEC4_COUNT];
 
 uniform float u_VelocityOverLifetimeSpace;
 
@@ -44,27 +52,27 @@ uniform float u_VelocityOverLifetimeSpace;
 
 #ifdef SIZEOVERLIFETIME
 
-uniform vec4 u_SizeCurveMinX[2];
-uniform vec4 u_SizeCurveMinY[2];
+uniform vec4 u_SizeCurveMinX[PARTICLE2D_GRADIENT_VEC4_COUNT];
+uniform vec4 u_SizeCurveMinY[PARTICLE2D_GRADIENT_VEC4_COUNT];
 uniform vec4 u_SizeCurveMinTimeRange;
 
-uniform vec4 u_SizeCurveMaxX[2];
-uniform vec4 u_SizeCurveMaxY[2];
+uniform vec4 u_SizeCurveMaxX[PARTICLE2D_GRADIENT_VEC4_COUNT];
+uniform vec4 u_SizeCurveMaxY[PARTICLE2D_GRADIENT_VEC4_COUNT];
 uniform vec4 u_SizeCurveMaxTimeRange;
 
 #endif // SIZEOVERLIFETIME
 
 #ifdef ROTATIONOVERLIFETIME
 
-uniform vec4 u_RotationCurveMin[2];
-uniform vec4 u_RotationCurveMax[2];
+uniform vec4 u_RotationCurveMin[PARTICLE2D_GRADIENT_VEC4_COUNT];
+uniform vec4 u_RotationCurveMax[PARTICLE2D_GRADIENT_VEC4_COUNT];
 
 #endif // ROTATIONOVERLIFETIME
 
 #ifdef TEXTURESHEETANIMATION
 
-uniform vec4 u_TextureSheetFrame[2];
-uniform vec4 u_TextureSheetFrameMax[2];
+uniform vec4 u_TextureSheetFrame[PARTICLE2D_GRADIENT_VEC4_COUNT];
+uniform vec4 u_TextureSheetFrameMax[PARTICLE2D_GRADIENT_VEC4_COUNT];
 uniform vec4 u_TextureSheetFrameRange;
 
 uniform vec4 u_TextureSheetFrameData;

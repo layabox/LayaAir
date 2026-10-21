@@ -29,7 +29,8 @@ export enum Particle2DSystemDirtyFlagBits {
     ColorOverLifetimeBit = 1 << 1,
     Size2DOverLifetimeBit = 1 << 2,
     Rotation2DOverLifetimeBit = 1 << 3,
-    TextureSheetAnimationBit = 1 << 4
+    TextureSheetAnimationBit = 1 << 4,
+    GradientKeyCountBit = 1 << 5
 }
 
 export class ShurikenParticle2DSystem extends ParticleControler implements IClone {
@@ -37,6 +38,20 @@ export class ShurikenParticle2DSystem extends ParticleControler implements IClon
     owner: Sprite;
 
     _dirtyFlags: number = ~0;
+
+    private _gradientKeyCount8 = false;
+
+    /** Whether numeric lifetime curves use eight keys instead of the default four. */
+    public get gradientKeyCount8(): boolean {
+        return this._gradientKeyCount8;
+    }
+    public set gradientKeyCount8(value: boolean) {
+        if (this._gradientKeyCount8 === value)
+            return;
+        this._gradientKeyCount8 = value;
+        // Changing capacity also changes the ranges uploaded by lifetime modules.
+        this._dirtyFlags = ~0;
+    }
 
     private _rand: Rand = new Rand(0);
     private _randomSeeds: Uint32Array = new Uint32Array(16);
@@ -551,14 +566,15 @@ export class ShurikenParticle2DSystem extends ParticleControler implements IClon
     }
 
     cloneTo(destObject: ShurikenParticle2DSystem): void {
+        destObject.gradientKeyCount8 = this.gradientKeyCount8;
         this.main.cloneTo(destObject.main);
         this.emission.cloneTo(destObject.emission);
-        this.shape.cloneTo(destObject.shape);
-        this.velocity2DOverLifetime.cloneTo(destObject.velocity2DOverLifetime);
-        this.colorOverLifetime.cloneTo(destObject.colorOverLifetime);
-        this.size2DOverLifetime.cloneTo(destObject.size2DOverLifetime);
-        this.rotation2DOverLifetime.cloneTo(destObject.rotation2DOverLifetime);
-        this.textureSheetAnimation.cloneTo(destObject.textureSheetAnimation);
+        destObject.shape = this.shape?.clone();
+        destObject.velocity2DOverLifetime = this.velocity2DOverLifetime?.clone();
+        destObject.colorOverLifetime = this.colorOverLifetime?.clone();
+        destObject.size2DOverLifetime = this.size2DOverLifetime?.clone();
+        destObject.rotation2DOverLifetime = this.rotation2DOverLifetime?.clone();
+        destObject.textureSheetAnimation = this.textureSheetAnimation?.clone();
     }
 
     clone() {
