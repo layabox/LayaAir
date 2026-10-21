@@ -219,7 +219,6 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
             try {
                 for (let step = 0; step < substeps; step++) {
                     nativeWorld.Step(delta / substeps, velocityIterations, positionIterations);
-                    if (step < substeps - 1) world.sendEvent();
                     if (nativeWorld.destroyed) break;
                 }
             } finally {

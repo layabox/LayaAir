@@ -6,7 +6,8 @@ const vm = require('node:vm');
 const ts = require('typescript');
 const root = path.resolve(__dirname, '../src/layaAir/laya');
 const cache = new Map();
-const physics = { I: {} };
+const physics = { I: {}, getDesignScaleX:()=>1, getDesignScaleY:()=>1 };
+const env = {isPlaying:false};
 function load(file) {
     file = path.resolve(root, file);
     if (!file.endsWith('.ts')) file += '.ts';
@@ -16,7 +17,7 @@ function load(file) {
     if (file.endsWith('/components/Component.ts')) return { Component: class {} };
     if (file.endsWith('/display/Sprite.ts')) return { Sprite: class {} };
     if (file.endsWith('/utils/Utils.ts')) return { Utils: {toRadian:v=>v*Math.PI/180,toAngle:v=>v*180/Math.PI} };
-    if (file.endsWith('/LayaEnv.ts')) return { LayaEnv: { isPlaying: false } };
+    if (file.endsWith('/LayaEnv.ts')) return { LayaEnv: env };
     if (file.endsWith('/ILaya.ts')) return { ILaya: {} };
     if (file.endsWith('/Laya.ts')) return { Laya: {} };
     if (cache.has(file)) return cache.get(file);
@@ -178,7 +179,7 @@ function isolatedPhysics(name, mocks) {
     const exp={};vm.runInThisContext('(function(exports,require){'+code+'\n})',{filename:file})(exp,id=>mocks[id]||{});return exp;
 }
 const {Vector2}=load('maths/Vector2');
-const {Physics2DWorldManager:WorldManager}=isolatedPhysics('physics/Physics2DWorldManager',{'../display/Scene':{Scene:{regManager(){}}},'./Physics2D':{Physics2D:physics},'../maths/Vector2':{Vector2}});
+const {Physics2DWorldManager:WorldManager}=isolatedPhysics('physics/Physics2DWorldManager',{'../display/Scene':{Scene:{regManager(){}}},'./Physics2D':{Physics2D:physics},'../maths/Vector2':{Vector2},'./factory/IPhysics2DFactory':load('physics/factory/IPhysics2DFactory')});
 const {ColliderBase:MassCollider}=isolatedPhysics('physics/Collider2D/ColliderBase',{'../../components/Component':{Component:class{}},'../Physics2D':{Physics2D:physics},'../../maths/Point':load('maths/Point'),'../../maths/Vector2':{Vector2}});
 for(const space of ['World','Local'])test(`point velocity ${space}: native vector input, pixel result, input remains unchanged`,()=>{
     const f=new Factory();f._tempVe21={};const point={x:100,y:150};const body={world:{_pixelRatio:50},['GetLinearVelocityFrom'+space+'Point'](p){assert.equal(p,f._tempVe21);assert.deepEqual(p,{x:2,y:3});return {x:4,y:-2};}};
@@ -198,13 +199,13 @@ test('world runtime parameters update native gravity and inverse conversion toge
  m.setGravity(new Vector2(0,0));assert.deepEqual(m.box2DWorld.gravity,{x:0,y:0});assert.equal(values.length,1);m.setPixel_Ratio(100);assert.equal(m.box2DWorld._pixelRatio,100);assert.equal(m.physics2DToLaya(m.layaToPhysics2D(125)),125);
  assert.equal(m._subStepCount,1,'legacy config does not silently change simulation');m.setSubStep(3);assert.equal(m._subStepCount,3);for(const n of [NaN,0,-1,Infinity])assert.throws(()=>m.setPixel_Ratio(n));for(const n of [0,1.5,Infinity])assert.throws(()=>m.setSubStep(n));
 });
-test('runtime substeps preserve a force for the full frame and dispatch between steps',()=>{
+test('runtime substeps preserve a force for the full frame and dispatch after clearing',()=>{
  const f=new Factory(),steps=[],events=[];let auto=true,clears=0;const native={_pixelRatio:50,GetBodyCount:()=>1,GetAutoClearForces:()=>auto,SetAutoClearForces:v=>auto=v,Step(dt,v,p){assert.equal(auto,false);steps.push([dt,v,p])},ClearForces(){clears++}};
- f.worldMap.set(0,{box2DWorld:native,_subStepCount:3,getVelocityIterations:()=>6,getPositionIterations:()=>2,sendEvent:()=>events.push(steps.length)});f.worldCount=0;physics.I._factory=f;f.update(.03);assert.deepEqual(steps,[[.01,6,2],[.01,6,2],[.01,6,2]]);assert.deepEqual(events,[1,2,3]);assert.equal(clears,1);assert.equal(auto,true);
+ f.worldMap.set(0,{box2DWorld:native,_subStepCount:3,getVelocityIterations:()=>6,getPositionIterations:()=>2,sendEvent:()=>{assert.equal(clears,1);events.push(steps.length)}});f.worldCount=0;physics.I._factory=f;f.update(.03);assert.deepEqual(steps,[[.01,6,2],[.01,6,2],[.01,6,2]]);assert.deepEqual(events,[3]);assert.equal(clears,1);assert.equal(auto,true);
 });
 test('substep callback can destroy a world without stepping a freed native world',()=>{
- const f=new Factory();let steps=0;const native={GetBodyCount:()=>1,GetAutoClearForces:()=>true,SetAutoClearForces(){},Step(){steps++}};
- f.worldMap.set(0,{box2DWorld:native,_subStepCount:4,getVelocityIterations:()=>8,getPositionIterations:()=>3,sendEvent(){native.destroyed=true;f.worldMap.delete(0)}});f.worldCount=0;physics.I._factory=f;f.update(.04);assert.equal(steps,1);
+ const f=new Factory();let steps=0;const native={GetBodyCount:()=>1,GetAutoClearForces:()=>true,SetAutoClearForces(){},ClearForces(){},Step(){steps++}};
+ f.worldMap.set(0,{box2DWorld:native,_subStepCount:4,getVelocityIterations:()=>8,getPositionIterations:()=>3,sendEvent(){native.destroyed=true;f.worldMap.delete(0)}});f.worldCount=0;physics.I._factory=f;f.update(.04);assert.equal(steps,4);
 });
 test('manual mass stays explicit; automatic mass can be restored without reinterpreting manual center units',()=>{
  const calls=[];physics.I._factory={retSet_rigidBody_MassData:()=>calls.push('auto'),set_rigidBody_Mass:(...v)=>calls.push(v)};
@@ -227,4 +228,141 @@ test('unsupported origin shift warns without mutating bodies; supported binding 
 
 test('destroying a scene during a contact callback stops queued native contact access',()=>{
  const cleaned=[];physics.I._factory={_cleanCache:v=>cleaned.push(v)};const first={},second={};let calls=0;const m=Object.assign(Object.create(WorldManager.prototype),{_box2DWorld:{},_eventList:['triggerenter',first,'triggerenter',second],_dispatchEvent(){calls++;this._box2DWorld=null;this._eventList=null}});m.sendEvent();assert.equal(calls,1);assert.deepEqual(cleaned,[first,second]);m.sendEvent();
+});
+
+test('null shapes preserves legacy Collider mode while empty arrays explicitly select modern shapes',()=>{
+ physics.I._factory={createMassData:()=>({})};
+ for (const initial of [true,false]) {
+  const rb=new RigidBody();rb.applyOwnerColliderComponent=initial;let removed=0;
+  rb._shapes=[{destroy(){removed++}}];rb.shapes=null;
+  assert.equal(removed,1);assert.equal(rb.shapes,null);assert.equal(rb.applyOwnerColliderComponent,initial);
+  rb.shapes=[];assert.equal(rb.applyOwnerColliderComponent,false);
+ }
+});
+
+test('rigid body cleanup releases only its owned legacy fixtures, including late-added colliders',()=>{
+ const body={},otherBody={},calls=[];
+ const old={getBox2DBody:()=>body,_removeShapeAndDestroyData(){calls.push('legacy')}};
+ const unrelated={getBox2DBody:()=>otherBody,_removeShapeAndDestroyData(){throw Error('must not remove another body')}};
+ const rb={_box2DBody:body,_shapes:null,_colliders:[],owner:{getComponents(){return [old,unrelated]}}};
+ RigidBody.prototype._destroyAllShape.call(rb);assert.deepEqual(calls,['legacy']);
+ rb._shapes=[{destroy(){calls.push('modern')}}];RigidBody.prototype._destroyAllShape.call(rb);assert.deepEqual(calls,['legacy','legacy','modern']);
+});
+
+// Exercise the shipped native implementations, not a mock of Step/contact behavior.
+for (const backend of ['js','wasm']) test(`native ${backend}: geometry continuity, legacy fixture lifecycle and substep callback forces`,async()=>{
+ const nativeDir=path.resolve(root,'../jsLibs');
+ const oldWindow=global.window,oldLaya=global.Laya;
+ global.window={};global.Laya={WasmAdapter:{create:f=>f}};
+ let box;
+ try {
+  const Box2D=require(path.join(nativeDir,backend==='wasm'?'laya.Box2D.wasm.js':'laya.Box2D.js'));
+  box=await Box2D(backend==='wasm'?{wasmBinary:fs.readFileSync(path.join(nativeDir,'laya.Box2D.wasm.wasm'))}:{});
+ } finally {global.window=oldWindow;global.Laya=oldLaya;}
+ const f=new Factory();f._box2d=box;f._tempVe21=new box.b2Vec2();f._tempVe22=new box.b2Vec2();physics.I._factory=f;
+ env.isPlaying=true;
+ const managers=[];
+ function manager(n=1,gravity=0){
+  const w=f.createWorld({gravity:{x:0,y:gravity}});w._pixelRatio=50;
+  const m=Object.assign(Object.create(WorldManager.prototype),{_box2DWorld:w,_subStepCount:n,_eventList:[],_pixelRatio:50,_RePixelRatio:.02,getVelocityIterations:()=>8,getPositionIterations:()=>3});
+  const l=new box.JSContactListener();l.BeginContact=p=>m._worldBeginContactCallback(p);l.EndContact=p=>m._worldEndContactCallback(p);l.PreSolve=p=>m._worldPreSolveCallback(p);l.PostSolve=()=>{};w.SetContactListener(l);managers.push(m);return m;
+ }
+ function shape(m,type,name,x=0){
+  const d=new box.b2BodyDef();d.type=type;d.position.Set(x,0);d.allowSleep=false;
+  const b=f.createBody(m.box2DWorld,d);const events=[];
+  const c={owner:{pivotX:0,pivotY:0,scene:{getComponentElementManager:()=>m},event(type,...args){events.push(type);}},getBox2DBody:()=>b,_resetMassData(){b.ResetMassData()}};
+  const S=load('physics/Shape/'+name)[name],s=new S();s.isSensor=true;
+  if(name==='BoxShape2D'){s.width=40;s.height=40;}
+  if(name==='CircleShape2D'){s.radius=20;s.x=20;s.y=20;}
+  if(name==='PolygonShape2D')s.datas=[0,0,40,0,40,40,0,40];
+  if(name==='EdgeShape2D')s.datas=[0,20,40,20];
+  s.setCollider(c);return {s,b,c,events};
+ }
+ const step=m=>{m.box2DWorld.Step(1/60,8,3);m.sendEvent()};
+ try {
+  for(const name of ['BoxShape2D','CircleShape2D','PolygonShape2D','EdgeShape2D']){
+   const m=manager(),a=shape(m,2,name),b=shape(m,0,'BoxShape2D');step(m);
+   const fixture=a.s._box2DShape,initialMass=a.b.GetMass();
+   for(let i=0;i<6;i++){
+    if(name==='BoxShape2D')a.s.width=40+i%2;
+    if(name==='CircleShape2D')a.s.radius=20;
+    if(name==='PolygonShape2D'){a.s.datas[2]=40+i%2;a.s.datas=a.s.datas;}
+    if(name==='EdgeShape2D')a.s.datas=[0,20,40+i%2,20];
+    step(m);
+   }
+   assert.equal(a.s._box2DShape,fixture,name+' retains fixture');
+   assert.equal(a.events.filter(v=>v==='triggerenter').length,1,name+' one enter');
+   assert.equal(a.events.filter(v=>v==='triggerexit').length,0,name+' no false exit');
+   const far=shape(m,0,'BoxShape2D',2);step(m);
+   if(name==='BoxShape2D')a.s.width=160;
+   if(name==='CircleShape2D')a.s.radius=140;
+   if(name==='PolygonShape2D')a.s.datas=[0,0,160,0,160,40,0,40];
+   if(name==='EdgeShape2D')a.s.datas=[0,20,160,20];
+   step(m);step(m);
+   assert.equal(far.events.filter(v=>v==='triggerenter').length,1,name+' expanded broadphase finds new contact');
+   if(name!=='EdgeShape2D')assert.ok(a.b.GetMass()>initialMass,name+' updates mass');
+   if(name==='BoxShape2D')a.s.width=40;
+   if(name==='CircleShape2D')a.s.radius=20;
+   if(name==='PolygonShape2D')a.s.datas=[0,0,40,0,40,40,0,40];
+   if(name==='EdgeShape2D')a.s.datas=[0,20,40,20];
+   step(m);step(m);
+   assert.equal(far.events.filter(v=>v==='triggerexit').length,1,name+' shrink ends real contact');
+   assert.equal(a.events.filter(v=>v==='triggerenter').length,2,name+' one original contact plus one new contact');
+   assert.equal(a.events.filter(v=>v==='triggerexit').length,1,name+' only the far contact ended');
+  }
+  const {ColliderBase:LegacyBase}=isolatedPhysics('physics/Collider2D/ColliderBase',{
+   '../../components/Component':{Component:class{}},'../Physics2D':{Physics2D:physics},
+   '../../maths/Point':load('maths/Point'),'../../maths/Vector2':{Vector2},
+   '../factory/IPhysics2DFactory':load('physics/factory/IPhysics2DFactory')
+  });
+  const {StaticCollider:LegacyStatic}=isolatedPhysics('physics/StaticCollider',{
+   './Collider2D/ColliderBase':{ColliderBase:LegacyBase},'./Physics2D':{Physics2D:physics},
+   '../maths/Point':load('maths/Point'),'../utils/Utils':{Utils:{}},'./RigidBody':{RigidBody}
+  });
+  const lm=manager(),w=lm.box2DWorld;let current;
+  const colliders=[];const owner={pivotX:0,pivotY:0,scene:{getComponentElementManager:()=>lm},getComponents:()=>colliders};
+  const rigid={owner,_shapes:null,getBox2DBody:()=>current,group:-2,category:4,mask:7};
+  const createBody=()=>{const d=new box.b2BodyDef();d.type=2;current=f.createBody(w,d);rigid._box2DBody=current;};
+  createBody();
+  for(const name of ['BoxCollider','CircleCollider','PolygonCollider','EdgeCollider','ChainCollider']){
+   const C=isolatedPhysics('physics/Collider2D/'+name,{'../StaticCollider':{StaticCollider:LegacyStatic},'../Physics2D':{Physics2D:physics},'../factory/IPhysics2DFactory':load('physics/factory/IPhysics2DFactory')})[name];
+   const co=new C();co.owner=owner;co._getPhysicsManager=()=>co._physics2DManager=lm;
+   if('datas' in co)co.datas=[0,0,40,0,40,40,0,40];
+   co.createShape(rigid);colliders.push(co);
+  }
+  const fixtures=()=>{let count=0,fi=current.GetFixtureList();while(box.getPointer(fi)){count++;fi=fi.GetNext();}return count;};
+  assert.equal(fixtures(),5);const mass=current.GetMass();
+  for(let cycle=0;cycle<10;cycle++){
+   // Disabling a Collider alone must leave its shared body and other fixtures alive.
+   const co=colliders[cycle%5];co._removeShapeAndDestroyData();assert.equal(fixtures(),4);assert.equal(current.destroyed,false);
+   co.createShape(rigid);assert.equal(fixtures(),5);assert.ok(Math.abs(current.GetMass()-mass)<.001);
+   // RigidBody disable must invalidate every legacy wrapper before its native body dies.
+   RigidBody.prototype._destroyAllShape.call(rigid);assert.equal(fixtures(),0);
+   for(const c of colliders){assert.equal(c._box2DShape,null);assert.equal(c._box2DBody,null);}
+   f.removeBody(w,current);current=null;rigid._box2DBody=null;
+   for(const c of colliders){c.createShape(rigid);assert.equal(c._box2DShape,null,'disabled bodies cannot create fixtures');}
+   createBody();for(const c of colliders)c.createShape(rigid);
+   assert.equal(fixtures(),5);assert.ok(Math.abs(current.GetMass()-mass)<.001);
+   for(const c of colliders){const fi=c._box2DShape;assert.equal(fi.GetBody(),current);assert.equal(fi.collider,c);const filter=fi.GetFilterData();assert.deepEqual([filter.groupIndex,filter.categoryBits,filter.maskBits],[-2,4,7]);}
+  }
+  RigidBody.prototype._destroyAllShape.call(rigid);f.removeBody(w,current);
+  const transient=manager(4),fast=shape(transient,2,'BoxShape2D'),sensor=shape(transient,0,'BoxShape2D',1.25);
+  fast.b.SetLinearVelocity(new box.b2Vec2(300,0));
+  f.worldMap=new Map([[0,transient]]);f.worldCount=0;f.update(1/60);
+  assert.deepEqual(fast.events.filter(v=>v!=='triggerstay'),['triggerenter','triggerexit'],'a contact that ends inside one frame keeps safe enter/exit snapshots');
+  const speeds=[];
+  for(const n of [1,4]){
+   const m=manager(n,9.8),w=m.box2DWorld;let stays=0;let native;
+   function fixture(type,x,y,hx,hy,density){const d=new box.b2BodyDef();d.type=type;d.position.Set(x,y);d.fixedRotation=true;d.allowSleep=false;const b=f.createBody(w,d),sh=new box.b2PolygonShape();sh.SetAsBox(hx,hy,new box.b2Vec2(),0);const fd=new box.b2FixtureDef();fd.shape=sh;fd.density=density;fd.friction=0;const fi=b.CreateFixture(fd);fi.collider={owner:{event(type,args){if(type==='triggerstay'&&b===native){stays++;const hit=args[2].getHitInfo();assert.ok(hit.points.length>0);b.ApplyForceToCenter(new box.b2Vec2(1,0),true);}}}};return b;}
+   native=fixture(2,0,.8,.2,.2,6.25);fixture(0,0,1.1,10,.1,0);
+   f.worldMap=new Map([[0,m]]);f.worldCount=0;f.update(1/60);native.SetLinearVelocity(new box.b2Vec2());
+   for(let i=0;i<60;i++)f.update(1/60);
+   speeds.push(native.GetLinearVelocity().x);assert.equal(stays,61,'one Stay per outer frame');assert.ok(Math.abs(speeds.at(-1)-1)<.001,'callback force remains for next outer frame');
+   assert.equal(w.GetAutoClearForces(),true);
+  }
+  assert.ok(Math.abs(speeds[0]-speeds[1])<.0001);
+ } finally {
+  env.isPlaying=false;
+  for(const m of managers){const w=m.box2DWorld;let b=w.GetBodyList();while(box.getPointer(b)){const next=b.GetNext();w.DestroyBody(b);b=next;}box.destroy(w);}
+ }
 });

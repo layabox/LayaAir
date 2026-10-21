@@ -68,10 +68,9 @@ export class BoxShape2D extends Physics2DShapeBase {
             x: helfW + this.pivotoffx,
             y: helfH + this.pivotoffy
         }
-        let shape: any = Physics2D.I._factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType);
-        Physics2D.I._factory.set_collider_SetAsBox(shape, helfW, helfH, center, Math.abs(this.scaleX), Math.abs(this.scaleY));
-
-        this._refreshShape();
+        this._refreshShape(shape => {
+            Physics2D.I._factory.set_collider_SetAsBox(shape, helfW, helfH, center, Math.abs(this.scaleX), Math.abs(this.scaleY));
+        });
     }
 
     clone(): BoxShape2D {

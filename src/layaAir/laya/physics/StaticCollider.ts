@@ -114,7 +114,7 @@ export class StaticCollider extends ColliderBase {
         if (this._rigidbody) {
             // Collider 挂在 RigidBody 节点上，body 由 RigidBody 管理
             // 只移除自己的 fixture，不销毁 body
-            let body = this._rigidbody.getBox2DBody();
+            let body = this._box2DBody;
             if (body && !body.destroyed && this._box2DShape) {
                 Physics2D.I._factory.destroyShape(this._physics2DManager.box2DWorld, body, this._box2DShape);
             }
@@ -168,10 +168,13 @@ export class StaticCollider extends ColliderBase {
     */
     createShape(collider: RigidBody): void {
         if (!collider) return;
+        const body = collider.getBox2DBody();
+        // Property changes while the rigid body is disabled are applied on re-enable.
+        if (!body || body.destroyed) return;
         this._getPhysicsManager();
         this._setRigidbodyValue(collider);
         this._rigidbody = collider;
-        this._box2DBody = collider.getBox2DBody();
+        this._box2DBody = body;
         if (this._box2DShape) {
             Physics2D.I._factory.destroyShape(this._physics2DManager.box2DWorld, this._box2DBody, this._box2DShape);
             // Destroy the template b2Shape allocated in createShapeDef before destroying the b2FixtureDef

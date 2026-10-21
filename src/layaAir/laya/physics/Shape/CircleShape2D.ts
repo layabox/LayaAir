@@ -18,6 +18,7 @@ export class CircleShape2D extends Physics2DShapeBase {
         return this._radius;
     }
     public set radius(value: number) {
+        if (this._radius === value) return;
         this._radius = value;
         this._updateShapeData();
     }
@@ -36,10 +37,10 @@ export class CircleShape2D extends Physics2DShapeBase {
 
         var scale: number = Math.max(Math.abs(this.scaleX), Math.abs(this.scaleY));
         let radius = this.radius;
-        let shape: any = Physics2D.I._factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType);
-        Physics2D.I._factory.set_CircleShape_radius(shape, radius, scale);
-        Physics2D.I._factory.set_CircleShape_pos(shape, this.pivotoffx, this.pivotoffy, this.scaleX, this.scaleY);
-        this._refreshShape();
+        this._refreshShape(shape => {
+            Physics2D.I._factory.set_CircleShape_radius(shape, radius, scale);
+            Physics2D.I._factory.set_CircleShape_pos(shape, this.pivotoffx, this.pivotoffy, this.scaleX, this.scaleY);
+        });
     }
 
     clone(): CircleShape2D {

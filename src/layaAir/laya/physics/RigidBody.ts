@@ -5,6 +5,7 @@ import { Utils } from "../utils/Utils"
 import { Physics2D } from "./Physics2D";
 import { IV2, Vector2 } from "../maths/Vector2";
 import { RigidBody2DType } from "./factory/IPhysics2DFactory";
+import { StaticCollider } from "./StaticCollider";
 import { Physics2DShapeBase } from "./Shape/Physics2DShapeBase";
 import { ILaya } from "../../ILaya";
 
@@ -268,8 +269,10 @@ export class RigidBody extends ColliderBase {
         for (const shape of this._shapes || []) {
             if (next.indexOf(shape) < 0) shape.destroy();
         }
-        this._shapes = shapes = next;
-        this.applyOwnerColliderComponent = false;
+        this._shapes = shapes;
+        // Null in old scenes must not disable the legacy Collider component path.
+        if (shapes) this.applyOwnerColliderComponent = false;
+        shapes = next;
         shapes.forEach((shape) => {
             shape.setCollider(this);
         });
@@ -499,6 +502,14 @@ export class RigidBody extends ColliderBase {
     }
 
     private _destroyAllShape() {
+        if (this._box2DBody) {
+            // Legacy colliders share this body. Release their fixtures before DestroyBody
+            // invalidates them, including colliders added after this rigid body was enabled.
+            const colliders = this.owner.getComponents(StaticCollider) as StaticCollider[];
+            for (const collider of colliders || []) {
+                if (collider.getBox2DBody() === this._box2DBody) collider._removeShapeAndDestroyData();
+            }
+        }
         if (!this._shapes) return;
         for (let i = 0; i < this._shapes.length; i++) {
             let shape = this._shapes[i];
