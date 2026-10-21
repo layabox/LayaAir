@@ -30,7 +30,6 @@ export class GTextField extends GWidget {
         this.textIns.padding.fill(2);
         this.textIns._onPostLayout = () => this._onPostLayout();
         this.textIns._onTranslate = Translations.translate;
-        this.textIns.on(Event.LINK, (href: string) => this.event(Event.LINK, href));
         this.addChild(this.textIns);
     }
 
