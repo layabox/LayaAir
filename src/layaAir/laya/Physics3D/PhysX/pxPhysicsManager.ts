@@ -62,22 +62,23 @@ export class pxPhysicsManager implements IPhysicsManager {
     enableCCD: boolean = false;
 
     /**@internal 碰撞开始数据表*/
-    _contactCollisionsBegin: Map<number, Collision> = new Map();
+    _contactCollisionsBegin: Map<string, Collision> = new Map();
 
     /**@internal 碰撞持续数据表*/
-    _contactCollisionsPersist: Map<number, Collision> = new Map();
+    _contactCollisionsPersist: Map<string, Collision> = new Map();
 
     /**@internal 碰撞结束数据表*/
-    _contactCollisionsEnd: Map<number, Collision> = new Map();
+    _contactCollisionsEnd: Map<string, Collision> = new Map();
 
     /**@internal 触发数据开始列表*/
-    _triggerCollisionsBegin: Map<number, Collision> = new Map();
+    _triggerCollisionsBegin: Map<string, Collision> = new Map();
 
     /**@internal 触发数据持续列表*/
-    _triggerCollisionsPersist: Map<number, Collision> = new Map();
+    _triggerCollisionsPersist: Map<string, Collision> = new Map();
 
     /**@internal 触发数据结束列表*/
-    _triggerCollisionsEnd: Map<number, Collision> = new Map();
+    _triggerCollisionsEnd: Map<string, Collision> = new Map();
+    private _triggerShapePairs = new Map<string, Set<string>>();
 
     //
     _pxcontrollerManager: any;//PxControllerManager*
@@ -190,38 +191,58 @@ export class pxPhysicsManager implements IPhysicsManager {
      * @param isTrigger 碰撞是否为触发器事件。
      */
     setDataToMap(dataCallBack: any, eventType: string, isTrigger: boolean = false) {
-        let curCollision = pxCollisionTool.getCollision(dataCallBack, isTrigger);
-        if (!curCollision) return;
-        let _colliderA = curCollision._colliderA as pxCollider;
-        let _colliderB = curCollision._colliderB as pxCollider;
-
-        switch (eventType) {
-            case "onContactBegin":
-                this._contactCollisionsBegin.set(_colliderA._id, curCollision);
-                this._contactCollisionsBegin.set(_colliderB._id, curCollision);
-                break;
-            case "onContactPersist":
-                this._contactCollisionsPersist.set(_colliderA._id, curCollision);
-                this._contactCollisionsPersist.set(_colliderB._id, curCollision);
-                break;
-            case "onContactEnd":
-                this._contactCollisionsEnd.set(_colliderA._id, curCollision);
-                this._contactCollisionsEnd.set(_colliderB._id, curCollision);
-                break;
-            case "onTriggerBegin":
-                this._triggerCollisionsBegin.set(_colliderA._id, curCollision);
-                this._triggerCollisionsBegin.set(_colliderB._id, curCollision);
-                this._triggerCollisionsPersist.set(_colliderA._id, curCollision);
-                this._triggerCollisionsPersist.set(_colliderB._id, curCollision);
-                break;
-            case "onTriggerEnd":
-                this._triggerCollisionsEnd.set(_colliderA._id, curCollision);
-                this._triggerCollisionsEnd.set(_colliderB._id, curCollision);
-                this._triggerCollisionsPersist.delete(_colliderA._id);
-                this._triggerCollisionsPersist.delete(_colliderB._id);
-                break;
-            default:
-                break;
+        // Native callbacks batch several shape pairs. Keep each collider pair once.
+        for (let i = 0, n = dataCallBack.size(); i < n; i++) {
+            let collision = pxCollisionTool.getCollision(dataCallBack, isTrigger, i);
+            if (!collision) continue;
+            const a = collision._colliderA as pxCollider, b = collision._colliderB as pxCollider;
+            if (!a || !b || a._destroyed || b._destroyed || !a._isSimulate || !b._isSimulate) {
+                pxCollisionTool.reCoverCollision(collision);
+                continue;
+            }
+            const key = a._id < b._id ? `${a._id}:${b._id}` : `${b._id}:${a._id}`;
+            const data = isTrigger ? dataCallBack.get(i) : null;
+            const shapeKey = isTrigger ? `${data.triggerShape}:${data.otherShape}` : null;
+            let map: Map<string, Collision>;
+            switch (eventType) {
+                case "onContactBegin": map = this._contactCollisionsBegin; break;
+                case "onContactPersist": map = this._contactCollisionsPersist; break;
+                case "onContactEnd": map = this._contactCollisionsEnd; break;
+                case "onTriggerBegin": {
+                    let pairs = this._triggerShapePairs.get(key);
+                    if (!pairs) this._triggerShapePairs.set(key, pairs = new Set());
+                    const alreadyOverlapping = pairs.size > 0;
+                    pairs.add(shapeKey);
+                    if (alreadyOverlapping) {
+                        pxCollisionTool.reCoverCollision(collision);
+                        continue;
+                    }
+                    this._triggerCollisionsPersist.set(key, collision);
+                    map = this._triggerCollisionsBegin;
+                    break;
+                }
+                case "onTriggerEnd": {
+                    const pairs = this._triggerShapePairs.get(key);
+                    if (!pairs || !pairs.delete(shapeKey) || pairs.size > 0) {
+                        pxCollisionTool.reCoverCollision(collision);
+                        continue;
+                    }
+                    this._triggerShapePairs.delete(key);
+                    const persistent = this._triggerCollisionsPersist.get(key);
+                    if (persistent) {
+                        pxCollisionTool.reCoverCollision(collision);
+                        collision = persistent;
+                    }
+                    this._triggerCollisionsPersist.delete(key);
+                    map = this._triggerCollisionsEnd;
+                    break;
+                }
+            }
+            if (map) {
+                const previous = map.get(key);
+                if (previous && previous !== collision) pxCollisionTool.reCoverCollision(previous);
+                map.set(key, collision);
+            }
         }
     }
 
@@ -248,7 +269,7 @@ export class pxPhysicsManager implements IPhysicsManager {
 
     private addDynamicElementByUUID(uuid: number) {
         let collider = pxCollider._ActorPool.get(uuid) as pxDynamicCollider;
-        if (!collider || collider.inPhysicUpdateListIndex !== -1) return;
+        if (!collider || collider._destroyed || !collider._isSimulate || collider.IsKinematic || collider.inPhysicUpdateListIndex !== -1) return;
         this._dynamicUpdateList.add(collider);
     }
 
@@ -325,11 +346,27 @@ export class pxPhysicsManager implements IPhysicsManager {
                 break;
         }
         pxcollider._isSimulate = false;
+        this._clearColliderEvents(pxcollider);
     }
     /**
      * @private
      * @perfTag PerformanceDefine.T_PhysicsCollider
      */
+    private _clearColliderEvents(collider: pxCollider): void {
+        const recycled = new Set<Collision>();
+        for (const map of [this._contactCollisionsBegin, this._contactCollisionsPersist, this._contactCollisionsEnd,
+            this._triggerCollisionsBegin, this._triggerCollisionsPersist, this._triggerCollisionsEnd]) {
+            map.forEach((collision, key) => {
+                if (collision._colliderA === collider || collision._colliderB === collider) {
+                    map.delete(key);
+                    this._triggerShapePairs.delete(key);
+                    recycled.add(collision);
+                }
+            });
+        }
+        recycled.forEach(collision => pxCollisionTool.reCoverCollision(collision));
+    }
+
     private _collision_event() {
         this._collision_EnterEvent();
         this._collision_StayEvent();
@@ -340,7 +377,7 @@ export class pxPhysicsManager implements IPhysicsManager {
      * @perfTag PerformanceDefine.T_PhysicsColliderEnter
      */
     private _collision_EnterEvent() {
-        this._contactCollisionsBegin.forEach((value: Collision, key: number) => {
+        this._contactCollisionsBegin.forEach((value: Collision, key: string) => {
             if (!value) return;
             Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicsEventCount, 1);
             let ownerA = value._colliderA.owner;
@@ -357,7 +394,7 @@ export class pxPhysicsManager implements IPhysicsManager {
      * @perfTag PerformanceDefine.T_PhysicsColliderStay
      */
     private _collision_StayEvent() {
-        this._contactCollisionsPersist.forEach((value: Collision, key: number) => {
+        this._contactCollisionsPersist.forEach((value: Collision, key: string) => {
             if (!value) return;
             Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicsEventCount, 1);
             let ownerA = value._colliderA.owner;
@@ -374,7 +411,7 @@ export class pxPhysicsManager implements IPhysicsManager {
      * @perfTag PerformanceDefine.T_PhysicsColliderExit
      */
     private _collision_ExitEvent() {
-        this._contactCollisionsEnd.forEach((value: Collision, key: number) => {
+        this._contactCollisionsEnd.forEach((value: Collision, key: string) => {
             if (!value) return;
             Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicsEventCount, 1);
             let ownerA = value._colliderA.owner;
@@ -403,16 +440,15 @@ export class pxPhysicsManager implements IPhysicsManager {
      */
     private _trigger_EnterEvent() {
         // trigger
-        this._triggerCollisionsBegin.forEach((value: Collision, key: number) => {
+        this._triggerCollisionsBegin.forEach((value: Collision, key: string) => {
             if (!value) return;
             Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicsEventCount, 1);
             let ownerA = value._colliderA.owner;
             let ownerB = value._colliderB.owner;
             // value.other = value._colliderB;
-            ownerA.event(Event.TRIGGER_ENTER, value);
+            ownerA.event(Event.TRIGGER_ENTER, value._colliderB.component);
             // value.other = value._colliderA;
-            ownerB.event(Event.TRIGGER_ENTER, value);
-            pxCollisionTool.reCoverCollision(value);
+            ownerB.event(Event.TRIGGER_ENTER, value._colliderA.component);
         });
     }
 
@@ -421,16 +457,15 @@ export class pxPhysicsManager implements IPhysicsManager {
      * @perfTag PerformanceDefine.T_PhysicsTriggerStay
      */
     private _trigger_StayEvent() {
-        this._triggerCollisionsPersist.forEach((value: Collision, key: number) => {
+        this._triggerCollisionsPersist.forEach((value: Collision, key: string) => {
             if (!value) return;
             Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicsEventCount, 1);
             let ownerA = value._colliderA.owner;
             let ownerB = value._colliderB.owner;
             // value.other = value._colliderB;
-            ownerA.event(Event.TRIGGER_STAY, value);
+            ownerA.event(Event.TRIGGER_STAY, value._colliderB.component);
             // value.other = value._colliderA;
-            ownerB.event(Event.TRIGGER_STAY, value);
-            pxCollisionTool.reCoverCollision(value);
+            ownerB.event(Event.TRIGGER_STAY, value._colliderA.component);
         });
 
     }
@@ -440,15 +475,15 @@ export class pxPhysicsManager implements IPhysicsManager {
      * @perfTag PerformanceDefine.T_PhysicsTriggerExit
      */
     private _trigger_ExitEvent() {
-        this._triggerCollisionsEnd.forEach((value: Collision, key: number) => {
+        this._triggerCollisionsEnd.forEach((value: Collision, key: string) => {
             if (!value) return;
             Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicsEventCount, 1);
             let ownerA = value._colliderA.owner;
             let ownerB = value._colliderB.owner;
             // value.other = value._colliderB;
-            ownerA.event(Event.TRIGGER_EXIT, value);
+            ownerA.event(Event.TRIGGER_EXIT, value._colliderB.component);
             // value.other = value._colliderA;
-            ownerB.event(Event.TRIGGER_EXIT, value);
+            ownerB.event(Event.TRIGGER_EXIT, value._colliderA.component);
             pxCollisionTool.reCoverCollision(value);
         });
     }
@@ -521,6 +556,10 @@ export class pxPhysicsManager implements IPhysicsManager {
                     const listeners = this._physicsStepListeners;
                     for (let i = 0, n = listeners.length; i < n; i++)
                         listeners[i].beforePhysicsStep(fixedDeltaTime);
+                    for (let i = 0, n = this._dynamicUpdateList.length; i < n; i++) {
+                        const collider = this._dynamicUpdateList.elements[i] as pxDynamicCollider;
+                        if (collider._type === pxColliderType.RigidbodyCollider) collider._applyGravity(fixedDeltaTime);
+                    }
                     this._pxScene.simulate(fixedDeltaTime, true);
                     this._pxScene.fetchResults(true);
                     for (let i = 0, n = listeners.length; i < n; i++)
@@ -555,7 +594,7 @@ export class pxPhysicsManager implements IPhysicsManager {
      * @param collisionMask 射线的碰撞掩码。
      * @returns 射线是否击中了任何物体。
      */
-    rayCast(ray: Ray, outHitResult: HitResult, distance: number = 1000000, collisonGroup: number = 1 << 4, collisionMask: number = 1 << 4): boolean {
+    rayCast(ray: Ray, outHitResult: HitResult, distance: number = 1000000, collisonGroup: number = -1, collisionMask: number = -1): boolean {
         let result: any = this._pxScene.raycastCloset(ray.origin, ray.direction, distance, collisonGroup, collisionMask);
         pxCollisionTool.getRayCastResult(outHitResult, result);
         return outHitResult.succeeded;
@@ -576,7 +615,7 @@ export class pxPhysicsManager implements IPhysicsManager {
      * @param collisionMask 射线的碰撞掩码。
      * @returns 射线是否击中了任何物体。
      */
-    rayCastAll?(ray: Ray, out: HitResult[], distance: number = 1000000, collisonGroup: number = 1 << 4, collisionMask: number = 1 << 4): boolean {
+    rayCastAll?(ray: Ray, out: HitResult[], distance: number = 1000000, collisonGroup: number = -1, collisionMask: number = -1): boolean {
         let results: any = this._pxScene.raycastAllHits(ray.origin, ray.direction, distance, collisonGroup, collisionMask);
         pxCollisionTool.getRayCastResults(out, results);
         return (out.length >= 1 ? true : false);
@@ -606,7 +645,7 @@ export class pxPhysicsManager implements IPhysicsManager {
      * @param allowedCcdPenetration 允许的连续碰撞检测穿透。
      * @returns 形状投射是否击中了任何物体。
      */
-    shapeCast(shape: pxColliderShape, fromPosition: Vector3, toPosition: Vector3, out: HitResult, fromRotation: Quaternion = new Quaternion(), toRotation: Quaternion = new Quaternion(), collisonGroup: number = 1 << 4, collisionMask: number = 1 << 4, allowedCcdPenetration: number = 0.0): boolean {
+    shapeCast(shape: pxColliderShape, fromPosition: Vector3, toPosition: Vector3, out: HitResult, fromRotation: Quaternion = new Quaternion(), toRotation: Quaternion = new Quaternion(), collisonGroup: number = -1, collisionMask: number = -1, allowedCcdPenetration: number = 0.0): boolean {
         let transform = pxPhysicsManager._tempTransform;
         fromPosition.cloneTo(transform.translation);
         let distance = Vector3.distance(fromPosition, toPosition);
@@ -642,7 +681,7 @@ export class pxPhysicsManager implements IPhysicsManager {
      * @param allowedCcdPenetration 允许的连续碰撞检测穿透。
      * @returns 形状投射是否击中了任何物体。
      */
-    shapeCastAll(shape: pxColliderShape, fromPosition: Vector3, toPosition: Vector3, out: HitResult[], fromRotation: Quaternion = new Quaternion(), toRotation: Quaternion = new Quaternion(), collisonGroup: number = 1 << 4, collisionMask: number = 1 << 4, allowedCcdPenetration: number = 0.0): boolean {
+    shapeCastAll(shape: pxColliderShape, fromPosition: Vector3, toPosition: Vector3, out: HitResult[], fromRotation: Quaternion = new Quaternion(), toRotation: Quaternion = new Quaternion(), collisonGroup: number = -1, collisionMask: number = -1, allowedCcdPenetration: number = 0.0): boolean {
         let transform = pxPhysicsManager._tempTransform;
         fromPosition.cloneTo(transform.translation);
         let distance = Vector3.distance(fromPosition, toPosition);
@@ -716,7 +755,9 @@ export class pxPhysicsManager implements IPhysicsManager {
         this._contactCollisionsPersist.clear();
         this._contactCollisionsEnd.clear();
         this._triggerCollisionsBegin.clear();
+        this._triggerCollisionsPersist.forEach(collision => pxCollisionTool.reCoverCollision(collision));
         this._triggerCollisionsPersist.clear();
+        this._triggerShapePairs.clear();
         this._triggerCollisionsEnd.clear();
     }
 

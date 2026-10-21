@@ -100,6 +100,7 @@ export class pxStaticCollider extends pxCollider implements IStaticCollider {
      * @zh 销毁静态碰撞器
      */
     destroy(): void {
+        if (this._destroyed) return;
         Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaStaticRigidBody, -1);
         super.destroy();
     }

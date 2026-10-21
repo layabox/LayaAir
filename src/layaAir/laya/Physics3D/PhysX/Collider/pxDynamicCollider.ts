@@ -7,7 +7,7 @@ import { EColliderCapable } from "../../physicsEnum/EColliderCapable";
 import { EPhysicsStatisticsInfo } from "../../physicsEnum/EPhysicsStatisticsInfo";
 import type { pxPhysicsManager } from "../pxPhysicsManager";
 import { pxStatics } from "../pxStatics";
-import { pxCollider, pxColliderType } from "./pxCollider";
+import { pxCollider, pxColliderType, pxActorFlag } from "./pxCollider";
 
 /**
  * @en The collision detection mode constants.
@@ -149,6 +149,8 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      */
     IsKinematic: boolean = false;
 
+    private _allowSleep = true;
+    private _gravity: Vector3 = null;
     private _mass: number = 1.0;
     private _linearDamping: number = 0.0;
     private _angularDamping: number = 0.0;
@@ -203,7 +205,8 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         this.setCenterOfMass(this._centerOfMass);
         this.setCollisionDetectionMode(this._collisionDetectionMode);
         this.setSolverIterations(this._solverIterations);
-        this.setSleepThreshold(this._sleepThreshold);
+        this.allowSleep(this._allowSleep);
+        if (this._gravity) this.setGravity(this._gravity);
         this.setWorldPosition(this.owner.transform.position);
     }
 
@@ -383,7 +386,7 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      */
     setSleepThreshold(value: number): void {
         this._sleepThreshold = value;
-        this._pxActor.setSleepThreshold(value);
+        this._pxActor.setSleepThreshold(this._allowSleep ? value : 0);
     }
 
     /**
@@ -444,19 +447,38 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
             if (this._isSimulate && this.inPhysicUpdateListIndex == -1)
                 this._physicsManager._dynamicUpdateList.add(this);
             this._pxActor.setRigidBodyFlag(pxStatics._physX.PxRigidBodyFlag.eKINEMATIC, false);
+            this.allowSleep(this._allowSleep);
         }
     }
 
     allowSleep(value: boolean): void {
-        if (this.IsKinematic)
-            return;
+        this._allowSleep = value;
+        if (this._pxActor && !this.IsKinematic) {
+            // Disabling sleep must not overwrite the threshold restored when re-enabled.
+            this._pxActor.setSleepThreshold(value ? this._sleepThreshold : 0);
+            this._pxActor.setWakeCounter(value ? 0.4 : 3.402823466e38);
+        }
+    }
+
+    setGravity(value: Vector3): void {
+        if (!this._gravity) this._gravity = new Vector3();
+        value.cloneTo(this._gravity);
         if (this._pxActor) {
-            if (value) {
-                this.setSleepThreshold(this._sleepThreshold);
-                this._pxActor.setWakeCounter(0.4);
-            } else {
-                this.setSleepThreshold(0.0);
-                this._pxActor.setWakeCounter(Number.MAX_VALUE);
+            this.setActorFlag(pxActorFlag.eDISABLE_GRAVITY, true);
+            if (!this.IsKinematic) this.wakeUp();
+        }
+    }
+
+    /** @internal Apply per-body acceleration before each fixed simulation step. */
+    _applyGravity(deltaTime: number): void {
+        if (this._gravity && !this.IsKinematic && !this._pxActor.isSleeping()) {
+            if (this._gravity.x || this._gravity.y || this._gravity.z) {
+                // Velocity writes with autowake=false preserve PhysX's sleep countdown.
+                const velocity = this._pxActor.getLinearVelocity();
+                velocity.x += this._gravity.x * deltaTime;
+                velocity.y += this._gravity.y * deltaTime;
+                velocity.z += this._gravity.z * deltaTime;
+                this._pxActor.setLinearVelocity(velocity, false);
             }
         }
     }
@@ -491,8 +513,12 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      * @param localOffset 局部偏移向量。
      */
     addForce(force: Vector3, mode: PhysicsForceMode, localOffset: Vector3): void {
-        //TODO
-        this._pxActor.addForce({ x: force.x, y: force.y, z: force.z });
+        const nativeMode = mode === PhysicsForceMode.Impulse
+            ? pxStatics._physX.PxForceMode.eIMPULSE.value : pxStatics._physX.PxForceMode.eFORCE.value;
+        if (localOffset)
+            this._pxActor.addForceAtLocalPosWithMode(force, localOffset, nativeMode);
+        else
+            this._pxActor.addForceWithMode(force, nativeMode);
     }
 
     /**
@@ -504,8 +530,10 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      * @param mode 物理力模式。
      */
     addTorque(torque: Vector3, mode: PhysicsForceMode): void {
-        //TODO
-        this._pxActor.addTorque({ x: torque.x, y: torque.y, z: torque.z });
+        if (mode === PhysicsForceMode.Impulse)
+            this._pxActor.addTorqueImpulse(torque);
+        else
+            this._pxActor.addTorque(torque);
     }
 
     /**
@@ -551,6 +579,7 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
      * @zh 销毁刚体
      */
     destroy(): void {
+        if (this._destroyed) return;
         if (this.IsKinematic) {
             Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicaKinematicRigidBody, -1);
         } else {

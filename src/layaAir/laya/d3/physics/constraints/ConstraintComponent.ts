@@ -21,6 +21,9 @@ export class ConstraintComponent extends Component {
     protected _ownColliderLocalPos: Vector3 = new Vector3();
     protected _connectColliderLocalPos: Vector3 = new Vector3();
     private _isJointInit: boolean = false;
+    protected _jointReady: boolean = false;
+    private _boundOwnCollider: PhysicsColliderComponent["collider"];
+    private _boundConnectCollider: PhysicsColliderComponent["collider"];
 
     declare readonly owner: Sprite3D;
 
@@ -30,11 +33,14 @@ export class ConstraintComponent extends Component {
      */
     initJoint() {
         this._initJoint();
+        if (!this._joint) return;
         this._joint.setOwner(this.owner)
         this._joint.setLocalPos(this._ownColliderLocalPos);
         this._joint.setConnectLocalPos(this._connectColliderLocalPos);
         this._joint.setBreakForce(this.breakForce);
         this._joint.setBreakTorque(this._breakTorque);
+        this._joint.isCollision(this._enableCollison);
+        this._syncJointBodies();
     }
 
     protected _initJoint() {
@@ -54,9 +60,7 @@ export class ConstraintComponent extends Component {
         if (!value || this._connectCollider == value)
             return;
         this._connectCollider = value;
-        if (this._joint) {
-            this._joint.setConnectedCollider(value.collider);
-        }
+        this._syncJointBodies();
     }
 
     /**
@@ -71,9 +75,7 @@ export class ConstraintComponent extends Component {
         if (!value || this._ownCollider == value)
             return;
         this._ownCollider = value;
-        if (this._joint) {
-            this._joint.setCollider(value.collider);
-        }
+        this._syncJointBodies();
     }
 
     /**
@@ -165,7 +167,8 @@ export class ConstraintComponent extends Component {
     }
     public set enableCollison(value: boolean) {
         this._enableCollison = value;
-        this._joint.isCollision(value);
+        this._joint?.isCollision(value);
+        if (this._jointReady) this._onJointReady();
     }
 
     /** @ignore */
@@ -197,11 +200,37 @@ export class ConstraintComponent extends Component {
         //TODO
     }
 
+    private _syncJointBodies(): void {
+        const own = this._ownCollider?.collider;
+        const connected = this._connectCollider?.collider;
+        if (!this._joint || !own || !connected)
+            return;
+        if (own === this._boundOwnCollider && connected === this._boundConnectCollider)
+            return;
+        this._jointReady = false;
+        this._joint.setCollider(own);
+        this._joint.setConnectedCollider(connected);
+        this._boundOwnCollider = own;
+        this._boundConnectCollider = connected;
+        this._jointReady = true;
+        this._onJointReady();
+        this._joint.isEnable(this.enabled);
+    }
+
+    protected _onJointReady(): void {
+    }
+
+    onStart(): void {
+        // Sibling rigid bodies may activate after this component during scene/prefab loading.
+        this._syncJointBodies();
+    }
+
     protected _onEnable(): void {
         if (!this._isJointInit) {
             this.initJoint();
-            this._isJointInit = true;
+            this._isJointInit = !!this._joint;
         }
+        this._syncJointBodies();
     }
 
     protected _onDestroy() {
@@ -211,6 +240,8 @@ export class ConstraintComponent extends Component {
         this._connectCollider = null;
         this._physicsManager = null;
         this._isJointInit = false;
+        this._jointReady = false;
+        this._boundOwnCollider = this._boundConnectCollider = null;
     }
 
     /**

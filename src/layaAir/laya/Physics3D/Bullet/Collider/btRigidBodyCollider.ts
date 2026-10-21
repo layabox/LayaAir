@@ -88,7 +88,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     /** @internal */
     private _detectCollisions = true;
     /**@internal TODO*/
-    private _allowSleep: boolean = false;
+    private _allowSleep: boolean = true;
 
 
     constructor(manager: btPhysicsManager) {
@@ -238,8 +238,17 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
      */
     isSleeping(): boolean {
         if (this._btCollider)
-            return btStatics.bt.btCollisionObject_getActivationState(this._btCollider) === btStatics.ACTIVATIONSTATE_ISLAND_SLEEPING || btStatics.bt.btCollisionObject_getActivationState(this._btCollider) === btStatics.ACTIVATIONSTATE_DISABLE_DEACTIVATION;;
+            return btStatics.bt.btCollisionObject_getActivationState(this._btCollider) === btStatics.ACTIVATIONSTATE_ISLAND_SLEEPING;
         return false;
+    }
+
+    allowSleep(value: boolean): void {
+        this._allowSleep = value;
+        if (this._btCollider) {
+            const state = this._isKinematic || !value
+                ? btStatics.ACTIVATIONSTATE_DISABLE_DEACTIVATION : btStatics.ACTIVATIONSTATE_ACTIVE_TAG;
+            btStatics.bt.btCollisionObject_forceActivationState(this._btCollider, state);
+        }
     }
 
     protected _initCollider() {
@@ -509,7 +518,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
             if ((flags & btStatics.COLLISIONFLAGS_KINEMATIC_OBJECT) > 0)
                 flags = flags ^ btStatics.COLLISIONFLAGS_KINEMATIC_OBJECT;
             bt.btCollisionObject_setCollisionFlags(natColObj, flags);//加入场景前必须配置flag,加入后无效
-            bt.btCollisionObject_setActivationState(this._btCollider, btStatics.ACTIVATIONSTATE_ACTIVE_TAG);
+            this.allowSleep(this._allowSleep);
             this._enableProcessCollisions = true;
             this._updateMass(this._mass);
         }

@@ -285,7 +285,7 @@ export class Sprite3D extends Node {
     protected onStartListeningToType(type: string) {
         super.onStartListeningToType(type);
         if (type.startsWith("collision") || type.startsWith("trigger"))
-            this.event(Event.UPDATE_PHY_EVENT_FILTER);
+            this.event(Event.UPDATE_PHY_EVENT_FILTER, type);
     }
 
     /**

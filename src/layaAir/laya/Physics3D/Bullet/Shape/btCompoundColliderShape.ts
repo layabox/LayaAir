@@ -25,6 +25,7 @@ export class btCompoundColliderShape extends btColliderShape implements ICompoun
 
     /**@internal */
     private _childColliderShapes: btColliderShape[] = [];
+    private _nativeChildShapes: any[] = [];
 
     /**
      * @en create a new instance of btCompoundColliderShape.
@@ -54,6 +55,13 @@ export class btCompoundColliderShape extends btColliderShape implements ICompoun
 
     addChildShapeWithTransform(shape: btColliderShape, localPosition: Vector3, localRotation: Quaternion, localScale: Vector3): void {
         const bt: any = btStatics.bt;
+        const childShape = shape.getPhysicsShape();
+        // Editor-only primitives can exist before their native shape is created.
+        // Preserve logical indices without passing an empty pointer to Bullet.
+        if (!childShape) {
+            this._childColliderShapes.push(shape);
+            return;
+        }
         shape.setWorldScale(localScale);
         bt.btTransform_setIdentity(this._btTransform);
         bt.btVector3_setValue(this._btOffset, localPosition.x, localPosition.y, localPosition.z);
@@ -63,10 +71,10 @@ export class btCompoundColliderShape extends btColliderShape implements ICompoun
 
         const btScale: any = bt.btCollisionShape_getLocalScaling(this._btShape);
         bt.btCollisionShape_setLocalScaling(this._btShape, this._btVector3One);
-        let childShape = shape.getPhysicsShape();
         if (childShape) {
             bt.btCompoundShape_addChildShape(this._btShape, this._btTransform, childShape);
             this._childColliderShapes.push(shape);
+            this._nativeChildShapes.push(childShape);
         }
         bt.btCollisionShape_setLocalScaling(this._btShape, btScale);
 
@@ -76,7 +84,14 @@ export class btCompoundColliderShape extends btColliderShape implements ICompoun
         if (index < 0 || index >= this._childColliderShapes.length || this._childColliderShapes[index] !== shape)
             return;
         const bt = btStatics.bt;
-        bt.btCompoundShape_removeChildShapeByIndex(this._btShape, index);
+        const nativeIndex = this._nativeChildShapes.indexOf(shape.getPhysicsShape());
+        if (nativeIndex !== -1) {
+            bt.btCompoundShape_removeChildShapeByIndex(this._btShape, nativeIndex);
+            // Bullet fills the removed slot with its last native child.
+            const last = this._nativeChildShapes.pop();
+            if (nativeIndex < this._nativeChildShapes.length)
+                this._nativeChildShapes[nativeIndex] = last;
+        }
         this._childColliderShapes.splice(index, 1);
     }
 
@@ -100,6 +115,7 @@ export class btCompoundColliderShape extends btColliderShape implements ICompoun
     destroy(): void {
         super.destroy();
         this._childColliderShapes.length = 0;
+        this._nativeChildShapes.length = 0;
         this._btRotation = null;
         this._btTransform = null;
         this._btVector3One = null;

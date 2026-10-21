@@ -81,26 +81,26 @@ export class PhysicsCollider extends PhysicsColliderComponent {
     /**
      * @internal
      */
-    protected _setEventFilter() {
+    protected _setEventFilter(pendingType?: string) {
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_EventFilter)) {
             this._eventsArray = [];
             // event 
-            if (this.isTrigger && this.owner.hasListener(Event.TRIGGER_ENTER)) {
+            if (this.isTrigger && (this.owner.hasListener(Event.TRIGGER_ENTER) || pendingType === Event.TRIGGER_ENTER)) {
                 this._eventsArray.push(Event.TRIGGER_ENTER);
             }
-            if (this.isTrigger && this.owner.hasListener(Event.TRIGGER_STAY)) {
+            if (this.isTrigger && (this.owner.hasListener(Event.TRIGGER_STAY) || pendingType === Event.TRIGGER_STAY)) {
                 this._eventsArray.push(Event.TRIGGER_STAY);
             }
-            if (this.isTrigger && this.owner.hasListener(Event.TRIGGER_EXIT)) {
+            if (this.isTrigger && (this.owner.hasListener(Event.TRIGGER_EXIT) || pendingType === Event.TRIGGER_EXIT)) {
                 this._eventsArray.push(Event.TRIGGER_EXIT);
             }
-            if (this.owner.hasListener(Event.COLLISION_ENTER)) {
+            if ((this.owner.hasListener(Event.COLLISION_ENTER) || pendingType === Event.COLLISION_ENTER)) {
                 this._eventsArray.push(Event.COLLISION_ENTER);
             }
-            if (this.owner.hasListener(Event.COLLISION_STAY)) {
+            if ((this.owner.hasListener(Event.COLLISION_STAY) || pendingType === Event.COLLISION_STAY)) {
                 this._eventsArray.push(Event.COLLISION_STAY);
             }
-            if (this.owner.hasListener(Event.COLLISION_EXIT)) {
+            if ((this.owner.hasListener(Event.COLLISION_EXIT) || pendingType === Event.COLLISION_EXIT)) {
                 this._eventsArray.push(Event.COLLISION_EXIT);
             }
             this._collider.setEventFilter(this._eventsArray);

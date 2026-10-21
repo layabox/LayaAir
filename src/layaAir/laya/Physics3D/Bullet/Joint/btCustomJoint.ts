@@ -115,13 +115,13 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      * @en Bullet physics primary axis representation
      * @zh Bullet物理引擎的轴表示
      */
-    _btAxis: number = 0;
+    _btAxis: number;
     /**
      * @internal
      * @en Bullet physics secondary axis representation
      * @zh Bullet物理引擎的副轴表示
      */
-    _btsceondAxis: number = 0;
+    _btsceondAxis: number;
 
     /**
      * @en Initializes the joint.
@@ -135,8 +135,8 @@ export class btCustomJoint extends btJoint implements ID6Joint {
 
     protected _createJoint(): void {
         let bt = btStatics.bt;
-        this._manager && this._manager.removeJoint(this);
-        if (this._collider && this._connectCollider) {
+        this._btJoint && this._manager && this._manager.removeJoint(this);
+        if ((this._collider as btRigidBodyCollider)?._btCollider && (this._connectCollider as btRigidBodyCollider)?._btCollider) {
             this._btJoint = bt.btGeneric6DofSpring2Constraint_create((this._collider as btRigidBodyCollider)._btCollider, this._btTempTrans0, (this._connectCollider as btRigidBodyCollider)._btCollider, this._btTempTrans1, 0);
             this._btJointFeedBackObj = bt.btJointFeedback_create(this._btJoint);
             bt.btTypedConstraint_setJointFeedback(this._btJoint, this._btJointFeedBackObj);
@@ -217,10 +217,10 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      */
     setAxis(axis: Vector3, secendary: Vector3): void {
         var bt = btStatics.bt;
-        this._axis.setValue(axis.x, axis.y, axis.y);
+        this._axis.setValue(axis.x, axis.y, axis.z);
         this._secondAxis.setValue(secendary.x, secendary.y, secendary.z);
-        this._btAxis = bt.btVector3_setValue(-axis.x, axis.y, axis.z);
-        this._btsceondAxis = bt.btVector3_setValue(-secendary.x, secendary.y, secendary.z);
+        bt.btVector3_setValue(this._btAxis, -axis.x, axis.y, axis.z);
+        bt.btVector3_setValue(this._btsceondAxis, -secendary.x, secendary.y, secendary.z);
         bt.btGeneric6DofSpring2Constraint_setAxis(this._btJoint, this._btAxis, this._btsceondAxis);
     }
 
@@ -604,8 +604,8 @@ export class btCustomJoint extends btJoint implements ID6Joint {
      * @zh 销毁关节
      */
     destroy(): void {
+        super.destroy();
         this._btJoint = null;
         this._btJointFeedBackObj = null;
-        super.destroy();
     }
 }

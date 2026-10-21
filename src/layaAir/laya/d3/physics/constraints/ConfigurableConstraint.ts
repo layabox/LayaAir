@@ -122,58 +122,58 @@ export class ConfigurableConstraint extends ConstraintComponent {
 
     //Linear Drive X
     private _setDriveLinearX() {
-        this._joint.setDrive(D6Drive.eX, this._linearDriveForce.x, this._linearDriveDamping.x, this._linearDriveforceLimit.x);
+        this._jointReady && this._joint.setDrive(D6Drive.eX, this._linearDriveForce.x, this._linearDriveDamping.x, this._linearDriveforceLimit.x);
     }
 
     //Linear Drive Y
     private _setDriveLinearY() {
-        this._joint.setDrive(D6Drive.eY, this._linearDriveForce.y, this._linearDriveDamping.y, this._linearDriveforceLimit.y);
+        this._jointReady && this._joint.setDrive(D6Drive.eY, this._linearDriveForce.y, this._linearDriveDamping.y, this._linearDriveforceLimit.y);
     }
 
     //Linear Drive Z
     private _setDriveLinearZ() {
-        this._joint.setDrive(D6Drive.eZ, this._linearDriveForce.z, this._linearDriveDamping.z, this._linearDriveforceLimit.z);
+        this._jointReady && this._joint.setDrive(D6Drive.eZ, this._linearDriveForce.z, this._linearDriveDamping.z, this._linearDriveforceLimit.z);
     }
 
     private _setAngularXDrive() {
-        this._joint.setDrive(D6Drive.eSWING, this._angularXDriveForce, this._angularXDriveDamp, this._angularXDriveForceLimit);
+        this._jointReady && this._joint.setDrive(D6Drive.eSWING, this._angularXDriveForce, this._angularXDriveDamp, this._angularXDriveForceLimit);
     }
 
     private _setAngularYZDrive() {
-        this._joint.setDrive(D6Drive.eTWIST, this._angularYZDriveForce, this._angularYZDriveDamp, this._angularYZDriveForceLimit);
+        this._jointReady && this._joint.setDrive(D6Drive.eTWIST, this._angularYZDriveForce, this._angularYZDriveDamp, this._angularYZDriveForceLimit);
     }
 
     private _setAngularSlerpDrive() {
-        this._joint.setDrive(D6Drive.eSLERP, this._angularSlerpDriveForce, this._angularSlerpDriveDamp, this._angularSlerpDriveForceLimit);
+        this._jointReady && this._joint.setDrive(D6Drive.eSLERP, this._angularSlerpDriveForce, this._angularSlerpDriveDamp, this._angularSlerpDriveForceLimit);
     }
 
     private _setDistanceLimit() {
-        this._joint.setDistanceLimit(this._distanceLimit, this._distanceBounciness, this._distanceBounceThreshold, this._distanceSpring, this._distanceDamper);
+        this._jointReady && this._joint.setDistanceLimit(this._distanceLimit, this._distanceBounciness, this._distanceBounceThreshold, this._distanceSpring, this._distanceDamper);
     }
 
     //angular TwistLimit
     private _setAngularXLimit() {
-        this._joint.setTwistLimit(this._twistUper / 180 * Math.PI, this._twistLower / 180 * Math.PI, this._twistBounceness, this._twistBounceThreshold, this._twistStiffness, this._twistDamping);
+        this._jointReady && this._joint.setTwistLimit(this._twistUper / 180 * Math.PI, this._twistLower / 180 * Math.PI, this._twistBounceness, this._twistBounceThreshold, this._twistStiffness, this._twistDamping);
     }
 
     private _setSwingLimit() {
-        this._joint.setSwingLimit(this._ySwingAngleLimit / 180 * Math.PI, this._zSwingAngleLimit / 180 * Math.PI, this._Swingrestitution, this._SwingbounceThreshold, this._SwingStiffness, this._SwingDamping);
+        this._jointReady && this._joint.setSwingLimit(this._ySwingAngleLimit / 180 * Math.PI, this._zSwingAngleLimit / 180 * Math.PI, this._Swingrestitution, this._SwingbounceThreshold, this._SwingStiffness, this._SwingDamping);
     }
 
     private _setTargetTransform() {
         let rotate = Quaternion.TEMP;
         Quaternion.createFromYawPitchRoll(this._targetRotation.y / Transform3D._angleToRandin, this._targetRotation.x / Transform3D._angleToRandin, this._targetRotation.z / Transform3D._angleToRandin, rotate);
-        this._joint.setDriveTransform(this._targetPosition, rotate);
+        this._jointReady && this._joint.setDriveTransform(this._targetPosition, rotate);
     }
     /**
      * axis
      */
     private _setAxis() {
-        this._joint.setAxis(this._axis, this._secondaryAxis);
+        this._jointReady && this._joint.setAxis(this._axis, this._secondaryAxis);
     }
 
     private _setTargetVelocirty() {
-        this._joint.setDriveVelocity(this._targetVelocity, this._targetAngularVelocity);
+        this._jointReady && this._joint.setDriveVelocity(this._targetVelocity, this._targetAngularVelocity);
     }
 
     /**
@@ -216,7 +216,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
 
     set XMotion(value: D6Axis) {
         this._xMotion = value;
-        this._joint.setMotion(value, D6MotionType.eX);
+        this._jointReady && this._joint.setMotion(value, D6MotionType.eX);
     }
 
 
@@ -230,7 +230,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
 
     set YMotion(value: D6Axis) {
         this._yMotion = value;
-        this._joint.setMotion(value, D6MotionType.eY);
+        this._jointReady && this._joint.setMotion(value, D6MotionType.eY);
     }
 
 
@@ -244,7 +244,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
 
     set ZMotion(value: D6Axis) {
         this._zMotion = value;
-        this._joint.setMotion(value, D6MotionType.eZ);
+        this._jointReady && this._joint.setMotion(value, D6MotionType.eZ);
     }
 
 
@@ -258,7 +258,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
 
     set angularXMotion(value: D6Axis) {
         this._angularXMotion = value;
-        this._joint.setMotion(value, D6MotionType.eTWIST);
+        this._jointReady && this._joint.setMotion(value, D6MotionType.eTWIST);
     }
 
     /**
@@ -271,7 +271,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
 
     set angularYMotion(value: D6Axis) {
         this._angularYMotion = value;
-        this._joint.setMotion(value, D6MotionType.eSWING1);
+        this._jointReady && this._joint.setMotion(value, D6MotionType.eSWING1);
     }
 
     /**
@@ -284,7 +284,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
 
     set angularZMotion(value: D6Axis) {
         this._angularZMotion = value;
-        this._joint.setMotion(value, D6MotionType.eSWING2);
+        this._jointReady && this._joint.setMotion(value, D6MotionType.eSWING2);
     }
 
     /**
@@ -844,7 +844,18 @@ export class ConfigurableConstraint extends ConstraintComponent {
     /**
      * @internal
      */
+    protected _onJointReady(): void {
+        this._initAllConstraintInfo();
+    }
+
     _initAllConstraintInfo(): void {
+        if (!this._jointReady) return;
+        this._joint.setMotion(this._xMotion, D6MotionType.eX);
+        this._joint.setMotion(this._yMotion, D6MotionType.eY);
+        this._joint.setMotion(this._zMotion, D6MotionType.eZ);
+        this._joint.setMotion(this._angularXMotion, D6MotionType.eTWIST);
+        this._joint.setMotion(this._angularYMotion, D6MotionType.eSWING1);
+        this._joint.setMotion(this._angularZMotion, D6MotionType.eSWING2);
         this._setDriveLinearX();
         this._setDriveLinearY();
         this._setDriveLinearZ();
@@ -865,7 +876,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
     protected _onEnable(): void {
         super._onEnable();
         if (this._joint)
-            this._joint.isEnable(true);
+            this._jointReady && this._joint.isEnable(true);
     }
 
     /**
@@ -873,7 +884,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
      */
     protected _onDisable(): void {
         if (this._joint)
-            this._joint.isEnable(false);
+            this._jointReady && this._joint.isEnable(false);
     }
 
     /**
