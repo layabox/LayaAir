@@ -492,6 +492,9 @@ export class SequenceFrame2DRender extends BaseRenderNode2D {
 
     onEnable(): void {
         this._ensureInstanceID();
+        // Keep the start frame visible in the editor without starting playback.
+        if (!LayaEnv.isPlaying)
+            this._setInstanceActive(true);
         if (LayaEnv.isPlaying && this._playOnAwake)
             this.play(true);
         else
