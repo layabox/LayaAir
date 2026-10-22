@@ -20,8 +20,6 @@ export class Shader2D {
     /**@internal */
     static graphicsShader: Shader3D;
     /**@internal */
-    // static primitiveShader: Shader3D;
-    /**@internal */
     static render2DNodeShader: Shader3D;
     /**@internal */
     private static _stencilMaskShaderMap: Map<string, Shader3D> = new Map();
@@ -32,14 +30,6 @@ export class Shader2D {
      */
     destroy(): void {
     }
-
-    /**
-     * primitive Mesh Descript
-     */
-    // public static readonly primitiveAttribute: { [name: string]: [number, ShaderDataType] } = {
-    //     'a_position': [0, ShaderDataType.Vector4],
-    //     'a_attribColor': [1, ShaderDataType.Vector4],
-    // }
 
     /**
      * TextureSV Mesh Descript
@@ -76,13 +66,6 @@ export class Shader2D {
         Shader2D.graphicsShader.addSubShader(subShader);
         let pass = subShader.addShaderPass(texture_vs, texture_ps);
         // pass.additionShaderData = ["Sprite2DGraphics"];
-
-        //primitiveShader
-        // Shader2D.primitiveShader = Shader3D.add("Sprite2DPrimitive", false, false);
-        // Shader2D.primitiveShader.shaderType = ShaderFeatureType.D2_primitive;
-        // subShader = new SubShader(Shader2D.primitiveAttribute, {}, {});
-        // Shader2D.primitiveShader.addSubShader(subShader);
-        // subShader.addShaderPass(prime_vs, prime_ps);
 
         //meshspriteShader
         Shader2D.render2DNodeShader = Shader3D.add("baseRender2D", false, false);
