@@ -136,7 +136,7 @@ export class Mesh2D extends Resource {
         let mesh2d = new Mesh2D();
         mesh2d.canRead = canRead;
         let vbArray = [];
-        let vertices = [];
+        let vertices: ArrayBuffer[] = [];
         for (var i = 0, n = vbs.length; i < n; i++) {
             let vbdata = vbs[i];
             let vertex = LayaGL.renderDeviceFactory.createVertexBuffer(BufferUsage.Dynamic);
@@ -144,7 +144,7 @@ export class Mesh2D extends Resource {
             vertex.setDataLength(vbdata.buffer.byteLength);
             vertex.setData(vbdata.buffer, 0, 0, vbdata.buffer.byteLength);
             vbArray.push(vertex);
-            vertices[i] = vbdata.buffer;
+            vertices[i] = vbdata.buffer as ArrayBuffer;
         }
         let indexBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
         indexBuffer._setIndexDataLength(ib.buffer.byteLength);
@@ -152,6 +152,8 @@ export class Mesh2D extends Resource {
         indexBuffer.indexCount = ib.length;
         indexBuffer.indexType = ibFormat;
 
+        // Vertex streams describe the same vertices; count the first stream once.
+        mesh2d._vertexCount = vbs.length > 0 ? vbs[0].byteLength / vbDeclaration[0].vertexStride : 0;
         mesh2d._setBuffers(vbArray, indexBuffer);
 
         let geometryArray = [];
