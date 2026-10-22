@@ -53,8 +53,8 @@ export class PixelLineData {
         this.endPosition.cloneTo(destObject.endPosition);
         this.startColor.cloneTo(destObject.startColor);
         this.endColor.cloneTo(destObject.endColor);
-        this.startNormal.cloneTo(destObject.startPosition);
-        this.endNormal.cloneTo(destObject.endPosition);
+        this.startNormal.cloneTo(destObject.startNormal);
+        this.endNormal.cloneTo(destObject.endNormal);
     }
 }
 
