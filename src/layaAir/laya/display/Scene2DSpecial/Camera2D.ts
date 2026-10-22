@@ -388,12 +388,14 @@ export class Camera2D extends Sprite {
 
             if (this._positionSmooth) {
                 let epsilon = 0.01;
-                let speed = Math.max(epsilon, Math.min(1.0, this._positionSpeed * 0.16));// 0.1
+                // Preserve the 60 Hz response while accounting for elapsed time.
+                let baseSpeed = Math.max(epsilon, Math.min(1.0, this._positionSpeed * 0.16));
+                let speed = 1 - Math.pow(1 - baseSpeed, Math.max(0, ILaya.timer.delta) / (1000 / 60));
                 let deltaX = this._cameraPos.x - this._cameraSmoothPos.x;
                 let deltaY = this._cameraPos.y - this._cameraSmoothPos.y;
                 let transX = deltaX * speed;
                 let transY = deltaY * speed;
-                if (Math.abs(transX) < epsilon && Math.abs(transY) < epsilon) {
+                if (Math.abs(deltaX * baseSpeed) < epsilon && Math.abs(deltaY * baseSpeed) < epsilon) {
                     this._cameraSmoothPos.x = this._cameraPos.x;
                     this._cameraSmoothPos.y = this._cameraPos.y;
                 } else {
