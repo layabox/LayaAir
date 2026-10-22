@@ -34,7 +34,7 @@ export class HTMLParse {
      * @param type
      */
     static getInstance(type: string): any {
-        var rst: any = Pool.getItem(HTMLParse._htmlClassMapShort[type]);
+        var rst = Laya.Pool.getItem(HTMLElement.getClassName(HTMLParse._htmlClassMapShort[type]));
         if (!rst) {
             rst = ClassUtils.getInstance(type);
         }
