@@ -202,12 +202,12 @@ export class Navgiation2DUtils {
         geometryArray.push(geometry);
         // }
         mesh2d._setSubMeshes(geometryArray);
-        mesh2d._vertices = [vbdata];
+        mesh2d._vertices = [vbdata.buffer as ArrayBuffer];
         mesh2d._indices = ib;
         mesh2d._vertexCount = vbdata.length / 9;
 
         if (canRead) {
-            mesh2d._vertices = [vbdata];
+            mesh2d._vertices = [vbdata.buffer as ArrayBuffer];
             mesh2d._indices = ib;
         }
         return mesh2d;

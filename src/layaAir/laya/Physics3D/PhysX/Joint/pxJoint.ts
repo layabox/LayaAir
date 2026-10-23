@@ -73,6 +73,7 @@ export class pxJoint implements IJoint {
 
     /**@internal */
     protected _id: number;
+    private _destroyed: boolean = false;
 
     /**@internal */
     protected _linearForce: Vector3;
@@ -127,6 +128,13 @@ export class pxJoint implements IJoint {
     }
 
     destroy(): void {
+        if (this._destroyed) return;
+        this._destroyed = true;
+        const joint = this._pxJoint;
+        this._pxJoint = null;
+        if (joint) joint.release();
+        pxJoint._ActorPool.delete(this._id);
+        this._collider = this._connectCollider = null;
         Physics3DStatInfo.addStatisticsInfo(EPhysicsStatisticsInfo.C_PhysicsJoint, -1);
     }
 

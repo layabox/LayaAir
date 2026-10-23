@@ -1,5 +1,4 @@
 import { LayaEnv } from "../../../LayaEnv";
-import { Vector2 } from "../../maths/Vector2";
 import { Sprite } from "../../display/Sprite";
 import { IClone } from "../../utils/IClone";
 import { ColliderBase } from "../Collider2D/ColliderBase";
@@ -234,10 +233,7 @@ export class Physics2DShapeBase implements IClone {
         update(factory.getShapeByDef(this._box2DShapeDef, this._shapeDef.shapeType));
         if (!this._box2DShape) return;
         update(factory.getShape(this._box2DShape, this._shapeDef.shapeType));
-        // SetTransform also synchronizes the fixture's broadphase proxies at the same position.
-        const position = Vector2.TEMP;
-        factory.get_RigidBody_Position(this._box2DBody, position);
-        factory.set_RigibBody_Transform(this._box2DBody, position.x, position.y, factory.get_RigidBody_Angle(this._box2DBody));
+        factory.synchronizeShape(this._box2DBody, this._box2DShape);
         this._body._resetMassData();
     }
 

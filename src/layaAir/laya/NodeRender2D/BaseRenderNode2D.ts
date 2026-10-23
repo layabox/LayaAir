@@ -471,7 +471,7 @@ export class BaseRenderNode2D extends Component {
             }
             this._materials[0] = value;
             this._changeMaterialReference(lastValue, value);
-            this._renderElements[0] && BaseRenderNode2D._setRenderElement2DMaterial(this._renderElements[0], value);
+            this._renderElements[0] && BaseRenderNode2D._setRenderElement2DMaterial(this._renderElements[0], this._getElementMaterial(0));
         }
     }
 

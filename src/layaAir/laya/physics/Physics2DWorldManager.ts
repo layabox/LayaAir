@@ -266,9 +266,12 @@ export class Physics2DWorldManager implements IElementComponentManager {
             // 清理 Emscripten __cache__ 中的 b2Contact wrapper，防止缓存条目只增不减
             let factory = Physics2D.I._factory;
             for (let i = 1; i < length; i += 2) {
-                if (!events[i]._subStepSnapshot) factory._cleanCache(events[i]);
+                if (!events[i]._eventSnapshot && !events[i]._endSnapshot) factory._cleanCache(events[i]);
             }
-            events.length = 0;
+            // EndContact can be queued by a callback that disables a body.
+            // Keep those new events for the next physics update.
+            if (events.length === length) events.length = 0;
+            else events.splice(0, length);
         }
     }
 
@@ -462,11 +465,13 @@ export class Physics2DWorldManager implements IElementComponentManager {
     private _queueContactEvent(type: string, pointer: any): void {
         const factory = Physics2D.I._factory;
         const contact = factory.warpPoint(pointer, Ebox2DType.b2Contact);
-        if (!(this._subStepCount > 1)) {
+        const substeps = this._subStepCount > 1;
+        if (!substeps && type !== "triggerexit") {
             this._eventList.push(type, contact);
             return;
         }
-        // Contacts may be freed by a later substep. Keep only fixtures and copied hit data.
+        // EndContact is followed by native contact/fixture destruction even with one step.
+        // Copy its public data while it is valid; substeps also snapshot enter/stay events.
         const a = factory.getContactShapeA(contact);
         const b = factory.getContactShapeB(contact);
         const hit = new Physics2DContactHitResult();
@@ -477,12 +482,20 @@ export class Physics2DWorldManager implements IElementComponentManager {
             hit.separations[i] = this.physics2DToLaya(hit.separations[i]);
         }
         const snapshot = {
-            _subStepSnapshot: true,
+            _eventSnapshot: true,
             GetFixtureA: () => a,
             GetFixtureB: () => b,
             getHitInfo: () => hit
         };
         factory._cleanCache(contact);
+        if (!substeps) {
+            // Earlier enter/stay entries can still hold this wrapper while a callback
+            // disables the body. Redirect those entries before the native contact dies.
+            contact._endSnapshot = snapshot;
+            contact.getHitInfo = snapshot.getHitInfo;
+            this._eventList.push(type, snapshot);
+            return;
+        }
         const stays = this._subStepStayEvents || (this._subStepStayEvents = new Map());
         if (type === "triggerstay") {
             const index = stays.get(pointer);
@@ -695,11 +708,15 @@ export class Physics2DWorldManager implements IElementComponentManager {
 
 
     private _dispatchEvent(type: string, contact: any): void {
+        contact = contact._endSnapshot || contact;
         let contactShapeA: any = Physics2D.I._factory.getContactShapeA(contact);
         let contactShapeB: any = Physics2D.I._factory.getContactShapeB(contact);
         if (contactShapeA == null || contactShapeB == null) {
             return;
         }
+        // Keep exits for surviving components, but discard queued enter/stay events
+        // if an earlier callback has already removed either fixture.
+        if (type !== "triggerexit" && (contactShapeA.destroyed || contactShapeB.destroyed)) return;
         let colliderA: any = contactShapeA.collider;
         let colliderB: any = contactShapeB.collider;
         if (colliderA == null || colliderB == null) {
@@ -712,7 +729,8 @@ export class Physics2DWorldManager implements IElementComponentManager {
         let ownerB: any = colliderB.owner;
         let __this = this;
         let _hitResult: Physics2DContactHitResult;
-        if (!contact._subStepSnapshot) contact.getHitInfo = function (): Physics2DContactHitResult {
+        if (!contact._eventSnapshot) contact.getHitInfo = function (): Physics2DContactHitResult {
+            if (contact._endSnapshot) return contact._endSnapshot.getHitInfo();
             if (!_hitResult) _hitResult = new Physics2DContactHitResult();
             let pointCount = Physics2D.I._factory.getContactWorldManifold(contact, _hitResult);
             // 将接触点从物理坐标转换为像素坐标（法线是单位向量，不需要转换）

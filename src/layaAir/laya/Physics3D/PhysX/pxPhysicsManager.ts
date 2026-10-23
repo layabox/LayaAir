@@ -21,6 +21,7 @@ import { pxColliderShape } from "./Shape/pxColliderShape";
 import { pxCollisionTool } from "./pxCollisionTool";
 import { pxPhysicsCreateUtil } from "./pxPhysicsCreateUtil";
 import { pxStatics } from "./pxStatics";
+import { pxJoint } from "./Joint/pxJoint";
 
 /**
  * @en The `pxPhysicsManager` class is used to implement physics management.
@@ -35,6 +36,8 @@ export class pxPhysicsManager implements IPhysicsManager {
     private _inPhysicsUpdate: boolean = false;
     /** @internal */
     private _destroyed: boolean = false;
+    private _dispatchingEvents: boolean = false;
+    private _deferredCollisionRecycles = new Set<Collision>();
     /** Scene-owned callback wrapper. It must outlive the PxScene. */
     private _simulationCallback: any = null;
     /** Descriptor returned by getDefaultSceneDesc and owned by this manager. */
@@ -364,7 +367,12 @@ export class pxPhysicsManager implements IPhysicsManager {
                 }
             });
         }
-        recycled.forEach(collision => pxCollisionTool.reCoverCollision(collision));
+        recycled.forEach(collision => this._recoverCollision(collision));
+    }
+
+    private _recoverCollision(collision: Collision): void {
+        if (this._dispatchingEvents) this._deferredCollisionRecycles.add(collision);
+        else pxCollisionTool.reCoverCollision(collision);
     }
 
     private _collision_event() {
@@ -494,14 +502,21 @@ export class pxPhysicsManager implements IPhysicsManager {
      * @perfTag PerformanceDefine.T_PhysicsEvent
      */
     private _updatePhysicsEvents(): void {
-        // contact
-        this._collision_event();
-        this._trigger_Event();
-        this._contactCollisionsBegin.clear();
-        this._contactCollisionsPersist.clear();
-        this._contactCollisionsEnd.clear();
-        this._triggerCollisionsBegin.clear();
-        this._triggerCollisionsEnd.clear();
+        this._dispatchingEvents = true;
+        try {
+            // contact
+            this._collision_event();
+            this._trigger_Event();
+            this._contactCollisionsBegin.clear();
+            this._contactCollisionsPersist.clear();
+            this._contactCollisionsEnd.clear();
+            this._triggerCollisionsBegin.clear();
+            this._triggerCollisionsEnd.clear();
+        } finally {
+            this._dispatchingEvents = false;
+            this._deferredCollisionRecycles.forEach(collision => pxCollisionTool.reCoverCollision(collision));
+            this._deferredCollisionRecycles.clear();
+        }
     }
 
     /**
@@ -738,6 +753,10 @@ export class pxPhysicsManager implements IPhysicsManager {
             return;
         this._inPhysicsUpdate = false;
         this._flushPendingPhysicsOperations();
+        // Components may finish destruction after the scene's native world.
+        for (const joint of pxJoint._ActorPool.values()) {
+            if (joint._physicsManager === this) joint.destroy();
+        }
         this._destroyed = true;
         this._physicsStepListeners.length = 0;
         this._pendingPhysicsOperations.length = 0;
@@ -755,7 +774,7 @@ export class pxPhysicsManager implements IPhysicsManager {
         this._contactCollisionsPersist.clear();
         this._contactCollisionsEnd.clear();
         this._triggerCollisionsBegin.clear();
-        this._triggerCollisionsPersist.forEach(collision => pxCollisionTool.reCoverCollision(collision));
+        this._triggerCollisionsPersist.forEach(collision => this._recoverCollision(collision));
         this._triggerCollisionsPersist.clear();
         this._triggerShapePairs.clear();
         this._triggerCollisionsEnd.clear();

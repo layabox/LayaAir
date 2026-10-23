@@ -116,6 +116,9 @@ export class Bridge3DSprite extends Sprite {
 
         // 创建内部容器Sprite3D
         this._containerSprite3D = new BridgeContainerSprite3D();
+        // The 3D container lives in a separate Scene3D. Keep it inactive until
+        // this bridge is active in its logical 2D hierarchy.
+        this._containerSprite3D.active = false;
         this._containerSprite3D.name = "Bridge3DContainer";
         this._containerSprite3D._ownerBridge = this;
         this._setContainer(this._containerSprite3D);
@@ -249,6 +252,16 @@ export class Bridge3DSprite extends Sprite {
     protected _onAdded(): void {
         this.on(Event.TRANSFORM_CHANGED, this, this._syncTransform2DTo3D);
         super._onAdded();
+    }
+
+    protected _onActive(): void {
+        super._onActive();
+        this._containerSprite3D.active = true;
+    }
+
+    protected _onInActive(): void {
+        this._containerSprite3D.active = false;
+        super._onInActive();
     }
 
     private _regsiterScene() {

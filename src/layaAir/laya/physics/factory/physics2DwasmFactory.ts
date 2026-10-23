@@ -820,6 +820,7 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
         shapdeDef.shapeType = shapeType;
         data = this.castObject(data, this.box2d.b2Fixture);
         data.world = world;
+        data.destroyed = false;
         data.shape = this.get_fixtureshape(data.GetShape(), shapeType);
         data.shape.world = world;
         data.filter = data.GetFilterData();
@@ -968,11 +969,32 @@ export class physics2DwasmFactory implements IPhysics2DFactory {
 
     destroyShape(world: any, body: any, shape: any): void {
         if (!shape || !body) return;
+        shape.destroyed = true;
         // Clean sub-object cache entries before DestroyFixture frees the C++ memory
         if (shape.shape) this._cleanCache(shape.shape);
         if (shape.filter) this._cleanCache(shape.filter);
         body.DestroyFixture(shape);
         this._cleanCache(shape);
+    }
+
+    /** @internal Synchronize changed fixture geometry and wake affected bodies. */
+    synchronizeShape(body: any, shape: any): void {
+        body.SetTransform(body.GetPosition(), body.GetAngle());
+        body.SetAwake(true);
+        // Match fixture replacement's wake-up behavior without destroying contacts.
+        // A static body cannot wake its neighbours through simulation on its own.
+        let edge = body.GetContactList();
+        while (this._box2d.getPointer(edge)) {
+            const next = edge.get_next();
+            const contact = edge.get_contact();
+            const a = contact.GetFixtureA();
+            const b = contact.GetFixtureB();
+            if ((a === shape || b === shape) && !a.IsSensor() && !b.IsSensor()) {
+                edge.get_other().SetAwake(true);
+            }
+            this._cleanCache(edge);
+            edge = next;
+        }
     }
 
     set_shapeDef_GroupIndex(def: any, groupIndex: number) {

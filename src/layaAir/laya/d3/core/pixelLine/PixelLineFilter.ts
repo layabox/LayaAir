@@ -99,6 +99,8 @@ export class PixelLineFilter extends GeometryElement {
 
 		this._minUpdate = Number.MAX_VALUE;
 		this._maxUpdate = Number.MIN_VALUE;
+		this._calculateBound = true;
+		this._ownerRender.boundsChange = true;
 	}
 
 	private _updateLineVertices(offset: number, startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color, startNormal: Vector3 = null, endNormal: Vector3 = null): void {

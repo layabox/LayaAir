@@ -90,6 +90,7 @@ export class PixelLineRenderer extends BaseRender {
     set maxLineCount(value: number) {
         this._pixelLineFilter._resizeLineData(value);
         this._pixelLineFilter._lineCount = Math.min(this._pixelLineFilter._lineCount, value);
+        this._needUpdatelines = true;
     }
 
     /**
@@ -387,6 +388,8 @@ export class PixelLineRenderer extends BaseRender {
      */
     clear(): void {
         this._pixelLineFilter._lineCount = 0;
+        this._lines = [];
+        this._needUpdatelines = false;
         if (this._isRenderActive && this._isInRenders) {
             this.owner.scene && this.owner.scene._removeRenderObject(this);
             this._isInRenders = false;

@@ -206,15 +206,15 @@ export class GaussianDoF extends PostProcessEffect {
 
 
     /**
-     * @en The maximum blur radius.
-     * @zh 最大模糊半径。
+     * @en The maximum blur radius, clamped to [0, 2].
+     * @zh 最大模糊半径，限制在 [0, 2] 范围内。
      */
     get maxRadius(): number {
         return this._cocParams.z;
     }
 
     set maxRadius(value: number) {
-        this._cocParams.z = Math.min(value, 2);
+        this._cocParams.z = Number.isNaN(value) ? 0 : Math.max(0, Math.min(value, 2));
         this._shaderData.setVector3(GaussianDoF.COCPARAMS, this._cocParams);
     }
 

@@ -24,7 +24,6 @@ export class pxFixedJoint extends pxJoint implements IFixedJoint {
      * @zh 销毁关节
      */
     destroy(): void {
-        this._pxJoint && this._pxJoint.release();
         super.destroy();
     }
 }

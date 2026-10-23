@@ -379,7 +379,14 @@ export class PhysicsVehicleComponent extends Component {
         const scene = this.owner._scene;
         for (let i = 0; i < this._wheels.length; i++) {
             const wheel = this._wheels[i];
-            if (!wheel || wheel.destroyed || !wheel.owner || wheel.owner.destroyed)
+            // Destruction is deferred until after the physics step. Remove an
+            // already destroyed wheel before validating the next descriptor.
+            if (wheel && (wheel.destroyed || wheel.owner?.destroyed)) {
+                this._onWheelDestroyed(wheel);
+                i--;
+                continue;
+            }
+            if (!wheel || !wheel.owner)
                 return this._structureError("Vehicle wheel " + i + " is null or destroyed.");
             for (let previous = 0; previous < i; previous++) {
                 if (this._wheels[previous] === wheel)

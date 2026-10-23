@@ -117,7 +117,8 @@ export class FreeformLight2D extends BaseLight2D {
             this._needUpdateLightLocalRange = true;
             this._needUpdateLightWorldRange = true;
             this._clearScreenCache();
-            light2DManager?.addLight(this);
+            if (this.enabled && this.owner?.activeInHierarchy)
+                light2DManager?.addLight(this);
         } else {
             this._lightPolygon = null;
             this._globalPolygon = null;

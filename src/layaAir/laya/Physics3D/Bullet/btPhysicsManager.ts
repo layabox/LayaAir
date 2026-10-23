@@ -714,6 +714,8 @@ export class btPhysicsManager implements IPhysicsManager {
      * @param joint 要移除的关节。
      */
     removeJoint(joint: btJoint) {
+        // A broken or detached joint may finish destruction after its world.
+        if (this._currentConstraint[joint._id] !== joint) return;
         if (!this._btDiscreteDynamicsWorld)
             throw "Cannot perform this action when the physics engine is set to CollisionsOnly";
         // this._nativeDiscreteDynamicsWorld.removeConstraint(constraint._nativeConstraint);
@@ -1089,6 +1091,10 @@ export class btPhysicsManager implements IPhysicsManager {
     destroy(): void {
         this._inPhysicsUpdate = false;
         this._flushPendingPhysicsOperations();
+        // Scene components can finish destruction after their physics manager.
+        // Detach owned joints while the native dynamics world is still valid.
+        for (const id in this._currentConstraint)
+            this._currentConstraint[id].destroy();
         this._physicsStepListeners.length = 0;
         this._pendingPhysicsOperations.length = 0;
         var bt = btStatics.bt;

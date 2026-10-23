@@ -1,3 +1,4 @@
+import { HideFlags } from "../Const";
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { BaseRender } from "../d3/core/render/BaseRender";
@@ -116,6 +117,9 @@ export class Bridge3DScene3D extends Scene3D {
     constructor(holder: Bridge3DSceneInternal) {
         super();
 
+        // This is an internal render scene. Expose 3D nodes through their
+        // logical Bridge3DSprite parents instead of a second physical hierarchy.
+        this.hideFlags = HideFlags.HideAndDontSave;
         this._holder = holder;
 
         // 创建Bridge3D独立的灯光贴图（复用全局pixels数组）

@@ -286,7 +286,7 @@ export class pxCollider implements ICollider {
                 flag = flag | partFlag.eNOTIFY_TOUCH_PERSISTS | partFlag.eNOTIFY_CONTACT_POINTS;
             }
             if (value == Event.COLLISION_STAY) {
-                flag = flag | partFlag.eNOTIFY_TOUCH_PERSISTS;
+                flag = flag | partFlag.eNOTIFY_TOUCH_PERSISTS | partFlag.eNOTIFY_CONTACT_POINTS;
             }
             if (value == Event.COLLISION_EXIT) {
                 flag = flag | partFlag.eNOTIFY_TOUCH_PERSISTS | partFlag.eNOTIFY_TOUCH_LOST;
