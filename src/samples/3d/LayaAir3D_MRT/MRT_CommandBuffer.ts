@@ -129,7 +129,7 @@ export class MRT_CommandBuffer {
         // 先释放 SetRenderTarget 和 drawRender 持有的引用，再解除 UI 对各颜色附件的借用。
         this._commands.clear();
         if (this._mrt) {
-            for (let slot = GBufferLocation.Color; slot < GBufferLocation.CustomStart; slot++)
+            for (let slot = GBufferLocation.Color; slot <= GBufferLocation.Surface; slot++)
                 this._base.setPreview(slot, null, "", "");
             RenderTexture.recoverToPool(this._mrt);
             this._mrt = null;

@@ -19,14 +19,16 @@ export enum GBufferLocation {
     Normal = 1,
     Albedo = 2,
     Surface = 3,
-    CustomStart = 4
+    MotionVectors = 4,
+    CustomStart = 5
 }
 
 /** 内置附件的查询名称。 */
 export enum GBufferAttachment {
     Normal = "normal",
     Albedo = "albedo",
-    Surface = "surface"
+    Surface = "surface",
+    MotionVectors = "MotionVectors"
 }
 
 /** 内置输出功能宏；与 GLSL include 中的协议保持一致。 */
@@ -37,7 +39,7 @@ export enum GBufferShaderDefine {
     Surface = "GBUFFER_SURFACE"
 }
 
-/** GBuffer 上层协议：0 为主色，1～3 为内置数据，自定义从 4 开始。 */
+/** GBuffer 上层协议：0 为主色，1～3 为内置数据，4 为运动矢量，自定义从 5 开始。 */
 export class GBuffer {
     /** 世界法线编码为 RGB = normalWS × 0.5 + 0.5，A 为几何覆盖标记。 */
     static readonly Normal: CameraOpaqueMRTRequirement = Object.freeze({
@@ -63,7 +65,7 @@ export class GBuffer {
         clearColor: Object.freeze(new Color(0, 0, 0, 0))
     });
 
-    /** 按需选择固定槽位；无辅助附件时返回 null，自定义从 4 开始。 */
+    /** 按需选择固定槽位；无辅助附件时返回 null，4 为运动矢量保留。 */
     static createCameraOptions(outputs: GBufferOutput = GBufferOutput.All,
         customAttachments: CameraOpaqueMRTOptions["auxiliaryAttachments"] = []): CameraOpaqueMRTOptions | null {
         this._validateOutputs(outputs);
@@ -71,6 +73,7 @@ export class GBuffer {
             outputs & GBufferOutput.Normal ? this.Normal : null,
             outputs & GBufferOutput.Albedo ? this.Albedo : null,
             outputs & GBufferOutput.Surface ? this.Surface : null,
+            null,
             ...customAttachments
         ];
         while (attachments.length && attachments[attachments.length - 1] == null) attachments.pop();

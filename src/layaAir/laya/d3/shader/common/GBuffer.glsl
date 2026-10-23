@@ -4,15 +4,15 @@
     #define GBUFFER_NORMAL_LOCATION 1
     #define GBUFFER_ALBEDO_LOCATION 2
     #define GBUFFER_SURFACE_LOCATION 3
-    #define GBUFFER_CUSTOM_START 4
+    #define GBUFFER_CUSTOM_START 5
 
     #ifdef LAYA_MRT
 
-        #if !defined(LAYA_MRT_TARGET_1) && !defined(LAYA_MRT_TARGET_2) && !defined(LAYA_MRT_TARGET_3) && !defined(LAYA_MRT_TARGET_4)
+        #if !defined(LAYA_MRT_TARGET_1) && !defined(LAYA_MRT_TARGET_2) && !defined(LAYA_MRT_TARGET_3) && !defined(LAYA_MRT_TARGET_4) && !defined(LAYA_MRT_TARGET_5)
             #define GBUFFER_CUSTOM_OUTPUTS
         #endif
 
-// 颜色 0 为主颜色，1～3 为固定内置数据，开发者的自定义输出从 4 开始。
+// 0 为主颜色，1～3 为内置数据，4 保留给运动矢量，自定义输出从 5 开始。
 // 功能宏选择数据，目标数量限制可写槽位；未开启的输出由通用 MRT 适配补零。
         #if defined(GBUFFER_NORMAL) && !defined(LAYA_MRT_TARGET_1)
 layout(location = GBUFFER_NORMAL_LOCATION) out highp vec4 laya_GBufferNormal;

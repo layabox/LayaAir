@@ -76,4 +76,6 @@ vec2 getSimpleBoneCustomData(){
     return custom;
 }
 
+    #include "MotionVectorVertex.glsl";
+
 #endif // Sprite3DVertex_lib

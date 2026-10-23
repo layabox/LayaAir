@@ -287,12 +287,20 @@ export class WebDirCascadeShadowRP implements IDirShadowRP {
         context.pipelineMode = "ShadowCaster";
         var shadowMap = this._destShadowRT;
         context.setRenderTarget(shadowMap._renderTarget, RenderClearFlag.Depth);
-        context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
 
         let originCameraData = context.cameraData;
         let originInvertY = context.invertY;
 
-        //需要把shadowmap clear Depth;
+        // Clear the whole atlas once. WebGPU attachment loadOp clears ignore
+        // viewport/scissor, so a per-slice clear would erase earlier cascades.
+        // WebGL needs the full atlas viewport here because its clear is scissored.
+        Viewport.TEMP.set(0, 0, this._shadowMapWidth, this._shadowMapHeight);
+        Vector4.TEMP.setValue(0, 0, this._shadowMapWidth, this._shadowMapHeight);
+        context.setViewPort(Viewport.TEMP);
+        context.setScissor(Vector4.TEMP);
+        context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
+        context.clearRenderTarget();
+
         for (var i: number = 0, n: number = this._cascadeCount; i < n; i++) {
             var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
             this._getShadowBias(sliceData.projectionMatrix, sliceData.resolution, this._shadowBias);
@@ -324,7 +332,6 @@ export class WebDirCascadeShadowRP implements IDirShadowRP {
             Vector4.TEMP.setValue(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);
             context.setViewPort(Viewport.TEMP);
             context.setScissor(Vector4.TEMP);
-
             if (this._renderQueue.elements.length > 0) {// if one cascade have anything to render.
                 this._renderQueue.renderQueue(context);
             }
@@ -332,7 +339,6 @@ export class WebDirCascadeShadowRP implements IDirShadowRP {
                 context.clearRenderTarget();
             }
 
-            // context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
             LayaGL.statAgent.recordCTData(StatElement.CT_ShadowDrawCall, this._renderQueue.elements.length);
             this._applyCasterPassCommandBuffer(context);
         }

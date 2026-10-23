@@ -18,7 +18,7 @@ export class ShaderMRT {
 
     /**
      * 在原生预处理前标记输出，保留原 #if 分支，由 GLSL 编译器决定生效声明。
-     * 兼容旧主色输出，并为未声明的目标补零。
+     * 兼容旧主色输出，为未声明的目标补零，并在主函数后执行可选输出钩子。
      */
     static prepare(source: string, count: number): string {
         if (!Number.isSafeInteger(count) || count < 1)
@@ -86,7 +86,7 @@ export class ShaderMRT {
         tail += "void main() {\npc_fragColor = vec4(0.0);\n";
         for (let i = 1; i < count; i++)
             tail += `#ifndef ${prefix}HAS_${i}\n${prefix}color${i} = vec4(0.0);\n#endif\n`;
-        tail += `${prefix}main();\n#ifndef ${prefix}HAS_0\n${prefix}color0 = pc_fragColor;\n#endif\n}\n`;
+        tail += `${prefix}main();\n#ifdef LAYA_MRT_POST_MAIN_HOOK\nLAYA_MRT_POST_MAIN_HOOK();\n#endif\n#ifndef ${prefix}HAS_0\n${prefix}color0 = pc_fragColor;\n#endif\n}\n`;
         return `highp vec4 pc_fragColor;\n#define gl_FragColor pc_fragColor\n#define main ${prefix}main\n${body}${tail}`;
     }
 

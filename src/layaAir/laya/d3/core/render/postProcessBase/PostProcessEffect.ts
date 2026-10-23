@@ -29,6 +29,11 @@ export class PostProcessEffect {
         return this._singleton;
     }
 
+    /** @internal 是否在 TAA 前执行。 */
+    get renderBeforeTAA(): boolean {
+        return false;
+    }
+
     /**
      * @en Whether the effect is enabled.
      * @zh 效果是否开启。

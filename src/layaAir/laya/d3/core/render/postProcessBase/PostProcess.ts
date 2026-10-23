@@ -13,6 +13,7 @@ import { PostProcessRenderContext } from "./PostProcessRenderContext"
 import { ColorGradEffect } from "../../../postProcessEffect/ColorGradEffect"
 import { PostProcessEffect } from "./PostProcessEffect"
 import type { CameraOpaqueMRTRequirement } from "../../Camera"
+import { TemporalAAEffect } from "../../../postProcessEffect/TemporalAAEffect"
 
 /**
  * @en The `PostProcess` class is used to create post-processing components.
@@ -76,6 +77,17 @@ export class PostProcess {
     /**@internal */
     private _effects: PostProcessEffect[] = [];
 
+    /**@internal TAA 前后的顺序仅在效果列表变化时更新。 */
+    private _taaEffects: PostProcessEffect[] = [];
+
+    /**@internal */
+    private _temporalEffect: TemporalAAEffect = null;
+
+    /** @internal 当前列表中的 TAA 效果。 */
+    get temporalEffect(): TemporalAAEffect {
+        return this._temporalEffect;
+    }
+
     /**@internal */
     private _enable: boolean = true;
 
@@ -107,6 +119,20 @@ export class PostProcess {
         for (let i = 0; i < n; i++) {
             this._depthtextureFlag |= this.effects[i].getCameraDepthTextureModeFlag();
         }
+    }
+
+    private _rebuildTAAEffectOrder(): void {
+        const effects = this._effects;
+        const ordered = this._taaEffects;
+        ordered.length = 0;
+        const temporal = this._temporalEffect = this.getEffect(TemporalAAEffect);
+        if (!temporal) return;
+
+        for (const effect of effects)
+            if (effect !== temporal && effect.renderBeforeTAA) ordered.push(effect);
+        ordered.push(temporal);
+        for (const effect of effects)
+            if (effect !== temporal && !effect.renderBeforeTAA) ordered.push(effect);
     }
 
     /**
@@ -229,16 +255,30 @@ export class PostProcess {
         }
         let runIndex = 0;
 
-        for (let i: number = 0, n: number = this._effects.length; i < n; i++) {
-            const effect = this._effects[i];
+        const taa = camera._taa;
+        const temporal = taa?.effect;
+        const effects = temporal ? this._taaEffects : this._effects;
+        let temporalRendered = false;
+        for (let i: number = 0, n: number = effects.length; i < n; i++) {
+            const effect = effects[i];
+            if (effect === this._temporalEffect && effect !== temporal) continue;
+            if (effect === temporal && (!taa?.preparedHistory || !camera.depthTexture || camera.depthTexture.destroyed)) continue;
             // 普通效果保持原有启停时序；缺少所需附件时只跳过对应的 MRT 效果。
             if (effect.active && camera._hasOpaqueMRTRequirements(effect.getCameraOpaqueMRTRequirements())) {
                 effect.render(context);
+                if (effect === temporal) temporalRendered = true;
                 context.indirectTarget = context.destination;
                 runIndex++;
                 // 确保下一个目标不会与当前目标冲突
                 context.destination = Indirect[runIndex % 2];
             }
+        }
+
+        // 最后锐化，避免写入 TAA 历史。
+        if (temporalRendered && taa?.preparedHistory && taa.sharpening > 0) {
+            temporal._renderSharpen(context);
+            context.indirectTarget = context.destination;
+            context.destination = Indirect[++runIndex % 2];
         }
 
         if (context.indirectTarget !== cameraTarget) {
@@ -289,6 +329,7 @@ export class PostProcess {
             this._effects.splice(this._effects.length - 1, 0, effect);
         }
 
+        this._rebuildTAAEffectOrder();
         this.recaculateCameraFlag();
         effect.effectInit(this);
 
@@ -318,6 +359,7 @@ export class PostProcess {
         if (index !== -1) {
             this._effects.splice(index, 1);
             effect.release(this);
+            this._rebuildTAAEffectOrder();
             this.recaculateCameraFlag();
         }
     }

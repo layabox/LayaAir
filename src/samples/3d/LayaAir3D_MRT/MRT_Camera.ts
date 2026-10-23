@@ -38,7 +38,7 @@ export class MRT_Camera {
 
     private applyLayout(): void {
         const base = this._base;
-        for (let slot = GBufferLocation.Color; slot < GBufferLocation.CustomStart; slot++)
+        for (let slot = GBufferLocation.Color; slot <= GBufferLocation.Surface; slot++)
             base.setPreview(slot, null, "等待下一次渲染", "先解除旧附件的展示引用");
         for (const renderer of base.renderers) for (const material of renderer.sharedMaterials)
             if (material) GBuffer.applyShaderOutputs(material.shaderData, this._outputs);

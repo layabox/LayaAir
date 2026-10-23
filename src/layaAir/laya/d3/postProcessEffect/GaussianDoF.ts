@@ -35,6 +35,11 @@ import { Laya } from "../../../Laya";
  * - maxRadius: 远景模糊最大半径
  */
 export class GaussianDoF extends PostProcessEffect {
+    /** @internal 景深先于 TAA 执行。 */
+    get renderBeforeTAA(): boolean {
+        return true;
+    }
+
     /**@internal */
     static SOURCESIZE: number;
 

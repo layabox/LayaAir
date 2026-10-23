@@ -35,8 +35,12 @@ import { PostProcess } from "./render/postProcessBase/PostProcess";
 import { RenderTextureMRT } from "../../resource/RenderTextureMRT";
 import { RenderParams } from "../../RenderEngine/RenderEnum/RenderParams";
 import { Color } from "../../maths/Color";
+import { CameraTAA } from "./render/CameraTAA";
+import { GBufferAttachment, GBufferLocation } from "./render/GBuffer";
 
-/** 相机不透明队列的辅助颜色输出，数组索引 i 对应固定的 location i + 1，null 表示不绑定纹理。 */
+const MOTION_VECTOR_ATTACHMENT_INDEX = GBufferLocation.MotionVectors - 1;
+
+/** 相机不透明队列的辅助颜色输出，索引 i 对应 location i + 1；索引 3 留给运动矢量。 */
 export interface CameraOpaqueMRTOptions {
     readonly auxiliaryAttachments: readonly ({
         readonly format: RenderTargetFormat;
@@ -445,6 +449,8 @@ export class Camera extends BaseCamera {
     protected _needBuiltInRenderTexture: boolean = false;
     protected _msaa: boolean = false;
     private _fxaa: boolean = false;
+    /** @internal 按需创建的 TAA 状态。 */
+    _taa: CameraTAA | null = null;
     private _depthTextureMode: DepthTextureMode;
     _offScreenRenderTexture: RenderTexture = null;
     _internalRenderTexture: RenderTexture = null;
@@ -706,6 +712,10 @@ export class Camera extends BaseCamera {
         const attachments = [];
         for (let index = 0; index < value.auxiliaryAttachments.length; index++) {
             const attachment = value.auxiliaryAttachments[index];
+            if (index === MOTION_VECTOR_ATTACHMENT_INDEX && attachment != null)
+                throw new Error("Camera opaque MRT location 4 is reserved for MotionVectors.");
+            if (attachment?.name === GBufferAttachment.MotionVectors)
+                throw new Error("MotionVectors is managed by the camera, not a manual MRT attachment.");
             attachments.push(attachment == null ? null : this._createOpaqueMRTAttachment(attachment.format, attachment.clearColor, attachment.name));
         }
         while (attachments.length && attachments[attachments.length - 1] == null) attachments.pop();
@@ -722,7 +732,7 @@ export class Camera extends BaseCamera {
         if (requirements && !Array.isArray(requirements))
             throw new Error("Camera opaque MRT requirements must be an array.");
         if (!manual && !requirements?.length) return null;
-        if (this._msaa)
+        if (this.msaa)
             throw new Error("Camera opaque MRT does not support MSAA.");
         if (!LayaGL.renderEngine.getCapable(RenderCapable.MRT))
             throw new Error("Camera opaque MRT requires MRT support.");
@@ -744,6 +754,13 @@ export class Camera extends BaseCamera {
             if (typeof requirement.name !== "string" || requirement.name.length === 0)
                 throw new Error("Camera opaque MRT requirements need non-empty names.");
             const index = requirement.index;
+            if (index === MOTION_VECTOR_ATTACHMENT_INDEX) {
+                if (requirement.name !== GBufferAttachment.MotionVectors || requirement.format !== RenderTargetFormat.R16G16B16A16
+                    || !this._sameOpaqueMRTClearColor(Color.CLEAR, requirement.clearColor))
+                    throw new Error("Camera opaque MRT location 4 is reserved for RGBA16F MotionVectors.");
+            } else if (requirement.name === GBufferAttachment.MotionVectors) {
+                throw new Error("MotionVectors must use camera opaque MRT location 4.");
+            }
             if (index + 2 > max)
                 throw new Error(`Camera opaque MRT auxiliary index ${index} exceeds the device limit.`);
             if (names.has(requirement.name) && names.get(requirement.name) !== index)
@@ -881,6 +898,21 @@ export class Camera extends BaseCamera {
         return this._fxaa;
     }
 
+    /** 时域抗锯齿开关，默认关闭。 */
+    set taa(value: boolean) {
+        if (value) this.taaSettings.enabled = true;
+        else if (this._taa) this._taa.enabled = false;
+    }
+
+    get taa(): boolean {
+        return this._taa?.enabled ?? false;
+    }
+
+    /** TAA 质量、锐化与历史设置。 */
+    get taaSettings(): CameraTAA {
+        return this._taa || (this._taa = new CameraTAA(this));
+    }
+
     /**
      * @en The viewport in clip space.
      * @zh 裁剪空间的视口。
@@ -948,6 +980,7 @@ export class Camera extends BaseCamera {
     set projectionMatrix(value: Matrix4x4) {
         this._projectionMatrix = value;
         this._useUserProjectionMatrix = true;
+        this._updateViewProjectionMatrix = true;
     }
 
     /**
@@ -1014,9 +1047,11 @@ export class Camera extends BaseCamera {
     }
 
     set postProcess(value: PostProcess) {
+        const taa = this._taa;
+        if (!value && taa?.enabled) value = new PostProcess();
+        if (this._postProcess === value) return;
         this._postProcess = value;
-        //if (!value) return;
-        //value && value._init(this);
+        if (taa?.enabled) taa.onPostProcessChanged();
     }
 
     /**
@@ -1237,6 +1272,7 @@ export class Camera extends BaseCamera {
         camera.orthographicVerticalSize = this.orthographicVerticalSize;
         camera.opaquePass = this.opaquePass;
         camera.opaqueMRT = this.opaqueMRT;
+        if (this._taa) this._taa.cloneTo(camera.taaSettings);
         camera._cameraEventCommandBuffer = this._cameraEventCommandBuffer;
         camera.opaquePass = this.opaquePass;
         //Object.assign(camera._cameraEventCommandBuffer, this._cameraEventCommandBuffer);
@@ -1586,8 +1622,9 @@ export class Camera extends BaseCamera {
      * @param scene 要渲染的场景。
      */
     render(scene: Scene3D): void {
-        const requirements = this.postProcess?._collectCameraMRTRequirements(Stat.enablePostprocess) || null;
-        this._updateOpaqueMRTRequirements(requirements);
+        const postRequirements = this.postProcess?._collectCameraMRTRequirements(Stat.enablePostprocess) || null;
+        const taa = this._taa;
+        this._updateOpaqueMRTRequirements(taa ? taa.collectRequirements(postRequirements, this.opaqueMRT) : postRequirements);
         // 配置切换在准备目标时统一回收，不在渲染回调中释放当前资源。
         if (!this._cacheDepth && this._cacheDepthTexture) {
             Camera.depthPass.releaseCachedDepth(this);
@@ -1625,10 +1662,12 @@ export class Camera extends BaseCamera {
             context.invertY = renderRT._isCameraTarget;
         }
 
-        // camera data 
         this._prepareCameraToRender();
-        this._applyViewProject(this.viewMatrix, this.projectionMatrix, context.invertY);
-        this._contextApply(context);
+        const temporal = taa?.setupFrame(context) ?? false;
+        if (!temporal) {
+            this._applyViewProject(this.viewMatrix, this.projectionMatrix, context.invertY);
+            this._contextApply(context);
+        }
 
         if (this.clearFlag == CameraClearFlags.Sky) {
             scene.skyRenderer.setRenderElement(this.skyRenderElement);
@@ -1636,6 +1675,7 @@ export class Camera extends BaseCamera {
         }
 
         scene._componentDriver.callPreRender();
+        if (temporal) taa.beforeRender(context);
         this._preRenderMainPass(context, scene, needInternalRT, viewport);
 
         let multiLight = Config3D._multiLighting;
@@ -1643,6 +1683,7 @@ export class Camera extends BaseCamera {
             Cluster.instance.update(this, scene);
         }
         this._Render3DProcess.fowardRender(context._contextOBJ, this);
+        if (temporal) taa.afterRender(true);
 
         scene._componentDriver.callPostRender();
     }
@@ -1748,6 +1789,8 @@ export class Camera extends BaseCamera {
      * @param destroyChild 是否删除子节点
      */
     destroy(destroyChild: boolean = true): void {
+        this._taa?.destroy();
+        this._taa = null;
         this._releaseOpaqueMRT();
         this._shaderValues.destroy();
         if (this._cacheDepthTexture) {

@@ -56,6 +56,12 @@ export class BaseCamera extends Sprite3D {
     static DEPTHNORMALSTEXTURE: number;
     /**@internal */
     static DEPTHZBUFFERPARAMS: number;
+    /** @internal */
+    static TAAVIEWPROJECTION: number;
+    /** @internal */
+    static TAAPREVIOUSVIEWPROJECTION: number;
+    /** @internal */
+    static TAAMOTIONPARAMS: number;
     /**@internal */
     static CAMERAUNIFORMBLOCK: number;
     /**Camera Define*/
@@ -100,6 +106,9 @@ export class BaseCamera extends Sprite3D {
         BaseCamera.OPAQUETEXTURE = Shader3D.propertyNameToID("u_CameraOpaqueTexture");
         BaseCamera.OPAQUETEXTUREPARAMS = Shader3D.propertyNameToID("u_OpaqueTextureParams");
         BaseCamera.DEPTHZBUFFERPARAMS = Shader3D.propertyNameToID("u_ZBufferParams");
+        BaseCamera.TAAVIEWPROJECTION = Shader3D.propertyNameToID("u_TaaViewProjection");
+        BaseCamera.TAAPREVIOUSVIEWPROJECTION = Shader3D.propertyNameToID("u_TaaPreviousViewProjection");
+        BaseCamera.TAAMOTIONPARAMS = Shader3D.propertyNameToID("u_TaaMotionParams");
         //add property to camerauniformMap
         let camerauniformMap = BaseCamera.cameraUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap(BaseCamera.cameraBlockName);
         camerauniformMap.addShaderUniform(BaseCamera.CAMERAPOS, "u_CameraPos", ShaderDataType.Vector3);
@@ -115,6 +124,9 @@ export class BaseCamera extends Sprite3D {
         camerauniformMap.addShaderUniform(BaseCamera.OPAQUETEXTURE, "u_CameraOpaqueTexture", ShaderDataType.Texture2D);
         camerauniformMap.addShaderUniform(BaseCamera.OPAQUETEXTUREPARAMS, "u_OpaqueTextureParams", ShaderDataType.Vector4);
         camerauniformMap.addShaderUniform(BaseCamera.DEPTHZBUFFERPARAMS, "u_ZBufferParams", ShaderDataType.Vector4);
+        camerauniformMap.addShaderUniform(BaseCamera.TAAVIEWPROJECTION, "u_TaaViewProjection", ShaderDataType.Matrix4x4);
+        camerauniformMap.addShaderUniform(BaseCamera.TAAPREVIOUSVIEWPROJECTION, "u_TaaPreviousViewProjection", ShaderDataType.Matrix4x4);
+        camerauniformMap.addShaderUniform(BaseCamera.TAAMOTIONPARAMS, "u_TaaMotionParams", ShaderDataType.Vector4);
     }
 
     /**

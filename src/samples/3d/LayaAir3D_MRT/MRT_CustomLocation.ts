@@ -1,6 +1,6 @@
 /**
 description
- 开发者在固定 location 4 写入真实模型 UV 和世界高度，使用 Camera 申请自定义附件。
+ 开发者在固定 location 5 写入真实模型 UV 和世界高度，使用 Camera 申请自定义附件。
  */
 import { Laya } from "Laya";
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
@@ -33,10 +33,10 @@ export class MRT_CustomLocation {
 
     private async start(): Promise<void> {
         const base = this._base;
-        if (!await base.init("04 / 自定义 location 4 · 模型 UV 与世界高度", "开发者自定义材质绘制真实几何：主色为棋盘格，自定义附件的 RG 为模型 UV，B 为世界高度，A 为覆盖率。", "相机最终输出 · 自定义材质颜色")) return;
+        if (!await base.init("04 / 自定义 location 5 · 模型 UV 与世界高度", "开发者自定义材质绘制真实几何：主色为棋盘格，自定义附件的 RG 为模型 UV，B 为世界高度，A 为覆盖率。", "相机最终输出 · 自定义材质颜色")) return;
         if (this._destroyed) return;
         if (LayaGL.renderEngine.getParams(RenderParams.Max_Color_Attachment_Count) <= MRTCustomLocation.CustomData) {
-            base.setStatus("此示例需要至少 5 个颜色槽位，以绑定固定 location 4；当前设备不足。只显示普通 PBR 场景。");
+            base.setStatus("此示例需要至少 6 个颜色槽位，以绑定固定 location 5；当前设备不足。只显示普通 PBR 场景。");
             return;
         }
         for (const renderer of base.renderers) {
@@ -74,9 +74,9 @@ export class MRT_CustomLocation {
         const mrt = target instanceof RenderTextureMRT && !target._inPool ? target : null;
         const custom = base.camera.getOpaqueAuxiliaryTexture(MRTCustomAttachment.UVHeight);
         base.setPreview(CustomPreview.Color, mrt?.getColorTexture(MRTCustomLocation.Color), "location 0 · 主颜色", "自定义材质的棋盘格主色，与左侧最终输出对照");
-        base.setPreview(CustomPreview.CustomData, custom, "location 4 · 自定义 UV / 高度", "R = 模型 U，G = 模型 V，B = 高度，A = 覆盖率");
-        base.setPreview(CustomPreview.Layout, null, "固定布局 · 0 / 4", "[主色, null, null, null, UV高度]；只有两张颜色纹理");
-        base.setPreview(CustomPreview.Shader, null, "自定义 Shader 的职责", "声明 location 4 并写入数据；关闭 MRT 后只写主色");
+        base.setPreview(CustomPreview.CustomData, custom, "location 5 · 自定义 UV / 高度", "R = 模型 U，G = 模型 V，B = 高度，A = 覆盖率");
+        base.setPreview(CustomPreview.Layout, null, "固定布局 · 0 / 5", "[主色, null, null, null, null, UV高度]；只有两张颜色纹理");
+        base.setPreview(CustomPreview.Shader, null, "自定义 Shader 的职责", "声明 location 5 并写入数据；关闭 MRT 后只写主色");
         const textureCount = mrt?.colorFormats.filter(format => format !== null).length || 0;
         base.setStatus(`自定义 MRT：${this._enabled ? "开启" : "关闭"}　固定自定义位置：${MRTCustomLocation.CustomData}　实际颜色纹理：${mrt ? textureCount + " 张" : "普通 RT"}\n当前使用 MRTCustomDataMaterial 开发者扩展示例；Camera、后处理和底层均不解释 UV / 高度含义。`);
     }
