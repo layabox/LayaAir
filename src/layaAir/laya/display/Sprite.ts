@@ -2614,10 +2614,11 @@ export class Sprite extends Node {
             }
         }
         else if (!enable && this._oriRenderPass && this._oriRenderPass.enable) {
-            this._struct.pass = null;
             this._subStruct.enabled = false;
             this._subStruct.blendMode = this._blendMode;
+            // Restore inherited render data before propagating the parent pass to children.
             this._struct.subStruct = null;
+            this._struct.pass = null;
             //主Pass 需要重绘
             this._struct.setRepaint();
         }
