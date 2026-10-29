@@ -155,17 +155,18 @@ export class Utils {
      * @blueprintPure
      */
     static getFileExtension(path: string): string {
-        let i = path.lastIndexOf(".");
+        let suffixIndex = path.search(/[?#]/);
+        if (suffixIndex != -1)
+            path = path.substring(0, suffixIndex);
 
-        if (i != -1) {
+        let separatorIndex = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
+        let i = path.lastIndexOf(".");
+        if (i > separatorIndex) {
             let ext = path.substring(i + 1).toLowerCase();
-            let j = ext.indexOf("?");
-            if (j != -1)
-                ext = ext.substring(0, j);
             if (ext === "ls") { //lanit.ls ltcb.ls 这类特殊扩展名的支持
                 let k = path.lastIndexOf(".", i - 1);
-                if (k != -1) {
-                    let ext2 = path.substring(k + 1, i + 1) + ext;
+                if (k > separatorIndex) {
+                    let ext2 = path.substring(k + 1).toLowerCase();
                     if (ext2 === "lanit.ls" || ext2 === "ltcb.ls")
                         return ext2;
                 }
@@ -191,18 +192,18 @@ export class Utils {
     static replaceFileExtension(path: string, newExt: string, excludeDot?: boolean): string {
         if (!path)
             return path;
+        let suffixIndex = path.search(/[?#]/);
+        let suffix = suffixIndex != -1 ? path.substring(suffixIndex) : "";
+        if (suffixIndex != -1)
+            path = path.substring(0, suffixIndex);
+
         let i = path.lastIndexOf(".");
+        // Only a dot in the file name can mark an extension.
+        if (i > Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\")))
+            path = path.substring(0, i);
         if (newExt.length > 0 && !excludeDot)
             newExt = "." + newExt;
-        if (i != -1) {
-            let j = path.indexOf("?", i);
-            if (j != -1)
-                return path.substring(0, i) + newExt + path.substring(j);
-            else
-                return path.substring(0, i) + newExt;
-        }
-        else
-            return path + newExt;
+        return path + newExt + suffix;
     }
 
     /**
