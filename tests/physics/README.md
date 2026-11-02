@@ -48,3 +48,45 @@ Bullet runs three scenes for 360 steps each: mixed primitives, convex hull conta
 PhysX runs eight scenes for 360 steps each: mixed primitives and convex hulls with both legacy and PCM contact generation, convex CCD, height fields, triangle meshes, and a capsule controller over a mesh. It also exercises triggers, impulses/velocities, kinematic targets and switching back to dynamic motion, actor removal/re-addition, rays and four geometry sweeps. Collision masks are explicitly configured, PCM flags are checked numerically, and tests require contact callbacks with actual contact points. Event vectors are snapshotted immediately; only the initialized contact points exposed by the binding are compared (up to four). Query and event getter fields are copied into plain values.
 
 Set `PHYSICS_COVERAGE=1` to instrument only fixed entries in an in-memory source copy and report invocation counts. These scenes exercise Bullet's modified constraint-debug entry and unchanged convex-contact control path and PhysX's `bda`, `lM`, `ZL`, `qF`, and `CX`. The other PhysX size-risk kernels remain explicit bytecode targets with every extracted helper; this suite does not claim execution of every geometry or solver branch. Performance comparisons should use instrumentation disabled and run the original and candidate sequentially.
+
+## Bullet character controllers
+
+Character controller wrapper regressions run against both bundled Bullet WASM and JS runtimes:
+
+```sh
+node --test tests/physics3d/character-controller.test.cjs tests/physics3d/mesh-collider.test.cjs
+```
+
+The character fixture reproduces idle drift on a 20° box slope (`maxSlope=45`, gravity `-9.8`, step height `0.1`, capsule radius `0.5`, height `2`), then checks 600 fixed steps with the engine correction. It also covers walking, jumping, teleporting, removed support, slope/filter/trigger/kinematic exclusions, live height/radius rebuilding, controller identity/airborne velocity retention, scaling, and disabled/re-enabled characters.
+
+Run with `CHARACTER_BENCHMARK=1` for alternating raw/corrected timing batches (single character on a flat box; microbenchmark only).
+
+Only capsules bound to a character encode their dimensions in native local scaling, preserving the controller during height/radius edits. Ordinary rigid-body and compound-child capsules retain the legacy native dimensions and scaling. A zero cylindrical section uses a `1e-6` minimum to avoid Bullet division by zero when expanding again. Local offsets continue to use world scale rather than dimension scaling.
+
+Stationary support uses a short ray every substep at the last swept contact point; position/rotation/scale changes or a failed ray trigger a full capsule sweep.
+
+Changes to the supporting body pose or ray hit point discard the cache and restore gravity for contact recovery. A full sweep may only lock at an existing contact, not ground found in the lower half of the probe. Ground removal therefore releases gravity on the next substep. Idle gravity suppression is restricted to walkable static support; dynamic and kinematic platforms retain normal Bullet behavior.
+
+The terrain suite adds a BVH mesh with 32,768 triangles over 40 × 40 units, triangle seams, a boundary and a hole, shared-query isolation for 16 characters, small downward translations, continuous descent, small/steep rotations, and moving the ground out from under the character. Foot-gap assertions allow Bullet's existing penetration margin but reject a suspended capsule above the new surface.
+
+```sh
+CHARACTER_TERRAIN_BENCHMARK=1 node --test tests/physics3d/character-controller.test.cjs
+```
+
+This benchmarks 1, 16 and 64 separated stationary characters in the same mesh world. It reports median milliseconds per physics step and paired overhead per character across seven alternating 300-step batches.
+
+The raw reference keeps gravity disabled after settling to match the resting native collision workload. Timings exclude mesh construction and rendering; query counts are measured separately over 60 steps to avoid instrumentation in timed batches.
+
+The single-character case receives 10,000 extra warm-up steps per world to stabilize the JS runtime. Set `CHARACTER_TERRAIN_COUNTS=1` to rerun only that case.
+
+One local Node 22.12 run (milliseconds per complete physics step; overhead is the median paired difference in microseconds per character, so it need not equal the difference of the two timing medians):
+
+| Characters | WASM total ms | JS total ms | WASM overhead µs/character | JS overhead µs/character |
+| --- | --- | --- | --- | --- |
+| 1 | 0.0358 | 0.0712 | 4.97 | 7.44 |
+| 16 | 0.6241 | 1.2756 | 3.22 | 3.76 |
+| 64 | 2.5012 | 5.1247 | 3.12 | 3.79 |
+
+The single-character row was rerun with the longer warm-up after the initial JS measurement showed tiering noise. All three sizes used one ray per character per step and zero full support sweeps over the 60-step steady-state query sample. These are local microbenchmark observations, not performance thresholds for other terrain densities, hardware or render workloads.
+
+Compatibility checks compare native ray-hit fractions, inertia and offset scaling against the legacy capsule constructors for X/Y/Z axes, uniform/nonuniform/mirrored scaling, sphere-shaped and below-diameter inputs, compound children, and repeated signed-scale dimension edits. The public character/shape property defaults and interfaces are unchanged; the optional extra argument on the Bullet manager's `addCollider` preserves its original default behavior. Expected behavior changes are immediate character resizing and idle anti-slide on walkable static support. Character capsules with a zero cylindrical section retain the documented `1e-6` approximation; ordinary capsules use the exact legacy construction. WASM and JS are tested here; this suite does not execute a native Conch host.

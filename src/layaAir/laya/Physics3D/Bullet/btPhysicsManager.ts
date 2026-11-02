@@ -239,9 +239,16 @@ export class btPhysicsManager implements IPhysicsManager {
     private _simulate(deltaTime: number): void {
         this._updatedRigidbodies = 0;
         this.dt = deltaTime;
-        if (this._btDiscreteDynamicsWorld)
-            btStatics.bt.btDiscreteDynamicsWorld_stepSimulation(this._btDiscreteDynamicsWorld, deltaTime, 1, deltaTime);
-        else
+        if (this._btDiscreteDynamicsWorld) {
+            try {
+                for (const character of this._characters)
+                    character._beforeSimulation(this._btCollisionWorld);
+                btStatics.bt.btDiscreteDynamicsWorld_stepSimulation(this._btDiscreteDynamicsWorld, deltaTime, 1, deltaTime);
+            } finally {
+                for (const character of this._characters)
+                    character._afterSimulation();
+            }
+        } else
             btStatics.bt.PerformDiscreteCollisionDetection(this._btCollisionWorld);
 
         this._updateCount++;
@@ -647,11 +654,12 @@ export class btPhysicsManager implements IPhysicsManager {
      * @zh 添加碰撞体。
      * @param collider 要添加的碰撞体。
      */
-    addCollider(collider: ICollider): void {
+    addCollider(collider: ICollider, deriveTransform: boolean = true): void {
         let btcollider = collider as btCollider;
         if (btcollider._isSimulate || !collider.active)
             return;
-        btcollider._derivePhysicsTransformation(true);
+        if (deriveTransform)
+            btcollider._derivePhysicsTransformation(true);
         switch (btcollider._type) {
             case btColliderType.StaticCollider:
                 btStatics.bt.btCollisionWorld_addCollisionObject(this._btCollisionWorld, btcollider._btCollider, btcollider._collisionGroup, btcollider._canCollideWith);
