@@ -14,6 +14,32 @@ export class NativeVideoPlayer extends VideoPlayerBackend {
     private _ended: boolean = false;
     private _muted: boolean = false;
     private _playbackRate: number = 1;
+    private _volume: number = 1;
+
+    get duration(): number {
+        try {
+            const duration = this.video?.duration;
+            return typeof duration === "number" ? duration : 0;
+        }
+        catch {
+            return 0;
+        }
+    }
+
+    get volume(): number {
+        return this._volume;
+    }
+
+    set volume(value: number) {
+        this._volume = value;
+        try {
+            if (this.video && "volume" in this.video)
+                this.video.volume = value;
+        }
+        catch {
+            // Older bridges can reject read-only or unsupported properties.
+        }
+    }
 
     get loop(): boolean {
         return this._loop;
@@ -62,8 +88,10 @@ export class NativeVideoPlayer extends VideoPlayerBackend {
 
     protected onLoad(url: string): void {
         this._ended = false;
-        if (this._loaded)
-            this.video.destroy();
+        const previousVideo = this.video;
+        (<Mutable<this>>this).video = null;
+        this._loaded = false;
+        previousVideo?.destroy();
 
         (<Mutable<this>>this).video = PAL.g.createVideo(Object.assign({},
             this.options,
@@ -74,15 +102,28 @@ export class NativeVideoPlayer extends VideoPlayerBackend {
                 loop: this._loop,
                 muted: this._muted,
                 playbackRate: this._playbackRate,
+                volume: this._volume,
             }));
-        this.video.onEnded(() => this._ended = true);
-        this.video.onError((err: any) => {
+        const video = this.video;
+        video.onEnded(() => {
+            if (this.video !== video || this._loop)
+                return;
+            this.pause();
+            this._ended = true;
+            this._owner?.event("ended");
+        });
+        video.onError((err: any) => {
+            if (this.video !== video)
+                return;
+            this.pause();
             console.error("NativeVideoPlayer: " + getErrorMsg(err));
+            this._owner?.event("error", err);
         });
         this.setLoaded();
     }
 
     protected onPlay(): void {
+        this._ended = false;
         this.video.play();
     }
 
@@ -103,6 +144,9 @@ export class NativeVideoPlayer extends VideoPlayerBackend {
     }
 
     protected onDestroy(): void {
-        this.video.destroy();
+        const video = this.video;
+        (<Mutable<this>>this).video = null;
+        this._loaded = false;
+        video?.destroy();
     }
 }

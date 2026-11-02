@@ -306,6 +306,8 @@ export class VideoPlayer extends Component {
                 this._vtex = vt;
                 this._vtex.on(Event.READY, this, this._vtReady);
                 this._vtex.on("videoUpdate", this.owner, this.owner.reCache);
+                this._vtex.on("ended", this, this._vtEnded);
+                this._vtex.on("error", this, this._vtError);
                 if (!this._textureCmd) {
                     this._textureCmd = DrawTextureCmd.create(new Texture(), 0, 0, 1, 1, null, null, null, null, null, true);
                     (this._textureCmd as IGraphicsCmd).lock = true;
@@ -336,10 +338,20 @@ export class VideoPlayer extends Component {
         this.owner?.graphics.repaint();
     }
 
+    private _vtEnded() {
+        this.owner?.event("ended");
+    }
+
+    private _vtError(err: any) {
+        this.owner?.event("error", err);
+    }
+
     private _unload() {
         if (this._vtex) {
             this._vtex.off(Event.READY, this, this._vtReady);
             this._vtex.off("videoUpdate", this.owner, this.owner.reCache);
+            this._vtex.off("ended", this, this._vtEnded);
+            this._vtex.off("error", this, this._vtError);
             this._vtex.destroy();
             this._vtex = null;
             this.owner.graphics.removeCmd(this._textureCmd, true);
