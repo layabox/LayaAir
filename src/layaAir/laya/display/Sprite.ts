@@ -307,6 +307,15 @@ export class Sprite extends Node {
      * @param destroyChild 是否删除子节点。默认为 true。
      */
     destroy(destroyChild: boolean = true): void {
+        if (this._destroyed)
+            return;
+
+        // 先解除遮罩双向引用，避免子节点移除或 slot 释放后仍使用遮罩所属对象的变换。
+        if (this._mask)
+            this.mask = null;
+        if (this._maskParent)
+            this._maskParent.mask = null;
+
         super.destroy(destroyChild);
         if (this._texture) {
             this._texture._removeReference();
@@ -930,7 +939,8 @@ export class Sprite extends Node {
         if (value && this._manualRender) this._setManualRender(false);
 
         let oldMask = this._mask;
-        if (oldMask) {
+        // 遮罩可能已转移给其他节点，只解除仍属于当前节点的关系。
+        if (oldMask && oldMask._maskParent === this) {
             oldMask.cacheAs = "none";
             oldMask._maskParent = null;
         }
@@ -938,6 +948,9 @@ export class Sprite extends Node {
         this._mask = value;
 
         if (value) {
+            // 转移遮罩时清理旧所属对象，避免其继续渲染已转移或已销毁的遮罩。
+            if (value._maskParent && value._maskParent !== this)
+                value._maskParent.mask = null;
             value._maskParent = this;
             value.cacheAs = "bitmap";
 
@@ -2659,12 +2672,10 @@ export class Sprite extends Node {
      * 与旧 getMatrix 取父逻辑一致：优先 _parent，其次 _maskParent，否则为根。
      */
     _syncTransParent(): void {
-        const slot = this._globalTrans.slot;
+        const slot = this._globalTrans?.slot ?? SlotConst.None;
         if (slot === SlotConst.None) return;
-        let ps: number = SlotConst.None;
-        const p = this._parent;
-        if (p instanceof Sprite) ps = p._globalTrans.slot;
-        else if (this._maskParent) ps = this._maskParent._globalTrans.slot;
+        const p = this._parent instanceof Sprite ? this._parent : this._maskParent;
+        const ps = p?._globalTrans?.slot ?? SlotConst.None;
         Transform2DStore.instance.setParent(slot, ps);
     }
 
