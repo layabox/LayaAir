@@ -1105,6 +1105,10 @@ export class Text extends Sprite {
         if (this._hideText || this._destroyed)
             return;
 
+        //先回收旧排版命令，断开cmd对HtmlObject的引用，再回收元素。
+        //否则HtmlElement.reset()中的obj.release()会把仍被_lines引用的对象置空并放回对象池，
+        //当排版中途提前返回或重入时，renderText就会访问到element为null的对象。
+        recoverLines(this._lines);
         HtmlElement.returnToPool(this._elements);
         if (this._objContainer)
             this._objContainer.removeChildren();
@@ -2182,7 +2186,8 @@ export class Text extends Sprite {
                 if (cmd.obj) {
                     cmd.obj.pos(x + cmd.x, y + cmd.y);
 
-                    if (cmd.obj.element.type == HtmlElementType.Link) {
+                    let element = cmd.obj.element;
+                    if (element && element.type == HtmlElementType.Link) {
                         curLink = <HtmlLink>cmd.obj;
                         curLink.resetArea();
                         linkStartX = x + cmd.x;
@@ -2319,9 +2324,12 @@ function recoverLines(lines: Array<ITextLine>, releaseObjs?: boolean) {
 function cleanCmd(cmd: ITextCmd, releaseObj: boolean) {
     if (cmd.obj) {
         if (releaseObj) {
-            cmd.obj.element.obj = null;
-            cmd.obj.release();
-            Pool.recoverByClass(cmd.obj);
+            let element = cmd.obj.element;
+            if (element) {
+                element.obj = null;
+                cmd.obj.release();
+                Pool.recoverByClass(cmd.obj);
+            }
         }
         cmd.obj = null;
     }
