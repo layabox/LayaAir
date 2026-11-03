@@ -9,11 +9,21 @@ import type { GraphicsCommandInfo } from "./Scene2DSpecial/GraphicsRenderPipelin
 
 export { GraphicsCommandDependency, GraphicsCommandLayoutRefresh, type GraphicsCommandInfo } from "./Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
 
-/** Internal drawing contract shared by the immediate runner and retained compiler. @internal */
+/**
+ * @en Drawing context passed to IGraphicsCmd.run. Calls record drawing operations during compilation;
+ * this is not a per-frame callback. Do not retain the context or depend on a concrete runner implementation.
+ * Use Graphics.repaint() after changing command data. Use Mesh2DRender for custom vertex layouts and per-submesh materials.
+ * @zh 传给 IGraphicsCmd.run 的绘制上下文。编译时记录绘制操作，不保证每帧调用。
+ * 不要保存上下文或依赖具体 runner 实现。修改命令数据后调用 Graphics.repaint()。
+ * 自定义顶点布局和逐子网格材质请使用 Mesh2DRender。
+ */
 export interface IGraphicsCommandExecutor {
     sprite: Sprite;
+    /** @internal */
     _textRender: TextRender;
+    /** @internal */
     _curMat: Matrix;
+    /** @internal */
     _matrixChanged: boolean;
     globalAlpha: number;
     globalCompositeOperation: BlendMode;
@@ -21,8 +31,11 @@ export interface IGraphicsCommandExecutor {
     save(): void;
     restore(): void;
     translate(x: number, y: number): void;
+    /** @internal */
     _transform(matrix: Matrix, pivotX: number, pivotY: number): void;
+    /** @internal */
     _rotate(angle: number, pivotX: number, pivotY: number): void;
+    /** @internal */
     _scale(scaleX: number, scaleY: number, pivotX: number, pivotY: number): void;
     drawTexture(texture: Texture, x: number, y: number, width: number, height: number, color?: number): void;
     drawTextureWithTransform(texture: Texture, x: number, y: number, width: number, height: number,
@@ -30,15 +43,23 @@ export interface IGraphicsCommandExecutor {
     drawTextures(texture: Texture, pos: ArrayLike<number>, tx: number, ty: number, colors: number[]): void;
     drawRect(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number): void;
     fillTexture(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point, color: number): void;
+    /** @internal */
     _drawLine(x: number, y: number, fromX: number, fromY: number, toX: number, toY: number, lineColor: any, lineWidth: number, vid: number): void;
+    /** @internal */
     _drawLines(x: number, y: number, points: any[], lineColor: any, lineWidth: number, vid: number): void;
+    /** @internal */
     _drawCircle(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void;
+    /** @internal */
     _drawEllipse(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number): void;
+    /** @internal */
     _drawPie(x: number, y: number, radius: number, startAngle: number, endAngle: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void;
+    /** @internal */
     _drawPoly(x: number, y: number, points: any[], fillColor: any, lineColor: any, lineWidth: number, isConvexPolygon: boolean, vid: number): void;
+    /** @internal */
     _drawRoundRect(x: number, y: number, width: number, height: number, lt: number, rt: number, lb: number, rb: number,
         fillColor: any, lineColor: any, lineWidth: number, minNum?: number, segPixel?: number): void;
     drawCurves(x: number, y: number, points: any[], lineColor: any, lineWidth: number): void;
+    /** @internal */
     _drawPath(x: number, y: number, paths: any[], brush: any, pen: any): void;
     drawTriangles(texture: Texture | BaseTexture, x: number, y: number, vertices: ArrayLike<number>, uvs: ArrayLike<number>,
         indices: ArrayLike<number>, matrix?: Matrix, alpha?: number, blendMode?: BlendMode | string, color?: number,
@@ -62,10 +83,10 @@ export interface IGraphicsCmd {
     _cacheData ?: any;
 
     /**
-     * 
-     * @param runner 
-     * @param gx 
-     * @param gy 
+     * @en Record drawing operations in command order. Called when compiling or rebuilding graphics;
+     * call Graphics.repaint() when command data changes. Do not retain runner.
+     * @zh 按命令顺序记录绘制操作。在 Graphics 编译或重建时调用，命令数据变化后需调用 Graphics.repaint()。
+     * 不要保存 runner。
      */
     run(runner: IGraphicsCommandExecutor, gx: number, gy: number): void;
     /**

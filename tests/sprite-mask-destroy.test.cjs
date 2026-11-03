@@ -353,3 +353,15 @@ test('repeated destruction leaves live former masks untouched and does not free 
     mask.destroy(); mask.destroy();
     assert.equal(freed.size, 2);
 });
+
+test('sprite destroys its owned shader data exactly once and releases the reference', () => {
+    fixture();
+    const sprite = new Sprite();
+    let disposals = 0;
+    sprite._shaderData = {destroy() { disposals++; }};
+    sprite.destroy();
+    assert.equal(disposals, 1);
+    assert.equal(sprite._shaderData, null);
+    sprite.destroy();
+    assert.equal(disposals, 1);
+});

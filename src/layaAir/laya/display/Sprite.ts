@@ -351,6 +351,10 @@ export class Sprite extends Node {
             this._struct.destroy();
             this._struct = null;
         }
+        if (this._shaderData) {
+            this._shaderData.destroy();
+            this._shaderData = null;
+        }
         if (this._globalTrans) {
             this._globalTrans.destroy(); // 释放 SoA slot
             this._globalTrans = null;

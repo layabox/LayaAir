@@ -388,6 +388,11 @@ export class GLESShaderData extends ShaderData {
         return dest;
     }
     destroy(): void {
+        for (const index in this._textureData) {
+            const texture = this._textureData[index];
+            delete this._textureData[index];
+            texture?._removeReference();
+        }
         this._nativeObj.destroy();
     }
 }

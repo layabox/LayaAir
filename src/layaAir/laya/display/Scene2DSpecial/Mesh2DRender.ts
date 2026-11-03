@@ -254,13 +254,50 @@ export class Mesh2DRender extends BaseRenderNode2D {
      * @zh 渲染材质
      */
     set sharedMaterial(value: Material) {
-        super.sharedMaterial = value;
-        this._changeMesh();
-        this._notifyDataChange();
+        this.setSharedMaterial(0, value);
     }
 
     get sharedMaterial() {
         return this._materials[0];
+    }
+
+    /**
+     * @en Set the shared material of a submesh without rebuilding geometry. Null uses the default material.
+     * Submeshes retain their mesh order. Materials can be assigned before setting the mesh.
+     * @param index Zero-based submesh index.
+     * @param material Shared material with shader type D2_BaseRenderNode2D, or null.
+     * @zh 设置指定子网格的共享材质，不重建几何。null 表示使用默认材质。
+     * 子网格保持网格中的顺序，允许在设置网格前指定材质。
+     * @param index 从 0 开始的子网格索引。
+     * @param material 着色器类型为 D2_BaseRenderNode2D 的共享材质，或 null。
+     */
+    setSharedMaterial(index: number, material: Material): void {
+        if (!Number.isInteger(index) || index < 0 || index >= 0xffffffff)
+            throw new RangeError("Submesh index must be a valid non-negative array index.");
+        if (material && !this._isMaterialVaild(material))
+            return;
+        let previous = this._materials[index];
+        if (previous === material || (!previous && !material))
+            return;
+        let element = this._renderElements[index];
+        if (element)
+            BaseRenderNode2D._removeRenderElement2DMaterial(element, this._getElementMaterial(index));
+        if (material)
+            material._addReference();
+        this._materials[index] = material;
+        if (element)
+            BaseRenderNode2D._setRenderElement2DMaterial(element, this._getElementMaterial(index));
+        if (previous)
+            previous._removeReference();
+        this._notifyDataChange();
+    }
+
+    /**
+     * @en Get the assigned shared material of a submesh, or null if it uses the default material.
+     * @zh 获取指定子网格设置的共享材质，使用默认材质时返回 null。
+     */
+    getSharedMaterial(index: number): Material {
+        return this._materials[index] || null;
     }
 
     /** @internal */
@@ -319,6 +356,22 @@ export class Mesh2DRender extends BaseRenderNode2D {
         }
         this._struct.renderElements = this._renderElements;
 
+    }
+
+    protected _onDestroy(): void {
+        super._onDestroy();
+        for (let i = 0, n = this._renderElements.length; i < n; i++)
+            this._renderElements[i].destroy();
+        this._renderElements.length = 0;
+        this._materials.length = 0;
+        if (this._sharedMesh)
+            this._sharedMesh._removeReference();
+        if (this._texture instanceof Texture)
+            this._texture._removeReference();
+        this._sharedMesh = null;
+        this._activeMesh = null;
+        this._texture = null;
+        this._notifyDataChange();
     }
 
     /**@ignore */

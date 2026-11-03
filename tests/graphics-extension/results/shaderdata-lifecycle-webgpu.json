@@ -1,0 +1,84 @@
+{
+  "backend": "webgpu",
+  "checks": [
+    {
+      "passed": true,
+      "name": "plain Sprite does not allocate ShaderData eagerly"
+    },
+    {
+      "passed": true,
+      "name": "renderer borrows Sprite-owned ShaderData"
+    },
+    {
+      "passed": true,
+      "name": "removing a renderer invalidates cached draw elements"
+    },
+    {
+      "passed": true,
+      "name": "destroying only the render component preserves Sprite ShaderData"
+    },
+    {
+      "passed": true,
+      "name": "ShaderData retains its own base/normal references after handle disposal",
+      "detail": {
+        "baseline": 0,
+        "afterComponentDestroy": 2
+      }
+    },
+    {
+      "passed": true,
+      "name": "surviving Sprite reuses its ShaderData when adding another renderer"
+    },
+    {
+      "passed": true,
+      "name": "owner destruction releases ShaderData exactly once",
+      "detail": {
+        "disposals": 1,
+        "baseline": 0,
+        "references": 0
+      }
+    },
+    {
+      "passed": true,
+      "name": "omitting only Sprite ShaderData cleanup leaves two texture references per Sprite",
+      "detail": {
+        "sprites": 10,
+        "baseline": 0,
+        "references": 20,
+        "leaked": 20
+      }
+    },
+    {
+      "passed": true,
+      "name": "explicit cleanup of the omitted ShaderData balances all references"
+    },
+    {
+      "passed": true,
+      "name": "same ten-Sprite workload with the fix has no residual texture references",
+      "detail": {
+        "sprites": 10,
+        "baseline": 0,
+        "references": 0
+      }
+    },
+    {
+      "passed": true,
+      "name": "Scene, manager and global render data reference the same scene data"
+    },
+    {
+      "passed": true,
+      "name": "child renderer does not own or destroy scene-global ShaderData"
+    },
+    {
+      "passed": true,
+      "name": "child destruction preserves scene-global data and its texture reference"
+    },
+    {
+      "passed": true,
+      "name": "Scene owner destroys shared scene data once and balances its texture reference"
+    }
+  ],
+  "errors": [],
+  "passed": true,
+  "artifacts": "/var/folders/2f/7sv59rqx7gj4511kqykky7qm0000gn/T/laya-graphics-gpu-8WlTcY"
+}

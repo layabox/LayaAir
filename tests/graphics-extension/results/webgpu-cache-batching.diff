@@ -1,0 +1,30 @@
+--- WebGPUBindGroupCache.ts
++++ WebGPUBindGroupCache.ts
+@@ -109,16 +109,24 @@
+     private layoutCache: Map<string, WebGPUBindGroupLayoutInfo> = new Map();
+ 
+     private bindGroupCache: Map<string, WebGPUBindGroup> = new Map();
+-
+-
++    private _invalidGroupsPending: boolean = false;
+ 
+     clearCache() {
++        this._invalidGroupsPending = false;
+         this.bindGroupCache.clear();
+         this.layoutCache.clear();
+     }
+ 
+-    /** @internal Release stale groups when their owning ShaderData is destroyed. */
++    /** @internal Coalesce ShaderData destruction into one cleanup at frame end. */
++    requestInvalidGroupsCleanup(): void {
++        this._invalidGroupsPending = true;
++    }
++
++    /** @internal Preserve valid groups and layouts; idle frames do not scan the cache. */
+     clearInvalidGroups(): void {
++        if (!this._invalidGroupsPending)
++            return;
++        this._invalidGroupsPending = false;
+         this.bindGroupCache.forEach(this._removeInvalidGroup, this);
+     }
+ 

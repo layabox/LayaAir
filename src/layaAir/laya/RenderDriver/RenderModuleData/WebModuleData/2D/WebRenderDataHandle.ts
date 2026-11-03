@@ -422,12 +422,16 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
     public set baseTexture(value: BaseTexture) {
         if (this._baseTexture != null && value == this._baseTexture)
             return;
+        if (!value) {
+            value = Texture2D.whiteTexture;
+            if (value === this._baseTexture)
+                return;
+        }
 
         if (this._baseTexture)
             this._baseTexture._removeReference();
 
         this._baseTexture = value;
-        value = value ? value : Texture2D.whiteTexture;
         this._owner.spriteShaderData.setTexture(BaseRenderNode2D.BASERENDER2DTEXTURE, value);
         if (value) {
             value._addReference();
@@ -492,6 +496,14 @@ export class WebMesh2DRenderDataHandle extends Web2DBaseRenderDataHandle impleme
             this._owner.spriteShaderData.setColor(BaseRenderNode2D.BASERENDER2DCOLOR, _setRenderColor);
             this._renderAlpha = this._owner.globalAlpha;
         }
+    }
+
+    destroy(): void {
+        this._baseTexture?._removeReference();
+        this._normal2DTexture?._removeReference();
+        this._baseTexture = null;
+        this._normal2DTexture = null;
+        super.destroy();
     }
 }
 

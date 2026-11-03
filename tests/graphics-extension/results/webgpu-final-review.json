@@ -1,0 +1,2537 @@
+{
+  "date": "2026-11-03",
+  "scope": "Final WebGPU review; CPU benchmarks are not full-frame GPU performance measurements",
+  "sourceSHA256": {
+    "2DRenderPass/WebGPURenderElement2D.ts": "7820b6e93a84f103f9fd054582997fa72a42471fba1457e8ebad10da133eb6d9",
+    "RenderDevice/WebGPUBindGroupCache.ts": "a718ac220e12564a35c17288e9c4f54dac4981b8ad8ea2960015c47b4b86517b",
+    "RenderDevice/WebGPUShaderData.ts": "8807e7fced3c72a0d0c0883e82282c115e4264ed7347cb6af88598062b2a0168"
+  },
+  "build": "npm run build: compilation, bundles and declarations passed",
+  "cpuRegression": "graphics-extension/test.cjs passed; Sprite/NoRender 27 tests passed",
+  "gpuReports": {
+    "webgpu": {
+      "backend": "webgpu",
+      "checks": [
+        {
+          "name": "built-in before custom",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              0,
+              0,
+              255
+            ],
+            "expected": [
+              255,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "custom command draws",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              255,
+              0,
+              255
+            ],
+            "expected": [
+              0,
+              255,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "built-in after custom",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              0,
+              255,
+              255
+            ],
+            "expected": [
+              0,
+              0,
+              255,
+              255
+            ]
+          }
+        },
+        {
+          "name": "built-in image mixes with custom",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "expected": [
+              255,
+              255,
+              255,
+              255
+            ]
+          }
+        },
+        {
+          "name": "built-in text mixes with custom",
+          "passed": true,
+          "detail": {
+            "textPixels": 153
+          }
+        },
+        {
+          "name": "retained custom command is not rerun every render",
+          "passed": true,
+          "detail": {
+            "runs": 1,
+            "compiledRuns": 1
+          }
+        },
+        {
+          "name": "repaint refreshes custom payload",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              255,
+              0,
+              255
+            ],
+            "expected": [
+              255,
+              255,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "repaint compiles custom command once",
+          "passed": true,
+          "detail": {
+            "runs": 2
+          }
+        },
+        {
+          "name": "custom command blend mode mixes with built-in background",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              255,
+              0,
+              255
+            ],
+            "expected": [
+              255,
+              255,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "custom transform and parent alpha",
+          "passed": true,
+          "detail": {
+            "actual": [
+              191,
+              127,
+              0,
+              191
+            ],
+            "expected": [
+              191,
+              128,
+              0,
+              191
+            ]
+          }
+        },
+        {
+          "name": "custom respects clip",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "expected": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "name": "mesh material A first",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              0,
+              0,
+              255
+            ],
+            "expected": [
+              255,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "mesh material B second",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              255,
+              0,
+              255
+            ],
+            "expected": [
+              0,
+              255,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "mesh material A third keeps draw order",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              0,
+              0,
+              255
+            ],
+            "expected": [
+              255,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "changing material updates real backend",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              255,
+              0,
+              255
+            ],
+            "expected": [
+              0,
+              255,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "material changes reuse elements",
+          "passed": true
+        },
+        {
+          "name": "WebGPU owner has a real pooled uniform block",
+          "passed": true
+        },
+        {
+          "name": "WebGPU cache contains the owner uniform binding",
+          "passed": true
+        },
+        {
+          "name": "destroying a borrower preserves real shared uniform contents",
+          "passed": true
+        },
+        {
+          "name": "destroying a borrower preserves the owner buffer and valid bind group",
+          "passed": true
+        },
+        {
+          "name": "1000 WebGPU ShaderData destructions defer cache traversal",
+          "passed": true
+        },
+        {
+          "name": "WebGPU frame-end cleanup traverses bindings once",
+          "passed": true,
+          "detail": {
+            "validations": 10,
+            "groups": 10
+          }
+        },
+        {
+          "name": "WebGPU idle frame does not traverse bindings",
+          "passed": true
+        },
+        {
+          "name": "deferred cleanup keeps the live owner binding identity",
+          "passed": true
+        },
+        {
+          "name": "owner still renders after shared borrower destruction and cache cleanup",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              255,
+              0,
+              255
+            ],
+            "expected": [
+              0,
+              255,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "mesh transform and alpha",
+          "passed": true,
+          "detail": {
+            "actual": [
+              64,
+              128,
+              0,
+              191
+            ],
+            "expected": [
+              64,
+              128,
+              0,
+              191
+            ]
+          }
+        },
+        {
+          "name": "mesh respects clip",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "expected": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "name": "destroy releases shared mesh reference",
+          "passed": true,
+          "detail": {
+            "references": 0
+          }
+        },
+        {
+          "name": "destroy releases texture reference",
+          "passed": true,
+          "detail": {
+            "references": 0
+          }
+        },
+        {
+          "name": "destroy disposes render elements",
+          "passed": true,
+          "detail": {
+            "elementDisposals": 3
+          }
+        },
+        {
+          "name": "destroy releases shared material references",
+          "passed": true,
+          "detail": {
+            "a": 0,
+            "b": 0
+          }
+        },
+        {
+          "name": "destroy detaches material owners",
+          "passed": true
+        },
+        {
+          "name": "1500 create/render/destroy cycles balance all shared references",
+          "passed": true
+        },
+        {
+          "name": "default/base/normal texture references remain stable",
+          "passed": true,
+          "detail": {
+            "before": 0,
+            "after": 0
+          }
+        },
+        {
+          "name": "resource count remains stable",
+          "passed": true,
+          "detail": {
+            "before": 18,
+            "after": 18
+          }
+        },
+        {
+          "name": "material owners remain empty after stress",
+          "passed": true
+        },
+        {
+          "name": "forced GC available for heap check",
+          "passed": true
+        },
+        {
+          "name": "retained heap growth stays below 2 MiB after warmup",
+          "passed": true,
+          "detail": {
+            "heapBefore": 9456873,
+            "heapMiddle": 9677481,
+            "heapAfter": 9815401,
+            "delta": 358528
+          }
+        },
+        {
+          "name": "second 500-cycle window adds less than 256 KiB retained heap",
+          "passed": true,
+          "detail": {
+            "delta": 137920
+          }
+        },
+        {
+          "name": "Scene releases its shared shader data exactly once",
+          "passed": true
+        },
+        {
+          "name": "Scene shader texture references are released",
+          "passed": true
+        }
+      ],
+      "errors": [],
+      "passed": true,
+      "artifacts": "/var/folders/2f/7sv59rqx7gj4511kqykky7qm0000gn/T/laya-graphics-gpu-SunD5A"
+    },
+    "webgl": {
+      "backend": "webgl",
+      "checks": [
+        {
+          "name": "built-in before custom",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              0,
+              0,
+              255
+            ],
+            "expected": [
+              255,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "custom command draws",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              255,
+              0,
+              255
+            ],
+            "expected": [
+              0,
+              255,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "built-in after custom",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              0,
+              255,
+              255
+            ],
+            "expected": [
+              0,
+              0,
+              255,
+              255
+            ]
+          }
+        },
+        {
+          "name": "built-in image mixes with custom",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "expected": [
+              255,
+              255,
+              255,
+              255
+            ]
+          }
+        },
+        {
+          "name": "built-in text mixes with custom",
+          "passed": true,
+          "detail": {
+            "textPixels": 153
+          }
+        },
+        {
+          "name": "retained custom command is not rerun every render",
+          "passed": true,
+          "detail": {
+            "runs": 1,
+            "compiledRuns": 1
+          }
+        },
+        {
+          "name": "repaint refreshes custom payload",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              255,
+              0,
+              255
+            ],
+            "expected": [
+              255,
+              255,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "repaint compiles custom command once",
+          "passed": true,
+          "detail": {
+            "runs": 2
+          }
+        },
+        {
+          "name": "custom command blend mode mixes with built-in background",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              255,
+              0,
+              255
+            ],
+            "expected": [
+              255,
+              255,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "custom transform and parent alpha",
+          "passed": true,
+          "detail": {
+            "actual": [
+              191,
+              127,
+              0,
+              191
+            ],
+            "expected": [
+              191,
+              128,
+              0,
+              191
+            ]
+          }
+        },
+        {
+          "name": "custom respects clip",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "expected": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "name": "mesh material A first",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              0,
+              0,
+              255
+            ],
+            "expected": [
+              255,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "mesh material B second",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              255,
+              0,
+              255
+            ],
+            "expected": [
+              0,
+              255,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "mesh material A third keeps draw order",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              0,
+              0,
+              255
+            ],
+            "expected": [
+              255,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "changing material updates real backend",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              255,
+              0,
+              255
+            ],
+            "expected": [
+              0,
+              255,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "material changes reuse elements",
+          "passed": true
+        },
+        {
+          "name": "mesh transform and alpha",
+          "passed": true,
+          "detail": {
+            "actual": [
+              64,
+              128,
+              0,
+              191
+            ],
+            "expected": [
+              64,
+              128,
+              0,
+              191
+            ]
+          }
+        },
+        {
+          "name": "mesh respects clip",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "expected": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "name": "destroy releases shared mesh reference",
+          "passed": true,
+          "detail": {
+            "references": 0
+          }
+        },
+        {
+          "name": "destroy releases texture reference",
+          "passed": true,
+          "detail": {
+            "references": 0
+          }
+        },
+        {
+          "name": "destroy disposes render elements",
+          "passed": true,
+          "detail": {
+            "elementDisposals": 3
+          }
+        },
+        {
+          "name": "destroy releases shared material references",
+          "passed": true,
+          "detail": {
+            "a": 0,
+            "b": 0
+          }
+        },
+        {
+          "name": "destroy detaches material owners",
+          "passed": true
+        },
+        {
+          "name": "1500 create/render/destroy cycles balance all shared references",
+          "passed": true
+        },
+        {
+          "name": "default/base/normal texture references remain stable",
+          "passed": true,
+          "detail": {
+            "before": 0,
+            "after": 0
+          }
+        },
+        {
+          "name": "resource count remains stable",
+          "passed": true,
+          "detail": {
+            "before": 18,
+            "after": 18
+          }
+        },
+        {
+          "name": "material owners remain empty after stress",
+          "passed": true
+        },
+        {
+          "name": "forced GC available for heap check",
+          "passed": true
+        },
+        {
+          "name": "retained heap growth stays below 2 MiB after warmup",
+          "passed": true,
+          "detail": {
+            "heapBefore": 7612946,
+            "heapMiddle": 7782026,
+            "heapAfter": 7895438,
+            "delta": 282492
+          }
+        },
+        {
+          "name": "second 500-cycle window adds less than 256 KiB retained heap",
+          "passed": true,
+          "detail": {
+            "delta": 113412
+          }
+        },
+        {
+          "name": "Scene releases its shared shader data exactly once",
+          "passed": true
+        },
+        {
+          "name": "Scene shader texture references are released",
+          "passed": true
+        }
+      ],
+      "errors": [],
+      "passed": true,
+      "artifacts": "/var/folders/2f/7sv59rqx7gj4511kqykky7qm0000gn/T/laya-graphics-gpu-QZn6oW"
+    },
+    "shaderdata-webgpu": {
+      "backend": "webgpu",
+      "checks": [
+        {
+          "passed": true,
+          "name": "plain Sprite does not allocate ShaderData eagerly"
+        },
+        {
+          "passed": true,
+          "name": "renderer borrows Sprite-owned ShaderData"
+        },
+        {
+          "passed": true,
+          "name": "removing a renderer invalidates cached draw elements"
+        },
+        {
+          "passed": true,
+          "name": "destroying only the render component preserves Sprite ShaderData"
+        },
+        {
+          "passed": true,
+          "name": "ShaderData retains its own base/normal references after handle disposal",
+          "detail": {
+            "baseline": 0,
+            "afterComponentDestroy": 2
+          }
+        },
+        {
+          "passed": true,
+          "name": "surviving Sprite reuses its ShaderData when adding another renderer"
+        },
+        {
+          "passed": true,
+          "name": "owner destruction releases ShaderData exactly once",
+          "detail": {
+            "disposals": 1,
+            "baseline": 0,
+            "references": 0
+          }
+        },
+        {
+          "passed": true,
+          "name": "omitting only Sprite ShaderData cleanup leaves two texture references per Sprite",
+          "detail": {
+            "sprites": 10,
+            "baseline": 0,
+            "references": 20,
+            "leaked": 20
+          }
+        },
+        {
+          "passed": true,
+          "name": "explicit cleanup of the omitted ShaderData balances all references"
+        },
+        {
+          "passed": true,
+          "name": "same ten-Sprite workload with the fix has no residual texture references",
+          "detail": {
+            "sprites": 10,
+            "baseline": 0,
+            "references": 0
+          }
+        },
+        {
+          "passed": true,
+          "name": "Scene, manager and global render data reference the same scene data"
+        },
+        {
+          "passed": true,
+          "name": "child renderer does not own or destroy scene-global ShaderData"
+        },
+        {
+          "passed": true,
+          "name": "child destruction preserves scene-global data and its texture reference"
+        },
+        {
+          "passed": true,
+          "name": "Scene owner destroys shared scene data once and balances its texture reference"
+        }
+      ],
+      "errors": [],
+      "passed": true,
+      "artifacts": "/var/folders/2f/7sv59rqx7gj4511kqykky7qm0000gn/T/laya-graphics-gpu-K2Rzbh"
+    },
+    "mesh-webgpu": {
+      "backend": "webgpu",
+      "checks": [
+        {
+          "passed": true,
+          "name": "inherited destructor leaves one sharedMesh reference",
+          "detail": {
+            "mesh": 1,
+            "texture": 1,
+            "material": 0,
+            "elementsDisposed": 0
+          }
+        },
+        {
+          "passed": true,
+          "name": "inherited destructor leaves one Texture wrapper reference",
+          "detail": {
+            "mesh": 1,
+            "texture": 1,
+            "material": 0,
+            "elementsDisposed": 0
+          }
+        },
+        {
+          "passed": true,
+          "name": "base class already releases assigned materials and unregisters owners"
+        },
+        {
+          "passed": true,
+          "name": "base class does not call render element destroy"
+        },
+        {
+          "passed": true,
+          "name": "manual release of omitted references restores baseline"
+        },
+        {
+          "passed": true,
+          "name": "new destructor balances mesh and Texture references",
+          "detail": {
+            "mesh": 0,
+            "texture": 0,
+            "material": 0,
+            "elementsDisposed": 1
+          }
+        },
+        {
+          "passed": true,
+          "name": "super destructor still releases materials once"
+        },
+        {
+          "passed": true,
+          "name": "new destructor disposes its render element exactly once"
+        },
+        {
+          "passed": true,
+          "name": "component cleanup releases references without forcing shared resource destruction"
+        },
+        {
+          "passed": true,
+          "name": "two renderers hold independent references to shared mesh and Texture"
+        },
+        {
+          "passed": true,
+          "name": "destroying one user preserves shared resources for the other"
+        },
+        {
+          "passed": true,
+          "name": "remaining renderer still draws after its peer is destroyed"
+        },
+        {
+          "passed": true,
+          "name": "last user releases the remaining references"
+        },
+        {
+          "passed": true,
+          "name": "component destruction preserves the built-in shared quad and default material"
+        },
+        {
+          "passed": true,
+          "name": "all bitmap references are balanced after both arms and shared-user checks"
+        }
+      ],
+      "errors": [],
+      "passed": true,
+      "artifacts": "/var/folders/2f/7sv59rqx7gj4511kqykky7qm0000gn/T/laya-graphics-gpu-59orNV"
+    },
+    "shaderdata-webgl": {
+      "backend": "webgl",
+      "checks": [
+        {
+          "passed": true,
+          "name": "plain Sprite does not allocate ShaderData eagerly"
+        },
+        {
+          "passed": true,
+          "name": "renderer borrows Sprite-owned ShaderData"
+        },
+        {
+          "passed": true,
+          "name": "removing a renderer invalidates cached draw elements"
+        },
+        {
+          "passed": true,
+          "name": "destroying only the render component preserves Sprite ShaderData"
+        },
+        {
+          "passed": true,
+          "name": "ShaderData retains its own base/normal references after handle disposal",
+          "detail": {
+            "baseline": 0,
+            "afterComponentDestroy": 2
+          }
+        },
+        {
+          "passed": true,
+          "name": "surviving Sprite reuses its ShaderData when adding another renderer"
+        },
+        {
+          "passed": true,
+          "name": "owner destruction releases ShaderData exactly once",
+          "detail": {
+            "disposals": 1,
+            "baseline": 0,
+            "references": 0
+          }
+        },
+        {
+          "passed": true,
+          "name": "omitting only Sprite ShaderData cleanup leaves two texture references per Sprite",
+          "detail": {
+            "sprites": 10,
+            "baseline": 0,
+            "references": 20,
+            "leaked": 20
+          }
+        },
+        {
+          "passed": true,
+          "name": "explicit cleanup of the omitted ShaderData balances all references"
+        },
+        {
+          "passed": true,
+          "name": "same ten-Sprite workload with the fix has no residual texture references",
+          "detail": {
+            "sprites": 10,
+            "baseline": 0,
+            "references": 0
+          }
+        },
+        {
+          "passed": true,
+          "name": "Scene, manager and global render data reference the same scene data"
+        },
+        {
+          "passed": true,
+          "name": "child renderer does not own or destroy scene-global ShaderData"
+        },
+        {
+          "passed": true,
+          "name": "child destruction preserves scene-global data and its texture reference"
+        },
+        {
+          "passed": true,
+          "name": "Scene owner destroys shared scene data once and balances its texture reference"
+        }
+      ],
+      "errors": [],
+      "passed": true,
+      "artifacts": "/var/folders/2f/7sv59rqx7gj4511kqykky7qm0000gn/T/laya-graphics-gpu-CGjcA1"
+    },
+    "mesh-webgl": {
+      "backend": "webgl",
+      "checks": [
+        {
+          "passed": true,
+          "name": "inherited destructor leaves one sharedMesh reference",
+          "detail": {
+            "mesh": 1,
+            "texture": 1,
+            "material": 0,
+            "elementsDisposed": 0
+          }
+        },
+        {
+          "passed": true,
+          "name": "inherited destructor leaves one Texture wrapper reference",
+          "detail": {
+            "mesh": 1,
+            "texture": 1,
+            "material": 0,
+            "elementsDisposed": 0
+          }
+        },
+        {
+          "passed": true,
+          "name": "base class already releases assigned materials and unregisters owners"
+        },
+        {
+          "passed": true,
+          "name": "base class does not call render element destroy"
+        },
+        {
+          "passed": true,
+          "name": "manual release of omitted references restores baseline"
+        },
+        {
+          "passed": true,
+          "name": "new destructor balances mesh and Texture references",
+          "detail": {
+            "mesh": 0,
+            "texture": 0,
+            "material": 0,
+            "elementsDisposed": 1
+          }
+        },
+        {
+          "passed": true,
+          "name": "super destructor still releases materials once"
+        },
+        {
+          "passed": true,
+          "name": "new destructor disposes its render element exactly once"
+        },
+        {
+          "passed": true,
+          "name": "component cleanup releases references without forcing shared resource destruction"
+        },
+        {
+          "passed": true,
+          "name": "two renderers hold independent references to shared mesh and Texture"
+        },
+        {
+          "passed": true,
+          "name": "destroying one user preserves shared resources for the other"
+        },
+        {
+          "passed": true,
+          "name": "remaining renderer still draws after its peer is destroyed"
+        },
+        {
+          "passed": true,
+          "name": "last user releases the remaining references"
+        },
+        {
+          "passed": true,
+          "name": "component destruction preserves the built-in shared quad and default material"
+        },
+        {
+          "passed": true,
+          "name": "all bitmap references are balanced after both arms and shared-user checks"
+        }
+      ],
+      "errors": [],
+      "passed": true,
+      "artifacts": "/var/folders/2f/7sv59rqx7gj4511kqykky7qm0000gn/T/laya-graphics-gpu-qvqxaJ"
+    },
+    "author-webgpu": {
+      "backend": "webgpu",
+      "checks": [
+        {
+          "name": "original: Curve path pipeline / CurveBuilder 分别应用每条 current path 命令的构造矩阵",
+          "passed": true
+        },
+        {
+          "name": "original: Curve path pipeline / CurveSampler 对 current path ellipse 保留完整仿射变换",
+          "passed": true
+        },
+        {
+          "name": "original: Curve path pipeline / CurveBuilder 保留 cubic segment 语义",
+          "passed": true
+        },
+        {
+          "name": "original: Curve path pipeline / CurveSampler 为曲线采样点写入切线、法线和弧长",
+          "passed": true
+        },
+        {
+          "name": "original: Curve path pipeline / CurveSampler 解析 arc 的起终点",
+          "passed": true
+        },
+        {
+          "name": "original: Curve path pipeline / CurveSampler 按负向 arc sweep 修正切线方向",
+          "passed": true
+        },
+        {
+          "name": "original: Curve path pipeline / StrokeTessellator 用采样法线生成 AA mesh",
+          "passed": true
+        },
+        {
+          "name": "original: Curve path pipeline / CurveDashBuilder 按水平线弧长切出 [5, 5] dash-on 开放轮廓",
+          "passed": true
+        },
+        {
+          "name": "original: Curve path pipeline / CurveDashBuilder 归一化正负 lineDashOffset",
+          "passed": true
+        },
+        {
+          "name": "original: Curve path pipeline / CurveDashBuilder 自动复制奇数 dash pattern",
+          "passed": true
+        },
+        {
+          "name": "original: Curve path pipeline / CurveDashBuilder 在曲线和折线多 segment 上按采样弧长连续推进",
+          "passed": true
+        },
+        {
+          "name": "original: Curve path pipeline / CurveDashBuilder 闭合 rect 的 dash pattern 跨闭合边连续推进",
+          "passed": true
+        },
+        {
+          "name": "original: Curve path pipeline / CurveDashBuilder 空 pattern 保持原轮廓，全 0 pattern 返回空轮廓",
+          "passed": true
+        },
+        {
+          "name": "original: Curve path pipeline / StrokeTessellator 复用 dash-on 开放轮廓端点生成 butt、square、round cap",
+          "passed": true
+        },
+        {
+          "name": "original: Curve path pipeline / StrokeTessellator 关闭 AA 时 dash stroke 不生成 colors 或 fringe",
+          "passed": true
+        },
+        {
+          "name": "original: Curve path pipeline / FillTessellator 为曲线填充生成带 alpha fringe 的 mesh",
+          "passed": true
+        },
+        {
+          "name": "original: Curve path pipeline / FillTessellator 对未 closePath 的圆形填充也生成 AA fringe",
+          "passed": true
+        },
+        {
+          "name": "original: Curve path pipeline / FillTessellator 为 sector 的完整边界生成 GPU fringe",
+          "passed": true
+        },
+        {
+          "name": "original: Curve path pipeline / FillTessellator 为 arc band 的完整边界生成 GPU fringe",
+          "passed": true
+        },
+        {
+          "name": "original: CurveBuilder 与 CurveSampler 曲线采样 / quadraticCurveTo 端点正确",
+          "passed": true
+        },
+        {
+          "name": "original: CurveBuilder 与 CurveSampler 曲线采样 / quadraticCurveTo 中点附近采样到曲线顶点",
+          "passed": true
+        },
+        {
+          "name": "original: CurveBuilder 与 CurveSampler 曲线采样 / bezierCurveTo 端点正确",
+          "passed": true
+        },
+        {
+          "name": "original: CurveBuilder 与 CurveSampler 曲线采样 / bezierCurveTo 中点附近采样到曲线顶点",
+          "passed": true
+        },
+        {
+          "name": "original: CurveBuilder 与 CurveSampler 曲线采样 / arc 顺时针端点正确",
+          "passed": true
+        },
+        {
+          "name": "original: CurveBuilder 与 CurveSampler 曲线采样 / arc 逆时针走长边且终点正确",
+          "passed": true
+        },
+        {
+          "name": "original: CurveBuilder 与 CurveSampler 曲线采样 / arc 等角展开为整圆",
+          "passed": true
+        },
+        {
+          "name": "original: CurveBuilder 与 CurveSampler 曲线采样 / arc 采用稳定的最小分段密度",
+          "passed": true
+        },
+        {
+          "name": "original: CurveBuilder 与 CurveSampler 曲线采样 / arc 会按屏幕半径动态提高最小分段密度",
+          "passed": true
+        },
+        {
+          "name": "original: CurveBuilder 与 CurveSampler 曲线采样 / ellipse 采用稳定的最小分段密度，半圆弧不会过度稀疏",
+          "passed": true
+        },
+        {
+          "name": "original: CurveBuilder 与 CurveSampler 曲线采样 / ellipse rotation 与半径",
+          "passed": true
+        },
+        {
+          "name": "original: CurveBuilder 与 CurveSampler 曲线采样 / arcTo 按 corner 两侧切线生成圆角",
+          "passed": true
+        },
+        {
+          "name": "original: CurveBuilder 与 CurveSampler 曲线采样 / arcTo 共线时退化为 lineTo corner",
+          "passed": true
+        },
+        {
+          "name": "original: CurveBuilder 与 CurveSampler 曲线采样 / transform 在采样阶段应用到屏幕空间",
+          "passed": true
+        },
+        {
+          "name": "original: Canvas 颜色解析 / 复用 core Color 并处理 Canvas 常见颜色输入",
+          "passed": true
+        },
+        {
+          "name": "original: 曲线展开与填充三角化 / CurveBuilder 与 CurveSampler 展开直线路径并应用 transform",
+          "passed": true
+        },
+        {
+          "name": "original: FillTessellator 填充几何 / 把采样后的路径写入可复用 mesh",
+          "passed": true
+        },
+        {
+          "name": "original: FillTessellator 填充几何 / 开启 AA 时生成 GPU edge fringe",
+          "passed": true
+        },
+        {
+          "name": "original: FillTessellator 填充几何 / 关闭 AA 时保持原始行为",
+          "passed": true
+        },
+        {
+          "name": "original: FillTessellator 填充几何 / 外轮廓通过法线标记 GPU 外扩方向",
+          "passed": true
+        },
+        {
+          "name": "original: FillTessellator 填充几何 / 洞 fringe 通过反向法线标记 GPU 内扩方向",
+          "passed": true
+        },
+        {
+          "name": "original: FillTessellator 填充几何 / 按 evenodd 处理重叠轮廓的 XOR 区域",
+          "passed": true
+        },
+        {
+          "name": "original: FillTessellator 填充几何 / 对象与 buffer 复用",
+          "passed": true
+        },
+        {
+          "name": "original: MeshBuilder 与 RenderArena / 复用内部 buffer 并写入 quad 数据",
+          "passed": true
+        },
+        {
+          "name": "original: MeshBuilder 与 RenderArena / 按需启用并复用 per-vertex color buffer",
+          "passed": true
+        },
+        {
+          "name": "original: MeshBuilder 与 RenderArena / 写入三角化 polyline 数据",
+          "passed": true
+        },
+        {
+          "name": "original: MeshBuilder 与 RenderArena / RenderArena 每帧复用 MeshBuilder",
+          "passed": true
+        },
+        {
+          "name": "original: StrokeTessellator 描边几何 / 生成水平线 quad 顶点",
+          "passed": true
+        },
+        {
+          "name": "original: StrokeTessellator 描边几何 / 生成垂直线 quad 顶点",
+          "passed": true
+        },
+        {
+          "name": "original: StrokeTessellator 描边几何 / 关闭 AA 时保持原始 stroke 几何宽度",
+          "passed": true
+        },
+        {
+          "name": "original: StrokeTessellator 描边几何 / 折线 join 不断裂（bevel）",
+          "passed": true
+        },
+        {
+          "name": "original: StrokeTessellator 描边几何 / closed polyline 首尾连接，闭合矩形 4 角均生成 miter join",
+          "passed": true
+        },
+        {
+          "name": "original: StrokeTessellator 描边几何 / transform 后 stroke 坐标正确",
+          "passed": true
+        },
+        {
+          "name": "original: StrokeTessellator 描边几何 / lineWidth 生效",
+          "passed": true
+        },
+        {
+          "name": "original: StrokeTessellator 描边几何 / 对象与 buffer 复用",
+          "passed": true
+        },
+        {
+          "name": "original: StrokeTessellator 描边几何 / lineCap square 在端点外侧延伸 halfWidth",
+          "passed": true
+        },
+        {
+          "name": "original: StrokeTessellator 描边几何 / lineCap round 发射半圆扇形，顶点数显著多于 butt",
+          "passed": true
+        },
+        {
+          "name": "original: StrokeTessellator 描边几何 / lineJoin round 在拐角发射圆弧，顶点数多于 bevel",
+          "passed": true
+        },
+        {
+          "name": "original: StrokeTessellator 描边几何 / miter join 生成 GPU AA 边界属性",
+          "passed": true
+        },
+        {
+          "name": "original: Path2D.addPath / 支持 transform 参数",
+          "passed": true
+        },
+        {
+          "name": "solid paint A",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              0,
+              0,
+              255
+            ],
+            "expected": [
+              255,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "solid paint B",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              255,
+              0,
+              255
+            ],
+            "expected": [
+              0,
+              255,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "solid paint A/B/A order",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              0,
+              255,
+              255
+            ],
+            "expected": [
+              0,
+              0,
+              255,
+              255
+            ]
+          }
+        },
+        {
+          "name": "beginFrame replaces geometry",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              255,
+              0,
+              255
+            ],
+            "expected": [
+              255,
+              255,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "mesh and CPU capacity reused",
+          "passed": true
+        },
+        {
+          "name": "shrinking mesh updates draw range",
+          "passed": true
+        },
+        {
+          "name": "material blend transition",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              255,
+              0,
+              255
+            ],
+            "expected": [
+              255,
+              255,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "material A/B/A keeps order",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              0,
+              255,
+              255
+            ],
+            "expected": [
+              0,
+              0,
+              255,
+              255
+            ]
+          }
+        },
+        {
+          "name": "geometry transform and alpha",
+          "passed": true,
+          "detail": {
+            "actual": [
+              128,
+              0,
+              0,
+              128
+            ],
+            "expected": [
+              128,
+              0,
+              0,
+              128
+            ]
+          }
+        },
+        {
+          "name": "transform bounds",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "expected": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "name": "rect clip inside",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              255,
+              0,
+              255
+            ],
+            "expected": [
+              0,
+              255,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "rect clip outside",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "expected": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "name": "path clip inside",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              0,
+              255,
+              255
+            ],
+            "expected": [
+              0,
+              0,
+              255,
+              255
+            ]
+          }
+        },
+        {
+          "name": "path clip outside",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "expected": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "name": "evenodd shell",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              0,
+              0,
+              255
+            ],
+            "expected": [
+              255,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "evenodd hole",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "expected": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "name": "linear gradient interpolation",
+          "passed": true,
+          "detail": {
+            "actual": [
+              189,
+              0,
+              66,
+              255
+            ],
+            "expected": [
+              189,
+              0,
+              66,
+              255
+            ]
+          }
+        },
+        {
+          "name": "radial gradient",
+          "passed": true,
+          "detail": {
+            "center": [
+              250,
+              250,
+              250,
+              255
+            ],
+            "edge": [
+              27,
+              27,
+              27,
+              255
+            ]
+          }
+        },
+        {
+          "name": "image UV top left",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              0,
+              0,
+              255
+            ],
+            "expected": [
+              255,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "image UV top right",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              255,
+              0,
+              255
+            ],
+            "expected": [
+              0,
+              255,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "image UV bottom left",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              0,
+              255,
+              255
+            ],
+            "expected": [
+              0,
+              0,
+              255,
+              255
+            ]
+          }
+        },
+        {
+          "name": "texture switch preserves following paint",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              0,
+              255,
+              255
+            ],
+            "expected": [
+              0,
+              0,
+              255,
+              255
+            ]
+          }
+        },
+        {
+          "name": "texture switch preserves previous paint",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              0,
+              0,
+              255
+            ],
+            "expected": [
+              255,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "pattern texture path",
+          "passed": true
+        },
+        {
+          "name": "text rasterization through public canvas API",
+          "passed": true,
+          "detail": {
+            "glyphs": 712
+          }
+        },
+        {
+          "name": "measureText",
+          "passed": true
+        },
+        {
+          "name": "strokeText",
+          "passed": true
+        },
+        {
+          "name": "partial clearRect",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "expected": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "name": "partial clear preserves outside",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              0,
+              0,
+              255
+            ],
+            "expected": [
+              255,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "putImageData upload",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              255,
+              0,
+              255
+            ],
+            "expected": [
+              0,
+              255,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "async pixel readback",
+          "passed": true
+        },
+        {
+          "name": "offscreen source-in overlap",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              0,
+              255,
+              255
+            ],
+            "expected": [
+              0,
+              0,
+              255,
+              255
+            ]
+          }
+        },
+        {
+          "name": "offscreen source-in clears nonoverlap",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "expected": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "name": "unattached canvas snapshot",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              255,
+              0,
+              255
+            ],
+            "expected": [
+              0,
+              255,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "renderScale asynchronous readback",
+          "passed": true
+        },
+        {
+          "name": "offscreen multiply",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "expected": [
+              0,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "offscreen destination-in",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              0,
+              0,
+              255
+            ],
+            "expected": [
+              255,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "offscreen copy",
+          "passed": true,
+          "detail": {
+            "actual": [
+              0,
+              0,
+              255,
+              255
+            ],
+            "expected": [
+              0,
+              0,
+              255,
+              255
+            ]
+          }
+        },
+        {
+          "name": "paint table overflow uses direct fallback",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "expected": [
+              255,
+              255,
+              255,
+              255
+            ]
+          }
+        },
+        {
+          "name": "large batch uses UInt32 without index wrapping",
+          "passed": true
+        },
+        {
+          "name": "AA fringe coverage",
+          "passed": true
+        },
+        {
+          "name": "AA handles parent transform and alpha",
+          "passed": true
+        },
+        {
+          "name": "public Graphics executor",
+          "passed": true,
+          "detail": {
+            "actual": [
+              255,
+              0,
+              0,
+              255
+            ],
+            "expected": [
+              255,
+              0,
+              0,
+              255
+            ]
+          }
+        },
+        {
+          "name": "200 steady frames reuse mesh and arrays",
+          "passed": true
+        },
+        {
+          "name": "transient bitmap material cache stays bounded",
+          "passed": true
+        },
+        {
+          "name": "300 create/flush/destroy cycles retain stable resource count",
+          "passed": true,
+          "detail": {
+            "before": 13,
+            "after": 13
+          }
+        },
+        {
+          "name": "white texture references balanced",
+          "passed": true,
+          "detail": {
+            "before": 0,
+            "after": 0
+          }
+        },
+        {
+          "name": "retained heap after 200 measured cycles <2 MiB",
+          "passed": true,
+          "detail": {
+            "heapBefore": 24269759,
+            "heapAfter": 24665259,
+            "delta": 395500
+          }
+        }
+      ],
+      "errors": [],
+      "passed": true,
+      "artifacts": "/var/folders/2f/7sv59rqx7gj4511kqykky7qm0000gn/T/laya-canvas-adapted-gr8HI4"
+    }
+  },
+  "performance": {
+    "node": "v22.12.0",
+    "v8": "12.4.254.21-node.21",
+    "arch": "arm64",
+    "platform": "darwin",
+    "cpu": "Apple M1 Pro",
+    "target": "ES2017",
+    "baseline": "4ee7c4f130dc8906367846b847b8d486c67d9b57",
+    "baselineGPU": "741164f04b66713097a9e710fd37edb6ebe1eab5",
+    "files": {
+      "display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsCompileContext.ts": "21544a7062ae89a36768b51f14053de4bdba1f5fb11aaff257b957d2e85a801b",
+      "display/Scene2DSpecial/Mesh2DRender.ts": "8de5929e80ceb213b30411ed54a42ca58460e481f2a02bf1c79e97e30157e25b",
+      "RenderDriver/WebGPUDriver/2DRenderPass/WebGPURenderElement2D.ts": "7820b6e93a84f103f9fd054582997fa72a42471fba1457e8ebad10da133eb6d9",
+      "RenderDriver/WebGPUDriver/RenderDevice/WebGPUShaderData.ts": "8807e7fced3c72a0d0c0883e82282c115e4264ed7347cb6af88598062b2a0168"
+    },
+    "comparison": {
+      "triangles": {
+        "ratio": 0.9258555369260257,
+        "ci95": [
+          0.8777435817847002,
+          0.972330414919755
+        ],
+        "beforeMedianNs": 269.51421693313983,
+        "afterMedianNs": 250.54752252252274,
+        "pairRatios": [
+          0.9286130529195321,
+          0.9565173462130083,
+          0.7713189935514569,
+          0.9215568716595716,
+          0.8482542506474253,
+          0.9295933537917183,
+          0.9273404688944068,
+          0.9376227642441386,
+          1.0678066566792035,
+          1.0013120562913447
+        ]
+      },
+      "rectangles": {
+        "ratio": 1.0216216397971023,
+        "ci95": [
+          0.9905504587682573,
+          1.0520048680053076
+        ],
+        "beforeMedianNs": 210.16729689878198,
+        "afterMedianNs": 212.22093563987877,
+        "pairRatios": [
+          1.072310729598932,
+          1.0478372286358442,
+          0.9302020924980893,
+          1.0033000334417796,
+          1.0184549520975832,
+          0.9940197023910915,
+          1.0213527781499976,
+          0.9746426697630786,
+          1.112240026649362,
+          1.053711421994647
+        ]
+      },
+      "images": {
+        "ratio": 0.9703334367197362,
+        "ci95": [
+          0.9201720858478116,
+          1.0059288671418556
+        ],
+        "beforeMedianNs": 279.1646550648692,
+        "afterMedianNs": 278.1633305596693,
+        "pairRatios": [
+          1.012436564804379,
+          0.9593793888923247,
+          0.7838441147821696,
+          0.9830799493162299,
+          0.9804220207808114,
+          0.9989973171767482,
+          0.9548014793432198,
+          1.034492317922461,
+          1.028590820005608,
+          0.9935113839480949
+        ]
+      },
+      "mixed": {
+        "ratio": 0.9688456804397881,
+        "ci95": [
+          0.9547326055895275,
+          0.9889957340568277
+        ],
+        "beforeMedianNs": 198.3322164601292,
+        "afterMedianNs": 190.9030081875874,
+        "pairRatios": [
+          0.953591040610403,
+          0.9486568377479044,
+          0.9619706567100481,
+          0.9494329343747867,
+          0.9875675494824269,
+          0.9493557090346489,
+          0.9720801262553865,
+          0.965079379653752,
+          1.050996924956506,
+          0.9540833763266434
+        ]
+      },
+      "material-same": {
+        "ratio": 0.025136519439466314,
+        "ci95": [
+          0.024646914570564248,
+          0.025705590008768223
+        ],
+        "beforeMedianNs": 213.26290423075795,
+        "afterMedianNs": 5.3084664141871025,
+        "pairRatios": [
+          0.02630941941567191,
+          0.02406909637280437,
+          0.02479886278400548,
+          0.02675209033894849,
+          0.02483917788373976,
+          0.024724859445141887,
+          0.024312207529209637,
+          0.024870511994323753,
+          0.02620437474836099,
+          0.024634112173146993
+        ]
+      },
+      "material-change": {
+        "ratio": 0.19577917022138883,
+        "ci95": [
+          0.1895609616573171,
+          0.20214537779213854
+        ],
+        "beforeMedianNs": 285.73248813429836,
+        "afterMedianNs": 54.88854821582259,
+        "pairRatios": [
+          0.20519293048341145,
+          0.17743353956200453,
+          0.21040315162783754,
+          0.1969645652336575,
+          0.1912595282593964,
+          0.20834068334397385,
+          0.2036944872946614,
+          0.190509512760654,
+          0.18725833924363344,
+          0.1893616845127089
+        ]
+      },
+      "webgpu-prepare-sprite": {
+        "ratio": 0.9888638387975399,
+        "ci95": [
+          0.9747524335194849,
+          1.0024187376582872
+        ],
+        "beforeMedianNs": 17.559143637659382,
+        "afterMedianNs": 17.4859554695566,
+        "pairRatios": [
+          0.986485709097328,
+          0.9790296336998487,
+          0.9411482948144991,
+          0.9897349787520183,
+          1.0315304017075466,
+          0.9970963839741238,
+          1.0001706145536238,
+          0.9706325624115584,
+          1.0022514292954694,
+          0.9930623974287897
+        ]
+      },
+      "webgpu-prepare-material": {
+        "ratio": 0.9945166721223719,
+        "ci95": [
+          0.9823635145405044,
+          1.0062218996018542
+        ],
+        "beforeMedianNs": 21.907003572696787,
+        "afterMedianNs": 21.88636760917631,
+        "pairRatios": [
+          0.990821812835981,
+          0.9916010588319978,
+          0.9709768340849312,
+          1.0036711602553807,
+          1.0148402564141557,
+          1.0229748434587698,
+          1.016238768704351,
+          0.9993948611885874,
+          0.9750011961860865,
+          0.9615838627706481
+        ]
+      }
+    },
+    "control": {
+      "triangles": {
+        "ratio": 0.9786092143813778,
+        "ci95": [
+          0.9376362562983976,
+          1.0213726144217725
+        ],
+        "beforeMedianNs": 277.74386935764016,
+        "afterMedianNs": 274.09560681706125,
+        "pairRatios": [
+          0.9567482872729334,
+          0.9189060077977169,
+          1.0251569472691786,
+          1.0176022513134761
+        ]
+      },
+      "rectangles": {
+        "ratio": 0.9873187626806461,
+        "ci95": [
+          0.9501112173185838,
+          1.0186675941818664
+        ],
+        "beforeMedianNs": 214.79992988782118,
+        "afterMedianNs": 213.3108362268506,
+        "pairRatios": [
+          1.0198384966558258,
+          0.9286557116398524,
+          0.9860747671797392,
+          1.017498036050769
+        ]
+      },
+      "images": {
+        "ratio": 0.9606726062132754,
+        "ci95": [
+          0.9452557351104283,
+          0.9754057724386405
+        ],
+        "beforeMedianNs": 293.15446380875983,
+        "afterMedianNs": 280.84359217171954,
+        "pairRatios": [
+          0.9818686483119461,
+          0.9549287598074265,
+          0.9689854366389236,
+          0.9374756828612206
+        ]
+      },
+      "mixed": {
+        "ratio": 1.0026912975270525,
+        "ci95": [
+          0.988657658293639,
+          1.015541997299337
+        ],
+        "beforeMedianNs": 199.02677617521326,
+        "afterMedianNs": 199.36558067375813,
+        "pairRatios": [
+          1.0017023061170756,
+          0.9828084043341351,
+          1.0201975894349975,
+          1.0064151236556023
+        ]
+      },
+      "material-same": {
+        "ratio": 0.9991279265055633,
+        "ci95": [
+          0.9912644927282861,
+          1.0070537387814382
+        ],
+        "beforeMedianNs": 214.5528398453652,
+        "afterMedianNs": 214.98402803416178,
+        "pairRatios": [
+          0.9940674783560866,
+          1.0093747305419334,
+          0.9884694107172931,
+          1.0047380839910387
+        ]
+      },
+      "material-change": {
+        "ratio": 1.0077025349146829,
+        "ci95": [
+          0.9993305566159257,
+          1.0132251244875277
+        ],
+        "beforeMedianNs": 283.95886116855974,
+        "afterMedianNs": 287.2714989667734,
+        "pairRatios": [
+          1.0116659074648395,
+          1.0095474981186017,
+          0.9952522876389196,
+          1.0144539746546948
+        ]
+      },
+      "webgpu-prepare-sprite": {
+        "ratio": 1.0064091846977639,
+        "ci95": [
+          0.9776840727341132,
+          1.0335642669800467
+        ],
+        "beforeMedianNs": 17.497960481917016,
+        "afterMedianNs": 17.754860632824073,
+        "pairRatios": [
+          0.9656537726542956,
+          1.0028723561875907,
+          1.0146817196879914,
+          1.0440022344676345
+        ]
+      },
+      "webgpu-prepare-material": {
+        "ratio": 1.0118918896815767,
+        "ci95": [
+          0.9955318792528625,
+          1.0348640186630886
+        ],
+        "beforeMedianNs": 21.663043410962025,
+        "afterMedianNs": 21.761879326381276,
+        "pairRatios": [
+          1.0103006955522889,
+          1.0470693928398824,
+          0.9990949280029865,
+          0.9919815373197185
+        ]
+      }
+    }
+  },
+  "performanceRawFile": "/tmp/laya-webgpu-final-review/performance-final.json",
+  "cacheBenchmark": {
+    "node": "v22.12.0",
+    "target": "ES2017",
+    "scope": "CPU binding-cache cleanup only; creation and GPU work excluded",
+    "beforeSHA256": "d8ba714308c01f61e10d9c1cb8b4243b1ddf20c8d13ddb662d33d2a0e0d89ddc",
+    "afterSHA256": "a718ac220e12564a35c17288e9c4f54dac4981b8ad8ea2960015c47b4b86517b",
+    "cases": {
+      "1000": {
+        "beforeMedianMs": 11.52275000000003,
+        "afterMedianMs": 0.07483300000001236,
+        "beforeValidations": 516500,
+        "afterValidations": 1016,
+        "before": [
+          {
+            "elapsedMs": 11.829250000000002,
+            "validations": 516500
+          },
+          {
+            "elapsedMs": 69.36754199999996,
+            "validations": 516500
+          },
+          {
+            "elapsedMs": 21.213082999999983,
+            "validations": 516500
+          },
+          {
+            "elapsedMs": 11.007665999999972,
+            "validations": 516500
+          },
+          {
+            "elapsedMs": 11.46004099999999,
+            "validations": 516500
+          },
+          {
+            "elapsedMs": 11.52275000000003,
+            "validations": 516500
+          },
+          {
+            "elapsedMs": 11.001792000000023,
+            "validations": 516500
+          },
+          {
+            "elapsedMs": 11.133958000000007,
+            "validations": 516500
+          },
+          {
+            "elapsedMs": 11.65100000000001,
+            "validations": 516500
+          }
+        ],
+        "after": [
+          {
+            "elapsedMs": 0.8188329999999837,
+            "validations": 1016
+          },
+          {
+            "elapsedMs": 0.5560839999999985,
+            "validations": 1016
+          },
+          {
+            "elapsedMs": 0.28600000000000136,
+            "validations": 1016
+          },
+          {
+            "elapsedMs": 0.15379200000000992,
+            "validations": 1016
+          },
+          {
+            "elapsedMs": 0.06433400000003076,
+            "validations": 1016
+          },
+          {
+            "elapsedMs": 0.06716699999998355,
+            "validations": 1016
+          },
+          {
+            "elapsedMs": 0.06691699999998946,
+            "validations": 1016
+          },
+          {
+            "elapsedMs": 0.06049999999999045,
+            "validations": 1016
+          },
+          {
+            "elapsedMs": 0.07483300000001236,
+            "validations": 1016
+          }
+        ]
+      },
+      "5000": {
+        "beforeMedianMs": 284.0009580000001,
+        "afterMedianMs": 0.2773749999998927,
+        "beforeValidations": 12582500,
+        "afterValidations": 5016,
+        "before": [
+          {
+            "elapsedMs": 291.679583,
+            "validations": 12582500
+          },
+          {
+            "elapsedMs": 286.0748330000001,
+            "validations": 12582500
+          },
+          {
+            "elapsedMs": 284.0009580000001,
+            "validations": 12582500
+          },
+          {
+            "elapsedMs": 339.01645800000006,
+            "validations": 12582500
+          },
+          {
+            "elapsedMs": 271.5290829999999,
+            "validations": 12582500
+          },
+          {
+            "elapsedMs": 275.3103329999999,
+            "validations": 12582500
+          },
+          {
+            "elapsedMs": 271.3214579999999,
+            "validations": 12582500
+          },
+          {
+            "elapsedMs": 284.93508299999985,
+            "validations": 12582500
+          },
+          {
+            "elapsedMs": 277.47633300000007,
+            "validations": 12582500
+          }
+        ],
+        "after": [
+          {
+            "elapsedMs": 0.4972500000001219,
+            "validations": 5016
+          },
+          {
+            "elapsedMs": 0.9131250000000364,
+            "validations": 5016
+          },
+          {
+            "elapsedMs": 0.2773749999998927,
+            "validations": 5016
+          },
+          {
+            "elapsedMs": 0.37295799999992596,
+            "validations": 5016
+          },
+          {
+            "elapsedMs": 0.3137080000001333,
+            "validations": 5016
+          },
+          {
+            "elapsedMs": 0.2513750000002801,
+            "validations": 5016
+          },
+          {
+            "elapsedMs": 0.2749170000001868,
+            "validations": 5016
+          },
+          {
+            "elapsedMs": 0.26650000000017826,
+            "validations": 5016
+          },
+          {
+            "elapsedMs": 0.2697920000000522,
+            "validations": 5016
+          }
+        ]
+      }
+    }
+  },
+  "supersededMeasurement": {
+    "rawFile": "/tmp/laya-webgpu-final-review/performance.json",
+    "reason": "Initial fixture used plain state fields rather than production ShaderData getters; single-pilot calibration admitted a one-iteration rectangle sample after a process pause. Replaced by repeated calibration and production getters; all new formal samples retained."
+  }
+}
