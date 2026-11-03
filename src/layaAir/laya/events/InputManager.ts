@@ -289,7 +289,10 @@ export class InputManager {
         //console.log("handleMouse", type);
         let touch: TouchInfo = this._mouseTouch;
 
-        _tempPoint.setTo(ev.pageX || ev.clientX, ev.pageY || ev.clientY);
+        if (Browser.isDomSupported)
+            this.getCanvasPoint(ev.clientX, ev.clientY, _tempPoint);
+        else
+            _tempPoint.setTo(ev.pageX || ev.clientX, ev.pageY || ev.clientY);
         this._stage._canvasTransform.invertTransformPoint(_tempPoint);
         InputManager.mouseX = _tempPoint.x;
         InputManager.mouseY = _tempPoint.y;
@@ -415,7 +418,10 @@ export class InputManager {
                 && this._touches[0].touchId != uTouch.identifier)
                 continue;
 
-            _tempPoint.setTo(uTouch.pageX, uTouch.pageY);
+            if (Browser.isDomSupported)
+                this.getCanvasPoint(uTouch.clientX, uTouch.clientY, _tempPoint);
+            else
+                _tempPoint.setTo(uTouch.pageX, uTouch.pageY);
             this._stage._canvasTransform.invertTransformPoint(_tempPoint);
             InputManager.mouseX = _tempPoint.x;
             InputManager.mouseY = _tempPoint.y;
@@ -521,6 +527,32 @@ export class InputManager {
         this._touches.push(touch);
 
         return touch;
+    }
+
+    /**
+     * Convert viewport coordinates to the space expected by _canvasTransform.
+     * Ancestors may translate or positively scale the canvas, including through
+     * scrolling. Arbitrary ancestor rotation, skew and perspective are not supported.
+     */
+    private getCanvasPoint(clientX: number, clientY: number, out: Point): Point {
+        const canvas = Browser.mainCanvas.source;
+        const rect = canvas.getBoundingClientRect();
+        if (!rect.width || !rect.height)
+            return out.setTo(clientX, clientY);
+
+        const mat = this._stage._canvasTransform;
+        const width = canvas.width;
+        const height = canvas.height;
+        const ax = mat.a * width;
+        const cy = mat.c * height;
+        const bx = mat.b * width;
+        const dy = mat.d * height;
+        // Account for Stage's own rotation before removing the ancestor scale.
+        // Using the canvas bounds also handles zero-height parents and their borders.
+        const x = (clientX - rect.left) * (Math.abs(ax) + Math.abs(cy)) / rect.width;
+        const y = (clientY - rect.top) * (Math.abs(bx) + Math.abs(dy)) / rect.height;
+        return out.setTo(x + Math.min(0, ax) + Math.min(0, cy) + mat.tx,
+            y + Math.min(0, bx) + Math.min(0, dy) + mat.ty);
     }
 
     /**
