@@ -2,6 +2,7 @@ import { ILaya } from "../../ILaya";
 import { Sprite } from "../display/Sprite";
 import { Text } from "../display/Text";
 import { Loader } from "../net/Loader";
+import { Texture } from "../resource/Texture";
 import { HtmlElement } from "./HtmlElement";
 import { IHtmlObject } from "./IHtmlObject";
 
@@ -78,25 +79,39 @@ export class HtmlImage implements IHtmlObject {
         if (height != -1)
             this.obj.height = height;
 
-        let tex = Loader.getRes(src);
-        if (tex) {
+        const applyTextureSize = (tex: Texture) => {
             this.obj.texture = tex;
             if (width == -1)
                 this.obj.width = tex.sourceWidth;
-            if (height == -1)
-                this.obj.height = tex.sourceHeight;
+            if (height == -1) {
+                const fontSize = (this._owner && this._owner.fontSize) || 12;
+                this.obj.height = fontSize;
+                if (width == -1) {
+                    const ratio = tex.sourceHeight > 0 ? tex.sourceWidth / tex.sourceHeight : 1;
+                    this.obj.width = Math.round(ratio * fontSize);
+                }
+            }
+        };
+        let tex = Loader.getRes(src);
+        if (tex) {
+            applyTextureSize(tex);
         }
         else {
             let ver = this._v;
-            ILaya.loader.load(src, { silent: true }).then(tex => {
-                if (this.obj.destroyed || ver != this._v) return;
+            ILaya.loader.load(src, { silent: true }).then((tex: Texture) => {
+                if (this.obj.destroyed || ver != this._v)
+                    return;
                 let w = this.obj.width;
                 let h = this.obj.height;
-                this.obj.texture = tex;
-                if (width == -1)
-                    this.obj.width = tex ? tex.sourceWidth : 0;
-                if (height == -1)
-                    this.obj.height = tex ? tex.sourceHeight : 0;
+                if (tex) {
+                    applyTextureSize(tex);
+                }
+                else {
+                    if (width == -1)
+                        this.obj.width = 0;
+                    if (height == -1)
+                        this.obj.height = 0;
+                }
                 if (this._owner && (w != this.obj.width || h != this.obj.height))
                     this._owner.refreshLayout();
             });
