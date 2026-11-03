@@ -145,6 +145,16 @@ export class HtmlParser {
 
                         this._style.fontSize = XMLUtils.getInt(XMLIterator.attributes, "size", this._style.fontSize);
                         let color: string = XMLIterator.getAttribute("color");
+
+                        let strokeColor: string = XMLIterator.getAttribute("strokecolor");
+                        let strokeSize: string = XMLIterator.getAttribute("stroke");
+                        if (strokeColor != null) {
+                            this._style.strokeColor = strokeColor;
+                            (<any>this._style).colorChanged = true;
+                        }
+                        if(strokeSize != null) {
+                            this._style.stroke = Number(strokeSize);
+                        }
                         if (color != null) {
                             this._style.color = color;
                             (<any>this._style).colorChanged = true;

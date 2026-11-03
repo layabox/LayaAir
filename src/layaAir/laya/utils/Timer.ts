@@ -14,6 +14,7 @@ export class Timer {
     /**@private */
     static _mid: number = 1;
 
+    static timerHandlerCatchError: (error: any) => void;
 
     /**
      * @en Scale of the clock hand.
@@ -483,12 +484,20 @@ class TimerHandler {
      * @param withClear 是否在执行后清除处理程序。
      */
     run(withClear: boolean): void {
-        var caller: any = this.caller;
-        if (caller && caller.destroyed) return this.clear();
-        var method: Function = this.method;
-        var args: any[] = this.args;
-        withClear && this.clear();
-        if (method == null) return;
-        args ? method.apply(caller, args) : method.call(caller);
+        try {
+            var caller: any = this.caller;
+            if (caller && caller.destroyed) return this.clear();
+            var method: Function = this.method;
+            var args: any[] = this.args;
+            withClear && this.clear();
+            if (method == null) return;
+            args ? method.apply(caller, args) : method.call(caller);
+        } catch (error) {
+            if (Timer.timerHandlerCatchError) {
+                Timer.timerHandlerCatchError(error);
+            } else {
+                throw error;
+            }
+        }
     }
 }

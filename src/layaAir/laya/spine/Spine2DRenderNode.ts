@@ -35,6 +35,10 @@ import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Matrix4x4 } from "../maths/Matrix4x4";
 import { Vector4 } from "../maths/Vector4";
 
+export interface IPlayTrackAniOptions {
+    start?: number,
+}
+
 /**
  * @en The spine animation consists of three parts: `SpineTemplet`, `SpineSkeletonRender`, and `SpineSkeleton`.
  * - Event.PLAYED Used for animation start playing dispatch
@@ -460,6 +464,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
                 // console.log("dispose:", entry);
             },
             complete: (entry: any) => {
+                if (entry.trackIndex != 0) {
+                    return;
+                }
                 // console.log("complete:", entry);
                 this.event(Event.END);
                 if (entry.loop) { // 如果多次播放,发送complete事件
@@ -469,6 +476,9 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
                 }
             },
             event: (entry: any, event: any) => {
+                if (entry.trackIndex != 0) {
+                    return;
+                }
                 let eventData = {
                     audioValue: event.data.audioPath,
                     audioPath: event.data.audioPath,
@@ -555,6 +565,34 @@ export class Spine2DRenderNode extends BaseRenderNode2D implements ISpineSkeleto
             this._update();
             this.event(Event.PLAYED);
         }
+    }
+
+    /**
+     * @zh 播放叠轨动画。
+     * @param nameOrIndex 动画名字或者索引。
+     * @param loop 是否循环播放。
+     * @param options 播放选项。
+     * @returns 
+     */
+    public playTrackAni(nameOrIndex: string | number, loop: boolean, options?: IPlayTrackAniOptions) {
+        if (typeof nameOrIndex == "number") {
+            nameOrIndex = this.getAniNameByIndex(nameOrIndex);
+        }else{
+            let hasAni = !!this.templet.findAnimation(nameOrIndex);
+            if (!hasAni) return
+        }
+        const start = options && typeof (options.start) == "number" ? options.start : 0;
+        const trackEntry = this._state.setAnimation(1, nameOrIndex, loop);
+        if (trackEntry) {
+            trackEntry.animationStart = start;
+        }
+    }
+
+    /**
+     * @zh 停止叠轨动画。
+     */
+    public stopTrackAni(): void {
+        this._state.clearTrack(1);
     }
 
     private _update(): void {

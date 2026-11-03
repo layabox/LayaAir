@@ -89,6 +89,9 @@ export class HttpRequest extends EventDispatcher {
         http.onload = (e: any) => {
             this._onLoad(e);
         }
+        http.ontimeout = (e: any) => {
+            this.error("timeout");
+        }
 
         http.send(data);
     }
@@ -180,7 +183,7 @@ export class HttpRequest extends EventDispatcher {
      */
     protected clear(): void {
         var http: any = this._http;
-        http.onerror = http.onabort = http.onprogress = http.onload = null;
+        http.onerror = http.onabort = http.onprogress = http.onload = http.ontimeout = null;
     }
 
     /**
