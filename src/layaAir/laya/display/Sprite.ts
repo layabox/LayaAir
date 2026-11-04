@@ -2411,7 +2411,9 @@ export class Sprite extends Node {
         if (parentVisible == null)
             parentVisible = !(this._parent instanceof Sprite) || this._parent._struct.enabled;
 
-        let b = parentVisible && this._visible && !this._getBit(hiddenBits);
+        const visible = this._visible || (!LayaEnv.isPlaying
+            && (<any>this._extra).forceVisible && !this._getBit(NodeFlags.FORCE_HIDDEN));
+        const b = parentVisible && !!visible && !this._getBit(hiddenBits);
         let changed = false;
         if (this._struct && this._struct.enabled !== b) {
             changed = true;
