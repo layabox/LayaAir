@@ -326,8 +326,11 @@ export class ColorEffect2D extends PostProcess2DEffect {
 
     /** @ignore */
     render(context: PostProcessRenderContext2D): void {
-        this._checkRenderTarget(context.indirectTarget.width, context.indirectTarget.height, context);
-        this._mat.setTexture("u_MainTex", context.indirectTarget);
+        let src = context.indirectTarget;
+        this._checkRenderTarget(src.width, src.height, context);
+        this._clampWrap(src);
+        this._clampWrap(this._destRT);
+        this._mat.setTexture("u_MainTex", src);
         context.command.setRenderTarget(this._destRT, true, Color.CLEAR);
         context.command.drawRenderElement(this._renderElement, Matrix.EMPTY);
         context.destination = this._destRT;
