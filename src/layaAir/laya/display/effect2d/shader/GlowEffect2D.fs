@@ -17,7 +17,9 @@ void main()
     for (float i = 0.0; i <= c_IterationTime; ++i){
         for (float j = 0.0; j <= c_IterationTime; ++j){
             vec2Off = vec2(vec2FilterOff.x * (i - floatOff), vec2FilterOff.y * (j - floatOff));
-            vec4Color += texture2D(u_MainTex, v_Texcoord0.xy + vec2FilterDir + vec2Off);
+            vec2 uv = v_Texcoord0.xy + vec2FilterDir + vec2Off;
+            vec2 inside = step(vec2(0.0, 0.0), uv) * step(uv, vec2(1.0, 1.0));
+            vec4Color += texture2D(u_MainTex, uv) * inside.x * inside.y;
         }
     }
     vec4Color /= floatIterationTotalTime;
