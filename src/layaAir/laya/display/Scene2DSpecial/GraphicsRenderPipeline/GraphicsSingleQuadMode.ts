@@ -38,6 +38,25 @@ export class GraphicsSingleQuadMode {
 	private _resource: BaseTexture = null;
 	private _dependsOnSize: boolean = false;
 
+	private static readonly _poolMaxCount: number = 1024;
+	private static _pool: GraphicsSingleQuadMode[] = [];
+
+	static acquire(renderer: GraphicsRenderer, handleControlBuffer: ArrayBuffer): GraphicsSingleQuadMode {
+		let mode = GraphicsSingleQuadMode._pool.pop();
+		if (mode)
+			mode._rebind(renderer, handleControlBuffer);
+		else
+			mode = new GraphicsSingleQuadMode(renderer, handleControlBuffer);
+		return mode;
+	}
+
+	private static _release(mode: GraphicsSingleQuadMode): void {
+		if (GraphicsSingleQuadMode._pool.length >= GraphicsSingleQuadMode._poolMaxCount)
+			mode._hardDestroy();
+		else
+			GraphicsSingleQuadMode._pool.push(mode);
+	}
+
 	static classify(spriteTexture: Texture, graphics: Graphics): GraphicsSingleQuadKind | 0 {
 		let cmds = graphics && graphics.cmds;
 		let count = cmds ? cmds.length : 0;
@@ -123,6 +142,18 @@ export class GraphicsSingleQuadMode {
 
 	destroy(): void {
 		this.clear();
+		this._dataHandle.deactivateSingleQuad();
+		GraphicsSingleQuadMode._release(this);
+	}
+
+	private _rebind(renderer: GraphicsRenderer, handleControlBuffer: ArrayBuffer): void {
+		this._renderer = renderer;
+		this.clear();
+		this._dataHandle.deactivateSingleQuad();
+		this._dataHandle.setGraphicsHandleUpdateBuffer(handleControlBuffer);
+	}
+
+	private _hardDestroy(): void {
 		this._dataHandle.destroy();
 		this._dataHandle = null;
 		this._payloadBuffer = null;
