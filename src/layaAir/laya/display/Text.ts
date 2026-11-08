@@ -296,7 +296,9 @@ export class Text extends Sprite {
         super._transChanged(kind);
 
         if ((kind & TransformKind.Size) != 0) {
-            if (this._scrollRect != null) {
+            // Automatic clipping normally waits for layout. Hidden text skips
+            // layout, so focused inputs must update their existing clip here.
+            if (this._scrollRect != null && (this._hideText || this._overflow != Text.HIDDEN && this._overflow != Text.SCROLL)) {
                 this._updateScrollRect();
             }
 
@@ -310,12 +312,52 @@ export class Text extends Sprite {
     /**
      * @ignore
      */
-    private _updateScrollRect(): void {
-        let rect = this._scrollRect || new Rectangle();
+    private _getMaxScrollX(): number {
+        // Layout dimensions include padding. Ignore up to one pixel of overflow.
+        let r = this._isWidthSet ? this._textWidth - this._width : 0;
+        return r > 1 ? r : 0;
+    }
+
+    /**
+     * @ignore
+     */
+    private _getMaxScrollY(): number {
+        if (!this._isHeightSet || this._lines.length == 1 && this._height != 0)
+            return 0;
+        return Math.max(0, this._textHeight - this._height);
+    }
+
+    /**
+     * @ignore
+     */
+    private _isTextOverflowing(): boolean {
+        return this._getMaxScrollX() > 0 || this._getMaxScrollY() > 0;
+    }
+
+    /**
+     * @ignore
+     */
+    private _updateScrollRect(target: Sprite = this): void {
         let rectWidth = this._isWidthSet ? this._width : this._textWidth;
         let rectHeight = this._isHeightSet ? this._height : this._textHeight;
-        rect.setTo(0, 0, Math.max(0, rectWidth - this._padding[1]), Math.max(0, rectHeight - this._padding[2]));
-        this.scrollRect = rect;
+        let autoClip = this._overflow == Text.HIDDEN || this._overflow == Text.SCROLL;
+        // Avoid clipping text that fits so it can batch with other text
+        // using the same render state.
+        if (autoClip && !this._isTextOverflowing()) {
+            target.scrollRect = null;
+            return;
+        }
+        // Horizontal clipping must preserve a single line's exempted height.
+        if (autoClip && this._getMaxScrollY() == 0)
+            rectHeight = Math.max(rectHeight, this._textHeight);
+        rectWidth = Math.max(0, rectWidth - this._padding[1]);
+        rectHeight = Math.max(0, rectHeight - this._padding[2]);
+        let rect = target.scrollRect;
+        if (rect && rect.x == 0 && rect.y == 0 && rect.width == rectWidth && rect.height == rectHeight)
+            return;
+        rect = rect || new Rectangle();
+        rect.setTo(0, 0, rectWidth, rectHeight);
+        target.scrollRect = rect;
     }
 
     /**
@@ -788,10 +830,7 @@ export class Text extends Sprite {
     set overflow(value: string) {
         if (this._overflow != value) {
             this._overflow = value;
-            if (value == Text.HIDDEN || value == Text.SCROLL) {
-                this._updateScrollRect();
-            }
-            else
+            if (value != Text.HIDDEN && value != Text.SCROLL)
                 this.scrollRect = null;
             this.markChanged();
         }
@@ -989,6 +1028,8 @@ export class Text extends Sprite {
         value = value < 0 ? 0 : value;
         value = value > maxScrollX ? maxScrollX : value;
 
+        if (this._scrollPos.x == value)
+            return;
         this._scrollPos.x = value;
         this.renderText();
     }
@@ -1012,6 +1053,8 @@ export class Text extends Sprite {
         value = value < 0 ? 0 : value;
         value = value > maxScrollY ? maxScrollY : value;
 
+        if (this._scrollPos.y == value)
+            return;
         this._scrollPos.y = value;
         this.renderText();
     }
@@ -1021,8 +1064,8 @@ export class Text extends Sprite {
      * @zh 横向可滚动的最大值。
      */
     get maxScrollX(): number {
-        let r = this.textWidth - this._width;
-        return r < 0 ? 0 : r;
+        this.typeset();
+        return this._getMaxScrollX();
     }
 
     /**
@@ -1030,8 +1073,8 @@ export class Text extends Sprite {
      * @zh 纵向可滚动的最大值。
      */
     get maxScrollY(): number {
-        let r = this.textHeight - this._height;
-        return r < 0 ? 0 : r;
+        this.typeset();
+        return this._getMaxScrollY();
     }
 
     /**
@@ -1130,6 +1173,10 @@ export class Text extends Sprite {
 
             this._textWidth = this._textHeight = 0;
             this._scrollPos = null;
+            if (this._overflow == Text.HIDDEN || this._overflow == Text.SCROLL)
+                this.scrollRect = null;
+            if (this._objContainer)
+                this._objContainer.scrollRect = null;
             if (this._onPostLayout) {
                 this._updatingLayout = true;
                 this._onPostLayout();
@@ -1766,8 +1813,8 @@ export class Text extends Sprite {
             }
         }
 
-        if (this._overflow == Text.SCROLL
-            && (this._isWidthSet && this._textWidth > this._width || this._isHeightSet && this._textHeight > this._height)) {
+        let overflowing = this._isTextOverflowing();
+        if (this._overflow == Text.SCROLL && overflowing) {
             if (!this._scrollPos)
                 this._scrollPos = new Point(0, 0);
             else {
@@ -1785,11 +1832,8 @@ export class Text extends Sprite {
         if (this._objContainer) {
             this._objContainer.size(this._width, this._height);
 
-            if (this._scrollPos || this._overflow == Text.HIDDEN && this._objContainer.numChildren > 0) {
-                let rect = this._objContainer.scrollRect || new Rectangle();
-                let rectWidth = this._isWidthSet ? this._width : this._textWidth;
-                let rectHeight = this._isHeightSet ? this._height : this._textHeight;
-                this._objContainer.scrollRect = rect.setTo(0, 0, Math.max(0, rectWidth - padding[1]), Math.max(0, rectHeight - padding[2]));
+            if (this._scrollPos || this._overflow == Text.HIDDEN && overflowing && this._objContainer.numChildren > 0) {
+                this._updateScrollRect(this._objContainer);
             }
             else
                 this._objContainer.scrollRect = null;
@@ -1819,6 +1863,7 @@ export class Text extends Sprite {
         let rectHeight = this._isHeightSet ? this._height : this._textHeight;
         let bottom = rectHeight - padding[2];
         let clipped = this._overflow == Text.HIDDEN || this._overflow == Text.SCROLL;
+        let clipHeight = clipped && (this._lines.length != 1 || rectHeight == 0);
         let letterSpacing = this._textStyle.letterSpacing;
         let shadow = this._textStyle.shadowOffsetX !== 0 || this._textStyle.shadowOffsetY !== 0;
 
@@ -1837,7 +1882,7 @@ export class Text extends Sprite {
                 x -= scrollPos.x;
                 y -= scrollPos.y;
             }
-            let lineClipped = clipped && ((y + line.height) <= paddingTop || y >= bottom);
+            let lineClipped = clipHeight && ((y + line.height) <= paddingTop || y >= bottom);
 
             let cmd = line.cmd;
             while (cmd) {
