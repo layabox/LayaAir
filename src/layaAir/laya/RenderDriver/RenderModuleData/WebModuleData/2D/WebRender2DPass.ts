@@ -341,7 +341,7 @@ export class WebRender2DPass implements IRender2DPass {
             if (groupStart !== renderElements.length) {
                this._elementGroups.add(groupStart);
                this._elementGroups.add(renderElements.length - 1);
-               this._elementGroups.add(false);
+               this._elementGroups.add(!!reorderRoot);
             }
             renderElements.add(element);
             this._elementGroups.add(renderElements.length - 1);

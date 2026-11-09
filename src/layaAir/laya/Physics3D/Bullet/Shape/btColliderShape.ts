@@ -63,6 +63,13 @@ export class btColliderShape implements IColliderShape {
         this._worldScale = new Vector3(-1, -1, -1);
         this._destroyed = false;
     }
+    /** @internal Scale applied to a local shape offset. */
+    _getOffsetScale(out: Vector3): void {
+        const bt = btStatics.bt;
+        const scale = bt.btCollisionShape_getLocalScaling(this._btShape);
+        out.setValue(bt.btVector3_x(scale), bt.btVector3_y(scale), bt.btVector3_z(scale));
+    }
+
     getOffset(): Vector3 {
         return this._localOffset;
     }

@@ -1,5 +1,5 @@
 var ShaderCompiler = (() => {
-  var _scriptName = typeof document != 'undefined' ? document.currentScript?.src : undefined;
+  var _scriptName = typeof document != 'undefined' && document.currentScript ? document.currentScript.src : undefined;
   return (
 async function(moduleArg = {}) {
   var moduleRtn;

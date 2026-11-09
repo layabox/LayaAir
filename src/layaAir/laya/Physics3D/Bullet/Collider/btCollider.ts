@@ -482,10 +482,10 @@ export class btCollider implements ICollider {
         }
 
         if (localOffset.x !== 0 || localOffset.y !== 0 || localOffset.z !== 0) {
-            var btScale: number = bt.btCollisionShape_getLocalScaling(colliderShape._btShape);
-            _tempVector30.x = localOffset.x * bt.btVector3_x(btScale);
-            _tempVector30.y = localOffset.y * bt.btVector3_y(btScale);
-            _tempVector30.z = localOffset.z * bt.btVector3_z(btScale);
+            colliderShape._getOffsetScale(_tempVector30);
+            _tempVector30.x *= localOffset.x;
+            _tempVector30.y *= localOffset.y;
+            _tempVector30.z *= localOffset.z;
             Vector3.transformQuat(_tempVector30, rotation, _tempVector30);
             position.x = bt.btVector3_x(btPosition) - _tempVector30.x;
             //TODO 临时加一个0.04，对一个人来说0.04的margin太大了，足以把脚陷入地下，所以先加回来

@@ -132,9 +132,11 @@ export class SpineOptimizeRender2D extends BaseOptimizeRender {
     }
 
     reset(): void {
-        const handle = this._handle as WebSpineRenderDataHandle;
+        const handle = this._handle;
         handle.skeleton = null;
-        handle.bindNormalRender(null);
+        if (handle instanceof WebSpineRenderDataHandle) {
+            handle.bindNormalRender(null);
+        }
         handle.needUseMatrix = true;
         super.reset();
     }

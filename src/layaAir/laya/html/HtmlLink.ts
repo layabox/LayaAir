@@ -3,6 +3,7 @@ import { Text } from "../display/Text";
 import { Event } from "../events/Event";
 import { Rectangle } from "../maths/Rectangle";
 import { IHitArea } from "../utils/IHitArea";
+import { Mouse } from "../utils/Mouse";
 import { HtmlElement } from "./HtmlElement";
 import { IHtmlObject } from "./IHtmlObject";
 
@@ -16,6 +17,7 @@ export class HtmlLink implements IHtmlObject, IHitArea {
     private _shape: Sprite;
     private _rects: Array<Rectangle>;
     private _rectCnt: number;
+    private _savedCursor: string = null;
 
     /**
      * @en Creates a new instance of the `HtmlLink` class.
@@ -24,12 +26,37 @@ export class HtmlLink implements IHtmlObject, IHitArea {
     public constructor() {
         this._shape = new Sprite();
         this._shape.hitArea = this;
+        this._shape.on(Event.MOUSE_OVER, this, this.onMouseOver);
+        this._shape.on(Event.MOUSE_OUT, this, this.onMouseOut);
+        this._shape.on(Event.UNDISPLAY, this, this.onMouseOut);
         this._shape.on(Event.CLICK, () => {
             this._owner.bubbleEvent(Event.LINK, this._element.getAttrString("href"));
         });
 
         this._rects = [];
         this._rectCnt = 0;
+    }
+
+    private onMouseOver(e: Event): void {
+        // Touch also generates roll-over events, including on devices with a mouse.
+        // Use event data rather than DOM constructors, which may not exist on other platforms.
+        if ((e.nativeEvent && "changedTouches" in e.nativeEvent) || this._savedCursor != null)
+            return;
+
+        this._savedCursor = Mouse.cursor;
+        Mouse.cursor = "pointer";
+    }
+
+    private onMouseOut(e?: Event): void {
+        if (e?.nativeEvent && "changedTouches" in e.nativeEvent)
+            return;
+
+        if (this._savedCursor != null) {
+            // Preserve a cursor explicitly changed by application code during the hover.
+            if (Mouse.cursor === "pointer")
+                Mouse.cursor = this._savedCursor;
+            this._savedCursor = null;
+        }
     }
 
     /**
@@ -130,6 +157,7 @@ export class HtmlLink implements IHtmlObject, IHitArea {
      * @zh 释放资源并从父容器中移除链接区域。
      */
     public release(): void {
+        this.onMouseOut();
         this._shape.removeSelf();
         this._owner = null;
         this._element = null;
@@ -140,6 +168,7 @@ export class HtmlLink implements IHtmlObject, IHitArea {
      * @zh 销毁链接区域及其关联的精灵。
      */
     public destroy(): void {
+        this.onMouseOut();
         this._shape.destroy();
     }
 }

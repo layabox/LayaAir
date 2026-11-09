@@ -415,12 +415,16 @@ export class RTMesh2DRenderDataHandle extends RTBaseRenderDataHandle implements 
     public set baseTexture(value: BaseTexture) {
         if (this._baseTexture != null && value == this._baseTexture)
             return;
+        if (!value) {
+            value = Texture2D.whiteTexture;
+            if (value === this._baseTexture)
+                return;
+        }
 
         if (this._baseTexture)
             this._baseTexture._removeReference();
 
         this._baseTexture = value;
-        value = value ? value : Texture2D.whiteTexture;
         this._owner.spriteShaderData.setTexture(BaseRenderNode2D.BASERENDER2DTEXTURE, value);
         if (value) {
             value._addReference();
@@ -465,6 +469,14 @@ export class RTMesh2DRenderDataHandle extends RTBaseRenderDataHandle implements 
         if (value > 0 && this._normal2DTexture)
             this._owner.spriteShaderData.addDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
         else this._owner.spriteShaderData.removeDefine(BaseRenderNode2D.SHADERDEFINE_LIGHT2D_NORMAL_PARAM);
+    }
+
+    destroy(): void {
+        this._baseTexture?._removeReference();
+        this._normal2DTexture?._removeReference();
+        this._baseTexture = null;
+        this._normal2DTexture = null;
+        super.destroy();
     }
 }
 

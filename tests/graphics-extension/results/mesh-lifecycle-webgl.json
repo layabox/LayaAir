@@ -1,0 +1,86 @@
+{
+  "backend": "webgl",
+  "checks": [
+    {
+      "passed": true,
+      "name": "inherited destructor leaves one sharedMesh reference",
+      "detail": {
+        "mesh": 1,
+        "texture": 1,
+        "material": 0,
+        "elementsDisposed": 0
+      }
+    },
+    {
+      "passed": true,
+      "name": "inherited destructor leaves one Texture wrapper reference",
+      "detail": {
+        "mesh": 1,
+        "texture": 1,
+        "material": 0,
+        "elementsDisposed": 0
+      }
+    },
+    {
+      "passed": true,
+      "name": "base class already releases assigned materials and unregisters owners"
+    },
+    {
+      "passed": true,
+      "name": "base class does not call render element destroy"
+    },
+    {
+      "passed": true,
+      "name": "manual release of omitted references restores baseline"
+    },
+    {
+      "passed": true,
+      "name": "new destructor balances mesh and Texture references",
+      "detail": {
+        "mesh": 0,
+        "texture": 0,
+        "material": 0,
+        "elementsDisposed": 1
+      }
+    },
+    {
+      "passed": true,
+      "name": "super destructor still releases materials once"
+    },
+    {
+      "passed": true,
+      "name": "new destructor disposes its render element exactly once"
+    },
+    {
+      "passed": true,
+      "name": "component cleanup releases references without forcing shared resource destruction"
+    },
+    {
+      "passed": true,
+      "name": "two renderers hold independent references to shared mesh and Texture"
+    },
+    {
+      "passed": true,
+      "name": "destroying one user preserves shared resources for the other"
+    },
+    {
+      "passed": true,
+      "name": "remaining renderer still draws after its peer is destroyed"
+    },
+    {
+      "passed": true,
+      "name": "last user releases the remaining references"
+    },
+    {
+      "passed": true,
+      "name": "component destruction preserves the built-in shared quad and default material"
+    },
+    {
+      "passed": true,
+      "name": "all bitmap references are balanced after both arms and shared-user checks"
+    }
+  ],
+  "errors": [],
+  "passed": true,
+  "artifacts": "/var/folders/2f/7sv59rqx7gj4511kqykky7qm0000gn/T/laya-graphics-gpu-UZUrto"
+}

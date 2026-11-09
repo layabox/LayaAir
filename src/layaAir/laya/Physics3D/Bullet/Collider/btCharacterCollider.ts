@@ -19,6 +19,22 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
     private static _btTempVector30: number;
     /** @internal */
     private static _btTempVector31: Vector3;
+    private static _btGroundFrom: number;
+    private static _btGroundTo: number;
+    private static _btGroundCallback: number;
+    private _walkDirection = new Vector3();
+    private _gravitySuppressed = false;
+    private _characterShape: number;
+    private static _btSupportRayFrom: number;
+    private static _btSupportRayTo: number;
+    private static _btSupportRayCallback: number;
+    private _supportObject = 0;
+    private _supportPoint = new Vector3();
+    // Native position, rotation and scale at the last full support sweep.
+    private _supportTransform: number[] = [];
+    private _supportBodyTransform: number[] = [];
+    private _supportMoved = false;
+    private static _supportBodyTransform: number[] = [];
     /**@internal */
     _btKinematicCharacter: number = null;
     /** @internal */
@@ -50,6 +66,15 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
     static __init__(): void {
         btCharacterCollider._btTempVector30 = btStatics.bt.btVector3_create(0, 0, 0);
         btCharacterCollider._btTempVector31 = new Vector3(0, 0, 0);
+        btCharacterCollider._btGroundFrom = btStatics.bt.btTransform_create();
+        btCharacterCollider._btGroundTo = btStatics.bt.btTransform_create();
+        btCharacterCollider._btGroundCallback = btStatics.bt.AllConvexResultCallback_create(
+            btCharacterCollider._btTempVector30, btCharacterCollider._btTempVector30);
+        const bt = btStatics.bt;
+        btCharacterCollider._btSupportRayFrom = bt.btVector3_create(0, 0, 0);
+        btCharacterCollider._btSupportRayTo = bt.btVector3_create(0, 0, 0);
+        btCharacterCollider._btSupportRayCallback = bt.AllHitsRayResultCallback_create(
+            btCharacterCollider._btSupportRayFrom, btCharacterCollider._btSupportRayTo);
         btCharacterCollider.initCapable();
     }
 
@@ -241,7 +266,13 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
     }
 
     protected _onShapeChange() {
+        this._supportObject = 0;
         super._onShapeChange();
+        // Dimension changes reuse the native shape; retain velocity, jump origin,
+        // jump axis and grounded state in the existing controller.
+        if (this._btKinematicCharacter && this._characterShape === this._btColliderShape._btShape)
+            return;
+        this._characterShape = this._btColliderShape._btShape;
         var bt = btStatics.bt;
         if (this._btKinematicCharacter)
             bt.btKinematicCharacterController_destroy(this._btKinematicCharacter);
@@ -256,6 +287,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
         this.setGravity(this._gravity);
         bt.btKinematicCharacterController_setJumpAxis(this._btKinematicCharacter, 0, 1, 0);
         this.setPushForce(this._pushForce);
+        this.move(this._walkDirection);
     }
 
     /**
@@ -275,9 +307,184 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      * @param disp 位移向量。
      */
     move(disp: Vector3): void {
+        disp.cloneTo(this._walkDirection);
         var btMovement: number = btCharacterCollider._btVector30;
         btStatics.bt.btVector3_setValue(btMovement, disp.x, disp.y, disp.z);
         btStatics.bt.btKinematicCharacterController_setWalkDirection(this._btKinematicCharacter, btMovement);
+    }
+
+    /** @internal Suppress gravity only while resting on a walkable static surface. */
+    _beforeSimulation(world: number): void {
+        if (this._walkDirection.x !== 0 || this._walkDirection.y !== 0 || this._walkDirection.z !== 0
+            || !this.isGrounded()) {
+            this._supportObject = 0;
+            return;
+        }
+        if (!this._hasStaticSupport(world))
+            return;
+        const bt = btStatics.bt;
+        bt.btVector3_setValue(btCharacterCollider._btTempVector30, 0, 0, 0);
+        bt.btKinematicCharacterController_setGravity(this._btKinematicCharacter, btCharacterCollider._btTempVector30);
+        this._gravitySuppressed = true;
+    }
+
+    /** @internal Restore the configured gravity before callbacks, movement or jumping. */
+    _afterSimulation(): void {
+        if (this._gravitySuppressed) {
+            this._gravitySuppressed = false;
+            this.setGravity(this._gravity);
+        }
+    }
+
+    private _hasStaticSupport(world: number): boolean {
+        const bt = btStatics.bt;
+        const up = this._upAxis;
+        const length = Math.sqrt(up.x * up.x + up.y * up.y + up.z * up.z);
+        if (length === 0 || Vector3.dot(this._gravity, up) >= 0)
+            return false;
+        const ux = up.x / length, uy = up.y / length, uz = up.z / length;
+        const transform = bt.btCollisionObject_getWorldTransform(this._btCollider);
+        const origin = bt.btTransform_getOrigin(transform);
+        const x = bt.btVector3_x(origin), y = bt.btVector3_y(origin), z = bt.btVector3_z(origin);
+        const from = btCharacterCollider._btGroundFrom, to = btCharacterCollider._btGroundTo;
+        const vector = btCharacterCollider._btTempVector30;
+        const rotation = bt.btTransform_getRotation(transform);
+        const rx = bt.btQuaternion_x(rotation), ry = bt.btQuaternion_y(rotation);
+        const rz = bt.btQuaternion_z(rotation), rw = bt.btQuaternion_w(rotation);
+        const scale = bt.btCollisionShape_getLocalScaling(this._btColliderShape._btShape);
+        const sx = bt.btVector3_x(scale), sy = bt.btVector3_y(scale), sz = bt.btVector3_z(scale);
+        const cached = this._supportTransform;
+        const minDot = Math.max(0.0001, Math.cos(this._maxSlope * Math.PI / 180));
+        this._supportMoved = false;
+        if (this._supportObject && Math.abs(x - cached[0]) < 1e-6 && Math.abs(y - cached[1]) < 1e-6
+            && Math.abs(z - cached[2]) < 1e-6 && rx === cached[3] && ry === cached[4]
+            && rz === cached[5] && rw === cached[6] && sx === cached[7] && sy === cached[8] && sz === cached[9]
+            && this._checkSupportRay(world, ux, uy, uz, minDot))
+            return true;
+        this._supportObject = 0;
+        // A short ray can still hit a floor that moved slightly down. Let gravity
+        // resolve the new contact before acquiring support again.
+        if (this._supportMoved)
+            return false;
+        bt.btTransform_setRotation(from, rotation);
+        bt.btTransform_setRotation(to, rotation);
+        // Start above the contact margin so penetrating contacts still yield a normal.
+        bt.btVector3_setValue(vector, x + ux * 0.05, y + uy * 0.05, z + uz * 0.05);
+        bt.btTransform_setOrigin(from, vector);
+        bt.btVector3_setValue(vector, x - ux * 0.05, y - uy * 0.05, z - uz * 0.05);
+        bt.btTransform_setOrigin(to, vector);
+        const callback = btCharacterCollider._btGroundCallback;
+        bt.ConvexResultCallback_set_m_collisionFilterGroup(callback, this._collisionGroup);
+        bt.ConvexResultCallback_set_m_collisionFilterMask(callback, this._canCollideWith);
+        bt.ConvexResultCallback_set_m_closestHitFraction(callback, 1);
+        const objects = bt.AllConvexResultCallback_get_m_collisionObjects(callback);
+        const normals = bt.AllConvexResultCallback_get_m_hitNormalWorld(callback);
+        const points = bt.AllConvexResultCallback_get_m_hitPointWorld(callback);
+        const fractions = bt.AllConvexResultCallback_get_m_hitFractions(callback);
+        bt.tBtCollisionObjectArray_clear(objects);
+        bt.tVector3Array_clear(normals);
+        bt.tVector3Array_clear(points);
+        bt.tScalarArray_clear(fractions);
+        bt.btCollisionWorld_convexSweepTest(world,
+            this._btColliderShape._btShape, from, to, callback, 0);
+        let closest = 1, supported = false;
+        for (let i = 0, n = bt.tBtCollisionObjectArray_size(objects); i < n; i++) {
+            const object = bt.tBtCollisionObjectArray_at(objects, i);
+            const flags = bt.btCollisionObject_getCollisionFlags(object);
+            // Ignore ourselves and triggers. Moving bodies must retain normal gravity.
+            if (object === this._btCollider || (flags & btStatics.COLLISIONFLAGS_NO_CONTACT_RESPONSE))
+                continue;
+            const normal = bt.tVector3Array_at(normals, i);
+            const dot = ux * bt.btVector3_x(normal) + uy * bt.btVector3_y(normal) + uz * bt.btVector3_z(normal);
+            const fraction = bt.tScalarArray_at(fractions, i);
+            // The lower half of the probe only finds nearby ground. It must not
+            // lock gravity while the capsule is still above that ground.
+            if (dot >= minDot && fraction <= 0.5001 && fraction <= closest) {
+                closest = fraction;
+                supported = (flags & btStatics.COLLISIONFLAGS_STATIC_OBJECT) !== 0
+                    && (flags & btStatics.COLLISIONFLAGS_KINEMATIC_OBJECT) === 0;
+                this._supportObject = supported ? object : 0;
+                if (supported) {
+                    const point = bt.tVector3Array_at(points, i);
+                    this._supportPoint.setValue(bt.btVector3_x(point), bt.btVector3_y(point), bt.btVector3_z(point));
+                }
+            }
+        }
+        if (supported) {
+            this._readSupportBodyTransform(this._supportBodyTransform);
+            cached[0] = x; cached[1] = y; cached[2] = z;
+            cached[3] = rx; cached[4] = ry; cached[5] = rz; cached[6] = rw;
+            cached[7] = sx; cached[8] = sy; cached[9] = sz;
+        }
+        return supported;
+    }
+
+    private _readSupportBodyTransform(out: number[]): void {
+        const bt = btStatics.bt;
+        const transform = bt.btCollisionObject_getWorldTransform(this._supportObject);
+        const origin = bt.btTransform_getOrigin(transform);
+        out[0] = bt.btVector3_x(origin); out[1] = bt.btVector3_y(origin); out[2] = bt.btVector3_z(origin);
+        const rotation = bt.btTransform_getRotation(transform);
+        out[3] = bt.btQuaternion_x(rotation); out[4] = bt.btQuaternion_y(rotation);
+        out[5] = bt.btQuaternion_z(rotation); out[6] = bt.btQuaternion_w(rotation);
+    }
+
+    // Revalidate the actual contact point every substep. A removed or changed floor
+    // fails immediately; only a stationary, unchanged capsule can use this fast path.
+    private _checkSupportRay(world: number, ux: number, uy: number, uz: number, minDot: number): boolean {
+        const bt = btStatics.bt, point = this._supportPoint;
+        const from = btCharacterCollider._btSupportRayFrom, to = btCharacterCollider._btSupportRayTo;
+        const callback = btCharacterCollider._btSupportRayCallback;
+        bt.btVector3_setValue(from, point.x + ux * 0.05, point.y + uy * 0.05, point.z + uz * 0.05);
+        bt.btVector3_setValue(to, point.x - ux * 0.05, point.y - uy * 0.05, point.z - uz * 0.05);
+        bt.AllHitsRayResultCallback_set_m_rayFromWorld(callback, from);
+        bt.AllHitsRayResultCallback_set_m_rayToWorld(callback, to);
+        bt.RayResultCallback_set_m_collisionFilterGroup(callback, this._collisionGroup);
+        bt.RayResultCallback_set_m_collisionFilterMask(callback, this._canCollideWith);
+        bt.RayResultCallback_set_m_collisionObject(callback, 0);
+        bt.RayResultCallback_set_m_closestHitFraction(callback, 1);
+        const objects = bt.AllHitsRayResultCallback_get_m_collisionObjects(callback);
+        const normals = bt.AllHitsRayResultCallback_get_m_hitNormalWorld(callback);
+        const points = bt.AllHitsRayResultCallback_get_m_hitPointWorld(callback);
+        bt.tBtCollisionObjectArray_clear(objects);
+        bt.tVector3Array_clear(normals);
+        bt.tVector3Array_clear(points);
+        bt.tScalarArray_clear(bt.AllHitsRayResultCallback_get_m_hitFractions(callback));
+        bt.btCollisionWorld_rayTest(world, from, to, callback);
+        let found = false;
+        for (let i = 0, n = bt.tBtCollisionObjectArray_size(objects); i < n; i++) {
+            const object = bt.tBtCollisionObjectArray_at(objects, i);
+            const flags = bt.btCollisionObject_getCollisionFlags(object);
+            if (object === this._btCollider || (flags & btStatics.COLLISIONFLAGS_NO_CONTACT_RESPONSE))
+                continue;
+            // A new solid body at the contact invalidates the cached static support.
+            if (object !== this._supportObject || !(flags & btStatics.COLLISIONFLAGS_STATIC_OBJECT)
+                || (flags & btStatics.COLLISIONFLAGS_KINEMATIC_OBJECT))
+                return false;
+            const normal = bt.tVector3Array_at(normals, i);
+            if (ux * bt.btVector3_x(normal) + uy * bt.btVector3_y(normal) + uz * bt.btVector3_z(normal) >= minDot) {
+                const hit = bt.tVector3Array_at(points, i);
+                if (Math.abs(bt.btVector3_x(hit) - point.x) > 1e-5
+                    || Math.abs(bt.btVector3_y(hit) - point.y) > 1e-5
+                    || Math.abs(bt.btVector3_z(hit) - point.z) > 1e-5) {
+                    this._supportMoved = true;
+                    return false;
+                }
+                found = true;
+            }
+        }
+        if (found) {
+            // Read the body only after the ray confirms it still exists in this world.
+            const current = btCharacterCollider._supportBodyTransform;
+            this._readSupportBodyTransform(current);
+            for (let i = 0; i < 7; i++) {
+                if (current[i] !== this._supportBodyTransform[i]) {
+                    this._supportMoved = true;
+                    return false;
+                }
+            }
+        }
+        return found;
     }
 
     /**
@@ -328,6 +535,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      * @param up 向上方向向量。
      */
     setUpDirection(up: Vector3) {
+        this._supportObject = 0;
         up.cloneTo(this._upAxis);
         var btUpAxis: number = btCharacterCollider._btTempVector30;
         convertToBulletVec3(up, btUpAxis);
@@ -416,6 +624,8 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
      * @param shape 要设置的碰撞器形状。
      */
     setColliderShape(shape: btColliderShape): void {
+        if (shape instanceof btCapsuleColliderShape)
+            shape._enableCharacterResizing();
         super.setColliderShape(shape);
     }
 

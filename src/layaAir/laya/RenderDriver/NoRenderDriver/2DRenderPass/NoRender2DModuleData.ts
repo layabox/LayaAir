@@ -250,6 +250,14 @@ export class NoRenderMeshDataHandle extends NoRenderBaseDataHandle implements IM
         this._owner?.spriteShaderData?.setNumber(BaseRenderNode2D.NORMAL2DSTRENGTH, value);
     }
 
+    destroy(): void {
+        this._baseTexture?._removeReference();
+        this._normal2DTexture?._removeReference();
+        this._baseTexture = null;
+        this._normal2DTexture = null;
+        super.destroy();
+    }
+
     inheriteRenderData(context: IRenderContext2D): void {
         super.inheriteRenderData(context);
         if (this._owner && this._renderAlpha !== this._owner.globalAlpha) {

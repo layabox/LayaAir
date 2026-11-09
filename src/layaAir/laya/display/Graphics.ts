@@ -263,9 +263,11 @@ export class Graphics {
 
     /**
      * @en Save to the command stream.
+     * Custom commands run during compilation through IGraphicsCommandExecutor. Call repaint() after changing their data.
      * @param cmd Add the command to the command stream.
      * @param index (Optional) The index to be inserted.
      * @zh 添加到命令流。
+     * 自定义命令在编译时通过 IGraphicsCommandExecutor 执行，修改其数据后需调用 repaint()。
      * @param cmd 要被添加的命令。
      * @param index （可选）插入的索引。
      */

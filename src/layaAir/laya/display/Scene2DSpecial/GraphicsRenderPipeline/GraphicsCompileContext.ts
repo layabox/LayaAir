@@ -18,22 +18,7 @@ import { Config } from "../../../../Config";
 import type { Sprite } from "../../Sprite";
 import type { IGraphicsCmd } from "../../IGraphics";
 import { Draw9GridTextureCmd } from "../../cmd/Draw9GridTextureCmd";
-import { DrawCircleCmd } from "../../cmd/DrawCircleCmd";
-import { DrawCurvesCmd } from "../../cmd/DrawCurvesCmd";
-import { DrawEllipseCmd } from "../../cmd/DrawEllipseCmd";
-import { DrawImageCmd } from "../../cmd/DrawImageCmd";
-import { DrawLineCmd } from "../../cmd/DrawLineCmd";
-import { DrawLinesCmd } from "../../cmd/DrawLinesCmd";
-import { DrawPathCmd } from "../../cmd/DrawPathCmd";
-import { DrawPieCmd } from "../../cmd/DrawPieCmd";
-import { DrawPolyCmd } from "../../cmd/DrawPolyCmd";
-import { DrawRectCmd } from "../../cmd/DrawRectCmd";
-import { DrawRoundRectCmd } from "../../cmd/DrawRoundRectCmd";
-import { DrawTextureCmd } from "../../cmd/DrawTextureCmd";
-import { DrawTexturesCmd } from "../../cmd/DrawTexturesCmd";
-import { DrawTrianglesCmd } from "../../cmd/DrawTrianglesCmd";
 import { FillTextCmd } from "../../cmd/FillTextCmd";
-import { FillTextureCmd } from "../../cmd/FillTextureCmd";
 import type { GraphicsRunner } from "../GraphicsRunner";
 import type { GraphicsCommandStreamMode } from "./GraphicsCommandStreamMode";
 import { GraphicsGeometryHelper, GraphicsOpRenderStateHelper, GraphicsTextureDataHelper } from "./GraphicsPipelineHelpers";
@@ -169,21 +154,7 @@ export class GraphicsCompileContext {
          case Draw9GridTextureCmd.ID:
             this._draw9GridTexture(cmd as Draw9GridTextureCmd);
             break;
-         case DrawRectCmd.ID:
-         case DrawTexturesCmd.ID:
-         case FillTextureCmd.ID:
-         case DrawTextureCmd.ID:
-         case DrawImageCmd.ID:
-         case DrawLineCmd.ID:
-         case DrawLinesCmd.ID:
-         case DrawCircleCmd.ID:
-         case DrawEllipseCmd.ID:
-         case DrawPieCmd.ID:
-         case DrawPolyCmd.ID:
-         case DrawRoundRectCmd.ID:
-         case DrawCurvesCmd.ID:
-         case DrawPathCmd.ID:
-         case DrawTrianglesCmd.ID:
+         default:
             cmd.run(this, 0, 0);
             break;
       }
