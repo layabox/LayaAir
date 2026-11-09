@@ -152,7 +152,7 @@ export class Trail2DRender extends BaseRenderNode2D {
     }
 
     protected _isMaterialVaild(value: Material): boolean {
-        return value.checkType(ShaderFeatureType.Effect);
+        return value.checkType(ShaderFeatureType.D2_BaseRenderNode2D);
     }
 
     /**
