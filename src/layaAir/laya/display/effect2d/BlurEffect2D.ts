@@ -73,16 +73,19 @@ export class BlurEffect2D extends PostProcess2DEffect {
    render(context: PostProcessRenderContext2D): void {
       let marginLeft = 50;
       let marginTop = 50;
-      let width = context.indirectTarget.width;
-      let height = context.indirectTarget.height;
+      let src = context.indirectTarget;
+      let width = src.width;
+      let height = src.height;
       let texwidth = width + 2 * marginLeft;
       let texheight = height + 2 * marginTop;
       this._blurInfo.setValue(texwidth, texheight);
       this._checkRenderTarget(texwidth, texheight, context);
+      this._clampWrap(src);
+      this._clampWrap(this._destRT);
       this._centerScale.setValue(width / texwidth, height / texheight);
       this._mat.setVector2("u_centerScale", this._centerScale);
       this._mat.setVector2("u_blurInfo", this._blurInfo);
-      this._mat.setTexture("u_MainTex", context.indirectTarget);
+      this._mat.setTexture("u_MainTex", src);
       context.command.setRenderTarget(this._destRT, true, Color.CLEAR);
       context.command.drawRenderElement(this._renderElement, Matrix.EMPTY);
       context.destination = this._destRT;

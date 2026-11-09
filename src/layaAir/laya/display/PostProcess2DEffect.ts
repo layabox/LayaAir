@@ -1,3 +1,5 @@
+import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
+import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { PostProcess2D, PostProcessRenderContext2D } from "./PostProcess2D";
 
 export abstract class PostProcess2DEffect {
@@ -5,6 +7,16 @@ export abstract class PostProcess2DEffect {
    protected _owner: PostProcess2D;
    destroyed = false;
    protected _singleton: boolean = false;
+
+   /**
+    * @internal
+    * RT 默认 Repeat，边缘双线性会混到对边像素，后处理采样前改为 Clamp。
+    */
+   protected _clampWrap(rt: RenderTexture2D) {
+      if (!rt) return;
+      rt.wrapModeU = WrapMode.Clamp;
+      rt.wrapModeV = WrapMode.Clamp;
+   }
 
    /**
     * @internal

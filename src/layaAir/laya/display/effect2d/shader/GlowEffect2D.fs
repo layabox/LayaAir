@@ -13,6 +13,7 @@ void main()
     // Preserve its 121/100 perceived intensity with a dense single-pass kernel.
     const float c_LegacyIntensity = 1.21;
     vec2 textureSize = u_blurInfo2.xy;
+    vec2 halfTexel = 0.5 / textureSize;
     vec2 filterOffset = -u_blurInfo1.zw / textureSize;
     vec2 filterScale = u_blurInfo1.xy / textureSize / c_BlurRadius;
     float alpha = 0.0;
@@ -23,7 +24,10 @@ void main()
             float sampleX = x == 0.0 ? 0.0 : sign(x) * (abs(x) * 2.0 - 0.5);
             float weightX = x == 0.0 ? 1.0 : 2.0;
             vec2 sampleOffset = vec2(sampleX, sampleY) * filterScale;
-            alpha += texture2D(u_MainTex, v_Texcoord0.xy + filterOffset + sampleOffset).a * weightX * weightY;
+            vec2 uv = v_Texcoord0.xy + filterOffset + sampleOffset;
+            vec2 coverage = clamp(min(uv, 1.0 - uv) * textureSize + 0.5, 0.0, 1.0);
+            vec2 sampleUV = clamp(uv, halfTexel, 1.0 - halfTexel);
+            alpha += texture2D(u_MainTex, sampleUV).a * coverage.x * coverage.y * weightX * weightY;
         }
     }
     alpha = alpha / c_KernelWeight * u_blurInfo2.z * c_LegacyIntensity;
