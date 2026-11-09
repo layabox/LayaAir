@@ -33,12 +33,14 @@ float getGaussian(float x, float y)
 vec4 sampleBlurTex(vec2 destUV)
 {
     vec2 uv = (destUV - vec2(0.5, 0.5)) / u_centerScale + vec2(0.5, 0.5);
-    vec2 inside = step(vec2(0.0, 0.0), uv) * step(uv, vec2(1.0, 1.0));
-    float mask = inside.x * inside.y;
-    vec4 color = texture2D(u_MainTex, uv);
-    color *= mask;
-    color.rgb *= color.a;
-    return color;
+    vec2 sourceSize = u_blurInfo * u_centerScale;
+    vec2 halfTexel = 0.5 / sourceSize;
+    // Extend the source with transparent texels. At UV 0/1, bilinear
+    // filtering must mix the edge texel with transparency at half weight.
+    vec2 coverage = clamp(min(uv, 1.0 - uv) * sourceSize + 0.5, 0.0, 1.0);
+    vec2 sampleUV = clamp(uv, halfTexel, 1.0 - halfTexel);
+    // The input RT is already premultiplied; preserve RGB and alpha together.
+    return texture2D(u_MainTex, sampleUV) * (coverage.x * coverage.y);
 }
 
 vec4 blur()
