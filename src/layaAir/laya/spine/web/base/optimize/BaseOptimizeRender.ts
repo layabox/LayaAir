@@ -529,6 +529,7 @@ export abstract class BaseOptimizeRender implements ISpineRender {
         this._curAnimationName = null;
         this._currentAnimator = null;
         this._skinAttach = null;
+        this.renderProxy?.leave();
         this.updater.clear();
         this.renderProxyMap.forEach(render => {
             render.destroy();
