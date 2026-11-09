@@ -58,7 +58,8 @@ import { Node } from "../../../display/Node";
 export enum FogMode {
     Linear = 0, //Linear
     EXP = 1,    // 指数
-    EXP2 = 2,   // 指数平方
+    EXP2 = 2,   // 旧版指数平方（保持兼容）
+    EXP2Standard = 3, // 标准指数平方
 }
 
 /**
@@ -183,7 +184,7 @@ export class Scene3D extends Sprite {
         Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_HIGH = Shader3D.getDefineByName("SHADOW_SPOT_SOFT_SHADOW_HIGH");
 
         Scene3D.FOGCOLOR = Shader3D.propertyNameToID("u_FogColor");
-        Scene3D.FOGPARAMS = Shader3D.propertyNameToID("u_FogParams");//x start,y end,z Density
+        Scene3D.FOGPARAMS = Shader3D.propertyNameToID("u_FogParams");//x start,y end,z Density,w FogMode
         Scene3D.DIRECTIONLIGHTCOUNT = Shader3D.propertyNameToID("u_DirationLightCount");
         Scene3D.LIGHTBUFFER = Shader3D.propertyNameToID("u_LightBuffer");
         Scene3D.CLUSTERBUFFER = Shader3D.propertyNameToID("u_LightClusterBuffer");
@@ -449,6 +450,8 @@ export class Scene3D extends Sprite {
 
     set fogMode(value: FogMode) {
         this._fogMode = value;
+        this._fogParams.w = value;
+        this.fogParams = this._fogParams;
         switch (value) {
             case FogMode.Linear:
                 this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_FOG_LINEAR);
@@ -461,6 +464,7 @@ export class Scene3D extends Sprite {
                 this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_FOG_EXP2);
                 break;
             case FogMode.EXP2:
+            case FogMode.EXP2Standard:
                 this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_FOG_EXP2);
                 this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_FOG_LINEAR);
                 this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_FOG_EXP);
@@ -1291,6 +1295,10 @@ export class Scene3D extends Sprite {
             const handle = moduleData ? moduleData.handle : 0;
             if (!handle)
                 continue;
+            // The first camera pass culls every active camera once for this frame.
+            // Publish stable VP/forward and lazy transform bindings before that tick.
+            camera.projectionViewMatrix;
+            moduleData.syncProjection();
             if (count >= handles.length) {
                 const next = new Float64Array(handles.length << 1);
                 next.set(handles);

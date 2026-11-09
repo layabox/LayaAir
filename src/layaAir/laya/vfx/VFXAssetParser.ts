@@ -20,6 +20,8 @@ import { BaseTexture } from "../resource/BaseTexture";
 import { Texture2D } from "../resource/Texture2D";
 import { Laya } from "../../Laya";
 import { URL } from "../net/URL";
+import { LayaGL } from "../layagl/LayaGL";
+import { RenderParams } from "../RenderEngine/RenderEnum/RenderParams";
 
 export class VFXAssetParser {
 
@@ -157,6 +159,7 @@ export class VFXAssetParser {
                     }
 
                     // 解析 blendMode
+                    if (["None", "Back", "Front"].includes(sys.cullMode)) desc.cullMode = sys.cullMode;
                     if (sys.blendMode && VFXBlendMode[sys.blendMode as keyof typeof VFXBlendMode]) {
                         desc.blendMode = sys.blendMode as VFXBlendMode;
                     }
@@ -528,6 +531,7 @@ export class VFXAssetParser {
                             const extra = new VFXExtraOutputDesc();
                             extra.outputType = eo.outputType || "outputMesh";
                             extra.blendMode = (eo.blendMode || "Alpha") as VFXBlendMode;
+                            (extra as any).cullMode = ["None", "Back", "Front"].includes(eo.cullMode) ? eo.cullMode : "None";
                             extra.softParticleFade = Number(eo.softParticleFade) || 0;
                             if (typeof eo.uvMode === "string") extra.uvMode = eo.uvMode;
                             if (Array.isArray(eo.flipbookSize)) {
@@ -1009,6 +1013,42 @@ export function bakeSkinnedMeshVertexTexture(mesh: Mesh, role: "position" | "ind
             if (vs.length > 0 && vs[0]) {
                 count = vs.length; data = new Float32Array(count * 4);
                 for (let i = 0; i < count; i++) { const v = vs[i]; if (!v) continue; data[i*4]=v.x; data[i*4+1]=v.y; data[i*4+2]=v.z; data[i*4+3]=v.w; }
+                // Imported LM vertices index each draw's local bone palette.
+                // The bones texture uses renderer.bones order, so expand once
+                // to global skin indices before GPU mesh sampling.
+                const weights: Vector4[] = [];
+                mesh.getBoneWeights(weights);
+                const assigned = new Uint8Array(count);
+                for (let part = 0; part < mesh.subMeshCount; part++) {
+                    const sub = mesh.getSubMesh(part), indices = sub.getIndices();
+                    for (let draw = 0; draw < sub._boneIndicesList.length; draw++) {
+                        const palette = sub._boneIndicesList[draw];
+                        if (!palette?.length) continue;
+                        const start = sub._subIndexBufferStart[draw];
+                        const begin = start === undefined ? 0 : start - sub._indexStart;
+                        const end = begin + (sub._subIndexBufferCount[draw] ?? indices.length);
+                        if (begin < 0 || end > indices.length) throw new RangeError("Invalid VFX skin draw index range.");
+                        for (let at = begin; at < end; at++) {
+                            const vertex = indices[at], v = vs[vertex];
+                            if (!v) throw new RangeError("Invalid VFX skin vertex index.");
+                            const local = [v.x, v.y, v.z, v.w], w = weights[vertex];
+                            const influence = w ? [w.x, w.y, w.z, w.w] : null;
+                            const mapped = local.map((index, lane) => {
+                                if (influence && influence[lane] === 0) return 0;
+                                if (!Number.isInteger(index) || index < 0 || index >= palette.length)
+                                    throw new RangeError("VFX skin bone index is outside its draw palette.");
+                                return palette[index];
+                            });
+                            for (let lane = 0; lane < 4; lane++) {
+                                const offset = vertex * 4 + lane;
+                                if (assigned[vertex] && data[offset] !== mapped[lane])
+                                    throw new RangeError("VFX skin vertex is shared by incompatible draw palettes; split the vertex first.");
+                                data[offset] = mapped[lane];
+                            }
+                            assigned[vertex] = 1;
+                        }
+                    }
+                }
             }
         } else if (role === "weights") {
             const vs: Vector4[] = []; mesh.getBoneWeights(vs);
@@ -1018,6 +1058,7 @@ export function bakeSkinnedMeshVertexTexture(mesh: Mesh, role: "position" | "ind
             }
         }
     } catch (e) {
+        if (role === "indices" && e instanceof RangeError) throw e;
         console.warn(`[VFX] bakeSkinnedMeshVertexTexture(${role}) failed`, e);
     }
     const tex = new Texture2D(count, 1, TextureFormat.R32G32B32A32, false, false, false, false);
@@ -1029,7 +1070,8 @@ export function bakeSkinnedMeshVertexTexture(mesh: Mesh, role: "position" | "ind
 }
 
 /**
- * 烘焙/更新 bones 矩阵到 256×1 RGBA32F 纹理（64 mat4 × 4 vec4）
+ * 烘焙/更新 bones 矩阵到单行 RGBA32F 纹理（每 mat4 占4像素）。
+ * 至少256像素，保持旧版最多64骨骼的已编译图的采样布局。
  * 每帧调用 — skinningMatrix[i] = bones[i].worldMatrix * mesh._inverseBindPoses[i]
  * @param existingTex 复用现有纹理（避免每帧分配）；首次传 null 创建新纹理
  */
@@ -1038,9 +1080,12 @@ export function bakeSkinnedMeshBonesTexture(renderer: any, existingTex: Texture2
     // LayaAir mesh 在 owner Sprite3D 的 MeshFilter 组件上（不在 SkinnedMeshRenderer 上）
     const mesh = renderer.owner?.getComponent?.(MeshFilter)?.sharedMesh as Mesh;
     const inverseBindPoses = (mesh as any)?._inverseBindPoses as Matrix4x4[];
-    const data = new Float32Array(256 * 4);   // 64 mat4 × 4 vec4 = 1024 floats
+    const boneCount = bones?.length ?? 0;
+    const width = Math.max(256, boneCount * 4);
+    const maxWidth = LayaGL.renderEngine.getParams(RenderParams.MAX_Texture_Size);
+    if (width > maxWidth) throw new RangeError(`VFX skinned mesh needs a ${width}-pixel bone texture; device limit is ${maxWidth}.`);
+    const data = new Float32Array(width * 4);
     const tmpMtx = new Matrix4x4();
-    const boneCount = Math.min(bones?.length ?? 0, 64);
     for (let i = 0; i < boneCount; i++) {
         const bone = bones[i];
         if (!bone) continue;
@@ -1058,8 +1103,12 @@ export function bakeSkinnedMeshBonesTexture(renderer: any, existingTex: Texture2
         for (let k = 0; k < 16; k++) data[off + k] = e[k];
     }
     let tex = existingTex;
+    if (tex && tex.width !== width) {
+        tex.destroy();
+        tex = null;
+    }
     if (!tex) {
-        tex = new Texture2D(256, 1, TextureFormat.R32G32B32A32, false, false, false, false);
+        tex = new Texture2D(width, 1, TextureFormat.R32G32B32A32, false, false, false, false);
         tex.wrapModeU = WrapMode.Clamp;
         tex.wrapModeV = WrapMode.Clamp;
         tex.filterMode = FilterMode.Point;

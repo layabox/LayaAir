@@ -212,6 +212,8 @@ export class VFXParticleSystemDesc implements VFXSystemDesc {
     flipbookSize: Vector2 = new Vector2(4, 4);
     // Flipbook 模式专用 atlas 资源，runtime 加载后设到 BillboardMaterial.u_AlbedoTexture
     mainTexture: string = "";
+    /** Basic mesh output face culling; legacy graphs remain double-sided. */
+    cullMode: string = "None";
 
     // Subpixel AA 开关（对齐 Unity subpixelAA block）
     subpixelAA: boolean = false;

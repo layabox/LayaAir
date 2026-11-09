@@ -14,6 +14,9 @@ import { VFXRenderer } from "./VFXRenderer";
 import { VFXGeometry, VFXGeometryParams } from "./VFXGeometry";
 import { VFXBillboardGeometry, VFXBillboardGeometryParams } from "./VFXBillboardGeometry";
 import { VFXStripGeometry, VFXStripGeometryParams } from "./VFXStripGeometry";
+import { VFXPointGeometry, VFXPointGeometryParams } from "./VFXPointGeometry";
+import { VFXLineGeometry, VFXLineGeometryParams } from "./VFXLineGeometry";
+import { VFXLineStripGeometry, VFXLineStripGeometryParams } from "./VFXLineStripGeometry";
 import { VFXState } from "./VFXState";
 import { Script } from "../components/Script";
 import { Camera } from "../d3/core/Camera";
@@ -108,6 +111,7 @@ export class VisualEffect extends Script {
             if (supportedCompute) {
                 this.createAssetData();
                 this.initAssetData();
+                if (this._status > 0 && this._status < 4) this.bindRenderers();
             }
         }
     }
@@ -215,8 +219,9 @@ export class VisualEffect extends Script {
     private _skinnedMeshSources: Map<string, any> = new Map();
     // 缓存 bones texture（每个 sourceName 一份），避免每帧重新分配
     private _skinnedMeshBoneTextures: Map<string, Texture2D> = new Map();
-    // 标记静态 vertex 属性（pos/idx/weight/normal）是否已烘焙过（每个 sourceName 一份）
-    private _skinnedMeshVertexBaked: Set<string> = new Set();
+    // Owned by this instance, not the shared VFXAsset descriptor. Mesh identity
+    // invalidates all roles together when a renderer replaces its mesh.
+    private _skinnedMeshVertexTextures: Map<string, { mesh: Mesh; boneCount: number; textures: Map<string, Texture2D> }> = new Map();
 
     // SkinnedMeshTransform/VFXTransform 注册表 — transformPosition block 通过 transformSource 引用。
     // 注册一个场景节点（骨骼/Transform），其世界矩阵每帧驱动对应 transformSource 的粒子位置变换
@@ -229,16 +234,38 @@ export class VisualEffect extends Script {
      * @param renderer  场景里现有的 SkinnedMeshRenderer 组件
      */
     setSkinnedMeshSource(name: string, renderer: any): void {
+        this._releaseSkinnedMeshTextures(name);
         this._skinnedMeshSources.set(name, renderer);
-        // 重新注册时，强制重新烘焙（mesh 可能换了）
-        this._skinnedMeshVertexBaked.delete(name);
     }
 
     /** 移除 SkinnedMesh source 注册 */
     clearSkinnedMeshSource(name: string): void {
         this._skinnedMeshSources.delete(name);
-        this._skinnedMeshVertexBaked.delete(name);
+        this._releaseSkinnedMeshTextures(name);
+    }
+
+    private _releaseSkinnedMeshTextures(name: string): void {
+        const cache = this._skinnedMeshVertexTextures.get(name);
         const tex = this._skinnedMeshBoneTextures.get(name);
+        // Detach owned resources before destroying them. The descriptor keeps
+        // its original fallback texture and can safely be shared by instances.
+        const descs = this._asset?.systems;
+        if (descs) for (let i = 0; i < this.systems.length; i++) {
+            const system = this.systems[i];
+            if (!(system instanceof VFXParticleSystem)) continue;
+            const uniforms = (descs[i] as any)?.textureUniforms;
+            if (!uniforms) continue;
+            for (const uniform of uniforms) {
+                if (uniform.skinnedMeshSource !== name) continue;
+                const texture = uniform.texture || Texture2D.whiteTexture;
+                const id = Shader3D.propertyNameToID(uniform.uniformName);
+                const owned = uniform.skinnedMeshRole === "bones" ? tex : cache?.textures.get(uniform.skinnedMeshRole);
+                if (owned) for (const sd of system.getAllShaderDatas())
+                    if (sd.getTexture(id) === owned) sd.setTexture(id, texture);
+            }
+        }
+        if (cache) for (const texture of cache.textures.values()) texture.destroy();
+        this._skinnedMeshVertexTextures.delete(name);
         if (tex) tex.destroy();
         this._skinnedMeshBoneTextures.delete(name);
     }
@@ -394,6 +421,7 @@ export class VisualEffect extends Script {
                     particleSystem.uvMode = particleDesc.uvMode;
                     particleSystem.flipbookSize = particleDesc.flipbookSize;
                     particleSystem.mainTexture = (particleDesc as any).mainTexture || "";
+                    particleSystem.cullMode = particleDesc.cullMode;
                     particleSystem.subpixelAA = particleDesc.subpixelAA;
                     particleSystem.customShaderName = particleDesc.customShaderName;
                     // ShaderGraph property binding/defaults — VFX exposed name → shader uniform name 映射 + shader uniform inline default texture
@@ -432,15 +460,24 @@ export class VisualEffect extends Script {
                     if (particleDesc.extraOutputs && particleDesc.extraOutputs.length > 0) {
                         for (const extraDesc of particleDesc.extraOutputs) {
                             if (!extraDesc.outputShader) continue;
-                            // Strip output 用 strip stride (2 vert × 4 vec4 = 128B/particle，instance 化在 strip geometry 内部）
-                            // Mesh/Billboard 用 instance stride (RENDER_STRIDE=5 vec4 = 80B/particle)
+                            // Match the primary output's vertex layout and vertices per particle.
                             const isStripExtra = extraDesc.outputType === "outputTrail" || extraDesc.outputType === "outputParticleStripSGQuad";
-                            const renderStride = isStripExtra ? 128 : (5 * 16);
+                            const isPointExtra = extraDesc.outputType === "outputPoint";
+                            const isLineExtra = extraDesc.outputType === "outputLine";
+                            const isLineStripExtra = extraDesc.outputType === "outputLineStrip";
+                            const renderStride = (isStripExtra || isLineExtra) ? 128 : (isPointExtra || isLineStripExtra) ? 48 : (5 * 16);
                             // 跟主 renderBuffer 一致 flags：STORAGE | COPY_DST | VERTEX；strip 需要 DrawElementIndirect 的 INDEX buffer 已由 StripGeometry 创建
                             const renderUsage = EDeviceBufferUsage.STORAGE | EDeviceBufferUsage.COPY_DST | EDeviceBufferUsage.VERTEX;
                             const extraRenderBuffer = new DeviceBuffer(renderStride * particleDesc.capacity, renderUsage);
-                            extraRenderBuffer.vertexBuffer.vertexDeclaration = isStripExtra ? VFXStripGeometry.StripVertexDecl : VFXGeometry.ParticleDecl;
-                            extraRenderBuffer.vertexBuffer.instanceBuffer = !isStripExtra;
+                            if (isPointExtra && !VFXPointGeometry.PointVertexDecl) VFXPointGeometry.init();
+                            if (isLineExtra && !VFXLineGeometry.LineVertexDecl) VFXLineGeometry.init();
+                            if (isLineStripExtra && !VFXLineStripGeometry.LineStripVertexDecl) VFXLineStripGeometry.init();
+                            extraRenderBuffer.vertexBuffer.vertexDeclaration = isStripExtra ? VFXStripGeometry.StripVertexDecl
+                                : isPointExtra ? VFXPointGeometry.PointVertexDecl
+                                : isLineExtra ? VFXLineGeometry.LineVertexDecl
+                                : isLineStripExtra ? VFXLineStripGeometry.LineStripVertexDecl
+                                : VFXGeometry.ParticleDecl;
+                            extraRenderBuffer.vertexBuffer.instanceBuffer = !(isStripExtra || isPointExtra || isLineExtra || isLineStripExtra);
 
                             const indirectUsage = EDeviceBufferUsage.STORAGE | EDeviceBufferUsage.INDIRECT | EDeviceBufferUsage.COPY_DST;
                             const extraIndirectBuffer = new DeviceBuffer(20, indirectUsage);
@@ -459,6 +496,7 @@ export class VisualEffect extends Script {
                                 uvMode: extraDesc.uvMode,
                                 flipbookSize: extraDesc.flipbookSize,
                                 mainTexture: (extraDesc as any).mainTexture || "",
+                                cullMode: (extraDesc as any).cullMode || "None",
                                 subpixelAA: extraDesc.subpixelAA,
                                 customShaderName: extraDesc.customShaderName,
                                 mesh: extraDesc.mesh || PrimitiveMesh.createSphere(0.5, 12, 12),
@@ -499,6 +537,7 @@ export class VisualEffect extends Script {
         }
 
         this.state.totalTime = 0;
+        this.frameTime = new VFXFrameTime();
 
         if (this.resetSeedOnPlay) {
             this.currentSeed = globalRand.getUint();
@@ -686,10 +725,19 @@ export class VisualEffect extends Script {
     }
 
     private releaseAssetData(): void {
+        this.renderer?.clearGeometries();
+        if (this.renderer?.visualEffect === this) this.renderer.visualEffect = null;
+        this._stripRenderer?.clearGeometries();
+        if (this._stripRenderer?.visualEffect === this) this._stripRenderer.visualEffect = null;
         for (let system of this.systems) {
             system.release();
         }
         this.systems = [];
+        for (const cache of this._skinnedMeshVertexTextures.values())
+            for (const tex of cache.textures.values()) tex.destroy();
+        for (const tex of this._skinnedMeshBoneTextures.values()) tex.destroy();
+        this._skinnedMeshVertexTextures.clear();
+        this._skinnedMeshBoneTextures.clear();
 
         if (this.globalEventAttribute) {
             this.globalEventAttribute.destroy();
@@ -730,6 +778,10 @@ export class VisualEffect extends Script {
     private _stripRenderer: VFXRenderer;
 
     onAwake(): void {
+        this.bindRenderers();
+    }
+
+    private bindRenderers(): void {
         const supportedCompute = LayaGL.renderEngine.getCapable(RenderCapable.ComputeShader)
         if (!supportedCompute) {
             return;
@@ -740,7 +792,7 @@ export class VisualEffect extends Script {
 
         // Mesh/Billboard（instance triangles）注册到主 renderer
         // Strip/Point/Line 都是独立顶点几何，走独立子节点 renderer 避免管线冲突
-        const isNonMeshOutput = (t: string) => t === "outputTrail" || t === "outputParticleStripSGQuad" || t === "outputPoint" || t === "outputLine";
+        const isNonMeshOutput = (t: string) => t === "outputTrail" || t === "outputParticleStripSGQuad" || t === "outputPoint" || t === "outputLine" || t === "outputLineStrip";
         let hasStrip = false;
         let hasMesh = false;
         // ⭐define 同步必须在首帧渲染前完成：渲染元素的 shader 实例按"首次编译时的 define 集合"缓存，
@@ -784,6 +836,24 @@ export class VisualEffect extends Script {
                             stripParams.stripCapacity = system.stripCapacity;
                             stripParams.particlePerStripCount = system.particlePerStripCount;
                             geo = new VFXStripGeometry(stripParams);
+                        } else if (extra.outputType === "outputPoint") {
+                            const pointParams = new VFXPointGeometryParams();
+                            pointParams.capacity = system.capacity;
+                            pointParams.renderBuffer = extra.renderBuffer;
+                            pointParams.indirectBuffer = extra.indirectBuffer;
+                            geo = new VFXPointGeometry(pointParams);
+                        } else if (extra.outputType === "outputLine") {
+                            const lineParams = new VFXLineGeometryParams();
+                            lineParams.capacity = system.capacity;
+                            lineParams.renderBuffer = extra.renderBuffer;
+                            lineParams.indirectBuffer = extra.indirectBuffer;
+                            geo = new VFXLineGeometry(lineParams);
+                        } else if (extra.outputType === "outputLineStrip") {
+                            const lineStripParams = new VFXLineStripGeometryParams();
+                            lineStripParams.capacity = system.capacity;
+                            lineStripParams.renderBuffer = extra.renderBuffer;
+                            lineStripParams.indirectBuffer = extra.indirectBuffer;
+                            geo = new VFXLineStripGeometry(lineStripParams);
                         } else if (isBillboardProc) {
                             const bbParams = new VFXBillboardGeometryParams();
                             bbParams.capacity = system.capacity;
@@ -810,6 +880,7 @@ export class VisualEffect extends Script {
                         geo.uvMode = extra.uvMode;
                         geo.flipbookSize = extra.flipbookSize;
                         (geo as any).mainTexture = (extra as any).mainTexture || "";
+                        geo.cullMode = extra.cullMode || "None";
                         (geo as any).stripColorMapping = (extra as any).colorMapping || "Default";
                         (geo as any).stripUvScale = (extra as any).uvScale;
                         (geo as any).stripUvBias = (extra as any).uvBias;
@@ -957,6 +1028,9 @@ export class VisualEffect extends Script {
 
     onDestroy(): void {
         this.releaseAssetData();
+        this._skinnedMeshSources.clear();
+        this._transformSources.clear();
+        this._customSpawnCallbacks.clear();
         this.eventQueue?.destroy();
         this.eventQueue = null;
     }
@@ -1723,28 +1797,38 @@ export class VisualEffect extends Script {
                 const source = this._skinnedMeshSources.get(tu.skinnedMeshSource);
                 if (!source) continue;   // 用户尚未注册，保留 fallback texture
 
+                const mesh = source.owner?.getComponent?.(MeshFilter)?.sharedMesh as Mesh;
+                const boneCount = source.bones?.length ?? 0;
+                let cache = this._skinnedMeshVertexTextures.get(tu.skinnedMeshSource);
+                if (cache && (cache.mesh !== mesh || cache.boneCount !== boneCount)) {
+                    this._releaseSkinnedMeshTextures(tu.skinnedMeshSource);
+                    cache = null;
+                }
+                if (!mesh) continue;
+                if (!cache) {
+                    cache = { mesh, boneCount, textures: new Map() };
+                    this._skinnedMeshVertexTextures.set(tu.skinnedMeshSource, cache);
+                }
+                let texture: Texture2D;
                 const role = tu.skinnedMeshRole as string;
                 if (role === "bones") {
                     // 每帧刷新 bones 矩阵
                     let bonesTex = this._skinnedMeshBoneTextures.get(tu.skinnedMeshSource);
                     bonesTex = bakeSkinnedMeshBonesTexture(source, bonesTex);
                     this._skinnedMeshBoneTextures.set(tu.skinnedMeshSource, bonesTex);
-                    tu.texture = bonesTex;
+                    texture = bonesTex;
                 } else {
                     // 静态 vertex 属性烘焙一次（mesh 不变就不重烘）
-                    const bakedKey = `${tu.skinnedMeshSource}|${role}`;
-                    if (!tu.texture || !this._skinnedMeshVertexBaked.has(bakedKey)) {
-                        // LayaAir mesh 在 owner Sprite3D 的 MeshFilter 组件上
-                        const mesh = (source.owner as any)?.getComponent?.(MeshFilter)?.sharedMesh as Mesh;
-                        if (!mesh) continue;   // mesh 还没加载完，下一帧再试
-                        tu.texture = bakeSkinnedMeshVertexTexture(mesh, role as any);
-                        this._skinnedMeshVertexBaked.add(bakedKey);
+                    texture = cache.textures.get(role);
+                    if (!texture) {
+                        texture = bakeSkinnedMeshVertexTexture(mesh, role as any);
+                        cache.textures.set(role, texture);
                     }
                 }
                 // 应用到 ShaderData
                 const id = Shader3D.propertyNameToID(tu.uniformName);
                 const allDatas = system.getAllShaderDatas();
-                for (const sd of allDatas) sd.setTexture(id, tu.texture);
+                for (const sd of allDatas) sd.setTexture(id, texture);
             }
         }
     }

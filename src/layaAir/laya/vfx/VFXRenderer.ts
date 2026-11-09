@@ -654,9 +654,9 @@ export class VFXRenderer extends BaseRender {
      * 对齐 Unity —— Output Mesh 自带 Main Texture,默认材质即可显示纹理,不依赖 Shader Graph。
      * 按 (blendMode, 纹理 URL, uvMode, flipbook) 缓存,避免共享材质被不同纹理互相覆盖。
      */
-    static getMeshTexturedMaterial(blendMode: string = "Alpha", mainTextureUrl: string = "", uvMode: string = "Default", flipbookSize: Vector2 = null): Material {
+    static getMeshTexturedMaterial(blendMode: string = "Alpha", mainTextureUrl: string = "", uvMode: string = "Default", flipbookSize: Vector2 = null, cullMode: string = "None"): Material {
         const fbKey = flipbookSize ? `${flipbookSize.x}x${flipbookSize.y}` : "";
-        const key = `__meshtex__${blendMode}__${mainTextureUrl}__${uvMode}__${fbKey}`;
+        const key = `__meshtex__${blendMode}__${mainTextureUrl}__${uvMode}__${fbKey}__${cullMode}`;
         let mat = VFXRenderer._customShaderMaterialCache.get(key);
         if (mat) return mat;
         const shader = Shader3D.find("VFXUnlit");
@@ -673,7 +673,7 @@ export class VFXRenderer extends BaseRender {
         mat.setColor("u_Color", new Color(1, 1, 1, 1));
         mat.setTexture("u_AlbedoTexture", VFXRenderer.getDefaultDotTexture());
         mat.renderQueue = 3000;
-        mat.cull = RenderState.CULL_NONE;
+        mat.cull = cullMode === "Back" ? RenderState.CULL_BACK : cullMode === "Front" ? RenderState.CULL_FRONT : RenderState.CULL_NONE;
         applyBlendMode(mat, blendMode);
         applyFlipbook(mat, uvMode, flipbookSize);
         VFXRenderer._customShaderMaterialCache.set(key, mat);
@@ -770,7 +770,9 @@ export class VFXRenderer extends BaseRender {
 
     clearGeometries(): void {
         this._geometries.length = 0;
-        this._rebuildRenderElements();
+        // VisualEffect and renderer can be destroyed in either component order.
+        // BaseRender has already released this list when the renderer goes first.
+        if (this._renderElements) this._rebuildRenderElements();
     }
 
     /** @internal */
@@ -1033,8 +1035,8 @@ export class VFXRenderer extends BaseRender {
                 } else if (!meshMaterial) {
                     // 无 shadergraph(.bps)材质的 mesh 输出:有 MainTexture 时用基础 VFXUnlit + 绑纹理(对齐 Unity Output Mesh 自带 Main Texture),否则纯默认材质
                     const meshMainTex = (geometry as any).mainTexture as string || "";
-                    if (meshMainTex) {
-                        element.material = VFXRenderer.getMeshTexturedMaterial(mode, meshMainTex, (geometry as any).uvMode || "Default", (geometry as any).flipbookSize);
+                    if (meshMainTex || (geometry as any).cullMode && (geometry as any).cullMode !== "None") {
+                        element.material = VFXRenderer.getMeshTexturedMaterial(mode, meshMainTex, (geometry as any).uvMode || "Default", (geometry as any).flipbookSize, (geometry as any).cullMode || "None");
                     } else {
                         element.material = VFXRenderer.getCustomShaderMaterial("VFXUnlit", mode);
                     }

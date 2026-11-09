@@ -217,6 +217,7 @@ export class VFXParticleSystem extends VFXSystem {
     flipbookSize: Vector2 = new Vector2(4, 4);
     // Flipbook atlas 资源，uvMode != Default 时由 runtime 加载到 BillboardMaterial.u_AlbedoTexture
     mainTexture: string = "";
+    cullMode: string = "None";
 
     // Subpixel AA 开关
     subpixelAA: boolean = false;
@@ -306,6 +307,7 @@ export class VFXParticleSystem extends VFXSystem {
         uvScale?: { x: number; y: number };
         uvBias?: { x: number; y: number };
         mainTexture?: string;
+        cullMode?: string;
     }> = [];
 
     // DeadList 管理空闲槽位
@@ -852,8 +854,12 @@ export class VFXParticleSystem extends VFXSystem {
                     (this.geometry as any).flipbookSize = this.flipbookSize;
                     (this.geometry as any).subpixelAA = this.subpixelAA;
                     (this.geometry as any).customShaderName = this.customShaderName;
+                    (this.geometry as any).mainTexture = this.mainTexture;
                 }
-                if (this.geometry) (this.geometry as any).matInstanceKey = this.matInstanceKey;
+                if (this.geometry) {
+                    (this.geometry as any).matInstanceKey = this.matInstanceKey;
+                    (this.geometry as any).cullMode = this.cullMode;
+                }
             } catch (e) {
                 console.warn("VFXParticleSystem: geometry creation failed, compute pipeline will still run.", e);
             }

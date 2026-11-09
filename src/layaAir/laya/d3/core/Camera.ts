@@ -1218,15 +1218,17 @@ export class Camera extends BaseCamera {
 
     protected _calculateProjectionMatrix(): void {
         if (!this._useUserProjectionMatrix) {
+            const aspectRatio = this.aspectRatio;
+            this._renderDataModule.aspectRatio = aspectRatio;
             if (this._orthographic) {
                 var halfHeight: number = this.orthographicVerticalSize * 0.5;
-                var halfWidth: number = halfHeight * this.aspectRatio;
+                var halfWidth: number = halfHeight * aspectRatio;
                 Matrix4x4.createOrthoOffCenter(-halfWidth, halfWidth, -halfHeight, halfHeight, this.nearPlane, this.farPlane, this._projectionMatrix);
             } else {
-                Matrix4x4.createPerspective(3.1416 * this.fieldOfView / 180.0, this.aspectRatio, this.nearPlane, this.farPlane, this._projectionMatrix);
+                Matrix4x4.createPerspective(3.1416 * this.fieldOfView / 180.0, aspectRatio, this.nearPlane, this.farPlane, this._projectionMatrix);
             }
             if (this.skyRenderElement._renderElementOBJ)
-                this.skyRenderElement.caluclateProjectionMatrix(this._projectionMatrix, this.aspectRatio, this.nearPlane, this.farPlane, this.fieldOfView, this.orthographic);
+                this.skyRenderElement.caluclateProjectionMatrix(this._projectionMatrix, aspectRatio, this.nearPlane, this.farPlane, this.fieldOfView, this.orthographic);
 
             this._updateViewProjectionMatrix = true;
         }
