@@ -190,6 +190,10 @@ export class GlowEffect2D extends PostProcess2DEffect {
 
         this._checkRenderTarget(texwidth, texheight, context);
 
+        this._clampWrap(context.indirectTarget);
+        this._clampWrap(this._blitExtendRT);
+        this._clampWrap(this._destRT);
+
         //extend rt
         this._blitmat.setTexture("u_MainTex", context.indirectTarget);
         this._blitcenterScale.setValue(width / texwidth, height / texheight);

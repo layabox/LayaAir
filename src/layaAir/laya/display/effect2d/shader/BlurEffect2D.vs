@@ -5,8 +5,8 @@ varying vec2 v_Texcoord0;
 
 void main()
 {
-    gl_Position = vec4((a_PositionTexcoord.x) * u_centerScale.x, (a_PositionTexcoord.y) * u_centerScale.y, 0.0, 1.0);
-
+    // 画满扩张后的 dest RT，原图通过 u_centerScale 映射到中心，模糊才能扩散到四周透明区
+    gl_Position = vec4(a_PositionTexcoord.x, a_PositionTexcoord.y, 0.0, 1.0);
     v_Texcoord0 = a_PositionTexcoord.zw;
 
     #ifdef INVERTY
