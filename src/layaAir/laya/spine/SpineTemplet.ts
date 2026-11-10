@@ -328,13 +328,12 @@ export class SpineTemplet extends Resource {
             let bounds = this.sketonOptimise._getBounds();
             this.width = bounds.width;
             this.height = bounds.height;
-            // X 不翻转，用左边缘对齐；Y 翻转后用上边缘对齐
-            this.offsetX = -bounds.x;
+            this.offsetX = bounds.x + bounds.width;
             this.offsetY = -(bounds.y + bounds.height);
         }else{
             this.width = this.skeletonData.width || 0;
             this.height = this.skeletonData.height || 0;
-            this.offsetX = -(this.skeletonData.x || 0);
+            this.offsetX = (this.skeletonData.x || 0) + this.width;
             this.offsetY = -((this.skeletonData.y || 0) + this.height);
         }
     }
