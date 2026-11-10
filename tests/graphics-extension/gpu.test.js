@@ -34,6 +34,53 @@
             check(actual.every((value, i) => Math.abs(value - expected[i]) <= 3), name, {actual, expected});
         };
         const white = new Laya.Texture(Laya.Texture2D.whiteTexture);
+        // A textureless element can become the head of a cached reorder group.
+        // Cached members must still adopt their atlas and shader state.
+        {
+            const savedClip = Laya.Config.uvClipMode;
+            const atlases = [], frames = [null];
+            for (const fill of ['#ff0000', '#00ff00', '#0000ff']) {
+                const canvas = document.createElement('canvas');
+                canvas.width = canvas.height = 32;
+                const context = canvas.getContext('2d');
+                context.fillStyle = '#ff00ff'; context.fillRect(0, 0, 32, 32);
+                context.fillStyle = fill; context.fillRect(5, 7, 8, 8);
+                const atlas = await Laya.loader.load(canvas.toDataURL());
+                atlases.push(atlas);
+                frames.push(Laya.Texture.create(atlas, 5, 7, 8, 8));
+            }
+            const fixtures = [
+                [[2,0,10,20,7],[1,10,10,5,32],[1,20,20,25,28],[0,0,0,20,29],[2,40,20,24,13]],
+                [[2,0,10,20,7],[1,10,10,5,32],[3,40,30,21,26],[1,20,20,25,28],
+                    [0,0,0,20,29],[3,10,40,19,18],[2,40,20,24,13]],
+                [[2,30,30,7,26],[1,30,10,14,17],[0,30,10,20,15],
+                    [3,40,0,7,28],[1,10,40,18,27],[2,10,20,13,28]]
+            ];
+            try {
+                for (const clipMode of ['cpu', 'gpu']) for (const reorder of [false, true]) {
+                    Laya.Config.uvClipMode = clipMode;
+                    for (let fixture = 0; fixture < fixtures.length; fixture++) {
+                        const group = new Laya.Sprite();
+                        group.size(64, 64); group.drawCallOptimize = reorder; root.addChild(group);
+                        for (const [texture, x, y, width, height] of fixtures[fixture]) {
+                            const sprite = new Laya.Sprite();
+                            sprite.pos(x, y); sprite.size(width, height);
+                            if (texture) sprite.graphics.drawTexture(frames[texture], 0, 0, width, height);
+                            else sprite.graphics.drawRect(0, 0, width, height, '#ffffff');
+                            group.addChild(sprite);
+                        }
+                        const actual = await capture();
+                        color(actual, fixture === 2 ? 16 : 52, 26, [0,255,0,255], `cached atlas batch ${fixture}, ${clipMode}, reorder=${reorder}`);
+                        color(actual, fixture === 2 ? 32 : 5, fixture === 2 ? 12 : 5, [255,255,255,255], `textureless batch head ${fixture}, ${clipMode}, reorder=${reorder}`);
+                        group.destroy(true);
+                    }
+                }
+            } finally {
+                Laya.Config.uvClipMode = savedClip;
+                frames.slice(1).forEach(texture => texture.destroy());
+                atlases.forEach(texture => texture.destroy());
+            }
+        }
         const customParent = new Laya.Sprite();
         root.addChild(customParent);
         const customSprite = new Laya.Sprite();

@@ -147,7 +147,7 @@ abstract class BaseBatchContext {
         return ((this.typeKey ^ element.typeKey) & ~TEXTURE_VARIANT_TYPE_MASK) === 0;
     }
 
-    protected _adoptTextureState(element: IPrimitiveRenderElement2D): void {
+    _adoptTextureState(element: IPrimitiveRenderElement2D): void {
         this.textureId = element.textureKey;
         this.textureKey = element.textureKey;
         this.typeKey = element.typeKey;
@@ -370,7 +370,8 @@ export class WebGraphicsBatch implements IBatch2DProvider {
                     continue;
                 }
 
-                if (group !== -1) {
+                const cachedGroup = group !== -1;
+                if (cachedGroup) {
                     if (group === headGroup) {
                         elementIndice[indiceLen++] = start + i;
                         continue;
@@ -419,6 +420,19 @@ export class WebGraphicsBatch implements IBatch2DProvider {
                 elementIndice[0] = start + i;
                 headGroup = group;
                 ctx.setHead(element);
+                // A cached textureless head must inherit the group's texture before
+                // testing new members. Keep both cached-group fast paths unchanged.
+                if (ctx.textureId === 0 && cachedGroup) {
+                    for (let j = i + 1; j < cnt; j++) {
+                        if (elementFlags[j] !== headGroup)
+                            continue;
+                        const textureHead = elementArray[start + j];
+                        if (textureHead.textureKey !== 0) {
+                            ctx._adoptTextureState(textureHead);
+                            break;
+                        }
+                    }
+                }
             }
             list.add(this.merge(elementArray, 0, indiceLen - 1, ctx, elementIndice));
         }
