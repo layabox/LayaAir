@@ -1204,14 +1204,21 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
     get rect(): Vector4 {
         if (this._boundsChange ) {
             if (this._templet) {
-                this._rect.z = this._templet.width + this._renderOffset.x;
-                this._rect.w = this._templet.height + this._renderOffset.y;
+                // 渲染位置仍使用历史 offset。着色器映射为
+                // localX = spineX + renderOffset.x，localY = -spineY + renderOffset.y。
+                // offsetX = bounds.x + width，左边缘因此要补上 offsetX - width。
+                let x = this._renderOffset.x + this._templet.offsetX - this._templet.width;
+                let y = this._renderOffset.y + this._templet.offsetY;
+                this._rect.x = x;
+                this._rect.y = y;
+                this._rect.z = x + this._templet.width;
+                this._rect.w = y + this._templet.height;
             }else{
+                this._rect.x = this._renderOffset.x;
+                this._rect.y = this._renderOffset.y;
                 this._rect.z = this.owner.width + this._renderOffset.x;
                 this._rect.w = this.owner.height + this._renderOffset.y;
             }
-            this._rect.x = this._renderOffset.x;
-            this._rect.y = this._renderOffset.y;
             this._boundsChange = false;
         }
         return this._rect;
