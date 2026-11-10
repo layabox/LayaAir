@@ -10,9 +10,13 @@ This separately checks the fixed Box2D and PhysX targets. `npm run build` does n
 
 ## Recast
 
-The engine ships the JS/WASM artifacts from [layabox/recastnavigation](https://github.com/layabox/recastnavigation), commit `72cbb77`, on official upstream `9f4ce64458dfae86e1239c525ddc219c4e9e06f1`. Update all three `recast-navigation.js`, `recast-navigation-wasm.js` and `recast-navigation-wasm.wasm` files together. Build instructions, the 50 KiB bytecode gate, optimization verification and full API/slope/obstacle/loading tests live in the fork's `laya/` directory. The engine bytecode checker no longer has Recast targets.
+The engine ships the JS/WASM artifacts built in `laya/` of [layabox/recastnavigation](https://github.com/layabox/recastnavigation), on official upstream `9f4ce64458dfae86e1239c525ddc219c4e9e06f1`. The JS-only Alipay compatibility build comes from fork commit `78be77b`; the existing WASM wrapper/binary pair is retained. For a full native-library update, synchronize `recast-navigation.js`, `recast-navigation-wasm.js` and `recast-navigation-wasm.wasm` together from the fork's `dist/` output. A JS-only compatibility release can use `RECAST_BACKENDS=js npm run build` and replace only `recast-navigation.js`, retaining the existing WASM wrapper/binary pair. Build instructions, recipe/output hashes in `manifest.json`, the 50 KiB bytecode gate, optimization verification and full API/slope/obstacle/loading tests live in the fork's `laya/` directory. The engine bytecode checker no longer has Recast targets.
 
 These artifacts enforce maximum slope and use official native layers with area-type boundaries. Those are intentional changes from the previous engine binary.
+
+The fork's `laya/scripts/alipay-compat.mjs` automatically normalizes adjacent guarded empty traversal loops during the JS build. Alipay Lancer 0.0.15 otherwise joins those loops with `||`, undercounts compact spans and corrupts allocator metadata. The compatibility pass matches syntax trees rather than generated identifiers or heap offsets, preserves both traversals and their exact behavior, and is included in the build recipe hash. The engine imports the generated artifact without additional rewriting. The WASM artifact is unaffected by JS statement compression.
+
+The fork's `npm test` includes traversal semantics and, when the installed Alipay compiler is available, minified plane construction plus all six independent path/Crowd fixtures. Run `npm run test:alipay` in the fork's `laya/` directory for that suite alone; set `ALIPAY_LANCER=/path/to/lancer` on other installations. Compilation is local and does not upload a preview package. Device acceptance remains separate from these compiler/engine checks.
 
 Run from the engine repository:
 
