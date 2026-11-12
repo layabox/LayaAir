@@ -1332,7 +1332,7 @@ export class Loader extends EventDispatcher {
                             return;
                         }
 
-                        this._loadFileConfig(path, data?.loadScript ?? true, progress).then(() => resolve(true));
+                        this._loadFileConfig(path, data?.loadScript ?? true, progress).then(resolve, () => resolve(false));
                     });
                 });
         }

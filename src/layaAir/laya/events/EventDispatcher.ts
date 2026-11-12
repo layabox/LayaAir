@@ -55,14 +55,14 @@ export class EventDispatcher {
 
         if (Array.isArray(data))
             listeners.invoke(...data);
-        else if (data !== undefined)
-            listeners.invoke(data);
         else if (data === Event.EMPTY) {
             let ev = eventPool.length > 0 ? eventPool.pop() : new Event();
             listeners.invoke(ev.setTo(type, this, this));
             ev.target = ev.currentTarget = null;
             eventPool.push(ev);
         }
+        else if (data !== undefined)
+            listeners.invoke(data);
         else
             listeners.invoke();
 
