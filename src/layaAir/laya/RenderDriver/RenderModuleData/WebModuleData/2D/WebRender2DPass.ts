@@ -26,6 +26,20 @@ import { Rectangle } from "../../../../maths/Rectangle";
 
 BatchManager.registerProvider(BaseRender2DType.graphics, WebGraphicsBatch);
 
+/**
+ * 内存泄漏修复辅助：SingletonList/FastSinglelist 的 length 只是逻辑长度，
+ * 仅置 0 不会释放 elements 数组中 length 之后的旧引用，已销毁对象的渲染结构
+ * 会滞留在数组高位槽里（zIndex 桶若不再复用则永远无法覆盖），把整棵对象树钉住。
+ * 置空 length 之后的槽位以断开引用，保留数组容量不产生额外 GC 压力。
+ */
+function clearListStaleRefs<T>(list: { elements: Array<T>; length: number }): void {
+	const els = list.elements;
+	for (let k = list.length; k < els.length; k++) {
+		els[k] = null;
+	}
+	list.length = 0;
+}
+
 class SortedStructs {
    readonly lists: Map<number, FastSinglelist<WebRenderStruct2D>> = new Map();
 
@@ -43,7 +57,7 @@ class SortedStructs {
    }
 
    reset() {
-      this._indice.forEach(i => this.lists.get(i).length = 0);
+      this._indice.forEach(i => clearListStaleRefs(this.lists.get(i)));
       this._indice.clear();
       this._sortedIndice.length = 0;
    }
@@ -240,7 +254,7 @@ export class WebRender2DPass implements IRender2DPass {
       if (this.repaint) {
          // if (true) {
          this._structs.reset();
-         this._renderElements.length = 0;
+         clearListStaleRefs(this._renderElements);
          for (let i = 0, n = this._batchProviders.length; i < n; i++) {
             this._batchProviders[i]?.reset();
          }
@@ -497,7 +511,7 @@ export class WebRender2DPass implements IRender2DPass {
          return;
       }
       this.destroyed = true;
-      this._renderElements.length = 0;
+      clearListStaleRefs(this._renderElements);
       for (let i = 0, n = this._batchProviders.length; i < n; i++) {
          this._batchProviders[i] && this._batchProviders[i].destroy();
       }
