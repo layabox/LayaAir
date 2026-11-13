@@ -150,6 +150,113 @@ mock('display/Sprite', {});
 mock('RenderDriver/DriverDesign/RenderDevice/ShaderData', {ShaderDataType: {}});
 mock('resource/Material', {});
 mock('resource/Mesh2D', {VertexMesh2D: {getMeshDefine(_mesh, out) { out.length = 0; }}});
+const Stat = {loopCount: 0};
+mock('utils/Stat', {Stat});
+const {Graphics} = load('display/Graphics');
+// Run the production Sprite methods without starting the render loop.
+const spriteSource = ts.createSourceFile('Sprite.ts', fs.readFileSync(path.join(root, 'display/Sprite.ts'), 'utf8'), ts.ScriptTarget.Latest, true);
+const spriteClass = spriteSource.statements.find(node => ts.isClassDeclaration(node) && node.name.text === 'Sprite');
+const spriteMethods = ['setGraphics', 'size', '_transChanged', 'getGraphicBounds'].map(name =>
+    spriteClass.members.find(node => node.name?.getText(spriteSource) === name).getText(spriteSource)).join('\n');
+const {Rectangle} = load('maths/Rectangle');
+const GraphicsOwner = vm.runInNewContext(ts.transpileModule(`(class { ${spriteMethods} })`, {
+    compilerOptions: {target: ts.ScriptTarget.ES2021}
+}).outputText, {...load('display/SpriteConst'), Rectangle});
+const {GraphicsRenderer} = load(pipeline + 'GraphicsRenderer');
+const graphics = new Graphics();
+const commandChanges = [];
+const graphicsRenderer = {
+    _commandsChanged(removed, added) { commandChanges.push([removed, added]); },
+    destroy() {}
+};
+const graphicsOwner = Object.assign(new GraphicsOwner(), {
+    _width: 200, _height: 120, width: 200, height: 120,
+    _renderType: 0,
+    _ensureGraphicsRenderer() { return this._graphicsRenderer = graphicsRenderer; },
+    repaint() {}
+});
+graphicsOwner.setGraphics(graphics);
+const boundsCmd = DrawRectCmd.create(0, 0, 100, 60, 0xffffffff, null, 0, false);
+function boundsSize(target = graphics) {
+    const {width, height} = target.getBounds();
+    return [width, height];
+}
+graphics.addCmd(boundsCmd);
+graphics._commandsCommitted();
+assert.deepEqual(boundsSize(), [100, 60]);
+graphics.removeCmd(boundsCmd);
+assert.deepEqual(boundsSize(), [0, 0]);
+Stat.loopCount++;
+graphics.addCmd(boundsCmd);
+assert.deepEqual(boundsSize(), [100, 60]);
+assert.equal(graphics._modified, Stat.loopCount);
+assert.deepEqual(commandChanges, [[0, 1], [1, 0]]);
+console.log('Graphics: bounds and modification frame update during merged command changes');
+
+graphicsOwner.setGraphics(null);
+const detachedRect = DrawRectCmd.create(0, 0, 150, 80, 0xffffffff, null, 0, false);
+graphics.replaceCmd(boundsCmd, detachedRect);
+graphics.addCmd({cmdID: 'NoBounds', run() {}, recover() {}});
+assert.deepEqual(boundsSize(), [150, 80]);
+const percentRect = DrawRectCmd.create(0, 0, 0.5, 0.5, 0xffffffff, null, 0, true);
+graphics.cmds = [percentRect];
+assert.deepEqual(boundsSize(), [0, 0]);
+graphicsOwner.setGraphics(graphics);
+assert.deepEqual(boundsSize(), [100, 60]);
+graphics.addCmd(DrawRectCmd.create(0, 0, 150, 80, 0xffffffff, null, 0, false));
+assert.deepEqual(commandChanges, [[0, 1], [1, 0], [0, 1]]);
+
+graphicsOwner.setGraphics(null);
+const spriteRectGraphics = new Graphics();
+spriteRectGraphics._useSpriteRect = true;
+graphicsOwner.setGraphics(spriteRectGraphics);
+assert.deepEqual(boundsSize(spriteRectGraphics), [200, 120]);
+assert.equal(spriteRectGraphics.getBoundPoints().length, 8);
+graphicsOwner.setGraphics(null);
+assert.deepEqual(boundsSize(spriteRectGraphics), [0, 0]);
+assert.equal(spriteRectGraphics.getBoundPoints().length, 0);
+console.log('Graphics: detached bounds and owner-dependent bounds after reattachment passed');
+
+const resizedGraphics = new Graphics();
+const resizedSprite = Object.assign(new GraphicsOwner(), {
+    _struct: {}, _renderType: 0, _sizeFlag: 0, _anchorX: 0, _anchorY: 0,
+    _ensureGraphicsRenderer() {
+        this._graphicsRenderer = new GraphicsRenderer(this);
+        this._graphicsRenderer.setGraphics(this._graphics);
+        return this._graphicsRenderer;
+    },
+    repaint() {}
+});
+resizedSprite.size(200, 120);
+resizedSprite.setGraphics(resizedGraphics);
+resizedGraphics.drawRect(0, 0, 0.5, 0.5, 0xffffffff, null, 0, true);
+const beforeResize = resizedSprite.getGraphicBounds();
+assert.deepEqual([beforeResize.width, beforeResize.height], [100, 60]);
+resizedSprite.size(400, 240);
+const afterResize = resizedSprite.getGraphicBounds();
+assert.deepEqual([afterResize.width, afterResize.height], [200, 120]);
+console.log('Graphics: percentage bounds update on Sprite resize before the first render');
+
+const restoreGraphics = new Graphics();
+graphicsOwner.setGraphics(restoreGraphics);
+const savedState = restoreGraphics.save();
+restoreGraphics.translate(10, 20);
+restoreGraphics.restore();
+restoreGraphics.addCmd(DrawRectCmd.create(0, 0, 100, 60, 0xffffffff, null, 0, false));
+assert.deepEqual(boundsSize(restoreGraphics), [100, 60]);
+assert.equal(restoreGraphics.getBounds().x, 0);
+restoreGraphics.removeCmd(savedState);
+assert.deepEqual(boundsSize(restoreGraphics), [100, 60]);
+assert.equal(restoreGraphics.getBounds().x, 10);
+assert.equal(restoreGraphics.getBounds().y, 20);
+
+const independentGraphics = new Graphics();
+independentGraphics.addCmd(DrawRectCmd.create(0, 0, 50, 25, 0xffffffff, null, 0, false));
+assert.deepEqual(boundsSize(independentGraphics), [50, 25]);
+assert.equal(independentGraphics.getBounds().x, 0);
+assert.equal(independentGraphics.getBounds().y, 0);
+console.log('Graphics: unmatched restore preserves the current transform and independent bounds');
+
 const {BaseRenderNode2D} = load('NodeRender2D/BaseRenderNode2D');
 const {Mesh2DRender} = load('display/Scene2DSpecial/Mesh2DRender');
 function material(valid = true) {

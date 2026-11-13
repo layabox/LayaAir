@@ -195,7 +195,7 @@ export class Graphics {
         }
     }
 
-    /** @internal Owner size changed without changing the command stream. */
+    /** @internal Owner or owner size changed without changing the command stream. */
     _ownerSizeChanged(): void {
         this._graphicBounds?.reset();
     }
@@ -203,6 +203,10 @@ export class Graphics {
     private _pendingCommandChange: number = 0;
 
     private _commandsChanged(index: number, removedCount: number, addedCount: number): void {
+        // Bounds can be read between command changes in the same render batch.
+        this._modified = Stat.loopCount;
+        this._graphicBounds?.reset();
+
         let change = removedCount === addedCount ? 1 : 2;
         if (change <= this._pendingCommandChange)
             return;
@@ -214,8 +218,6 @@ export class Graphics {
     _commandsCommitted(): void { this._pendingCommandChange = 0; }
 
     private _commitCommandsChanged(removedCount: number, addedCount: number): void {
-        this._modified = Stat.loopCount;
-        this._graphicBounds?.reset();
         let owner = this.owner;
         if (!owner)
             return;

@@ -788,6 +788,7 @@ export class Sprite extends Node {
                 g.destroy();
             else {
                 g.owner = null;
+                g._ownerSizeChanged();
             }
         }
         this._ownGraphics = transferOwnership;
@@ -795,6 +796,8 @@ export class Sprite extends Node {
 
         if (value) {
             value.owner = this;
+            value._ownerSizeChanged();
+            value._commandsCommitted();
             if (this._graphicsRenderer) {
                 this._graphicsRenderer.setGraphics(value);
             } else if (value.cmds.length > 0 || this._texture) {
@@ -1544,8 +1547,12 @@ export class Sprite extends Node {
 
         this._maskParent?.repaint(RepaintFlag.ChildChange);
 
-        if ((kind & TransformKind.Size) !== 0)
-            this._graphicsRenderer?._ownerSizeChanged();
+        if ((kind & TransformKind.Size) !== 0) {
+            if (this._graphicsRenderer)
+                this._graphicsRenderer._ownerSizeChanged();
+            else
+                this._graphics?._ownerSizeChanged();
+        }
 
         if (
             (kind & TransformKind.TRS) !== 0

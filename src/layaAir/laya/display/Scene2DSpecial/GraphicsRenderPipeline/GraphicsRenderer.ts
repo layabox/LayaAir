@@ -184,9 +184,9 @@ export class GraphicsRenderer {
    }
    /** @internal Owner size is local layout data and does not participate in the SoA world-matrix event. */
    _ownerSizeChanged(): void {
+      this.graphics?._ownerSizeChanged();
       if ((this._transformMask & TransformKind.Size) === 0)
          return;
-      this.graphics?._ownerSizeChanged();
       this._dirty |= RendererDirty.SizeContent;
       this.owner.repaint();
    }

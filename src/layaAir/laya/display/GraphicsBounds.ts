@@ -54,7 +54,10 @@ export class GraphicsBounds {
     getBounds(g: Graphics): Readonly<Rectangle> {
         if (!this._cached) {
             if (g._useSpriteRect) {
-                this._bounds = (this._bounds || new Rectangle()).setTo(0, 0, g.owner.width, g.owner.height);
+                const owner = g.owner;
+                this._bounds = (this._bounds || new Rectangle()).setTo(0, 0, owner?.width ?? 0, owner?.height ?? 0);
+                if (this._bound2)
+                    this._bound2.length = 0;
                 this._bound2 = this._bounds.getBoundPoints(this._bound2);
             }
             else {
@@ -86,8 +89,8 @@ export class GraphicsBounds {
         if (cmds.length == 0) return points;
 
         _assembler.allPoints = points;
-        _assembler.width = sp._width; //不能用sp.width，不然在autoSize时会死循环
-        _assembler.height = sp._height;
+        _assembler.width = sp?._width ?? 0; //不能用sp.width，不然在autoSize时会死循环
+        _assembler.height = sp?._height ?? 0;
         _assembler.matrix.identity();
 
         let matrixs = _tempMatrixArrays;
@@ -101,14 +104,15 @@ export class GraphicsBounds {
                     matrixs.push(_assembler.matrix);
                     _assembler.matrix = _assembler.matrix.clone();
                     break;
-                case RestoreCmd.ID: //restore
-                    _assembler.matrix = matrixs.pop();
+                case RestoreCmd.ID:
+                    if (matrixs.length > 0)
+                        _assembler.matrix = matrixs.pop();
                     break;
                 default:
                     _assembler.points.length = 0;
                     if (cmd.getBounds)
                         cmd.getBounds(_assembler);
-                    else //没有相应功能的取sprite的
+                    else if (sp) //没有相应功能的取sprite的
                         _tempRect.setTo(sp.x, sp.y, sp._width, sp._height).getBoundPoints(_assembler.points);
                     if (_assembler.points.length > 0)
                         _assembler.flushPoints();
