@@ -1183,6 +1183,17 @@ export class Spine2DRenderNode extends BaseRenderNode2D {
         this.reset();
     }
 
+    /** @internal */
+    override _destroy(second?: boolean): void {
+        super._destroy(second);
+
+        // Inactive components skip onDisable. Release the renderer before Sprite.destroy
+        // frees its shader data, since onDestroy is deferred to the component driver.
+        if (!second && (this._templet || this._spineRender)) {
+            this.clear();
+        }
+    }
+
     /**
      * @ignore @blueprintIgnore
      * @zh 销毁当前对象

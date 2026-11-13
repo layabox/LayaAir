@@ -326,14 +326,18 @@ export class BakedSpineRenderer extends SpineBaseRenderer {
     }
 
     set simpleAnimatorTexture(value: Texture2D) {
-        if (this._simpleAnimatorTexture) {
-            this._simpleAnimatorTexture._removeReference();
-        }
+        this._simpleAnimatorTexture?._removeReference();
         this._simpleAnimatorTexture = value;
-        this._simpleAnimatorTextureSize = value.width;
+        this._simpleAnimatorTextureSize = value?.width ?? 0;
         this._shaderData.setTexture(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURE, value);
-        value._addReference();
+        value?._addReference();
         this._shaderData.setNumber(SpineShaderInit.SIMPLE_SIMPLEANIMATORTEXTURESIZE, this._simpleAnimatorTextureSize);
+    }
+
+    override destroy(): void {
+        if (this._simpleAnimatorTexture) {
+            this.simpleAnimatorTexture = null;
+        }
     }
 
     /**

@@ -24,6 +24,28 @@ function load(file) {
     return m.exports;
 }
 const { ShurikenParticle2DSystem: System } = load('particle/d2/ShurikenParticle2DSystem');
+test('clearing and destroying a system before its particle pool is created', () => {
+    const system = new System();
+    system.time = system.totalTime = 1;
+    system.clear();
+    assert.equal(system.time, 0);
+    assert.equal(system.totalTime, 0);
+
+    system.destroy();
+    system.destroy();
+    assert.equal(system.particlePool, null);
+});
+
+test('destroying an initialized system releases its particle buffer', () => {
+    const system = new System();
+    system._initParticlePool(2, 8, { timeIndex: 0, lifetimeIndex: 1 });
+    const pool = system.particlePool;
+    pool.addParticleData(new Float32Array([0, 1]));
+
+    system.destroy();
+    assert.equal(system.particlePool, null);
+    assert.equal(pool.particleDatas, null);
+});
 const classes = {};
 for (const [file, name] of [['d2/module/Shape2DModule', 'Shape2DModule'], ['d2/module/Velocity2DOverLifetimeModule', 'Velocity2DOverLifetimeModule'], ['common/module/ColorOverLifetimeModule', 'ColorOverLifetimeModule'], ['d2/module/Size2DOverLifetimeModule', 'Size2DOverLifetimeModule'], ['d2/module/Rotation2DOverLifetimeModule', 'Rotation2DOverLifetimeModule'], ['common/module/TextureSheetAnimationModule', 'TextureSheetAnimationModule']])
     classes[name] = load('particle/' + file)[name];

@@ -96,14 +96,14 @@ export abstract class ParticleControler {
         this._nextBurstIndex = 0;
         this._burstLoopCount = 0;
 
-        this.particlePool.clear();
+        this.particlePool?.clear();
     }
 
     abstract simulate(time: number, restart: boolean): void;
 
     destroy() {
         this.clear();
-        this.particlePool.destroy();
+        this.particlePool?.destroy();
         this.particlePool = null;
     }
 }
