@@ -244,9 +244,9 @@ export class GLESSetViewportCMD extends SetViewportCMD {
     constructor() {
         super();
         this.type = RenderCMDType.ChangeViewPort;
+        this._nativeObj = new (window as any).conchGLESSetViewportCMD();
         this.scissor = new Vector4();
         this.viewport = new Viewport();
-        this._nativeObj = new (window as any).conchGLESSetViewportCMD();
     }
 }
 
