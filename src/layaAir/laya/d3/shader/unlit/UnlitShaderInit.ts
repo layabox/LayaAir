@@ -1,5 +1,6 @@
 import UnlitVS from "./Unlit.vs";
 import UnlitFS from "./Unlit.fs";
+import UnlitFragGLSL from "./UnlitFrag.glsl";
 import DepthVS from "../depth/Depth.vs";
 import DepthFS from "../depth/UnlitDepth.fs";
 import { Shader3D, ShaderFeatureType } from "../../../RenderEngine/RenderShader/Shader3D";
@@ -12,6 +13,7 @@ import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/
 export class UnlitShaderInit {
 
     static init() {
+        Shader3D.addInclude("UnlitFrag.glsl", UnlitFragGLSL);
 
         let uniformMap = {
             "UnlitBlock": {

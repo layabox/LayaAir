@@ -4,10 +4,10 @@
 #include "Color.glsl";
 
 #include "Scene.glsl";
-#include "SceneFog.glsl";
 
 #include "Camera.glsl";
 #include "Sprite3DFrag.glsl";
+#include "UnlitFrag.glsl";
 
 #ifdef UV
 varying vec2 v_Texcoord0;
@@ -50,10 +50,5 @@ void main()
 	discard;
 #endif // ALPHATEST
 
-#ifdef FOG
-    color = scenUnlitFog(color);
-#endif // FOG
-
-    gl_FragColor = vec4(color, alpha);
-    gl_FragColor = outputTransform(gl_FragColor);
+    gl_FragColor = outputTransform(vec4(unlitSurfaceColor(color), alpha));
 }

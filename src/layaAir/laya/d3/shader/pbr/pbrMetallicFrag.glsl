@@ -5,7 +5,7 @@
 
     #include "PBRFrag.glsl";
 
-    #ifdef LAYA_MRT
+    #if defined(LAYA_MRT) && !defined(DECAL_PROJECTOR)
         // 通过通用 Material 加载的标准 PBR 也遵循默认全部输出；显式 None 由配置宏区分。
         #if !defined(GBUFFER_OUTPUTS_CONFIGURED)
             #define GBUFFER_NORMAL
@@ -39,15 +39,18 @@ struct SurfaceInputs {
     #endif // ANISOTROPIC
 };
 
-void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in PixelParams pixel)
+void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in PixelParams pixel, out vec3 baseColor, out float metallic)
 {
     surface.alpha = inputs.alpha;
 
     surface.normalTS = inputs.normalTS;
 
-    vec3 baseColor = inputs.diffuseColor;
-    float metallic = inputs.metallic;
-    float perceptualRoughness = 1.0 - inputs.smoothness;
+    baseColor = inputs.diffuseColor;
+    metallic = inputs.metallic;
+    float smoothness = inputs.smoothness;
+    surface.occlusion = inputs.occlusion;
+    applyDBufferSurface(baseColor, metallic, smoothness, surface.occlusion);
+    float perceptualRoughness = 1.0 - smoothness;
 
     // default ior 1.5
     float ior = 1.5;
@@ -59,8 +62,6 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
     surface.diffuseColor = computeDiffuse(baseColor, metallic);
     surface.f0 = computeF0(f0, baseColor, metallic);
     surface.f90 = computeF90(surface.f0);
-
-    surface.occlusion = inputs.occlusion;
 
     #ifdef EMISSION
     surface.emissionColor = inputs.emissionColor;
@@ -81,6 +82,13 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
     #endif // ANISOTROPIC
 }
 
+void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in PixelParams pixel)
+{
+    vec3 baseColor;
+    float metallic;
+    initSurface(surface, inputs, pixel, baseColor, metallic);
+}
+
 vec4 PBR_Metallic_Flow(const in SurfaceInputs inputs, in PixelParams pixel)
 {
     #ifdef ALPHATEST
@@ -91,14 +99,16 @@ vec4 PBR_Metallic_Flow(const in SurfaceInputs inputs, in PixelParams pixel)
     #endif // ALPHATEST
 
     Surface surface;
-    initSurface(surface, inputs, pixel);
+    vec3 baseColor;
+    float metallic;
+    initSurface(surface, inputs, pixel, baseColor, metallic);
 
     PixelInfo info;
     getPixelInfo(info, pixel, surface);
 
-    #ifdef LAYA_MRT
+    #if defined(LAYA_MRT) && !defined(DECAL_PROJECTOR)
     // 复用实际着色法线与材质参数，包含法线贴图、细节法线和粗糙度限制。
-    writeGBuffer(info.normalWS, inputs.diffuseColor, inputs.metallic, surface.perceptualRoughness, surface.occlusion);
+    writeGBuffer(info.normalWS, baseColor, metallic, surface.perceptualRoughness, surface.occlusion);
     #endif
 
     vec3 surfaceColor = vec3(0.0);

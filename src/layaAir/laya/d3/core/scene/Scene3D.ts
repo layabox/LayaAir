@@ -417,7 +417,7 @@ export class Scene3D extends Sprite {
         return this._sceneRenderManager;
     }
     set sceneRenderableManager(manager: SceneRenderManager) {
-        manager.list = this._sceneRenderManager.list;
+        manager._inheritSceneState(this._sceneRenderManager);
         this._sceneRenderManager = manager;
     }
 

@@ -1,4 +1,5 @@
 import { Config3D } from "../../../Config3D";
+import type { Node } from "../../display/Node";
 import { Event } from "../../events/Event";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { DepthPass } from "../depthMap/DepthPass";
@@ -90,6 +91,19 @@ export enum CameraClearFlags {
      * @zh 只清理颜色。
      */
     ColorOnly,
+}
+
+/**
+ * @en Decal rendering mode selected by the camera.
+ * @zh 相机选择的贴花渲染方式。
+ */
+export enum DecalMode {
+    /** @en Disable decals. @zh 关闭贴花。 */
+    Off = 0,
+    /** @en Project decals after opaque rendering. @zh 在不透明物体绘制后投射贴花。 */
+    ScreenSpace = 1,
+    /** @en Blend decal surface properties before opaque lighting. @zh 在不透明材质光照计算前混合贴花表面属性。 */
+    DBuffer = 2,
 }
 
 /**
@@ -517,6 +531,22 @@ export class Camera extends BaseCamera {
      * @zh 清除标记。
      */
     clearFlag: CameraClearFlags = CameraClearFlags.SolidColor;
+
+    /**
+     * @en Decal mode for this camera. Defaults to Off.
+     * @zh 此相机的贴花模式，默认关闭。
+     */
+    get decalMode(): DecalMode {
+        return this._decalMode;
+    }
+
+    set decalMode(value: DecalMode) {
+        if (value !== DecalMode.Off && value !== DecalMode.ScreenSpace && value !== DecalMode.DBuffer)
+            throw new RangeError("Camera.decalMode must be Off, ScreenSpace or DBuffer.");
+        this._decalMode = value;
+    }
+
+    private _decalMode = DecalMode.Off;
     /**
      * @internal
      * @en Whether to cache the depth texture from the previous frame.
@@ -1255,12 +1285,15 @@ export class Camera extends BaseCamera {
         (flag) && (this._updateViewMatrix = true);
     }
 
-    /**
-     * @en Clone the camera.
-     * @zh 克隆相机。
-     */
-    clone() {
-        let camera = <Camera>super.clone();
+    /** @internal */
+    _cloneTo(camera: Camera, srcRoot: Node, dstRoot: Node): void {
+        super._cloneTo(camera, srcRoot, dstRoot);
+        camera.decalMode = this.decalMode;
+
+        // Preserve the original camera settings copy for a camera cloned as the root.
+        // 相机作为克隆根节点时，沿用原来的相机设置复制行为。
+        if (this !== srcRoot) return;
+
         camera.clearFlag = this.clearFlag;
         this.clearColor.cloneTo(camera.clearColor);
         camera.clearColor = camera.clearColor;
@@ -1276,9 +1309,14 @@ export class Camera extends BaseCamera {
         camera.opaqueMRT = this.opaqueMRT;
         if (this._taa) this._taa.cloneTo(camera.taaSettings);
         camera._cameraEventCommandBuffer = this._cameraEventCommandBuffer;
-        camera.opaquePass = this.opaquePass;
-        //Object.assign(camera._cameraEventCommandBuffer, this._cameraEventCommandBuffer);
-        return camera;
+    }
+
+    /**
+     * @en Clone the camera.
+     * @zh 克隆相机。
+     */
+    clone(): Camera {
+        return super.clone() as Camera;
     }
 
     /**

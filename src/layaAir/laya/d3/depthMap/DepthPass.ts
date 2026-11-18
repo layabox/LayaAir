@@ -53,18 +53,20 @@ export class DepthPass {
      * @param camera The camera for which the depth texture is being prepared.
      * @param depthType The type of depth texture to create, which determines the kind of data the texture will capture (e.g., depth only, depth and normals).
      * @param depthTextureFormat The format of the depth texture, defining how the data is represented.
+     * @param allowCachedDepth Whether the pass may reuse the previous frame's depth.
      * @zh 根据指定的深度纹理模式创建并分配相应的渲染纹理，用于捕捉深度信息。
      * 此方法配置相机的属性，以保存为深度或深度法线渲染准备的新创建的纹理。
      * @param camera 准备深度纹理的相机。
      * @param depthType 要创建的深度纹理类型，决定纹理将捕捉的数据种类（如仅深度，深度加法线等）。
      * @param depthTextureFormat 深度纹理的格式，定义数据的表示方式。
+     * @param allowCachedDepth 是否可复用上一帧的深度。
      */
-    getTarget(camera: Camera, depthType: DepthTextureMode, depthTextureFormat: RenderTargetFormat): void {
+    getTarget(camera: Camera, depthType: DepthTextureMode, depthTextureFormat: RenderTargetFormat, allowCachedDepth = true): void {
         this._viewPort = camera.viewport;
         switch (depthType) {
             case DepthTextureMode.Depth:
                 {
-                    if (camera.canblitDepth && camera._internalRenderTexture.depthStencilTexture) {
+                    if (allowCachedDepth && camera.canblitDepth && camera._internalRenderTexture.depthStencilTexture) {
                         camera.depthTexture = this._depthTexture = camera._cacheDepthTexture.depthStencilTexture;
                         this._borrowedDepthCamera = camera;
                     }

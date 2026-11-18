@@ -3,6 +3,7 @@
     #define pbrFrag_lib
 
     #include "PBRLighting.glsl";
+    #include "DBuffer.glsl";
 
     #ifdef THICKNESS
 // xyz: world scale, w: length(xyz)
@@ -19,6 +20,8 @@ void getPixelInfo(inout PixelInfo info, const in PixelParams pixel, const in Sur
     #else // TANGENT
     info.normalWS = pixel.normalWS;
     #endif // TANGENT
+
+    applyDBufferNormal(info.normalWS);
 
     info.tangentWS = pixel.tangentWS;
     info.biNormalWS = pixel.biNormalWS;

@@ -8,6 +8,7 @@ import { EffectMaterial } from "./core/material/EffectMaterial";
 import { ExtendTerrainMaterial } from "./core/material/ExtendTerrainMaterial";
 import { Material } from "../resource/Material";
 import { PBRStandardMaterial } from "./core/material/PBRStandardMaterial";
+import { DecalMaterial } from "./core/material/DecalMaterial";
 import { SkyBoxMaterial } from "./core/material/SkyBoxMaterial";
 import { SkyPanoramicMaterial } from "./core/material/SkyPanoramicMaterial";
 import { SkyProceduralMaterial } from "./core/material/SkyProceduralMaterial";
@@ -37,6 +38,7 @@ import { ReflectionProbe } from "./component/Volume/reflectionProbe/ReflectionPr
 import { VolumetricGI } from "./component/Volume/VolumetricGI/VolumetricGI";
 import { AreaLightCom } from "./core/light/AreaLightCom";
 import { LODGroup, LODInfo } from "./component/LODGroup";
+import { DecalProjector } from "./component/DecalProjector";
 import { PixelLineData } from "./core/pixelLine/PixelLineData";
 import { PixelLineRenderer } from "./core/pixelLine/PixelLineRenderer";
 import { Animator } from "./component/Animator/Animator";
@@ -107,6 +109,7 @@ c("BlinnPhongMaterial", BlinnPhongMaterial);
 c("EffectMaterial", EffectMaterial);
 c("ExtendTerrainMaterial", ExtendTerrainMaterial);
 c("PBRStandardMaterial", PBRStandardMaterial);
+c("DecalMaterial", DecalMaterial);
 c("SkyBoxMaterial", SkyBoxMaterial);
 c("SkyPanoramicMaterial", SkyPanoramicMaterial);
 c("SkyProceduralMaterial", SkyProceduralMaterial);
@@ -114,6 +117,7 @@ c("UnlitMaterial", UnlitMaterial);
 
 c("LODInfo", LODInfo);
 c("LODGroup", LODGroup);
+c("DecalProjector", DecalProjector);
 
 
 c("DirectionLightCom", DirectionLightCom);

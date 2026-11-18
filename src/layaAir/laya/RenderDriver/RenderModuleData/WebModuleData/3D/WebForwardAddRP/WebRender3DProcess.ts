@@ -1,5 +1,5 @@
 
-import { Camera, CameraClearFlags, CameraEventFlags } from "../../../../../d3/core/Camera";
+import { Camera, CameraClearFlags, CameraEventFlags, DecalMode } from "../../../../../d3/core/Camera";
 import { ShadowMode } from "../../../../../d3/core/light/ShadowMode";
 import { ShadowMapFormat, ShadowUtils } from "../../../../../d3/core/light/ShadowUtils";
 import { RenderContext3D } from "../../../../../d3/core/render/RenderContext3D";
@@ -19,6 +19,8 @@ import { IForwardAddRP, IRender3DProcess, IRenderContext3D } from "../../../../D
 import { WebBaseRenderNode } from "../WebBaseRenderNode";
 import { WebSceneRenderManager } from "../WebScene3DRenderManager";
 import { CommandBuffer } from "../../../../../d3/core/render/command/CommandBuffer";
+import { WebDecalRenderPass } from "./WebDecalRenderPass";
+import type { WebDecalManager } from "../WebDecalManager";
 
 const viewport = new Viewport(0, 0, 0, 0);
 const offsetScale = new Vector4();
@@ -29,6 +31,7 @@ export class WebRender3DProcess implements IRender3DProcess {
 
     protected _defaultDepthTex: RenderTexture;
     private _useCachedDepth: boolean = false;
+    private _decalRenderPass: WebDecalRenderPass;
     protected _defaultShadowMap: RenderTexture;
     constructor() {
         this._defaultDepthTex = RenderTexture.createFromPool(1, 1, RenderTargetFormat.DEPTH_32, RenderTargetFormat.None, false, 1);
@@ -114,8 +117,8 @@ export class WebRender3DProcess implements IRender3DProcess {
         renderPass.enableOpaque = Stat.enableOpaque;
         renderPass.enableTransparent = Stat.enableTransparent;
         renderPass.enableCMD = Stat.enableCameraCMD;
-        renderPass.setBeforeSkyboxCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeSkyBox]);
-        renderPass.setBeforeForwardCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeForwardOpaque]);
+        renderPass.setBeforeSkyboxCmds(this._getCameraCommands(camera, CameraEventFlags.BeforeSkyBox));
+        renderPass.setBeforeForwardCmds(this._getCameraCommands(camera, CameraEventFlags.BeforeForwardOpaque));
         renderPass.setBeforeTransparentCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeTransparent]);
         this._renderPass.setBeforeImageEffect(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeImageEffect]);
         this._renderPass.setAfterEventCmd(camera._cameraEventCommandBuffer[CameraEventFlags.AfterEveryThing]);
@@ -186,16 +189,29 @@ export class WebRender3DProcess implements IRender3DProcess {
         }
     }
 
-    protected _renderDepth(camera: Camera) {
+    private _getCameraCommands(camera: Camera, event: CameraEventFlags): CommandBuffer[] {
+        const user = camera._cameraEventCommandBuffer[event];
+        const decal = this._decalRenderPass?.getCommands(event);
+        return decal ? [decal, ...(user || [])] : user;
+    }
+
+    /**
+     * @en Choose the depth targets before recording decal commands.
+     * @zh 录制贴花命令前准备深度目标。
+     */
+    protected prepareDepthPass(camera: Camera) {
         this._useCachedDepth = false;
         this._renderPass.mainRenderpass.depthTarget = null;
+        this._renderPass.mainRenderpass.depthNormalTarget = null;
         let depthMode = camera.depthTextureMode;
+        const decalPrepass = this._decalRenderPass?.requiresDepthPrepass;
+        if (decalPrepass) depthMode |= DepthTextureMode.Depth;
         if (camera.postProcess && camera.postProcess.enable) {
             depthMode |= camera.postProcess.cameraDepthTextureMode;
         }
         if ((depthMode & DepthTextureMode.Depth) != 0) {
 
-            Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat);
+            Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat, !decalPrepass);
             this._useCachedDepth = camera.canblitDepth && camera.depthTexture === camera._cacheDepthTexture.depthStencilTexture;
             if (this._useCachedDepth) {
                 // 上帧深度只采样，不再次把借用的深度视图作为绘制目标。
@@ -274,7 +290,13 @@ export class WebRender3DProcess implements IRender3DProcess {
 
     fowardRender(context: IRenderContext3D, camera: Camera): void {
         Camera.depthPass.cleanUp(camera);
-        this._renderDepth(camera);
+        if (!this._decalRenderPass && camera.decalMode !== DecalMode.Off)
+            this._decalRenderPass = new WebDecalRenderPass(camera);
+        this._decalRenderPass?.collect(RenderContext3D._instance.scene?.sceneRenderableManager._decalManager as WebDecalManager);
+        this.prepareDepthPass(camera);
+        // Only a scheduled prepass supplies this frame's independent depth.
+        // 仅本帧已安排的预通道能提供独立深度。
+        this._decalRenderPass?.prepare(this._renderPass.mainRenderpass.depthTarget ? camera.depthTexture : null);
         this._initRenderPass(camera, context);
         this._renderForwardAddCameraPass(context, this._renderPass);
         this._renderPass.mainRenderpass.opaqueMRTTarget = null;
@@ -284,6 +306,8 @@ export class WebRender3DProcess implements IRender3DProcess {
 
 
     destroy(): void {
+        this._decalRenderPass?.destroy();
+        this._decalRenderPass = null;
         this._defaultDepthTex.destroy();
         this._defaultDepthTex = null;
 

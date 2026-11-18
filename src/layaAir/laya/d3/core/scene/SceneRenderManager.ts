@@ -1,6 +1,7 @@
 import { Config3D } from "../../../../Config3D";
 import { ISceneRenderManager } from "../../../RenderDriver/DriverDesign/3DRenderPass/ISceneRenderManager";
 import { BaseRenderType, IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import type { DecalManager } from "../../../RenderDriver/RenderModuleData/Design/3D/DecalManager";
 import { SingletonList } from "../../../utils/SingletonList";
 import { Profiler } from "../../../utils/Profiler";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
@@ -16,6 +17,8 @@ export class SceneRenderManager {
     /**@internal */
     _sceneManagerOBJ: ISceneRenderManager;
     /** @internal */
+    _decalManager: DecalManager;
+    /** @internal */
     _list: SingletonList<BaseRender> = new SingletonList();
     /**
      * @ignore
@@ -24,6 +27,7 @@ export class SceneRenderManager {
      */
     constructor() {
         this._sceneManagerOBJ = Laya3DRender.Render3DPassFactory.createSceneRenderManager();
+        this._decalManager = Laya3DRender.Render3DModuleDataFactory.createDecalManager?.();
         if (Laya3DRender.Render3DPassFactory.createMeshRenderBatchModule) {
             this._sceneManagerOBJ.registerBatchModuleAgent(BaseRenderType.MeshRender, Laya3DRender.Render3DPassFactory.createMeshRenderBatchModule());
         }
@@ -45,6 +49,17 @@ export class SceneRenderManager {
     set list(value: SingletonList<BaseRender>) {
         this._list = value;
         this._sceneManagerOBJ.list = value;
+    }
+
+    /** @internal */
+    _inheritSceneState(previous: SceneRenderManager): void {
+        this.list = previous.list;
+        if (previous === this || !previous._decalManager) return;
+
+        // Keep the decal store and its IDs. 接管贴花存储，保留已有 ID。
+        this._decalManager?.destroy();
+        this._decalManager = previous._decalManager;
+        previous._decalManager = null;
     }
 
     /**
@@ -116,6 +131,8 @@ export class SceneRenderManager {
     destroy(): void {
         this._list.clear();
         this._sceneManagerOBJ.destroy();
+        this._decalManager?.destroy();
+        this._decalManager = null;
     }
 
 }

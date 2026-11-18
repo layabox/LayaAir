@@ -38,7 +38,9 @@ export enum ShaderFeatureType {
     D2_BaseRenderNode2D = 4,
     PostProcess = 5,
     Sky = 6,
-    Effect = 7
+    Effect = 7,
+    /** @en Projected decal surface shader. @zh 投射贴花表面 Shader。 */
+    Decal = 8
 }
 
 /**

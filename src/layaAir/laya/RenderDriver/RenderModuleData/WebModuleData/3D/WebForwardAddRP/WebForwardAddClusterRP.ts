@@ -131,8 +131,8 @@ export class WebForwardAddClusterRP implements IMain3DRP {
      * @param value 
      */
     setBeforeForwardCmds(value: CommandBuffer[]): void {
+        this._beforeForwardCmds = value;
         if (value && value.length > 0) {
-            this._beforeForwardCmds = value;
             value.forEach(element => element._apply(false));
         }
     }
@@ -142,8 +142,8 @@ export class WebForwardAddClusterRP implements IMain3DRP {
      * @param value 
      */
     setBeforeSkyboxCmds(value: CommandBuffer[]): void {
+        this._beforeSkyboxCmds = value;
         if (value && value.length > 0) {
-            this._beforeSkyboxCmds = value;
             value.forEach(element => element._apply(false));
         }
     }
@@ -153,8 +153,8 @@ export class WebForwardAddClusterRP implements IMain3DRP {
      * @param value 
      */
     setBeforeTransparentCmds(value: CommandBuffer[]): void {
+        this._beforeTransparentCmds = value;
         if (value && value.length > 0) {
-            this._beforeTransparentCmds = value;
             value.forEach(element => element._apply(false));
         }
     }

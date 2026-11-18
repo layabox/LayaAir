@@ -68,6 +68,12 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
     vec3 baseColor = inputs.diffuseColor;
     float metallic = inputs.metallic;
     float perceptualRoughness = inputs.roughness;
+    surface.occlusion = inputs.occlusion;
+    #if defined(LAYA_DBUFFER) && !defined(DECAL_PROJECTOR)
+    float smoothness = 1.0 - perceptualRoughness;
+    applyDBufferSurface(baseColor, metallic, smoothness, surface.occlusion);
+    perceptualRoughness = 1.0 - smoothness;
+    #endif
 
     #ifdef IOR
     float ior = inputs.ior;
@@ -86,8 +92,6 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
     surface.diffuseColor = computeDiffuse(baseColor, metallic);
     surface.f0 = computeF0(f0, baseColor, metallic);
     surface.f90 = computeF90(surface.f0);
-
-    surface.occlusion = inputs.occlusion;
 
     #ifdef EMISSION
     surface.emissionColor = inputs.emissionColor;

@@ -3,6 +3,7 @@ import { Sprite3D } from "../../../../d3/core/Sprite3D";
 import { Transform3D } from "../../../../d3/core/Transform3D";
 import { Vector3 } from "../../../../maths/Vector3";
 import type { Bounds } from "../../../../d3/math/Bounds";
+import type { DecalManager } from "./DecalManager";
 import { IVolumetricGIData, IReflectionProbeData, ILightMapData, IDirectLightData, ISpotLightData, ICameraNodeData, ISceneNodeData, IBaseRenderNode, IMeshRenderNode, IPointLightData, ISkinRenderNode, ISimpleSkinRenderNode } from "./I3DRenderModuleData";
 
 export interface I3DRenderModuleFactory {
@@ -27,6 +28,8 @@ export interface I3DRenderModuleFactory {
     createCameraModuleData(): ICameraNodeData;
 
     createSceneModuleData(): ISceneNodeData;
+
+    createDecalManager?(): DecalManager;
     //Render Node
     createBaseRenderNode(): IBaseRenderNode;
 
