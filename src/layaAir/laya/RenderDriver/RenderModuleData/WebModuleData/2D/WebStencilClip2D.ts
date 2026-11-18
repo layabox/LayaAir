@@ -60,6 +60,11 @@ export class WebStencilClip2D {
 
     private _emitStackTransition(owner: WebRenderStruct2D, targetDepth: number, addElement: (element: IRenderElement2D) => void): void {
         owner = owner || this._lastMaskOwner;
+        if (targetDepth === 0 && this._activeStack.length === 0) {
+            if (owner)
+                this._lastMaskOwner = owner;
+            return;
+        }
         let common = 0;
         const maxCommon = Math.min(this._activeStack.length, targetDepth);
         while (common < maxCommon && this._activeStack[common] === this._targetStack[common])
