@@ -3,7 +3,6 @@ import TemporalAAFS from "./shader/TemporalAA/TemporalAA.fs";
 import TemporalAACopyFS from "./shader/TemporalAA/Copy.fs";
 import TemporalAASharpenFS from "./shader/TemporalAA/RCAS.fs";
 import { Laya } from "../../../Laya";
-import { LayaGL } from "../../layagl/LayaGL";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
 import { ShaderData, ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
@@ -164,7 +163,9 @@ export class TemporalAAEffect extends PostProcessEffect {
         const useHistory = state.valid && isNewFrame && cameraData.newFrame;
         this._paramsValue.setValue(useHistory ? 0.1 : 1, 0.9, useHistory ? 1 : 0, useHistory ? 1 : 0);
         shaderData.setVector(TemporalAAEffect._params, this._paramsValue);
-        shaderData.setNumber(TemporalAAEffect._screenYSign, LayaGL.renderEngine._screenInvertY ? -1 : 1);
+        // Reproject history UVs using the same Y direction as the motion vectors.
+        // 历史 UV 重投影采用与运动向量一致的 Y 方向。
+        shaderData.setNumber(TemporalAAEffect._screenYSign, 1);
         shaderData.setTexture(TemporalAAEffect._historyTexture, state.texture);
         shaderData.setTexture(TemporalAAEffect._motionTexture, camera.getOpaqueAuxiliaryTexture(3));
         shaderData.setTexture(TemporalAAEffect._depthTexture, camera.depthTexture);

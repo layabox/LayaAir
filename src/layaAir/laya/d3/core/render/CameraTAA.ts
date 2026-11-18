@@ -350,7 +350,9 @@ export class CameraTAA {
             if (this._committedFrame < 0) this.viewProjection.cloneTo(this.previousViewProjection);
             else this._lastViewProjection.cloneTo(this.previousViewProjection);
         }
-        this._motionParams.setValue(LayaGL.renderEngine._screenInvertY ? -1 : 1, 0, 0, 0);
+        // The GPU projection already applies the render target Y transform.
+        // GPU 投影矩阵已处理渲染目标的 Y 变换。
+        this._motionParams.setValue(1, 0, 0, 0);
         camera._shaderValues.setMatrix4x4(BaseCamera.TAAVIEWPROJECTION, this.viewProjection);
         camera._shaderValues.setMatrix4x4(BaseCamera.TAAPREVIOUSVIEWPROJECTION, this.previousViewProjection);
         camera._shaderValues.setVector(BaseCamera.TAAMOTIONPARAMS, this._motionParams);
