@@ -388,7 +388,7 @@ export class WebGraphicsOpVIStore {
 
 /** @internal */
 export class WebGraphicsOpVIStorePool {
-    private static readonly _defaultVertexBlocks: number = 4096 / GRAPHICS_INFO_VERTEX_BLOCK_SIZE;
+    private static readonly _defaultVertexBlocks: number = 65536 / GRAPHICS_INFO_VERTEX_BLOCK_SIZE;
     private static _stores: WebGraphicsOpVIStore[] = [];
     private static _preferredStore: WebGraphicsOpVIStore = null;
     private static _allocateMissCount: number = 0;
