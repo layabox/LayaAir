@@ -342,7 +342,7 @@ export class DrawMeshInstancedCMD extends Command {
             }
             this._drawElementCMDData.setRenderelements(arrayElement);
         } else {
-            let renderElement = this._instanceRenderElementArray[this._subMeshIndex];
+            let renderElement = this._instanceRenderElementArray[0];
             let renderObj = this.renderUpdateElement(renderElement, context);
             this._drawElementCMDData.setRenderelements([renderObj]);
         }
