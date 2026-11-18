@@ -84,6 +84,14 @@ export class UniformBufferManager {
      */
     reduceWriteBufferCalls: boolean = false;
 
+    /**
+     * 合并上传的浪费比例上限:允许一段上传跨越干净块，只要该段多传的干净块数
+     * 不超过 uploadWasteRatio × 段内脏块数，因此上传总量最多放大到 (1 + uploadWasteRatio) 倍。
+     * 脏块密集时自动合并、减少 writeBuffer 调用次数；脏块稀疏时退化为逐段上传、不浪费带宽。
+     * 默认 0.5 即最多多传 50% 的字节；设为 0 退化为只合并相邻块。
+     */
+    uploadWasteRatio: number = 0.5;
+
     constructor(useBigBuffer: boolean) {
         this._useBigBuffer = useBigBuffer;
         this._clustersAll = new Map();
