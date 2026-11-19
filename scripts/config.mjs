@@ -85,6 +85,7 @@ export const allBundles = [{
 
         // 'laya/RenderDriver/DriverDesign/RenderDevice/**/*.*',
         'laya/RenderDriver/DriverDesign/3DRenderPass/**/*.*',
+        'laya/RenderDriver/RenderModuleData/Shared/3D/**/*.*',
         // 'laya/RenderDriver/RenderModuleData/Design/**/*.*',
 
         'laya/d3/RenderObjs/NativeOBJ/*.*',

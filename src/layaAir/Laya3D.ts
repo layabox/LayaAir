@@ -1,6 +1,5 @@
 import { Config3D } from "./Config3D";
 import { ILaya } from "./ILaya";
-import { LayaEnv } from "./LayaEnv";
 import { BlinnPhongMaterial } from "./laya/d3/core/material/BlinnPhongMaterial";
 import { PBRMaterial } from "./laya/d3/core/material/PBRMaterial";
 import { PBRStandardMaterial } from "./laya/d3/core/material/PBRStandardMaterial";
@@ -132,10 +131,8 @@ export class Laya3D {
         Scene3D.__init__();
         ShadowCasterPass.__init__();
         BaseCamera.__init__();
-        if (!LayaEnv.isConch) {
-            DecalMaterial.__init__();
-            DecalShaderInit.initUniforms();
-        }
+        DecalMaterial.__init__();
+        DecalShaderInit.initUniforms();
         BaseRender.__init__();
         MeshRenderer.__init__();
         SkyRenderer.__init__();

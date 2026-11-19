@@ -5,6 +5,7 @@ import { Sprite3D } from "../../../d3/core/Sprite3D";
 import { Vector3 } from "../../../maths/Vector3";
 import { IPointLightData, ISimpleSkinRenderNode, ISkinRenderNode } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { I3DRenderModuleFactory } from "../../RenderModuleData/Design/3D/I3DRenderModuleFactory";
+import { DecalManagerImpl } from "../../RenderModuleData/Shared/3D/DecalManagerImpl";
 import { LayaXBounds } from "./LayaXBounds";
 import type { Bounds } from "../../../d3/math/Bounds";
 import { LayaXTransform3D } from "./LayaXTransform3D";
@@ -71,6 +72,10 @@ export class LayaX3DRenderModuleFactory implements I3DRenderModuleFactory {
 
     createSceneModuleData(): LayaXSceneNodeData {
         return new LayaXSceneNodeData();
+    }
+
+    createDecalManager(): DecalManagerImpl {
+        return new DecalManagerImpl();
     }
 
     createBaseRenderNode(): LayaXBaseRenderNode {

@@ -27,8 +27,8 @@ class DecalGroup {
     readonly batches: DecalBatch[] = [];
 }
 
-/** @internal @en Shared decal collection for WebGL and WebGPU. @zh WebGL 和 WebGPU 共用的贴花收集器。 */
-export class WebDecalManager extends DecalManager {
+/** @internal @en Shared decal collection for 3D render drivers. @zh 3D 渲染驱动共用的贴花收集器。 */
+export class DecalManagerImpl extends DecalManager {
     private _data = new DecalDataBuffer();
     private readonly _transforms: Transform3D[] = [];
     private readonly _materials: Material[] = [];

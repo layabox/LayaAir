@@ -4,6 +4,7 @@ import { Sprite3D } from "../../../../d3/core/Sprite3D";
 import { Vector3 } from "../../../../maths/Vector3";
 import { IPointLightData, ISimpleSkinRenderNode, ISkinRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { I3DRenderModuleFactory } from "../../Design/3D/I3DRenderModuleFactory";
+import { DecalManagerImpl } from "../../Shared/3D/DecalManagerImpl";
 import { NativeBounds } from "./NativeBounds";
 import type { Bounds } from "../../../../d3/math/Bounds";
 import { RTTransform3D } from "./RTTransform3D";
@@ -54,6 +55,10 @@ export class RT3DRenderModuleFactory implements I3DRenderModuleFactory {
     }
     createSceneModuleData(): RTSceneNodeData {
         return new RTSceneNodeData();
+    }
+
+    createDecalManager(): DecalManagerImpl {
+        return new DecalManagerImpl();
     }
 
     createBaseRenderNode(): RTBaseRenderNode {

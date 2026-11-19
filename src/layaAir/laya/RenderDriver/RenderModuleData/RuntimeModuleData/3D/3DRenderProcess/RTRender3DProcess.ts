@@ -1,7 +1,8 @@
-import { Camera, CameraClearFlags, CameraEventFlags } from "../../../../../d3/core/Camera";
+import { Camera, CameraClearFlags, CameraEventFlags, DecalMode } from "../../../../../d3/core/Camera";
 import { ShadowMode } from "../../../../../d3/core/light/ShadowMode";
 import { ShadowMapFormat, ShadowUtils } from "../../../../../d3/core/light/ShadowUtils";
 import { RenderContext3D } from "../../../../../d3/core/render/RenderContext3D";
+import type { CommandBuffer } from "../../../../../d3/core/render/command/CommandBuffer";
 import { Scene3D } from "../../../../../d3/core/scene/Scene3D";
 import { DepthPass } from "../../../../../d3/depthMap/DepthPass";
 import { ShadowCasterPass } from "../../../../../d3/shadowMap/ShadowCasterPass";
@@ -13,6 +14,8 @@ import { RenderTargetFormat } from "../../../../../RenderEngine/RenderEnum/Rende
 import { DepthTextureMode, RenderTexture } from "../../../../../resource/RenderTexture";
 import { Stat } from "../../../../../utils/Stat";
 import { IRender3DProcess, IRenderContext3D } from "../../../../DriverDesign/3DRenderPass/I3DRenderPass";
+import type { DecalManagerImpl } from "../../../Shared/3D/DecalManagerImpl";
+import { DecalRenderPass } from "../../../Shared/3D/DecalRenderPass";
 import { RTCameraNodeData } from "../RT3DRenderModuleData";
 import { RTBaseRenderNode } from "../RTBaseRenderNode";
 import { RTDirectLight } from "../RTDirectLight";
@@ -27,6 +30,7 @@ export class RTRender3DProcess implements IRender3DProcess {
     private _nativeObj: any;
 
     private _renderPass: RTForwardAddRP = new RTForwardAddRP();
+    private _decalRenderPass: DecalRenderPass;
 
     protected _defaultDepthTex: RenderTexture;
     protected _defaultShadowMap: RenderTexture;
@@ -50,6 +54,8 @@ export class RTRender3DProcess implements IRender3DProcess {
         this._nativeObj.renderManager = value._nativeObj;
     }
     destroy(): void {
+        this._decalRenderPass?.destroy();
+        this._decalRenderPass = null;
         this._renderPass = null;
     }
 
@@ -115,10 +121,14 @@ export class RTRender3DProcess implements IRender3DProcess {
 
         renderpass.enableOpaque = Stat.enableOpaque;
         renderpass.enableTransparent = Stat.enableTransparent;
-        renderpass.enableCMD = Stat.enableCameraCMD;
-        renderpass.setBeforeSkyboxCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeSkyBox]);
-        renderpass.setBeforeForwardCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeForwardOpaque]);
-        renderpass.setBeforeTransparentCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeTransparent]);
+        const afterOpaqueDecals = this._decalRenderPass?.getCommands(CameraEventFlags.BeforeSkyBox);
+        const beforeOpaqueDecals = this._decalRenderPass?.getCommands(CameraEventFlags.BeforeForwardOpaque);
+        // The native main pass uses one flag for all three camera command phases.
+        const cameraCommands = Stat.enableCameraCMD ? camera._cameraEventCommandBuffer : null;
+        renderpass.enableCMD = Stat.enableCameraCMD || !!afterOpaqueDecals || !!beforeOpaqueDecals;
+        renderpass.setBeforeSkyboxCmds(this._withDecalCommands(afterOpaqueDecals, cameraCommands?.[CameraEventFlags.BeforeSkyBox]));
+        renderpass.setBeforeForwardCmds(this._withDecalCommands(beforeOpaqueDecals, cameraCommands?.[CameraEventFlags.BeforeForwardOpaque]));
+        renderpass.setBeforeTransparentCmds(cameraCommands?.[CameraEventFlags.BeforeTransparent]);
         this._renderPass.setBeforeImageEffect(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeImageEffect]);
         this._renderPass.setAfterEventCmd(camera._cameraEventCommandBuffer[CameraEventFlags.AfterEveryThing]);
 
@@ -196,14 +206,21 @@ export class RTRender3DProcess implements IRender3DProcess {
     }
 
 
+    private _withDecalCommands(decal: CommandBuffer, user: CommandBuffer[]): CommandBuffer[] {
+        return decal ? [decal, ...(user || [])] : user;
+    }
+
     renderDepth(camera: Camera) {
         this._renderPass.mainRenderpass.depthTarget = null;
+        this._renderPass.mainRenderpass.depthNormalTarget = null;
         let depthMode = camera.depthTextureMode;
+        const decalPrepass = this._decalRenderPass?.requiresDepthPrepass;
+        if (decalPrepass) depthMode |= DepthTextureMode.Depth;
         if (camera.postProcess && camera.postProcess.enable) {
             depthMode |= camera.postProcess.cameraDepthTextureMode;
         }
         if ((depthMode & DepthTextureMode.Depth) != 0) {
-            Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat);
+            Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat, !decalPrepass);
             const useCachedDepth = camera.canblitDepth && camera.depthTexture === camera._cacheDepthTexture.depthStencilTexture;
             if (useCachedDepth)
                 depthMode &= ~DepthTextureMode.Depth;
@@ -223,7 +240,11 @@ export class RTRender3DProcess implements IRender3DProcess {
     fowardRender(context: IRenderContext3D, camera: Camera): void {
         Camera.depthPass.cleanUp(camera);
         context.cameraData.setTexture(DepthPass.DEPTHTEXTURE, this._defaultDepthTex);
+        if (!this._decalRenderPass && camera.decalMode !== DecalMode.Off)
+            this._decalRenderPass = new DecalRenderPass(camera);
+        this._decalRenderPass?.collect(RenderContext3D._instance.scene?.sceneRenderableManager._decalManager as DecalManagerImpl);
         this.renderDepth(camera);
+        this._decalRenderPass?.prepare(this._renderPass.mainRenderpass.depthTarget ? camera.depthTexture : null);
         this.initRenderpass(camera, context);
         try {
             this.renderFowarAddCameraPass(context, this._renderPass);

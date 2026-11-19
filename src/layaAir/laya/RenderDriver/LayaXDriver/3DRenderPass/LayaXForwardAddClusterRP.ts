@@ -6,7 +6,6 @@ import { Viewport } from "../../../maths/Viewport";
 import { DepthTextureMode } from "../../../resource/RenderTexture";
 import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
-import { IRenderCMD } from "../../DriverDesign/RenderDevice/IRenderCMD";
 import { IBaseRenderNode } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { LayaXCameraNodeData } from "../RenderModuleData/LayaXCameraNodeData";
 
@@ -195,12 +194,15 @@ export class LayaXForwardAddClusterRP {
         this._i32[MSlot.ScissorH] = value.w;
     }
 
-    private _getRenderCMDArray(cmds: IRenderCMD[]) {
-        let nativeobCMDs: any[] = [];
-        cmds.forEach(element => {
-            nativeobCMDs.push((element as any)._nativeObj);
-        });
-        return nativeobCMDs;
+    private _getRenderCMDArray(buffers: CommandBuffer[]): any[] {
+        const commands: any[] = [];
+        // Each submission replaces the native phase's command list.
+        for (const buffer of buffers || []) {
+            buffer._apply(false);
+            for (const command of buffer._renderCMDs)
+                commands.push((command as any)._nativeObj);
+        }
+        return commands;
     }
 
     setSkyRenderNode(value: IBaseRenderNode): void {
@@ -208,39 +210,15 @@ export class LayaXForwardAddClusterRP {
     }
 
     setBeforeSkyboxCmds(value: CommandBuffer[]): void {
-        if (value && value.length > 0) {
-            this._nativeObj.clearBeforeSkyboxCmds();
-            value.forEach(element => {
-                element._apply(false);
-                this._nativeObj.addBeforeSkyboxCmds(this._getRenderCMDArray(element._renderCMDs));
-            });
-        } else {
-            this._nativeObj.clearBeforeSkyboxCmds();
-        }
+        this._nativeObj.addBeforeSkyboxCmds(this._getRenderCMDArray(value));
     }
 
     setBeforeForwardCmds(value: CommandBuffer[]): void {
-        if (value && value.length > 0) {
-            this._nativeObj.clearBeforeForwardCmds();
-            value.forEach(element => {
-                element._apply(false);
-                this._nativeObj.addBeforeForwardCmds(this._getRenderCMDArray(element._renderCMDs));
-            });
-        } else {
-            this._nativeObj.clearBeforeForwardCmds();
-        }
+        this._nativeObj.addBeforeForwardCmds(this._getRenderCMDArray(value));
     }
 
     setBeforeTransparentCmds(value: CommandBuffer[]): void {
-        if (value && value.length > 0) {
-            this._nativeObj.clearBeforeTransparentCmds();
-            value.forEach(element => {
-                element._apply(false);
-                this._nativeObj.addBeforeTransparentCmds(this._getRenderCMDArray(element._renderCMDs));
-            });
-        } else {
-            this._nativeObj.clearBeforeTransparentCmds();
-        }
+        this._nativeObj.addBeforeTransparentCmds(this._getRenderCMDArray(value));
     }
 
     constructor() {

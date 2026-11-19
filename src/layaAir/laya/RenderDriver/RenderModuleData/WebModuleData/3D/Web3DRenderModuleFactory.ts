@@ -10,7 +10,7 @@ import { Stat } from "../../../../utils/Stat";
 import { IMeshRenderNode, IPointLightData, ISimpleSkinRenderNode, ISkinRenderNode } from "../../Design/3D/I3DRenderModuleData";
 import { I3DRenderModuleFactory } from "../../Design/3D/I3DRenderModuleFactory";
 import { WebBaseRenderNode } from "./WebBaseRenderNode";
-import { WebDecalManager } from "./WebDecalManager";
+import { DecalManagerImpl } from "../../Shared/3D/DecalManagerImpl";
 import { WebDirectLight } from "./WebDirectLight";
 import { WebLightmap } from "./WebLightmap";
 import { WebMeshRenderNode } from "./WebMeshRenderNode";
@@ -67,8 +67,8 @@ export class Web3DRenderModuleFactory implements I3DRenderModuleFactory {
     return new WebSceneNodeData();
   }
 
-  createDecalManager(): WebDecalManager {
-    return new WebDecalManager();
+  createDecalManager(): DecalManagerImpl {
+    return new DecalManagerImpl();
   }
 
 

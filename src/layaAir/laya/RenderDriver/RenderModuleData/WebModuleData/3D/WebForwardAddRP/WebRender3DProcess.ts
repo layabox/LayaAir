@@ -19,8 +19,8 @@ import { IForwardAddRP, IRender3DProcess, IRenderContext3D } from "../../../../D
 import { WebBaseRenderNode } from "../WebBaseRenderNode";
 import { WebSceneRenderManager } from "../WebScene3DRenderManager";
 import { CommandBuffer } from "../../../../../d3/core/render/command/CommandBuffer";
-import { WebDecalRenderPass } from "./WebDecalRenderPass";
-import type { WebDecalManager } from "../WebDecalManager";
+import { DecalRenderPass } from "../../../Shared/3D/DecalRenderPass";
+import type { DecalManagerImpl } from "../../../Shared/3D/DecalManagerImpl";
 
 const viewport = new Viewport(0, 0, 0, 0);
 const offsetScale = new Vector4();
@@ -31,7 +31,7 @@ export class WebRender3DProcess implements IRender3DProcess {
 
     protected _defaultDepthTex: RenderTexture;
     private _useCachedDepth: boolean = false;
-    private _decalRenderPass: WebDecalRenderPass;
+    private _decalRenderPass: DecalRenderPass;
     protected _defaultShadowMap: RenderTexture;
     constructor() {
         this._defaultDepthTex = RenderTexture.createFromPool(1, 1, RenderTargetFormat.DEPTH_32, RenderTargetFormat.None, false, 1);
@@ -291,8 +291,8 @@ export class WebRender3DProcess implements IRender3DProcess {
     fowardRender(context: IRenderContext3D, camera: Camera): void {
         Camera.depthPass.cleanUp(camera);
         if (!this._decalRenderPass && camera.decalMode !== DecalMode.Off)
-            this._decalRenderPass = new WebDecalRenderPass(camera);
-        this._decalRenderPass?.collect(RenderContext3D._instance.scene?.sceneRenderableManager._decalManager as WebDecalManager);
+            this._decalRenderPass = new DecalRenderPass(camera);
+        this._decalRenderPass?.collect(RenderContext3D._instance.scene?.sceneRenderableManager._decalManager as DecalManagerImpl);
         this.prepareDepthPass(camera);
         // Only a scheduled prepass supplies this frame's independent depth.
         // 仅本帧已安排的预通道能提供独立深度。

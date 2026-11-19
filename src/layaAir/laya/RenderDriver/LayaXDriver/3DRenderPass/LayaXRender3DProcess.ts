@@ -1,6 +1,7 @@
-import { Camera, CameraClearFlags, CameraEventFlags } from "../../../d3/core/Camera";
+import { Camera, CameraClearFlags, CameraEventFlags, DecalMode } from "../../../d3/core/Camera";
 import { ShadowMode } from "../../../d3/core/light/ShadowMode";
 import { ShadowMapFormat, ShadowUtils } from "../../../d3/core/light/ShadowUtils";
+import type { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
 import { RenderContext3D } from "../../../d3/core/render/RenderContext3D";
 import { Scene3D } from "../../../d3/core/scene/Scene3D";
 import { DepthPass } from "../../../d3/depthMap/DepthPass";
@@ -14,6 +15,8 @@ import { DepthTextureMode, RenderTexture } from "../../../resource/RenderTexture
 import { Stat } from "../../../utils/Stat";
 import { IRender3DProcess, IRenderContext3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
+import type { DecalManagerImpl } from "../../RenderModuleData/Shared/3D/DecalManagerImpl";
+import { DecalRenderPass } from "../../RenderModuleData/Shared/3D/DecalRenderPass";
 import { LayaXCameraNodeData } from "../RenderModuleData/LayaXCameraNodeData";
 import { LayaXDirectLight } from "../RenderModuleData/LayaXDirectLight";
 import { LayaXSpotLight } from "../RenderModuleData/LayaXSpotLight";
@@ -28,6 +31,7 @@ export class LayaXRender3DProcess implements IRender3DProcess {
     private _nativeObj: any;
 
     private _renderPass: LayaXForwardAddRP = new LayaXForwardAddRP();
+    private _decalRenderPass: DecalRenderPass;
 
     protected _defaultDepthTex: RenderTexture;
     protected _defaultShadowMap: RenderTexture;
@@ -52,6 +56,8 @@ export class LayaXRender3DProcess implements IRender3DProcess {
     }
 
     destroy(): void {
+        this._decalRenderPass?.destroy();
+        this._decalRenderPass = null;
         this._renderPass = null;
     }
 
@@ -120,8 +126,8 @@ export class LayaXRender3DProcess implements IRender3DProcess {
         renderpass.enableOpaque = Stat.enableOpaque;
         renderpass.enableTransparent = Stat.enableTransparent;
         renderpass.enableCMD = Stat.enableCameraCMD;
-        renderpass.setBeforeForwardCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeForwardOpaque]);
-        renderpass.setBeforeSkyboxCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeSkyBox]);
+        renderpass.setBeforeForwardCmds(this._getCameraCommands(camera, CameraEventFlags.BeforeForwardOpaque));
+        renderpass.setBeforeSkyboxCmds(this._getCameraCommands(camera, CameraEventFlags.BeforeSkyBox));
         renderpass.setBeforeTransparentCmds(camera._cameraEventCommandBuffer[CameraEventFlags.BeforeTransparent]);
 
         // Skybox render node
@@ -194,14 +200,23 @@ export class LayaXRender3DProcess implements IRender3DProcess {
         this._renderPass.finalize = this._renderPass.finalize; // update
     }
 
+    private _getCameraCommands(camera: Camera, event: CameraEventFlags): CommandBuffer[] {
+        const commands = camera._cameraEventCommandBuffer[event];
+        const decal = this._decalRenderPass?.getCommands(event);
+        return decal ? [decal, ...(commands || [])] : commands;
+    }
+
     renderDepth(camera: Camera) {
         this._renderPass.mainRenderpass.depthTarget = null;
+        this._renderPass.mainRenderpass.depthNormalTarget = null;
         let depthMode = camera.depthTextureMode;
+        const decalPrepass = this._decalRenderPass?.requiresDepthPrepass;
+        if (decalPrepass) depthMode |= DepthTextureMode.Depth;
         if (camera.postProcess && camera.postProcess.enable) {
             depthMode |= camera.postProcess.cameraDepthTextureMode;
         }
         if ((depthMode & DepthTextureMode.Depth) != 0) {
-            Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat);
+            Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat, !decalPrepass);
             const useCachedDepth = camera.canblitDepth && camera.depthTexture === camera._cacheDepthTexture.depthStencilTexture;
             if (useCachedDepth)
                 depthMode &= ~DepthTextureMode.Depth;
@@ -223,10 +238,14 @@ export class LayaXRender3DProcess implements IRender3DProcess {
         LayaXRender3DProcess._flushDirtyProbes();
 
         Camera.depthPass.cleanUp(camera);
+        if (!this._decalRenderPass && camera.decalMode !== DecalMode.Off)
+            this._decalRenderPass = new DecalRenderPass(camera);
+        this._decalRenderPass?.collect(RenderContext3D._instance.scene?.sceneRenderableManager._decalManager as DecalManagerImpl);
         context.cameraData.setTexture(DepthPass.DEPTHTEXTURE, this._defaultDepthTex);
         this.renderDepth(camera);
-        this.initRenderpass(camera, context);
+        this._decalRenderPass?.prepare(this._renderPass.mainRenderpass.depthTarget ? camera.depthTexture : null);
         try {
+            this.initRenderpass(camera, context);
             this.renderFowarAddCameraPass(context, this._renderPass);
         } finally {
             this._renderPass.mainRenderpass.opaqueMRTTarget = null;

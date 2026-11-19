@@ -1,31 +1,31 @@
-import { BaseCamera } from "../../../../../d3/core/BaseCamera";
-import { CameraClearFlags, CameraEventFlags, DecalMode } from "../../../../../d3/core/Camera";
-import type { Camera } from "../../../../../d3/core/Camera";
-import { RenderContext3D } from "../../../../../d3/core/render/RenderContext3D";
-import { CommandBuffer } from "../../../../../d3/core/render/command/CommandBuffer";
-import { DrawMeshCMD } from "../../../../../d3/core/render/command/DrawMeshCMD";
-import { DrawMeshInstancedCMD } from "../../../../../d3/core/render/command/DrawMeshInstancedCMD";
-import { InstanceLocation, MaterialInstancePropertyBlock } from "../../../../../d3/core/render/command/MaterialInstancePropertyBlock";
-import { SetRTCMD } from "../../../../../d3/core/render/command/SetRenderTargetCMD";
-import type { Mesh } from "../../../../../d3/resource/models/Mesh";
-import { PrimitiveMesh } from "../../../../../d3/resource/models/PrimitiveMesh";
-import { DecalDepthCopyShaderInit } from "../../../../../d3/shader/decal/DecalDepthCopyShaderInit";
-import { DecalShaderInit } from "../../../../../d3/shader/decal/DecalShaderInit";
-import { LayaGL } from "../../../../../layagl/LayaGL";
-import { Color } from "../../../../../maths/Color";
-import { Matrix4x4 } from "../../../../../maths/Matrix4x4";
-import { Vector4 } from "../../../../../maths/Vector4";
-import { FilterMode } from "../../../../../RenderEngine/RenderEnum/FilterMode";
-import { RenderCapable } from "../../../../../RenderEngine/RenderEnum/RenderCapable";
-import { RenderParams } from "../../../../../RenderEngine/RenderEnum/RenderParams";
-import { RenderTargetFormat } from "../../../../../RenderEngine/RenderEnum/RenderTargetFormat";
-import { WrapMode } from "../../../../../RenderEngine/RenderEnum/WrapMode";
-import type { BaseTexture } from "../../../../../resource/BaseTexture";
-import type { Material } from "../../../../../resource/Material";
-import { RenderTexture } from "../../../../../resource/RenderTexture";
-import { RenderTextureMRT } from "../../../../../resource/RenderTextureMRT";
+import { BaseCamera } from "../../../../d3/core/BaseCamera";
+import { CameraClearFlags, CameraEventFlags, DecalMode } from "../../../../d3/core/Camera";
+import type { Camera } from "../../../../d3/core/Camera";
+import { RenderContext3D } from "../../../../d3/core/render/RenderContext3D";
+import { CommandBuffer } from "../../../../d3/core/render/command/CommandBuffer";
+import { DrawMeshCMD } from "../../../../d3/core/render/command/DrawMeshCMD";
+import { DrawMeshInstancedCMD } from "../../../../d3/core/render/command/DrawMeshInstancedCMD";
+import { InstanceLocation, MaterialInstancePropertyBlock } from "../../../../d3/core/render/command/MaterialInstancePropertyBlock";
+import { SetRTCMD } from "../../../../d3/core/render/command/SetRenderTargetCMD";
+import type { Mesh } from "../../../../d3/resource/models/Mesh";
+import { PrimitiveMesh } from "../../../../d3/resource/models/PrimitiveMesh";
+import { DecalDepthCopyShaderInit } from "../../../../d3/shader/decal/DecalDepthCopyShaderInit";
+import { DecalShaderInit } from "../../../../d3/shader/decal/DecalShaderInit";
+import { LayaGL } from "../../../../layagl/LayaGL";
+import { Color } from "../../../../maths/Color";
+import { Matrix4x4 } from "../../../../maths/Matrix4x4";
+import { Vector4 } from "../../../../maths/Vector4";
+import { FilterMode } from "../../../../RenderEngine/RenderEnum/FilterMode";
+import { RenderCapable } from "../../../../RenderEngine/RenderEnum/RenderCapable";
+import { RenderParams } from "../../../../RenderEngine/RenderEnum/RenderParams";
+import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { WrapMode } from "../../../../RenderEngine/RenderEnum/WrapMode";
+import type { BaseTexture } from "../../../../resource/BaseTexture";
+import type { Material } from "../../../../resource/Material";
+import { RenderTexture } from "../../../../resource/RenderTexture";
+import { RenderTextureMRT } from "../../../../resource/RenderTextureMRT";
 
-import type { WebDecalManager } from "../WebDecalManager";
+import type { DecalManagerImpl } from "./DecalManagerImpl";
 
 class DecalDrawBatch {
     material: Material;
@@ -47,10 +47,10 @@ class DecalDrawBatch {
 
 /**
  * @internal
- * @en Stores render targets and commands for one Web camera.
- * @zh 保存单台 Web 相机的贴花渲染目标和命令。
+ * @en Stores render targets and commands for one camera.
+ * @zh 保存单台相机的贴花渲染目标和命令。
  */
-export class WebDecalRenderPass {
+export class DecalRenderPass {
     private static _cube: Mesh;
     private static _mirroredCube: Mesh;
     private static readonly _clear = [new Color(0, 0, 0, 1), new Color(0.5, 0.5, 0.5, 1), new Color(0, 0, 0, 1)];
@@ -78,7 +78,7 @@ export class WebDecalRenderPass {
      * @en Collect after onPreRender and before depth-target preparation. Off and invisible decals request no decal passes or targets.
      * @zh 在 onPreRender 后、深度目标准备前收集；关闭或不可见的贴花不申请贴花通道或目标。
      */
-    collect(manager: WebDecalManager): void {
+    collect(manager: DecalManagerImpl): void {
         this.beforeOpaque.clear();
         this.afterOpaque.clear();
         this._unbind();
@@ -179,7 +179,7 @@ export class WebDecalRenderPass {
             // when sampling begins, never while that texture is an attachment.
             // 深度预通道在 prepare() 之后执行；仅在开始采样时绑定结果，避免同时作为写入附件。
             this.beforeOpaque.setShaderDataTexture(values, DecalShaderInit.depthTexture, depth);
-            this.beforeOpaque.setRenderTarget(this._dbuffer, true, false, WebDecalRenderPass._clear);
+            this.beforeOpaque.setRenderTarget(this._dbuffer, true, false, DecalRenderPass._clear);
             this._draw(this.beforeOpaque, DecalShaderInit.DBUFFER_SUBSHADER);
             // Camera texture bindings remain present on WebGPU even when the
             // projector shader does not sample them. Bind only after writing
@@ -246,7 +246,7 @@ export class WebDecalRenderPass {
         for (const batch of this._batches) {
             const material = batch.material, data = material.shaderData;
             if (emissionOnly && !data.hasDefine(DecalShaderInit.emissionDefine)) continue;
-            const cube = WebDecalRenderPass._getCube(instancing && batch.mirrored);
+            const cube = DecalRenderPass._getCube(instancing && batch.mirrored);
             if (instancing) {
                 batch.properties ||= new MaterialInstancePropertyBlock();
                 batch.properties.setVectorArray("a_DecalUVTransform", batch.uv, InstanceLocation.CUSTOME0);

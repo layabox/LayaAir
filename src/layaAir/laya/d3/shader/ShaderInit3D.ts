@@ -41,7 +41,6 @@ import { BlinnPhongShaderInit } from "./blinnphong/BlinnPhongShaderInit";
 import { PBRShaderLib } from "./pbr/PBRShaderLib";
 import { PBRStandardShaderInit } from "./pbr/PBRStandardShaderInit";
 import { DecalShaderInit } from "./decal/DecalShaderInit";
-import { LayaEnv } from "../../../LayaEnv";
 import { SkyBoxShaderInit } from "./sky/SkyBoxShaderInit";
 import { SkyProceduralShaderInit } from "./sky/SkyProceduralShaderInit";
 import { SkyPanoramicShaderInit } from "./sky/SkyPanoramicShaderInit";
@@ -120,7 +119,7 @@ export class ShaderInit3D {
 		BlitScreenShaderInit.init();
 		UnlitShaderInit.init();
 		PBRStandardShaderInit.init();
-		if (!LayaEnv.isConch) DecalShaderInit.init();
+		DecalShaderInit.init();
 		//PBRShaderInit.init();
 		BlinnPhongShaderInit.init();
 		SkyBoxShaderInit.init();
