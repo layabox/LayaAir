@@ -151,9 +151,11 @@ export class MgBrowserAdapter extends BrowserAdapter {
             }
         }
 
-        // webgpu 需要加载为 bitmap
-        // hw webgpu 不需要加载为 bitmap
-        if (Browser.onHWMiniGame) {
+        // The WeChat release template can provide a JS bitmap wrapper that GPU uploads cannot read.
+        const weixinNeedsNativeImage = Browser.onWXMiniGame
+            && (typeof ImageBitmap !== "function" || typeof createImageBitmap !== "function"
+                || (createImageBitmap as typeof createImageBitmap & { __layaImageBitmapFallback?: boolean }).__layaImageBitmapFallback === true);
+        if (Browser.onHWMiniGame || weixinNeedsNativeImage) {
             LayaGL.textureContext.needBitmap = false;
         }
     }
