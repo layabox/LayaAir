@@ -1,4 +1,5 @@
 import { IIndexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
+import { releaseDeviceBufferCPUData } from "../../RenderDriver/DriverDesign/RenderDevice/releaseDeviceBufferCPUData";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { LayaGL } from "../../layagl/LayaGL";
@@ -176,6 +177,17 @@ export class IndexBuffer3D {
             return <Uint16Array>this._buffer;
         else
             throw new NotReadableError();
+    }
+
+    /**
+     * @en Marks the buffer as unreadable and releases the data.
+     * @zh 将缓冲区标记为不可读并释放数据。
+     */
+    markAsUnreadbale(): void {
+        this._canRead = false;
+        this._buffer = null;
+        // 同步释放驱动层可能保留的 CPU 副本（WebGPU 后端上传时会缓存 ArrayBuffer）
+        releaseDeviceBufferCPUData(this._deviceBuffer);
     }
 
     /**
