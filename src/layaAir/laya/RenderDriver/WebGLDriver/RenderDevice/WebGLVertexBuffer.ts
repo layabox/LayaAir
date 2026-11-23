@@ -71,6 +71,13 @@ export class WebGLVertexBuffer implements IVertexBuffer {
         this._glBuffer.setDataLength(this._glBuffer._byteLength);
     }
 
+    /**
+     * WebGL 后端上传后不保留 CPU 副本，无需释放。
+     * @en WebGL backend does not retain a CPU copy after upload; nothing to release.
+     */
+    releaseCPUData(): void {
+    }
+
     destroy(): void {
         this._glBuffer.destroy();
         this._vertexDeclaration = null
