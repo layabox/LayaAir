@@ -163,6 +163,14 @@ export class UniformBufferCluster {
             return;
         }
 
+        //只遍历脏区间：所有置脏都经 _addUploadBlock 扩展边界，释放脏块时 _rebuildDirtyRange 重算，故区间外必无脏块
+        //Scan only the tracked dirty range: every dirty mark goes through _addUploadBlock, which widens it, and
+        //freeing a dirty block rebuilds it, so no dirty block lies outside it
+        const firstDirty = this._dirtyStartIndex;
+        if (firstDirty === -1)
+            return;
+        const lastDirty = Math.min(this._dirtyEndIndex, this._blocks.length - 1);
+
         const wasteRatio = this.manager.uploadWasteRatio;
         let startIndex = -1;
         let endIndex = -1;
@@ -170,7 +178,7 @@ export class UniformBufferCluster {
         let wasteNum = 0; //当前积累区间内多传的干净块数量
 
         //遍历needUpload数组，找到需要上传的块，合并相邻或间隔小的块，上传数据
-        for (let i = 0, len = this._blocks.length; i < len; i++) {
+        for (let i = firstDirty; i <= lastDirty; i++) {
             if (!this._needUpload[i]) {
                 continue;
             }
