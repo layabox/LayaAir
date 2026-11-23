@@ -6,6 +6,7 @@ import { TypedArrayType, TypedArrayConstructor } from "../../../../../ILaya";
  */
 export type UniformLayoutItem = {
     index: number;
+    slot?: number;               // dense per-descriptor ordinal (WebGPU only)
     offset: number;              // 字节偏移
     dataView: TypedArrayConstructor;
     view: TypedArrayType;        // per-instance,重定位时重绑
