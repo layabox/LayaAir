@@ -215,7 +215,7 @@ export class UniformBufferManager {
         cluster = null;
         const clusters = this._clustersAll.get(alignedSize);
         let usedNumMax = -1, usedNum = -1, index = -1;
-        for (let i = clusters.length - 1; i > 0; i--) {
+        for (let i = clusters.length - 1; i >= 0; i--) { // 必须包含 index 0，否则 clusters[0] 有空位时也会新建 cluster，浪费整块 backing buffer
             usedNum = clusters[i].usedNum;
             if (usedNum > usedNumMax
                 && usedNum < this.clusterMaxBlock) {
