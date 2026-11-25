@@ -8,8 +8,6 @@ import { BlendMode, BlendModeHandler } from "../../../../webgl/canvas/BlendMode"
 import { GraphicsDefines } from "../../../../webgl/shader/d2/GraphicsDefines";
 import { GraphicsOpRenderStateHelper } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineHelpers";
 import {
-	GRAPHICS_INFO_DEFAULT_QUAD_INDICES,
-	GRAPHICS_INFO_VERTEX_BLOCK_SIZE,
 	GRAPHICS_INFO_VERTEX_FLAG_DISABLED,
 	GRAPHICS_INFO_VERTEX_FLAG_ENABLED,
 	GraphicsSingleQuadFlag,
@@ -196,11 +194,7 @@ export class WebSingleQuadPrimitiveData {
 			if (!unit)
 				return false;
 		}
-		let indices = unit.sourceIndexView._getData();
-		let vertexBase = unit.vertexBlocks[0] * GRAPHICS_INFO_VERTEX_BLOCK_SIZE;
-		for (let i = 0; i < 6; i++)
-			indices[i] = vertexBase + GRAPHICS_INFO_DEFAULT_QUAD_INDICES[i];
-		unit.sourceIndexView._modify();
+		unit.sourceIndexView._writeQuadIndices(unit.vertexBlocks, 1);
 		this._unit = unit;
 		this._elements[0] = unit.element;
 		return true;

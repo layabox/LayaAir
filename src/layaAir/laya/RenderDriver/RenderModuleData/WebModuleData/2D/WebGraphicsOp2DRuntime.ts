@@ -8,7 +8,6 @@ import { GraphicsDefines } from "../../../../webgl/shader/d2/GraphicsDefines";
 import { GraphicsOpRenderStateHelper } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineHelpers";
 import type { GraphicsOp2DRenderState } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
 import {
-    GRAPHICS_INFO_DEFAULT_QUAD_INDICES,
     GRAPHICS_INFO_VERTEX_BLOCK_SIZE,
     GRAPHICS_INFO_VERTEX_FLAG_DISABLED,
     GRAPHICS_INFO_VERTEX_FLAG_ENABLED,
@@ -48,6 +47,9 @@ export type WebGraphicsMaterialState = {
 	useSpriteState: boolean;
 };
 
+const SMALL_SPARE_INDEX_LIMIT = 8;
+let spareOpLookupEpoch = 0;
+
 /** @internal */
 export class WebGraphicsOp2DRuntime {
 	private _ops: ReadonlyArray<WebGraphicsOp2D> = [];
@@ -61,6 +63,11 @@ export class WebGraphicsOp2DRuntime {
 	private _spareOpRefs: WebGraphicsOp2D[] = null;
 	private _spareRenderElements: IPrimitiveRenderElement2D[] = null;
 	private _spareRenderUnits: WebGraphicsRenderUnit[] = null;
+	private _spareIndexBuilt: boolean = false;
+	private _smallSpareUnitIndices: Int32Array = null;
+	private _smallSpareUnitCount: number = 0;
+	private _spareUnitsByTexture: Map<number, number[]> = null;
+	private _spareTextureBuckets: number[][] = null;
 	private _spareOpCursor: number = 0;
 	private _preferredSpareRenderStart: number = -1;
 	private _preferredSpareRenderEnd: number = -1;
@@ -362,6 +369,8 @@ export class WebGraphicsOp2DRuntime {
 				continue;
 			}
 			this._setOpRenderRange(i, renderIndex, 1);
+			// A new unit needs the full payload even when the op's dirty bits are partial.
+			op.markDirty(GraphicsOp2DDirtyFlag.Structure);
 			this.syncOp(op, renderIndex);
 			renderIndex++;
 		}
@@ -459,6 +468,17 @@ export class WebGraphicsOp2DRuntime {
 		this._spareRenderUnits.length = 0;
 		this._spareRenderElements.length = 0;
 		this._spareOpRefs.length = 0;
+		this._spareIndexBuilt = false;
+		this._smallSpareUnitCount = 0;
+		if (this._spareUnitsByTexture?.size)
+			this._spareUnitsByTexture.clear();
+	}
+
+	private _takeSpareRenderUnit(index: number): WebGraphicsRenderUnit {
+		const unit = this._spareRenderUnits[index];
+		this._spareRenderUnits[index] = null;
+		unit.reactivate(this._owner, this._materialState.subShader, this._materialState.shaderData);
+		return unit;
 	}
 
 	private _takePreferredSpareRenderUnit(vertexCount: number, indexCount: number): WebGraphicsRenderUnit {
@@ -468,11 +488,133 @@ export class WebGraphicsOp2DRuntime {
 			let unit = this._spareRenderUnits[i];
 			if (!unit || !unit.canReuse(vertexCount, indexCount))
 				continue;
-			this._spareRenderUnits[i] = null;
-			unit.reactivate(this._owner, this._materialState.subShader, this._materialState.shaderData);
-			return unit;
+			return this._takeSpareRenderUnit(i);
 		}
 		return null;
+	}
+
+	private _indexSpareRenderUnits(): void {
+		const ops = this._ops;
+		const epoch = spareOpLookupEpoch = (spareOpLookupEpoch + 1) >>> 0;
+		for (let i = 0; i < ops.length; i++) {
+			const op = ops[i];
+			op._spareLookupEpoch = epoch;
+			op._spareLookupIndex = i;
+		}
+
+		const units = this._spareRenderUnits;
+		const small = units.length <= SMALL_SPARE_INDEX_LIMIT;
+		const smallIndices = small
+			? this._smallSpareUnitIndices || (this._smallSpareUnitIndices = new Int32Array(SMALL_SPARE_INDEX_LIMIT))
+			: null;
+		const buckets = small ? null : this._spareUnitsByTexture || (this._spareUnitsByTexture = new Map());
+		const bucketPool = small ? null : this._spareTextureBuckets || (this._spareTextureBuckets = []);
+		let smallCount = 0;
+		let bucketCount = 0;
+		for (let i = 0; i < units.length; i++) {
+			const unit = units[i];
+			// Leave units owned by surviving ops available to the exact-op path.
+			if (!unit)
+				continue;
+			const op = unit.op;
+			if (op && op._spareLookupEpoch === epoch && ops[op._spareLookupIndex] === op)
+				continue;
+			if (small) {
+				smallIndices[smallCount++] = i;
+				continue;
+			}
+			const key = unit.element.textureKey;
+			let bucket = buckets.get(key);
+			if (!bucket) {
+				bucket = bucketPool[bucketCount];
+				if (bucket)
+					bucket.length = 0;
+				else
+					bucketPool[bucketCount] = bucket = [];
+				bucketCount++;
+				buckets.set(key, bucket);
+			}
+			bucket.push(i);
+		}
+		this._smallSpareUnitCount = smallCount;
+		this._spareIndexBuilt = true;
+	}
+
+	private _takeSmallIndexedSpareRenderUnit(vertexCount: number, indexCount: number,
+		state: GraphicsOp2DRenderState, slot: number, texture: GraphicsOp2DTextureHost): WebGraphicsRenderUnit {
+		const indices = this._smallSpareUnitIndices;
+		let last = -1;
+		for (let i = this._smallSpareUnitCount - 1; i >= 0; i--) {
+			const index = indices[i];
+			const unit = this._spareRenderUnits[index];
+			if (!unit || unit.element.textureKey !== state.textureKey)
+				continue;
+			if (last === -1)
+				last = i;
+			if (this._matchesSpareRenderState(unit, vertexCount, indexCount, state, slot, texture)) {
+				// Match the sparse bucket's swap-and-pop order for this texture.
+				indices[i] = indices[last];
+				indices[last] = -1;
+				return this._takeSpareRenderUnit(index);
+			}
+		}
+		return null;
+	}
+
+	private _takeStateMatchedSpareRenderUnit(vertexCount: number, indexCount: number, op: WebGraphicsOp2D, recordStart: number): WebGraphicsRenderUnit {
+		if (!this._spareRenderUnits?.length)
+			return null;
+		const profile = op.opProfile;
+		let texture = op._texture;
+		let blendOffset = GraphicsOpInfoField.WordCount + GraphicsQuadPayloadWordOffset.BlendMode;
+		if (profile === GraphicsOpProfile.Text || profile === GraphicsOpProfile.MultiQuad) {
+			texture = (op as WebGraphicsMultiQuadOp2D | WebGraphicsTextOp2D).textures[recordStart] || null;
+			blendOffset += recordStart * GraphicsQuadPayloadWordCount;
+		} else if (profile === GraphicsOpProfile.SolidQuadPixel || profile === GraphicsOpProfile.SolidQuadPercent) {
+			texture = null;
+		} else if (profile === GraphicsOpProfile.GenericMesh) {
+			blendOffset = GraphicsOpInfoField.WordCount + GraphicsMeshPayloadWordOffset.BlendMode;
+		}
+		const material = this._materialState;
+		const state = GraphicsOpRenderStateHelper.getRenderState(texture, op._int32[blendOffset],
+			profile === GraphicsOpProfile.FillTexture, material.shaderData != null, false, this._renderStateScratch);
+		const slot = state.typeKey & ShaderDefines2D.DEFINE_BIT_USE_TEX_ARRAY
+			? ShaderDefines2D.UNIFORM_SPRITETEXTURE_ARRAY
+			: ShaderDefines2D.UNIFORM_SPRITETEXTURE;
+		const boundTexture = texture || Texture2D.whiteTexture;
+		for (let i = this._preferredSpareRenderStart; i >= 0 && i < this._preferredSpareRenderEnd; i++) {
+			if (this._matchesSpareRenderState(this._spareRenderUnits[i], vertexCount, indexCount, state, slot, boundTexture))
+				return this._takeSpareRenderUnit(i);
+		}
+		if (!this._spareIndexBuilt)
+			this._indexSpareRenderUnits();
+		if (this._spareRenderUnits.length <= SMALL_SPARE_INDEX_LIMIT)
+			return this._takeSmallIndexedSpareRenderUnit(vertexCount, indexCount, state, slot, boundTexture);
+		const bucket = this._spareUnitsByTexture.get(state.textureKey);
+		if (bucket) {
+			for (let i = bucket.length - 1; i >= 0; i--) {
+				const index = bucket[i];
+				if (this._matchesSpareRenderState(this._spareRenderUnits[index], vertexCount, indexCount, state, slot, boundTexture)) {
+					bucket[i] = bucket[bucket.length - 1];
+					bucket.pop();
+					return this._takeSpareRenderUnit(index);
+				}
+			}
+		}
+		return null;
+	}
+
+	private _matchesSpareRenderState(unit: WebGraphicsRenderUnit, vertexCount: number, indexCount: number,
+		state: GraphicsOp2DRenderState, slot: number, texture: GraphicsOp2DTextureHost): boolean {
+		if (!unit || !unit.canReuse(vertexCount, indexCount))
+			return false;
+		const element = unit.element;
+		return element.typeKey === state.typeKey
+			&& element.textureKey === state.textureKey
+			&& element.value2DShaderData === this._owner.spriteShaderData
+			&& element.subShader === this._materialState.subShader
+			&& (element.materialShaderData ?? null) === (this._materialState.shaderData ?? null)
+			&& unit.primitiveShaderData.getTexture(slot) === texture;
 	}
 
 
@@ -581,7 +723,8 @@ export class WebGraphicsOp2DRuntime {
 	}
 
 	private _createRenderElement(renderIndex: number, vertexCount: number, indexCount: number, op: WebGraphicsOp2D, opIndex: number, recordStart: number, recordCount: number): boolean {
-		let unit = this._takePreferredSpareRenderUnit(vertexCount, indexCount);
+		let unit = this._takeStateMatchedSpareRenderUnit(vertexCount, indexCount, op, recordStart)
+			|| this._takePreferredSpareRenderUnit(vertexCount, indexCount);
 		if (!unit)
 			unit = WebGraphicsRenderUnitPool.take(vertexCount, indexCount, this._owner,
 				this._materialState.subShader, this._materialState.shaderData);
@@ -817,15 +960,22 @@ export class WebGraphicsOp2DRuntime {
 		let indexDataOffset = wordOffset + int32[wordOffset + GraphicsMeshPayloadWordOffset.IndexDataOffset];
 		let indexCount = int32[wordOffset + GraphicsMeshPayloadWordOffset.IndexCount];
 		let unit = this._renderUnits[renderIndex];
-		let indexData = unit.sourceIndexView._getData();
+		const indexView = unit.sourceIndexView;
+		const indexData = indexView._getData();
+		const indexMask = indexData.BYTES_PER_ELEMENT === Uint16Array.BYTES_PER_ELEMENT ? 0xffff : 0xffffffff;
 		let blocks = unit.vertexBlocks;
+		let changed = false;
 		for (let j = 0; j < indexCount; j++) {
 			let localVertex = int32[indexDataOffset + j];
 			let blockIndex = Math.floor(localVertex / GRAPHICS_INFO_VERTEX_BLOCK_SIZE);
 			let vertexInBlock = localVertex - blockIndex * GRAPHICS_INFO_VERTEX_BLOCK_SIZE;
-			indexData[j] = blocks[blockIndex] * GRAPHICS_INFO_VERTEX_BLOCK_SIZE + vertexInBlock;
+			const value = ((blocks[blockIndex] * GRAPHICS_INFO_VERTEX_BLOCK_SIZE + vertexInBlock) & indexMask) >>> 0;
+			if (indexData[j] !== value) {
+				indexData[j] = value;
+				changed = true;
+			}
 		}
-		unit.sourceIndexView._modify();
+		indexView._modify(changed);
 	}
 
 	private _writeMeshData(renderIndex: number, op: WebGraphicsMeshOp2D, wordOffset: number, ownerMat: Matrix, ownerAlpha: number): void {
@@ -991,17 +1141,8 @@ export class WebGraphicsOp2DRuntime {
 	}
 
 	private _writeQuadIndex(renderIndex: number, quadCount: number): void {
-		let unit = this._renderUnits[renderIndex];
-		let indexData = unit.sourceIndexView._getData();
-		let blocks = unit.vertexBlocks;
-		for (let i = 0; i < quadCount; i++) {
-			let vertexBase = i * 4;
-			let blockIndex = Math.floor(vertexBase / GRAPHICS_INFO_VERTEX_BLOCK_SIZE);
-			let blockBase = blocks[blockIndex] * GRAPHICS_INFO_VERTEX_BLOCK_SIZE + vertexBase - blockIndex * GRAPHICS_INFO_VERTEX_BLOCK_SIZE;
-			for (let j = 0; j < 6; j++)
-				indexData[i * 6 + j] = blockBase + GRAPHICS_INFO_DEFAULT_QUAD_INDICES[j];
-		}
-		unit.sourceIndexView._modify();
+		const unit = this._renderUnits[renderIndex];
+		unit.sourceIndexView._writeQuadIndices(unit.vertexBlocks, quadCount);
 	}
 
 	private _updateSingleTextureQuadTransformValuesOnly(a: number, b: number, c: number, d: number, tx: number, ty: number, globalAlpha: number, writeAlpha: boolean = true): boolean {

@@ -8,6 +8,8 @@ export interface IBatch2DProvider {
     /**合批范围，合批的RenderElement2D直接add进list中 */
     batch(list: FastSinglelist<IRenderElement2D>, start: number, end: number, allowReorder?: boolean): void;
     reset(): void;
+    finishBatch?(): void;
+    clearRenderElementCache?(): boolean;
     destroy(): void;
 }
 

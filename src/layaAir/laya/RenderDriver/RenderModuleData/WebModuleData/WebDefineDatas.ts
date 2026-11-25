@@ -12,6 +12,9 @@ export class WebDefineDatas implements IDefineDatas {
 
     private _changeFlags: Set<Vector2> = new Set();
 
+    /** @internal Zero until a WebGPU Graphics consumer starts tracking this state. */
+    _graphicsPrimitiveBindingRevision: number = 0;
+
     /**
      * @internal
      */
@@ -42,6 +45,8 @@ export class WebDefineDatas implements IDefineDatas {
             else
                 mask[i] = value;
         }
+        if (this._graphicsPrimitiveBindingRevision !== 0)
+            this._graphicsPrimitiveBindingRevision++;
     }
 
     /**
@@ -161,6 +166,8 @@ export class WebDefineDatas implements IDefineDatas {
 
 
     private _notifyChangeFlag() {
+        if (this._graphicsPrimitiveBindingRevision !== 0)
+            this._graphicsPrimitiveBindingRevision++;
         if (this._changeFlags.size > 0) {
             this._changeFlags.forEach(value => {
                 value.setValue(Stat.loopCount, LayaGL.renderEngine._framePassCount)

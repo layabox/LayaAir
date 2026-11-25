@@ -132,6 +132,9 @@ export class WebGraphicsRenderUnit implements WebGraphicsBatchEntry {
         if (element) {
             element.geometry = null;
             element.primitiveShaderData = null;
+            element.value2DShaderData = null;
+            element.materialShaderData = null;
+            element.owner = null;
             element.destroy();
         }
         if (this.sourceGeometry) {
@@ -176,6 +179,17 @@ export class WebGraphicsRenderUnitPool {
     private static readonly _maxCount: number = 1024;
     private static _count: number = 0;
     private static _buckets: Map<number, Map<number, WebGraphicsRenderUnit[]>> = new Map();
+
+    static clear(): void {
+        for (const indexBuckets of this._buckets.values()) {
+            for (const units of indexBuckets.values()) {
+                for (const unit of units)
+                    unit.destroy();
+            }
+        }
+        this._buckets.clear();
+        this._count = 0;
+    }
 
     static take(vertexCount: number, indexCount: number, owner: WebRenderStruct2D,
         subShader: SubShader, materialShaderData: ShaderData): WebGraphicsRenderUnit {

@@ -11,6 +11,10 @@ import type { InternalTexture } from "../../../DriverDesign/RenderDevice/Interna
 /** @internal */
 export abstract class WebGraphicsOp2D implements IGraphicsOp2D {
 	dirtyFlags: GraphicsOp2DDirtyFlag = GraphicsOp2DDirtyFlag.All;
+	/** @internal Current op membership during Graphics spare indexing. */
+	_spareLookupEpoch: number = 0;
+	/** @internal Verified against the runtime's current op array before reserving a unit. */
+	_spareLookupIndex: number = -1;
 	protected _version: number = 0;
 	protected _retainedRecordCount: number = 0;
 	_texture: GraphicsOp2DTextureHost | null = null;

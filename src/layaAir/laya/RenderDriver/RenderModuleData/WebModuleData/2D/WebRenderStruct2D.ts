@@ -3,6 +3,7 @@ import { IRenderElement2D } from "../../../DriverDesign/2DRenderPass/IRenderElem
 import { IClipInfo, IRenderStruct2D } from "../../Design/2D/IRenderStruct2D";
 import { Rectangle } from "../../../../maths/Rectangle";
 import { WebRender2DPass } from "./WebRender2DPass";
+import type { RetainedBatchElements } from "./WebGraphicsBatch";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { Matrix } from "../../../../maths/Matrix";
 import { Vector2 } from "../../../../maths/Vector2";
@@ -70,6 +71,9 @@ const _DefaultParentData: ParentData = {
 export class WebRenderStruct2D implements IRenderStruct2D {
    owner: Sprite;
    forceShaderClip: boolean = false;
+
+   /** @internal Graphics outputs retained by render passes that draw this node. */
+   _graphicsBatchRetention: RetainedBatchElements = null;
 
    /** 手动渲染模式：子节点不参与父 pass 的自动遍历和渲染 */
    manualRender: boolean = false;

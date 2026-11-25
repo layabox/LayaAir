@@ -1,3 +1,4 @@
+import { GRAPHICS_INFO_DEFAULT_QUAD_INDICES, GRAPHICS_INFO_VERTEX_BLOCK_SIZE } from "../../../../display/Scene2DSpecial/GraphicsRenderPipeline/GraphicsPipelineTypes";
 import { GraphicsDefines } from "../../../../webgl/shader/d2/GraphicsDefines";
 import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { Web2DGraphicsIndexBuffer, Web2DGraphicsVertexBuffer, Web2DGraphicWholeBuffer } from "./Web2DGraphic2DBuffer";
@@ -64,11 +65,19 @@ export class Web2DGraphic2DVertexDataView extends Web2DGraphicsBufferDataView {
 
 export class Web2DGraphic2DIndexDataView extends Web2DGraphicsBufferDataView {
 
+    private static _nextIndexRevision = 0;
+    private _indexRevision = ++Web2DGraphic2DIndexDataView._nextIndexRevision;
+    private _quadIndexCount = -1;
     protected _view: Uint16Array | Uint32Array;
 
     declare owner: Web2DGraphicsIndexBuffer;
 
     _geometry: IRenderGeometryElement;
+
+    /** @internal Identifies this view's current index data across Graphics rebuilds. */
+    get indexRevision(): number {
+        return this._indexRevision;
+    }
 
     setGeometry(value: IRenderGeometryElement): void {
         this._geometry = value;
@@ -99,8 +108,40 @@ export class Web2DGraphic2DIndexDataView extends Web2DGraphicsBufferDataView {
         wholeData.set(this._view, this.start);
     }
 
+    /** @internal */
+    _writeQuadIndices(vertexBlocks: readonly number[], quadCount: number): void {
+        const indexData = this._view;
+        const quadIndices = GRAPHICS_INFO_DEFAULT_QUAD_INDICES;
+        const matchesQuadCount = this._quadIndexCount === quadCount;
+        let changed = false;
+        for (let i = 0; i < quadCount; i++) {
+            const vertexBase = i * 4;
+            const blockIndex = Math.floor(vertexBase / GRAPHICS_INFO_VERTEX_BLOCK_SIZE);
+            const blockBase = vertexBlocks[blockIndex] * GRAPHICS_INFO_VERTEX_BLOCK_SIZE
+                + vertexBase - blockIndex * GRAPHICS_INFO_VERTEX_BLOCK_SIZE;
+            const indexOffset = i * quadIndices.length;
+            if (matchesQuadCount && indexData[indexOffset] === blockBase + quadIndices[0])
+                continue;
+
+            for (let j = 0; j < quadIndices.length; j++) {
+                const value = blockBase + quadIndices[j];
+                if (matchesQuadCount || indexData[indexOffset + j] !== value) {
+                    indexData[indexOffset + j] = value;
+                    changed = true;
+                }
+            }
+        }
+        this._modify(changed);
+        this._quadIndexCount = quadCount;
+    }
+
     /** @private */
-    _modify() {
+    _modify(changed = true) {
+        if (changed) {
+            this._indexRevision = ++Web2DGraphic2DIndexDataView._nextIndexRevision;
+            this._quadIndexCount = -1;
+        }
+        // A reused view may need a new offset in the source buffer even when its indices match.
         this.owner._modifyOneView(this);
         WebRender2DPass.setBuffer(this.owner);
     }

@@ -21,6 +21,7 @@ import { BaseRender2DType } from "../../../../display/SpriteConst";
 import { Pool } from "../../../../utils/Pool";
 import { NodeFlags } from "../../../../Const";
 import { WebGraphicsBatch } from "./WebGraphicsBatch";
+import { WebGraphicsRenderUnitPool } from "./WebGraphicsOp2DRuntimeBuffers";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Rectangle } from "../../../../maths/Rectangle";
 import { WebStencilClip2D } from "./WebStencilClip2D";
@@ -294,6 +295,9 @@ export class WebRender2DPass implements IRender2DPass {
          if (this.root) {
             this.fillRenderElements();
             this._enableBatch && LayaEnv.isPlaying && this.batch();
+         }
+         for (let i = 0, n = this._batchProviders.length; i < n; i++) {
+            this._batchProviders[i]?.finishBatch?.();
          }
 
          WebRender2DPass.uploadBuffer();
@@ -570,12 +574,24 @@ export class WebRender2DPass implements IRender2DPass {
 
    updatePostProcess(): void { }
 
+   clearBatchRenderElementCache(forceRepaint: boolean = false): void {
+      let cleared = false;
+      for (const provider of this._batchProviders) {
+         if (provider?.clearRenderElementCache?.())
+            cleared = true;
+      }
+      if (cleared || forceRepaint) {
+         this._renderElements.clear();
+         this.repaint = true;
+      }
+   }
+
    destroy(): void {
       if (this.destroyed) {
          return;
       }
       this.destroyed = true;
-      this._renderElements.length = 0;
+      this._renderElements.clear();
       for (let i = 0, n = this._batchProviders.length; i < n; i++) {
          this._batchProviders[i] && this._batchProviders[i].destroy();
       }
@@ -592,6 +608,8 @@ export class WebRender2DPassManager implements IRender2DPassManager {
    private _modify: boolean = false;
 
    private _passes: WebRender2DPass[] = [];
+   private _removedPasses: Set<WebRender2DPass> = new Set();
+   private _clearBatchCache: boolean = false;
 
    removePass(pass: WebRender2DPass): void {
       let index = this._passes.indexOf(pass);
@@ -599,10 +617,26 @@ export class WebRender2DPassManager implements IRender2DPassManager {
          return;
       }
       this._passes.splice(index, 1);
+      this._removedPasses.add(pass);
       this._modify = true;
    }
 
+   clearBatchRenderElementCache(): void {
+      this._clearBatchCache = true;
+   }
+
    apply(context: IRenderContext2D, renderTime: number): void {
+      if (this._removedPasses.size > 0) {
+         for (const pass of this._removedPasses)
+            pass.clearBatchRenderElementCache();
+         this._removedPasses.clear();
+      }
+      if (this._clearBatchCache) {
+         this._clearBatchCache = false;
+         for (const pass of this._passes)
+            pass.clearBatchRenderElementCache(true);
+         WebGraphicsRenderUnitPool.clear();
+      }
       if (this._modify) {
          this._modify = false;
          this._passes.sort((a, b) => b._priority - a._priority); // 按 priority 从大到小排序
@@ -616,6 +650,8 @@ export class WebRender2DPassManager implements IRender2DPassManager {
    }
 
    clear(): void {
+      for (const pass of this._passes)
+         this._removedPasses.add(pass);
       this._passes.length = 0;
    }
 
