@@ -253,6 +253,11 @@ export class DrawTrianglesCmd implements IGraphicsCmd {
     }
 
     /** @internal */
+    needsLayoutRepaint(): number {
+        return this.mesh ? 1 : 0;
+    }
+
+    /** @internal */
     getGraphicsCommandInfo(out: GraphicsCommandInfo): GraphicsCommandInfo {
         out.dependency = this.mesh ? GraphicsCommandDependency.SizePayload : GraphicsCommandDependency.None;
         out.layoutRefresh = this.mesh ? GraphicsCommandLayoutRefresh.RerunCommand : GraphicsCommandLayoutRefresh.None;

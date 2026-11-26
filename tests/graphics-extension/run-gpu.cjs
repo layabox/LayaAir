@@ -11,9 +11,10 @@ const testScript = process.argv.includes('--mesh-lifecycle') ? 'mesh-lifecycle.g
 const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'laya-graphics-gpu-'));
 const compiler = backend === 'webgpu'
     ? '<script src="/libs/shader_compiler_web.js"></script><script src="/libs/nagabind.js"></script>' : '';
+const ui = testScript === 'gpu.test.js' ? '<script src="/libs/laya.ui2.js"></script>' : '';
 const html = `<!doctype html><meta charset="utf-8"><pre>Running ${backend}</pre>
     <script src="/libs/laya.core.js"></script>${compiler}
-    <script src="/libs/laya.${backend}_2D.js"></script><script src="/test.js"></script>`;
+    <script src="/libs/laya.${backend}_2D.js"></script>${ui}<script src="/test.js"></script>`;
 const server = http.createServer((req, res) => {
     const name = new URL(req.url, 'http://localhost').pathname;
     if (name === '/') { res.setHeader('Content-Type', 'text/html'); res.end(html); return; }

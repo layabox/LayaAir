@@ -8,6 +8,7 @@
         if (!condition) console.error('CHECK FAILED', name, detail);
     };
     try {
+        Laya.PlayerConfig.UI = {alwaysIncludeDefaultSkin: false};
         await Laya.init(128, 128);
         if (backend === 'webgpu')
             Laya.LayaGL.renderEngine.getDevice().addEventListener('uncapturederror', event => errors.push(event.error.message));
@@ -34,6 +35,27 @@
             check(actual.every((value, i) => Math.abs(value - expected[i]) <= 3), name, {actual, expected});
         };
         const white = new Laya.Texture(Laya.Texture2D.whiteTexture);
+        {
+            const image = new Laya.GImage();
+            image.mesh = new Laya.TileMesh();
+            image.texture = white;
+            image.size(16, 12);
+            root.addChild(image);
+
+            let actual = await capture();
+            color(actual, 8, 8, [255, 255, 255, 255], 'TileMesh draws at the initial size');
+            color(actual, 24, 20, [0, 0, 0, 0], 'TileMesh leaves pixels outside the initial size clear');
+
+            image.size(29, 23);
+            actual = await capture();
+            color(actual, 24, 20, [255, 255, 255, 255], 'TileMesh covers the expanded size');
+
+            image.size(7, 8);
+            actual = await capture();
+            color(actual, 4, 4, [255, 255, 255, 255], 'TileMesh still draws after shrinking');
+            color(actual, 8, 8, [0, 0, 0, 0], 'TileMesh clears pixels outside the smaller size');
+            image.destroy();
+        }
         // A textureless element can become the head of a cached reorder group.
         // Cached members must still adopt their atlas and shader state.
         {
