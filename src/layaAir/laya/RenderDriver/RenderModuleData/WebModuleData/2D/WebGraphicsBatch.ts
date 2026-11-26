@@ -12,15 +12,20 @@ import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRend
 import { IVertexBuffer } from "../../../DriverDesign/RenderDevice/IVertexBuffer";
 import { WebRenderStruct2D } from "./WebRenderStruct2D";
 import { Web2DGraphicsIndexBatchBuffer } from "./Web2DGraphic2DBuffer";
-import { BatchManager, IBatch2DProvider } from "./BatchManager";
-import { BaseRender2DType } from "../../../../display/SpriteConst";
+import {  IBatch2DProvider } from "./BatchManager";
 import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { Vector4 } from "../../../../maths/Vector4";
+import type { BaseTexture } from "../../../../resource/BaseTexture";
+import { Shader2D } from "../../../../webgl/shader/d2/Shader2D";
+import type { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
+import type { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
+import type { IClipInfo } from "../../Design/2D/IRenderStruct2D";
 import { WebRender2DPass } from "./WebRender2DPass";
-import type { WebGraphicsBatchEntry } from "./WebGraphicsOp2DRuntimeBuffers";
+import { WebGraphicsRenderUnit, type WebGraphicsBatchEntry } from "./WebGraphicsOp2DRuntimeBuffers";
 import { WebGraphicsCommandStreamDataHandle } from "./WebRenderDataHandle";
 
 const _STEP_ = 1024;
+const DESTROYED_TEXTURE_CHECK_INTERVAL_MS = 5000;
 const TEXTURE_VARIANT_TYPE_MASK = ShaderDefines2D.DEFINE_BIT_GAMMATEXTURE
     | ShaderDefines2D.DEFINE_BIT_USE_TEX_ARRAY;
 
@@ -121,7 +126,10 @@ abstract class BaseBatchContext {
     subShader: any = null;
     /** 批次的bufferState */
     bufferState: any = null;
-    primitiveShaderData: any = null;
+    primitiveSource: IPrimitiveRenderElement2D;
+    get primitiveShaderData(): ShaderData {
+        return this.primitiveSource.primitiveShaderData;
+    }
     materialShaderData: any = null;
     typeKey: number = 0;
     textureKey: number = 0;
@@ -151,7 +159,7 @@ abstract class BaseBatchContext {
         this.textureId = element.textureKey;
         this.textureKey = element.textureKey;
         this.typeKey = element.typeKey;
-        this.primitiveShaderData = element.primitiveShaderData;
+        this.primitiveSource = element;
     }
 
     /**
@@ -166,7 +174,7 @@ abstract class BaseBatchContext {
 class WebGLBatchContext extends BaseBatchContext {
 
     setHead(element: IPrimitiveRenderElement2D): void {
-        this.primitiveShaderData = element.primitiveShaderData;
+        this.primitiveSource = element;
         this.materialShaderData = element.materialShaderData;
         this.subShader = element.subShader;
         this.bufferState = element.geometry.bufferState;
@@ -225,7 +233,7 @@ class WebGLBatchContext extends BaseBatchContext {
 class WebGPUBatchContext extends BaseBatchContext {
 
     setHead(element: IPrimitiveRenderElement2D): void {
-        this.primitiveShaderData = element.primitiveShaderData;
+        this.primitiveSource = element;
         this.materialShaderData = element.materialShaderData;
         this.subShader = element.subShader;
         this.bufferState = element.geometry.bufferState;
@@ -279,6 +287,31 @@ class WebGPUBatchContext extends BaseBatchContext {
     }
 }
 
+/** Bindings of a built-in Graphics batch, independent of the unit that supplied the texture. */
+interface GraphicsBatchBindings {
+    texture: BaseTexture;
+    internalTexture: InternalTexture;
+    fillRange: Vector4;
+    bufferState: IBufferState;
+    clipInfo: IClipInfo;
+    globalRenderData: WebRenderStruct2D["globalRenderData"];
+}
+
+interface RetainedGraphicsElement extends IPrimitiveRenderElement2D {
+    _graphicsBindings?: GraphicsBatchBindings;
+}
+
+/** @internal Batches with the same head node, within one render pass. */
+export interface RetainedGraphicsBatches {
+    owner: WebRenderStruct2D;
+    provider: WebGraphicsBatch;
+    next: RetainedGraphicsBatches;
+    elements: RetainedGraphicsElement[];
+    nodeData: ShaderData;
+    used: number;
+    generation: number;
+}
+
 /**
  * @ignore
  */
@@ -286,6 +319,11 @@ export class WebGraphicsBatch implements IBatch2DProvider {
     _buffer: BatchBuffer;
     _merged: Array<IPrimitiveRenderElement2D>;
     _context: BaseBatchContext;
+    private readonly _retainElements: boolean;
+    private readonly _retainedBatches = new Set<RetainedGraphicsBatches>();
+    private readonly _destroyedOwnerBatches: RetainedGraphicsBatches[] = [];
+    private _generation = 0;
+    private _lastTextureCheck = 0;
 
     static readonly _pool: IPool<IPrimitiveRenderElement2D> = Pool.createPool2<IPrimitiveRenderElement2D>(
         () => { //create
@@ -318,6 +356,7 @@ export class WebGraphicsBatch implements IBatch2DProvider {
         this._merged = [];
 
         let isWebgl = !!(LayaGL.renderEngine as unknown as RenderEngineWebGLProbe).gl;
+        this._retainElements = !isWebgl;
         if (isWebgl) {
             this._context = new WebGLBatchContext();
         } else {
@@ -328,9 +367,80 @@ export class WebGraphicsBatch implements IBatch2DProvider {
     reset() {
         this._buffer.clear();
         WebGraphicsBatch._pool.recover(this._merged);
+        this._generation++;
+        // The pass has dropped its previous draw list; destroyed owners' outputs are now safe to release.
+        for (const batch of this._destroyedOwnerBatches)
+            this._releaseBatch(batch);
+        this._destroyedOwnerBatches.length = 0;
+
+        if (this._retainedBatches.size) {
+            const now = performance.now();
+            if (now - this._lastTextureCheck >= DESTROYED_TEXTURE_CHECK_INTERVAL_MS) {
+                this._lastTextureCheck = now;
+                this._releaseDestroyedTextures();
+            }
+        }
+    }
+
+    /** @internal */
+    _onBatchOwnerDestroyed(batch: RetainedGraphicsBatches): void {
+        this._destroyedOwnerBatches.push(batch);
+    }
+
+    clearRenderElementCache(): boolean {
+        const hadElements = this._retainedBatches.size > 0;
+        this._destroyedOwnerBatches.length = 0;
+        for (const batch of this._retainedBatches)
+            this._releaseBatch(batch);
+        return hadElements;
+    }
+
+    private _releaseDestroyedTextures(): void {
+        for (const batch of this._retainedBatches) {
+            const elements = batch.elements;
+            for (let i = elements.length - 1; i >= 0; i--) {
+                const element = elements[i];
+                if (element._graphicsBindings?.texture.destroyed) {
+                    this._destroyBatchElement(element);
+                    elements[i] = elements[elements.length - 1];
+                    elements.pop();
+                }
+            }
+            if (!elements.length)
+                this._releaseBatch(batch);
+        }
+    }
+
+    private _destroyBatchElement(element: RetainedGraphicsElement): void {
+        const ownedData = element._graphicsBindings ? element.primitiveShaderData : null;
+        element.value2DShaderData = null;
+        element.materialShaderData = null;
+        element.primitiveShaderData = null;
+        ownedData?.destroy();
+        element._graphicsBindings = null;
+        element.geometry.destroy();
+        element.destroy();
+    }
+
+    private _releaseBatch(batch: RetainedGraphicsBatches): void {
+        this._retainedBatches.delete(batch);
+        for (const element of batch.elements)
+            this._destroyBatchElement(element);
+        batch.elements.length = 0;
+
+        const owner = batch.owner;
+        if (owner._retainedGraphicsBatches === batch) {
+            owner._retainedGraphicsBatches = batch.next;
+        } else {
+            let previous = owner._retainedGraphicsBatches;
+            while (previous.next !== batch)
+                previous = previous.next;
+            previous.next = batch.next;
+        }
     }
 
     destroy(): void {
+        this.clearRenderElementCache();
         this._buffer.destroy();
         WebGraphicsBatch._pool.recover(this._merged);
     }
@@ -448,6 +558,110 @@ export class WebGraphicsBatch implements IBatch2DProvider {
             }
             list.add(this.merge(elementArray, batchStart, end, ctx));
         }
+        ctx.primitiveSource = null;
+    }
+
+    private _getRetainedTexture(head: IPrimitiveRenderElement2D, context: BaseBatchContext): BaseTexture {
+        if (!(head._graphicsBatchEntry instanceof WebGraphicsRenderUnit)
+            || !(context.primitiveSource._graphicsBatchEntry instanceof WebGraphicsRenderUnit)
+            || (context.typeKey & (ShaderDefines2D.TYPEKEY_CUSTOM_MATERIAL | ShaderDefines2D.DEFINE_BIT_VERTEX_SIZE))
+            || head.materialShaderData || head.subShader !== Shader2D.graphicsShader?.getSubShaderAt(0))
+            return null;
+
+        const slot = (context.typeKey & ShaderDefines2D.DEFINE_BIT_USE_TEX_ARRAY)
+            ? ShaderDefines2D.UNIFORM_SPRITETEXTURE_ARRAY : ShaderDefines2D.UNIFORM_SPRITETEXTURE;
+        const data = context.primitiveShaderData;
+        const texture = data.getTexture(slot);
+        // A live wrapper must still match the source binding before cloning. A destroyed wrapper takes the transient path.
+        return texture && (texture._texture === data.getData()[slot] || texture.destroyed) ? texture : null;
+    }
+
+    private _takeBatchElement(head: IPrimitiveRenderElement2D, context: BaseBatchContext): IPrimitiveRenderElement2D {
+        const texture = this._retainElements ? this._getRetainedTexture(head, context) : null;
+        if (!this._retainElements || texture?.destroyed) {
+            const element = this._createBatchElement(head, context, null);
+            this._merged.push(element);
+            return element;
+        }
+
+        const owner = head.owner as WebRenderStruct2D;
+        let batch = owner._retainedGraphicsBatches;
+        while (batch && batch.provider !== this)
+            batch = batch.next;
+        if (!batch) {
+            batch = {
+                owner, provider: this, next: owner._retainedGraphicsBatches,
+                elements: [], nodeData: owner.spriteShaderData, used: 0, generation: this._generation
+            };
+            owner._retainedGraphicsBatches = batch;
+            this._retainedBatches.add(batch);
+        } else if (batch.generation !== this._generation) {
+            batch.generation = this._generation;
+            batch.used = 0;
+            if (batch.nodeData !== owner.spriteShaderData) {
+                batch.nodeData = owner.spriteShaderData;
+                for (const element of batch.elements) {
+                    if (element._graphicsBindings)
+                        element.value2DShaderData = batch.nodeData;
+                }
+            }
+        }
+
+        // Only search unused elements belonging to this node and pass.
+        const elements = batch.elements;
+        const slot = batch.used;
+        let index = slot;
+        for (; index < elements.length; index++) {
+            const element = elements[index];
+            if (element.typeKey !== context.typeKey || element.textureKey !== context.textureKey
+                || element.subShader !== head.subShader || element.stencilClipState !== head.stencilClipState
+                || element.renderStateIsBySprite !== head.renderStateIsBySprite)
+                continue;
+
+            const bindings = element._graphicsBindings;
+            if (texture) {
+                if (bindings && bindings.texture === texture && bindings.internalTexture === texture._texture
+                    && bindings.bufferState === context.bufferState && bindings.clipInfo === context.clipInfo
+                    && bindings.globalRenderData === context.globalRenderData
+                    && (!context.fillTexture || bindings.fillRange.equal(context.texRange)))
+                    break;
+            } else if (!bindings && element.value2DShaderData === head.value2DShaderData
+                && element.materialShaderData === head.materialShaderData
+                && element.primitiveShaderData === context.primitiveShaderData) {
+                break;
+            }
+        }
+
+        const element = elements[index] ?? this._createBatchElement(head, context, texture);
+        if (index !== slot)
+            elements[index] = elements[slot];
+        elements[slot] = element;
+        batch.used++;
+        return element;
+    }
+
+    private _createBatchElement(head: IPrimitiveRenderElement2D, context: BaseBatchContext, texture: BaseTexture): RetainedGraphicsElement {
+        const element: RetainedGraphicsElement = WebGraphicsBatch._pool.take();
+        element.materialShaderData = head.materialShaderData;
+        element.value2DShaderData = head.value2DShaderData;
+        element.subShader = head.subShader;
+        element.renderStateIsBySprite = head.renderStateIsBySprite;
+        if (texture) {
+            // Source units can change texture or return to their pool while this batch stays live.
+            element.primitiveShaderData = context.primitiveShaderData.clone();
+            element._graphicsBindings = {
+                texture, internalTexture: texture._texture,
+                fillRange: context.fillTexture ? element.primitiveShaderData.getVector(ShaderDefines2D.UNIFORM_TEXRANGE) : null,
+                bufferState: context.bufferState, clipInfo: context.clipInfo, globalRenderData: context.globalRenderData
+            };
+        } else {
+            element.primitiveShaderData = context.primitiveShaderData;
+        }
+        element.owner = head.owner;
+        element.stencilClipState = head.stencilClipState;
+        element.typeKey = context.typeKey;
+        element.textureKey = context.textureKey;
+        return element;
     }
 
     private merge(elementArray: Array<IPrimitiveRenderElement2D>, start: number, end: number, batchContext: BaseBatchContext, indice?: Int16Array): IPrimitiveRenderElement2D {
@@ -456,9 +670,11 @@ export class WebGraphicsBatch implements IBatch2DProvider {
             return element;
         }
 
-        let staticBatchRenderElement = WebGraphicsBatch._pool.take();
-        this._merged.push(staticBatchRenderElement);
+        const head = elementArray[indice !== undefined ? indice[start] : start];
+        const staticBatchRenderElement = this._takeBatchElement(head, batchContext);
         let batchedGeometry = staticBatchRenderElement.geometry;
+        if (this._retainElements)
+            batchedGeometry.clearRenderParams();
         let currentOffset = 0;
         let currentCount = 0;
         let isFirst = true;
@@ -466,18 +682,8 @@ export class WebGraphicsBatch implements IBatch2DProvider {
         for (let i = start; i <= end; i++) {
             let element = elementArray[indice !== undefined ? indice[i] : i];
             let geometry = this._buffer.add(element) || element.geometry;
-            if (i === start) {
+            if (i === start && batchedGeometry.bufferState !== geometry.bufferState)
                 batchedGeometry.bufferState = geometry.bufferState;
-                staticBatchRenderElement.materialShaderData = element.materialShaderData;
-                staticBatchRenderElement.value2DShaderData = element.value2DShaderData;
-                staticBatchRenderElement.subShader = element.subShader;
-                staticBatchRenderElement.renderStateIsBySprite = element.renderStateIsBySprite;
-                staticBatchRenderElement.primitiveShaderData = batchContext.primitiveShaderData;
-                staticBatchRenderElement.owner = element.owner;
-                staticBatchRenderElement.stencilClipState = element.stencilClipState;
-                staticBatchRenderElement.typeKey = batchContext.typeKey;
-                staticBatchRenderElement.textureKey = batchContext.textureKey;
-            }
 
             let drawParam = geometry.drawParams.elements;
             let drawLength = geometry.drawParams.length;

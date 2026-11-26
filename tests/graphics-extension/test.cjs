@@ -548,3 +548,31 @@ primitiveState.blendStateCache.id = 20;
 gpuElement._prepare({_curRenderGlobalKey: 0});
 assert.equal(pipelineUpdates, 4, 'Per-op blend changes invalidate only the affected pipeline state');
 console.log('WebGPU: freed binding eviction, valid cache retention, per-op blend selection and pipeline reuse passed');
+
+const {WebGPUPrimitiveRenderElement2D} = classes('RenderDriver/WebGPUDriver/2DRenderPass/WebGPUPrimitiveRenderElement2D',
+    ['WebGPUPrimitiveRenderElement2D'], {WebGPURenderElement2D});
+const passGroup = {}, nodeGroup = {isBufferValid: () => true}, materialGroup = {isBufferValid: () => true};
+const graphicsShader = {complete: true}, clipInfo = {}, adjacentOwner = {renderType: 1, getClipInfo: () => clipInfo};
+function preparedGraphicsElement() {
+    return Object.assign(Object.create(WebGPUPrimitiveRenderElement2D.prototype), {
+        owner: adjacentOwner, typeKey: 7, geometry: {applyToEncoder() {}}, depthStencilParam: {},
+        _value2DShaderData: {}, _materialShaderData: {},
+        _drawCacheArray: [{shaderInstance: graphicsShader, nodeBindGroup: nodeGroup, matBindGroup: materialGroup}]
+    });
+}
+for (const override of [null, '_render', '_renderByShaderInstance', '_bindGroup']) {
+    const previous = preparedGraphicsElement(), current = preparedGraphicsElement();
+    const bound = [null, null, {}], calls = [];
+    const command = {
+        setBindGroup(slot, group) { bound[slot] = group; calls.push(slot); },
+        setPipeline() {}
+    };
+    const context = {_passBindGroup: passGroup};
+    if (override) previous[override] = () => {};
+    previous._render(context, command);
+    calls.length = 0;
+    current._render(context, command, previous);
+    assert.equal(bound[2], materialGroup, `Unexpected material after ${override || 'a standard draw'}`);
+    assert.deepEqual(calls, override ? [0, 1, 2] : [1]);
+}
+console.log('WebGPU: adjacent Graphics reuse material bindings only after a standard draw');

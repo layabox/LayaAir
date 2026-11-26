@@ -63,6 +63,10 @@ export class Render2DProcessor {
         LayaGL.statAgent.recordTimeData(StatElement.T_2DPass, performance.now() - t);
     }
 
+    /** Clears retained batch elements before the next render. */
+    clearBatchRenderElementCache(): void {
+        this._manager.clearBatchRenderElementCache?.();
+    }
 
     /**
      * 清空所有 Pass

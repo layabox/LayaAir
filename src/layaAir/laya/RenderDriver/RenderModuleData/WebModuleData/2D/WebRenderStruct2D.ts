@@ -15,6 +15,7 @@ import { ShaderDefines2D } from "../../../../webgl/shader/d2/ShaderDefines2D";
 import { Sprite } from "../../../../display/Sprite";
 import { Transform2DStore } from "../../../../display/transform2d/Transform2DStore";
 import { SlotConst } from "../../../../display/transform2d/Transform2DLayout";
+import type { RetainedGraphicsBatches } from "./WebGraphicsBatch";
 
 /** @internal 读 store world 矩阵的模块级 scratch(无 per-call 分配) */
 const _wm6 = new Float32Array(6);
@@ -70,6 +71,9 @@ const _DefaultParentData: ParentData = {
 export class WebRenderStruct2D implements IRenderStruct2D {
    owner: Sprite;
    forceShaderClip: boolean = false;
+
+   /** @internal */
+   _retainedGraphicsBatches: RetainedGraphicsBatches = null;
 
    /** 手动渲染模式：子节点不参与父 pass 的自动遍历和渲染 */
    manualRender: boolean = false;
@@ -775,6 +779,8 @@ export class WebRenderStruct2D implements IRenderStruct2D {
    }
 
    destroy(): void {
+      for (let batch = this._retainedGraphicsBatches; batch; batch = batch.next)
+         batch.provider._onBatchOwnerDestroyed(batch);
       this._clipInfo = null;
       this._currentData = null;
       this._parentData = null;

@@ -36,5 +36,6 @@ export interface IRender2DPassManager {
    addPass(pass: IRender2DPass): void;
    removePass(pass: IRender2DPass): void;
    apply(context: IRenderContext2D, renderTime: number): void;
+   clearBatchRenderElementCache?(): void;
    clear(): void;
 }
