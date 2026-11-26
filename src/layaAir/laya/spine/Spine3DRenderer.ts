@@ -132,7 +132,7 @@ export class Spine3DRenderer extends BaseRender {
     }
 
     protected _getcommonUniformMap(): Array<string> {
-        return ["Sprite3D", "Spine3D"];
+        return ["Sprite3D", Spine3DShaderInit.NODE_UNIFORM_MAP];
     }
 
     private _premultipliedAlpha: boolean = true;

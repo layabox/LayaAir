@@ -14,6 +14,9 @@ import { SpineShaderInit } from "./SpineShaderInit";
  */
 export class Spine3DShaderInit {
 
+    /** @internal Keep node uniforms separate from the Spine3D material map. */
+    static readonly NODE_UNIFORM_MAP = "Spine3DNode";
+
     /**
      * @en Shader define for Spine billboard rendering (always face camera).
      * @zh Spine 广告牌渲染的着色器定义（始终面向相机）。
@@ -37,7 +40,7 @@ export class Spine3DShaderInit {
         Spine3DShaderInit.SPINE_BILLBOARD_MATRIX = Shader3D.propertyNameToID("u_spineBillboardMatrix");
 
         // 为3D shader注册全局uniform map
-        const commandUniform3D = LayaGL.renderDeviceFactory.createGlobalUniformMap("Spine3D");
+        const commandUniform3D = LayaGL.renderDeviceFactory.createGlobalUniformMap(Spine3DShaderInit.NODE_UNIFORM_MAP);
         commandUniform3D.addShaderUniformArray(SpineShaderInit.BONEMAT, "u_sBone", ShaderDataType.Vector4, 200);
         commandUniform3D.addShaderUniform(SpineShaderInit.COLOR, "u_color", ShaderDataType.Vector4);
         commandUniform3D.addShaderUniform(SpineShaderInit.BONEMAT_0, "u_sBone0", ShaderDataType.Vector4);
