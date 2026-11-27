@@ -683,6 +683,7 @@ export class Mesh extends Resource implements IClone {
     markAsUnreadbale(): void {
         this._uploadVerticesData();
         this._vertexBuffer.markAsUnreadbale();
+        this._indexBuffer && this._indexBuffer.markAsUnreadbale();
         this._isReadable = false;
     }
 

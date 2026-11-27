@@ -160,6 +160,8 @@ export class WebGraphicsSingleQuadDataHandle extends WebRender2DDataHandle imple
         this._graphicsHandleUpdateBuffer = buffer;
         this._graphicsHandleUpdateInt32 = new Int32Array(buffer);
         this._handledSingleQuadVersion = -1;
+        if (this._singleQuadData)
+            this._singleQuadData.setHandleControlBuffer(buffer);
     }
 
     setGraphicsMaterialState(subShader: SubShader | null, shaderData: ShaderData | null, useSpriteState: boolean): void {

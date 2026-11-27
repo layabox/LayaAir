@@ -127,6 +127,7 @@ export class WebGraphicsRenderUnit implements WebGraphicsBatchEntry {
             this.viStore.releaseVertexBlocks(this.vertexBlocks);
             if (this.sourceIndexView)
                 this.viStore.releaseIndexView(this.sourceIndexView);
+            this.viStore.userCount--;
             WebGraphicsOpVIStorePool.prefer(this.viStore);
         }
         if (element) {
@@ -242,6 +243,11 @@ export class WebGraphicsOpVIStore {
     private _indexBufferMaxLength: number = 0;
     private _canVertexBlockCount: number = 0;
     private _vertexBlockLength: number = GRAPHICS_INFO_VERTEX_BLOCK_SIZE * GraphicsDefines.stride;
+    /** 占用该 store 的 render unit 数（含池化未销毁的 unit）；为 0 表示完全空闲，可被裁剪释放 */
+    userCount: number = 0;
+    get isIdle(): boolean {
+        return this.userCount === 0;
+    }
 
     get bufferState(): IBufferState {
         return this._bufferState;
@@ -390,6 +396,11 @@ export class WebGraphicsOpVIStore {
 export class WebGraphicsOpVIStorePool {
     private static readonly _defaultVertexBlocks: number = 4096 / GRAPHICS_INFO_VERTEX_BLOCK_SIZE;
     private static _stores: WebGraphicsOpVIStore[] = [];
+    /**
+     * store 数量上限。分配 miss 且数量超上限时，先裁剪完全空闲的 store 再新建，
+     * 避免一次性大量 Graphics 的尖峰把 store 池撑到永久不回收。
+     */
+    static maxStores: number = 16;
     private static _preferredStore: WebGraphicsOpVIStore = null;
     private static _allocateMissCount: number = 0;
     private static _newStoreCount: number = 0;
@@ -410,6 +421,7 @@ export class WebGraphicsOpVIStorePool {
         }
 
         WebGraphicsOpVIStorePool._allocateMissCount++;
+        WebGraphicsOpVIStorePool._trimIdleStores();
         let requiredBlocks = Math.ceil(vertexCount / GRAPHICS_INFO_VERTEX_BLOCK_SIZE);
         let store = new WebGraphicsOpVIStore(Math.max(WebGraphicsOpVIStorePool._defaultVertexBlocks, requiredBlocks));
         if (WebGraphicsOpVIStorePool._tryAllocateInto(store, unit, vertexCount, indexCount)) {
@@ -425,6 +437,26 @@ export class WebGraphicsOpVIStorePool {
     static prefer(store: WebGraphicsOpVIStore): void {
         if (store)
             WebGraphicsOpVIStorePool._preferredStore = store;
+    }
+
+    /**
+     * 裁剪完全空闲（userCount===0，无任何 unit 占用）的 store，释放其 GPU buffer 与 CPU ArrayBuffer。
+     * 只在 store 数量超过 maxStores 时由 allocateInto 触发，保证有界增长且不影响活跃/池化中的 unit。
+     */
+    private static _trimIdleStores(): void {
+        const stores = WebGraphicsOpVIStorePool._stores;
+        const max = WebGraphicsOpVIStorePool.maxStores;
+        if (stores.length <= max)
+            return;
+        for (let i = stores.length - 1; i >= 0 && stores.length > max; i--) {
+            const store = stores[i];
+            if (!store.isIdle)
+                continue;
+            store.destroy();
+            stores.splice(i, 1);
+            if (WebGraphicsOpVIStorePool._preferredStore === store)
+                WebGraphicsOpVIStorePool._preferredStore = stores[0] || null;
+        }
     }
 
     static getStats(out: WebGraphicsVIStoreStats): WebGraphicsVIStoreStats {
@@ -457,6 +489,7 @@ export class WebGraphicsOpVIStorePool {
 
         unit.viStore = store;
         unit.sourceIndexView = indexView;
+        store.userCount++;
         return true;
     }
 }

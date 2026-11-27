@@ -65,6 +65,13 @@ export class WebGLIndexBuffer implements IIndexBuffer {
         LayaGL.statAgent.recordCTData(StatElement.CT_GeometryBufferUploadCount, 1);
     }
 
+    /**
+     * WebGL 后端上传后不保留 CPU 副本，无需释放。
+     * @en WebGL backend does not retain a CPU copy after upload; nothing to release.
+     */
+    releaseCPUData(): void {
+    }
+
     destroy(): void {
         this._glBuffer.destroy();
     }

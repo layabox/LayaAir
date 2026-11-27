@@ -85,7 +85,7 @@ export class GraphicsRenderer {
       return true;
    }
    private _ensureSingle(): GraphicsSingleQuadMode {
-      return this._singleMode || (this._singleMode = new GraphicsSingleQuadMode(this, this._handleBuffer));
+      return this._singleMode || (this._singleMode = GraphicsSingleQuadMode.acquire(this, this._handleBuffer));
    }
    private _ensureStream(): GraphicsCommandStreamMode {
       return this._streamMode || (this._streamMode = new GraphicsCommandStreamMode(this, this._handleBuffer));

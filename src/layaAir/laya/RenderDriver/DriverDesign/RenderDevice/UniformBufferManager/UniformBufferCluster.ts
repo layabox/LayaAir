@@ -151,7 +151,11 @@ export class UniformBufferCluster {
     }
 
     /**
-     * 将数据上传到GPU内存，合并相邻块，尽可能减少上传次数
+     * 将数据上传到GPU内存，合并脏块，尽可能减少上传次数。
+     *
+     * 默认逐段上传，但允许一段跨越干净块，只要该段多传的干净块数不超过
+     * uploadWasteRatio × 段内脏块数，上传总量最多放大 (1 + uploadWasteRatio) 倍。
+     * reduceWriteBufferCalls 开启时无视比例，首个脏块到最后一个脏块一次性上传。
      */
     upload() {
         if (this.manager.reduceWriteBufferCalls) {
@@ -159,49 +163,66 @@ export class UniformBufferCluster {
             return;
         }
 
-        let count = 0;
-        let bytes = 0;
-        let next = false;
+        //只遍历脏区间：所有置脏都经 _addUploadBlock 扩展边界，释放脏块时 _rebuildDirtyRange 重算，故区间外必无脏块
+        //Scan only the tracked dirty range: every dirty mark goes through _addUploadBlock, which widens it, and
+        //freeing a dirty block rebuilds it, so no dirty block lies outside it
+        const firstDirty = this._dirtyStartIndex;
+        if (firstDirty === -1)
+            return;
+        const lastDirty = Math.min(this._dirtyEndIndex, this._blocks.length - 1);
+
+        const wasteRatio = this.manager.uploadWasteRatio;
         let startIndex = -1;
         let endIndex = -1;
-        let offset = 0;
-        let size = 0;
+        let dirtyNum = 0; //当前积累区间内的脏块数量
+        let wasteNum = 0; //当前积累区间内多传的干净块数量
 
-        //遍历needUpload数组，找到需要上传的块，然后合并相邻块，上传数据
-        for (let i = 0, len = this._blocks.length; i < len; i++) {
-            if (this._needUpload[i]) {
-                if (startIndex === -1)
-                    startIndex = i;
-                endIndex = i;
-                next = true;
-                this._needUpload[i] = false;
-                this._blocks[i]?.updateOver();
+        //遍历needUpload数组，找到需要上传的块，合并相邻或间隔小的块，上传数据
+        for (let i = firstDirty; i <= lastDirty; i++) {
+            if (!this._needUpload[i]) {
+                continue;
+            }
+
+            this._needUpload[i] = false;
+            this._blocks[i]?.updateOver();
+
+            if (startIndex === -1) {
+                startIndex = i;
             } else {
-                //如果当前块不需要上传，且之前有需要上传的块，则上传数据
-                if (next) {
-                    offset = startIndex * this._blockSize;
-                    size = (endIndex - startIndex + 1) * this._blockSize;
-                    this.manager.writeBuffer(this.buffer, this.data, offset, size);
-                    count++;
-                    bytes += size;
-                    startIndex = -1;
-                    endIndex = -1;
-                    next = false;
+                const gap = i - endIndex - 1;
+                if (wasteNum + gap > dirtyNum * wasteRatio) {
+                    //多传的干净块超标，先上传已积累的区间
+                    this._writeRange(startIndex, endIndex);
+                    startIndex = i;
+                    dirtyNum = 0;
+                    wasteNum = 0;
+                } else {
+                    wasteNum += gap;
                 }
             }
+
+            endIndex = i;
+            dirtyNum++;
         }
 
-        //如果最后一个块需要上传，则上传数据
-        if (next) {
-            offset = startIndex * this._blockSize;
-            size = (endIndex - startIndex + 1) * this._blockSize;
-            this.manager.writeBuffer(this.buffer, this.data, offset, size);
-            count++;
-            bytes += size;
+        //如果最后还有积累的区间，上传数据
+        if (startIndex !== -1) {
+            this._writeRange(startIndex, endIndex);
         }
 
         this._dirtyStartIndex = -1;
         this._dirtyEndIndex = -1;
+    }
+
+    /**
+     * 上传[startIndex, endIndex]区间的小内存块
+     * @param startIndex 区间首块序号
+     * @param endIndex 区间末块序号
+     */
+    private _writeRange(startIndex: number, endIndex: number) {
+        const offset = startIndex * this._blockSize;
+        const size = (endIndex - startIndex + 1) * this._blockSize;
+        this.manager.writeBuffer(this.buffer, this.data, offset, size);
     }
 
     /**

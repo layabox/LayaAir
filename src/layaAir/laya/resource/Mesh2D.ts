@@ -3,6 +3,7 @@ import { IBufferState } from "../RenderDriver/DriverDesign/RenderDevice/IBufferS
 import { IIndexBuffer } from "../RenderDriver/DriverDesign/RenderDevice/IIndexBuffer";
 import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IVertexBuffer } from "../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
+import { releaseDeviceBufferCPUData } from "../RenderDriver/DriverDesign/RenderDevice/releaseDeviceBufferCPUData";
 import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../RenderEngine/RenderEnum/DrawType";
@@ -143,12 +144,16 @@ export class Mesh2D extends Resource {
             vertex.vertexDeclaration = vbDeclaration[i];
             vertex.setDataLength(vbdata.buffer.byteLength);
             vertex.setData(vbdata.buffer, 0, 0, vbdata.buffer.byteLength);
+            if (!canRead) // 不可读时上传后立即释放驱动层保留的 CPU 副本（WebGPU 后端会缓存上传数据）
+                releaseDeviceBufferCPUData(vertex);
             vbArray.push(vertex);
             vertices[i] = vbdata.buffer as ArrayBuffer;
         }
         let indexBuffer = LayaGL.renderDeviceFactory.createIndexBuffer(BufferUsage.Dynamic);
         indexBuffer._setIndexDataLength(ib.buffer.byteLength);
         indexBuffer._setIndexData(ib, 0);
+        if (!canRead)
+            releaseDeviceBufferCPUData(indexBuffer);
         indexBuffer.indexCount = ib.length;
         indexBuffer.indexType = ibFormat;
 
@@ -339,6 +344,8 @@ export class Mesh2D extends Resource {
         for (let i = 0, len = vertices.length; i < len; i++) {
             if (vertices[i] && this._vertexBuffers[i]) {
                 this._vertexBuffers[i].setData(vertices[i], 0, 0, vertices[i].byteLength);
+                if (!this.canRead) // 不可读时上传后立即释放驱动层保留的 CPU 副本
+                    releaseDeviceBufferCPUData(this._vertexBuffers[i]);
             }
         }
 
@@ -371,6 +378,8 @@ export class Mesh2D extends Resource {
      */
     setVertexByIndex(data: ArrayBuffer, index: number, bufferOffset: number = 0) {
         this._vertexBuffers[index].setData(data, bufferOffset, 0, data.byteLength);
+        if (!this.canRead)
+            releaseDeviceBufferCPUData(this._vertexBuffers[index]);
     }
 
     /**
@@ -411,6 +420,8 @@ export class Mesh2D extends Resource {
         } else {
             indexBuffer._setIndexData(indices, 0);
         }
+        if (!this.canRead) // 不可读时上传后立即释放驱动层保留的 CPU 副本
+            releaseDeviceBufferCPUData(indexBuffer);
 
         if (iscreateBuffer) {
             this._bufferState.applyState(this._bufferState._vertexBuffers, indexBuffer);

@@ -1,4 +1,5 @@
 import { IVertexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
+import { releaseDeviceBufferCPUData } from "../../RenderDriver/DriverDesign/RenderDevice/releaseDeviceBufferCPUData";
 import { BufferTargetType, BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../../layagl/LayaGL";
@@ -144,6 +145,8 @@ export class VertexBuffer3D {
 		this._canRead = false;
 		this._buffer = null;
 		this._float32Reader = null;
+		// 同步释放驱动层可能保留的 CPU 副本（WebGPU 后端上传时会缓存 ArrayBuffer）
+		releaseDeviceBufferCPUData(this._deviceBuffer);
 	}
 
 	/**
